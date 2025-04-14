@@ -5,6 +5,7 @@ import regex
 
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -17,12 +18,31 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
-def get_data_deserialised(resources: list[ParsedResource]) -> tuple[str, DataDeserialised]:
-    pass
+def get_data_deserialised(resources: list[ParsedResource]) -> DataDeserialised:
+    resources = [_get_one_resource(x) for x in resources]
+    return DataDeserialised(resources)
 
 
 def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
-    pass
+    values = [_get_one_value(x) for x in resource.values]
+    if resource.file_value:
+        if file_val := _get_file_value(resource.file_value):
+            values.append(file_val)
+    metadata = [
+        PropertyObject(TriplePropertyType.RDFS_LABEL, resource.label, TripleObjectType.STRING),
+        PropertyObject(TriplePropertyType.RDF_TYPE, resource.res_type, TripleObjectType.IRI),
+    ]
+    if resource.permissions_id:
+        metadata.append(
+            PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
+        )
+    return ResourceDeserialised(
+        res_id=resource.res_id,
+        property_objects=metadata,
+        values=values,
+        asset_value=None,
+        migration_metadata=MigrationMetadata(),
+    )
 
 
 def _get_all_stand_off_links(values: list[ValueInformation]) -> list[PropertyObject]:

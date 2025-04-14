@@ -92,7 +92,24 @@ def _get_geometry_value(user_value: str) -> str | None:
 
 
 def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
-    pass
+    metadata = []
+    if value.permissions_id:
+        metadata.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_PERMISSIONS,
+                object_value=value.permissions_id,
+                object_type=TripleObjectType.STRING,
+            )
+        )
+    if value.comment:
+        metadata.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_COMMENT_ON_VALUE,
+                object_value=value.comment,
+                object_type=TripleObjectType.STRING,
+            )
+        )
+    return metadata
 
 
 def _get_file_value(file_value: ParsedFileValue) -> ValueInformation:

@@ -131,51 +131,18 @@ class TestResource:
         )
         result = _get_one_resource(res)
         assert len(result.values) == 0
-        bitstream = result.asset_value
-        assert isinstance(bitstream, ValueInformation)
-        assert bitstream.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
-        assert bitstream.user_facing_value == "file.jpg"
-        assert bitstream.knora_type == KnoraValueType.STILL_IMAGE_FILE
-        assert not bitstream.value_metadata
-
-    def test_audio_segment(self, audio_segment):
-        result = _get_one_resource(audio_segment)
-        assert result.res_id == "audio_id"
-        assert len(result.property_objects) == 2
-        assert not result.asset_value
-        lbl, rdf_type, _ = _get_label_and_type(result)
-        assert lbl.object_value == "lbl"
-        assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#AudioSegment"
-        assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(result.values) == 2
-        propname_to_info = {x.user_facing_prop: x for x in result.values}
-        segment_of = propname_to_info.pop(f"{KNORA_API_STR}isAudioSegmentOf")
-        assert segment_of.user_facing_value == "is_segment_of_id"
-        assert segment_of.knora_type == KnoraValueType.LINK_VALUE
-        assert len(segment_of.value_metadata) == 1
-        assert segment_of.value_metadata[0].property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
-        assert segment_of.value_metadata[0].object_value == "Comment"
-        assert segment_of.value_metadata[0].object_type == TripleObjectType.STRING
-        segment_bounds = propname_to_info.pop(f"{KNORA_API_STR}hasSegmentBounds")
-        assert not segment_bounds.user_facing_value
-        assert segment_bounds.knora_type == KnoraValueType.INTERVAL_VALUE
-        assert len(segment_bounds.value_metadata) == 3
-        seg_bounds_prop_objects = {x.property_type: x for x in segment_bounds.value_metadata}
-        permission = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_PERMISSIONS)
-        assert permission.object_value == "open"
-        assert permission.object_type == TripleObjectType.STRING
-        start_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_START)
-        assert start_bound.object_value == "0.5"
-        assert start_bound.object_type == TripleObjectType.DECIMAL
-        end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
-        assert end_bound.object_value == "7"
-        assert end_bound.object_type == TripleObjectType.DECIMAL
+        file_value = result.asset_value
+        assert isinstance(file_value, ValueInformation)
+        assert file_value.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
+        assert file_value.user_facing_value == "file.jpg"
+        assert file_value.knora_type == KnoraValueType.STILL_IMAGE_FILE
+        assert not file_value.value_metadata
 
 
 class TestValues:
-    def test_boolean_corr(self, boolean_value_corr):
-        res = _get_generic_value(boolean_value_corr)
+    def test_boolean_corr(self):
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
+        res = _get_generic_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE

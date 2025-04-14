@@ -75,7 +75,10 @@ def _replace_resptrs(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]])
+    xpaths = [f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]]
+    xpaths.extend([f"/knora/{x}-segment/isSegmentOf" for x in ["video", "audio"]])
+    xpaths.extend([f"/knora/{x}-segment/relatesTo" for x in ["video", "audio"]])
+    resptr_xpath = "|".join(xpaths)
     resptr_elems = modified_tree.xpath(resptr_xpath)
     resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:

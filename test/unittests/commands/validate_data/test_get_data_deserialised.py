@@ -16,14 +16,9 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformatio
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
-from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
-
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
-from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
-from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
+
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
@@ -176,41 +171,40 @@ class TestResource:
         end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
         assert end_bound.object_value == "7"
         assert end_bound.object_type == TripleObjectType.DECIMAL
-        assert not result.migration_metadata.any()
 
 
 class TestValues:
     def test_boolean_corr(self, boolean_value_corr):
         res = _get_generic_value(boolean_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
         assert not res.value_metadata
 
     def test_color_corr(self, color_value_corr):
         res = _get_generic_value(color_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "#00ff00"
         assert res.knora_type == KnoraValueType.COLOR_VALUE
         assert not res.value_metadata
 
     def test_date_corr(self, date_value_corr):
         res = _get_generic_value(date_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
         assert res.knora_type == KnoraValueType.DATE_VALUE
         assert not res.value_metadata
 
     def test_decimal_corr(self, decimal_value_corr):
         res = _get_generic_value(decimal_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "2.71"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
         assert not res.value_metadata
 
     def test_geoname_corr(self, geoname_value_corr):
         res = _get_generic_value(geoname_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1111111"
         assert res.knora_type == KnoraValueType.GEONAME_VALUE
         assert not res.value_metadata
@@ -231,56 +225,64 @@ class TestValues:
 
     def test_int_corr(self, integer_value_corr):
         res = _get_generic_value(integer_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "1"
+        assert res.knora_type == KnoraValueType.INT_VALUE
+        assert not res.value_metadata
+
+    def test_interval_corr(self, integer_value_corr):
+        # TODO: interval
+        res = _get_generic_value(integer_value_corr)
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1"
         assert res.knora_type == KnoraValueType.INT_VALUE
         assert not res.value_metadata
 
     def test_list_corr(self, list_value_corr):
         res = _get_generic_value(list_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "firstList / n1"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
     def test_simple_text_corr(self, text_simpletext_value_corr):
         res = _get_generic_value(text_simpletext_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "Text"
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not res.value_metadata
 
     def test_simple_text_wrong(self, text_simpletext_value_wrong):
         res = _get_generic_value(text_simpletext_value_wrong)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
+        assert res.user_facing_prop == HAS_PROP
         assert not res.user_facing_value
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not res.value_metadata
 
     def test_richtext_corr(self, text_richtext_value_corr):
         res = _get_generic_value(text_richtext_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "<p>Text</p>"
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
         assert not res.value_metadata
 
     def test_time_corr(self, time_value_corr):
         res = _get_generic_value(time_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "2019-10-23T13:45:12.01-14:00"
         assert res.knora_type == KnoraValueType.TIME_VALUE
         assert not res.value_metadata
 
     def test_uri_corr(self, uri_value_corr):
         res = _get_generic_value(uri_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "https://dasch.swiss"
         assert res.knora_type == KnoraValueType.URI_VALUE
         assert not res.value_metadata
 
     def test_link_corr(self, resptr_value_corr):
         res = _get_generic_value(resptr_value_corr)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
+        assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "id_1"
         assert res.knora_type == KnoraValueType.LINK_VALUE
         assert not res.value_metadata

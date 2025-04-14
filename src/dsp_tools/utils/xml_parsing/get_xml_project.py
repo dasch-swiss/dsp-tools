@@ -59,7 +59,6 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
     return XMLProject(
         shortcode=shortcode,
         root=new_root,
-        used_ontologies=set(namespace_lookup.values()),
     )
 
 

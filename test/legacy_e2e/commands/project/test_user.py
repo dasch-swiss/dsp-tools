@@ -31,13 +31,6 @@ class TestUser(unittest.TestCase):
         auth = AuthenticationClientLive("http://0.0.0.0:3333", "root@example.com", "test")
         self.con = ConnectionLive("http://0.0.0.0:3333", auth)
 
-    def tearDown(self) -> None:
-        """
-        Logs out from DSP-API.
-        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
-        """
-        self.con.logout()
-
     def test_user_create(self) -> None:
         user = User(
             con=self.con,

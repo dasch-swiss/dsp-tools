@@ -90,17 +90,17 @@ class TestResource:
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 0
 
-    def test_with_props(self):
+    def test_with_props(self, bool_value):
         res = ParsedResource(
             res_id="one",
             res_type=RES_TYPE,
             label="lbl",
             permissions_id=None,
-            values=[],
+            values=[bool_value],
             file_value=None,
             migration_metadata=None,
         )
-        _, result_list = get_data_deserialised([res])
+        result_list = get_data_deserialised([res])
         assert len(result_list.resources) == 1
         result = result_list.resources.pop(0)
         assert result.res_id == "one"
@@ -111,7 +111,7 @@ class TestResource:
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(result.values) == 3
+        assert len(result.values) == 1
 
     def test_with_file_value(self, file_with_permission):
         res = ParsedResource(
@@ -124,13 +124,13 @@ class TestResource:
             migration_metadata=None,
         )
         result = _get_one_resource(res)
-        assert len(result.values) == 0
-        file_value = result.asset_value
+        assert len(result.values) == 1
+        file_value = result.values.pop(0)
         assert isinstance(file_value, ValueInformation)
-        assert file_value.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
+        assert file_value.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert file_value.user_facing_value == "file.jpg"
         assert file_value.knora_type == KnoraValueType.STILL_IMAGE_FILE
-        assert not file_value.value_metadata
+        assert len(file_value.value_metadata) == 4
 
 
 class TestValues:

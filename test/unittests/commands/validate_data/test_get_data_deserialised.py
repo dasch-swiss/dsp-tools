@@ -305,7 +305,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, ("list", None), KnoraValueType.LIST_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "list / None"
+        assert res.user_facing_value == "list"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 

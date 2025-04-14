@@ -111,7 +111,10 @@ def _replace_salsah_links(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    salsah_xpath = "|".join([f"/knora/{x}/text-prop/text//a" for x in ["resource", "link", "region"]])
+    xpaths = [f"/knora/{x}/text-prop/text//a" for x in ["resource", "link", "region"]]
+    xpaths.extend([f"/knora/{x}-segment/hasComment//a" for x in ["video", "audio"]])
+    xpaths.extend([f"/knora/{x}-segment/hasDescription//a" for x in ["video", "audio"]])
+    salsah_xpath = "|".join(xpaths)
     salsah_links = [x for x in modified_tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:

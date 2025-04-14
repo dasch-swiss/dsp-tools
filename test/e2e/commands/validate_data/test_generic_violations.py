@@ -285,6 +285,7 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("empty_copyright_holder", ProblemType.GENERIC),
             ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
@@ -309,11 +310,11 @@ class TestReformatValidationGraph:
             ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+            assert one_result.problem_type == expected_info[1]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(dsp_inbuilt_violation)

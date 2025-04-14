@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal, unescape_standoff_tags
 
 
 @pytest.mark.parametrize(
@@ -33,3 +33,8 @@ from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 )
 def test_is_nonempty_value_internal(text: str, expected: bool) -> None:
     assert is_nonempty_value_internal(text) == expected
+
+
+def test_unescape_standoff_tags() -> None:
+    unescape_standoff_tags("")
+    pytest.fail("TODO")

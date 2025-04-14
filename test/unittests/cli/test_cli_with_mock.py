@@ -152,7 +152,7 @@ def test_validate_data_default(validate_data: Mock) -> None:
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_dev(validate_data: Mock) -> None:
     file = "filename.xml"
-    args = f"validate-data {file} --dev".split()
+    args = f"validate-data {file}".split()
     entry_point.run(args)
     validate_data.assert_called_once_with(
         filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True, save_graphs=False

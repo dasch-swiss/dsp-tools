@@ -14,7 +14,7 @@ from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_
 def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = _parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
-    root = transform_into_localnames(root)(root)
+    root = transform_into_localnames(root)
     validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
     return root

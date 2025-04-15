@@ -130,7 +130,7 @@ def _create_richtext_elements_from_string(value: Richtext, text_element: etree._
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:
-        parsed = etree.fromstring(pseudo_xml)
+        parsed = etree.fromstring(pseudo_xml, parser=etree.XMLParser(resolve_entities=False))
     except etree.XMLSyntaxError as err:
         msg = (
             f"The resource with the ID '{value.resource_id}' and the property '{value.prop_name}' "

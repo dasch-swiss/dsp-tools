@@ -1109,3 +1109,7 @@ def create_non_empty_list_from_string(
         msg += " " + details_msg + "results in an empty list."
         raise InputError(msg)
     return lst
+
+
+def remove_witespaces_from_string(string: str) -> str:
+    return regex.sub(r"\s+", " ", string)

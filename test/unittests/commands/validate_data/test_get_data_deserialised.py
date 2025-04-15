@@ -4,6 +4,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_metadata
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_value
+from dsp_tools.commands.validate_data.get_data_deserialised import _get_list_value_str
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_resource
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_value
 from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
@@ -184,6 +185,18 @@ class TestValues:
         assert metadata.object_value == "comment"
         assert metadata.object_type == TripleObjectType.STRING
 
+    def test_boolean_with_comment_empty_string(self):
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, "")
+        res = _get_one_value(val)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "true"
+        assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
+        assert len(res.value_metadata) == 1
+        metadata = res.value_metadata.pop(0)
+        assert metadata.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
+        assert metadata.object_value == ""
+        assert metadata.object_type == TripleObjectType.STRING
+
     def test_boolean_with_permissions_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
         res = _get_one_value(val)
@@ -305,7 +318,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, ("list", None), KnoraValueType.LIST_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "list / None"
+        assert res.user_facing_value == "list"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
@@ -399,6 +412,21 @@ class TestFileValue:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("unknown.extension", None, metadata)
         assert not _get_file_value(val)
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        (("list", "node"), "list / node"),
+        ("not a tuple", None),
+        (("list", ""), "list / "),
+        (("list", None), "list"),
+        ((None, "node"), "node"),
+        (("", ""), " / "),
+    ],
+)
+def test_get_list_value_str(input_val, expected):
+    assert _get_list_value_str(input_val) == expected
 
 
 if __name__ == "__main__":

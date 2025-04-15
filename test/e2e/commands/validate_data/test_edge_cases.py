@@ -125,7 +125,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
                 "A valid node from the list 'list \\ ' space' must be used with this property "
                 "(input displayed in format 'listName / NodeName')."
             ),
-            "other /  \\ backslash",
+            "other / \\ backslash",
         ),
     ]
     assert not result.unexpected_results

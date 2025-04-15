@@ -9,6 +9,7 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -18,14 +19,14 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.xml_parsing.get_data_deserialised_from_xml import get_data_deserialised
-from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 
 LIST_SEPARATOR = "\n    - "
 
@@ -200,7 +201,9 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
 
 
 def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
-    xml_project = get_xml_project(file, api_url)
-    shortcode, data_deserialised = get_data_deserialised(xml_project.root)
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    parsed_resources, _ = get_parsed_resources(root, api_url)
+    data_deserialised = get_data_deserialised(parsed_resources)
     rdf_data = make_data_rdf(data_deserialised)
     return rdf_data, shortcode

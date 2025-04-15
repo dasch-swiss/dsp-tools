@@ -15,7 +15,7 @@ list_separator = "\n    - "
 
 
 def validate_xml_with_schema(xml: etree._Element) -> bool:
-    """Requires a cleaned (no comments) XML."""
+    """Requires a cleaned (no comments) XML, but with the schema namespaces."""
     _warn_user_about_tags_in_simpletext(xml)
     problem_msg = _validate_xml_against_schema(xml)
     if problem_msg:
@@ -46,7 +46,10 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
     the user is warned, if there is any present.
     """
     resources_with_potential_xml_tags = []
-    for text in xml_no_namespace.findall(path="resource/text-prop/text"):
+    text_prop_path = (
+        "{https://dasch.swiss/schema}resource/{https://dasch.swiss/schema}text-prop/{https://dasch.swiss/schema}text"
+    )
+    for text in xml_no_namespace.findall(path=text_prop_path):
         regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
         etree_finds_tags = bool(list(text.iterchildren()))
         has_tags = regex_finds_tags or etree_finds_tags

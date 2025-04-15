@@ -37,10 +37,7 @@ IRI_LOOKUP = {
 
 @pytest.mark.parametrize(
     ("input_str", "expected"),
-    [
-        ("https://app.dasch.swiss", "http://app.dasch.swiss"),
-        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
-    ],
+    [("https://app.dasch.swiss", "http://app.dasch.swiss"), ("http://0.0.0.0:3333", "http://0.0.0.0:3333")],
 )
 def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
     assert _convert_api_url_for_correct_iri_namespace(input_str) == expected

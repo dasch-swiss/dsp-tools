@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal, numeric_entities
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal_helpers import numeric_entities
 from dsp_tools.xmllib.internal_helpers import unescape_standoff_tags
 
 

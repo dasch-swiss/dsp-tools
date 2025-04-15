@@ -3,7 +3,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
-from dsp_tools.utils.xml_parsing.xml_schema_validation import _warn_user_about_tags_in_simpletext
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _warn_user_about_tags_in_simpletext
 
 
 def test_warn_user_about_tags_in_simpletext_all_good(recwarn: pytest.WarningsRecorder) -> None:

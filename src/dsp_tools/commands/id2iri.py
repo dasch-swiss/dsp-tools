@@ -11,7 +11,7 @@ from lxml import etree
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_xml import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
 def _check_input_parameters(

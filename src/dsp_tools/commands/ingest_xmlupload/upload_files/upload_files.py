@@ -11,7 +11,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_f
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_xml import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
 def upload_files(

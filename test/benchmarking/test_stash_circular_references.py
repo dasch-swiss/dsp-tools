@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
-from dsp_tools.utils.xml_parsing.parse_xml import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
 def test_get_length_ok_resources() -> None:

@@ -27,7 +27,7 @@ from dsp_tools.utils.data_formats.shared import check_notna
 from dsp_tools.utils.data_formats.shared import simplify_name
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_xml import parse_and_validate_xml_file
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 

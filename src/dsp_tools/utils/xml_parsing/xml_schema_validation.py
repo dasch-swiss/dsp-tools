@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.resources
 import warnings
-from pathlib import Path
 
 import regex
 from loguru import logger
@@ -10,48 +9,14 @@ from lxml import etree
 
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
-from dsp_tools.utils.xml_parsing.parse_xml import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.parse_xml import transform_into_localnames
 
 separator = "\n    "
 list_separator = "\n    - "
 
 
-def parse_and_validate_xml_file(input_file: Path | str) -> bool:
-    """
-    Validates an XML file against the DSP XSD schema.
-
-    Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    root = parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
-    return validate_xml_with_schema(data_xml)
-
-
 def validate_xml_with_schema(xml: etree._Element) -> bool:
-    """
-    Validates an XML element tree against the DSP XSD schema.
-
-    Args:
-        xml: the XML element tree to be validated
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    cleaned = transform_into_localnames(xml)
-    cleaned = remove_comments_from_element_tree(cleaned)
-    _warn_user_about_tags_in_simpletext(cleaned)
+    """Requires a cleaned (no comments) XML."""
+    _warn_user_about_tags_in_simpletext(xml)
     problem_msg = _validate_xml_against_schema(xml)
 
     if problem_msg:

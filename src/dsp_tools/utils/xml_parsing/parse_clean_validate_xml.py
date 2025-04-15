@@ -18,16 +18,16 @@ list_separator = "\n    - "
 
 def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = _parse_xml_file(input_file)
-    root = remove_comments_from_element_tree(root)
-    validate_xml_with_schema(root)
+    root = _remove_comments_from_element_tree(root)
+    _validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
-    return transform_into_localnames(root)
+    return _transform_into_localnames(root)
 
 
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:
     root = _parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
-    return validate_xml_with_schema(data_xml)
+    data_xml = _remove_comments_from_element_tree(root)
+    return _validate_xml_with_schema(data_xml)
 
 
 def _parse_xml_file(input_file: str | Path) -> etree._Element:
@@ -39,7 +39,7 @@ def _parse_xml_file(input_file: str | Path) -> etree._Element:
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
-def transform_into_localnames(root: etree._Element) -> etree._Element:
+def _transform_into_localnames(root: etree._Element) -> etree._Element:
     """Removes the namespace of the tags."""
     tree = deepcopy(root)
     for elem in tree.iter():
@@ -47,7 +47,7 @@ def transform_into_localnames(root: etree._Element) -> etree._Element:
     return tree
 
 
-def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
     """Removes comments and processing instructions."""
     root = deepcopy(input_tree)
     for c in root.xpath("//comment()"):
@@ -57,7 +57,7 @@ def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Elem
     return root
 
 
-def validate_xml_with_schema(xml: etree._Element) -> bool:
+def _validate_xml_with_schema(xml: etree._Element) -> bool:
     """Requires a cleaned (no comments) XML, but with the schema namespaces."""
     _warn_user_about_tags_in_simpletext(xml)
     problem_msg = _validate_xml_against_schema(xml)
@@ -88,7 +88,7 @@ def _warn_user_about_tags_in_simpletext(xml: etree._Element) -> None:
     So that the user does not insert XML tags mistakenly into simple text fields,
     the user is warned, if there is any present.
     """
-    xml_no_namespace = transform_into_localnames(xml)
+    xml_no_namespace = _transform_into_localnames(xml)
     resources_with_potential_xml_tags = []
     text_prop_path = "resource/text-prop/text"
     for text in xml_no_namespace.findall(path=text_prop_path):

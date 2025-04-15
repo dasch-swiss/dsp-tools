@@ -15,18 +15,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import Ontol
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
-from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
-from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
-
-
-def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
-    root = parse_xml_file(input_file)
-    root = remove_comments_from_element_tree(root)
-    validate_xml_with_schema(root)
-    print("The XML file is syntactically correct.")
-    return transform_into_localnames(root)
 
 
 def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:

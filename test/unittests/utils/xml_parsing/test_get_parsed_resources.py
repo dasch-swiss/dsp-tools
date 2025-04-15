@@ -5,6 +5,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
@@ -32,6 +33,17 @@ IRI_LOOKUP = {
     "hasComment": f"{KNORA_API_STR}hasComment",
     "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
 }
+
+
+@pytest.mark.parametrize(
+    ("input_str", "expected"),
+    [
+        ("https://app.dasch.swiss", "http://app.dasch.swiss"),
+        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
+    ],
+)
+def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
+    assert _convert_api_url_for_correct_iri_namespace(input_str) == expected
 
 
 class TestParseResource:

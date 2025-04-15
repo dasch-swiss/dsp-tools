@@ -26,7 +26,7 @@ def _clean_resulting_tree(tree: etree._Element) -> str:
 
 
 def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_unclean: Path) -> None:
-    from_tree = parse_and_clean_xml_file(data_systematic_cleaned)
+    from_tree = parse_and_clean_xml_file(data_systematic_unclean)
     from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
     cleaned_from_file = _clean_resulting_tree(from_file)
     cleaned_from_tree = _clean_resulting_tree(from_tree)

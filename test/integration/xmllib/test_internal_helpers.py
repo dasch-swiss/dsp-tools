@@ -10,6 +10,7 @@ SHORTCODE = "1234"
 DEFAULT_ONTO = "my_onto"
 RES_ID = "res_id"
 
+
 @pytest.fixture
 def out_file() -> Iterator[Path]:
     out_file = Path("testdata/xml-data/tmp-serialise_tags.xml")
@@ -21,12 +22,12 @@ def out_file() -> Iterator[Path]:
     ("richtext", "expected"),
     [
         (
-            'Findme <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />', 
+            'Findme <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />',
             'Findme <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>',
             # here, the problem is that if an elem.text contains &lt; it will be serialised as &ampt;lt;
         ),
         (
-            'Findme <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />', 
+            'Findme <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />',
             'Findme <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>',
         ),
         (
@@ -34,9 +35,9 @@ def out_file() -> Iterator[Path]:
             'Findme <a href="https://www.google.com/">Google</a>',
         ),
         (
-            '<p><strong><em>Findme</em></strong></p>',
-            '<p><strong>Findme</strong></p>',
-        )
+            "<p><strong><em>Findme</em></strong></p>",
+            "<p><strong>Findme</strong></p>",
+        ),
     ],
 )
 def test_serialisation_of_tags(richtext: str, expected: str, out_file: Path) -> None:
@@ -46,5 +47,5 @@ def test_serialisation_of_tags(richtext: str, expected: str, out_file: Path) -> 
     root.add_resource(res).write_file(out_file)
     with open(out_file, encoding="utf-8") as f:
         lines = f.readlines()
-    line = next(x for x in lines if 'Findme' in x).replace('<text encoding="xml">', '').strip()
+    line = next(x for x in lines if "Findme" in x).replace('<text encoding="xml">', "").strip()
     assert line == expected

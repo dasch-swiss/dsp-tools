@@ -18,6 +18,24 @@ separator = "\n    "
 list_separator = "\n    - "
 
 
+def parse_and_validate_xml_file(input_file: Path | str) -> bool:
+    """
+    Validates an XML file against the DSP XSD schema.
+
+    Args:
+        input_file: path to the XML file to be validated, or parsed ElementTree
+
+    Raises:
+        InputError: if the XML file is invalid
+
+    Returns:
+        True if the XML file is valid
+    """
+    root = parse_xml_file(input_file)
+    data_xml = remove_comments_from_element_tree(root)
+    return validate_xml_with_schema(data_xml)
+
+
 def validate_xml_with_schema(xml: etree._Element) -> bool:
     """
     Validates an XML element tree against the DSP XSD schema.
@@ -83,21 +101,3 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
         warnings.warn(DspToolsUserInfo(err_msg))
-
-
-def parse_and_validate_xml_file(input_file: Path | str) -> bool:
-    """
-    Validates an XML file against the DSP XSD schema.
-
-    Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    root = parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
-    return validate_xml_with_schema(data_xml)

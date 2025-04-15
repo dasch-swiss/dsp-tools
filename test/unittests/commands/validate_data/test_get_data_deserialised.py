@@ -4,6 +4,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_metadata
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_value
+from dsp_tools.commands.validate_data.get_data_deserialised import _get_list_value_str
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_resource
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_value
 from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
@@ -411,6 +412,21 @@ class TestFileValue:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("unknown.extension", None, metadata)
         assert not _get_file_value(val)
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        (("list", "node"), "list / node"),
+        ("not a tuple", None),
+        (("list", ""), "list / "),
+        (("list", None), "list"),
+        ((None, "node"), "node"),
+        (("", ""), " / "),
+    ],
+)
+def test_get_list_value_str(input_val, expected):
+    assert _get_list_value_str(input_val) == expected
 
 
 if __name__ == "__main__":

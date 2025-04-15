@@ -68,9 +68,9 @@ def _get_one_value(value: ParsedValue) -> ValueInformation:
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
-            user_value = _get_list_value(user_value)
+            user_value = _get_list_value_str(user_value)
         case KnoraValueType.GEOM_VALUE:
-            user_value = _get_geometry_value(user_value)
+            user_value = _get_geometry_value_str(user_value)
         case _:
             pass
     typed_val: str | None = user_value if isinstance(user_value, str) else None
@@ -115,18 +115,13 @@ def _get_interval_value(value: ParsedValue) -> ValueInformation:
     )
 
 
-def _get_list_value(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
     if not isinstance(user_value, tuple):
         return None
-    to_join = []
-    if user_value[0]:
-        to_join.append(user_value[0])
-    if user_value[1]:
-        to_join.append(user_value[1])
-    return " / ".join(to_join)
+    return " / ".join(x for x in user_value if x is not None)
 
 
-def _get_geometry_value(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
     try:
         if isinstance(user_value, str):
             return json.dumps(json.loads(user_value))

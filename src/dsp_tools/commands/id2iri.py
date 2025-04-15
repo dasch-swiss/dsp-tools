@@ -1,5 +1,6 @@
 import copy
 import json
+import warnings
 from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +10,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 
 
@@ -192,8 +194,8 @@ def _remove_resources_if_id_in_mapping(
         f"Removed {len(resources_to_remove)}/{len(resources)} resources from the XML file, "
         "because their ID was in the mapping"
     )
-    logger.info(msg)
-    print(msg)
+    logger.warning(msg)
+    warnings.warn(DspToolsUserWarning(msg))
 
     return modified_tree
 

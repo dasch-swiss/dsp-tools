@@ -5,7 +5,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
@@ -38,12 +38,12 @@ IRI_LOOKUP = {
 @pytest.mark.parametrize(
     ("input_str", "expected"),
     [
-        ("https://api.stage.dasch.swiss/ontology/0854/metadata/v2#Archive", "http://api.stage.dasch.swiss/ontology/0854/metadata/v2#Archive"),
-        ("http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive", "http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive"),
+        ("https://api.stage.dasch.swiss", "http://api.stage.dasch.swiss"),
+        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
     ],
 )
 def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
-    assert _convert_api_url_for_correct_iri_namespace(input_str) == expected
+    assert _convert_api_url_for_correct_iri_namespace_construction(input_str) == expected
 
 
 class TestParseResource:

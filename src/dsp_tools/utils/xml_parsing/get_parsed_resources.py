@@ -23,7 +23,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[ParsedResource], set[str]]:
-    api_url = _convert_api_url_for_correct_iri_namespace(api_url)
+    api_url = _convert_api_url_for_correct_iri_namespace_construction(api_url)
     iri_lookup = _create_from_local_name_to_absolute_iri_lookup(root, api_url)
     all_res: list[ParsedResource] = []
     for res in root.iterdescendants(tag="resource"):
@@ -42,7 +42,7 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[Parse
     return all_res, set(iri_lookup.values())
 
 
-def _convert_api_url_for_correct_iri_namespace(api_url: str) -> str:
+def _convert_api_url_for_correct_iri_namespace_construction(api_url: str) -> str:
     return regex.sub(r"^https", "http", api_url)
 
 

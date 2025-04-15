@@ -58,7 +58,7 @@ def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Ele
 
 
 def _validate_xml_with_schema(xml: etree._Element) -> bool:
-    """Requires a cleaned (no comments) XML, but with the schema namespaces."""
+    """Requires a cleaned (no comments) XML, but with the namespaces."""
     _warn_user_about_tags_in_simpletext(xml)
     problem_msg = _validate_xml_against_schema(xml)
     if problem_msg:

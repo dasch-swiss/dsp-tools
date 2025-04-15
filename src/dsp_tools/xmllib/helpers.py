@@ -1112,6 +1112,29 @@ def create_non_empty_list_from_string(
 
 
 def remove_whitespaces_from_string(string: str) -> str:
+    """
+    Removes redundant whitespaces and replaces newlines (`\\n`) and carriage returns (`\\t`) with a simple space.
+
+    If the resulting string is empty a warning will be printed.
+
+    Args:
+        string: input string
+
+    Returns:
+        The cleaned string.
+
+    Examples:
+        ```python
+        result = xmllib.remove_whitespaces_from_string("\\t Text\\nafter newline")
+        # result == "Text after newline"
+        ```
+
+        ```python
+        result = xmllib.remove_whitespaces_from_string("      \n\t ")
+        # result == ""
+        # warns that the string is now empty
+        ```
+    """
     cleaned = regex.sub(r"\s+", " ", string).strip()
     if len(cleaned) == 0:
         msg = "The entered string is empty after all redundant whitespaces were removed."

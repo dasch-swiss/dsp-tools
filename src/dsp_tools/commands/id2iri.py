@@ -1,5 +1,6 @@
 import copy
 import json
+import warnings
 from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
@@ -8,8 +9,9 @@ import regex
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
 def _check_input_parameters(
@@ -75,7 +77,10 @@ def _replace_resptrs(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]])
+    xpaths = [f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]]
+    xpaths.extend([f"/knora/{x}-segment/isSegmentOf" for x in ["video", "audio"]])
+    xpaths.extend([f"/knora/{x}-segment/relatesTo" for x in ["video", "audio"]])
+    resptr_xpath = "|".join(xpaths)
     resptr_elems = modified_tree.xpath(resptr_xpath)
     resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:
@@ -108,7 +113,10 @@ def _replace_salsah_links(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    salsah_xpath = "|".join([f"/knora/{x}/text-prop/text//a" for x in ["resource", "link", "region"]])
+    xpaths = [f"/knora/{x}/text-prop/text//a" for x in ["resource", "link", "region"]]
+    xpaths.extend([f"/knora/{x}-segment/hasComment//a" for x in ["video", "audio"]])
+    xpaths.extend([f"/knora/{x}-segment/hasDescription//a" for x in ["video", "audio"]])
+    salsah_xpath = "|".join(xpaths)
     salsah_links = [x for x in modified_tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:
@@ -175,7 +183,9 @@ def _remove_resources_if_id_in_mapping(
         a modified copy of the XML tree
     """
     modified_tree = copy.deepcopy(tree)
-    resources = modified_tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "link", "region"]]))
+    resources = modified_tree.xpath(
+        "|".join([f"/knora/{x}" for x in ["resource", "link", "region", "video-segment", "audio-segment"]])
+    )
     resources_to_remove = [x for x in resources if x.attrib.get("id") in mapping]
     for resource in resources_to_remove:
         resource.getparent().remove(resource)
@@ -184,8 +194,8 @@ def _remove_resources_if_id_in_mapping(
         f"Removed {len(resources_to_remove)}/{len(resources)} resources from the XML file, "
         "because their ID was in the mapping"
     )
-    logger.info(msg)
-    print(msg)
+    logger.warning(msg)
+    warnings.warn(DspToolsUserWarning(msg))
 
     return modified_tree
 

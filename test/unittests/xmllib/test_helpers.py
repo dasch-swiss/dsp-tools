@@ -15,7 +15,7 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
-from dsp_tools.xmllib.helpers import remove_witespaces_from_string
+from dsp_tools.xmllib.helpers import remove_whitespaces_from_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
@@ -382,16 +382,16 @@ def test_escape_reserved_xml_characters(input_val: str, expected: str) -> None:
     [
         ("Text after space", "Text after space"),
         ("\t Text\nafter newline", "Text after newline"),
-        ("\n More text    with lots   of spaces    ", "More text with lots of spaces"),
+        ("\n More text    with lots   of spaces    \n", "More text with lots of spaces"),
     ],
 )
-def test_remove_witespaces_from_string(input_val: str, expected: str) -> None:
-    result = remove_witespaces_from_string(input_val)
+def test_remove_whitespaces_from_string(input_val: str, expected: str) -> None:
+    result = remove_whitespaces_from_string(input_val)
     assert result == expected
 
 
-def test_remove_witespaces_from_string_warns() -> None:
+def test_remove_whitespaces_from_string_warns() -> None:
     expected = regex.escape("The entered string is empty after all redundant whitespaces were removed.")
     with pytest.warns(DspToolsUserWarning, match=expected):
-        result = remove_witespaces_from_string("      \n\t ")
+        result = remove_whitespaces_from_string("      \n\t ")
     assert result == ""

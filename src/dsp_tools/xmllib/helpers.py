@@ -1111,7 +1111,7 @@ def create_non_empty_list_from_string(
     return lst
 
 
-def remove_witespaces_from_string(string: str) -> str:
+def remove_whitespaces_from_string(string: str) -> str:
     cleaned = regex.sub(r"\s+", " ", string).strip()
     if len(cleaned) == 0:
         msg = "The entered string is empty after all redundant whitespaces were removed."

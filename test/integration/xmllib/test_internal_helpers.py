@@ -22,11 +22,12 @@ def out_file() -> Iterator[Path]:
     [
         (
             'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />', 
-            'Text <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />'
+            'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />',
+            # here, the problem is that if an elem.text contains &lt; it will be serialised as &ampt;lt;
         ),
         (
-            'Text &lt;a href="https://www.google.com/"&gt;Google&lt;/a&gt;',
-            'Text &lt;a href="https://www.google.com/"&gt;Google&lt;/a&gt;',
+            'Text <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />', 
+            'Text <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />',
         ),
         (
             'Text <a href="https://www.google.com/">Google</a>',

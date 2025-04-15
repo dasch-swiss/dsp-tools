@@ -31,7 +31,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -47,6 +46,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
 def xmlupload(

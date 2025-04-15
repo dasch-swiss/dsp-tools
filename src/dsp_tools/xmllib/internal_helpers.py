@@ -128,8 +128,10 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
 
 def numeric_entities(text: str) -> str:
     """
-    Replace all named HTML entities by their decimal numeric counterparts.
-    Hex numeric HTML entities remain untouched.
+    Make a string suitable to be written to an XML file,
+    by replacing all named HTML entities by their decimal numeric counterparts,
+    except the ones that are supported in XML.
+    Numeric HTML entities remain untouched.
     Unescaped special characters remain untouched.
 
     Args:
@@ -140,8 +142,8 @@ def numeric_entities(text: str) -> str:
 
     Examples:
         ```python
-        result = xmllib.numeric_entities('text &quot; &#x22; " text')
-        # result == 'Text &#34; &#x22; " text'
+        result = xmllib.numeric_entities('&nbsp; &quot;')
+        # result == '&#160; &quot;'
         ```
     """
     named_ent_ok = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  # these named entities are supported in XML

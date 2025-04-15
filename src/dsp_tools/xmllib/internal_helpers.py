@@ -141,7 +141,11 @@ def unescape_standoff_tags(xml_str: str) -> str:
     """
     contained_xml_tags = filter(lambda x: regex.search(x, xml_str), KNOWN_XML_TAG_REGEXES)
     for tag in contained_xml_tags:
-        xml_str = regex.sub(f"&lt;{tag}&gt;", f"<{tag}>", xml_str)
+        tag_repl = regex.sub(r"[^a-zA-Z0-9]", "", tag)
+        if match := regex.search(f"&lt;{tag}&gt;", xml_str):
+            if groups := match.groups():
+                tag_repl = f"{tag_repl}{groups[0]}"
+        xml_str = regex.sub(f"&lt;{tag}&gt;", f"<{tag_repl}>", xml_str)
         xml_str = regex.sub(f"&lt;/{tag}&gt;", f"</{tag}>", xml_str)
     return xml_str
 

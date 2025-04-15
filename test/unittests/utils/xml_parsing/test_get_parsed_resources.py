@@ -666,7 +666,7 @@ def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
         (":defaultOnto", f"{DEFAULT_ONTO_NAMESPACE}defaultOnto"),
         ("knora-api:localName", f"{KNORA_API_STR}localName"),
         ("knoraApiNoPrefix", f"{KNORA_API_STR}knoraApiNoPrefix"),
-        ("other-onto:localName", f"{HTTPS_API_URL}/ontology/0000/other-onto/v2#localName"),
+        ("other-onto:localName", f"{HTTP_API_URL}/ontology/0000/other-onto/v2#localName"),
         ("default:withDefaultOnto", f"{DEFAULT_ONTO_NAMESPACE}withDefaultOnto"),
     ],
 )

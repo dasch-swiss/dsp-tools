@@ -1130,7 +1130,7 @@ def remove_whitespaces_from_string(string: str) -> str:
         ```
 
         ```python
-        result = xmllib.remove_whitespaces_from_string("      \n\t ")
+        result = xmllib.remove_whitespaces_from_string("      \\n\\t ")
         # result == ""
         # warns that the string is now empty
         ```

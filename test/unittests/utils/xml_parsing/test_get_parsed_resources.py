@@ -38,7 +38,7 @@ IRI_LOOKUP = {
 @pytest.mark.parametrize(
     ("input_str", "expected"),
     [
-        ("https://app.dasch.swiss", "http://app.dasch.swiss"),
+        ("https://api.stage.dasch.swiss/ontology/0854/metadata/v2#Archive", "http://api.stage.dasch.swiss/ontology/0854/metadata/v2#Archive"),
         ("http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive", "http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive"),
     ],
 )

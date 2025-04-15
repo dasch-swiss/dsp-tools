@@ -127,30 +127,6 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
     return richtext
 
 
-def unescape_standoff_tags(xml_str: str) -> str:
-    """
-    Unescape `&lt;` and `&gt;` in DSP standard standoff tags.
-    Inside richtext values, the tags are escaped, because lxml doesn't treat elem.text as XML.
-    Before writing such an XML string to a file, the tags must be unescaped, otherwise they won't be recognized.
-
-    Args:
-        xml_str: a serialised XML string
-
-    Returns:
-        string ready to be written to a file
-    """
-    contained_xml_tags = filter(lambda x: regex.search(x, xml_str), KNOWN_XML_TAG_REGEXES)
-    for tag in contained_xml_tags:
-        tag_opening_corrected = regex.sub(r"[^a-zA-Z0-9]", "", tag)
-        tag_closing_corrected = tag_opening_corrected
-        if match := regex.search(f"&lt;{tag}&gt;", xml_str):
-            if groups := match.groups():
-                tag_opening_corrected = f"{tag_opening_corrected}{groups[0]}"
-        xml_str = regex.sub(f"&lt;{tag}&gt;", f"<{tag_opening_corrected}>", xml_str)
-        xml_str = regex.sub(f"&lt;/{tag}&gt;", f"</{tag_closing_corrected}>", xml_str)
-    return xml_str
-
-
 def numeric_entities(text: str) -> str:
     """
     Replace all named HTML entities by their decimal numeric counterparts.

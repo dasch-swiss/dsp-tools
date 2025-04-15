@@ -2,11 +2,6 @@ from rdflib import XSD
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-
-VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
-AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
-
 
 ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 AUDIO_FILE_VALUE = RDFPropTypeInfo(KNORA_API.AudioFileValue, KNORA_API.fileValueHasFilename, XSD.string)

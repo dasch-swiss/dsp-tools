@@ -50,14 +50,6 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
     "hasComment": KnoraValueType.RICHTEXT_VALUE,
 }
 
-# Mapper from XML to internal representation
-XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
-    "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,
-    "permissions": TriplePropertyType.KNORA_PERMISSIONS,
-    "license": TriplePropertyType.KNORA_LICENSE,
-    "authorship-id": TriplePropertyType.KNORA_AUTHORSHIP,
-    "copyright-holder": TriplePropertyType.KNORA_COPYRIGHT_HOLDER,
-}
 
 # Mappers from internal representation to API format
 XML_TAG_TO_VALUE_TYPE_MAPPER = {

@@ -5,6 +5,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
@@ -17,8 +18,10 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 
-API_URL = "http://url.ch"
-DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
+HTTPS_API_URL = "https://api.stage.dasch.swiss"
+HTTP_API_URL = "http://api.stage.dasch.swiss"
+
+DEFAULT_ONTO_NAMESPACE = f"{HTTP_API_URL}/ontology/0000/default/v2#"
 
 HAS_PROP = f"{DEFAULT_ONTO_NAMESPACE}hasProp"
 RES_CLASS = f"{DEFAULT_ONTO_NAMESPACE}Class"
@@ -34,11 +37,22 @@ IRI_LOOKUP = {
 }
 
 
+@pytest.mark.parametrize(
+    ("input_str", "expected"),
+    [
+        (HTTPS_API_URL, HTTP_API_URL),
+        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
+    ],
+)
+def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
+    assert _convert_api_url_for_correct_iri_namespace_construction(input_str) == expected
+
+
 class TestParseResource:
     def test_empty(self, root_no_resources, resource_no_values):
         root = deepcopy(root_no_resources)
         root.append(resource_no_values)
-        parsed_res, iris = get_parsed_resources(root, API_URL)
+        parsed_res, iris = get_parsed_resources(root, HTTPS_API_URL)
         assert iris == {RES_CLASS}
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
@@ -53,7 +67,7 @@ class TestParseResource:
     def test_resource_with_migration_data(self, root_no_resources, resource_with_migration_data):
         root = deepcopy(root_no_resources)
         root.append(resource_with_migration_data)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_migration_data"
@@ -71,7 +85,7 @@ class TestParseResource:
     def test_with_value(self, root_no_resources, resource_with_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_value)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_value"
@@ -91,7 +105,7 @@ class TestParseResource:
     def test_file_value(self, root_no_resources, resource_with_file_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_file_value)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_file_value"
@@ -108,7 +122,7 @@ class TestParseResource:
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
         root.append(resource_with_iiif)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_iiif"
@@ -124,7 +138,7 @@ class TestParseResource:
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
         root.append(resource_region)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_region"
@@ -138,7 +152,7 @@ class TestParseResource:
     def test_link(self, root_no_resources, resource_link):
         root = deepcopy(root_no_resources)
         root.append(resource_link)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_link"
@@ -154,7 +168,7 @@ class TestSegment:
     def test_video_segment(self, root_no_resources, resource_video_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_video_segment)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_video_segment"
@@ -168,7 +182,7 @@ class TestSegment:
     def test_audio_segment(self, root_no_resources, resource_audio_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_audio_segment)
-        parsed_res, _ = get_parsed_resources(root, API_URL)
+        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_audio_segment"
@@ -638,7 +652,7 @@ class TestFileTypeInfo:
 
 
 def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
-    result = _create_from_local_name_to_absolute_iri_lookup(root_with_2_resources, API_URL)
+    result = _create_from_local_name_to_absolute_iri_lookup(root_with_2_resources, HTTP_API_URL)
     expected = {
         ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
         "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
@@ -652,10 +666,10 @@ def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
         (":defaultOnto", f"{DEFAULT_ONTO_NAMESPACE}defaultOnto"),
         ("knora-api:localName", f"{KNORA_API_STR}localName"),
         ("knoraApiNoPrefix", f"{KNORA_API_STR}knoraApiNoPrefix"),
-        ("other-onto:localName", f"{API_URL}/ontology/0000/other-onto/v2#localName"),
+        ("other-onto:localName", f"{HTTP_API_URL}/ontology/0000/other-onto/v2#localName"),
         ("default:withDefaultOnto", f"{DEFAULT_ONTO_NAMESPACE}withDefaultOnto"),
     ],
 )
 def test_get_one_absolute_iri(local_name, expected):
-    result = _get_one_absolute_iri(local_name, "0000", "default", API_URL)
+    result = _get_one_absolute_iri(local_name, "0000", "default", HTTP_API_URL)
     assert result == expected

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.resources
 import warnings
+from copy import deepcopy
 from pathlib import Path
 
 import regex
@@ -10,40 +11,63 @@ from lxml import etree
 
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
-from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 
 separator = "\n    "
 list_separator = "\n    - "
 
 
-def validate_xml_with_schema(xml: etree._Element) -> bool:
-    """
-    Validates an XML element tree against the DSP XSD schema.
+def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
+    root = _parse_xml_file(input_file)
+    root = _remove_comments_from_element_tree(root)
+    _validate_xml_with_schema(root)
+    print("The XML file is syntactically correct.")
+    return _transform_into_localnames(root)
 
-    Args:
-        xml: the XML element tree to be validated
 
-    Raises:
-        InputError: if the XML file is invalid
+def parse_and_validate_xml_file(input_file: Path | str) -> bool:
+    root = _parse_xml_file(input_file)
+    data_xml = _remove_comments_from_element_tree(root)
+    return _validate_xml_with_schema(data_xml)
 
-    Returns:
-        True if the XML file is valid
-    """
-    cleaned = transform_into_localnames(xml)
-    cleaned = remove_comments_from_element_tree(cleaned)
-    _warn_user_about_tags_in_simpletext(cleaned)
-    problem_msg = validate_xml_against_schema(xml)
 
+def _parse_xml_file(input_file: str | Path) -> etree._Element:
+    parser = etree.XMLParser(remove_comments=True, remove_pis=True)
+    try:
+        return etree.parse(source=input_file, parser=parser).getroot()
+    except etree.XMLSyntaxError as err:
+        logger.error(f"The XML file contains the following syntax error: {err.msg}")
+        raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
+
+
+def _transform_into_localnames(root: etree._Element) -> etree._Element:
+    """Removes the namespace of the tags."""
+    tree = deepcopy(root)
+    for elem in tree.iter():
+        elem.tag = etree.QName(elem).localname
+    return tree
+
+
+def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+    """Removes comments and processing instructions."""
+    root = deepcopy(input_tree)
+    for c in root.xpath("//comment()"):
+        c.getparent().remove(c)
+    for c in root.xpath("//processing-instruction()"):
+        c.getparent().remove(c)
+    return root
+
+
+def _validate_xml_with_schema(xml: etree._Element) -> bool:
+    """Requires a cleaned (no comments) XML, but with the namespaces."""
+    _warn_user_about_tags_in_simpletext(xml)
+    problem_msg = _validate_xml_against_schema(xml)
     if problem_msg:
         logger.error(problem_msg)
         raise InputError(problem_msg)
-
     return True
 
 
-def validate_xml_against_schema(data_xml: etree._Element) -> str | None:
+def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
@@ -56,7 +80,7 @@ def validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     return None
 
 
-def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> None:
+def _warn_user_about_tags_in_simpletext(xml: etree._Element) -> None:
     """
     Checks if there are angular brackets in simple text.
     It is possible that the user mistakenly added XML tags into a simple text field.
@@ -64,8 +88,10 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
     So that the user does not insert XML tags mistakenly into simple text fields,
     the user is warned, if there is any present.
     """
+    xml_no_namespace = _transform_into_localnames(xml)
     resources_with_potential_xml_tags = []
-    for text in xml_no_namespace.findall(path="resource/text-prop/text"):
+    text_prop_path = "resource/text-prop/text"
+    for text in xml_no_namespace.findall(path=text_prop_path):
         regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
         etree_finds_tags = bool(list(text.iterchildren()))
         has_tags = regex_finds_tags or etree_finds_tags
@@ -83,21 +109,3 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
         warnings.warn(DspToolsUserInfo(err_msg))
-
-
-def parse_and_validate_xml_file(input_file: Path | str) -> bool:
-    """
-    Validates an XML file against the DSP XSD schema.
-
-    Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    root = parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
-    return validate_xml_with_schema(data_xml)

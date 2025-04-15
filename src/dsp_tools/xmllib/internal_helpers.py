@@ -24,7 +24,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
 
     - ``\\p{S}`` = symbols and special characters
     - ``\\p{P}`` = punctuation
-    - ``\w`` = all Unicode letters, numbers, and _
+    - ``\\w`` = all Unicode letters, numbers, and _
 
     Args:
         value: value of any type

@@ -6,7 +6,7 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_xml import parse_and_clean_xml_file
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def data_systematic_unclean() -> Path:
 
 @pytest.fixture
 def data_systematic_cleaned() -> etree._Element:
-    return parse_and_validate_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
+    return parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
 
 
 def clean_resulting_tree(tree: etree._Element) -> str:
@@ -25,8 +25,8 @@ def clean_resulting_tree(tree: etree._Element) -> str:
 
 
 def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_unclean: Path) -> None:
-    from_tree = parse_and_validate_xml_file(data_systematic_unclean)
-    from_file = parse_and_validate_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
+    from_tree = parse_and_clean_xml_file(data_systematic_unclean)
+    from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
     cleaned_from_file = clean_resulting_tree(from_file)
     cleaned_from_tree = clean_resulting_tree(from_tree)
     assert cleaned_from_file == cleaned_from_tree, (

@@ -1113,7 +1113,7 @@ def create_non_empty_list_from_string(
 
 def remove_whitespaces_from_string(string: str) -> str:
     """
-    Removes redundant whitespaces and replaces newlines (`\\n`) and carriage returns (`\\t`) with a simple space.
+    Remove redundant whitespaces (space, `\\n`, `\\t`, etc.) and replace them with a single space.
 
     If the resulting string is empty a warning will be printed.
 

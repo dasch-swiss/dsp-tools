@@ -1112,4 +1112,8 @@ def create_non_empty_list_from_string(
 
 
 def remove_witespaces_from_string(string: str) -> str:
-    return regex.sub(r"\s+", " ", string)
+    cleaned = regex.sub(r"\s+", " ", string).strip()
+    if len(cleaned) == 0:
+        msg = "The entered string is empty after all redundant whitespaces were removed."
+        warnings.warn(DspToolsUserWarning(msg))
+    return cleaned

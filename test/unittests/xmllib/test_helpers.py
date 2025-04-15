@@ -382,7 +382,7 @@ def test_escape_reserved_xml_characters(input_val: str, expected: str) -> None:
     [
         ("Text after space", "Text after space"),
         ("\t Text\nafter newline", "Text after newline"),
-        ("\n More text    with lots   of spaces    \n", "More text with lots of spaces"),
+        ("\n More text\r    with lots   of spaces    \n", "More text with lots of spaces"),
     ],
 )
 def test_remove_whitespaces_from_string(input_val: str, expected: str) -> None:
@@ -393,5 +393,5 @@ def test_remove_whitespaces_from_string(input_val: str, expected: str) -> None:
 def test_remove_whitespaces_from_string_warns() -> None:
     expected = regex.escape("The entered string is empty after all redundant whitespaces were removed.")
     with pytest.warns(DspToolsUserWarning, match=expected):
-        result = remove_whitespaces_from_string("      \n\t ")
+        result = remove_whitespaces_from_string("   \r   \n\t ")
     assert result == ""

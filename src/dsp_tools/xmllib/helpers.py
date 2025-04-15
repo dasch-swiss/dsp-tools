@@ -1115,7 +1115,7 @@ def remove_whitespaces_from_string(string: str) -> str:
     """
     Remove redundant whitespaces (space, `\\n`, `\\t`, etc.) and replace them with a single space.
 
-    If the resulting string is empty a warning will be printed.
+    If the resulting string is empty, a warning will be printed.
 
     Args:
         string: input string

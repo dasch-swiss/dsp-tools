@@ -43,7 +43,7 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[Parse
 
 
 def _convert_api_url_for_correct_iri_namespace(api_url: str) -> str:
-    return regex.sub(r"https", "http", api_url)
+    return regex.sub(r"^https", "http", api_url)
 
 
 def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url: str) -> dict[str, str]:

@@ -39,7 +39,7 @@ IRI_LOOKUP = {
     ("input_str", "expected"),
     [
         ("https://app.dasch.swiss", "http://app.dasch.swiss"),
-        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
+        ("http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive", "http://0.0.0.0:3333/ontology/0854/metadata/v2#Archive"),
     ],
 )
 def test_convert_api_url_for_correct_iri_namespace(input_str, expected):

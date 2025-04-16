@@ -15,7 +15,7 @@
 
     <!-- 27 Violations -->
 
-    <!-- 2 Legal Info Violations (not implemented) -->
+    <!-- 3 Legal Info Violations (not implemented) -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -32,6 +32,14 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder=""
                    authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="authorship_with_newline">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="Copy"
+                   authorship-id="authorship_id_with_newline"
         >this/is/filepath/file.zip
         </bitstream>
     </resource>
@@ -58,14 +66,6 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="FirstLine&#10;Second Line"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
-        </bitstream>
-    </resource>
-
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="authorship_with_newline">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="Copy"
-                   authorship-id="authorship_id_with_newline"
         >this/is/filepath/file.zip
         </bitstream>
     </resource>

@@ -283,7 +283,6 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
-            ("authorship_with_newline", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),

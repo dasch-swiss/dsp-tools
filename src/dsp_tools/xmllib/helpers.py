@@ -1109,3 +1109,34 @@ def create_non_empty_list_from_string(
         msg += " " + details_msg + "results in an empty list."
         raise InputError(msg)
     return lst
+
+
+def clean_whitespaces_from_string(string: str) -> str:
+    """
+    Remove redundant whitespaces (space, `\\n`, `\\t`, etc.) and replace them with a single space.
+
+    If the resulting string is empty, a warning will be printed.
+
+    Args:
+        string: input string
+
+    Returns:
+        The cleaned string.
+
+    Examples:
+        ```python
+        result = xmllib.clean_whitespaces_from_string("\\t Text\\nafter newline")
+        # result == "Text after newline"
+        ```
+
+        ```python
+        result = xmllib.clean_whitespaces_from_string("      \\n\\t ")
+        # result == ""
+        # warns that the string is now empty
+        ```
+    """
+    cleaned = regex.sub(r"\s+", " ", string).strip()
+    if len(cleaned) == 0:
+        msg = "The entered string is empty after all redundant whitespaces were removed."
+        warnings.warn(DspToolsUserWarning(msg))
+    return cleaned

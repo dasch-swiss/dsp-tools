@@ -8,6 +8,7 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.helpers import ListLookup
+from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
@@ -374,3 +375,23 @@ class TestListLookup:
 def test_escape_reserved_xml_characters(input_val: str, expected: str) -> None:
     result = escape_reserved_xml_characters(input_val)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        ("Text after space", "Text after space"),
+        ("\t Text\nafter newline", "Text after newline"),
+        ("\n More text\r    with lots   of spaces    \n", "More text with lots of spaces"),
+    ],
+)
+def test_clean_whitespaces_from_string(input_val: str, expected: str) -> None:
+    result = clean_whitespaces_from_string(input_val)
+    assert result == expected
+
+
+def test_clean_whitespaces_from_string_warns() -> None:
+    expected = regex.escape("The entered string is empty after all redundant whitespaces were removed.")
+    with pytest.warns(DspToolsUserWarning, match=expected):
+        result = clean_whitespaces_from_string("   \r   \n\t ")
+    assert result == ""

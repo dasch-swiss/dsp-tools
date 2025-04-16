@@ -68,6 +68,14 @@ api-shapes:Resource_Shape
                     sh:message  "The label must be a non-empty string" ;
                   ] ,
                   [
+                    a               sh:PropertyShape ;
+                    sh:path         rdfs:label ;
+                    sh:datatype     xsd:string ;
+                    dash:singleLine true ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The label must be a string without newlines." ;
+                  ] ,
+                  [
                     # Currently StandOff are attached directly to the resource and not in a LinkValue,
                     # therefore we do not validate it like a normal link with a LinkValue
                     a           sh:PropertyShape ;
@@ -350,6 +358,14 @@ api-shapes:FileValue_ClassShape
                     sh:minCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "Files and IIIF-URIs require at least one authorship." ;
+                  ] ,
+                  [
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:hasAuthorship ;
+                    sh:datatype     xsd:string ;
+                    dash:singleLine true ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The authorship must be a string without newlines." ;
                   ] ,
                   [
                     a           sh:PropertyShape ;

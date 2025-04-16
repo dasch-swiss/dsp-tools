@@ -150,6 +150,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     assert not result.unexpected_results
     sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     expected_info_tuples = [
+        ("label_with_newline", "bitstream / iiif-uri", "The authorship must be a string without newlines."),
         (
             "comment_on_value_empty",
             "onto:testUriValue",
@@ -282,6 +283,7 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
+            ("authorship_with_newline", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),

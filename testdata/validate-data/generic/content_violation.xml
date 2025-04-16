@@ -12,7 +12,7 @@
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
 
     <!-- label may not contain newlines -->
-    <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_neline"/>
+    <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
 
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">

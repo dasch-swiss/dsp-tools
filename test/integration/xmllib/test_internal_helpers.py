@@ -20,17 +20,19 @@ def out_file() -> Iterator[Path]:
         (
             'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />',
             'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>',
-            # &quot; is always resolved by the XML parser, but then automatically re-escaped,
+            # &quot; is always resolved by the XML parser, but then automatically re-escaped
+            # because it is part of an attribute
+        ),
+        (
+            'Text <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />',
+            'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>',
+            # &#34; is always resolved by the XML parser, but then automatically re-escaped to &quot;
             # because it is part of an attribute
         ),
         (
             "Text &quot; &lt;",
             'Text " &lt;',
             # &quot; is always resolved by the XML parser, if it is part of a text
-        ),
-        (
-            'Text <footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />',
-            'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>',
         ),
         (
             'Text <a href="https://www.google.com/">Google</a>',

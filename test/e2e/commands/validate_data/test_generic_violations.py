@@ -160,11 +160,11 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "onto:testUriValue",
             "The comment on the value must be a non-empty string",
         ),
-        ("empty_label", "rdfs:label", "The label must be a non-empty string"),
+        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
         ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
-        ("label_with_newline", "rdfs:label", "The label must be a string without newlines."),
+        ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
         (

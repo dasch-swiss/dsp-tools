@@ -114,7 +114,7 @@
         sh:sourceConstraintComponent  dash:SingleLineConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_neline"/>
+        <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
 
         <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent

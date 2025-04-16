@@ -28,7 +28,7 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (too many branches)
@@ -213,9 +213,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    return validate_data(
-        filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev, save_graphs=args.save_graphs
-    )
+    return validate_data(filepath=Path(args.xmlfile), api_url=args.server, save_graphs=args.save_graphs)
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

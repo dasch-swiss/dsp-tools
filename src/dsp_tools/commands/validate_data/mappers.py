@@ -2,12 +2,10 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import IIIF_URI_VALUE
-from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import TEXT_FILE_VALUE
@@ -24,9 +22,22 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PR
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+
+FILE_TYPE_TO_PROP = {
+    KnoraValueType.ARCHIVE_FILE: f"{KNORA_API_STR}hasArchiveFileValue",
+    KnoraValueType.AUDIO_FILE: f"{KNORA_API_STR}hasAudioFileValue",
+    KnoraValueType.DOCUMENT_FILE: f"{KNORA_API_STR}hasDocumentFileValue",
+    KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_STR}hasMovingImageFileValue",
+    KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_STR}hasStillImageFileValue",
+    KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_STR}hasStillImageFileValue",
+    KnoraValueType.TEXT_FILE: f"{KNORA_API_STR}hasTextFileValue",
+}
 
 SEGMENT_TAG_TO_PROP_MAPPER = {
     "relatesTo": KnoraValueType.LINK_VALUE,
@@ -39,14 +50,6 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
     "hasComment": KnoraValueType.RICHTEXT_VALUE,
 }
 
-# Mapper from XML to internal representation
-XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
-    "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,
-    "permissions": TriplePropertyType.KNORA_PERMISSIONS,
-    "license": TriplePropertyType.KNORA_LICENSE,
-    "authorship-id": TriplePropertyType.KNORA_AUTHORSHIP,
-    "copyright-holder": TriplePropertyType.KNORA_COPYRIGHT_HOLDER,
-}
 
 # Mappers from internal representation to API format
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
@@ -54,6 +57,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "color-prop": KnoraValueType.COLOR_VALUE,
     "date-prop": KnoraValueType.DATE_VALUE,
     "decimal-prop": KnoraValueType.DECIMAL_VALUE,
+    "geometry-prop": KnoraValueType.GEOM_VALUE,
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
     "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,

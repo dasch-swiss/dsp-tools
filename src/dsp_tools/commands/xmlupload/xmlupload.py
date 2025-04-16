@@ -23,16 +23,15 @@ from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources_for_upload
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -47,6 +46,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
 def xmlupload(
@@ -74,27 +74,23 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
+    root = parse_and_clean_xml_file(input_file)
+    shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
-
-    if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
-
-    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
-
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, project_context = get_transformed_resources(
-        resources, clients, permissions_lookup, authorship_lookup
-    )
+
+    check_if_bitstreams_exist(root, imgdir)
+    preliminary_validation_of_root(root, con, config)
+    transformed = get_transformed_resources_for_upload(root, clients)
+    check_if_link_targets_exist(transformed)
+    sorted_resources, stash = get_stash_and_upload_order(transformed)
     state = UploadState(
-        pending_resources=transformed_resources,
+        pending_resources=sorted_resources,
         pending_stash=stash,
         config=config,
-        project_context=project_context,
     )
 
     return execute_upload(clients, state)
@@ -235,7 +231,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(
@@ -265,9 +260,8 @@ def _upload_stash(
 ) -> None:
     if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
         upload_stashed_xml_texts(upload_state, project_client.con)
-    context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
-        upload_stashed_resptr_props(upload_state, project_client.con, context)
+        upload_stashed_resptr_props(upload_state, project_client.con)
 
 
 def _upload_one_resource(

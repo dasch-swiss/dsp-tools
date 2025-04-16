@@ -8,7 +8,7 @@ from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.file_values import Metadata
-from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 def serialise_file_value(file_value: AbstractFileValue, authorship_id: str) -> etree._Element:
@@ -37,7 +37,7 @@ def serialise_file_value(file_value: AbstractFileValue, authorship_id: str) -> e
 
 def _serialise_file_value(value: AbstractFileValue, authorship_id: str, tag_name: str) -> etree._Element:
     attribs = _serialise_metadata(value.metadata, authorship_id)
-    if is_string_like(value.comment):
+    if is_nonempty_value(value.comment):
         attribs["comment"] = str(value.comment)
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
     ele.text = str(value.value)
@@ -46,7 +46,7 @@ def _serialise_file_value(value: AbstractFileValue, authorship_id: str, tag_name
 
 def _serialise_metadata(metadata: Metadata, authorship_id: str) -> dict[str, str]:
     attribs = {
-        "license": metadata.license,
+        "license": str(metadata.license),
         "copyright-holder": metadata.copyright_holder,
         # the authorship that is contained in the metadata is the raw form, but we need its ID
         "authorship-id": authorship_id,

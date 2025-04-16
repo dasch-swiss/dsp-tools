@@ -15,7 +15,7 @@ from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
-from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool
 
@@ -131,7 +131,7 @@ class LinkValue(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(self.value):
+        if not is_nonempty_value(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -147,7 +147,7 @@ class ListValue(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(self.value) or not is_string_like(self.list_name):
+        if not is_nonempty_value(self.value) or not is_nonempty_value(self.list_name):
             _warn_type_mismatch(
                 expected_type="list", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -162,7 +162,7 @@ class SimpleText(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(self.value):
+        if not is_nonempty_value(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -177,11 +177,12 @@ class Richtext(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(self.value):
+        if not is_nonempty_value(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        check_richtext_syntax(self.value)
+        else:
+            check_richtext_syntax(self.value)
 
 
 @dataclass

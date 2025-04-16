@@ -1,4 +1,4 @@
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
 def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:

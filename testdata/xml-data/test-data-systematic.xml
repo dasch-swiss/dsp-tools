@@ -115,6 +115,9 @@
             </text>
             <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
             <text encoding="xml">Text with a footnote<footnote content="footnote text"/>.</text>
+            <text encoding="xml">
+                Text<footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;" />
+            </text>
         </text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="open">https://dasch.swiss</uri>
@@ -310,7 +313,7 @@
         <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">
-                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+                License: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
                 Credit: Zebrafish embryo. Source: Wellcome Collection.
             </text>
         </text-prop>

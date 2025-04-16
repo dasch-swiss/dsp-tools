@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "12.0.0"
+version = "13.0.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
@@ -21,7 +21,6 @@ dependencies = [
     "jsonschema",
     "loguru",
     "lxml",
-    "namedentities",
     "networkx",
     "openpyxl",
     "packaging",
@@ -86,6 +85,7 @@ dev-dependencies = [
     "yamllint",
     "typing-extensions",
     "pytest-xdist>=3.6.1",
+    "vulture"
 ]
 
 
@@ -178,7 +178,7 @@ ignore = [
     "D101", # pydocstyle: undocumented-public-class
     "S101", # flake8-bandit: use of assert
 ]
-
+"!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -186,3 +186,13 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.vulture]
+paths = ["src/dsp_tools", ".vulture_whitelist.py"]
+exclude = [
+    "src/dsp_tools/xmllib/", 
+    "src/dsp_tools/commands/excel2xml/",
+    "test/",
+]
+sort_by_size = true  # sort unused classes and functions by size 

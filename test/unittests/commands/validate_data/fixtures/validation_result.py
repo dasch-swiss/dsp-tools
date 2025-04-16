@@ -11,10 +11,10 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from test.unittests.commands.validate_data.constants import DASH
-from test.unittests.commands.validate_data.constants import DATA
+from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import DATA
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
-from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
@@ -1058,6 +1058,59 @@ def extracted_missing_file_value() -> ValidationResult:
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
         expected=Literal("Cardinality 1"),
+    )
+
+
+@pytest.fixture
+def report_single_line_constraint_component(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f'''{PREFIXES}
+        [ a sh:ValidationResult ;
+            sh:focusNode <http://data/value_copyright_holder_with_newline> ;
+            sh:resultMessage "The copyright holder must be a string without newlines." ;
+            sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasCopyrightHolder> ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;
+            sh:sourceShape [ ] ;
+            sh:value """FirstLine
+Second Line""" ] .
+    '''
+    data_str = f'''{PREFIXES}
+<http://data/copyright_holder_with_newline> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
+rdfs:label "TestArchiveRepresentation zip"^^xsd:string ;
+knora-api:hasArchiveFileValue <http://data/value_copyright_holder_with_newline> .
+
+<http://data/value_copyright_holder_with_newline> a knora-api:ArchiveFileValue ;
+    knora-api:fileValueHasFilename "this/is/filepath/file.zip"^^xsd:string ;
+    knora-api:hasAuthorship "authorship_1"^^xsd:string ;
+    knora-api:hasCopyrightHolder """FirstLine
+Second Line"""^^xsd:string ;
+    knora-api:hasLicense <http://rdfh.ch/licenses/cc-by-4.0> .
+    '''
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.SingleLineConstraintComponent,
+        focus_node_iri=DATA.copyright_holder_with_newline,
+        focus_node_type=ONTO.TestArchiveRepresentation,
+        result_path=KNORA_API.hasCopyrightHolder,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_single_line_constraint_component() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=DATA.copyright_holder_with_newline,
+        res_class=ONTO.TestArchiveRepresentation,
+        property=KNORA_API.hasCopyrightHolder,
+        message=Literal("The copyright holder must be a string without newlines."),
+        input_value=Literal("with newline"),
     )
 
 

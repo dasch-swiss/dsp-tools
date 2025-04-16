@@ -142,10 +142,10 @@ class StackHandler:
         Raises:
             InputError: if the database cannot be started
         """
-        cmd = "docker compose up db -d".split()
+        cmd = "docker compose up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
-            msg = "Cannot start the API: Error while executing 'docker compose up db -d'"
+            msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
             raise InputError(msg)
 

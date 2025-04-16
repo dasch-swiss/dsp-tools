@@ -19,7 +19,7 @@ from dsp_tools.commands.validate_data.query_validation_result import _extract_ba
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -106,7 +106,7 @@ def value_type_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
-    with pytest.warns(DspToolsUserWarning, match=match):
+    with pytest.warns(DspToolsUserInfo, match=match):
         graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
@@ -160,10 +160,11 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "onto:testUriValue",
             "The comment on the value must be a non-empty string",
         ),
-        ("empty_label", "rdfs:label", "The label must be a non-empty string"),
+        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
         ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
         (
@@ -285,6 +286,8 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("copyright_holder_with_newline", ProblemType.GENERIC),
+            ("empty_copyright_holder", ProblemType.INPUT_REGEX),
             ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
@@ -362,6 +365,7 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/inexistent_license_iri"), None),
+        (URIRef("http://data/label_with_newline"), None),
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
@@ -405,6 +409,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
         ("inexistent_license_iri", ProblemType.GENERIC),
+        ("label_with_newline", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
         ("list_node_non_existent", ProblemType.GENERIC),

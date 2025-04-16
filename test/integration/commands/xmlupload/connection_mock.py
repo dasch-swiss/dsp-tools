@@ -50,9 +50,6 @@ class ConnectionMockBase(Connection):
     def login(self, email: str, password: str) -> None:
         raise AssertionError("login not implemented in mock")
 
-    def logout(self) -> None:
-        raise AssertionError("logout not implemented in mock")
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

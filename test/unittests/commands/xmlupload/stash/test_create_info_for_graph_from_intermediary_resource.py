@@ -8,10 +8,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_one_resource
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
-    create_info_for_graph_from_intermediary_resources,
-)
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import _process_one_resource
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 
 
 @pytest.fixture
@@ -123,6 +121,48 @@ def test_process_one_resource_both_links(
     assert standoff.source_id == "res_id"
     assert standoff.target_ids == {"res_id_target"}
     assert standoff.link_uuid == text_value_with_link.value_uuid
+
+
+def test_process_one_resource_with_iris() -> None:
+    resource_iri = "http://rdfh.ch/4123/wFnAqlqXQC69SBO0z27-4A"
+    richtext = IntermediaryRichtext(
+        FormattedTextValue(
+            f'This text contains a link: <a class="salsah-link" href="{resource_iri}">target resource</a>'
+        ),
+        "prop",
+        None,
+        None,
+        {resource_iri},
+        str(uuid4()),
+    )
+    link_value = IntermediaryLink(resource_iri, "prop", None, None, str(uuid4()))
+    resource = IntermediaryResource("res_id", "res_type", "lbl", None, [link_value, richtext])
+    link_list, standoff_list = _process_one_resource(resource)
+    assert not link_list
+    assert not standoff_list
+
+
+def test_process_one_resource_with_mixed_iri_and_id() -> None:
+    resource_iri = "http://rdfh.ch/4123/wFnAqlqXQC69SBO0z27-4A"
+    richtext = IntermediaryRichtext(
+        FormattedTextValue(
+            f'This text contains a link: <a class="salsah-link" href="{resource_iri}">target resource</a>'
+            f'and a link with an id: <a class="salsah-link" href="IRI:res_id_target:IRI">target resource</a>'
+        ),
+        "prop",
+        None,
+        None,
+        {resource_iri, "res_id_target"},
+        str(uuid4()),
+    )
+    resource = IntermediaryResource("res_id", "res_type", "lbl", None, [richtext])
+    link_list, standoff_list = _process_one_resource(resource)
+    assert not link_list
+    assert len(standoff_list) == 1
+    standoff = standoff_list.pop(0)
+    assert standoff.source_id == "res_id"
+    assert standoff.target_ids == {"res_id_target"}
+    assert standoff.link_uuid == richtext.value_uuid
 
 
 if __name__ == "__main__":

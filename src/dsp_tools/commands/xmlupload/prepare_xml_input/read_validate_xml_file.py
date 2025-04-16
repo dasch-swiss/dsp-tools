@@ -1,99 +1,36 @@
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
-import regex
+from loguru import logger
 from lxml import etree
 
+from dsp_tools.clients.connection import Connection
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    do_xml_consistency_check_with_ontology,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.data_formats.iri_util import is_resource_iri
-from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
-from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
-from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
-def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:
-    """
-    Parses the file and does some rudimentary checks.
-
-    Args:
-        input_file: input XML
-        imgdir: directory of the images
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
-    root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root, imgdir)
-    return root, shortcode, default_ontology
-
-
-def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
-    """Parse and validate an XML file.
-
-    Args:
-        input_file: Path to the XML file
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
-    root = parse_xml_file(input_file)
-    root = remove_comments_from_element_tree(root)
-
-    validate_xml_with_schema(root)
-    print("The XML file is syntactically correct.")
-    root = transform_special_tags_make_localname(root)
-    _check_if_link_targets_exist(root)
-    shortcode = root.attrib["shortcode"]
+def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
     default_ontology = root.attrib["default-ontology"]
-    return root, shortcode, default_ontology
+    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
+    do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
-def _check_if_link_targets_exist(root: etree._Element) -> None:
-    """
-    Make sure that all targets of links (resptr and salsah-links)
-    are either IRIs or IDs that exist in the present XML file.
-
-    Args:
-        root: parsed XML file
-
-    Raises:
-        InputError: if a link target does not exist in the XML file
-    """
-    resptr_errors = _check_if_resptr_targets_exist(root)
-    salsah_errors = _check_if_salsah_targets_exist(root)
-    if errors := resptr_errors + salsah_errors:
-        sep = "\n - "
-        msg = f"It is not possible to upload the XML file, because it contains invalid links:{sep}{sep.join(errors)}"
-        raise InputError(msg)
-
-
-def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
-    link_values = [x for x in root.iter() if x.tag == "resptr"]
-    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
-    invalid_link_values = [x for x in link_values if x.text not in resource_ids]
-    invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(str(x.text))]
-    errors = []
-    for inv in invalid_link_values:
-        prop_name = next(inv.iterancestors(tag="resptr-prop")).attrib["name"]
-        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
-        errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.text}'")
-    return errors
-
-
-def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
-    link_values = [x for x in root.iter() if x.tag == "a"]
-    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
-    invalid_link_values = [x for x in link_values if regex.sub(r"IRI:|:IRI", "", x.attrib["href"]) not in resource_ids]
-    invalid_link_values = [x for x in invalid_link_values if x.attrib.get("class") == "salsah-link"]
-    invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(x.attrib["href"])]
-    errors = []
-    for inv in invalid_link_values:
-        prop_name = next(inv.iterancestors(tag="text-prop")).attrib["name"]
-        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
-        errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.attrib['href']}'")
-    return errors
+def _validate_iiif_uris(root: etree._Element) -> None:
+    uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    if problems := IIIFUriValidator(uris).validate():
+        msg = problems.get_msg()
+        warnings.warn(DspToolsUserWarning(msg))
+        logger.warning(msg)
 
 
 def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:

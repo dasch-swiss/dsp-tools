@@ -7,6 +7,7 @@ from lxml import etree
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping
 from dsp_tools.commands.id2iri import _replace_ids_by_iris
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 
 
@@ -167,6 +168,47 @@ def test_replace_ids_by_iris_resptr_and_salsah_link(mapping: dict[str, Any]) -> 
     assert xml_replaced == xml_expected
 
 
+def test_replace_ids_by_iris_segment(mapping: dict[str, Any]) -> None:
+    xml = """
+    <knora shortcode="4123" default-ontology="testonto">
+        <audio-segment label="Audio Segment with all possible values" id="audio_segment_0">
+            <isSegmentOf>audio_thing_1</isSegmentOf>
+            <hasSegmentBounds segment_start="3.5" segment_end="5.6"/>
+            <hasTitle>Title of audio segment</hasTitle>
+            <hasComment>
+                <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+            </hasComment>
+            <hasDescription>
+                <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+            </hasDescription>
+            <hasKeyword>Keyword 2 of audio segment</hasKeyword>
+            <relatesTo>test_thing_1</relatesTo>
+        </audio-segment>
+    </knora>
+    """
+    xml_expected = """
+    <knora shortcode="4123" default-ontology="testonto">
+        <audio-segment label="Audio Segment with all possible values" id="audio_segment_0">
+            <isSegmentOf>audio_thing_1</isSegmentOf>
+            <hasSegmentBounds segment_start="3.5" segment_end="5.6"/>
+            <hasTitle>Title of audio segment</hasTitle>
+            <hasComment>
+                <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">link to test_thing_1</a>
+            </hasComment>
+            <hasDescription>
+                <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">link to test_thing_1</a>
+            </hasDescription>
+            <hasKeyword>Keyword 2 of audio segment</hasKeyword>
+            <relatesTo>http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ</relatesTo>
+        </audio-segment>
+    </knora>
+    """
+    xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+    root_replaced = _replace_ids_by_iris(etree.fromstring(xml), mapping)
+    xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+    assert xml_replaced == xml_expected
+
+
 def test_id2iri_remove_resources(mapping: dict[str, Any]) -> None:
     xml = """
     <knora shortcode="4123" default-ontology="testonto">
@@ -189,10 +231,12 @@ def test_id2iri_remove_resources(mapping: dict[str, Any]) -> None:
     </knora>
     """
     xml_expected = xml_expected.replace("\n", "").replace(" ", "")
-    tree_returned = _remove_resources_if_id_in_mapping(
-        tree=etree.fromstring(xml),
-        mapping=mapping,
-    )
+    match = regex.escape(r"Removed 2/3 resources from the XML file, because their ID was in the mapping")
+    with pytest.warns(DspToolsUserWarning, match=match):
+        tree_returned = _remove_resources_if_id_in_mapping(
+            tree=etree.fromstring(xml),
+            mapping=mapping,
+        )
     xml_returned = etree.tostring(tree_returned, pretty_print=False).decode("utf-8")
     xml_returned = xml_returned.replace("\n", "").replace(" ", "")
     assert xml_returned == xml_expected

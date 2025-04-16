@@ -15,7 +15,6 @@ from typing import Union
 import regex
 from lxml import etree
 from lxml.builder import E
-from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 from regex import Match
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
@@ -27,7 +26,8 @@ from dsp_tools.utils.data_formats.shared import check_notna
 from dsp_tools.utils.data_formats.shared import simplify_name
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
+from dsp_tools.xmllib.internal_helpers import numeric_entities
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
@@ -1352,7 +1352,6 @@ def make_text_prop(
 def _add_richtext_to_etree_element(richtext: str, element: etree._Element) -> etree._Element:
     new_element = copy.deepcopy(element)
     escaped_text = _escape_reserved_chars(richtext)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:

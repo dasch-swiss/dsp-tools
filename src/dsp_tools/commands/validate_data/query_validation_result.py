@@ -7,11 +7,8 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
-from dsp_tools.commands.validate_data.constants import KNORA_API
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -29,6 +26,9 @@ from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
@@ -221,6 +221,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.LessThanConstraintComponent
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
+            | DASH.SingleLineConstraintComponent
         ):
             return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
         case _:

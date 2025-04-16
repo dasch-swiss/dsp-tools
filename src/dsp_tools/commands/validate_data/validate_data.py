@@ -9,7 +9,7 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
+from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -24,8 +24,9 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.xml_parsing.get_data_deserialised import get_data_deserialised
-from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 LIST_SEPARATOR = "\n    - "
 
@@ -33,14 +34,13 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bool) -> bool:  # noqa: ARG001 (unused argument)
+def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
         api_url: url of the api host
-        dev_route: if this flag is set features that are still in development will be used
         save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
@@ -201,7 +201,9 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
 
 
 def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
-    xml_project = get_xml_project(file, api_url)
-    shortcode, data_deserialised = get_data_deserialised(xml_project.root)
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    parsed_resources, _ = get_parsed_resources(root, api_url)
+    data_deserialised = get_data_deserialised(parsed_resources)
     rdf_data = make_data_rdf(data_deserialised)
     return rdf_data, shortcode

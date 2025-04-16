@@ -1,22 +1,17 @@
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
+from dsp_tools.xmllib.internal_helpers import numeric_entities
 
 
 @pytest.mark.parametrize(
-    ("input_val", "expected"),
+    ("original", "expected"),
     [
-        ("Text no escape", "Text no escape"),
-        ("known tag <known>content</known>", "known tag <known>content</known>"),
-        ("Ampersand &", "Ampersand &amp;"),
-        ("Unknow tags <unknonw></unknonw>", "Unknow tags &lt;unknonw&gt;&lt;/unknonw&gt;"),
-        ("<text in brackets>", "&lt;text in brackets&gt;"),
+        ("a &nbsp; a", "a &#160; a"),
+        ("a &#160; a", "a &#160; a"),
+        ("a &#x22; a", "a &#x22; a"),
+        ("a &quot; &amp; &apos; &lt; &gt; a", "a &quot; &amp; &apos; &lt; &gt; a"),
+        ("aäö&;", "aäö&;"),
     ],
 )
-def test_escape_reserved_xml_chars(input_val: str, expected: str) -> None:
-    result = escape_reserved_xml_chars(input_val, ["known"])
-    assert result == expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
+def test_numeric_entities(original: str, expected: str) -> None:
+    assert numeric_entities(original) == expected

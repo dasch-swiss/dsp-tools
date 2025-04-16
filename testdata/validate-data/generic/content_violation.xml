@@ -6,10 +6,13 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 13 Violations -->
+    <!-- 14 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+
+    <!-- label may not contain newlines -->
+    <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
 
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">

@@ -3,18 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 
 
 @dataclass(frozen=True)
 class StandoffStashItem:
-    """Holds information about a single stashed XML text value."""
-
     res_id: str
     res_type: str
-    uuid: str
-    prop_name: str
-    value: FormattedTextValue
+    value: IntermediaryRichtext
 
 
 @dataclass(frozen=True)
@@ -51,9 +48,7 @@ class LinkValueStashItem:
 
     res_id: str
     res_type: str
-    prop_name: str
-    target_id: str
-    permission: str | None = None
+    value: IntermediaryLink
 
 
 @dataclass(frozen=True)

@@ -302,7 +302,6 @@ def _add_validate_data(
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
-    subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
     subparser.add_argument(
         "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."
     )

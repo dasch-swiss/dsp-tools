@@ -25,9 +25,9 @@ from dsp_tools.commands.validate_data.query_validation_result import _query_one_
 from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
-from test.unittests.commands.validate_data.constants import DATA
+from dsp_tools.utils.rdflib_constants import DATA
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
-from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 
@@ -358,6 +358,20 @@ class TestQueryWithoutDetail:
         assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
         assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
+    def test_report_single_line_constraint_component(self, report_single_line_constraint_component) -> None:
+        res, data, info = report_single_line_constraint_component
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == KNORA_API.hasCopyrightHolder
+        assert result.message == Literal("The copyright holder must be a string without newlines.")
+        assert result.input_value == Literal(
+            """FirstLine
+Second Line"""
+        )
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())
@@ -600,6 +614,17 @@ class TestReformatResult:
         assert result.res_type == "onto:TestStillImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.expected == "Files and IIIF-URIs require a reference to a license."
+
+    def test_single_line_constraint_component(
+        self, extracted_single_line_constraint_component: ValidationResult
+    ) -> None:
+        result = _reformat_one_validation_result(extracted_single_line_constraint_component)
+        assert result.problem_type == ProblemType.GENERIC
+        assert result.res_id == "copyright_holder_with_newline"
+        assert result.res_type == "onto:TestArchiveRepresentation"
+        assert result.prop_name == "bitstream / iiif-uri"
+        assert result.message == "The copyright holder must be a string without newlines."
+        assert result.input_value == "with newline"
 
     def test_file_value_for_resource_without_representation(
         self, extracted_file_value_for_resource_without_representation: ValidationResult

@@ -6,16 +6,8 @@ from enum import Enum
 from enum import auto
 from uuid import uuid4
 
-from lxml import etree
-
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-
-
-@dataclass
-class XMLProject:
-    shortcode: str
-    root: etree._Element
-    used_ontologies: set[str]
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 @dataclass
@@ -121,32 +113,3 @@ class TripleObjectType(Enum):
     IRI = auto()
     STRING = auto()
     URI = auto()
-
-
-class KnoraValueType(Enum):
-    """
-    Maps to a knora value type, for example: BOOLEAN_VALUE -> knora-api:BooleanValue
-    """
-
-    BOOLEAN_VALUE = auto()
-    COLOR_VALUE = auto()
-    DATE_VALUE = auto()
-    DECIMAL_VALUE = auto()
-    GEONAME_VALUE = auto()
-    GEOM_VALUE = auto()
-    INT_VALUE = auto()
-    INTERVAL_VALUE = auto()
-    LINK_VALUE = auto()
-    LIST_VALUE = auto()
-    SIMPLETEXT_VALUE = auto()
-    RICHTEXT_VALUE = auto()
-    TIME_VALUE = auto()
-    URI_VALUE = auto()
-
-    ARCHIVE_FILE = auto()
-    AUDIO_FILE = auto()
-    DOCUMENT_FILE = auto()
-    MOVING_IMAGE_FILE = auto()
-    STILL_IMAGE_FILE = auto()
-    STILL_IMAGE_IIIF = auto()
-    TEXT_FILE = auto()

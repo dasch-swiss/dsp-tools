@@ -358,6 +358,19 @@ class TestQueryWithoutDetail:
         assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
         assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
+    def test_report_single_line_constraint_component(
+        self, report_single_line_constraint_component: tuple[Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_single_line_constraint_component
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == KNORA_API.hasSegmentBounds
+        assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
+        assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())

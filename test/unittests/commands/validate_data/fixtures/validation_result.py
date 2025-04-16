@@ -1062,6 +1062,47 @@ def extracted_missing_file_value() -> ValidationResult:
 
 
 @pytest.fixture
+def report_single_line_constraint_component(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f'''{PREFIXES}
+        [ a sh:ValidationResult ;
+            sh:focusNode <http://data/value_copyright_holder_with_newline> ;
+            sh:resultMessage "The copyright holder must be a string without newlines." ;
+            sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasCopyrightHolder> ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;
+            sh:sourceShape [ ] ;
+            sh:value """FirstLine
+Second Line""" ] .
+    '''
+    data_str = f'''{PREFIXES}
+<http://data/copyright_holder_with_newline> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
+rdfs:label "TestArchiveRepresentation zip"^^xsd:string ;
+knora-api:hasArchiveFileValue <http://data/value_copyright_holder_with_newline> .
+
+<http://data/value_copyright_holder_with_newline> a knora-api:ArchiveFileValue ;
+    knora-api:fileValueHasFilename "this/is/filepath/file.zip"^^xsd:string ;
+    knora-api:hasAuthorship "authorship_1"^^xsd:string ;
+    knora-api:hasCopyrightHolder """FirstLine
+Second Line"""^^xsd:string ;
+    knora-api:hasLicense <http://rdfh.ch/licenses/cc-by-4.0> .
+    '''
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.SingleLineConstraintComponent,
+        focus_node_iri=DATA.copyright_holder_with_newline,
+        focus_node_type=ONTO.TestArchiveRepresentation,
+        result_path=KNORA_API.hasArchiveFileValue,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

@@ -1111,7 +1111,7 @@ def create_non_empty_list_from_string(
     return lst
 
 
-def remove_whitespaces_from_string(string: str) -> str:
+def clean_whitespaces_from_string(string: str) -> str:
     """
     Remove redundant whitespaces (space, `\\n`, `\\t`, etc.) and replace them with a single space.
 
@@ -1125,12 +1125,12 @@ def remove_whitespaces_from_string(string: str) -> str:
 
     Examples:
         ```python
-        result = xmllib.remove_whitespaces_from_string("\\t Text\\nafter newline")
+        result = xmllib.clean_whitespaces_from_string("\\t Text\\nafter newline")
         # result == "Text after newline"
         ```
 
         ```python
-        result = xmllib.remove_whitespaces_from_string("      \\n\\t ")
+        result = xmllib.clean_whitespaces_from_string("      \\n\\t ")
         # result == ""
         # warns that the string is now empty
         ```

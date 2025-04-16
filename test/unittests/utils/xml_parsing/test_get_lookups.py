@@ -2,7 +2,7 @@
 
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _get_authorship_lookup
+from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 
 
 def test_get_authorship_lookup():
@@ -29,7 +29,7 @@ def test_get_authorship_lookup():
         "authorship_2": ["Nora Ammann"],
         "authorship_3": ["Nora Ammann", "Johannes Nussbaum"],
     }
-    result = _get_authorship_lookup(root)
+    result = get_authorship_lookup(root)
     assert set(result.keys()) == set(expected.keys())
     for k, v in result.items():
         assert set(v) == set(expected[k])
@@ -37,5 +37,5 @@ def test_get_authorship_lookup():
 
 def test_extract_authorships_from_xml_no_authors():
     root = etree.fromstring("<knora></knora>")
-    result = _get_authorship_lookup(root)
+    result = get_authorship_lookup(root)
     assert result == {}

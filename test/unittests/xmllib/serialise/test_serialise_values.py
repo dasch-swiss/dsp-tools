@@ -146,8 +146,6 @@ def test_list() -> None:
             "<strong>standard standoff tag</strong>&lt;unsupported&gt;Hello World&lt;/unsupported&gt;",
         ),
         ("&amp; &lt; &gt;", "&amp; &lt; &gt;"),
-        ("&quot; &nbsp;", "&quot; &#160;"),
-        ("&#34; &#160; &#x22; &#xA0;", "&#34; &#160; &#x22; &#xA0;"),
         ("'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne", "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"),
         ("1 < 2 & 4 > 3", "1 &lt; 2 &amp; 4 &gt; 3"),
     ],

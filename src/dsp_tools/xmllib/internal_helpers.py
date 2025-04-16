@@ -130,7 +130,7 @@ def numeric_entities(text: str) -> str:
     """
     Make a string suitable to be written to an XML file,
     by replacing all named HTML entities by their decimal numeric counterparts,
-    except the ones that are supported in XML.
+    except the ones that are predefined in the XML specification.
     Numeric HTML entities remain untouched.
     Unescaped special characters remain untouched.
 
@@ -146,14 +146,16 @@ def numeric_entities(text: str) -> str:
         # result == '&#160; &quot;'
         ```
     """
-    named_ent_ok = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  # these named entities are supported in XML
+    PREDEFINED_XML_ENTITIES = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  
+    # These named entities are defined by the XML specification and are always expanded during parsing, regardless of parser options. 
+    # Numeric character references (e.g., `&#34;` or `&#x22;`) are also always resolved
     replacements: dict[str, str] = {}
     for match in regex.findall(r"&[0-9A-Za-z]+;", text):
-        if match in named_ent_ok:
+        if match in PREDEFINED_XML_ENTITIES:
             continue
         char = html5[match[1:]]
         replacements[match] = f"&#{ord(char)};"
     text = regex.sub(
-        r"&[0-9A-Za-z]+;", lambda x: replacements[x.group()] if x.group() not in named_ent_ok else x.group(), text
+        r"&[0-9A-Za-z]+;", lambda x: replacements[x.group()] if x.group() not in PREDEFINED_XML_ENTITIES else x.group(), text
     )
     return text

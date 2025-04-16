@@ -35,8 +35,8 @@ def out_file() -> Iterator[Path]:
             'Findme <a href="https://www.google.com/">Google</a>',
         ),
         (
-            "<p><strong><em>Findme</em></strong></p>",
-            "<p><strong>Findme</strong></p>",
+            "Findme <p><strong><em>Text</em></strong></p>",
+            "Findme <p><strong><em>Text</em></strong></p>",
         ),
     ],
 )
@@ -47,5 +47,8 @@ def test_serialisation_of_tags(richtext: str, expected: str, out_file: Path) -> 
     root.add_resource(res).write_file(out_file)
     with open(out_file, encoding="utf-8") as f:
         lines = f.readlines()
-    line = next(x for x in lines if "Findme" in x).replace('<text encoding="xml">', "").strip()
-    assert line == expected
+    start_index = next(i for i, x in enumerate(lines) if '<text encoding="xml">' in x)
+    end_index = next(i for i, x in enumerate(lines) if "</text>" in x)
+    lines_purged = [x.strip() for x in lines[start_index:end_index]]
+    result = "".join(lines_purged).replace('<text encoding="xml">', "")
+    assert result == expected

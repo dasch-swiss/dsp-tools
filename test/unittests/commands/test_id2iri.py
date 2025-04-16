@@ -7,6 +7,7 @@ from lxml import etree
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping
 from dsp_tools.commands.id2iri import _replace_ids_by_iris
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 
 
@@ -230,10 +231,12 @@ def test_id2iri_remove_resources(mapping: dict[str, Any]) -> None:
     </knora>
     """
     xml_expected = xml_expected.replace("\n", "").replace(" ", "")
-    tree_returned = _remove_resources_if_id_in_mapping(
-        tree=etree.fromstring(xml),
-        mapping=mapping,
-    )
+    match = regex.escape(r"Removed 2/3 resources from the XML file, because their ID was in the mapping")
+    with pytest.warns(DspToolsUserWarning, match=match):
+        tree_returned = _remove_resources_if_id_in_mapping(
+            tree=etree.fromstring(xml),
+            mapping=mapping,
+        )
     xml_returned = etree.tostring(tree_returned, pretty_print=False).decode("utf-8")
     xml_returned = xml_returned.replace("\n", "").replace(" ", "")
     assert xml_returned == xml_expected

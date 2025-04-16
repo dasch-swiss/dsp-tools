@@ -150,7 +150,6 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     assert not result.unexpected_results
     sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     expected_info_tuples = [
-        ("label_with_newline", "bitstream / iiif-uri", "The authorship must be a string without newlines."),
         (
             "comment_on_value_empty",
             "onto:testUriValue",
@@ -165,6 +164,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
         ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        ("label_with_newline", "rdfs:label", "The label must be a string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
         (
@@ -408,6 +408,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
         ("inexistent_license_iri", ProblemType.GENERIC),
+        ("label_with_newline", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
         ("list_node_non_existent", ProblemType.GENERIC),

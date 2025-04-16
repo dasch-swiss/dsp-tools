@@ -1097,9 +1097,21 @@ Second Line"""^^xsd:string ;
         source_constraint_component=DASH.SingleLineConstraintComponent,
         focus_node_iri=DATA.copyright_holder_with_newline,
         focus_node_type=ONTO.TestArchiveRepresentation,
-        result_path=KNORA_API.hasArchiveFileValue,
+        result_path=KNORA_API.hasCopyrightHolder,
     )
     return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_single_line_constraint_component() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=DATA.copyright_holder_with_newline,
+        res_class=ONTO.TestArchiveRepresentation,
+        property=KNORA_API.hasCopyrightHolder,
+        message=Literal("The copyright holder must be a string without newlines."),
+        input_value=Literal("with newline"),
+    )
 
 
 @pytest.fixture

@@ -13,6 +13,11 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
+# These named entities are defined by the XML specification and are always expanded during parsing,
+# regardless of parser options.
+# Numeric character references (e.g., `&#34;` or `&#x22;`) are also always resolved
+PREDEFINED_XML_ENTITIES = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]
+
 
 def is_nonempty_value_internal(value: Any) -> bool:
     """
@@ -146,9 +151,6 @@ def numeric_entities(text: str) -> str:
         # result == '&#160; &quot;'
         ```
     """
-    PREDEFINED_XML_ENTITIES = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  
-    # These named entities are defined by the XML specification and are always expanded during parsing, regardless of parser options. 
-    # Numeric character references (e.g., `&#34;` or `&#x22;`) are also always resolved
     replacements: dict[str, str] = {}
     for match in regex.findall(r"&[0-9A-Za-z]+;", text):
         if match in PREDEFINED_XML_ENTITIES:
@@ -156,6 +158,8 @@ def numeric_entities(text: str) -> str:
         char = html5[match[1:]]
         replacements[match] = f"&#{ord(char)};"
     text = regex.sub(
-        r"&[0-9A-Za-z]+;", lambda x: replacements[x.group()] if x.group() not in PREDEFINED_XML_ENTITIES else x.group(), text
+        r"&[0-9A-Za-z]+;",
+        lambda x: replacements[x.group()] if x.group() not in PREDEFINED_XML_ENTITIES else x.group(),
+        text,
     )
     return text

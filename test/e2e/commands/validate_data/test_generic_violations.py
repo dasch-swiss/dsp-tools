@@ -365,6 +365,7 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/inexistent_license_iri"), None),
+        (URIRef("http://data/label_with_newline"), None),
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),

@@ -60,13 +60,13 @@ api-shapes:Resource_Shape
   sh:targetClass knora-api:Resource ;
   sh:name        "Validates generic properties of all Resources" ;
   sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     rdfs:label ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  "\\s*\\S+\\s*" ;
+                    a               sh:PropertyShape ;
+                    sh:path         rdfs:label ;
+                    sh:datatype     xsd:string ;
+                    sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
-                    sh:severity sh:Violation ;
-                    sh:message  "The label must be a non-empty string without newlines." ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The label must be a non-empty string without newlines." ;
                   ] ,
                   [
                     # Currently StandOff are attached directly to the resource and not in a LinkValue,
@@ -353,13 +353,13 @@ api-shapes:FileValue_ClassShape
                     sh:message  "Files and IIIF-URIs require at least one authorship." ;
                   ] ,
                   [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:hasAuthorship ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  "\\s*\\S+\\s*" ;
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:hasAuthorship ;
+                    sh:datatype     xsd:string ;
+                    sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
-                    sh:severity sh:Violation ;
-                    sh:message  "The authorship must be a non-empty string without newlines." ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The authorship must be a non-empty string without newlines." ;
                   ] ,
                   [
                     a           sh:PropertyShape ;
@@ -371,13 +371,13 @@ api-shapes:FileValue_ClassShape
                     sh:message  "Files and IIIF-URIs require a copyright holder." ;
                   ] ,
                   [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:hasCopyrightHolder ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  "\\s*\\S+\\s*" ;
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:hasCopyrightHolder ;
+                    sh:datatype     xsd:string ;
+                    sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
-                    sh:severity sh:Violation ;
-                    sh:message  "The copyright holder must be a non-empty string without newlines." ;
+                    sh:severity     sh:Violation ;
+                    sh:message     "The copyright holder must be a non-empty string without newlines." ;
                   ] .
 
 

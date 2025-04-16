@@ -9,10 +9,13 @@
     <authorship id="authorship_1">
         <author>Author One</author>
     </authorship>
+    <authorship id="authorship_id_with_newline">
+        <author>Author&#10;Newline</author>
+    </authorship>
 
-    <!-- 25 Violations -->
+    <!-- 26 Violations -->
 
-    <!-- 2 Legal Info Violations (not implemented) -->
+    <!-- 3 Legal Info Violations (not implemented) -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -33,6 +36,14 @@
         </bitstream>
     </resource>
 
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="authorship_with_newline">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="Copy"
+                   authorship-id="authorship_id_with_newline"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
     <!-- Legal Info Violations -->
 
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_license">
@@ -46,6 +57,14 @@
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
         <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
                    copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="copyright_holder_with_newline">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="FirstLine&#10;Second Line"
                    authorship-id="authorship_1"
         >this/is/filepath/file.zip
         </bitstream>

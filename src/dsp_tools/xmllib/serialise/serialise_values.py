@@ -3,12 +3,12 @@ from copy import deepcopy
 from typing import cast
 
 from lxml import etree
-from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
+from dsp_tools.xmllib.internal_helpers import numeric_entities
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -127,7 +127,6 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     new_element = deepcopy(text_element)
     escaped_text = escape_reserved_xml_characters(value.value)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:

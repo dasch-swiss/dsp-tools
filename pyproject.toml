@@ -21,7 +21,6 @@ dependencies = [
     "jsonschema",
     "loguru",
     "lxml",
-    "namedentities",
     "networkx",
     "openpyxl",
     "packaging",

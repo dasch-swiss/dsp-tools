@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from html.entities import html5
 from typing import Any
 
 import pandas as pd
@@ -11,6 +12,11 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
+
+# These named entities are defined by the XML specification and are always expanded during parsing,
+# regardless of parser options.
+# Numeric character references (e.g., `&#34;` or `&#x22;`) are also always resolved
+PREDEFINED_XML_ENTITIES = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]
 
 
 def is_nonempty_value_internal(value: Any) -> bool:
@@ -123,3 +129,37 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
     richtext = regex.sub(r"&gt;", ">", richtext)
     richtext = regex.sub(r"&amp;", "&", richtext)
     return richtext
+
+
+def numeric_entities(text: str) -> str:
+    """
+    Make a string suitable to be written to an XML file,
+    by replacing all named HTML entities by their decimal numeric counterparts,
+    except the ones that are predefined in the XML specification.
+    Numeric HTML entities remain untouched.
+    Unescaped special characters remain untouched.
+
+    Args:
+        text: original text
+
+    Returns:
+        text with all named entities replaced
+
+    Examples:
+        ```python
+        result = xmllib.numeric_entities('&nbsp; &quot;')
+        # result == '&#160; &quot;'
+        ```
+    """
+    replacements: dict[str, str] = {}
+    for match in regex.findall(r"&[0-9A-Za-z]+;", text):
+        if match in PREDEFINED_XML_ENTITIES:
+            continue
+        char = html5[match[1:]]
+        replacements[match] = f"&#{ord(char)};"
+    text = regex.sub(
+        r"&[0-9A-Za-z]+;",
+        lambda x: replacements[x.group()] if x.group() not in PREDEFINED_XML_ENTITIES else x.group(),
+        text,
+    )
+    return text

@@ -29,8 +29,8 @@ _COMMON_BASE = [
 ]
 KNOWN_XML_TAG_REGEXES = [
     *_COMMON_BASE,
-    "a( [^>]+)?",  # <a> has attributes
-    "footnote( [^>]+)?",  # the footnote text is in the attributes
+    "a( [^>]+?)?",  # <a> has attributes
+    "footnote( [^>]+?)?",  # the footnote text is in the attributes
 ]
 KNOWN_XML_TAGS = [
     *_COMMON_BASE,

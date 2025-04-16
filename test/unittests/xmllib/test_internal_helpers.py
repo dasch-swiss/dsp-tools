@@ -4,7 +4,7 @@ from dsp_tools.xmllib.internal_helpers import numeric_entities
 
 
 @pytest.mark.parametrize(
-    ("original", "expected"), 
+    ("original", "expected"),
     [
         ("a &nbsp; a", "a &#160; a"),
         ("a &#160; a", "a &#160; a"),

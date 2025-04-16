@@ -359,6 +359,14 @@ api-shapes:FileValue_ClassShape
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "Files and IIIF-URIs require a copyright holder." ;
+                  ] ,
+                  [
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:hasCopyrightHolder ;
+                    sh:datatype     xsd:string ;
+                    dash:singleLine true ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The copyright holder must be a string without newlines." ;
                   ] .
 
 

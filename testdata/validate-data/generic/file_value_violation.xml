@@ -51,6 +51,14 @@
         </bitstream>
     </resource>
 
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="copyright_holder_with_newline">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="FirstLine&#10;Second Line"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
     <!-- Resource Without Representation -->
 
     <resource label="Resource Without Representation" restype=":ClassWithEverything" id="id_resource_without_representation">

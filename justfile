@@ -134,3 +134,18 @@ clean:
     -rm -rf ./testdata/e2e/images/
     -rm -rf ./site
     -rm -f ./mapping-????.csv
+
+
+openapi-cli *ARGS:
+    docker run --rm \
+    -v ${PWD}:/local \
+    openapitools/openapi-generator-cli {{ARGS}}
+
+
+[no-exit-message]
+openapi-generate:
+    @just openapi-cli generate \
+    -i https://api.dasch.swiss/api/docs/docs.yaml \
+    -g python \
+    --additional-properties=generateSourceCodeOnly=True \
+    -o /local/src/dsp_tools/clients/openapi

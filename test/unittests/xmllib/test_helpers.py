@@ -7,7 +7,7 @@ import regex
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.helpers import ListLookup
+from dsp_tools.xmllib.helpers import ListLookup, find_license_in_string
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
@@ -17,6 +17,7 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.recommended import License, LicenseRecommended
 
 
 @pytest.fixture
@@ -395,3 +396,44 @@ def test_clean_whitespaces_from_string_warns() -> None:
     with pytest.warns(DspToolsUserWarning, match=expected):
         result = clean_whitespaces_from_string("   \r   \n\t ")
     assert result == ""
+
+
+class TestFindLicense:
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text CC BY 4.0 text", LicenseRecommended.CC.BY),
+            ("text CC-BY-4.0 text", LicenseRecommended.CC.BY),
+            ("text CC_BY_4.0 text", LicenseRecommended.CC.BY),
+            ("text CC BY text", LicenseRecommended.CC.BY),
+            ("text CC-BY text", LicenseRecommended.CC.BY),
+            ("text CC_BY text", LicenseRecommended.CC.BY),
+            ("CC BY 4.0", LicenseRecommended.CC.BY),
+            ("CC BY", LicenseRecommended.CC.BY),
+            ("CC-BY", LicenseRecommended.CC.BY),
+        ],
+    )
+    def test_find_license_different_syntax(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text CC BY text", LicenseRecommended.CC.BY),
+            ("text CC BY SA text", LicenseRecommended.CC.BY_SA),
+            ("text CC BY NC text", LicenseRecommended.CC.BY_NC),
+            ("text CC BY NC SA text", LicenseRecommended.CC.BY_NC_SA),
+            ("text CC BY ND text", LicenseRecommended.CC.BY_ND),
+            ("text CC BY NC ND text", LicenseRecommended.CC.BY_NC_ND),
+        ],
+    )
+    def test_find_license_different_licenses(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize("string", ["CC SA BY 4.0", "CC BY SA NC", "CC BY-ND-NC"])
+    def test_fin_licenses_wrong_order(self, string: str) -> None:
+        assert not find_license_in_string(string)
+
+    @pytest.mark.parametrize("string", ["Creative Commons BY SA 4.0", "CC", "CC/BY/SA", "CC-BY_SA"])
+    def test_fin_licenses_find_nothing(self, string: str) -> None:
+        assert not find_license_in_string(string)

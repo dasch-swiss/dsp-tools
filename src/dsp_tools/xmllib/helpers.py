@@ -19,6 +19,7 @@ from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.recommended import CC, License, LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -1140,3 +1141,18 @@ def clean_whitespaces_from_string(string: str) -> str:
         msg = "The entered string is empty after all redundant whitespaces were removed."
         warnings.warn(DspToolsUserWarning(msg))
     return cleaned
+
+
+def find_license_in_string(string: str) -> License | None:
+    sep = r"[ -_]"
+    sa = r"(?<SA>SA)?"
+    nc = r"(?<NC>NC)?"
+    nd = r"(?<ND>ND)?"
+    base_rgx = fr"CC{sep}BY({sep}[A-Z]{{2}})*"
+    if not (found := regex.search(base_rgx, string)):
+        return None
+    match (_str := found.group(0)):
+        case "SA" in _str:
+            return LicenseRecommended.CC.BY_SA
+        case _:
+            return None

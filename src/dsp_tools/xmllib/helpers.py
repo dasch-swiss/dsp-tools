@@ -1144,13 +1144,14 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 
 def find_license_in_string(string: str) -> License | None:
-    sep = r"[ -_]"
+    sep = r"[- _]"
     nc = fr"(?<NC>{sep}NC)?"
     nd = fr"(?<ND>{sep}ND)?"
     sa = fr"(?<SA>{sep}SA)?"
+    version = fr"({sep}\d+\.\d+)?"
     no_continuation = fr"(?!{sep}(NC|ND|SA))"
-    base_rgx = fr"CC{sep}BY{nc}{nd}{sa}{no_continuation}"
-    if not (found := regex.search(base_rgx, string)):
+    rgx = fr"\bCC{sep}BY{nc}{nd}{sa}{version}\b{no_continuation}"
+    if not (found := regex.search(rgx, string)):
         return None
     has_nc = found.groupdict().get("NC")
     has_nd = found.groupdict().get("ND")

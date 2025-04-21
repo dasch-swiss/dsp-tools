@@ -7,7 +7,7 @@ import regex
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.helpers import ListLookup, find_license_in_string
+from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
@@ -16,8 +16,10 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
+from dsp_tools.xmllib.helpers import find_license_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.licenses.recommended import License, LicenseRecommended
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 
 
 @pytest.fixture
@@ -430,11 +432,26 @@ class TestFindLicense:
     def test_find_license_different_licenses(self, string: str, expected: License) -> None:
         assert find_license_in_string(string) == expected
 
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("CC BY NC SA 1.0", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 2.0", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 3.1", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 10.20", LicenseRecommended.CC.BY_NC_SA),
+        ],
+    )
+    def test_find_license_different_versions(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
     @pytest.mark.parametrize("string", ["CC SA BY 4.0", "CC BY SA NC", "CC BY-ND-NC"])
     def test_fin_licenses_wrong_order(self, string: str) -> None:
         assert not find_license_in_string(string)
 
-    @pytest.mark.parametrize("string", ["Creative Commons BY SA 4.0", "CC", "CC/BY/SA", "CC-BY_SA"])
+    @pytest.mark.parametrize(
+        "string",
+        ["Creative Commons BY SA 4.0", "CC", "CC/BY/SA", "CC-BY_SA", "CC,BY,SA", "CC.BY.SA", "textCC-BY-SAtext"],
+    )
     def test_fin_licenses_wrong_format(self, string: str) -> None:
         assert not find_license_in_string(string)
 

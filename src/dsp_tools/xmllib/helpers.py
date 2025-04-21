@@ -1144,12 +1144,15 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 
 def find_license_in_string(string: str) -> License | None:
-    sep = r"[- _]"
+    sep_candidates = r"[- _]"
+    if not (sep_found := regex.search(fr"\bCC({sep_candidates})BY", string)):
+        return None
+    sep = sep_found.group(1)  # now we have settled for exactly one of the sep candidates
     nc = fr"(?<NC>{sep}NC)?"
     nd = fr"(?<ND>{sep}ND)?"
     sa = fr"(?<SA>{sep}SA)?"
     version = fr"({sep}\d+\.\d+)?"
-    no_continuation = fr"(?!{sep}(NC|ND|SA))"
+    no_continuation = fr"(?!{sep_candidates}(NC|ND|SA))"
     rgx = fr"\bCC{sep}BY{nc}{nd}{sa}{version}\b{no_continuation}"
     if not (found := regex.search(rgx, string)):
         return None

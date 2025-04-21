@@ -1145,14 +1145,26 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 def find_license_in_string(string: str) -> License | None:
     sep = r"[ -_]"
-    sa = r"(?<SA>SA)?"
-    nc = r"(?<NC>NC)?"
-    nd = r"(?<ND>ND)?"
-    base_rgx = fr"CC{sep}BY({sep}[A-Z]{{2}})*"
+    nc = fr"(?<NC>{sep}NC)?"
+    nd = fr"(?<ND>{sep}ND)?"
+    sa = fr"(?<SA>{sep}SA)?"
+    no_continuation = fr"(?!{sep}(NC|ND|SA))"
+    base_rgx = fr"CC{sep}BY{nc}{nd}{sa}{no_continuation}"
     if not (found := regex.search(base_rgx, string)):
         return None
-    match (_str := found.group(0)):
-        case "SA" in _str:
-            return LicenseRecommended.CC.BY_SA
-        case _:
-            return None
+    has_nc = found.groupdict().get("NC")
+    has_nd = found.groupdict().get("ND")
+    has_sa = found.groupdict().get("SA")
+    if not any((has_nc, has_nd, has_sa)):
+        return LicenseRecommended.CC.BY
+    if not has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_ND
+    if not has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_SA
+    if has_nc and not has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC
+    if has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC_ND
+    if has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_NC_SA
+    return None

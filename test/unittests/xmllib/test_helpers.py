@@ -420,11 +420,11 @@ class TestFindLicense:
         ("string", "expected"),
         [
             ("text CC BY text", LicenseRecommended.CC.BY),
+            ("text CC BY ND text", LicenseRecommended.CC.BY_ND),
             ("text CC BY SA text", LicenseRecommended.CC.BY_SA),
             ("text CC BY NC text", LicenseRecommended.CC.BY_NC),
-            ("text CC BY NC SA text", LicenseRecommended.CC.BY_NC_SA),
-            ("text CC BY ND text", LicenseRecommended.CC.BY_ND),
             ("text CC BY NC ND text", LicenseRecommended.CC.BY_NC_ND),
+            ("text CC BY NC SA text", LicenseRecommended.CC.BY_NC_SA),
         ],
     )
     def test_find_license_different_licenses(self, string: str, expected: License) -> None:
@@ -435,5 +435,9 @@ class TestFindLicense:
         assert not find_license_in_string(string)
 
     @pytest.mark.parametrize("string", ["Creative Commons BY SA 4.0", "CC", "CC/BY/SA", "CC-BY_SA"])
-    def test_fin_licenses_find_nothing(self, string: str) -> None:
+    def test_fin_licenses_wrong_format(self, string: str) -> None:
+        assert not find_license_in_string(string)
+
+    @pytest.mark.parametrize("string", ["CC ND SA"])
+    def test_fin_licenses_non_existent(self, string: str) -> None:
         assert not find_license_in_string(string)

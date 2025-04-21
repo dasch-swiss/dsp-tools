@@ -19,7 +19,8 @@ from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.licenses.recommended import CC, License, LicenseRecommended
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -1144,16 +1145,47 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 
 def find_license_in_string(string: str) -> License | None:
+    """
+    Checks if a string contains a license, and returns the first found license as xmllib.LicenseRecommended object.
+    Once a license has been found, subsequent licenses are ignored. 
+    Returns None if no license was found. 
+    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    for details.
+
+    Currently, only [Creative Commons](https://creativecommons.org/) licenses are supported.
+
+    Args:
+        string: string to check
+
+    Returns:
+        xmllib.LicenseRecommended object or None
+
+    Examples:
+        ```python
+        result = xmllib.find_license_in_string("text CC BY text")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("text without license")
+        # result == None
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("CC BY. Second license is ignored: CC BY SA")
+        # result == LicenseRecommended.CC.BY
+        ```
+    """
     sep_candidates = r"[- _]"
-    if not (sep_found := regex.search(fr"\bCC({sep_candidates})BY", string)):
+    if not (sep_found := regex.search(rf"\bCC({sep_candidates})BY", string)):
         return None
     sep = sep_found.group(1)  # now we have settled for exactly one of the sep candidates
-    nc = fr"(?<NC>{sep}NC)?"
-    nd = fr"(?<ND>{sep}ND)?"
-    sa = fr"(?<SA>{sep}SA)?"
-    version = fr"({sep}\d+\.\d+)?"
-    no_continuation = fr"(?!{sep_candidates}(NC|ND|SA))"
-    rgx = fr"\bCC{sep}BY{nc}{nd}{sa}{version}\b{no_continuation}"
+    nc = rf"(?<NC>{sep}NC)?"
+    nd = rf"(?<ND>{sep}ND)?"
+    sa = rf"(?<SA>{sep}SA)?"
+    version = rf"({sep}\d+\.\d+)?"
+    no_continuation = rf"(?!{sep_candidates}(NC|ND|SA))"
+    rgx = rf"\bCC{sep}BY{nc}{nd}{sa}{version}\b{no_continuation}"
     if not (found := regex.search(rgx, string)):
         return None
     has_nc = found.groupdict().get("NC")

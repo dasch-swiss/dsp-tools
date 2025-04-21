@@ -13,6 +13,9 @@ class LicenseRecommended:
     - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
     - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
 
+    Tip:
+        Use the helper function [find_license_in_string()](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string) to parse a license from a string.
+
     Examples:
         ```python
         # adding a Creative Commons license to a file
@@ -49,6 +52,9 @@ class CC(License, StrEnum):
     - `BY_NC_SA`: [Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
     - `BY_ND`: [Attribution-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
     - `BY_NC_ND`: [Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+    Tip:
+        Use the helper function [find_license_in_string()](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string) to parse a license from a string.
 
     Examples:
         ```python

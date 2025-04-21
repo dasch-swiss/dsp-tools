@@ -1144,11 +1144,11 @@ def clean_whitespaces_from_string(string: str) -> str:
     return cleaned
 
 
-def find_license_in_string(string: str) -> License | None:
+def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
     """
     Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
-    Once a license has been found, subsequent licenses are ignored. 
-    Returns None if no license was found. 
+    Once a license has been found, subsequent licenses are ignored.
+    Returns None if no license was found.
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
 

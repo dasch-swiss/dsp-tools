@@ -1146,13 +1146,14 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 def find_license_in_string(string: str) -> License | None:
     """
-    Checks if a string contains a license, and returns the first found license as xmllib.LicenseRecommended object.
+    Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
     Once a license has been found, subsequent licenses are ignored. 
     Returns None if no license was found. 
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
 
-    Currently, only [Creative Commons](https://creativecommons.org/) licenses are supported.
+    Currently, only [Creative Commons](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
+    licenses are supported.
 
     Args:
         string: string to check

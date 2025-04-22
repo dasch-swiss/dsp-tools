@@ -7,7 +7,6 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
@@ -67,14 +66,14 @@ def minimal_correct_graphs(_create_projects: Iterator[None], api_url: str) -> RD
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
     return _get_parsed_graphs(api_url, file)
 
+
 def test_minimal_correct(minimal_correct_graphs: RDFGraphs, shacl_validator: ShaclValidator) -> None:
     minimal_correct = _get_validation_result(minimal_correct_graphs, shacl_validator, None)
     assert minimal_correct.conforms
 
 
 def test_check_for_unknown_resource_classes(minimal_correct_graphs: RDFGraphs) -> None:
-    result = _check_for_unknown_resource_classes(minimal_correct_graphs
-                                                 )
+    result = _check_for_unknown_resource_classes(minimal_correct_graphs)
     assert not result
 
 

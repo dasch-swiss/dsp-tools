@@ -56,11 +56,13 @@ class UnknownClassesInData:
         return self._get_unknown_classes_msg()
 
     def _get_unknown_ontos_msg(self) -> str:
-        def split_prefix(relative_iri: str) -> str:
+        def split_prefix(relative_iri: str) -> str | None:
+            if ":" not in relative_iri:
+                return None
             return relative_iri.split(":")[0]
 
-        used_ontos = set(split_prefix(x) for x in self.unknown_classes)
-        exising_ontos = set(split_prefix(x) for x in self.classes_onto)
+        used_ontos = set(not_knora for x in self.unknown_classes if (not_knora := split_prefix(x)))
+        exising_ontos = set(not_knora for x in self.classes_onto if (not_knora := split_prefix(x)))
         msg = ""
         if unknown := used_ontos - exising_ontos:
             msg = (

@@ -65,8 +65,8 @@ class UnknownClassesInData:
         if unknown := used_ontos - exising_ontos:
             msg = (
                 f"Your data uses ontologies that don't exist in the database.\n"
-                f"The following ontologies that are used in the data are unknown: {', '.join(exising_ontos)}\n"
-                f"The following ontologies are uploaded: {', '.join(unknown)}"
+                f"The following ontologies that are used in the data are unknown: {', '.join(unknown)}\n"
+                f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
             )
         return msg
 

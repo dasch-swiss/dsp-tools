@@ -66,9 +66,9 @@ class TestFindUnknownClasses:
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self):
         ttl = f"""{PREFIXES}
-        @prefix  non-existing-onto: <{NON_EXISTING_ONTO}> .
+        @prefix  non-existent: <{NON_EXISTING_ONTO}> .
 
-        <http://data/identical_text_different_prop> a non-existing-onto:One ;
+        <http://data/identical_text_different_prop> a non-existent:One ;
                 onto:testSimpleText <http://data/textValue> .
 
         <http://data/textValue> a knora-api:TextValue ;
@@ -80,7 +80,7 @@ class TestFindUnknownClasses:
         used_iris = {f"{NON_EXISTING_ONTO}One"}
         result = _check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
-        assert result.unknown_classes == {"non-existing-onto:One"}
+        assert result.unknown_classes == {"non-existent:One"}
         assert result.classes_onto == PREFIXED_IN_ONTO
         assert result._get_unknown_ontos_msg() != ""
 

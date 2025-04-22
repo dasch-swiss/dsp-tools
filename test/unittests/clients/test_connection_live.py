@@ -12,10 +12,11 @@ from unittest.mock import patch
 
 import pytest
 import regex
-from requests import ReadTimeout
+from requests import ReadTimeout, Response
 from requests import RequestException
 
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.connection_live import _handle_non_ok_responses
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.request_utils import PostFile
@@ -308,6 +309,11 @@ def test_renew_session() -> None:
     assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
     con._renew_session()
     assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
+
+
+def test_handle_non_ok_responses() -> None:
+    resp = Response()
+    _handle_non_ok_responses()
 
 
 if __name__ == "__main__":

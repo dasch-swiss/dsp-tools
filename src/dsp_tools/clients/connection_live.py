@@ -193,18 +193,24 @@ class ConnectionLive(Connection):
         if should_retry(response):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
-        msg = "Permanently unable to execute the network action. "
         blame: Literal["server", "client"] = "server"
-        if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
-            msg += f"\n{' ' * 37}Original Message: {original_str.group(1)}\n"
+        if found := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
+            api_msg = found.group(1)
             blame = "client"
-        if original_str and original_str.group(1).startswith("OntologyConstraintException"):
+        if found := regex.search(r'{"message":"(.+)"}', str(response.content)):
+            api_msg = found.group(1)
+        else:
+            api_msg = str(response.content)
+        if api_msg.startswith("OntologyConstraintException"):
             blame = "client"
-        if original_str and original_str.group(1).startswith("NotFoundException"):
+        if api_msg.startswith("NotFoundException"):
+            blame = "client"
+        if "does not allow more than one value for property" in api_msg:
             blame = "client"
         if blame == "client":
-            raise InvalidInputError(msg)
+            raise InvalidInputError(api_msg)
         else:
+            msg = f"Permanently unable to execute the network action.\n{' ' * 37}Original Message: {api_msg}\n"
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:

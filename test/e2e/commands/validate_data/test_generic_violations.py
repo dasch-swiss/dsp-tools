@@ -59,14 +59,14 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 
 
 @pytest.fixture(scope="module")
-def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> RDFGraphs:
+def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, _ = _get_parsed_graphs(api_url, file)
-    return graphs
+    graphs, used_iris = _get_parsed_graphs(api_url, file)
+    return graphs, used_iris
 
 
-def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
-    result = _check_for_unknown_resource_classes(unknown_classes_graphs)
+def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs, used_iris: set[str]) -> None:
+    result = _check_for_unknown_resource_classes(unknown_classes_graphs, used_iris)
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert result.unknown_classes == expected

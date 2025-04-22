@@ -109,11 +109,11 @@ def test_validate_xml_empty_label() -> None:
 
 
 def test_beautify_err_msg() -> None:
-    _match = regex.escape(
-        "Line \\d+: The resource ID 'res_1' is not valid. IDs must be unique across the entire file. "
-        "The function make_xsd_compatible_id() assists you in creating IDs.\n +"
-        "Line \\d+: The resource ID 'res_2' is not valid. IDs must be unique across the entire file. "
-        "The function make_xsd_compatible_id() assists you in creating IDs."
+    _match = (
+        r"Line \d+: The resource ID 'res_1' is not valid\. IDs must be unique across the entire file\. "
+        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\.\n +"
+        r"Line \d+: The resource ID 'res_2' is not valid\. IDs must be unique across the entire file\. "
+        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\."
     )
     with pytest.raises(InputError, match=_match):
         parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")

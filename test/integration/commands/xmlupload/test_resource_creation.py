@@ -553,7 +553,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_cl
         msg = (
             "Lost connection to DSP server, probably because the server is down. "
             "Please continue later with 'resume-xmlupload'. Reason for this failure: "
-            "Permanently unable to execute the network action. "
+            "Permanently unable to execute the network action."
         )
         assert len(_handle_upload_error.call_args_list) == 1
         err_actual: XmlUploadInterruptedError = _handle_upload_error.call_args_list[0].args[0]

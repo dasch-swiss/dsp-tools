@@ -118,5 +118,6 @@ def test_beautify_err_msg() -> None:
     with pytest.raises(InputError, match=_match):
         parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
 
+
 if __name__ == "__main__":
     pytest.main([__file__])

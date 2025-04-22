@@ -317,7 +317,11 @@ def test_renew_session() -> None:
         (
             '{"message":"Resource class <resclass> does not allow more than one value for property <prop>"}',
             "Resource class <resclass> does not allow more than one value for property <prop>",
-        )
+        ),
+        (
+            '{"message":"One or more resources were not found:  <http://rdfh.ch/foo/bar>"}',
+            "One or more resources were not found:  <http://rdfh.ch/foo/bar>",
+        ),
     ],
 )
 def test_extract_original_api_err_msg(response_content: str, expected: str) -> None:
@@ -326,8 +330,11 @@ def test_extract_original_api_err_msg(response_content: str, expected: str) -> N
 
 
 @pytest.mark.parametrize(
-    ("response_content", "expected"),
-    [("Resource class <resclass> does not allow more than one value for property <prop>", "client")],
+    ("api_msg", "blame"),
+    [
+        ("Resource class <resclass> does not allow more than one value for property <prop>", "client"),
+        ("One or more resources were not found:  <http://rdfh.ch/foo/bar>", "client")
+    ],
 )
 def test_determine_blame(api_msg: str, blame: Literal["client", "server"]) -> None:
     con = ConnectionLive("api")

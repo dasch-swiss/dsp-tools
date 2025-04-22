@@ -216,6 +216,8 @@ class ConnectionLive(Connection):
             blame = "client"
         if api_msg.startswith("NotFoundException"):
             blame = "client"
+        if "One or more resources were not found" in api_msg:
+            blame = "client"
         if "does not allow more than one value for property" in api_msg:
             blame = "client"
         return blame

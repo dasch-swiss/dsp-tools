@@ -2222,6 +2222,11 @@ def write_xml(
     Warning:
         if the XML is not valid according to the schema
     """
+    warn_msg = (
+        "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
+        "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+    )
+    warnings.warn(DspToolsUserWarning(warn_msg))
     etree.indent(root, space="    ")
     xml_string = etree.tostring(
         root,

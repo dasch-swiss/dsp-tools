@@ -30,7 +30,7 @@ LIST_SEPARATOR = "\n-    "
 
 def get_transformed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[IntermediaryResource]:
     logger.info("Get data from XML...")
-    parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
+    parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = _get_intermediary_lookups(root=root, clients=clients)
     return _get_intermediary_resources(parsed_resources, intermediary_lookups)
 

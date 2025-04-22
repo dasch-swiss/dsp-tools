@@ -52,8 +52,7 @@ class TestParseResource:
     def test_empty(self, root_no_resources, resource_no_values):
         root = deepcopy(root_no_resources)
         root.append(resource_no_values)
-        parsed_res, iris = get_parsed_resources(root, HTTPS_API_URL)
-        assert iris == {RES_CLASS}
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_no_values"
@@ -67,7 +66,7 @@ class TestParseResource:
     def test_resource_with_migration_data(self, root_no_resources, resource_with_migration_data):
         root = deepcopy(root_no_resources)
         root.append(resource_with_migration_data)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_migration_data"
@@ -85,7 +84,7 @@ class TestParseResource:
     def test_with_value(self, root_no_resources, resource_with_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_value)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_value"
@@ -105,7 +104,7 @@ class TestParseResource:
     def test_file_value(self, root_no_resources, resource_with_file_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_file_value)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_file_value"
@@ -122,7 +121,7 @@ class TestParseResource:
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
         root.append(resource_with_iiif)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_iiif"
@@ -138,7 +137,7 @@ class TestParseResource:
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
         root.append(resource_region)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_region"
@@ -152,7 +151,7 @@ class TestParseResource:
     def test_link(self, root_no_resources, resource_link):
         root = deepcopy(root_no_resources)
         root.append(resource_link)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_link"
@@ -168,7 +167,7 @@ class TestSegment:
     def test_video_segment(self, root_no_resources, resource_video_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_video_segment)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_video_segment"
@@ -182,7 +181,7 @@ class TestSegment:
     def test_audio_segment(self, root_no_resources, resource_audio_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_audio_segment)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_audio_segment"

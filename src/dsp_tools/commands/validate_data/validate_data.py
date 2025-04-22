@@ -117,16 +117,20 @@ def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource
 def _check_for_unknown_resource_classes(
     rdf_graphs: RDFGraphs, used_resource_iris: set[str]
 ) -> UnknownClassesInData | None:
-    res_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
+    res_cls = _get_all_onto_classes(rdf_graphs)
     if extra_cls := used_resource_iris - res_cls:
         return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
     return None
 
 
-def _get_all_onto_classes(ontos: Graph) -> set[str]:
+def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
+    ontos = rdf_graphs.ontos + rdf_graphs.knora_api
     is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    return {str(x) for x in resource_classes}
+    is_usable = URIRef(KNORA_API_STR + "canBeInstantiated")
+    usable_resource_classes = set(ontos.subjects(is_usable, Literal(True)))
+    user_facing = usable_resource_classes.intersection(resource_classes)
+    return {str(x) for x in user_facing}
 
 
 def _get_validation_result(

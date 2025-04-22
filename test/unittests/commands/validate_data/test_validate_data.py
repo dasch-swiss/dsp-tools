@@ -5,29 +5,41 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 NON_EXISTING_ONTO = "http://0.0.0.0:3333/ontology/9999/non-existent/v2#"
 
-PREFIXED_IN_ONTO = {"onto:One"}
-CLASSES_IN_ONTO = {f"{ONTO_STR}One"}
+CLASSES_IN_ONTO = {
+    f"{ONTO_STR}One",
+    f"{KNORA_API_STR}LinkObj",
+    f"{KNORA_API_STR}Region",
+    f"{KNORA_API_STR}AudioSegment",
+    f"{KNORA_API_STR}VideoSegment",
+}
+
+PREFIXED_IN_ONTO = {reformat_onto_iri(x) for x in CLASSES_IN_ONTO}
 
 
 def _get_rdf_graphs(data_graph: Graph) -> RDFGraphs:
     ttl = f"""{PREFIXES}
     onto:One a owl:Class ;
-            knora-api:isResourceClass true .
+            knora-api:isResourceClass true ;
+            knora-api:canBeInstantiated true .
 
     knora-api:TextValue a owl:Class ;
             knora-api:isValueClass true .
     """
     onto_g = Graph()
     onto_g.parse(data=ttl, format="turtle")
+    knora_subset = Graph()
+    knora_subset.parse("testdata/validate-data/knora-api-subset.ttl")
     return RDFGraphs(
-        data=data_graph, ontos=onto_g, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=Graph()
+        data=data_graph, ontos=onto_g, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=knora_subset
     )
 
 
@@ -65,7 +77,8 @@ class TestFindUnknownClasses:
         expected_msg = (
             "Your data uses resource classes that do not exist in the ontologies in the database.\n"
             "The following classes that are used in the data are unknown: onto:NonExistent\n"
-            "The following classes exist in the uploaded ontologies: onto:One"
+            "The following classes exist in the uploaded ontologies: "
+            "AudioSegment, LinkObj, Region, VideoSegment, onto:One"
         )
         assert result.get_msg() == expected_msg
 
@@ -95,16 +108,9 @@ class TestFindUnknownClasses:
         assert result.get_msg() == expected_msg
 
     def test_get_all_onto_classes(self):
-        ttl = f"""{PREFIXES}
-        onto:One a owl:Class ;
-                knora-api:isResourceClass true .
-
-        knora-api:TextValue a owl:Class ;
-                knora-api:isValueClass true .
-        """
-        g = Graph()
-        g.parse(data=ttl, format="turtle")
-        assert _get_all_onto_classes(g) == {f"{ONTO_STR}One"}
+        graphs = _get_rdf_graphs(Graph())
+        all_user_facing_classes = _get_all_onto_classes(graphs)
+        assert all_user_facing_classes == CLASSES_IN_ONTO
 
 
 if __name__ == "__main__":

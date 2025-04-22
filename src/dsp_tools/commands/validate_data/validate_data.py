@@ -119,7 +119,7 @@ def _check_for_unknown_resource_classes(
 ) -> UnknownClassesInData | None:
     res_cls = _get_all_onto_classes(rdf_graphs)
     if extra_cls := used_resource_iris - res_cls:
-        return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
+        return UnknownClassesInData(unknown_classes=extra_cls, defined_classes=res_cls)
     return None
 
 

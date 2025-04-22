@@ -117,7 +117,7 @@ def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource
 def _check_for_unknown_resource_classes(
     rdf_graphs: RDFGraphs, used_resource_iris: set[str]
 ) -> UnknownClassesInData | None:
-    res_cls = _get_all_onto_classes(rdf_graphs.ontos)
+    res_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
     if extra_cls := used_resource_iris - res_cls:
         return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
     return None

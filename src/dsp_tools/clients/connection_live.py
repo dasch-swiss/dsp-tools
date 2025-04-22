@@ -193,7 +193,7 @@ class ConnectionLive(Connection):
         if should_retry(response):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
-        api_msg = self._extract_original_api_err_msg(response.content)
+        api_msg = self._extract_original_api_err_msg(str(response.content))
         blame = self._determine_blame(api_msg)
         if blame == "client":
             raise InvalidInputError(api_msg)
@@ -201,10 +201,10 @@ class ConnectionLive(Connection):
             msg = f"Permanently unable to execute the network action.\n{' ' * 37}Original Message: {api_msg}\n"
             raise PermanentConnectionError(msg)
 
-    def _extract_original_api_err_msg(self, response_content: bytes) -> str:
-        if found := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response_content)):
+    def _extract_original_api_err_msg(self, response_content: str) -> str:
+        if found := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', response_content):
             api_msg = found.group(1)
-        if found := regex.search(r'{"message":"(.+)"}', str(response_content)):
+        if found := regex.search(r'{"message":"(.+)"}', response_content):
             api_msg = found.group(1)
         else:
             api_msg = str(response_content)

@@ -6,6 +6,8 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
@@ -59,12 +61,24 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     assert content_correct.conforms
 
 
-@pytest.mark.usefixtures("_create_projects")
-def test_minimal_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+@pytest.fixture(scope="module")
+def minimal_correct_graphs(_create_projects: Iterator[None], api_url: str) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs, _ = _get_parsed_graphs(api_url, file)
+    graphs, used_iris = _get_parsed_graphs(api_url, file)
+    return graphs, used_iris
+
+
+@pytest.mark.usefixtures("_create_projects")
+def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:
+    graphs, _ = minimal_correct_graphs
     minimal_correct = _get_validation_result(graphs, shacl_validator, None)
     assert minimal_correct.conforms
+
+
+def test_check_for_unknown_resource_classes(minimal_correct_graphs: tuple[RDFGraphs, set[str]]) -> None:
+    graphs, used_iris = minimal_correct_graphs
+    result = _check_for_unknown_resource_classes(graphs, used_iris)
+    assert not result
 
 
 @pytest.mark.usefixtures("_create_projects")

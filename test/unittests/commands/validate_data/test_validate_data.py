@@ -82,7 +82,12 @@ class TestFindUnknownClasses:
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"non-existent:One"}
         assert result.classes_onto == PREFIXED_IN_ONTO
-        assert result._get_unknown_ontos_msg() != ""
+        expected_msg = (
+            "Your data uses ontologies that don't exist in the database.\n"
+            "The following ontologies that are used in the data are unknown: onto\n"
+            "The following ontologies are uploaded: non-existent"
+        )
+        assert result._get_unknown_ontos_msg() == expected_msg
 
     def test_get_all_onto_classes(self):
         ttl = f"""{PREFIXES}

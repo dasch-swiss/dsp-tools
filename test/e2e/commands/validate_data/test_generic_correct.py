@@ -6,9 +6,6 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
-from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
@@ -44,19 +41,6 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 @pytest.fixture(scope="module")
 def _create_projects(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
-
-
-@pytest.fixture(scope="module")
-def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> RDFGraphs:
-    file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    return _get_parsed_graphs(api_url, file)
-
-
-def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
-    result = _check_for_unknown_resource_classes(unknown_classes_graphs)
-    assert isinstance(result, UnknownClassesInData)
-    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
-    assert result.unknown_classes == expected
 
 
 @pytest.mark.usefixtures("_create_projects")

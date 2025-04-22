@@ -48,7 +48,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         true unless it crashed
     """
 
-    graphs, resource_type_iris = _get_parsed_graphs(api_url, filepath)
+    graphs, _ = _get_parsed_graphs(api_url, filepath)
 
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()

@@ -63,6 +63,12 @@ class TestFindUnknownClasses:
         assert result.unknown_classes == {"onto:NonExistent"}
         assert result.classes_onto == PREFIXED_IN_ONTO
         assert result._get_unknown_ontos_msg() == ""
+        expected_msg = (
+            "Your data uses resource classes that do not exist in the ontologies in the database.\n"
+            "The following classes that are used in the data are unknown: onto:NonExistent\n"
+            "The following classes exist in the uploaded ontologies: onto:One"
+        )
+        assert result._get_unknown_classes_msg() == expected_msg
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self):
         ttl = f"""{PREFIXES}

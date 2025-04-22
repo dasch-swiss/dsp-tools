@@ -108,5 +108,8 @@ def test_validate_xml_empty_label() -> None:
         parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 
 
+def test_beautify_err_msg() -> None:
+    parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
+
 if __name__ == "__main__":
     pytest.main([__file__])

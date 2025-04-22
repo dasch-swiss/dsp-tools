@@ -2,6 +2,10 @@
 
 # Excel File Format to Generate an XML Data File
 
+!!! warning
+
+    The `excel2xml` CLI command is deprecated.
+
 !!! tip
 
     If you want to convert customer data to XML,

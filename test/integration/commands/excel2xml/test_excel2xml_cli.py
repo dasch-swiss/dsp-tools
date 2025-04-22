@@ -17,31 +17,43 @@ def expected_output() -> str:
 
 class TestDifferentExtensions:
     def test_xlsx(self, expected_output: str) -> None:
-        success, problems = excel2xml_cli.excel2xml(
+        warn_msg = (
+            "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output"
         )
-        assert success
-        assert not problems
+        assert len(catched_warnings) == 1
+        assert catched_warnings[0].message.args[0] == warn_msg  # type: ignore[union-attr]
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)
 
     def test_xls(self, expected_output: str) -> None:
-        success, problems = excel2xml_cli.excel2xml(
+        warn_msg = (
+            "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output"
         )
-        assert success
-        assert not problems
+        assert len(catched_warnings) == 1
+        assert catched_warnings[0].message.args[0] == warn_msg  # type: ignore[union-attr]
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)
 
     def test_csv(self, expected_output: str) -> None:
-        success, problems = excel2xml_cli.excel2xml(
+        warn_msg = (
+            "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output"
         )
-        assert success
-        assert not problems
+        assert len(catched_warnings) == 1
+        assert catched_warnings[0].message.args[0] == warn_msg  # type: ignore[union-attr]
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)
@@ -55,7 +67,7 @@ class TestWarnings:
             "'test_thing_1', property ':hasBoolean' (Excel row 6) contains more than one value."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 1
+        assert len(catched_warnings) == 2
         catched = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert catched == expected_msg
 
@@ -67,17 +79,17 @@ class TestWarnings:
         )
         expected_validation = regex.escape("Element 'text-prop': Missing child element(s). Expected is ( text ).")
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 2
+        assert len(catched_warnings) == 3
         message_missing_prop = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_missing_prop, message_missing_prop)
-        message_xml_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        message_xml_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_validation, message_xml_validation)
 
     def test_missing_prop_permission(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-prop-permissions.xlsx"
         expected_msg = "Resource 'person_0': Missing permissions in column '2_permissions' of property ':hasName'"
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 1
+        assert len(catched_warnings) == 2
         message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert message == expected_msg
 
@@ -88,10 +100,10 @@ class TestWarnings:
             "Element 'resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'"
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 2
+        assert len(catched_warnings) == 3
         msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert msg_missing_label == expected_msg_missing
-        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, msg_validation)
 
     def test_missing_resource_permission(self) -> None:
@@ -101,17 +113,17 @@ class TestWarnings:
             "Element 'resource', attribute 'permissions': '' is not a valid value of the atomic type 'xs:IDREF'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 2
+        assert len(catched_warnings) == 3
         message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert message == expected_msg
-        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, msg_validation)
 
     def test_missing_restype(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-restype.xlsx"
         expected_msg = "Missing restype for resource 'person_0' (Excel row 2)"
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 1
+        assert len(catched_warnings) == 2
         message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert message == expected_msg
 
@@ -127,10 +139,10 @@ class TestWarnings:
             "Element 'bitstream', attribute 'permissions': '' is not a valid value of the atomic type 'xs:IDREF'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 3
+        assert len(catched_warnings) == 4
         assert catched_warnings[0].message.args[0] == expected_res_perm_missing  # type:ignore[union-attr]
         assert catched_warnings[1].message.args[0] == expected_msg_missing  # type:ignore[union-attr]
-        assert regex.search(expected_xml_validation, catched_warnings[2].message.args[0])  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, catched_warnings[3].message.args[0])  # type:ignore[union-attr]
 
     def test_invalid_prop_val(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/single-invalid-value-for-property.xlsx"
@@ -144,12 +156,12 @@ class TestWarnings:
         )
         expected_xml_validation = regex.escape("Element 'text-prop': Missing child element(s). Expected is ( text ).")
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 3
+        assert len(catched_warnings) == 4
         msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_msg_missing, msg_missing_label)
         msg_excel = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
         assert msg_excel == expected_msg_excel
-        msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
+        msg_validation = catched_warnings[3].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, msg_validation)
 
 

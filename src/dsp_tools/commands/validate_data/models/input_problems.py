@@ -44,11 +44,11 @@ class OntologyResourceProblem:
 @dataclass
 class UnknownClassesInData:
     unknown_classes: set[str]
-    classes_onto: set[str]
+    defined_classes: set[str]
 
     def __post_init__(self) -> None:
         self.unknown_classes = {reformat_onto_iri(x) for x in self.unknown_classes}
-        self.classes_onto = {reformat_onto_iri(x) for x in self.classes_onto}
+        self.defined_classes = {reformat_onto_iri(x) for x in self.defined_classes}
 
     def get_msg(self) -> str:
         if unknown := self._get_unknown_ontos_msg():
@@ -62,7 +62,7 @@ class UnknownClassesInData:
             return relative_iri.split(":")[0]
 
         used_ontos = set(not_knora for x in self.unknown_classes if (not_knora := split_prefix(x)))
-        exising_ontos = set(not_knora for x in self.classes_onto if (not_knora := split_prefix(x)))
+        exising_ontos = set(not_knora for x in self.defined_classes if (not_knora := split_prefix(x)))
         msg = ""
         if unknown := used_ontos - exising_ontos:
             msg = (
@@ -74,7 +74,7 @@ class UnknownClassesInData:
 
     def _get_unknown_classes_msg(self) -> str:
         unknown_classes = sorted(list(self.unknown_classes))
-        known_classes = sorted(list(self.classes_onto))
+        known_classes = sorted(list(self.defined_classes))
         return (
             f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
             f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"

@@ -73,7 +73,7 @@ class TestFindUnknownClasses:
         result = _check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"onto:NonExistent"}
-        assert result.classes_onto == PREFIXED_IN_ONTO
+        assert result.defined_classes == PREFIXED_IN_ONTO
         expected_msg = (
             "Your data uses resource classes that do not exist in the ontologies in the database.\n"
             "The following classes that are used in the data are unknown: onto:NonExistent\n"
@@ -99,7 +99,7 @@ class TestFindUnknownClasses:
         result = _check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"non-existent:One"}
-        assert result.classes_onto == PREFIXED_IN_ONTO
+        assert result.defined_classes == PREFIXED_IN_ONTO
         expected_msg = (
             "Your data uses ontologies that don't exist in the database.\n"
             "The following ontologies that are used in the data are unknown: non-existent\n"

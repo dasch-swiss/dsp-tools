@@ -81,14 +81,15 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
 
 def _beautify_err_msg(err_msg: str) -> str:
     err_msg = err_msg.replace("{https://dasch.swiss/schema}", "")
-    new_xsd_id = (
-        "The resource ID '\\1' is not valid. Please check that the ID is unique across the entire file. "
-        "The function make_xsd_compatible_id() assists you in creating a string "
-        "that complies with the XSD specifications for an ID."
+    new_msg_for_duplicate_res_id = (
+        "The resource ID '\\1' is not valid. IDs must be unique across the entire file. "
+        "The function make_xsd_compatible_id() assists you in creating IDs."
     )
-    resource_tags = "resource|link|video-segment|audio-segment|region"
-    rgx_xsd_id = rf"Element '(?:{resource_tags})', attribute 'id': '(.+?)' is not a valid value of the atomic type 'xs:ID'."
-    err_msg = regex.sub(rgx_xsd_id, new_xsd_id, err_msg)
+    rgx_for_duplicate_res_id = (
+        r"Element '(?:resource|link|video-segment|audio-segment|region)', attribute 'id': '(.+?)' "
+        r"is not a valid value of the atomic type 'xs:ID'."
+    )
+    err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
     return err_msg
 
 

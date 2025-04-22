@@ -209,16 +209,18 @@ class ConnectionLive(Connection):
         else:
             api_msg = str(response_content)
         return api_msg
-    
+
     def _determine_blame(self, api_msg: str) -> Literal["server", "client"]:
+        api_msg = api_msg.lower()
+        client_markers = [
+            "OntologyConstraintException",
+            "NotFoundException",
+            "One or more resources were not found",
+            "does not allow more than one value for property",
+            "Duplicate values for property",
+        ]
         blame: Literal["server", "client"] = "server"
-        if api_msg.startswith("OntologyConstraintException"):
-            blame = "client"
-        if api_msg.startswith("NotFoundException"):
-            blame = "client"
-        if "One or more resources were not found" in api_msg:
-            blame = "client"
-        if "does not allow more than one value for property" in api_msg:
+        if any(x.lower() in api_msg for x in client_markers):
             blame = "client"
         return blame
 

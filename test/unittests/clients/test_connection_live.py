@@ -322,6 +322,10 @@ def test_renew_session() -> None:
             '{"message":"One or more resources were not found:  <http://rdfh.ch/foo/bar>"}',
             "One or more resources were not found:  <http://rdfh.ch/foo/bar>",
         ),
+        (
+            '{"message":"Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>"}',
+            "Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>",
+        ),
     ],
 )
 def test_extract_original_api_err_msg(response_content: str, expected: str) -> None:
@@ -333,7 +337,8 @@ def test_extract_original_api_err_msg(response_content: str, expected: str) -> N
     ("api_msg", "blame"),
     [
         ("Resource class <resclass> does not allow more than one value for property <prop>", "client"),
-        ("One or more resources were not found:  <http://rdfh.ch/foo/bar>", "client")
+        ("One or more resources were not found:  <http://rdfh.ch/foo/bar>", "client"),
+        ("Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>", "client")
     ],
 )
 def test_determine_blame(api_msg: str, blame: Literal["client", "server"]) -> None:

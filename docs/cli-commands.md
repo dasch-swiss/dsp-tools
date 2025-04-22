@@ -500,6 +500,10 @@ The expected Excel file format and the folder structure are documented
 
 ## `excel2xml`
 
+!!! warning
+
+    The `excel2xml` CLI command is deprecated.
+
 This command creates an XML file
 from an Excel/CSV file that is already structured according to the DSP specifications.
 This is mostly used for DaSCH internal data migration.

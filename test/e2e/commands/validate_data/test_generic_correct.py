@@ -3,7 +3,6 @@ from typing import Iterator
 
 import pytest
 
-
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator

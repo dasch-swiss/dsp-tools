@@ -61,7 +61,8 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 @pytest.fixture(scope="module")
 def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> RDFGraphs:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    return _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
+    return graphs
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

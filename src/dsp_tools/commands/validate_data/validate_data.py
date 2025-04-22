@@ -16,7 +16,6 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
-from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -126,7 +125,7 @@ def _check_for_unknown_resource_classes(
 def _get_all_onto_classes(ontos: Graph) -> set[str]:
     is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    return {reformat_onto_iri(x) for x in resource_classes}
+    return {str(x) for x in resource_classes}
 
 
 def _get_validation_result(

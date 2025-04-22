@@ -12,6 +12,9 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 NON_EXISTING_ONTO = "http://0.0.0.0:3333/ontology/9999/non-existent/v2#"
 
+PREFIXED_IN_ONTO = {"onto:One"}
+CLASSES_IN_ONTO = {f"{ONTO_STR}One"}
+
 
 def _get_rdf_graphs(data_graph: Graph) -> RDFGraphs:
     ttl = f"""{PREFIXES}
@@ -40,8 +43,7 @@ class TestFindUnknownClasses:
         g = Graph()
         g.parse(data=ttl, format="turtle")
         graphs = _get_rdf_graphs(g)
-        used_iris = {f"{ONTO_STR}One"}
-        result = _check_for_unknown_resource_classes(graphs, used_iris)
+        result = _check_for_unknown_resource_classes(graphs, CLASSES_IN_ONTO)
         assert not result
 
     def test_check_for_unknown_resource_classes_data_wrong(self):
@@ -58,8 +60,8 @@ class TestFindUnknownClasses:
         used_iris = {f"{ONTO_STR}NonExistent"}
         result = _check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
-        assert result.unknown_classes == used_iris
-        assert result.classes_onto == {"onto:One"}
+        assert result.unknown_classes == {"onto:NonExistent"}
+        assert result.classes_onto == PREFIXED_IN_ONTO
         assert result._get_unknown_ontos_msg() == ""
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self):
@@ -78,8 +80,8 @@ class TestFindUnknownClasses:
         used_iris = {f"{NON_EXISTING_ONTO}One"}
         result = _check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
-        assert result.unknown_classes == used_iris
-        assert result.classes_onto == {"onto:One"}
+        assert result.unknown_classes == {"non-existing-onto:One"}
+        assert result.classes_onto == PREFIXED_IN_ONTO
         assert result._get_unknown_ontos_msg() != ""
 
     def test_get_all_onto_classes(self):

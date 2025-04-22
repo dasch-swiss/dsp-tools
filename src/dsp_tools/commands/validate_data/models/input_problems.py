@@ -10,6 +10,7 @@ import regex
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
@@ -44,6 +45,10 @@ class OntologyResourceProblem:
 class UnknownClassesInData:
     unknown_classes: set[str]
     classes_onto: set[str]
+
+    def __post_init__(self) -> None:
+        self.unknown_classes = {reformat_onto_iri(x) for x in self.unknown_classes}
+        self.classes_onto = {reformat_onto_iri(x) for x in self.classes_onto}
 
     def get_msg(self) -> str:
         if unknown := self._get_unknown_ontos_msg():

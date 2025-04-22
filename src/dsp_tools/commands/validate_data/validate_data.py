@@ -26,6 +26,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 LIST_SEPARATOR = "\n    - "
@@ -46,6 +47,9 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     Returns:
         true unless it crashed
     """
+
+    parsed_resources, resource_type_iris, shortcode = _get_info_from_xml(filepath, api_url)
+
     graphs = _get_parsed_graphs(api_url, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
@@ -90,13 +94,17 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return True
 
 
-def _get_save_directory(filepath: Path) -> Path:
-    parent_directory = filepath.parent
-    new_directory = parent_directory / "graphs"
-    new_directory.mkdir(exist_ok=True)
-    save_path = new_directory / filepath.stem
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
-    return save_path
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], set[str], str]:
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    parsed_resources, resource_type_iris = get_parsed_resources(root, api_url)
+    return parsed_resources, resource_type_iris, shortcode
+
+
+def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:
+    data_deserialised = get_data_deserialised(parsed_resources)
+    rdf_data = make_data_rdf(data_deserialised)
+    return rdf_data
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
@@ -105,6 +113,15 @@ def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
     list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     return rdf_graphs
+
+
+def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    parsed_resources, _ = get_parsed_resources(root, api_url)
+    data_deserialised = get_data_deserialised(parsed_resources)
+    rdf_data = make_data_rdf(data_deserialised)
+    return rdf_data, shortcode
 
 
 def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:
@@ -200,10 +217,10 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     )
 
 
-def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
-    root = parse_and_clean_xml_file(file)
-    shortcode = root.attrib["shortcode"]
-    parsed_resources, _ = get_parsed_resources(root, api_url)
-    data_deserialised = get_data_deserialised(parsed_resources)
-    rdf_data = make_data_rdf(data_deserialised)
-    return rdf_data, shortcode
+def _get_save_directory(filepath: Path) -> Path:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    save_path = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    return save_path

@@ -68,7 +68,6 @@ def minimal_correct_graphs(_create_projects: Iterator[None], api_url: str) -> tu
     return graphs, used_iris
 
 
-@pytest.mark.usefixtures("_create_projects")
 def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:
     graphs, _ = minimal_correct_graphs
     minimal_correct = _get_validation_result(graphs, shacl_validator, None)

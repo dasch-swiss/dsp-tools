@@ -65,8 +65,9 @@ def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> tu
     return graphs, used_iris
 
 
-def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs, used_iris: set[str]) -> None:
-    result = _check_for_unknown_resource_classes(unknown_classes_graphs, used_iris)
+def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGraphs, set[str]]) -> None:
+    graphs, used_iris = unknown_classes_graphs
+    result = _check_for_unknown_resource_classes(graphs, used_iris)
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert result.unknown_classes == expected

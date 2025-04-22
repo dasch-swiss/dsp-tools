@@ -46,9 +46,9 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         true unless it crashed
     """
 
-    graphs, resource_type_iris = _get_parsed_graphs(api_url, filepath)
+    graphs = _get_parsed_graphs(api_url, filepath)
 
-    if unknown_classes := _check_for_unknown_resource_classes(graphs, resource_type_iris):
+    if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
@@ -91,20 +91,20 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return True
 
 
-def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, resource_type_iris, shortcode = _get_info_from_xml(filepath, api_url)
+def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
+    parsed_resources, shortcode = _get_info_from_xml(filepath, api_url)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources)
     onto_client = OntologyClient(api_url, shortcode)
     list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    return rdf_graphs, resource_type_iris
+    return rdf_graphs
 
 
-def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], set[str], str]:
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
-    parsed_resources, resource_type_iris = get_parsed_resources(root, api_url)
-    return parsed_resources, resource_type_iris, shortcode
+    parsed_resources = get_parsed_resources(root, api_url)
+    return parsed_resources, shortcode
 
 
 def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:

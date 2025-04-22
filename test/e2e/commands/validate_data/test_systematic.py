@@ -46,6 +46,6 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 @pytest.mark.usefixtures("_create_projects")
 def test_systematic(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
-    graphs, _ = _get_parsed_graphs(api_url, file)
+    graphs = _get_parsed_graphs(api_url, file)
     systematic_correct = _get_validation_result(graphs, shacl_validator, None)
     assert not systematic_correct.conforms  # This test will be correct as soon as legal information is mandatory

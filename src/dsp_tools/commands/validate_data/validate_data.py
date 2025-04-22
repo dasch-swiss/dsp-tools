@@ -48,9 +48,8 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         true unless it crashed
     """
 
-    parsed_resources, resource_type_iris, shortcode = _get_info_from_xml(filepath, api_url)
+    graphs, resource_type_iris = _get_parsed_graphs(api_url, filepath)
 
-    graphs = _get_parsed_graphs(api_url, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -94,6 +93,15 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return True
 
 
+def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
+    parsed_resources, resource_type_iris, shortcode = _get_info_from_xml(filepath, api_url)
+    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources)
+    onto_client = OntologyClient(api_url, shortcode)
+    list_client = ListClient(api_url, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    return rdf_graphs, resource_type_iris
+
+
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], set[str], str]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
@@ -105,23 +113,6 @@ def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource
     data_deserialised = get_data_deserialised(parsed_resources)
     rdf_data = make_data_rdf(data_deserialised)
     return rdf_data
-
-
-def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    onto_client = OntologyClient(api_url, shortcode)
-    list_client = ListClient(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    return rdf_graphs
-
-
-def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
-    root = parse_and_clean_xml_file(file)
-    shortcode = root.attrib["shortcode"]
-    parsed_resources, _ = get_parsed_resources(root, api_url)
-    data_deserialised = get_data_deserialised(parsed_resources)
-    rdf_data = make_data_rdf(data_deserialised)
-    return rdf_data, shortcode
 
 
 def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:

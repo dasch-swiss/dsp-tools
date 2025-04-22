@@ -49,7 +49,8 @@ def _create_projects(creds: ServerCredentials) -> None:
 @pytest.fixture(scope="module")
 def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> RDFGraphs:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    return _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
+    return graphs
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
@@ -62,7 +63,7 @@ def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -
 @pytest.mark.usefixtures("_create_projects")
 def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     cardinality_correct = _get_validation_result(graphs, shacl_validator, None)
     assert cardinality_correct.conforms
 
@@ -70,7 +71,7 @@ def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> N
 @pytest.mark.usefixtures("_create_projects")
 def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     content_correct = _get_validation_result(graphs, shacl_validator, None)
     assert content_correct.conforms
 
@@ -78,7 +79,7 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
 @pytest.mark.usefixtures("_create_projects")
 def test_minimal_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     minimal_correct = _get_validation_result(graphs, shacl_validator, None)
     assert minimal_correct.conforms
 
@@ -86,7 +87,7 @@ def test_minimal_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
 @pytest.mark.usefixtures("_create_projects")
 def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     file_value_correct = _get_validation_result(graphs, shacl_validator, None)
     assert file_value_correct.conforms
 
@@ -94,6 +95,6 @@ def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> No
 @pytest.mark.usefixtures("_create_projects")
 def test_dsp_inbuilt_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, None)
     assert dsp_inbuilt_correct.conforms

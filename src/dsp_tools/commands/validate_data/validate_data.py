@@ -1,7 +1,6 @@
 import importlib.resources
 from pathlib import Path
 
-from rdflib import RDF
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -48,9 +47,9 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         true unless it crashed
     """
 
-    graphs, _ = _get_parsed_graphs(api_url, filepath)
+    graphs, resource_type_iris = _get_parsed_graphs(api_url, filepath)
 
-    if unknown_classes := _check_for_unknown_resource_classes(graphs):
+    if unknown_classes := _check_for_unknown_resource_classes(graphs, resource_type_iris):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
@@ -115,28 +114,19 @@ def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource
     return rdf_data
 
 
-def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:
-    used_cls = _get_all_used_classes(rdf_graphs.data)
-    res_cls, value_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
-    all_cls = res_cls.union(value_cls)
-    if extra_cls := used_cls - all_cls:
+def _check_for_unknown_resource_classes(
+    rdf_graphs: RDFGraphs, used_resource_iris: set[str]
+) -> UnknownClassesInData | None:
+    res_cls = _get_all_onto_classes(rdf_graphs.ontos)
+    if extra_cls := used_resource_iris - res_cls:
         return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
     return None
 
 
-def _get_all_used_classes(data_graph: Graph) -> set[str]:
-    types_used = set(data_graph.objects(predicate=RDF.type))
-    return {reformat_onto_iri(x) for x in types_used}
-
-
-def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
+def _get_all_onto_classes(ontos: Graph) -> set[str]:
     is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    res_cls = {reformat_onto_iri(x) for x in resource_classes}
-    is_value_iri = URIRef(KNORA_API_STR + "isValueClass")
-    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
-    value_cls = {reformat_onto_iri(x) for x in value_classes}
-    return res_cls, value_cls
+    return {reformat_onto_iri(x) for x in resource_classes}
 
 
 def _get_validation_result(

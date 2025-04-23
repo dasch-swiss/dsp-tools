@@ -86,6 +86,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
     values: list[ParsedValue] = []
     value: str | tuple[str, str] | None
     for val in segment.iterchildren():
+        prop = f"{KNORA_API_STR}{val.tag!s}"
         match val.tag:
             case "isSegmentOf":
                 val_type = KnoraValueType.LINK_VALUE
@@ -93,19 +94,15 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 value = val.text.strip() if val.text else None
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE
-                prop = f"{KNORA_API_STR}hasSegmentBounds"
                 value = (val.attrib["segment_start"], val.attrib["segment_end"])
             case "hasDescription" | "hasComment":
                 val_type = KnoraValueType.RICHTEXT_VALUE
-                prop = f"{KNORA_API_STR}{val.tag!s}"
                 value = _get_richtext_as_string(val)
             case "relatesTo":
                 val_type = KnoraValueType.LINK_VALUE
-                prop = f"{KNORA_API_STR}{val.tag!s}"
                 value = _get_etree_content_as_string(val)
             case _:
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
-                prop = f"{KNORA_API_STR}{val.tag!s}"
                 value = _get_simpletext_as_string(val)
         values.append(
             ParsedValue(

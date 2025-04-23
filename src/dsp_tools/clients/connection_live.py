@@ -218,6 +218,7 @@ class ConnectionLive(Connection):
             "One or more resources were not found",
             "does not allow more than one value for property",
             "Duplicate values for property",
+            "Text value contains invalid characters",
         ]
         blame: Literal["server", "client"] = "server"
         if any(x.lower() in api_msg for x in client_markers):

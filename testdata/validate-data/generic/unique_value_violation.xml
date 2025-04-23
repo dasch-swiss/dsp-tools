@@ -14,17 +14,19 @@
     -->
     <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values_valueAsString">
         <text-prop name=":testTextarea">
-            <text encoding="utf8">Text   </text>
-            <text encoding="utf8">
-                Text</text>
+            <text encoding="utf8"> Text   </text>
+            <text encoding="utf8">&#160;
+                &#xa;Text&#x9;
+            &#xa;</text>
         </text-prop>
     </resource>
 
     <resource label="Duplicate Value: xml" restype=":ClassWithEverything" id="identical_values_richtext">
         <text-prop name=":testRichtext">
-            <text encoding="xml">Text   </text>
-            <text encoding="xml">
-                Text   </text>
+            <text encoding="xml"> Text   </text>
+            <text encoding="xml">&#160;
+                &#xa;Text&#x9;
+            &#xa;</text>
         </text-prop>
     </resource>
 

@@ -121,7 +121,12 @@ class StackHandler:
 
     def _set_custom_host(self) -> None:
         """
-        tba
+        To ensure the frontend can communicate with a backend on a different server, the host in the environments
+        needs to be changed.
+        By design the IRIs match the host of the database.
+
+        This is done by overriding the environment variables in the docker-compose.yml and by replacing the
+        configuration for the frontend.
         """
 
         if self.__stack_configuration.custom_host is not None:

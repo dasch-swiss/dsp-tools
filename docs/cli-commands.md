@@ -572,7 +572,9 @@ If you don't know what that means, just type `y` ("yes") and then `Enter`.
 The following options are available:
 
 - `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed, in MB (max: 100'000)
-- `--latest` (optional): 
+- `--custom-host` (optional, default: localhost):
+  set a host to an IP or a domain to run the instance on a server
+- `--latest` (optional):
   instead of the latest deployed version,
   use the latest development version (from the `main` branch)
   of the backend components (api, sipi, fuseki, ingest)

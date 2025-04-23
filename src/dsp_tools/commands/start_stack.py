@@ -125,6 +125,8 @@ class StackHandler:
         """
 
         if self.__stack_configuration.custom_host is not None:
+            self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
+
             docker_template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.override-host.j2")
             docker_template = Template(docker_template_path.read_text(encoding="utf-8"))
             docker_template_rendered = docker_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)

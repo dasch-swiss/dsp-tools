@@ -677,7 +677,7 @@ def test_get_one_absolute_iri(local_name, expected):
 
 
 def test_cleanup_simpletext():
-    orig = """
+    original = """
     Text line 1
 
             line 2  
@@ -685,12 +685,12 @@ def test_cleanup_simpletext():
 
     """
     expected = "Text line 1\n\nline 2\nThird line ..."
-    result = _cleanup_simpletext(orig)
+    result = _cleanup_simpletext(original)
     assert result == expected
 
 
 def test_cleanup_formatted_text():
-    orig = """
+    original = """
 
         This is <em>italicized and <strong>bold</strong></em> text!
         It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
@@ -714,5 +714,5 @@ def test_cleanup_formatted_text():
         "It contains links to a resource: "
         '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
     )
-    result = _cleanup_formatted_text(orig)
+    result = _cleanup_formatted_text(original)
     assert result == expected

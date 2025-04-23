@@ -1,4 +1,3 @@
-from abc import ABC
 from dataclasses import dataclass
 
 from loguru import logger
@@ -19,15 +18,15 @@ def get_message_string(msg: MessageInfo) -> str:
     return " | ".join(str_list)
 
 
-class XmllibUserMessage(ABC):
-    """Class for general user-facing warnings"""
+class XmllibUserMessage(Warning):
+    """Protocol for warnings that implement a custom showwarnings() function"""
 
-    @staticmethod
-    def showwarning(message: str, depth: int) -> None:
-        """Base method for print-outs"""
+    @classmethod
+    def showwarning(cls, msg: str) -> None:
+        """Functionality that should be executed when a warning of this class is emitted"""
 
 
 class XmllibUserInfo(XmllibUserMessage):
-    @staticmethod
-    def showwarning(msg_info: MessageInfo, depth: int) -> None:
-        logger.opt(depth=depth).info(get_message_string(msg_info))
+    @classmethod
+    def showwarning(cls, msg: str) -> None:
+        logger.opt(depth=5).info(msg)

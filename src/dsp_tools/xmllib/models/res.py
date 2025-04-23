@@ -9,6 +9,9 @@ from typing import Any
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings import XmllibUserInfo
+from dsp_tools.error.xmllib_warnings import get_message_string
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -818,6 +821,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        msg_info = MessageInfo(self.res_id, "From function itself", prop_name)
+        warnings.warn(XmllibUserInfo(get_message_string(msg_info)))
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 

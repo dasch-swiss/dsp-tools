@@ -1,4 +1,5 @@
 from dsp_tools.error.xmllib_logging_config import config_xmllib_logging
+from dsp_tools.error.xmllib_logging_config import xmllib_warning_config
 
 from .helpers import ListLookup as ListLookup
 from .helpers import create_label_to_name_list_node_mapping as create_label_to_name_list_node_mapping
@@ -34,4 +35,5 @@ from .value_converters import replace_newlines_with_br_tags as replace_newlines_
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags
 
+xmllib_warning_config()
 config_xmllib_logging()

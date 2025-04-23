@@ -4,6 +4,8 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_simpletext
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -12,14 +14,6 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMe
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
-
-SEGMENT_TAG_TO_PROP_MAPPER = {
-    "relatesTo": KnoraValueType.LINK_VALUE,
-    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
-    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
-    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
-    "hasComment": KnoraValueType.RICHTEXT_VALUE,
-}
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
@@ -103,10 +97,18 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 val_type = KnoraValueType.INTERVAL_VALUE
                 prop = f"{KNORA_API_STR}hasSegmentBounds"
                 value = (val.attrib["segment_start"], val.attrib["segment_end"])
-            case _:
-                val_type = SEGMENT_TAG_TO_PROP_MAPPER[str(val.tag)]
+            case "hasDescription" | "hasComment":
+                val_type = KnoraValueType.RICHTEXT_VALUE
+                prop = f"{KNORA_API_STR}{val.tag!s}"
+                value = _get_richtext_as_string(val)
+            case "relatesTo":
+                val_type = KnoraValueType.LINK_VALUE
                 prop = f"{KNORA_API_STR}{val.tag!s}"
                 value = _get_etree_content_as_string(val)
+            case _:
+                val_type = KnoraValueType.SIMPLETEXT_VALUE
+                prop = f"{KNORA_API_STR}{val.tag!s}"
+                value = _get_simpletext_as_string(val)
         values.append(
             ParsedValue(
                 prop_name=prop,
@@ -208,10 +210,10 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     for val in values:
         if val.attrib["encoding"] == "xml":
             val_type = KnoraValueType.RICHTEXT_VALUE
-            value = _get_etree_content_as_string(val)
+            value = _get_richtext_as_string(val)
         else:
             val_type = KnoraValueType.SIMPLETEXT_VALUE
-            value = _get_etree_content_as_string(val)
+            value = _get_simpletext_as_string(val)
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -222,6 +224,22 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
             )
         )
     return parsed_values
+
+
+def _get_richtext_as_string(value: etree._Element) -> str | None:
+    # Not entering any values within the tag results in None,
+    # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
+    if (xml_str := _get_etree_content_as_string(value)) is None:
+        return None
+    return cleanup_formatted_text(xml_str)
+
+
+def _get_simpletext_as_string(value: etree._Element) -> str | None:
+    # Not entering any values within the tag results in None,
+    # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
+    if (simpletext := _get_etree_content_as_string(value)) is None:
+        return None
+    return cleanup_simpletext(simpletext)
 
 
 def _get_etree_content_as_string(value: etree._Element) -> str | None:

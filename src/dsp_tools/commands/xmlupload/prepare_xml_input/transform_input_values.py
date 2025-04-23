@@ -108,13 +108,18 @@ def transform_geometry(value: InputTypes) -> str:
 
 def transform_simpletext(value: InputTypes) -> str:
     str_val = assert_is_string(value)
+    result = cleanup_simpletext(str_val)
+    if len(result) == 0:
+        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
+    return result
+
+
+def cleanup_simpletext(str_val: str) -> str:
     # replace multiple spaces or tabstops by a single space
     str_val = regex.sub(r" {2,}|\t+", " ", str_val)
     # remove leading and trailing spaces (of every line, but also of the entire string)
     str_val = "\n".join([s.strip() for s in str_val.split("\n")])
     result = str_val.strip()
-    if len(result) == 0:
-        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
     return result
 
 

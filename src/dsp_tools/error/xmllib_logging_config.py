@@ -7,7 +7,10 @@ def config_xmllib_logging() -> None:
     def colour_level_formatter(record) -> str:
         level = record["level"].name
         message = record["message"]
-        function = record["function"]
+        func = ":"
+        if not (fnc := record["function"]) == "<module>":
+            func = f":{fnc}:"
+        function = f"{record['file'].name}{func}{record['line']}"
         level_colors = {"INFO": "yellow", "WARNING": "red", "ERROR": "bold red"}
         if not (colour := level_colors.get(level)):
             colour = "white"

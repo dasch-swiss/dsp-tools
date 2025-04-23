@@ -106,7 +106,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         case set() | list() | tuple():
             if len(value) == 0:
                 msg += "is empty. Please note that no values will be added to the resource."
-                XmllibUserInfo().showwarning(msg, 2)
+                XmllibUserInfo().showwarning(msg, 3)
             return list(value)
         case dict():
             msg += "is a dictionary. Only collections (list, set, tuple) are permissible."

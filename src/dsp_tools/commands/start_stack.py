@@ -125,15 +125,17 @@ class StackHandler:
         """
 
         if self.__stack_configuration.custom_host is not None:
-            docker_template_path = importlib.resources.files("dsp_tools").joinpath("resources/custom_host/docker-compose.override-host.j2")
+            docker_template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.override-host.j2")
             docker_template = Template(docker_template_path.read_text(encoding="utf-8"))
             docker_template_rendered = docker_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
             Path(self.__docker_path_of_user / "docker-compose.override-host.yml").write_text(docker_template_rendered, encoding="utf-8")
 
-            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath("resources/custom_host/dsp-app-config.override-host.j2")
+            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/dsp-app-config.override-host.j2")
             dsp_app_config_template = Template(dsp_app_config_template_path.read_text(encoding="utf-8"))
             dsp_app_config_rendered = dsp_app_config_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
             Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(dsp_app_config_rendered, encoding="utf-8")
+        Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
+        Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """

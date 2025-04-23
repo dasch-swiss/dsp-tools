@@ -8,8 +8,6 @@ from typing import TypeAlias
 from typing import Union
 from typing import assert_never
 
-import regex
-
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
@@ -108,51 +106,13 @@ def transform_geometry(value: InputTypes) -> str:
 
 def transform_simpletext(value: InputTypes) -> str:
     str_val = assert_is_string(value)
-    result = cleanup_simpletext(str_val)
-    if len(result) == 0:
+    if len(str_val) == 0:
         raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
-    return result
-
-
-def cleanup_simpletext(str_val: str) -> str:
-    # replace multiple spaces or tabstops by a single space
-    str_val = regex.sub(r" {2,}|\t+", " ", str_val)
-    # remove leading and trailing spaces (of every line, but also of the entire string)
-    str_val = "\n".join([s.strip() for s in str_val.split("\n")])
-    result = str_val.strip()
-    return result
+    return str_val
 
 
 def transform_richtext(value: InputTypes) -> FormattedTextValue:
     str_val = assert_is_string(value)
-    result = cleanup_formatted_text(str_val)
-    if len(result) == 0:
+    if len(str_val) == 0:
         raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
-    return FormattedTextValue(result)
-
-
-def cleanup_formatted_text(xmlstr_orig: str) -> str:
-    """
-    In a xml-encoded text value from the XML file,
-    there may be non-text characters that must be removed.
-    This function:
-        - replaces (multiple) line breaks by a space
-        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
-
-    Args:
-        xmlstr_orig: content of the tag from the XML file, in serialized form
-
-    Returns:
-        purged string, suitable to be sent to DSP-API
-    """
-    # replace (multiple) line breaks by a space
-    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
-    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
-    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
-    # credits: https://stackoverflow.com/a/46937770/14414188
-    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
-    # remove spaces after <br/> tags (except within <code> tags)
-    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
-    # remove leading and trailing spaces
-    xmlstr = xmlstr.strip()
-    return xmlstr
+    return FormattedTextValue(str_val)

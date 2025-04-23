@@ -4,8 +4,6 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_simpletext
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -226,12 +224,47 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     return parsed_values
 
 
+def _get_etree_content_as_string(value: etree._Element) -> str | None:
+    if not value.text and not len(value) > 0:
+        return None
+    xmlstr = etree.tostring(value, encoding="unicode", method="xml")
+    xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
+    return xmlstr.strip()
+
+
 def _get_richtext_as_string(value: etree._Element) -> str | None:
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     if (xml_str := _get_etree_content_as_string(value)) is None:
         return None
-    return cleanup_formatted_text(xml_str)
+    return _cleanup_formatted_text(xml_str)
+
+
+def _cleanup_formatted_text(xmlstr_orig: str) -> str:
+    """
+    In a xml-encoded text value from the XML file,
+    there may be non-text characters that must be removed.
+    This function:
+        - replaces (multiple) line breaks by a space
+        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
+
+    Args:
+        xmlstr_orig: content of the tag from the XML file, in serialized form
+
+    Returns:
+        purged string, suitable to be sent to DSP-API
+    """
+    # replace (multiple) line breaks by a space
+    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
+    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
+    # credits: https://stackoverflow.com/a/46937770/14414188
+    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
+    # remove spaces after <br/> tags (except within <code> tags)
+    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
+    # remove leading and trailing spaces
+    xmlstr = xmlstr.strip()
+    return xmlstr
 
 
 def _get_simpletext_as_string(value: etree._Element) -> str | None:
@@ -239,15 +272,16 @@ def _get_simpletext_as_string(value: etree._Element) -> str | None:
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     if (simpletext := _get_etree_content_as_string(value)) is None:
         return None
-    return cleanup_simpletext(simpletext)
+    return _cleanup_simpletext(simpletext)
 
 
-def _get_etree_content_as_string(value: etree._Element) -> str | None:
-    if not value.text and not len(value) > 0:
-        return None
-    xmlstr = etree.tostring(value, encoding="unicode", method="xml")
-    xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
-    return xmlstr.strip()
+def _cleanup_simpletext(str_val: str) -> str:
+    # replace multiple spaces or tabstops by a single space
+    str_val = regex.sub(r" {2,}|\t+", " ", str_val)
+    # remove leading and trailing spaces (of every line, but also of the entire string)
+    str_val = "\n".join([s.strip() for s in str_val.split("\n")])
+    result = str_val.strip()
+    return result
 
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:

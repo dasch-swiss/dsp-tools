@@ -47,7 +47,7 @@ class StackConfiguration:
             raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
-        if self.custom_host is not None and regex.match(r"^((\d{1,3}\.)^{3}\d{1,3})|(((\w|\d)+\.)(\w){2,})$", self.custom_host):
+        if self.custom_host is not None and regex.match(r"^((\d{1,3}\.)^{3}\d{1,3})|(((\w|\d|-|_|~)+\.)(\w){2,})$", self.custom_host):
             raise InputError('Invalid format for custom host')
 
 

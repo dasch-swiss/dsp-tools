@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 4 Violations -->
+    <!-- 5 Violations -->
 
     <!--
         The value of the same property may not be identical
@@ -14,8 +14,17 @@
     -->
     <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values_valueAsString">
         <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
+            <text encoding="utf8">Text   </text>
+            <text encoding="utf8">
+                Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Duplicate Value: xml" restype=":ClassWithEverything" id="identical_values_richtext">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">Text   </text>
+            <text encoding="xml">
+                Text   </text>
         </text-prop>
     </resource>
 

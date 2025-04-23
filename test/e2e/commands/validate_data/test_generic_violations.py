@@ -287,6 +287,7 @@ class TestReformatValidationGraph:
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
+            "identical_values_richtext",
             "identical_values_valueAsString",
             "identical_values_valueHas",
         ]

@@ -1,4 +1,6 @@
-from dsp_tools.error.xmllib_logging_config import configure_logging
+import sys
+
+from loguru import logger
 
 from .helpers import ListLookup as ListLookup
 from .helpers import create_label_to_name_list_node_mapping as create_label_to_name_list_node_mapping
@@ -34,4 +36,16 @@ from .value_converters import replace_newlines_with_br_tags as replace_newlines_
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags
 
-configure_logging()
+
+def colour_level_formatter(record) -> str:
+    level = record["level"].name
+    message = record["message"]
+    function = record["function"]
+    level_colors = {"INFO": "yellow", "WARNING": "red", "ERROR": "bold red"}
+    if not (colour := level_colors.get(level)):
+        colour = "white"
+    return f"<{colour}>{level} | Function: '{function}' | {message}</{colour}>\n"
+
+
+logger.remove()
+logger.add(sys.stderr, colorize=True, format=colour_level_formatter)

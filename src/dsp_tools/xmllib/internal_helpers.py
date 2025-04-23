@@ -9,6 +9,7 @@ import regex
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibUserInfo
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -106,7 +107,8 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         case set() | list() | tuple():
             if len(value) == 0:
                 msg += "is empty. Please note that no values will be added to the resource."
-                XmllibUserInfo().showwarning(msg, 3)
+                msg_info = MessageInfo(res_id, "Input is empty, no values will be added to the resource", prop_name)
+                XmllibUserInfo().showwarning(msg_info, 3)
             return list(value)
         case dict():
             msg += "is a dictionary. Only collections (list, set, tuple) are permissible."

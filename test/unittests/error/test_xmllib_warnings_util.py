@@ -30,11 +30,16 @@ def test_emit_xmllib_input_warning(message_info):
 class TestGetMessageString:
     def test_with_property(self):
         msg_info = MessageInfo("msg", "id", "prop")
-        result = get_user_message_string(msg_info)
+        result = get_user_message_string(msg_info, None)
         expected = "Resource ID 'id' | Property 'prop' | msg"
         assert result == expected
 
+    def test_with_trace(self, message_info):
+        result = get_user_message_string(message_info, "trace")
+        expected = "trace | Resource ID 'id' | msg"
+        assert result == expected
+
     def test_no_property(self, message_info):
-        result = get_user_message_string(message_info)
+        result = get_user_message_string(message_info, None)
         expected = "Resource ID 'id' | msg"
         assert result == expected

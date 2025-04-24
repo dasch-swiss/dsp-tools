@@ -2,7 +2,7 @@ import warnings
 
 import pytest
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -25,7 +25,7 @@ class TestBooleanValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             BooleanValue("other", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -36,7 +36,7 @@ class TestColorValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             ColorValue("invalidColor", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -47,7 +47,7 @@ class TestDateValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             DateValue("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -58,7 +58,7 @@ class TestDecimalValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             DecimalValue("invalidDecimal", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -69,7 +69,7 @@ class TestGeonameValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             GeonameValue("invalidGeoname", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -80,7 +80,7 @@ class TestIntValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             IntValue("invalidInt", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -91,7 +91,7 @@ class TestLinkValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             LinkValue(None, ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
 
@@ -102,11 +102,11 @@ class TestListValue:
         assert len(caught_warnings) == 0
 
     def test_warns_false_node(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             ListValue(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_warns_false_list(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             ListValue("Node", None, ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -117,7 +117,7 @@ class TestRichtext:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             Richtext(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
 
@@ -128,7 +128,7 @@ class TestSimpleText:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             SimpleText(None, ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
 
@@ -139,7 +139,7 @@ class TestTimeValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             TimeValue("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 
@@ -150,7 +150,7 @@ class TestUriValue:
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning):
+        with pytest.warns(XmllibInputWarning):
             UriValue("invalidUri", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
 
 

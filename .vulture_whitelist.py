@@ -20,5 +20,5 @@ is_full_date("")
 
 check_notna("")
 
-XmllibInputWarning()
 XmllibInputInfo()
+XmllibInputWarning()

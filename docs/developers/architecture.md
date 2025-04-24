@@ -19,7 +19,7 @@ state "CLI: xmlupload" as transform
 state "ParsedResource" as parsedres1
 state "ParsedResource" as parsedres2
 state "ParsedResource" as parsedres3
-state "IntermediaryResource" as intermediaryres
+state "ProcessedResource" as Processedres
 state "CLI: validate-data" as valdata
 
 [*]-->eroot1
@@ -34,7 +34,7 @@ state pywork {
 pywork-->transform
 state transform {
     ResourceInputConversionFailure-->[*]: transformation error raised
-    parsedres2-->intermediaryres: transformation success
+    parsedres2-->Processedres: transformation success
     parsedres2-->ResourceInputConversionFailure: transformation failure
 }
 pywork-->valdata
@@ -96,7 +96,7 @@ r4-->transpy
 <!-- markdownlint-enable MD013 -->
 
 
-### From `ParsedResource` to `IntermediaryResource` in `xmlupload`
+### From `ParsedResource` to `ProcessedResource` in `xmlupload`
 
 ```mermaid
 ---
@@ -109,7 +109,7 @@ state "Transform Value" as transformationval
 state "Transform FileValues" as transformfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
-state "IntermediaryValue" as valdes
+state "ProcessedValue" as valdes
 state "Collected Transformations" as coll
 
 parsedres-->transformfile
@@ -122,12 +122,12 @@ state transformationval {
     parsedval-->valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
 }
 state transformfile {
-    ParsedFileValue-->IntermediaryFileValue: resolve permissions<br/><br/>resolve metadata
+    ParsedFileValue-->ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
 }
 transformres-->coll: return result
 transformationval-->coll: return result
 transformfile-->coll: return result
 coll-->ResourceInputConversionFailure: resolving errors
 ResourceInputConversionFailure-->[*]
-coll-->IntermediaryResource: successful transformations
+coll-->ProcessedResource: successful transformations
 ```

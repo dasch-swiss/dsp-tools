@@ -241,7 +241,7 @@ def test_make_property_objects_graph() -> None:
     assert next(graph.objects(RES_IRI, RDF.type)) == URIRef(RESOURCE_TYPE_STR)
 
 
-class TestTransformFileValue:
+class TestFileValue:
     def test_make_file_value_graph_real_file(self) -> None:
         file_value = ValueInformation(
             user_facing_prop=f"{KNORA_API_STR}hasArchiveFileValue",

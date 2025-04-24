@@ -21,15 +21,15 @@ from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -84,9 +84,9 @@ def xmlupload(
 
     check_if_bitstreams_exist(root, imgdir)
     preliminary_validation_of_root(root, con, config)
-    transformed = get_transformed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(transformed)
-    sorted_resources, stash = get_stash_and_upload_order(transformed)
+    processed_resources = get_processed_resources_for_upload(root, clients)
+    check_if_link_targets_exist(processed_resources)
+    sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,
         pending_stash=stash,
@@ -132,7 +132,7 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     return _cleanup_upload(upload_state)
 
 
-def _warn_about_future_mandatory_legal_info(resources: list[IntermediaryResource]) -> None:
+def _warn_about_future_mandatory_legal_info(resources: list[ProcessedResource]) -> None:
     missing_info = []
     counter = 0
     for res in resources:
@@ -160,12 +160,12 @@ def _warn_about_future_mandatory_legal_info(resources: list[IntermediaryResource
     warnings.warn(DspToolsFutureWarning(msg))
 
 
-def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_client: LegalInfoClient) -> None:
+def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
     copyright_holders = _get_copyright_holders(resources)
     legal_info_client.post_copyright_holders(copyright_holders)
 
 
-def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
+def _get_copyright_holders(resources: list[ProcessedResource]) -> list[str]:
     copyright_holders = set()
     for res in resources:
         if res.file_value:
@@ -266,7 +266,7 @@ def _upload_stash(
 
 def _upload_one_resource(
     upload_state: UploadState,
-    resource: IntermediaryResource,
+    resource: ProcessedResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     iri_lookups: IRILookups,
@@ -349,7 +349,7 @@ def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this
 def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     iri: str | None,
-    resource: IntermediaryResource,
+    resource: ProcessedResource,
 ) -> None:
     previous_successful = len(upload_state.iri_resolver.lookup)
     previous_failed = len(upload_state.failed_uploads)
@@ -370,7 +370,7 @@ def _tidy_up_resource_creation_idempotent(
         upload_state.pending_resources.remove(resource)
 
 
-def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_msg: str | None) -> None:
+def _inform_about_resource_creation_failure(resource: ProcessedResource, err_msg: str | None) -> None:
     log_msg = f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
     if err_msg:
         log_msg += err_msg

@@ -15,59 +15,59 @@ class IntervalFloats:
     end: float
 
 
-IntermediaryValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
+ProcessedValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
 
 
 @dataclass
-class IntermediaryValue:
-    value: IntermediaryValueTypes
+class ProcessedValue:
+    value: ProcessedValueTypes
     prop_iri: str
     comment: str | None
     permissions: Permissions | None
 
 
 @dataclass
-class IntermediaryBoolean(IntermediaryValue):
+class ProcessedBoolean(ProcessedValue):
     value: bool
 
 
 @dataclass
-class IntermediaryColor(IntermediaryValue):
+class ProcessedColor(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediaryDate(IntermediaryValue):
+class ProcessedDate(ProcessedValue):
     value: Date
 
 
 @dataclass
-class IntermediaryDecimal(IntermediaryValue):
+class ProcessedDecimal(ProcessedValue):
     value: float
 
 
 @dataclass
-class IntermediaryGeoname(IntermediaryValue):
+class ProcessedGeoname(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediaryGeometry(IntermediaryValue):
+class ProcessedGeometry(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediaryInt(IntermediaryValue):
+class ProcessedInt(ProcessedValue):
     value: int
 
 
 @dataclass
-class IntermediaryInterval(IntermediaryValue):
+class ProcessedInterval(ProcessedValue):
     value: IntervalFloats
 
 
 @dataclass
-class IntermediaryLink(IntermediaryValue):
+class ProcessedLink(ProcessedValue):
     value: str
     value_uuid: str
 
@@ -76,27 +76,27 @@ class IntermediaryLink(IntermediaryValue):
 
 
 @dataclass
-class IntermediaryList(IntermediaryValue):
+class ProcessedList(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediarySimpleText(IntermediaryValue):
+class ProcessedSimpleText(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediaryRichtext(IntermediaryValue):
+class ProcessedRichtext(ProcessedValue):
     value: FormattedTextValue
     resource_references: set[str]
     value_uuid: str
 
 
 @dataclass
-class IntermediaryTime(IntermediaryValue):
+class ProcessedTime(ProcessedValue):
     value: str
 
 
 @dataclass
-class IntermediaryUri(IntermediaryValue):
+class ProcessedUri(ProcessedValue):
     value: str

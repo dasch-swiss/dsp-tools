@@ -14,7 +14,7 @@ from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InvalidFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -35,7 +35,7 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
+    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo | None:
         """Uploads the file to the ingest server if applicable, and returns the upload results.
 
         Args:
@@ -115,7 +115,7 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError() from e
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
+    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
@@ -133,6 +133,6 @@ class DspIngestClientLive(AssetClient):
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo:
-        """Returns the BitstreamInfo of the already ingested file based on the `IntermediaryFileValue.value`."""
+    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo:
+        """Returns the BitstreamInfo of the already ingested file based on the `ProcessedFileValue.value`."""
         return BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions)

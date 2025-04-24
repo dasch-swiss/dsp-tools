@@ -39,7 +39,7 @@ state processed {
 }
 pywork-->valdata
 state valdata {
-    parsedres3-->ResourceDeserialised: processing
+    parsedres3-->RdfLikeResource: processing
 }
 ```
 

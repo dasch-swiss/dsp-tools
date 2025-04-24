@@ -9,34 +9,25 @@ from dsp_tools.commands.validate_data.mappers import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.mappers import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
 from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TO_RDF_MAPPER
 from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TRIPLE_OBJECT_TYPE
+from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeData
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
+from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
+from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.utils.rdflib_constants import DATA
-from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
-def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
-    """
-    Transforms the deserialised data into instances that can produce a RDF graph.
-
-    Args:
-        data_deserialised: Deserialised Data
-
-    Returns:
-        Graph with the data
-    """
+def make_data_graph(data: RdfLikeData) -> Graph:
     logger.info("Creating the RDF data graph.")
     g = Graph()
-    for r in data_deserialised.resources:
+    for r in data.resources:
         g += _make_one_resource(r)
     return g
 
 
-def _make_one_resource(res: ResourceDeserialised) -> Graph:
+def _make_one_resource(res: RdfLikeResource) -> Graph:
     res_iri = DATA[res.res_id]
     g = _make_property_objects_graph(res.property_objects, res_iri)
     for v in res.values:
@@ -46,7 +37,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     return g
 
 
-def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
+def _make_one_value(val: RdfLikeValue, res_iri: URIRef) -> Graph:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
     val_iri = DATA[val.value_uuid]

@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import LicenseRecommended
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
@@ -398,7 +398,11 @@ def test_check_and_fix_collection_input_success(input_val: Any, expected_val: li
 
 
 def test_check_and_fix_collection_input_warns() -> None:
-    with pytest.warns(DspToolsUserInfo):
+    msg = regex.escape(
+        "The input value of the resource with the ID 'id' and the property 'prop' is empty. "
+        "Please note that no values will be added to the resource."
+    )
+    with pytest.warns(XmllibInputInfo, match=msg):
         check_and_fix_collection_input([], "prop", "id")
 
 

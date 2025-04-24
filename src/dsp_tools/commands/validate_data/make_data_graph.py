@@ -19,7 +19,7 @@ from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
-def make_data_rdf(data: RdfLikeData) -> Graph:
+def make_data_graph(data: RdfLikeData) -> Graph:
     logger.info("Creating the RDF data graph.")
     g = Graph()
     for r in data.resources:

@@ -10,7 +10,7 @@ from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
-from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
+from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -110,7 +110,7 @@ def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], 
 
 def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:
     rdf_like_data = get_rdf_like_data(parsed_resources)
-    rdf_data = make_data_rdf(rdf_like_data)
+    rdf_data = make_data_graph(rdf_like_data)
     return rdf_data
 
 

@@ -7,10 +7,10 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
-from dsp_tools.commands.validate_data.make_data_rdf import _make_property_objects_graph
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_rdflib_object
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_resource
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_value
+from dsp_tools.commands.validate_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource

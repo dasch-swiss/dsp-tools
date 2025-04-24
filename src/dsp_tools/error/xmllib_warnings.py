@@ -1,11 +1,8 @@
-from typing import runtime_checkable
-
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 
 
-@runtime_checkable
 class XmllibUserInfo(Warning):
     """Protocol for warnings that implement a custom showwarnings() function"""
 

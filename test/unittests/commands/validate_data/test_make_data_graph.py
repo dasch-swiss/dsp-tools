@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
@@ -5,25 +7,41 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
-from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
-from dsp_tools.commands.validate_data.make_data_rdf import _make_property_objects_graph
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_rdflib_object
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_resource
+from dsp_tools.commands.validate_data.make_data_graph import _make_one_value
+from dsp_tools.commands.validate_data.make_data_graph import _make_property_objects_graph
+from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
+from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
+from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
+from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
-from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 
+LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
+TYPE_TRIPLE = PropertyObject(
+    TriplePropertyType.RDF_TYPE, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.IRI
+)
+
+UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]
+
+
 RES_IRI = DATA["id"]
 RESOURCE_TYPE_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+
+
+@pytest.fixture
+def rdf_like_boolean_value_corr() -> RdfLikeValue:
+    return RdfLikeValue(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "false", KnoraValueType.BOOLEAN_VALUE, []
+    )
 
 
 @pytest.mark.parametrize(
@@ -60,28 +78,54 @@ def test_make_one_rdflib_object(
     object_type: TripleObjectType,
     prop_type: TriplePropertyType | None,
     expected: SubjectObjectTypeAlias,
-) -> None:
+):
     result = _make_one_rdflib_object(trpl_obj, object_type, prop_type)
     assert result == expected
 
 
 class TestResource:
-    def test_empty(self, resource_deserialised_no_values: ResourceDeserialised) -> None:
-        res_g = _make_one_resource(resource_deserialised_no_values)
+    def test_empty(self):
+        res = RdfLikeResource(
+            res_id="id",
+            property_objects=UNREIFIED_TRIPLE_OBJECTS,
+            values=[],
+            asset_value=None,
+            migration_metadata=MigrationMetadata(),
+        )
+        res_g = _make_one_resource(res)
         assert len(res_g) == 2
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
 
-    def test_with_props(self, resource_deserialised_with_values: ResourceDeserialised) -> None:
-        res_g = _make_one_resource(resource_deserialised_with_values)
+    def test_with_props(self, rdf_like_boolean_value_corr):
+        res = RdfLikeResource(
+            res_id="id",
+            property_objects=UNREIFIED_TRIPLE_OBJECTS,
+            values=[rdf_like_boolean_value_corr],
+            asset_value=None,
+            migration_metadata=MigrationMetadata(),
+        )
+        res_g = _make_one_resource(res)
         assert len(res_g) == 5
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
         bool_bn = next(res_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(res_g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
 
-    def test_with_asset(self, resource_deserialised_with_asset: ResourceDeserialised) -> None:
-        res_g = _make_one_resource(resource_deserialised_with_asset)
+    def test_with_asset(self):
+        res = RdfLikeResource(
+            res_id="id",
+            property_objects=UNREIFIED_TRIPLE_OBJECTS,
+            values=[],
+            asset_value=RdfLikeValue(
+                f"{KNORA_API_STR}hasAudioFileValue",
+                "testdata/bitstreams/test.wav",
+                KnoraValueType.AUDIO_FILE,
+                [],
+            ),
+            migration_metadata=MigrationMetadata(),
+        )
+        res_g = _make_one_resource(res)
         assert len(res_g) == 5
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
@@ -92,22 +136,28 @@ class TestResource:
 
 
 class TestBooleanValue:
-    def test_corr(self, boolean_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(boolean_value_deserialised_corr, RES_IRI)
+    def test_corr(self, rdf_like_boolean_value_corr):
+        val_g = _make_one_value(rdf_like_boolean_value_corr, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.BooleanValue
         assert next(val_g.objects(bn, KNORA_API.booleanValueAsBoolean)) == Literal("false", datatype=XSD.boolean)
 
-    def test_one(self, boolean_value_deserialised_one: ValueInformation) -> None:
-        val_g = _make_one_value(boolean_value_deserialised_one, RES_IRI)
+    def test_one(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1", KnoraValueType.BOOLEAN_VALUE, []
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.BooleanValue
         assert next(val_g.objects(bn, KNORA_API.booleanValueAsBoolean)) == Literal("true", datatype=XSD.boolean)
 
-    def test_zero(self, boolean_value_deserialised_zero: ValueInformation) -> None:
-        val_g = _make_one_value(boolean_value_deserialised_zero, RES_IRI)
+    def test_zero(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0", KnoraValueType.BOOLEAN_VALUE, []
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.BooleanValue
@@ -115,8 +165,11 @@ class TestBooleanValue:
 
 
 class TestColorValue:
-    def test_corr(self, color_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(color_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", "#00ff00", KnoraValueType.COLOR_VALUE, []
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testColor))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ColorValue
@@ -124,8 +177,14 @@ class TestColorValue:
 
 
 class TestDateValue:
-    def test_corr(self, date_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(date_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "JULIAN:BCE:0700:BCE:0600",
+            KnoraValueType.DATE_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
@@ -135,8 +194,14 @@ class TestDateValue:
 
 
 class TestDecimalValue:
-    def test_corr(self, decimal_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(decimal_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText",
+            "1.2",
+            KnoraValueType.DECIMAL_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testDecimalSimpleText))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DecimalValue
@@ -144,8 +209,14 @@ class TestDecimalValue:
 
 
 class TestGeonameValue:
-    def test_corr(self, geoname_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(geoname_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname",
+            "1241345",
+            KnoraValueType.GEONAME_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testGeoname))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.GeonameValue
@@ -153,8 +224,14 @@ class TestGeonameValue:
 
 
 class TestIntValue:
-    def test_corr(self, int_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(int_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText",
+            "1",
+            KnoraValueType.INT_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testIntegerSimpleText))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.IntValue
@@ -162,8 +239,16 @@ class TestIntValue:
 
 
 class TestIntervalValue:
-    def test_corr(self, interval_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(interval_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        seg_start = PropertyObject(TriplePropertyType.KNORA_INTERVAL_START, "1", TripleObjectType.DECIMAL)
+        seg_end = PropertyObject(TriplePropertyType.KNORA_INTERVAL_END, "2", TripleObjectType.DECIMAL)
+        val = RdfLikeValue(
+            user_facing_prop=f"{KNORA_API_STR}hasSegmentBounds",
+            user_facing_value=None,
+            knora_type=KnoraValueType.INTERVAL_VALUE,
+            value_metadata=[seg_start, seg_end],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 4
         bn = next(val_g.objects(RES_IRI, KNORA_API.hasSegmentBounds))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.IntervalValue
@@ -172,15 +257,24 @@ class TestIntervalValue:
 
 
 class TestLinkValue:
-    def test_corr(self, link_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(link_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
+            "link-id",
+            KnoraValueType.LINK_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
         assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
-    def test_none(self, link_value_deserialised_none: ValueInformation) -> None:
-        val_g = _make_one_value(link_value_deserialised_none, RES_IRI)
+    def test_none(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
@@ -188,8 +282,11 @@ class TestLinkValue:
 
 
 class TestListValue:
-    def test_corr(self, list_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(list_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, []
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testListProp))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ListValue
@@ -197,8 +294,14 @@ class TestListValue:
 
 
 class TestSimpleTextValue:
-    def test_corr(self, simple_text_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(simple_text_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea",
+            "simple text",
+            KnoraValueType.SIMPLETEXT_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testTextarea))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
@@ -206,8 +309,14 @@ class TestSimpleTextValue:
 
 
 class TestRichtextValue:
-    def test_corr(self, richtext_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(richtext_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext",
+            "rich text",
+            KnoraValueType.RICHTEXT_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testRichtext))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
@@ -215,8 +324,14 @@ class TestRichtextValue:
 
 
 class TestTimeValue:
-    def test_corr(self, time_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(time_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue",
+            "2019-10-23T13:45:12.01-14:00",
+            KnoraValueType.TIME_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testTimeValue))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TimeValue
@@ -226,15 +341,21 @@ class TestTimeValue:
 
 
 class TestUriValue:
-    def test_corr(self, uri_value_deserialised_corr: ValueInformation) -> None:
-        val_g = _make_one_value(uri_value_deserialised_corr, RES_IRI)
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue",
+            "https://dasch.swiss",
+            KnoraValueType.URI_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testUriValue))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.UriValue
         assert next(val_g.objects(bn, KNORA_API.uriValueAsUri)) == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
 
-def test_make_property_objects_graph() -> None:
+def test_make_property_objects_graph():
     test_prop_obj = PropertyObject(TriplePropertyType.RDF_TYPE, RESOURCE_TYPE_STR, TripleObjectType.IRI)
     graph = _make_property_objects_graph([test_prop_obj], RES_IRI)
     assert len(graph) == 1
@@ -242,8 +363,8 @@ def test_make_property_objects_graph() -> None:
 
 
 class TestFileValue:
-    def test_make_file_value_graph_real_file(self) -> None:
-        file_value = ValueInformation(
+    def test_make_file_value_graph_real_file(self):
+        file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_STR}hasArchiveFileValue",
             user_facing_value="test.zip",
             knora_type=KnoraValueType.ARCHIVE_FILE,
@@ -255,9 +376,9 @@ class TestFileValue:
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.ArchiveFileValue
         assert next(file_g.objects(bn, KNORA_API.fileValueHasFilename)) == Literal("test.zip", datatype=XSD.string)
 
-    def test_make_file_value_graph_iiif_uri(self) -> None:
+    def test_make_file_value_graph_iiif_uri(self):
         uri = "https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"
-        file_value = ValueInformation(
+        file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
             user_facing_value=uri,
             knora_type=KnoraValueType.STILL_IMAGE_IIIF,

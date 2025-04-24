@@ -9,9 +9,9 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetad
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeData
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
-from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -47,7 +47,7 @@ def _get_one_resource(resource: ParsedResource) -> RdfLikeResource:
     )
 
 
-def _get_all_stand_off_links(values: list[ValueInformation]) -> list[PropertyObject]:
+def _get_all_stand_off_links(values: list[RdfLikeValue]) -> list[PropertyObject]:
     stand_offs = []
     for val in values:
         if val.knora_type.RICHTEXT_VALUE:
@@ -62,7 +62,7 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
     return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
 
 
-def _get_one_value(value: ParsedValue) -> ValueInformation:
+def _get_one_value(value: ParsedValue) -> RdfLikeValue:
     user_value = value.value
     match value.value_type:
         case KnoraValueType.INTERVAL_VALUE:
@@ -77,8 +77,8 @@ def _get_one_value(value: ParsedValue) -> ValueInformation:
     return _get_generic_value(value, typed_val)
 
 
-def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInformation:
-    return ValueInformation(
+def _get_generic_value(value: ParsedValue, user_value: str | None) -> RdfLikeValue:
+    return RdfLikeValue(
         user_facing_prop=value.prop_name,
         user_facing_value=user_value,
         knora_type=value.value_type,
@@ -86,7 +86,7 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInfor
     )
 
 
-def _get_interval_value(value: ParsedValue) -> ValueInformation:
+def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     property_objects = []
     tuple_val = value.value
     if isinstance(tuple_val, tuple):
@@ -107,7 +107,7 @@ def _get_interval_value(value: ParsedValue) -> ValueInformation:
                 )
             )
     property_objects.extend(_get_value_metadata(value))
-    return ValueInformation(
+    return RdfLikeValue(
         user_facing_prop=value.prop_name,
         user_facing_value=None,
         knora_type=value.value_type,
@@ -151,12 +151,12 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
     return metadata
 
 
-def _get_file_value(file_value: ParsedFileValue) -> ValueInformation | None:
+def _get_file_value(file_value: ParsedFileValue) -> RdfLikeValue | None:
     if not all([file_value.value, file_value.value_type]):
         return None
     file_type = cast(KnoraValueType, file_value.value_type)
     user_prop = FILE_TYPE_TO_PROP[file_type]
-    return ValueInformation(
+    return RdfLikeValue(
         user_facing_prop=user_prop,
         user_facing_value=file_value.value,
         knora_type=file_type,

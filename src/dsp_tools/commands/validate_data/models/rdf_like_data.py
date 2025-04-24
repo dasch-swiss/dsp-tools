@@ -32,8 +32,8 @@ class RdfLikeResource:
 
     res_id: str
     property_objects: list[PropertyObject]
-    values: list[ValueInformation]
-    asset_value: ValueInformation | None
+    values: list[RdfLikeValue]
+    asset_value: RdfLikeValue | None
     migration_metadata: MigrationMetadata
 
 
@@ -64,7 +64,7 @@ class PropertyObject:
 
 
 @dataclass
-class ValueInformation:
+class RdfLikeValue:
     """
     Contains information about a user-facing value, for example BooleanValue.
 

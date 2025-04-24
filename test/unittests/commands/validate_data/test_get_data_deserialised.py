@@ -2,17 +2,17 @@
 
 import pytest
 
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_metadata
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_value
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_list_value_str
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_resource
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_value
-from dsp_tools.commands.validate_data.get_data_deserialised import get_rdf_like_data
+from dsp_tools.commands.validate_data.get_rdf_like_data import _get_file_metadata
+from dsp_tools.commands.validate_data.get_rdf_like_data import _get_file_value
+from dsp_tools.commands.validate_data.get_rdf_like_data import _get_list_value_str
+from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_resource
+from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_value
+from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
-from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -133,7 +133,7 @@ class TestResource:
         result = _get_one_resource(res)
         assert len(result.values) == 1
         file_value = result.values.pop(0)
-        assert isinstance(file_value, ValueInformation)
+        assert isinstance(file_value, RdfLikeValue)
         assert file_value.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert file_value.user_facing_value == "file.jpg"
         assert file_value.knora_type == KnoraValueType.STILL_IMAGE_FILE
@@ -383,7 +383,7 @@ class TestFileValue:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
         res = _get_file_value(val)
-        assert isinstance(res, ValueInformation)
+        assert isinstance(res, RdfLikeValue)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert res.user_facing_value == "https://this/is/a/uri.jpg"
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF

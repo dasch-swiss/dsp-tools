@@ -12,23 +12,14 @@ from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TRIPLE_OBJECT_TY
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeData
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
-from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 def make_data_rdf(data: RdfLikeData) -> Graph:
-    """
-    Transforms the deserialised data into instances that can produce a RDF graph.
-
-    Args:
-        data: Deserialised Data
-
-    Returns:
-        Graph with the data
-    """
     logger.info("Creating the RDF data graph.")
     g = Graph()
     for r in data.resources:
@@ -46,7 +37,7 @@ def _make_one_resource(res: RdfLikeResource) -> Graph:
     return g
 
 
-def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
+def _make_one_value(val: RdfLikeValue, res_iri: URIRef) -> Graph:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
     val_iri = DATA[val.value_uuid]

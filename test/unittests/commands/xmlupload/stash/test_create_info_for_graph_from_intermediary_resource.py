@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichte
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import _process_one_resource
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_processed_resources
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ def test_create_info_for_graph_from_data(
     resource_without_links: ProcessedResource, resource_with_link_and_text: ProcessedResource
 ) -> None:
     data = [resource_with_link_and_text, resource_without_links]
-    result = create_info_for_graph_from_intermediary_resources(data)
+    result = create_info_for_graph_from_processed_resources(data)
     assert set(result.all_resource_ids) == {"res_id_target", "res_id"}
     assert len(result.link_values) == 1
     assert len(result.standoff_links) == 1

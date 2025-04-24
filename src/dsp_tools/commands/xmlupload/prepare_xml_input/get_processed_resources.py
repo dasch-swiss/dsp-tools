@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
@@ -62,7 +62,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 
 
 def transform_all_resources_into_intermediary_resources(
-    resources: list[ParsedResource], lookups: IntermediaryLookups
+    resources: list[ParsedResource], lookups: XmlReferenceLookups
 ) -> ResourceTransformationResult:
     failures = []
     transformed = []
@@ -75,7 +75,7 @@ def transform_all_resources_into_intermediary_resources(
     return ResourceTransformationResult(transformed, failures)
 
 
-def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> ProcessedResource:
+def _transform_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_transform_one_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
@@ -111,20 +111,20 @@ def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> Migratio
 
 
 def _transform_file_value(
-    val: ParsedFileValue, lookups: IntermediaryLookups, res_id: str, res_label: str
+    val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
 ) -> ProcessedFileValue:
     metadata = _get_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
-def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> ProcessedIIIFUri:
+def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
     metadata = _get_metadata(iiif_uri.metadata, lookups)
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 
 
-def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryLookups) -> ProcessedFileMetadata:
+def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
     predefined_licenses = [
         "http://rdfh.ch/licenses/cc-by-4.0",
@@ -161,7 +161,7 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
     return found
 
 
-def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
+def _transform_one_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     match val.value_type:
         case KnoraValueType.LIST_VALUE:
             return _transform_list_value(val, lookups)
@@ -175,14 +175,14 @@ def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> Proc
 
 
 def _transform_generic_value(
-    val: ParsedValue, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
+    val: ParsedValue, lookups: XmlReferenceLookups, transformation_mapper: TypeTransformerMapper
 ) -> ProcessedValue:
     transformed_value = transformation_mapper.val_transformer(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     return transformation_mapper.val_type(transformed_value, val.prop_name, val.comment, permission_val)
 
 
-def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
+def _transform_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     transformed_value = assert_is_string(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     link_val: ProcessedValue = ProcessedLink(
@@ -195,7 +195,7 @@ def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> Pro
     return link_val
 
 
-def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
+def _transform_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
     if not (list_iri := lookups.listnodes.get(tuple_val)):
         raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
@@ -209,7 +209,7 @@ def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> Pro
     return list_val
 
 
-def _transform_richtext_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
+def _transform_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     transformed_value = transform_richtext(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     richtext: ProcessedValue = ProcessedRichtext(

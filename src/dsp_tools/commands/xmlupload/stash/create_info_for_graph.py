@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
-def create_info_for_graph_from_intermediary_resources(resources: list[ProcessedResource]) -> InfoForGraph:
+def create_info_for_graph_from_processed_resources(resources: list[ProcessedResource]) -> InfoForGraph:
     """Extracts information to create the graph to analyse the circular references."""
     all_links = []
     all_stand_off = []

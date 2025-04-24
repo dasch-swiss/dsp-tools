@@ -152,8 +152,8 @@ class TestLinkResource:
             "The link object with the ID 'id' requires at least two links. Please note that an xmlupload will fail."
         )
         warning_1 = (
-            "Resource ID 'id' | Property 'hasLinkTo' | "
-            "The input is empty. Please note that no values will be added to the resource."
+            "The input value of the resource with the ID 'id' and the property 'hasLinkTo' is empty. "
+            "Please note that no values will be added to the resource."
         )
         expected = sorted([warning_0, warning_1])
         returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from html.entities import html5
 from typing import Any
 
@@ -8,8 +7,10 @@ import pandas as pd
 import regex
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import get_user_message_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -81,8 +82,8 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
         res_id: Resource ID
     """
     if not is_nonempty_value_internal(value):
-        msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
-        warnings.warn(XmllibInputWarning(msg))
+        msg_info = MessageInfo(f"The entered richtext value is not a string: '{value}'", res_id, prop_name)
+        emit_xmllib_input_warning(msg_info)
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
@@ -101,16 +102,19 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
     Raises:
         InputError: if the input is a dictionary
     """
-    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
     match value:
         case set() | list() | tuple():
             if len(value) == 0:
-                msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(XmllibInputInfo(msg))
+                msg_info = MessageInfo(
+                    "The input is empty. Please note that no values will be added to the resource.", res_id, prop_name
+                )
+                emit_xmllib_input_info(msg_info)
             return list(value)
         case dict():
-            msg += "is a dictionary. Only collections (list, set, tuple) are permissible."
-            raise InputError(msg)
+            msg_info = MessageInfo(
+                "The input is a dictionary. Only collections (list, set, tuple) are permissible.", res_id, prop_name
+            )
+            raise InputError(get_user_message_string(msg_info))
         case _:
             return [value]
 

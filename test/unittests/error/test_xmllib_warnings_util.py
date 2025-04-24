@@ -5,9 +5,9 @@ import regex
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.error.xmllib_warnings_util import _get_message_string
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import get_user_message_string
 
 
 @pytest.fixture
@@ -30,11 +30,11 @@ def test_emit_xmllib_input_warning(message_info):
 class TestGetMessageString:
     def test_with_property(self):
         msg_info = MessageInfo("msg", "id", "prop")
-        result = _get_message_string(msg_info)
+        result = get_user_message_string(msg_info)
         expected = "Resource ID 'id' | Property 'prop' | msg"
         assert result == expected
 
     def test_no_property(self, message_info):
-        result = _get_message_string(message_info)
+        result = get_user_message_string(message_info)
         expected = "Resource ID 'id' | msg"
         assert result == expected

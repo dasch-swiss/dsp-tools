@@ -39,18 +39,6 @@ FILE_TYPE_TO_PROP = {
     KnoraValueType.TEXT_FILE: f"{KNORA_API_STR}hasTextFileValue",
 }
 
-SEGMENT_TAG_TO_PROP_MAPPER = {
-    "relatesTo": KnoraValueType.LINK_VALUE,
-    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
-    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
-    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
-    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
-    "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
-    "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
-    "hasComment": KnoraValueType.RICHTEXT_VALUE,
-}
-
-
 # Mappers from internal representation to API format
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "boolean-prop": KnoraValueType.BOOLEAN_VALUE,

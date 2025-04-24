@@ -1,7 +1,6 @@
 import importlib.resources
 from pathlib import Path
 
-from rdflib import RDF
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -17,7 +16,6 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
-from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -26,6 +24,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 LIST_SEPARATOR = "\n    - "
@@ -46,8 +45,10 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     Returns:
         true unless it crashed
     """
-    graphs = _get_parsed_graphs(api_url, filepath)
-    if unknown_classes := _check_for_unknown_resource_classes(graphs):
+
+    graphs, used_iris = _get_parsed_graphs(api_url, filepath)
+
+    if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
@@ -90,45 +91,46 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return True
 
 
-def _get_save_directory(filepath: Path) -> Path:
-    parent_directory = filepath.parent
-    new_directory = parent_directory / "graphs"
-    new_directory.mkdir(exist_ok=True)
-    save_path = new_directory / filepath.stem
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
-    return save_path
-
-
-def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
+def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
+    parsed_resources, shortcode = _get_info_from_xml(filepath, api_url)
+    used_iris = {x.res_type for x in parsed_resources}
+    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources)
     onto_client = OntologyClient(api_url, shortcode)
     list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    return rdf_graphs
+    return rdf_graphs, used_iris
 
 
-def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:
-    used_cls = _get_all_used_classes(rdf_graphs.data)
-    res_cls, value_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
-    all_cls = res_cls.union(value_cls)
-    if extra_cls := used_cls - all_cls:
-        return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str]:
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    parsed_resources = get_parsed_resources(root, api_url)
+    return parsed_resources, shortcode
+
+
+def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:
+    data_deserialised = get_data_deserialised(parsed_resources)
+    rdf_data = make_data_rdf(data_deserialised)
+    return rdf_data
+
+
+def _check_for_unknown_resource_classes(
+    rdf_graphs: RDFGraphs, used_resource_iris: set[str]
+) -> UnknownClassesInData | None:
+    res_cls = _get_all_onto_classes(rdf_graphs)
+    if extra_cls := used_resource_iris - res_cls:
+        return UnknownClassesInData(unknown_classes=extra_cls, defined_classes=res_cls)
     return None
 
 
-def _get_all_used_classes(data_graph: Graph) -> set[str]:
-    types_used = set(data_graph.objects(predicate=RDF.type))
-    return {reformat_onto_iri(x) for x in types_used}
-
-
-def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
+def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
+    ontos = rdf_graphs.ontos + rdf_graphs.knora_api
     is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    res_cls = {reformat_onto_iri(x) for x in resource_classes}
-    is_value_iri = URIRef(KNORA_API_STR + "isValueClass")
-    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
-    value_cls = {reformat_onto_iri(x) for x in value_classes}
-    return res_cls, value_cls
+    is_usable = URIRef(KNORA_API_STR + "canBeInstantiated")
+    usable_resource_classes = set(ontos.subjects(is_usable, Literal(True)))
+    user_facing = usable_resource_classes.intersection(resource_classes)
+    return {str(x) for x in user_facing}
 
 
 def _get_validation_result(
@@ -200,10 +202,10 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     )
 
 
-def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
-    root = parse_and_clean_xml_file(file)
-    shortcode = root.attrib["shortcode"]
-    parsed_resources, _ = get_parsed_resources(root, api_url)
-    data_deserialised = get_data_deserialised(parsed_resources)
-    rdf_data = make_data_rdf(data_deserialised)
-    return rdf_data, shortcode
+def _get_save_directory(filepath: Path) -> Path:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    save_path = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    return save_path

@@ -6,6 +6,7 @@ import pytest
 import regex
 
 from dsp_tools import excel2xml
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -49,7 +50,8 @@ class TestExcel2xmlLib(unittest.TestCase):
                 )
             )
         # schema validation inside the write_xml() checks if the ids of the resources are valid as xsd:ID
-        excel2xml.write_xml(root, "special-characters.xml")
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("excel2xml lib is deprecated")):
+            excel2xml.write_xml(root, "special-characters.xml")
         Path("special-characters.xml").unlink()
 
 

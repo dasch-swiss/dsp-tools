@@ -15,7 +15,7 @@ state "etree Root" as eroot2
 state "etree Root" as eroot3
 state "Root Modifications" as rootwork
 state "etree Into Python Representation" as pywork
-state "CLI: xmlupload" as transform
+state "CLI: xmlupload" as processed
 state "ParsedResource" as parsedres1
 state "ParsedResource" as parsedres2
 state "ParsedResource" as parsedres3
@@ -29,17 +29,17 @@ state rootwork {
 }
 eroot2-->pywork
 state pywork {
-    eroot3-->parsedres1: transform representation
+    eroot3-->parsedres1: processed representation
 }
-pywork-->transform
-state transform {
-    ResourceInputConversionFailure-->[*]: transformation error raised
-    parsedres2-->Processedres: transformation success
-    parsedres2-->ResourceInputConversionFailure: transformation failure
+pywork-->processed
+state processed {
+    ResourceInputConversionFailure-->[*]: processing error raised
+    parsedres2-->Processedres: processing success
+    parsedres2-->ResourceInputConversionFailure: processing failure
 }
 pywork-->valdata
 state valdata {
-    parsedres3-->ResourceDeserialised: transformations
+    parsedres3-->ResourceDeserialised: processing
 }
 ```
 
@@ -104,30 +104,30 @@ title: Transformations from ParsedResource for xmlupload
 ---
 stateDiagram-v2
 
-state "Transform Resource" as transformres
-state "Transform Value" as transformationval
-state "Transform FileValues" as transformfile
+state "Process Resource" as processedres
+state "Process Value" as processedationval
+state "Process FileValues" as processedfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
 state "ProcessedValue" as valdes
-state "Collected Transformations" as coll
+state "Collected Results" as coll
 
-parsedres-->transformfile
-parsedres-->transformationval
-parsedres-->transformres
-state transformres {
+parsedres-->processedfile
+parsedres-->processedationval
+parsedres-->processedres
+state processedres {
     ParsedResource-->Permissions: resolve permissions
 }
-state transformationval {
+state processedationval {
     parsedval-->valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
 }
-state transformfile {
+state processedfile {
     ParsedFileValue-->ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
 }
-transformres-->coll: return result
-transformationval-->coll: return result
-transformfile-->coll: return result
+processedres-->coll: return result
+processedationval-->coll: return result
+processedfile-->coll: return result
 coll-->ResourceInputConversionFailure: resolving errors
 ResourceInputConversionFailure-->[*]
-coll-->ProcessedResource: successful transformations
+coll-->ProcessedResource: successful processed resources
 ```

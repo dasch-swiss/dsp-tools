@@ -10,27 +10,27 @@ from dsp_tools.commands.xmlupload.xmlupload import _tidy_up_resource_creation_id
 
 
 @pytest.fixture
-def intermediary_resources() -> list[ProcessedResource]:
+def processed_resources() -> list[ProcessedResource]:
     one = ProcessedResource("foo_1_id", "onto:foo_1_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None)])
     two = ProcessedResource("foo_2_id", "onto:foo_2_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None)])
     return [one, two]
 
 
-def test_idempotency_on_success(intermediary_resources: list[ProcessedResource]) -> None:
-    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig())
+def test_idempotency_on_success(processed_resources) -> None:
+    upload_state = UploadState(deepcopy(processed_resources), None, UploadConfig())
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", intermediary_resources[0])
-        assert upload_state.pending_resources == intermediary_resources[1:]
+        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", processed_resources[0])
+        assert upload_state.pending_resources == processed_resources[1:]
         assert upload_state.failed_uploads == []
         assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
         assert not upload_state.pending_stash
 
 
-def test_idempotency_on_failure(intermediary_resources: list[ProcessedResource]) -> None:
-    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig())
+def test_idempotency_on_failure(processed_resources) -> None:
+    upload_state = UploadState(deepcopy(processed_resources), None, UploadConfig())
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, None, intermediary_resources[0])
-        assert upload_state.pending_resources == intermediary_resources[1:]
+        _tidy_up_resource_creation_idempotent(upload_state, None, processed_resources[0])
+        assert upload_state.pending_resources == processed_resources[1:]
         assert upload_state.failed_uploads == ["foo_1_id"]
         assert upload_state.iri_resolver.lookup == {}
         assert not upload_state.pending_stash

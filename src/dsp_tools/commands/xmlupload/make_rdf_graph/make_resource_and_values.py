@@ -78,14 +78,14 @@ def _make_values_graph_from_resource(
     return properties_graph
 
 
-def _make_file_value_metadata(intermediary_metadata: ProcessedFileMetadata) -> FileValueMetadata:
+def _make_file_value_metadata(processed_metadata: ProcessedFileMetadata) -> FileValueMetadata:
     permissions = None
-    if found := intermediary_metadata.permissions:
+    if found := processed_metadata.permissions:
         permissions = str(found)
     return FileValueMetadata(
-        intermediary_metadata.license_iri,
-        intermediary_metadata.copyright_holder,
-        intermediary_metadata.authorships,
+        processed_metadata.license_iri,
+        processed_metadata.copyright_holder,
+        processed_metadata.authorships,
         permissions,
     )
 

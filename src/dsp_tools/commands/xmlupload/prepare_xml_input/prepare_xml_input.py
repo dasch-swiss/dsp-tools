@@ -26,14 +26,14 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def get_transformed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[ProcessedResource]:
+def get_processed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[ProcessedResource]:
     logger.info("Get data from XML...")
     parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
-    intermediary_lookups = _get_intermediary_lookups(root=root, clients=clients)
-    return _get_processed_resources(parsed_resources, intermediary_lookups)
+    processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
+    return _get_processed_resources(parsed_resources, processed_lookups)
 
 
-def _get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
+def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
     proj_context = _get_project_context_from_server(
         connection=clients.project_client.con, shortcode=root.attrib["shortcode"]
     )

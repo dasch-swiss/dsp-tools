@@ -1,9 +1,17 @@
 from abc import ABC
 from abc import abstractmethod
+from dataclasses import dataclass
 
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
+
+
+@dataclass
+class MessageInfo:
+    resource_id: str
+    message: str
+    prop_name: str | None
 
 
 class XmllibUserInfoBase(Warning, ABC):

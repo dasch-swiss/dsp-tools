@@ -236,14 +236,20 @@ class TestAddValues:
 
     def test_add_richtext_warns_empty_string(self) -> None:
         with pytest.warns(XmllibInputWarning, match=regex.escape("a 'string' does not conform to the expected format")):
-            with pytest.warns(XmllibInputWarning, match=regex.escape("has a richtext value that is not a string")):
-                Resource.create_new("res_id", "restype", "label").add_richtext("", "")
+            with pytest.warns(
+                XmllibInputWarning,
+                match=regex.escape(
+                    "Resource ID 'res_id' | Property 'propName' | "
+                    "The entered richtext value is not a non-empty string: ''"
+                ),
+            ):
+                Resource.create_new("res_id", "restype", "label").add_richtext("propName", "")
 
     def test_add_richtext_warns_pd_na(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
             match=regex.escape(
-                "Resource 'res_id' has a richtext value that is not a string: Value: <NA> | Property: :prop"
+                "Resource ID 'res_id' | Property ':prop' | The entered richtext value is not a non-empty string: '<NA>'"
             ),
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
@@ -399,8 +405,8 @@ def test_check_and_fix_collection_input_success(input_val: Any, expected_val: li
 
 def test_check_and_fix_collection_input_warns() -> None:
     msg = regex.escape(
-        "The input value of the resource with the ID 'id' and the property 'prop' is empty. "
-        "Please note that no values will be added to the resource."
+        "Resource ID 'id' | Property 'prop' | "
+        "The input is empty. Please note that no values will be added to the resource."
     )
     with pytest.warns(XmllibInputInfo, match=msg):
         check_and_fix_collection_input([], "prop", "id")
@@ -408,8 +414,8 @@ def test_check_and_fix_collection_input_warns() -> None:
 
 def test_check_and_fix_collection_input_raises() -> None:
     msg = regex.escape(
-        "The input value of the resource with the ID 'id' and the property 'prop' is a dictionary. "
-        "Only collections (list, set, tuple) are permissible."
+        "Resource ID 'id' | Property 'prop' | "
+        "The input is a dictionary. Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):
         check_and_fix_collection_input({1: 1}, "prop", "id")

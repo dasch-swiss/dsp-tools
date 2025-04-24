@@ -82,7 +82,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
         res_id: Resource ID
     """
     if not is_nonempty_value_internal(value):
-        msg_info = MessageInfo(f"The entered richtext value is not a string: '{value}'", res_id, prop_name)
+        msg_info = MessageInfo(f"The entered richtext value is not a non-empty string: '{value}'", res_id, prop_name)
         emit_xmllib_input_warning(msg_info)
 
 

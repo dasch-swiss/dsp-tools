@@ -36,7 +36,7 @@ class TestGetMessageString:
 
     def test_with_trace(self, message_info):
         result = get_user_message_string(message_info, "trace")
-        expected = "trace | Resource ID 'id' | msg"
+        expected = "Trace 'trace' | Resource ID 'id' | msg"
         assert result == expected
 
     def test_no_property(self, message_info):

@@ -29,11 +29,11 @@ def _get_calling_code_context() -> str | None:
     if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
-    return f"Trace '{user_frame_info.filename}:{user_frame_info.lineno}'"
+    return f"{user_frame_info.filename}:{user_frame_info.lineno}"
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
-    str_list = [function_trace] if function_trace else []
+    str_list = [f"Trace '{function_trace}'"] if function_trace else []
     str_list.append(f"Resource ID '{msg.resource_id}'")
     if msg.prop_name:
         str_list.append(f"Property '{msg.prop_name}'")

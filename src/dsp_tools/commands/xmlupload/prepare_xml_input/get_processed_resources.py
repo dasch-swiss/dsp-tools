@@ -66,26 +66,26 @@ def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferen
     transformed = []
     for res in resources:
         try:
-            result = _transform_one_resource(res, lookups)
+            result = _get_one_resource(res, lookups)
             transformed.append(result)
         except (PermissionNotExistsError, InputError) as e:
             failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
     return ResourceProcessingResult(transformed, failures)
 
 
-def _transform_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
+def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
         if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-            iiif_uri = _transform_iiif_uri_value(resource.file_value, lookups)
+            iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
         else:
-            file_val = _transform_file_value(
+            file_val = _get_file_value(
                 val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
             )
     if resource.migration_metadata:
-        migration_metadata = _transform_migration_metadata(resource.migration_metadata)
+        migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,
@@ -98,7 +98,7 @@ def _transform_one_resource(resource: ParsedResource, lookups: XmlReferenceLooku
     )
 
 
-def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
+def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
     res_iri = metadata.iri
     # ARK takes precedence over the IRI,
     # but must be transformed into an IRI as it is only for external reference and not consistent with a DB IRI
@@ -108,21 +108,21 @@ def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> Migratio
     return MigrationMetadata(res_iri, date)
 
 
-def _transform_file_value(
+def _get_file_value(
     val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
 ) -> ProcessedFileValue:
-    metadata = _get_metadata(val.metadata, lookups)
+    metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
-def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
-    metadata = _get_metadata(iiif_uri.metadata, lookups)
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
+    metadata = _get_file_metadata(iiif_uri.metadata, lookups)
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 
 
-def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
+def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
     predefined_licenses = [
         "http://rdfh.ch/licenses/cc-by-4.0",

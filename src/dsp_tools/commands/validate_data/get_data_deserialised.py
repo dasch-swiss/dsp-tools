@@ -5,10 +5,10 @@ from typing import cast
 import regex
 
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
-from dsp_tools.commands.validate_data.models.rdf_like_data import DataDeserialised
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
-from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeData
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
@@ -19,12 +19,12 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
-def get_data_deserialised(resources: list[ParsedResource]) -> DataDeserialised:
-    deserialised_resources = [_get_one_resource(x) for x in resources]
-    return DataDeserialised(deserialised_resources)
+def get_rdf_like_data(resources: list[ParsedResource]) -> RdfLikeData:
+    rdf_like_resources = [_get_one_resource(x) for x in resources]
+    return RdfLikeData(rdf_like_resources)
 
 
-def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
+def _get_one_resource(resource: ParsedResource) -> RdfLikeResource:
     values = [_get_one_value(x) for x in resource.values]
     if resource.file_value:
         if file_val := _get_file_value(resource.file_value):
@@ -38,7 +38,7 @@ def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
         )
-    return ResourceDeserialised(
+    return RdfLikeResource(
         res_id=resource.res_id,
         property_objects=metadata,
         values=values,

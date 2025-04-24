@@ -8,7 +8,7 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
+from dsp_tools.commands.validate_data.get_data_deserialised import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -109,7 +109,7 @@ def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], 
 
 
 def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:
-    data_deserialised = get_data_deserialised(parsed_resources)
+    data_deserialised = get_rdf_like_data(parsed_resources)
     rdf_data = make_data_rdf(data_deserialised)
     return rdf_data
 

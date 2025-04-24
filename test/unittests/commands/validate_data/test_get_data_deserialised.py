@@ -7,9 +7,9 @@ from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_val
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_list_value_str
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_resource
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_value
-from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
+from dsp_tools.commands.validate_data.get_data_deserialised import get_rdf_like_data
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
-from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
@@ -42,7 +42,7 @@ def richtext_with_standoff() -> ParsedValue:
     return ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
 
 
-def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
+def _get_label_and_type(resource: RdfLikeResource) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
     lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
     rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
     permissions = list(x for x in resource.property_objects if x.property_type == TriplePropertyType.KNORA_PERMISSIONS)
@@ -107,7 +107,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result_list = get_data_deserialised([res])
+        result_list = get_rdf_like_data([res])
         assert len(result_list.resources) == 1
         result = result_list.resources.pop(0)
         assert result.res_id == "one"

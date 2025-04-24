@@ -2,7 +2,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
-from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
@@ -20,8 +20,8 @@ UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]
 @pytest.fixture
 def resource_deserialised_with_values(
     boolean_value_deserialised_corr: ValueInformation,
-) -> ResourceDeserialised:
-    return ResourceDeserialised(
+) -> RdfLikeResource:
+    return RdfLikeResource(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
@@ -31,8 +31,8 @@ def resource_deserialised_with_values(
 
 
 @pytest.fixture
-def resource_deserialised_no_values() -> ResourceDeserialised:
-    return ResourceDeserialised(
+def resource_deserialised_no_values() -> RdfLikeResource:
+    return RdfLikeResource(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
@@ -42,8 +42,8 @@ def resource_deserialised_no_values() -> ResourceDeserialised:
 
 
 @pytest.fixture
-def resource_deserialised_with_asset() -> ResourceDeserialised:
-    return ResourceDeserialised(
+def resource_deserialised_with_asset() -> RdfLikeResource:
+    return RdfLikeResource(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],

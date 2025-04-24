@@ -10,7 +10,7 @@ from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
 from dsp_tools.commands.validate_data.make_data_rdf import _make_property_objects_graph
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
-from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
@@ -66,13 +66,13 @@ def test_make_one_rdflib_object(
 
 
 class TestResource:
-    def test_empty(self, resource_deserialised_no_values: ResourceDeserialised) -> None:
+    def test_empty(self, resource_deserialised_no_values: RdfLikeResource) -> None:
         res_g = _make_one_resource(resource_deserialised_no_values)
         assert len(res_g) == 2
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
 
-    def test_with_props(self, resource_deserialised_with_values: ResourceDeserialised) -> None:
+    def test_with_props(self, resource_deserialised_with_values: RdfLikeResource) -> None:
         res_g = _make_one_resource(resource_deserialised_with_values)
         assert len(res_g) == 5
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
@@ -80,7 +80,7 @@ class TestResource:
         bool_bn = next(res_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(res_g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
 
-    def test_with_asset(self, resource_deserialised_with_asset: ResourceDeserialised) -> None:
+    def test_with_asset(self, resource_deserialised_with_asset: RdfLikeResource) -> None:
         res_g = _make_one_resource(resource_deserialised_with_asset)
         assert len(res_g) == 5
         assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything

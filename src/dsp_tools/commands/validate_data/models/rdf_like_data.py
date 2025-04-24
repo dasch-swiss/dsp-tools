@@ -11,12 +11,12 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 @dataclass
-class DataDeserialised:
-    resources: list[ResourceDeserialised]
+class RdfLikeData:
+    resources: list[RdfLikeResource]
 
 
 @dataclass
-class ResourceDeserialised:
+class RdfLikeResource:
     """
     Represents a user facing project-specific resource.
 

@@ -2,7 +2,7 @@
 import pytest
 import regex
 
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
@@ -49,8 +49,8 @@ RES_TYPE = f"{ONTO}ResourceType"
 
 
 @pytest.fixture
-def lookups() -> IntermediaryLookups:
-    return IntermediaryLookups(
+def lookups() -> XmlReferenceLookups:
+    return XmlReferenceLookups(
         permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
         listnodes={("list", "node"): "http://rdfh.ch/9999/node"},
         namespaces={
@@ -93,7 +93,7 @@ class TestTransformResources:
         assert len(result.transformed_resources) == 1
         assert not result.resource_failures
 
-    def test_failure(self, lookups: IntermediaryLookups):
+    def test_failure(self, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -111,7 +111,7 @@ class TestTransformResources:
 
 
 class TestTransformOneResource:
-    def test_resource_one_value(self, bool_value, lookups: IntermediaryLookups):
+    def test_resource_one_value(self, bool_value, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -130,7 +130,7 @@ class TestTransformOneResource:
         assert not result.file_value
         assert not result.migration_metadata
 
-    def test_resource_with_permissions(self, lookups: IntermediaryLookups):
+    def test_resource_with_permissions(self, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -149,7 +149,7 @@ class TestTransformOneResource:
         assert not result.file_value
         assert not result.migration_metadata
 
-    def test_with_ark(self, lookups: IntermediaryLookups):
+    def test_with_ark(self, lookups: XmlReferenceLookups):
         parsed_metadata = ParsedMigrationMetadata(
             iri=None, ark="ark:/72163/4123-43xc6ivb931-a.2022829", creation_date="1999-12-31T23:59:59.9999999+01:00"
         )
@@ -174,7 +174,7 @@ class TestTransformOneResource:
         assert metadata.iri_str == "http://rdfh.ch/4123/5d5d1FKaUC2Wfl4zicggfg"
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
-    def test_with_iri(self, lookups: IntermediaryLookups):
+    def test_with_iri(self, lookups: XmlReferenceLookups):
         parsed_metadata = ParsedMigrationMetadata(
             iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", ark=None, creation_date=None
         )
@@ -199,7 +199,7 @@ class TestTransformOneResource:
         assert metadata.iri_str == "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
         assert not metadata.creation_date
 
-    def test_resource_with_ark_and_iri(self, lookups: IntermediaryLookups):
+    def test_resource_with_ark_and_iri(self, lookups: XmlReferenceLookups):
         parsed_metadata = ParsedMigrationMetadata(
             iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
             ark="ark:/72163/4123-43xc6ivb931-a.2022829",
@@ -228,7 +228,7 @@ class TestTransformOneResource:
         assert isinstance(time_stamp, DateTimeStamp)
         assert time_stamp == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
-    def test_unknown_permission(self, lookups: IntermediaryLookups):
+    def test_unknown_permission(self, lookups: XmlReferenceLookups):
         msg = regex.escape(r"Could not find permissions for value: unknown")
         res = ParsedResource(
             res_id="id",
@@ -242,7 +242,7 @@ class TestTransformOneResource:
         with pytest.raises(PermissionNotExistsError, match=msg):
             _transform_one_resource(res, lookups)
 
-    def test_with_file_value(self, file_with_permission, lookups: IntermediaryLookups):
+    def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -265,7 +265,7 @@ class TestTransformOneResource:
         assert not result.iiif_uri
         assert not result.migration_metadata
 
-    def test_with_iiif_uri(self, iiif_file_value, lookups: IntermediaryLookups):
+    def test_with_iiif_uri(self, iiif_file_value, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -287,7 +287,7 @@ class TestTransformOneResource:
 
 
 class TestTransformFileValue:
-    def test_transform_file_value(self, lookups: IntermediaryLookups):
+    def test_transform_file_value(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
         val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_file_value(val, lookups, "id", "lbl")
@@ -299,7 +299,7 @@ class TestTransformFileValue:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_transform_file_value_with_permissions(self, file_with_permission, lookups: IntermediaryLookups):
+    def test_transform_file_value_with_permissions(self, file_with_permission, lookups: XmlReferenceLookups):
         result = _transform_file_value(file_with_permission, lookups, "id", "lbl")
         assert isinstance(result, ProcessedFileValue)
         assert result.value == "file.jpg"
@@ -309,7 +309,7 @@ class TestTransformFileValue:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_transform_iiif_uri_value(self, iiif_file_value, lookups: IntermediaryLookups):
+    def test_transform_iiif_uri_value(self, iiif_file_value, lookups: XmlReferenceLookups):
         result = _transform_iiif_uri_value(iiif_file_value, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, ProcessedIIIFUri)
@@ -319,7 +319,7 @@ class TestTransformFileValue:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_transform_iiif_uri_value_with_permission(self, lookups: IntermediaryLookups):
+    def test_transform_iiif_uri_value_with_permission(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_iiif_uri_value(val, lookups)
@@ -370,7 +370,7 @@ class TestFileMetadata:
 
 
 class TestTransformValues:
-    def test_bool_value(self, bool_value, lookups: IntermediaryLookups):
+    def test_bool_value(self, bool_value, lookups: XmlReferenceLookups):
         transformed = _transform_one_value(bool_value, lookups)
         assert isinstance(transformed, ProcessedBoolean)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
@@ -378,7 +378,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_bool_value_with_comment(self, lookups: IntermediaryLookups):
+    def test_bool_value_with_comment(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
         transformed = _transform_one_value(val, lookups)
         assert transformed.value == False  # noqa:E712 (Avoid equality comparisons)
@@ -386,7 +386,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert transformed.comment == "comment"
 
-    def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
+    def test_bool_value_with_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
         transformed = _transform_one_value(val, lookups)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
@@ -394,12 +394,12 @@ class TestTransformValues:
         assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment
 
-    def test_bool_value_with_non_existing_permissions(self, lookups: IntermediaryLookups):
+    def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
         with pytest.raises(PermissionNotExistsError):
             _transform_one_value(val, lookups)
 
-    def test_color_value(self, lookups: IntermediaryLookups):
+    def test_color_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedColor)
@@ -408,7 +408,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_date_value(self, lookups: IntermediaryLookups):
+    def test_date_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedDate)
@@ -417,7 +417,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_decimal_value(self, lookups: IntermediaryLookups):
+    def test_decimal_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedDecimal)
@@ -426,7 +426,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_geometry_value(self, lookups: IntermediaryLookups):
+    def test_geometry_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedGeometry)
@@ -435,7 +435,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_geoname_value(self, lookups: IntermediaryLookups):
+    def test_geoname_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedGeoname)
@@ -444,7 +444,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_integer_value(self, lookups: IntermediaryLookups):
+    def test_integer_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedInt)
@@ -453,7 +453,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_interval_value(self, lookups: IntermediaryLookups):
+    def test_interval_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedInterval)
@@ -463,7 +463,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_list_value(self, lookups: IntermediaryLookups):
+    def test_list_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedList)
@@ -472,7 +472,7 @@ class TestTransformValues:
         assert isinstance(transformed.permissions, Permissions)
         assert transformed.comment == "cmt"
 
-    def test_simple_text_value(self, lookups: IntermediaryLookups):
+    def test_simple_text_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedSimpleText)
@@ -481,7 +481,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_richtext_value(self, lookups: IntermediaryLookups):
+    def test_richtext_value(self, lookups: XmlReferenceLookups):
         text_str = "<text>this is text</text>"
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
@@ -492,7 +492,7 @@ class TestTransformValues:
         assert transformed.comment == "cmt"
         assert transformed.resource_references == set()
 
-    def test_richtext_value_with_standoff(self, lookups: IntermediaryLookups):
+    def test_richtext_value_with_standoff(self, lookups: XmlReferenceLookups):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
@@ -503,7 +503,7 @@ class TestTransformValues:
         assert transformed.comment == "cmt"
         assert transformed.resource_references == {"link"}
 
-    def test_link_value(self, lookups: IntermediaryLookups):
+    def test_link_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedLink)
@@ -512,7 +512,7 @@ class TestTransformValues:
         assert isinstance(transformed.permissions, Permissions)
         assert transformed.comment == "cmt"
 
-    def test_time_value(self, lookups: IntermediaryLookups):
+    def test_time_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedTime)
@@ -521,7 +521,7 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_uri_value(self, lookups: IntermediaryLookups):
+    def test_uri_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, ProcessedUri)

@@ -39,14 +39,16 @@ def config_xmllib_logging() -> None:
         if not (colour := level_colors.get(level)):
             colour = "white"
         message = record["message"]
-        msg_list = [f"<{colour}>{level}"]
+        msg_list = [f"{level}"]
         if not (fnc := record["function"]) == "<module>":
             func = f":{fnc}:"
             if not (f_name := record['file'].name) == "pydevd.py":
                 function = f"{f_name}{func}{record['line']}"
                 msg_list.append(f"Function: '{function}'")
-        msg_list.append(f"{message}</{colour}>\n")
-        return " | ".join(msg_list)
+        msg_list.append(f"{message}\n")
+        m = " | ".join(msg_list)
+        #return "INFO | Resource ID 'from_function' | Property ':fromFunction' | Input is empty, no values will be added to the resource\n"
+        return m
 
     logger.remove()
     logger.add(sys.stderr, colorize=True, format=colour_level_formatter)

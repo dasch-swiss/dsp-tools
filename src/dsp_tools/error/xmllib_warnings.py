@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+import inspect
 from loguru import logger
 
 
@@ -29,4 +29,5 @@ class XmllibUserMessage(Warning):
 class XmllibUserInfo(XmllibUserMessage):
     @classmethod
     def showwarning(cls, msg: str) -> None:
-        logger.opt(depth=5).info(msg)
+        p = inspect.stack()
+        logger.info(msg)

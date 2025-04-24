@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -628,7 +628,7 @@ class SegmentBounds:
                 f"The following places have an unexpected type:"
             )
             wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
-            warnings.warn(DspToolsUserWarning(wrng))
+            warnings.warn(XmllibInputWarning(wrng))
 
 
 @dataclass
@@ -1399,7 +1399,7 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
             f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
             f"Field: {field_name} | Value: {string_to_check}"
         )
-        warnings.warn(DspToolsUserWarning(msg))
+        warnings.warn(XmllibInputWarning(msg))
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
@@ -1408,4 +1408,4 @@ def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_
         f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "
         f"The old value '{old_value}' is being replace with '{new_value}'."
     )
-    warnings.warn(DspToolsUserWarning(msg))
+    warnings.warn(XmllibInputWarning(msg))

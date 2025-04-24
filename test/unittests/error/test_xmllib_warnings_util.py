@@ -16,13 +16,13 @@ def message_info():
 
 
 def test_emit_xmllib_input_info(message_info):
-    expected = regex.escape("sadf")
+    expected = regex.escape("INFO | Resource ID 'id' | msg")
     with pytest.warns(XmllibInputInfo, match=expected):
         emit_xmllib_input_info(message_info)
 
 
 def test_emit_xmllib_input_warning(message_info):
-    expected = regex.escape("sadf")
+    expected = regex.escape("WARNING | Resource ID 'id' | msg")
     with pytest.warns(XmllibInputWarning, match=expected):
         emit_xmllib_input_warning(message_info)
 

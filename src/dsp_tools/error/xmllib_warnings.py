@@ -28,7 +28,7 @@ class XmllibInputInfo(XmllibUserInfoBase):
 
     @classmethod
     def showwarning(cls, message: str) -> None:
-        print(YELLOW + f"INFO: {message}" + RESET_TO_DEFAULT)
+        print(YELLOW + f"INFO | {message}" + RESET_TO_DEFAULT)
 
 
 class XmllibInputWarning(XmllibUserInfoBase):
@@ -36,4 +36,4 @@ class XmllibInputWarning(XmllibUserInfoBase):
 
     @classmethod
     def showwarning(cls, message: str) -> None:
-        print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)
+        print(BOLD_RED + f"WARNING | {message}" + RESET_TO_DEFAULT)

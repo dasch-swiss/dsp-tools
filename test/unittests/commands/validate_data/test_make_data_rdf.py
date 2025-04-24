@@ -9,16 +9,16 @@ from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_obje
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
 from dsp_tools.commands.validate_data.make_data_rdf import _make_property_objects_graph
+from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
+from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
+from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
-from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 

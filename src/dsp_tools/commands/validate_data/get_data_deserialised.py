@@ -5,13 +5,13 @@ from typing import cast
 import regex
 
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
-from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
-from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
+from dsp_tools.commands.validate_data.models.rdf_like_data import DataDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
+from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
+from dsp_tools.commands.validate_data.models.rdf_like_data import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
+from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.models.rdf_like_data import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata

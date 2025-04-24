@@ -8,7 +8,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedI
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.res import ResourceInputConversionFailure
-from dsp_tools.commands.xmlupload.models.processed.res import ResourceTransformationResult
+from dsp_tools.commands.xmlupload.models.processed.res import ResourceProcessingResult
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
@@ -61,9 +61,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 }
 
 
-def get_processed_resources(
-    resources: list[ParsedResource], lookups: XmlReferenceLookups
-) -> ResourceTransformationResult:
+def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferenceLookups) -> ResourceProcessingResult:
     failures = []
     transformed = []
     for res in resources:
@@ -72,7 +70,7 @@ def get_processed_resources(
             transformed.append(result)
         except (PermissionNotExistsError, InputError) as e:
             failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
-    return ResourceTransformationResult(transformed, failures)
+    return ResourceProcessingResult(transformed, failures)
 
 
 def _transform_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:

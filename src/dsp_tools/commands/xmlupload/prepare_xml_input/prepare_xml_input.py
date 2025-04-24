@@ -62,15 +62,17 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
 def _get_processed_resources(
     resources: list[ParsedResource], xml_lookups: XmlReferenceLookups
 ) -> list[ProcessedResource]:
-    result = get_processed_resources(resources, xml_lookups)
-    if result.resource_failures:
-        failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
+    processing_result = get_processed_resources(resources, xml_lookups)
+    if processing_result.resource_failures:
+        failures = [
+            f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in processing_result.resource_failures
+        ]
         msg = (
             f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         )
         raise InputError(msg)
-    return result.transformed_resources
+    return processing_result.transformed_resources
 
 
 def get_stash_and_upload_order(

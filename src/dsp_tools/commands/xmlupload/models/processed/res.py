@@ -10,7 +10,7 @@ from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 
 @dataclass
-class ResourceTransformationResult:
+class ResourceProcessingResult:
     transformed_resources: list[ProcessedResource]
     resource_failures: list[ResourceInputConversionFailure]
 

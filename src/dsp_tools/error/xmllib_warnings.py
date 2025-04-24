@@ -9,9 +9,9 @@ from dsp_tools.utils.ansi_colors import YELLOW
 
 @dataclass
 class MessageInfo:
-    resource_id: str
     message: str
-    prop_name: str | None
+    resource_id: str
+    prop_name: str | None = None
 
 
 class XmllibUserInfoBase(Warning, ABC):

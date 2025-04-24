@@ -23,11 +23,11 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_metadata
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_processed_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_file_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_iiif_uri_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_one_resource
-from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_one_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
@@ -108,7 +108,7 @@ class TestTransformResources:
         assert result.resource_failures[0].failure_msg == "Could not find permissions for value: nonExisting"
 
 
-class TestTransformOneResource:
+class TestOneResource:
     def test_resource_one_value(self, bool_value, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
@@ -284,7 +284,7 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
 
-class TestTransformFileValue:
+class TestFileValue:
     def test_transform_file_value(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
         val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
@@ -369,7 +369,7 @@ class TestFileMetadata:
 
 class TestTransformValues:
     def test_bool_value(self, bool_value, lookups: XmlReferenceLookups):
-        transformed = _transform_one_value(bool_value, lookups)
+        transformed = _get_one_processed_value(bool_value, lookups)
         assert isinstance(transformed, ProcessedBoolean)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP
@@ -378,7 +378,7 @@ class TestTransformValues:
 
     def test_bool_value_with_comment(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert transformed.value == False  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -386,7 +386,7 @@ class TestTransformValues:
 
     def test_bool_value_with_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP
         assert isinstance(transformed.permissions, Permissions)
@@ -395,11 +395,11 @@ class TestTransformValues:
     def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
         with pytest.raises(PermissionNotExistsError):
-            _transform_one_value(val, lookups)
+            _get_one_processed_value(val, lookups)
 
     def test_color_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedColor)
         assert transformed.value == "#5d1f1e"
         assert transformed.prop_iri == HAS_PROP
@@ -408,7 +408,7 @@ class TestTransformValues:
 
     def test_date_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedDate)
         assert isinstance(transformed.value, Date)
         assert transformed.prop_iri == HAS_PROP
@@ -417,7 +417,7 @@ class TestTransformValues:
 
     def test_decimal_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedDecimal)
         assert transformed.value == 1.4
         assert transformed.prop_iri == HAS_PROP
@@ -426,7 +426,7 @@ class TestTransformValues:
 
     def test_geometry_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedGeometry)
         assert transformed.value == "{}"
         assert transformed.prop_iri == f"{KNORA_API_STR}hasGeometry"
@@ -435,7 +435,7 @@ class TestTransformValues:
 
     def test_geoname_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedGeoname)
         assert transformed.value == "5416656"
         assert transformed.prop_iri == HAS_PROP
@@ -444,7 +444,7 @@ class TestTransformValues:
 
     def test_integer_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedInt)
         assert transformed.value == 1
         assert transformed.prop_iri == HAS_PROP
@@ -453,7 +453,7 @@ class TestTransformValues:
 
     def test_interval_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedInterval)
         assert transformed.value.start == 1.0
         assert transformed.value.end == 2.0
@@ -463,7 +463,7 @@ class TestTransformValues:
 
     def test_list_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedList)
         assert transformed.value == "http://rdfh.ch/9999/node"
         assert transformed.prop_iri == HAS_PROP
@@ -472,7 +472,7 @@ class TestTransformValues:
 
     def test_simple_text_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedSimpleText)
         assert transformed.value == "text"
         assert transformed.prop_iri == HAS_PROP
@@ -482,7 +482,7 @@ class TestTransformValues:
     def test_richtext_value(self, lookups: XmlReferenceLookups):
         text_str = "<text>this is text</text>"
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedRichtext)
         assert transformed.value.xmlstr == text_str
         assert transformed.prop_iri == HAS_PROP
@@ -493,7 +493,7 @@ class TestTransformValues:
     def test_richtext_value_with_standoff(self, lookups: XmlReferenceLookups):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedRichtext)
         assert transformed.value.xmlstr == text_str
         assert transformed.prop_iri == HAS_PROP
@@ -503,7 +503,7 @@ class TestTransformValues:
 
     def test_link_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "open", "cmt")
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedLink)
         assert transformed.value == "other_id"
         assert transformed.prop_iri == f"{HAS_PROP}Value"
@@ -512,7 +512,7 @@ class TestTransformValues:
 
     def test_time_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedTime)
         assert transformed.value == "2019-10-23T13:45:12.01-14:00"
         assert transformed.prop_iri == HAS_PROP
@@ -521,7 +521,7 @@ class TestTransformValues:
 
     def test_uri_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
+        transformed = _get_one_processed_value(val, lookups)
         assert isinstance(transformed, ProcessedUri)
         assert transformed.value == "https://dasch.swiss"
         assert transformed.prop_iri == HAS_PROP

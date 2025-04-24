@@ -77,7 +77,7 @@ def get_processed_resources(
 
 def _transform_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
-    values = [_transform_one_value(val, lookups) for val in resource.values]
+    values = [_get_one_processed_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
         if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
@@ -161,20 +161,20 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
     return found
 
 
-def _transform_one_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
+def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     match val.value_type:
         case KnoraValueType.LIST_VALUE:
-            return _transform_list_value(val, lookups)
+            return _get_list_value(val, lookups)
         case KnoraValueType.LINK_VALUE:
-            return _transform_link_value(val, lookups)
+            return _get_link_value(val, lookups)
         case KnoraValueType.RICHTEXT_VALUE:
-            return _transform_richtext_value(val, lookups)
+            return _get_richtext_value(val, lookups)
         case _ as val_type:
             transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
-            return _transform_generic_value(val=val, lookups=lookups, transformation_mapper=transformation_mapper)
+            return _get_generic_value(val=val, lookups=lookups, transformation_mapper=transformation_mapper)
 
 
-def _transform_generic_value(
+def _get_generic_value(
     val: ParsedValue, lookups: XmlReferenceLookups, transformation_mapper: TypeTransformerMapper
 ) -> ProcessedValue:
     transformed_value = transformation_mapper.val_transformer(val.value)
@@ -182,7 +182,7 @@ def _transform_generic_value(
     return transformation_mapper.val_type(transformed_value, val.prop_name, val.comment, permission_val)
 
 
-def _transform_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
+def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     transformed_value = assert_is_string(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     link_val: ProcessedValue = ProcessedLink(
@@ -195,7 +195,7 @@ def _transform_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Pro
     return link_val
 
 
-def _transform_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
+def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
     if not (list_iri := lookups.listnodes.get(tuple_val)):
         raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
@@ -209,7 +209,7 @@ def _transform_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Pro
     return list_val
 
 
-def _transform_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
+def _get_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     transformed_value = transform_richtext(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     richtext: ProcessedValue = ProcessedRichtext(

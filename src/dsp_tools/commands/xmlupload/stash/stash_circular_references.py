@@ -1,9 +1,9 @@
 from copy import deepcopy
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -11,9 +11,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 
-def stash_circular_references(
-    resources: list[IntermediaryResource], stash_lookup: dict[str, list[str]]
-) -> Stash | None:
+def stash_circular_references(resources: list[ProcessedResource], stash_lookup: dict[str, list[str]]) -> Stash | None:
     """Stash the values that would create circular references and remove them from the Resources."""
     stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
@@ -34,19 +32,19 @@ def stash_circular_references(
 
 
 def _process_one_resource(
-    resource: IntermediaryResource,
+    resource: ProcessedResource,
     stash_lookup: dict[str, list[str]],
 ) -> tuple[list[LinkValueStashItem], list[StandoffStashItem]]:
     stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
 
     for val in resource.values.copy():
-        if isinstance(val, IntermediaryLink):
+        if isinstance(val, ProcessedLink):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
             stashed_link_values.append(LinkValueStashItem(resource.res_id, resource.type_iri, val))
             resource.values.remove(val)
-        elif isinstance(val, IntermediaryRichtext):
+        elif isinstance(val, ProcessedRichtext):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
             # val.value is a KnoraStandoffXml text with problematic links.
@@ -56,7 +54,7 @@ def _process_one_resource(
     return stashed_link_values, stashed_standoff_values
 
 
-def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
+def _stash_standoff(value: ProcessedRichtext, res_id: str, res_type: str) -> StandoffStashItem:
     original_value = deepcopy(value)
     # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)

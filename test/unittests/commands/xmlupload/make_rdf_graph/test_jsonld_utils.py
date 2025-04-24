@@ -11,9 +11,9 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_resource
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
@@ -33,12 +33,12 @@ def resource_graph() -> Graph:
         project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
     )
-    res = IntermediaryResource(
+    res = ProcessedResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Special Characters: äöüéèà",
         permissions=None,
-        values=[IntermediaryBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
+        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
         file_value=None,
         iiif_uri=None,
         migration_metadata=None,
@@ -70,7 +70,7 @@ def test_serialise_jsonld_for_value():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=IntermediaryLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
     )
     graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     expected = {

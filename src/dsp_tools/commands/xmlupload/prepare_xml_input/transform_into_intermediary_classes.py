@@ -3,25 +3,25 @@ from uuid import uuid4
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationResult
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedUri
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
@@ -47,17 +47,17 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
-    KnoraValueType.BOOLEAN_VALUE: TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
-    KnoraValueType.COLOR_VALUE: TypeTransformerMapper(IntermediaryColor, assert_is_string),
-    KnoraValueType.DECIMAL_VALUE: TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
-    KnoraValueType.DATE_VALUE: TypeTransformerMapper(IntermediaryDate, transform_date),
-    KnoraValueType.GEOM_VALUE: TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
-    KnoraValueType.GEONAME_VALUE: TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
-    KnoraValueType.INT_VALUE: TypeTransformerMapper(IntermediaryInt, transform_integer),
-    KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval),
-    KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
-    KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, transform_simpletext),
-    KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),
+    KnoraValueType.BOOLEAN_VALUE: TypeTransformerMapper(ProcessedBoolean, transform_boolean),
+    KnoraValueType.COLOR_VALUE: TypeTransformerMapper(ProcessedColor, assert_is_string),
+    KnoraValueType.DECIMAL_VALUE: TypeTransformerMapper(ProcessedDecimal, transform_decimal),
+    KnoraValueType.DATE_VALUE: TypeTransformerMapper(ProcessedDate, transform_date),
+    KnoraValueType.GEOM_VALUE: TypeTransformerMapper(ProcessedGeometry, transform_geometry),
+    KnoraValueType.GEONAME_VALUE: TypeTransformerMapper(ProcessedGeoname, assert_is_string),
+    KnoraValueType.INT_VALUE: TypeTransformerMapper(ProcessedInt, transform_integer),
+    KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(ProcessedInterval, transform_interval),
+    KnoraValueType.TIME_VALUE: TypeTransformerMapper(ProcessedTime, assert_is_string),
+    KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(ProcessedSimpleText, transform_simpletext),
+    KnoraValueType.URI_VALUE: TypeTransformerMapper(ProcessedUri, assert_is_string),
 }
 
 
@@ -75,7 +75,7 @@ def transform_all_resources_into_intermediary_resources(
     return ResourceTransformationResult(transformed, failures)
 
 
-def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> IntermediaryResource:
+def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_transform_one_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
@@ -88,7 +88,7 @@ def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLooku
             )
     if resource.migration_metadata:
         migration_metadata = _transform_migration_metadata(resource.migration_metadata)
-    return IntermediaryResource(
+    return ProcessedResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,
         label=resource.label,
@@ -161,7 +161,7 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
     return found
 
 
-def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
     match val.value_type:
         case KnoraValueType.LIST_VALUE:
             return _transform_list_value(val, lookups)
@@ -176,16 +176,16 @@ def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> Inte
 
 def _transform_generic_value(
     val: ParsedValue, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
-) -> IntermediaryValue:
+) -> ProcessedValue:
     transformed_value = transformation_mapper.val_transformer(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     return transformation_mapper.val_type(transformed_value, val.prop_name, val.comment, permission_val)
 
 
-def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
     transformed_value = assert_is_string(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
-    link_val: IntermediaryValue = IntermediaryLink(
+    link_val: ProcessedValue = ProcessedLink(
         value=transformed_value,
         prop_iri=val.prop_name,
         comment=val.comment,
@@ -195,12 +195,12 @@ def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> Int
     return link_val
 
 
-def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
     if not (list_iri := lookups.listnodes.get(tuple_val)):
         raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
-    list_val: IntermediaryValue = IntermediaryList(
+    list_val: ProcessedValue = ProcessedList(
         value=list_iri,
         prop_iri=val.prop_name,
         comment=val.comment,
@@ -209,10 +209,10 @@ def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> Int
     return list_val
 
 
-def _transform_richtext_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+def _transform_richtext_value(val: ParsedValue, lookups: IntermediaryLookups) -> ProcessedValue:
     transformed_value = transform_richtext(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
-    richtext: IntermediaryValue = IntermediaryRichtext(
+    richtext: ProcessedValue = ProcessedRichtext(
         value=transformed_value,
         prop_iri=val.prop_name,
         comment=val.comment,

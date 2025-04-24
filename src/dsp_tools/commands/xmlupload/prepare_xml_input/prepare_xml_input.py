@@ -6,7 +6,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -28,7 +28,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def get_transformed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[IntermediaryResource]:
+def get_transformed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[ProcessedResource]:
     logger.info("Get data from XML...")
     parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = _get_intermediary_lookups(root=root, clients=clients)
@@ -63,7 +63,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
 
 def _get_intermediary_resources(
     resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
-) -> list[IntermediaryResource]:
+) -> list[ProcessedResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
@@ -76,8 +76,8 @@ def _get_intermediary_resources(
 
 
 def get_stash_and_upload_order(
-    resources: list[IntermediaryResource],
-) -> tuple[list[IntermediaryResource], Stash | None]:
+    resources: list[ProcessedResource],
+) -> tuple[list[ProcessedResource], Stash | None]:
     info_for_graph = create_info_for_graph_from_intermediary_resources(resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in resources}

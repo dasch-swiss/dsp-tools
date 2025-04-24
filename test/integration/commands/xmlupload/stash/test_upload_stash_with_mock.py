@@ -10,8 +10,8 @@ import pytest
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -87,7 +87,7 @@ class ConnectionMock(ConnectionMockBase):
 
 @pytest.fixture
 def link_val_stash_target_id_2():
-    val = IntermediaryLink("002", SOME_PROP_STR, None, None, str(uuid4()))
+    val = ProcessedLink("002", SOME_PROP_STR, None, None, str(uuid4()))
     return LinkValueStashItem("001", "sometype", val)
 
 
@@ -120,13 +120,13 @@ class TestUploadLinkValueStashes:
                 [
                     link_val_stash_target_id_2,
                     LinkValueStashItem(
-                        "001", "sometype", IntermediaryLink("003", SOME_PROP_STR, None, None, str(uuid4()))
+                        "001", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "002", "sometype", IntermediaryLink("003", SOME_PROP_STR, None, None, str(uuid4()))
+                        "002", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "004", "sometype", IntermediaryLink("002", SOME_PROP_STR, None, None, str(uuid4()))
+                        "004", "sometype", ProcessedLink("002", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                 ],
             ),
@@ -151,7 +151,7 @@ class TestUploadTextValueStashes:
         """Upload stashed text values (standoff), if all goes well."""
         value_uuid = str(uuid4())
         property_name = SOME_PROP_STR
-        val = IntermediaryRichtext(
+        val = ProcessedRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
             value_uuid=value_uuid,
@@ -198,7 +198,7 @@ class TestUploadTextValueStashes:
         """
         value_uuid = str(uuid4())
         property_name = SOME_PROP_STR
-        val = IntermediaryRichtext(
+        val = ProcessedRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
             value_uuid=value_uuid,

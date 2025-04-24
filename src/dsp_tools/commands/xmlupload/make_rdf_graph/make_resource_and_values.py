@@ -14,8 +14,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
@@ -23,7 +23,7 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 
 
 def create_resource_with_values(
-    resource: IntermediaryResource,
+    resource: ProcessedResource,
     bitstream_information: BitstreamInfo | None,
     lookups: IRILookups,
 ) -> Graph:
@@ -57,7 +57,7 @@ def create_resource_with_values(
 
 
 def _make_values_graph_from_resource(
-    resource: IntermediaryResource,
+    resource: ProcessedResource,
     res_node: BNode | URIRef,
     bitstream_information: BitstreamInfo | None,
     lookups: IRILookups,
@@ -90,7 +90,7 @@ def _make_file_value_metadata(intermediary_metadata: IntermediaryFileMetadata) -
     )
 
 
-def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, project_iri: URIRef) -> Graph:
+def _make_resource(resource: ProcessedResource, res_node: BNode | URIRef, project_iri: URIRef) -> Graph:
     g = Graph()
     g.add((res_node, RDF.type, URIRef(resource.type_iri)))
     g.add((res_node, RDFS.label, Literal(resource.label, datatype=XSD.string)))

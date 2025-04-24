@@ -5,20 +5,20 @@ import regex
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
@@ -372,7 +372,7 @@ class TestFileMetadata:
 class TestTransformValues:
     def test_bool_value(self, bool_value, lookups: IntermediaryLookups):
         transformed = _transform_one_value(bool_value, lookups)
-        assert isinstance(transformed, IntermediaryBoolean)
+        assert isinstance(transformed, ProcessedBoolean)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -402,7 +402,7 @@ class TestTransformValues:
     def test_color_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryColor)
+        assert isinstance(transformed, ProcessedColor)
         assert transformed.value == "#5d1f1e"
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -411,7 +411,7 @@ class TestTransformValues:
     def test_date_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryDate)
+        assert isinstance(transformed, ProcessedDate)
         assert isinstance(transformed.value, Date)
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -420,7 +420,7 @@ class TestTransformValues:
     def test_decimal_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryDecimal)
+        assert isinstance(transformed, ProcessedDecimal)
         assert transformed.value == 1.4
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -429,7 +429,7 @@ class TestTransformValues:
     def test_geometry_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryGeometry)
+        assert isinstance(transformed, ProcessedGeometry)
         assert transformed.value == "{}"
         assert transformed.prop_iri == f"{KNORA_API_STR}hasGeometry"
         assert not transformed.permissions
@@ -438,7 +438,7 @@ class TestTransformValues:
     def test_geoname_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryGeoname)
+        assert isinstance(transformed, ProcessedGeoname)
         assert transformed.value == "5416656"
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -447,7 +447,7 @@ class TestTransformValues:
     def test_integer_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryInt)
+        assert isinstance(transformed, ProcessedInt)
         assert transformed.value == 1
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -456,7 +456,7 @@ class TestTransformValues:
     def test_interval_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryInterval)
+        assert isinstance(transformed, ProcessedInterval)
         assert transformed.value.start == 1.0
         assert transformed.value.end == 2.0
         assert transformed.prop_iri == f"{KNORA_API_STR}hasSegmentBounds"
@@ -466,7 +466,7 @@ class TestTransformValues:
     def test_list_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryList)
+        assert isinstance(transformed, ProcessedList)
         assert transformed.value == "http://rdfh.ch/9999/node"
         assert transformed.prop_iri == HAS_PROP
         assert isinstance(transformed.permissions, Permissions)
@@ -475,7 +475,7 @@ class TestTransformValues:
     def test_simple_text_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediarySimpleText)
+        assert isinstance(transformed, ProcessedSimpleText)
         assert transformed.value == "text"
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -485,7 +485,7 @@ class TestTransformValues:
         text_str = "<text>this is text</text>"
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryRichtext)
+        assert isinstance(transformed, ProcessedRichtext)
         assert transformed.value.xmlstr == text_str
         assert transformed.prop_iri == HAS_PROP
         assert isinstance(transformed.permissions, Permissions)
@@ -496,7 +496,7 @@ class TestTransformValues:
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryRichtext)
+        assert isinstance(transformed, ProcessedRichtext)
         assert transformed.value.xmlstr == text_str
         assert transformed.prop_iri == HAS_PROP
         assert isinstance(transformed.permissions, Permissions)
@@ -506,7 +506,7 @@ class TestTransformValues:
     def test_link_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryLink)
+        assert isinstance(transformed, ProcessedLink)
         assert transformed.value == "other_id"
         assert transformed.prop_iri == f"{HAS_PROP}Value"
         assert isinstance(transformed.permissions, Permissions)
@@ -515,7 +515,7 @@ class TestTransformValues:
     def test_time_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryTime)
+        assert isinstance(transformed, ProcessedTime)
         assert transformed.value == "2019-10-23T13:45:12.01-14:00"
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
@@ -524,7 +524,7 @@ class TestTransformValues:
     def test_uri_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryUri)
+        assert isinstance(transformed, ProcessedUri)
         assert transformed.value == "https://dasch.swiss"
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions

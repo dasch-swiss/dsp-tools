@@ -12,21 +12,21 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_value_graph
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
@@ -61,7 +61,7 @@ def lookups() -> IRILookups:
 class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
+        prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.isTrueOrFalse))
@@ -74,7 +74,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_color(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryColor("#5d1f1e", absolute_iri("hasColor"), None, None)
+        prop = ProcessedColor("#5d1f1e", absolute_iri("hasColor"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasColor))
@@ -85,7 +85,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_decimal(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryDecimal(2.718281828459, absolute_iri("hasDecimal"), "Eulersche Zahl", None)
+        prop = ProcessedDecimal(2.718281828459, absolute_iri("hasDecimal"), "Eulersche Zahl", None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasDecimal))
@@ -98,7 +98,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_geometry(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryGeometry(
+        prop = ProcessedGeometry(
             '{"status": "active", "type": "polygon", "lineWidth": 5, '
             '"points": [{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}',
             absolute_iri("hasGeometry"),
@@ -115,7 +115,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryGeoname("5416656", absolute_iri("hasGeoname"), None, None)
+        prop = ProcessedGeoname("5416656", absolute_iri("hasGeoname"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasGeoname))
@@ -126,7 +126,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_integer(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryInt(1, absolute_iri("hasInteger"), "comment", None)
+        prop = ProcessedInt(1, absolute_iri("hasInteger"), "comment", None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
@@ -137,7 +137,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_time(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", absolute_iri("hasTime"), None, None)
+        prop = ProcessedTime("2019-10-23T13:45:12.01-14:00", absolute_iri("hasTime"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasTime))
@@ -148,7 +148,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_uri(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryUri("https://dasch.swiss", absolute_iri("hasUri"), None, None)
+        prop = ProcessedUri("https://dasch.swiss", absolute_iri("hasUri"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasUri))
@@ -159,7 +159,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_list(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None)
+        prop = ProcessedList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasListItem))
@@ -170,7 +170,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink("res_one", absolute_iri("hasResource"), None, None, str(uuid4()))
+        prop = ProcessedLink("res_one", absolute_iri("hasResource"), None, None, str(uuid4()))
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasResourceValue))
@@ -181,7 +181,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_simpletext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediarySimpleText("Text", absolute_iri("hasSimpleText"), None, None)
+        prop = ProcessedSimpleText("Text", absolute_iri("hasSimpleText"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasSimpleText))
@@ -192,7 +192,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_richtext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryRichtext(
+        prop = ProcessedRichtext(
             FormattedTextValue("Text"),
             absolute_iri("hasRichtext"),
             None,
@@ -216,7 +216,7 @@ class TestMakeOneValueGraphSuccess:
     def test_richtext_with_reference(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
-        prop = IntermediaryRichtext(
+        prop = ProcessedRichtext(
             FormattedTextValue(text),
             absolute_iri("hasRichtext"),
             None,
@@ -246,7 +246,7 @@ class TestMakeOneValueGraphSuccess:
             start=SingleDate(era=Era.AD, year=476, month=9, day=4),
             end=SingleDate(era=Era.AD, year=477, month=None, day=None),
         )
-        prop = IntermediaryDate(date, absolute_iri("hasDate"), None, None)
+        prop = ProcessedDate(date, absolute_iri("hasDate"), None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 9
         val_bn = next(result.objects(res_bn, ONTO.hasDate))
@@ -270,7 +270,7 @@ class TestMakeOneValueGraphSuccess:
     def test_interval(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         interval = IntervalFloats(0.1, 0.234)
-        prop = IntermediaryInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None)
+        prop = ProcessedInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, KNORA_API.hasSegmentBounds))
@@ -283,7 +283,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_segment_of_video(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink(
+        prop = ProcessedLink(
             "res_one",
             "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf",
             None,
@@ -300,7 +300,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_segment_of_audio(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink(
+        prop = ProcessedLink(
             "res_one",
             "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf",
             None,
@@ -318,7 +318,7 @@ class TestMakeOneValueGraphSuccess:
 
 def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
-    prop = IntermediaryLink("non_existing", absolute_iri("hasResource"), None, None, value_uuid=str(uuid4()))
+    prop = ProcessedLink("non_existing", absolute_iri("hasResource"), None, None, value_uuid=str(uuid4()))
     err_str = regex.escape(
         (
             "Could not find the ID non_existing in the id2iri mapping. "
@@ -333,7 +333,7 @@ def test_link_target_not_found(lookups: IRILookups) -> None:
 def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
-    prop = IntermediaryRichtext(
+    prop = ProcessedRichtext(
         FormattedTextValue(text),
         absolute_iri("hasRichtext"),
         None,

@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 
 @dataclass
 class ResourceTransformationResult:
-    transformed_resources: list[IntermediaryResource]
+    transformed_resources: list[ProcessedResource]
     resource_failures: list[ResourceInputConversionFailure]
 
 
@@ -22,12 +22,12 @@ class ResourceInputConversionFailure:
 
 
 @dataclass
-class IntermediaryResource:
+class ProcessedResource:
     res_id: str
     type_iri: str
     label: str
     permissions: Permissions | None
-    values: list[IntermediaryValue]
+    values: list[ProcessedValue]
     file_value: IntermediaryFileValue | None = None
     iiif_uri: IntermediaryIIIFUri | None = None
     migration_metadata: MigrationMetadata | None = None

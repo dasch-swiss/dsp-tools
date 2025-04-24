@@ -3,10 +3,10 @@ import pytest
 import regex
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.error.exceptions import InputError
 
@@ -14,31 +14,31 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 
 @pytest.fixture
-def resource_richtext() -> IntermediaryResource:
+def resource_richtext() -> ProcessedResource:
     val = FormattedTextValue(
         '<a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource</a> '
         'with IRI <a class="salsah-link" href="http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg">target existing IRI</a>'
     )
-    richtext = IntermediaryRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
-    return IntermediaryResource(
+    richtext = ProcessedRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
+    return ProcessedResource(
         res_id="resource_richtext",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[richtext, IntermediaryInt(1, f"{ONTO}intProp", None, None)],
+        values=[richtext, ProcessedInt(1, f"{ONTO}intProp", None, None)],
     )
 
 
 @pytest.fixture
-def resource_richtext_several() -> IntermediaryResource:
+def resource_richtext_several() -> ProcessedResource:
     val = FormattedTextValue(
         'Text <a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource_text</a> '
         'more text <a class="salsah-link" href="IRI:target_resource_link:IRI">target_resource_link</a>'
     )
-    text = IntermediaryRichtext(
+    text = ProcessedRichtext(
         val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text", "target_resource_link"}, ""
     )
-    return IntermediaryResource(
+    return ProcessedResource(
         res_id="resource_richtext",
         type_iri="type",
         label="lbl",
@@ -48,39 +48,35 @@ def resource_richtext_several() -> IntermediaryResource:
 
 
 @pytest.fixture
-def target_resource_text() -> IntermediaryResource:
-    return IntermediaryResource(
-        res_id="target_resource_text", type_iri="type", label="lbl", permissions=None, values=[]
-    )
+def target_resource_text() -> ProcessedResource:
+    return ProcessedResource(res_id="target_resource_text", type_iri="type", label="lbl", permissions=None, values=[])
 
 
 @pytest.fixture
-def resource_link_value() -> IntermediaryResource:
-    return IntermediaryResource(
+def resource_link_value() -> ProcessedResource:
+    return ProcessedResource(
         res_id="resource_link_value",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[IntermediaryLink("target_resource_link", f"{ONTO}linkProp", None, None, "")],
+        values=[ProcessedLink("target_resource_link", f"{ONTO}linkProp", None, None, "")],
     )
 
 
 @pytest.fixture
-def resource_link_value_with_target_iri() -> IntermediaryResource:
-    return IntermediaryResource(
+def resource_link_value_with_target_iri() -> ProcessedResource:
+    return ProcessedResource(
         res_id="resource_link_value_with_target_iri",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[IntermediaryLink("http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg", f"{ONTO}linkProp", None, None, "")],
+        values=[ProcessedLink("http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg", f"{ONTO}linkProp", None, None, "")],
     )
 
 
 @pytest.fixture
-def target_resource_link() -> IntermediaryResource:
-    return IntermediaryResource(
-        res_id="target_resource_link", type_iri="type", label="lbl", permissions=None, values=[]
-    )
+def target_resource_link() -> ProcessedResource:
+    return ProcessedResource(res_id="target_resource_link", type_iri="type", label="lbl", permissions=None, values=[])
 
 
 def test_check_all_links_good(

@@ -9,9 +9,9 @@ from typing import Union
 from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValueTypes
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
@@ -21,8 +21,8 @@ InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str | None, str | N
 
 @dataclass
 class TypeTransformerMapper:
-    val_type: type[IntermediaryValue]
-    val_transformer: Callable[[InputTypes], IntermediaryValueTypes]
+    val_type: type[ProcessedValue]
+    val_transformer: Callable[[InputTypes], ProcessedValueTypes]
 
 
 def assert_is_string(value: InputTypes) -> str:

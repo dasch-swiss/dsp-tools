@@ -3,15 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
 
 
 @dataclass(frozen=True)
 class StandoffStashItem:
     res_id: str
     res_type: str
-    value: IntermediaryRichtext
+    value: ProcessedRichtext
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ class LinkValueStashItem:
 
     res_id: str
     res_type: str
-    value: IntermediaryLink
+    value: ProcessedLink
 
 
 @dataclass(frozen=True)

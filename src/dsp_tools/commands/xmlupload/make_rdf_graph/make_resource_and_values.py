@@ -12,11 +12,11 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_fil
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileMetadata
+from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
+from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.utils.rdflib_constants import KNORA_API

@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from rdflib import XSD
 
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedUri
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 

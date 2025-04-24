@@ -9,10 +9,10 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_migration_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_resource
-from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.rdflib_constants import KNORA_API
 

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryIIIFUri
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 

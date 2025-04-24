@@ -17,9 +17,9 @@ from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo

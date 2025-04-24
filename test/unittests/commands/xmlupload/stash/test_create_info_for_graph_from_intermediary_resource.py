@@ -3,11 +3,11 @@ from uuid import uuid4
 import pytest
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import _process_one_resource
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 

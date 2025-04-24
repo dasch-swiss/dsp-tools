@@ -14,7 +14,7 @@ from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InvalidFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError

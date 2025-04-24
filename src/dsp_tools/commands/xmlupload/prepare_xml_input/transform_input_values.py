@@ -9,9 +9,9 @@ from typing import Union
 from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedValueTypes
+from dsp_tools.commands.xmlupload.models.processed.values import IntervalFloats
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string

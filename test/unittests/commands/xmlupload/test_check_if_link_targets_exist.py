@@ -3,10 +3,10 @@ import pytest
 import regex
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.error.exceptions import InputError
 

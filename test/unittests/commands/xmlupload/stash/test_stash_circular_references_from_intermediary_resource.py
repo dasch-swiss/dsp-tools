@@ -4,12 +4,12 @@ from uuid import uuid4
 import pytest
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash

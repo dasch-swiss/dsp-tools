@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.processed.res import ResourceInputConversionFailure
+from dsp_tools.commands.xmlupload.models.processed.res import ResourceInputProcessingFailure
 from dsp_tools.commands.xmlupload.models.processed.res import ResourceProcessingResult
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
@@ -69,7 +69,7 @@ def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferen
             result = _get_one_resource(res, lookups)
             transformed.append(result)
         except (PermissionNotExistsError, InputError) as e:
-            failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
+            failures.append(ResourceInputProcessingFailure(res.res_id, str(e)))
     return ResourceProcessingResult(transformed, failures)
 
 

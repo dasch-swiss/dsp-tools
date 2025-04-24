@@ -12,11 +12,11 @@ from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 @dataclass
 class ResourceProcessingResult:
     processed_resources: list[ProcessedResource]
-    resource_failures: list[ResourceInputConversionFailure]
+    resource_failures: list[ResourceInputProcessingFailure]
 
 
 @dataclass
-class ResourceInputConversionFailure:
+class ResourceInputProcessingFailure:
     resource_id: str
     failure_msg: str
 

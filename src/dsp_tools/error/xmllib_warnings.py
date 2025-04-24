@@ -1,9 +1,13 @@
+from typing import Protocol
+from typing import runtime_checkable
+
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 
 
-class XmllibUserInfo(Warning):
+@runtime_checkable
+class XmllibUserInfoBase(Protocol):
     """Protocol for warnings that implement a custom showwarnings() function"""
 
     @classmethod
@@ -11,7 +15,7 @@ class XmllibUserInfo(Warning):
         """Functionality that should be executed when a warning of this class is emitted"""
 
 
-class XmllibInputInfo(XmllibUserInfo):
+class XmllibInputInfo(Warning, XmllibUserInfoBase):
     """If the xmllib input may be problematic"""
 
     @classmethod
@@ -19,7 +23,7 @@ class XmllibInputInfo(XmllibUserInfo):
         print(YELLOW + f"INFO: {message}" + RESET_TO_DEFAULT)
 
 
-class XmllibInputWarning(Warning):
+class XmllibInputWarning(Warning, XmllibUserInfoBase):
     """If the xmllib input is problematic"""
 
     @classmethod

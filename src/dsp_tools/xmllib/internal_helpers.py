@@ -7,8 +7,8 @@ from typing import Any
 import pandas as pd
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -106,7 +106,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         case set() | list() | tuple():
             if len(value) == 0:
                 msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(DspToolsUserInfo(msg))
+                warnings.warn(XmllibInputInfo(msg))
             return list(value)
         case dict():
             msg += "is a dictionary. Only collections (list, set, tuple) are permissible."

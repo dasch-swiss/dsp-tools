@@ -13,10 +13,13 @@ from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
@@ -56,11 +59,26 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 
 
 @pytest.fixture(scope="module")
+def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> tuple[RDFGraphs, set[str]]:
+    file = Path("testdata/validate-data/generic/unknown_classes.xml")
+    graphs, used_iris = _get_parsed_graphs(api_url, file)
+    return graphs, used_iris
+
+
+def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGraphs, set[str]]) -> None:
+    graphs, used_iris = unknown_classes_graphs
+    result = _check_for_unknown_resource_classes(graphs, used_iris)
+    assert isinstance(result, UnknownClassesInData)
+    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
+    assert result.unknown_classes == expected
+
+
+@pytest.fixture(scope="module")
 def unique_value_violation(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -69,7 +87,7 @@ def file_value_violation(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -78,7 +96,7 @@ def dsp_inbuilt_violation(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -87,7 +105,7 @@ def cardinality_violation(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -96,7 +114,7 @@ def content_violation(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -107,7 +125,7 @@ def value_type_violation(
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
     with pytest.warns(DspToolsUserInfo, match=match):
-        graphs = _get_parsed_graphs(api_url, file)
+        graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -116,7 +134,7 @@ def every_violation_combination_once(
     _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs = _get_parsed_graphs(api_url, file)
+    graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -269,6 +287,7 @@ class TestReformatValidationGraph:
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
+            "identical_values_richtext",
             "identical_values_valueAsString",
             "identical_values_valueHas",
         ]

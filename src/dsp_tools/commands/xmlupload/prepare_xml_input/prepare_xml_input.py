@@ -10,9 +10,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import (
-    transform_all_resources_into_intermediary_resources,
-)
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_processed_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -64,7 +62,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
 def _get_processed_resources(
     resources: list[ParsedResource], xml_lookups: XmlReferenceLookups
 ) -> list[ProcessedResource]:
-    result = transform_all_resources_into_intermediary_resources(resources, xml_lookups)
+    result = get_processed_resources(resources, xml_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
         msg = (

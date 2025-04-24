@@ -28,9 +28,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_iiif_uri_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _transform_one_value
-from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import (
-    transform_all_resources_into_intermediary_resources,
-)
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
@@ -89,7 +87,7 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        result = get_processed_resources([res], lookups)
         assert len(result.transformed_resources) == 1
         assert not result.resource_failures
 
@@ -103,7 +101,7 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        result = get_processed_resources([res], lookups)
         assert not result.transformed_resources
         assert len(result.resource_failures) == 1
         assert result.resource_failures[0].resource_id == "id"

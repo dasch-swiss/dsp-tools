@@ -61,7 +61,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 }
 
 
-def transform_all_resources_into_intermediary_resources(
+def get_processed_resources(
     resources: list[ParsedResource], lookups: XmlReferenceLookups
 ) -> ResourceTransformationResult:
     failures = []

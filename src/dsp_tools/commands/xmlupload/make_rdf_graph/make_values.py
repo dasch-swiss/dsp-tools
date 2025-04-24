@@ -58,7 +58,7 @@ def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups:
     Serialise the values of a resource.
 
     Args:
-        values: list of IntermediaryValues of the resource
+        values: list of ProcessedValues of the resource
         res_node: node of the resource
         lookups: lookups to resolve IRIs
 

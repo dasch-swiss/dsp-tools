@@ -5,8 +5,8 @@ import regex
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryIIIFUri
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
@@ -259,7 +259,7 @@ class TestTransformOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         file_val = result.file_value
-        assert isinstance(file_val, IntermediaryFileValue)
+        assert isinstance(file_val, ProcessedFileValue)
         assert file_val.value == "file.jpg"
         assert file_val.metadata.permissions
         assert not result.iiif_uri
@@ -282,7 +282,7 @@ class TestTransformOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
-        assert isinstance(result.iiif_uri, IntermediaryIIIFUri)
+        assert isinstance(result.iiif_uri, ProcessedIIIFUri)
         assert not result.migration_metadata
 
 
@@ -292,7 +292,7 @@ class TestTransformFileValue:
         val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_file_value(val, lookups, "id", "lbl")
         assert result.value == "file.jpg"
-        assert isinstance(result, IntermediaryFileValue)
+        assert isinstance(result, ProcessedFileValue)
         result_metadata = result.metadata
         assert not result_metadata.permissions
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
@@ -301,7 +301,7 @@ class TestTransformFileValue:
 
     def test_transform_file_value_with_permissions(self, file_with_permission, lookups: IntermediaryLookups):
         result = _transform_file_value(file_with_permission, lookups, "id", "lbl")
-        assert isinstance(result, IntermediaryFileValue)
+        assert isinstance(result, ProcessedFileValue)
         assert result.value == "file.jpg"
         result_metadata = result.metadata
         assert isinstance(result_metadata.permissions, Permissions)
@@ -312,7 +312,7 @@ class TestTransformFileValue:
     def test_transform_iiif_uri_value(self, iiif_file_value, lookups: IntermediaryLookups):
         result = _transform_iiif_uri_value(iiif_file_value, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
-        assert isinstance(result, IntermediaryIIIFUri)
+        assert isinstance(result, ProcessedIIIFUri)
         result_metadata = result.metadata
         assert not result_metadata.permissions
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
@@ -323,7 +323,7 @@ class TestTransformFileValue:
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_iiif_uri_value(val, lookups)
-        assert isinstance(result, IntermediaryIIIFUri)
+        assert isinstance(result, ProcessedIIIFUri)
         assert result.value == "https://this/is/a/uri.jpg"
         result_metadata = result.metadata
         assert isinstance(result_metadata.permissions, Permissions)

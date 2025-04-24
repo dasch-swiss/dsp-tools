@@ -2,9 +2,9 @@ from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileMetadata
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryIIIFUri
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.res import ResourceInputConversionFailure
@@ -112,19 +112,19 @@ def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> Migratio
 
 def _transform_file_value(
     val: ParsedFileValue, lookups: IntermediaryLookups, res_id: str, res_label: str
-) -> IntermediaryFileValue:
+) -> ProcessedFileValue:
     metadata = _get_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
-    return IntermediaryFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
+    return ProcessedFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
-def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:
+def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> ProcessedIIIFUri:
     metadata = _get_metadata(iiif_uri.metadata, lookups)
     file_val = assert_is_string(iiif_uri.value)
-    return IntermediaryIIIFUri(file_val, metadata)
+    return ProcessedIIIFUri(file_val, metadata)
 
 
-def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
+def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
     predefined_licenses = [
         "http://rdfh.ch/licenses/cc-by-4.0",
@@ -142,7 +142,7 @@ def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryL
             f"The license '{file_metadata.license_iri}' used for an image or iiif-uri is unknown. "
             f"See documentation for accepted pre-defined licenses."
         )
-    return IntermediaryFileMetadata(
+    return ProcessedFileMetadata(
         license_iri=file_metadata.license_iri,
         copyright_holder=file_metadata.copyright_holder,
         authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),

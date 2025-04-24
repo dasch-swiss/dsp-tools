@@ -13,8 +13,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iii
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileMetadata
-from dsp_tools.commands.xmlupload.models.processed.file_values import IntermediaryFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
@@ -70,7 +70,7 @@ def _make_values_graph_from_resource(
         properties_graph += iiif_g
 
     elif bitstream_information:
-        file_val = cast(IntermediaryFileValue, resource.file_value)
+        file_val = cast(ProcessedFileValue, resource.file_value)
         metadata = _make_file_value_metadata(file_val.metadata)
         file_g = make_file_value_graph(bitstream_information, metadata, res_node)
         properties_graph += file_g
@@ -78,7 +78,7 @@ def _make_values_graph_from_resource(
     return properties_graph
 
 
-def _make_file_value_metadata(intermediary_metadata: IntermediaryFileMetadata) -> FileValueMetadata:
+def _make_file_value_metadata(intermediary_metadata: ProcessedFileMetadata) -> FileValueMetadata:
     permissions = None
     if found := intermediary_metadata.permissions:
         permissions = str(found)

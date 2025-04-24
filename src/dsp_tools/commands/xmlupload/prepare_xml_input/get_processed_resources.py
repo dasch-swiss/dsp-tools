@@ -63,14 +63,14 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 
 def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferenceLookups) -> ResourceProcessingResult:
     failures = []
-    transformed = []
+    processed = []
     for res in resources:
         try:
             result = _get_one_resource(res, lookups)
-            transformed.append(result)
+            processed.append(result)
         except (PermissionNotExistsError, InputError) as e:
             failures.append(ResourceInputProcessingFailure(res.res_id, str(e)))
-    return ResourceProcessingResult(transformed, failures)
+    return ResourceProcessingResult(processed, failures)
 
 
 def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:

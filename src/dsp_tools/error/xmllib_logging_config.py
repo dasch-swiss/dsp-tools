@@ -35,15 +35,18 @@ def xmllib_warning_config() -> None:
 def config_xmllib_logging() -> None:
     def colour_level_formatter(record) -> str:
         level = record["level"].name
-        message = record["message"]
-        func = ":"
-        if not (fnc := record["function"]) == "<module>":
-            func = f":{fnc}:"
-        function = f"{record['file'].name}{func}{record['line']}"
         level_colors = {"INFO": "yellow", "WARNING": "red", "ERROR": "bold red"}
         if not (colour := level_colors.get(level)):
             colour = "white"
-        return f"<{colour}>{level} | Function: '{function}' | {message}</{colour}>\n"
+        message = record["message"]
+        msg_list = [f"<{colour}>{level}"]
+        if not (fnc := record["function"]) == "<module>":
+            func = f":{fnc}:"
+            if not (f_name := record['file'].name) == "pydevd.py":
+                function = f"{f_name}{func}{record['line']}"
+                msg_list.append(f"Function: '{function}'")
+        msg_list.append(f"{message}</{colour}>\n")
+        return " | ".join(msg_list)
 
     logger.remove()
     logger.add(sys.stderr, colorize=True, format=colour_level_formatter)

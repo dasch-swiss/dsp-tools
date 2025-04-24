@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import get_message_string
 

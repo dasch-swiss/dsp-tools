@@ -7,8 +7,8 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -62,7 +62,7 @@ class Resource:
                 f"The Resource with the ID '{self.res_id}' should have strings in the following field(s). "
                 f"The input is not a valid string: {LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
             )
-            warnings.warn(DspToolsUserWarning(out_msg))
+            warnings.warn(XmllibInputWarning(out_msg))
 
     @staticmethod
     def create_new(

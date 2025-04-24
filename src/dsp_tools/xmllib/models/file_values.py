@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -18,7 +18,7 @@ class AuthorshipLookup:
 
     def get_id(self, authors: tuple[str, ...]) -> str:
         if not (found := self.lookup.get(authors)):
-            warnings.warn(DspToolsUserWarning(f"The input authors {authors} are not defined in the look-up."))
+            warnings.warn(XmllibInputWarning(f"The input authors {authors} are not defined in the look-up."))
             return " / ".join([str(x) for x in authors])
         return found
 
@@ -81,4 +81,4 @@ def _warn_type_mismatch(expected_type: str, value: Any, res_id: str | None) -> N
         msg = f"The Resource '{res_id}' has an invalid input: The value '{value}' is not a valid {expected_type}."
     else:
         msg = f"The value '{value}' is not a valid {expected_type}."
-    warnings.warn(DspToolsUserWarning(msg))
+    warnings.warn(XmllibInputWarning(msg))

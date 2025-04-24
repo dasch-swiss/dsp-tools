@@ -8,8 +8,8 @@ import pandas as pd
 import regex
 
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -82,7 +82,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
     """
     if not is_nonempty_value_internal(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
-        warnings.warn(DspToolsUserWarning(msg))
+        warnings.warn(XmllibInputWarning(msg))
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

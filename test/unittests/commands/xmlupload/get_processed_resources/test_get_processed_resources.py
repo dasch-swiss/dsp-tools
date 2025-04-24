@@ -88,7 +88,7 @@ class TestTransformResources:
             migration_metadata=None,
         )
         result = get_processed_resources([res], lookups)
-        assert len(result.transformed_resources) == 1
+        assert len(result.processed_resources) == 1
         assert not result.resource_failures
 
     def test_failure(self, lookups: XmlReferenceLookups):
@@ -102,7 +102,7 @@ class TestTransformResources:
             migration_metadata=None,
         )
         result = get_processed_resources([res], lookups)
-        assert not result.transformed_resources
+        assert not result.processed_resources
         assert len(result.resource_failures) == 1
         assert result.resource_failures[0].resource_id == "id"
         assert result.resource_failures[0].failure_msg == "Could not find permissions for value: nonExisting"

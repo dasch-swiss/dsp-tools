@@ -84,9 +84,9 @@ def xmlupload(
 
     check_if_bitstreams_exist(root, imgdir)
     preliminary_validation_of_root(root, con, config)
-    transformed = get_processed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(transformed)
-    sorted_resources, stash = get_stash_and_upload_order(transformed)
+    processed_resources = get_processed_resources_for_upload(root, clients)
+    check_if_link_targets_exist(processed_resources)
+    sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,
         pending_stash=stash,

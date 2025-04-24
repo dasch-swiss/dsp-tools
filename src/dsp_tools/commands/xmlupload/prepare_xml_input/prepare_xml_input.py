@@ -72,7 +72,7 @@ def _get_processed_resources(
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         )
         raise InputError(msg)
-    return processing_result.transformed_resources
+    return processing_result.processed_resources
 
 
 def get_stash_and_upload_order(

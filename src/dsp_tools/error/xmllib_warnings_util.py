@@ -39,7 +39,7 @@ def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str
         str_list.append(f"Resource ID '{msg.resource_id}'")
     if msg.prop_name:
         str_list.append(f"Property '{msg.prop_name}'")
-    if msg.field:
-        str_list.append(f"Field '{msg.field}'")
+    if msg.field_:
+        str_list.append(f"Field '{msg.field_}'")
     str_list.append(msg.message)
     return " | ".join(str_list)

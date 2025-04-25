@@ -1397,15 +1397,14 @@ class AudioSegmentResource:
 
 def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
     if not is_nonempty_value(string_to_check):
-        msg = (
-            f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
-            f"Field: {field_name} | Value: {string_to_check}"
-        )
-        warnings.warn(XmllibInputWarning(msg))
+        msg_info = MessageInfo(f"The following field has an invalid string: Field: {field_name} | Value: {string_to_check}", res_id)
+        emit_xmllib_input_warning(msg_info)
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
+    msg_info = MessageInfo("This resource already has a the following field")
+
     msg = (
         f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "
         f"The old value '{old_value}' is being replace with '{new_value}'."

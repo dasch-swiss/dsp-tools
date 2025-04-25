@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -9,7 +8,6 @@ from typing import Any
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -1395,18 +1393,15 @@ class AudioSegmentResource:
         return self
 
 
-def _check_strings(string_to_check: str, res_id: str, prop_name: str | None = None, value_field: str | None = None )-> None:
+def _check_strings(
+    *, string_to_check: str, res_id: str, prop_name: str | None = None, value_field: str | None = None
+) -> None:
     if not is_nonempty_value(string_to_check):
-        msg_info = MessageInfo(
-            f"The entered string is not valid.",
-            res_id, prop_name, value_field
-        )
+        msg_info = MessageInfo("The entered string is not valid.", res_id, prop_name, value_field)
         emit_xmllib_input_warning(msg_info)
 
 
-def _warn_value_exists(
-    *, old_value: Any, new_value: Any, res_id: str | None, value_field: str | None = None
-) -> None:
+def _warn_value_exists(*, old_value: Any, new_value: Any, res_id: str | None, value_field: str | None = None) -> None:
     """Emits a warning if a values is not in the expected format."""
     msg = (
         f"This resource already has value in this location. "

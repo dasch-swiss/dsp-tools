@@ -20,17 +20,17 @@ class TestRegionResource:
     def test_warns_res_id(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("id", "lbl", "regionOfId")
+            RegionResource.create_new("", "lbl", "regionOfId")
 
     def test_warns_label(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("id", "lbl", "regionOfId")
+            RegionResource.create_new("id", "", "regionOfId")
 
     def test_warns_region_of(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("id", "lbl", "regionOfId")
+            RegionResource.create_new("id", "lbl", "")
 
 
 class TestLinkResource:
@@ -42,12 +42,12 @@ class TestLinkResource:
     def test_warns_res_id(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            LinkResource.create_new("id", "lbl", ["link_to"])
+            LinkResource.create_new("", "lbl", ["link_to"])
 
     def test_warns_label(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            LinkResource.create_new("id", "lbl", ["link_to"])
+            LinkResource.create_new("id", "", ["link_to"])
 
 
 def test_segment_bounds():
@@ -65,17 +65,17 @@ class TestVideoSegmentResource:
     def test_warns_res_id(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            VideoSegmentResource.create_new("", "lbl", "segment_of", "0", "1")
 
     def test_warns_label(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            VideoSegmentResource.create_new("id", "", "segment_of", "0", "1")
 
     def test_warns_segment_of(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            VideoSegmentResource.create_new("id", "lbl", "", "0", "1")
 
 
 class TestAudioSegmentResource:
@@ -87,14 +87,14 @@ class TestAudioSegmentResource:
     def test_warns_res_id(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            AudioSegmentResource.create_new("", "lbl", "segment_of", "0", "1")
 
     def test_warns_label(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            AudioSegmentResource.create_new("id", "", "segment_of", "0", "1")
 
     def test_warns_segment_of(self):
         expected = regex.escape("asdf")
         with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+            AudioSegmentResource.create_new("id", "lbl", "", "0", "1")

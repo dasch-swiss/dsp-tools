@@ -15,7 +15,7 @@ class MessageInfo:
     """
 
     message: str
-    resource_id: str
+    resource_id: str | None = None
     prop_name: str | None = None
     field: str | None = None
 

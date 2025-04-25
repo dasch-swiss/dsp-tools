@@ -24,7 +24,7 @@ def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
     frame_files = [x.filename for x in all_stack_frames]
     calling_func_index = _get_stack_frame_number(frame_files)
-    if calling_func_index == 0:
+    if calling_func_index == -1:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]
@@ -32,7 +32,7 @@ def _get_calling_code_context() -> str | None:
 
 
 def _get_stack_frame_number(file_names: list[str]) -> int:
-    calling_func_index = 0
+    calling_func_index = -1
     for file in file_names:
         if _filter_stack_frames(file):
             calling_func_index += 1
@@ -42,11 +42,11 @@ def _get_stack_frame_number(file_names: list[str]) -> int:
 
 
 def _filter_stack_frames(file_path: str) -> bool:
-    if "dsp_tools/error/" in file_path:
+    if "/dsp_tools/error/" in file_path:
         return True
-    elif "dsp_tools/xmllib/" in file_path:
+    elif "/dsp_tools/xmllib/" in file_path:
         return True
-    elif "dsp_tools/test/" in file_path:
+    elif "/dsp-tools/test/" in file_path:
         return True
     elif regex.search(r"^<[a-zA-Z]+>$", file_path):
         return True

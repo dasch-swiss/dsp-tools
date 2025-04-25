@@ -5,6 +5,7 @@ import regex
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import _get_calling_code_context
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import get_user_message_string
@@ -25,6 +26,11 @@ def test_emit_xmllib_input_warning(message_info):
     expected = regex.escape("Resource ID 'id' | msg")
     with pytest.warns(XmllibInputWarning, match=expected):
         emit_xmllib_input_warning(message_info)
+
+
+def test_get_calling_code_context():
+    result = _get_calling_code_context()
+    assert result.startswith("test_xmllib_warnings_util.py:")
 
 
 class TestGetMessageString:

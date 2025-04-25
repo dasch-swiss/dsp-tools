@@ -29,7 +29,8 @@ def _get_calling_code_context() -> str | None:
     if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
-    return f"{user_frame_info.filename}:{user_frame_info.lineno}"
+    file_name = user_frame_info.filename.rsplit("/", 1)[1]
+    return f"{file_name}:{user_frame_info.lineno}"
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:

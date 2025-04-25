@@ -12,6 +12,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import SegmentBounds
 from dsp_tools.xmllib.models.dsp_base_resources import _check_strings
+from dsp_tools.xmllib.models.dsp_base_resources import _warn_value_exists
 
 # The warning matches are constructed so that the line number is not checked as that is prone to change.
 
@@ -85,12 +86,33 @@ class TestAudioSegmentResource:
 
 
 def test_check_strings_prop():
-    expected = "asdf"
+    expected = (
+        regex.escape("Trace 'test_dsp_base_resources.py:")
+        + r"\d+"
+        + regex.escape("' | Resource ID 'id' | Property 'prop' | The entered string is not valid.")
+    )
     with pytest.warns(XmllibInputWarning, match=expected):
         _check_strings(string_to_check="", res_id="id", prop_name="prop")
 
 
 def test_check_strings_field():
-    expected = "asdf"
+    expected = (
+        regex.escape("Trace 'test_dsp_base_resources.py:")
+        + r"\d+"
+        + regex.escape("' | Resource ID 'id' | Field 'field' | The entered string is not valid.")
+    )
     with pytest.warns(XmllibInputWarning, match=expected):
         _check_strings(string_to_check="", res_id="id", field_name="field")
+
+
+def test_warn_value_exists():
+    expected = (
+        regex.escape("Trace 'test_dsp_base_resources.py:")
+        + r"\d+"
+        + regex.escape(
+            "' | Resource ID 'id' | Field 'field' | "
+            "This resource already has value in this location. The old value 'old' is being replace with 'new'."
+        )
+    )
+    with pytest.warns(XmllibInputWarning, match=expected):
+        _warn_value_exists(old_value="old", new_value="new", res_id="id", value_field="field")

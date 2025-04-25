@@ -22,7 +22,8 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
 
 def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
-    calling_func_index = _get_stack_frame_number(all_stack_frames)
+    frame_files = [x.filename for x in all_stack_frames]
+    calling_func_index = _get_stack_frame_number(frame_files)
     if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
@@ -30,10 +31,10 @@ def _get_calling_code_context() -> str | None:
     return f"{file_name}:{user_frame_info.lineno}"
 
 
-def _get_stack_frame_number(frames: list[inspect.FrameInfo]) -> int:
+def _get_stack_frame_number(file_names: list[str]) -> int:
     calling_func_index = 0
-    for trc in frames:
-        if _filter_stack_frames(trc.filename):
+    for file in file_names:
+        if _filter_stack_frames(file):
             calling_func_index += 1
         else:
             break

@@ -655,8 +655,8 @@ class VideoSegmentResource:
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
@@ -1046,8 +1046,8 @@ class AudioSegmentResource:
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """

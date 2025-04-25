@@ -22,21 +22,32 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
 
 def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
-    calling_func_index = 0
-    for trc in all_stack_frames:
-        if "dsp_tools/error/" in trc.filename:
-            calling_func_index += 1
-        elif "dsp_tools/xmllib/" in trc.filename:
-            calling_func_index += 1
-        elif "dsp_tools/test/" in trc.filename:
-            calling_func_index += 1
-        elif regex.search(r"^<[a-zA-Z]+>$", trc.filename):
-            calling_func_index += 1
-    if calling_func_index == 0:
+    frame_files = [x.filename for x in all_stack_frames]
+    calling_func_index = _get_stack_frame_number(frame_files)
+    if calling_func_index == -1:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]
     return f"{file_name}:{user_frame_info.lineno}"
+
+
+def _get_stack_frame_number(file_names: list[str]) -> int:
+    calling_func_index = -1
+    for file in file_names:
+        if _filter_stack_frames(file):
+            calling_func_index += 1
+        else:
+            break
+    return calling_func_index
+
+
+def _filter_stack_frames(file_path: str) -> bool:
+    dsp_tools_path = r"\/dsp[-_]tools\/(test|xmllib|error)\/"
+    if regex.search(dsp_tools_path, file_path):
+        return True
+    elif regex.search(r"^<[a-zA-Z]+>$", file_path):
+        return True
+    return False
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:

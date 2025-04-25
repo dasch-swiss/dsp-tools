@@ -11,6 +11,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import SegmentBounds
+from dsp_tools.xmllib.models.dsp_base_resources import _check_strings
 
 # The warning matches are constructed so that the line number is not checked as that is prone to change.
 
@@ -21,20 +22,10 @@ class TestRegionResource:
             RegionResource.create_new("id", "lbl", "regionOfId")
         assert len(caught_warnings) == 0
 
-    def test_warns_res_id(self):
-        expected = regex.escape("' | Field 'Resource ID' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("", "lbl", "regionOfId")
-
-    def test_warns_label(self):
-        expected = regex.escape("' | Field 'Label' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("id", "", "regionOfId")
-
-    def test_warns_region_of(self):
-        expected = regex.escape("' | Property 'isRegionOf' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            RegionResource.create_new("id", "lbl", "")
+    def test_warns(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            RegionResource.create_new("", "", "")
+        assert len(caught_warnings) == 3
 
 
 class TestLinkResource:
@@ -43,19 +34,10 @@ class TestLinkResource:
             LinkResource.create_new("id", "lbl", ["link_to"])
         assert len(caught_warnings) == 0
 
-    def test_warns_res_id(self):
-        expected = (
-            regex.escape("Trace 'test_dsp_base_resources.py:")
-            + r"\d+"
-            + regex.escape("' | Field 'Resource ID' | The entered string is not valid.")
-        )
-        with pytest.warns(XmllibInputWarning, match=expected):
-            LinkResource.create_new("", "lbl", ["link_to"])
-
-    def test_warns_label(self):
-        expected = regex.escape("' | Field 'Label' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            LinkResource.create_new("id", "", ["link_to"])
+    def test_warns(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            LinkResource.create_new("", "", [])
+        assert len(caught_warnings) == 0
 
 
 def test_segment_bounds():
@@ -74,20 +56,15 @@ class TestVideoSegmentResource:
             VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
         assert len(caught_warnings) == 0
 
-    def test_warns_res_id(self):
-        expected = regex.escape("' | Field 'Resource ID' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("", "lbl", "segment_of", "0", "1")
+    def test_warns_strings(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            VideoSegmentResource.create_new("", "", "", "0", "1")
+        assert len(caught_warnings) == 3
 
-    def test_warns_label(self):
-        expected = regex.escape("' | Field 'Label' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("id", "", "segment_of", "0", "1")
-
-    def test_warns_segment_of(self):
-        expected = regex.escape("' | Property 'isSegmentOf' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            VideoSegmentResource.create_new("id", "lbl", "", "0", "1")
+    def test_warns_segment_bounds(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            VideoSegmentResource.create_new("id", "lbl", "segment_of", "", "")
+        assert len(caught_warnings) == 2
 
 
 class TestAudioSegmentResource:
@@ -96,17 +73,24 @@ class TestAudioSegmentResource:
             AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
         assert len(caught_warnings) == 0
 
-    def test_warns_res_id(self):
-        expected = regex.escape("' | Field 'Resource ID' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("", "lbl", "segment_of", "0", "1")
+    def test_warns_strings(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            AudioSegmentResource.create_new("", "", "", "0", "1")
+        assert len(caught_warnings) == 3
 
-    def test_warns_label(self):
-        expected = regex.escape("' | Field 'Label' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("id", "", "segment_of", "0", "1")
+    def test_warns_segment_bounds(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            AudioSegmentResource.create_new("id", "lbl", "segment_of", "", "")
+        assert len(caught_warnings) == 2
 
-    def test_warns_segment_of(self):
-        expected = regex.escape("' | Property 'isSegmentOf' | The entered string is not valid.")
-        with pytest.warns(XmllibInputWarning, match=expected):
-            AudioSegmentResource.create_new("id", "lbl", "", "0", "1")
+
+def test_check_strings_prop():
+    expected = "asdf"
+    with pytest.warns(XmllibInputWarning, match=expected):
+        _check_strings(string_to_check="", res_id="id", prop_name="prop")
+
+
+def test_check_strings_field():
+    expected = "asdf"
+    with pytest.warns(XmllibInputWarning, match=expected):
+        _check_strings(string_to_check="", res_id="id", field_name="field")

@@ -1401,9 +1401,11 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
         emit_xmllib_input_warning(msg_info)
 
 
-def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
+def _warn_value_exists(*, old_value: Any, new_value: Any, res_id: str | None, prop_name: str| None = None, value_field: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg_info = MessageInfo("This resource already has a the following field")
+    msg = (f"This resource already has value in this location. "
+           f"The old value '{old_value}' is being replace with '{new_value}'.")
+    msg_info = MessageInfo(msg, res_id)
 
     msg = (
         f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "

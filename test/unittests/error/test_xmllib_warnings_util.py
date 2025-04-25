@@ -5,6 +5,7 @@ import regex
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import _filter_stack_frames
 from dsp_tools.error.xmllib_warnings_util import _get_calling_code_context
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
@@ -62,3 +63,13 @@ class TestGetMessageString:
         result = get_user_message_string(message_info, None)
         expected = "Resource ID 'id' | msg"
         assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("f_path", "expected"),
+    [
+        ("", True),
+    ],
+)
+def test_(f_path, expected):
+    assert _filter_stack_frames(f_path) == expected

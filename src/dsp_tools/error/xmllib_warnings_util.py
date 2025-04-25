@@ -1,6 +1,8 @@
 import inspect
 import warnings
 
+import regex
+
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
@@ -25,6 +27,10 @@ def _get_calling_code_context() -> str | None:
         if "dsp_tools/error/" in trc.filename:
             calling_func_index += 1
         elif "dsp_tools/xmllib/" in trc.filename:
+            calling_func_index += 1
+        elif "dsp_tools/test/" in trc.filename:
+            calling_func_index += 1
+        elif regex.search(r"^<[a-zA-Z]+>$", trc.filename):
             calling_func_index += 1
     if calling_func_index == 0:
         return None

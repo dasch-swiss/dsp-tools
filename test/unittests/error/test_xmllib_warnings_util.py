@@ -30,6 +30,7 @@ def test_emit_xmllib_input_warning(message_info):
 
 def test_get_calling_code_context():
     result = _get_calling_code_context()
+    assert isinstance(result, str)
     assert result.startswith("test_xmllib_warnings_util.py:")
 
 

@@ -42,7 +42,6 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, prop_name="isRegionOf")
 
     @staticmethod
     def create_new(

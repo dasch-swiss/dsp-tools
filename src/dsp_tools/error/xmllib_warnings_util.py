@@ -35,7 +35,8 @@ def _get_calling_code_context() -> str | None:
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
     str_list = [f"Trace '{function_trace}'"] if function_trace else []
-    str_list.append(f"Resource ID '{msg.resource_id}'")
+    if msg.resource_id:
+        str_list.append(f"Resource ID '{msg.resource_id}'")
     if msg.prop_name:
         str_list.append(f"Property '{msg.prop_name}'")
     if msg.field:

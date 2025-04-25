@@ -47,6 +47,12 @@ class TestGetMessageString:
         expected = "Resource ID 'id' | Field 'field' | msg"
         assert result == expected
 
+    def test_without_res_id(self):
+        msg_info = MessageInfo("msg", field="field")
+        result = get_user_message_string(msg_info, None)
+        expected = "Field 'field' | msg"
+        assert result == expected
+
     def test_with_trace(self, message_info):
         result = get_user_message_string(message_info, "trace")
         expected = "Trace 'trace' | Resource ID 'id' | msg"

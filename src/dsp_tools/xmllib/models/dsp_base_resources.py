@@ -42,7 +42,7 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, field_name="isRegionOf")
+        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, prop_name="isRegionOf")
 
     @staticmethod
     def create_new(
@@ -648,7 +648,7 @@ class VideoSegmentResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -1039,7 +1039,7 @@ class AudioSegmentResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -1394,10 +1394,10 @@ class AudioSegmentResource:
 
 
 def _check_strings(
-    *, string_to_check: str, res_id: str, prop_name: str | None = None, value_field: str | None = None
+    *, string_to_check: str, res_id: str, prop_name: str | None = None, field_name: str | None = None
 ) -> None:
     if not is_nonempty_value(string_to_check):
-        msg_info = MessageInfo("The entered string is not valid.", res_id, prop_name, value_field)
+        msg_info = MessageInfo("The entered string is not valid.", res_id, prop_name, field_name)
         emit_xmllib_input_warning(msg_info)
 
 

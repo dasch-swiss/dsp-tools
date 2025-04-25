@@ -33,7 +33,10 @@ def test_emit_xmllib_input_warning(message_info):
 
 
 def test_emit_xmllib_input_type_mismatch_warning():
-    expected = regex.escape("' | Resource ID 'id' | Field 'field' | The value '<NA>' is not a valid string.")
+    expected = regex.escape(
+        "' | Resource ID 'id' | Field 'field' | "
+        "The input should be a valid string, your input '<NA>' does not match the type."
+    )
     with pytest.warns(XmllibInputWarning, match=expected):
         emit_xmllib_input_type_mismatch_warning(expected_type="string", value=pd.NA, res_id="id", value_field="field")
 

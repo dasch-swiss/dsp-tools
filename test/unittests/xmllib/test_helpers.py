@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
@@ -335,7 +335,7 @@ class TestListLookup:
 
     def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
         msg = regex.escape("Entered list name 'inexistent' was not found.")
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
         assert result == ""
 
@@ -344,7 +344,7 @@ class TestListLookup:
             "'inexistent' was not recognised as label of the list 'list1'. "
             "This ListLookup is configured for 'en' labels."
         )
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_node_via_list_name("list1", "inexistent")
         assert result == ""
 
@@ -357,7 +357,7 @@ class TestListLookup:
 
     def test_get_node_via_property_warns_wrong_property(self, list_lookup):
         msg = regex.escape("Entered property ':inexistent' was not found.")
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")
 
@@ -392,6 +392,6 @@ def test_clean_whitespaces_from_string(input_val: str, expected: str) -> None:
 
 def test_clean_whitespaces_from_string_warns() -> None:
     expected = regex.escape("The entered string is empty after all redundant whitespaces were removed.")
-    with pytest.warns(DspToolsUserWarning, match=expected):
+    with pytest.warns(XmllibInputWarning, match=expected):
         result = clean_whitespaces_from_string("   \r   \n\t ")
     assert result == ""

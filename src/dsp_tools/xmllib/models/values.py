@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
@@ -220,4 +220,4 @@ def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: 
     msg = f"At the following location a '{expected_type}' does not conform to the expected format.\n"
     msg += f"Resource: {res_id} | " if res_id else ""
     msg += f"Value: {value} | Property: {prop_name}"
-    warnings.warn(DspToolsUserWarning(msg))
+    warnings.warn(XmllibInputWarning(msg))

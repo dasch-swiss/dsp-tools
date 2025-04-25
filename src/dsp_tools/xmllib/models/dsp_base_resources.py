@@ -7,7 +7,9 @@ from dataclasses import field
 from typing import Any
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -623,12 +625,12 @@ class SegmentBounds:
         if not is_decimal(self.segment_end):
             msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
         if msg:
-            title = (
-                f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "
-                f"The following places have an unexpected type:"
+            wrng = f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            msg_info = MessageInfo(
+                f"Segment bounds must be a float or integer. The following places have an unexpected type: {wrng}",
+                self.res_id,
             )
-            wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
-            warnings.warn(XmllibInputWarning(wrng))
+            emit_xmllib_input_warning(msg_info)
 
 
 @dataclass

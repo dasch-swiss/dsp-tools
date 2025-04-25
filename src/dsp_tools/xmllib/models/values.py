@@ -146,9 +146,13 @@ class ListValue(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_nonempty_value(self.value) or not is_nonempty_value(self.list_name):
+        if not is_nonempty_value(self.value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="list", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="list node", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if not is_nonempty_value(self.list_name):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="list name", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
 
 

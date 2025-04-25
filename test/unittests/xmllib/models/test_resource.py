@@ -34,7 +34,10 @@ class TestAddValues:
         assert isinstance(res.values[0], BooleanValue)
 
     def test_add_bool_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'bool' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid bool, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_bool("", "")
 
     def test_add_bool_optional(self) -> None:
@@ -50,7 +53,10 @@ class TestAddValues:
         assert isinstance(res.values[0], ColorValue)
 
     def test_add_color_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'color' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid color, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_color("", "")
 
     def test_add_color_multiple(self) -> None:
@@ -71,7 +77,10 @@ class TestAddValues:
         assert isinstance(res.values[0], DateValue)
 
     def test_add_date_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'date' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid date, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_date("", "")
 
     def test_add_date_multiple(self) -> None:
@@ -93,7 +102,8 @@ class TestAddValues:
 
     def test_add_decimal_warns(self) -> None:
         with pytest.warns(
-            XmllibInputWarning, match=regex.escape("a 'decimal' does not conform to the expected format")
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid decimal, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_decimal("", "")
 
@@ -116,7 +126,8 @@ class TestAddValues:
 
     def test_add_geoname_warns(self) -> None:
         with pytest.warns(
-            XmllibInputWarning, match=regex.escape("a 'geoname' does not conform to the expected format")
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid geoname, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_geoname("", "")
 
@@ -139,7 +150,8 @@ class TestAddValues:
 
     def test_add_integer_warns(self) -> None:
         with pytest.warns(
-            XmllibInputWarning, match=regex.escape("a 'integer' does not conform to the expected format")
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid integer, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_integer("", "")
 
@@ -161,7 +173,10 @@ class TestAddValues:
         assert isinstance(res.values[0], LinkValue)
 
     def test_add_link_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_link("", "")
 
     def test_add_link_multiple(self) -> None:
@@ -183,9 +198,19 @@ class TestAddValues:
         assert len(res.values) == 1
         assert isinstance(res.values[0], ListValue)
 
-    def test_add_list_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'list' does not conform to the expected format")):
-            Resource.create_new("res_id", "restype", "label").add_list("", "", "")
+    def test_add_list_node_warns(self) -> None:
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid list node, your input '' does not match the type."),
+        ):
+            Resource.create_new("res_id", "restype", "label").add_list("", "listname", "")
+
+    def test_add_list_name_warns(self) -> None:
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid list name, your input 'node' does not match the type."),
+        ):
+            Resource.create_new("res_id", "restype", "label").add_list("", "", "node")
 
     def test_add_list_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_list_multiple(
@@ -207,7 +232,10 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_simple_text_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_simpletext("", "")
 
     def test_add_simple_text_multiple(self) -> None:
@@ -235,7 +263,10 @@ class TestAddValues:
         assert res.values[0].value == "A<br/>B"
 
     def test_add_richtext_warns_empty_string(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+        ):
             with pytest.warns(XmllibInputWarning, match=regex.escape("has a richtext value that is not a string")):
                 Resource.create_new("res_id", "restype", "label").add_richtext("", "")
 
@@ -275,7 +306,8 @@ class TestAddValues:
 
     def test_add_time_warns(self) -> None:
         with pytest.warns(
-            XmllibInputWarning, match=regex.escape("a 'timestamp' does not conform to the expected format")
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid timestamp, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_time("", "")
 
@@ -299,7 +331,10 @@ class TestAddValues:
         assert isinstance(res.values[0], UriValue)
 
     def test_add_uri_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("a 'uri' does not conform to the expected format")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid uri, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_uri("", "")
 
     def test_add_uri_multiple(self) -> None:
@@ -334,7 +369,10 @@ class TestAddFiles:
         assert res.file_value.metadata.authorship == tuple(["auth"])
 
     def test_add_file_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("The value '' is not a valid file name")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid file name, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_file(
                 "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
             )
@@ -372,7 +410,10 @@ class TestAddFiles:
         assert res.file_value.metadata.authorship == tuple(["auth"])
 
     def test_add_iiif_uri_warns(self) -> None:
-        with pytest.warns(XmllibInputWarning, match=regex.escape("The value '' is not a valid IIIF uri")):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid IIIF uri, your input '' does not match the type."),
+        ):
             Resource.create_new("res_id", "restype", "label").add_iiif_uri(
                 "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
             )

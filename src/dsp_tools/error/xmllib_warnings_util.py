@@ -22,17 +22,22 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
 
 def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
-    calling_func_index = 0
-    for trc in all_stack_frames:
-        if _filter_stack_frames(trc.filename):
-            calling_func_index += 1
-        else:
-            break
+    calling_func_index = _get_stack_frame_number(all_stack_frames)
     if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]
     return f"{file_name}:{user_frame_info.lineno}"
+
+
+def _get_stack_frame_number(frames: list[inspect.FrameInfo]) -> int:
+    calling_func_index = 0
+    for trc in frames:
+        if _filter_stack_frames(trc.filename):
+            calling_func_index += 1
+        else:
+            break
+    return calling_func_index
 
 
 def _filter_stack_frames(file_path: str) -> bool:

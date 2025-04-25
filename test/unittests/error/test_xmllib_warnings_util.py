@@ -42,13 +42,13 @@ class TestGetMessageString:
         assert result == expected
 
     def test_with_field(self):
-        msg_info = MessageInfo("msg", "id", field="field")
+        msg_info = MessageInfo("msg", "id", field_="field")
         result = get_user_message_string(msg_info, None)
         expected = "Resource ID 'id' | Field 'field' | msg"
         assert result == expected
 
     def test_without_res_id(self):
-        msg_info = MessageInfo("msg", field="field")
+        msg_info = MessageInfo("msg", field_="field")
         result = get_user_message_string(msg_info, None)
         expected = "Field 'field' | msg"
         assert result == expected

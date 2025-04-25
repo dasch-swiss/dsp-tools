@@ -17,7 +17,7 @@ class MessageInfo:
     message: str
     resource_id: str | None = None
     prop_name: str | None = None
-    field: str | None = None
+    field_: str | None = None
 
 
 class XmllibUserInfoBase(Warning, ABC):

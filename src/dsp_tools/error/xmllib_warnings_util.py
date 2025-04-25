@@ -42,11 +42,8 @@ def _get_stack_frame_number(file_names: list[str]) -> int:
 
 
 def _filter_stack_frames(file_path: str) -> bool:
-    if "/dsp_tools/error/" in file_path:
-        return True
-    elif "/dsp_tools/xmllib/" in file_path:
-        return True
-    elif "/dsp-tools/test/" in file_path:
+    dsp_tools_path = r"\/dsp[-_]tools\/(test|xmllib|error)\/"
+    if regex.search(dsp_tools_path, file_path):
         return True
     elif regex.search(r"^<[a-zA-Z]+>$", file_path):
         return True

@@ -24,13 +24,7 @@ def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
     calling_func_index = 0
     for trc in all_stack_frames:
-        if "dsp_tools/error/" in trc.filename:
-            calling_func_index += 1
-        elif "dsp_tools/xmllib/" in trc.filename:
-            calling_func_index += 1
-        elif "dsp_tools/test/" in trc.filename:
-            calling_func_index += 1
-        elif regex.search(r"^<[a-zA-Z]+>$", trc.filename):
+        if _filter_stack_frames(trc.filename):
             calling_func_index += 1
         else:
             break
@@ -39,6 +33,18 @@ def _get_calling_code_context() -> str | None:
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]
     return f"{file_name}:{user_frame_info.lineno}"
+
+
+def _filter_stack_frames(file_path: str) -> bool:
+    if "dsp_tools/error/" in file_path:
+        return True
+    elif "dsp_tools/xmllib/" in file_path:
+        return True
+    elif "dsp_tools/test/" in file_path:
+        return True
+    elif regex.search(r"^<[a-zA-Z]+>$", file_path):
+        return True
+    return False
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:

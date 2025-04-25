@@ -9,9 +9,15 @@ from dsp_tools.utils.ansi_colors import YELLOW
 
 @dataclass
 class MessageInfo:
+    """
+    prop_name: property name
+    field: To be used in case it is not a property but for example a file, label, resource id, etc.
+    """
+
     message: str
     resource_id: str
     prop_name: str | None = None
+    field: str | None = None
 
 
 class XmllibUserInfoBase(Warning, ABC):

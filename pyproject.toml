@@ -193,6 +193,7 @@ paths = ["src/dsp_tools", ".vulture_whitelist.py"]
 exclude = [
     "src/dsp_tools/xmllib/",
     "src/dsp_tools/error/xmllib_warnings.py",
+    "src/dsp_tools/error/xmllib_warnings_util.py",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
 ]

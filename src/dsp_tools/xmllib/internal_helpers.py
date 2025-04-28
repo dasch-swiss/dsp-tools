@@ -43,6 +43,26 @@ def is_nonempty_value_internal(value: Any) -> bool:
     return False
 
 
+def check_and_warn_potentially_empty_string(value: Any) -> None:
+    """
+    If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
+    as potentially empty.
+    This function
+
+    Args:
+        value: user input
+
+    Returns:
+        None
+    """
+    if not is_nonempty_value_internal(value):
+        warnings.warn("Warn empty string")
+    else:
+        empty_val_string = r"^(<NA>|nan|None)$"
+        if bool(regex.search(empty_val_string, str(value))):
+            warnings.warn("INFO: may be empty")
+
+
 def check_and_create_richtext_string(
     value: Any,
     prop_name: str,

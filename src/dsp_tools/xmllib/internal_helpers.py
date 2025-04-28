@@ -43,17 +43,20 @@ def is_nonempty_value_internal(value: Any) -> bool:
     return False
 
 
-def check_and_warn_potentially_empty_input(value: Any) -> None:
+def check_and_warn_potentially_empty_string(value: Any) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
     as potentially empty.
-    This function
+    This is to be used if the potentially erroneous input is not detectable through any other check.
+    For example a color or date value has its specific regex and it is not possible for such a value to slip through.
 
     Args:
         value: user input
 
-    Returns:
-        None
+    Warnings:
+        XmllibInputWarning: if it is an empty value or a string only with whitespaces
+        XmllibInputInfo: if it is a string containing a string value
+            that may be the result of str() casting an empty value
     """
     if not is_nonempty_value_internal(value):
         warnings.warn("Warn empty input")

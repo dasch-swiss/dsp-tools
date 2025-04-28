@@ -1401,9 +1401,8 @@ def _check_strings(
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, res_id: str | None, value_field: str | None = None) -> None:
-    """Emits a warning if a values is not in the expected format."""
     msg = (
-        f"This resource already has value in this location. "
+        f"This resource already has a value in this location. "
         f"The old value '{old_value}' is being replace with '{new_value}'."
     )
     msg_info = MessageInfo(msg, res_id, field=value_field)

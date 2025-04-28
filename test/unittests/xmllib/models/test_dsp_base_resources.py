@@ -112,7 +112,7 @@ def test_warn_value_exists():
         + r"\d+"
         + regex.escape(
             "' | Resource ID 'id' | Field 'field' | "
-            "This resource already has value in this location. The old value 'old' is being replace with 'new'."
+            "This resource already has a value in this location. The old value 'old' is being replace with 'new'."
         )
     )
     with pytest.warns(XmllibInputWarning, match=expected):

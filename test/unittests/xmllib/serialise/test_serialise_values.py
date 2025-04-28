@@ -19,7 +19,7 @@ from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 
 
 def test_boolean() -> None:
-    v: list[Value] = [BooleanValue("0", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)]
+    v: list[Value] = [BooleanValue.new("0", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)]
     result = serialise_values(v)
     assert len(result) == 1
     expected = (
@@ -224,7 +224,7 @@ def test_uri() -> None:
 
 
 def test_value_with_default_permission() -> None:
-    v: list[Value] = [BooleanValue("0", ":booleanProp", resource_id="res_id")]
+    v: list[Value] = [BooleanValue.new("0", ":booleanProp", resource_id="res_id")]
     result = serialise_values(v)
     assert len(result) == 1
     expected = (
@@ -266,7 +266,7 @@ def test_several_values_different_generic_property() -> None:
 
 def test_several_values_different_property() -> None:
     v: list[Value] = [
-        BooleanValue("0", ":booleanProp", resource_id="res_id"),
+        BooleanValue.new("0", ":booleanProp", resource_id="res_id"),
         LinkValue("res_link", ":linkProp", resource_id="res_id"),
     ]
     result = serialise_values(v)

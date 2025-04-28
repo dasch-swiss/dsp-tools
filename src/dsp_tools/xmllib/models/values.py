@@ -35,15 +35,23 @@ class BooleanValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
+    @classmethod
+    def new(
+        cls,
+        prop_name: str,
+        value: Any,
+        resource_id: str | None = None,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> BooleanValue:
         try:
-            converted_bool = convert_to_bool(self.value)
-            self.value = str(converted_bool).lower()
+            val = str(convert_to_bool(value)).lower()
         except InputError:
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="bool", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
             )
-            self.value = str(self.value)
+            val = str(value)
+        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=resource_id)
 
 
 @dataclass

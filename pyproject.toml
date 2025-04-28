@@ -33,6 +33,7 @@ dependencies = [
     "requests",
     "rustworkx",
     "tqdm",
+    "typing-extensions",
 ]
 
 
@@ -83,7 +84,6 @@ dev-dependencies = [
     "types-tqdm",
     "viztracer",
     "yamllint",
-    "typing-extensions",
     "pytest-xdist>=3.6.1",
     "vulture"
 ]

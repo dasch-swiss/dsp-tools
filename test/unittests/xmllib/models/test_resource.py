@@ -371,7 +371,7 @@ class TestAddFiles:
     def test_add_file_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid file name, your input '' does not match the type."),
+            match=regex.escape("Field 'bitstream' | Your input is empty. Please enter a valid file name."),
         ):
             Resource.create_new("res_id", "restype", "label").add_file(
                 "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]

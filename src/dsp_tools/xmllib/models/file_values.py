@@ -75,14 +75,15 @@ class FileValue(AbstractFileValue):
             value=self.value,
             res_id=self.resource_id,
             expected="file name",
-            field="bistream",
+            field="bitstream",
         )
-        check_and_warn_potentially_empty_string(
-            value=self.comment,
-            res_id=self.resource_id,
-            expected="string",
-            field="comment (bistream)",
-        )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                field="comment (bitstream)",
+            )
 
 
 @dataclass
@@ -99,9 +100,10 @@ class IIIFUri(AbstractFileValue):
                 value=self.value,
                 res_id=self.resource_id,
             )
-        check_and_warn_potentially_empty_string(
-            value=self.comment,
-            res_id=self.resource_id,
-            expected="string",
-            field="comment (iiif-uri)",
-        )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                field="comment (iiif-uri)",
+            )

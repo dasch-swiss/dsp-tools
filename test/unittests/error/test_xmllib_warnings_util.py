@@ -39,13 +39,13 @@ class TestGetMessageString:
         assert result == expected
 
     def test_with_field(self):
-        msg_info = MessageInfo("msg", "id", field_="field")
+        msg_info = MessageInfo("msg", "id", field="field")
         result = get_user_message_string(msg_info, None)
         expected = "Resource ID 'id' | Field 'field' | msg"
         assert result == expected
 
     def test_without_res_id(self):
-        msg_info = MessageInfo("msg", field_="field")
+        msg_info = MessageInfo("msg", field="field")
         result = get_user_message_string(msg_info, None)
         expected = "Field 'field' | msg"
         assert result == expected
@@ -65,7 +65,7 @@ class TestStackFrame:
     def test_get_calling_code_context(self):
         result = _get_calling_code_context()
         assert isinstance(result, str)
-        assert result.startswith("test_xmllib_warnings_util.py:")
+        assert regex.search(r"test_xmllib_warnings_util\.py:\d+", result)
 
     def test_get_stack_frame_number(self):
         file_paths = [
@@ -77,10 +77,7 @@ class TestStackFrame:
             "/Users/UserName/repoLocation/dsp-tools/src/dsp_tools/xmllib/models/dsp_base_resources.py",
             "/Users/UserName/repoLocation/dsp-tools/test/unittests/xmllib/models/test_dsp_base_resources.py",
             "/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py",
-            (
-                "/Users/UserName/Applications/PyCharm Community Edition.app"
-                "/Contents/plugins/python-ce/helpers/pydev/pydevd.py"
-            ),
+            "/Users/UserName/Applications/PyCharm Community Edition.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py",
         ]
         assert _get_stack_frame_number(file_paths) == 6
 

@@ -11,13 +11,13 @@ from dsp_tools.utils.ansi_colors import YELLOW
 class MessageInfo:
     """
     prop_name: property name
-    field: To be used in case it is not a property but for example a file, label, resource id, etc.
+    field: information about which field of the resource is affected, e.g. "resource id", "label"
     """
 
     message: str
     resource_id: str | None = None
     prop_name: str | None = None
-    field_: str | None = None
+    field: str | None = None
 
 
 class XmllibUserInfoBase(Warning, ABC):

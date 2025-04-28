@@ -372,6 +372,21 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
+    def test_list_value_iri(self):
+        xml_val = etree.fromstring("""
+        <list-prop name=":hasProp" list="">
+            <list>http://rdfh.ch/lists/0001/uuid</list>
+        </list-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == ("", "http://rdfh.ch/lists/0001/uuid")
+        assert val.value_type == KnoraValueType.LIST_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
     def test_list_value_several(self):
         xml_val = etree.fromstring("""
         <list-prop list="firstList" name=":hasProp">

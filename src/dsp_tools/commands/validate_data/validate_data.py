@@ -1,6 +1,7 @@
 import importlib.resources
 from pathlib import Path
 
+from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -70,6 +71,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
+        logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
         reformatted = reformat_validation_graph(report)
@@ -156,6 +158,7 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
 
 
 def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
+    logger.info("Create all graphs.")
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()
@@ -182,6 +185,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
 
 
 def _get_project_ontos(onto_client: OntologyClient) -> Graph:
+    logger.info("Get project ontologies from server.")
     all_ontos = onto_client.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:
@@ -192,6 +196,7 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
+    logger.info("Validate with API.")
     validation_results = validator.validate(rdf_graphs)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,

@@ -27,7 +27,7 @@ def _get_calling_code_context() -> str | None:
     all_stack_frames = inspect.stack()
     frame_files = [x.filename for x in all_stack_frames]
     calling_func_index = _get_stack_frame_number(frame_files)
-    if calling_func_index == -1:
+    if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]

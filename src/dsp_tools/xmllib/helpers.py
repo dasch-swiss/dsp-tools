@@ -1153,13 +1153,13 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
     for details.
 
     Currently, only [Creative Commons](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
-    licenses are supported.
+    licenses can be recognised.
 
     Args:
         string: string to check
 
     Returns:
-        xmllib.LicenseRecommended object or None
+        `xmllib.LicenseRecommended` object or `None`
 
     Examples:
         ```python

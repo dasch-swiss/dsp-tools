@@ -32,82 +32,90 @@ class TestBooleanValue:
 class TestColorValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ColorValue("#FFFFFF", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
+            ColorValue.new("#FFFFFF", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            ColorValue("invalidColor", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
+            ColorValue.new(
+                "invalidColor", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
 
 
 class TestDateValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
+            DateValue.new("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            DateValue("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
+            DateValue.new("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestDecimalValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
+            DecimalValue.new("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            DecimalValue("invalidDecimal", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
+            DecimalValue.new(
+                "invalidDecimal", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
 
 
 class TestGeonameValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            GeonameValue("00099", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
+            GeonameValue.new("00099", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            GeonameValue("invalidGeoname", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
+            GeonameValue.new(
+                "invalidGeoname", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
 
 
 class TestIntValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
+            IntValue.new("42", ":intProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            IntValue("invalidInt", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
+            IntValue.new("invalidInt", ":intProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestLinkValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            LinkValue("link", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)
+            LinkValue.new("link", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            LinkValue(None, ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
+            LinkValue.new(None, ":linkProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestListValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
+            ListValue.new(
+                "item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_warns_false_node(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            ListValue(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
+            ListValue.new(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
     def test_warns_false_list(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            ListValue("Node", None, ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
+            ListValue.new("Node", None, ":listProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestRichtext:
@@ -124,34 +132,44 @@ class TestRichtext:
 class TestSimpleText:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)
+            SimpleText.new(
+                "Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            SimpleText(None, ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
+            SimpleText.new(None, ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestTimeValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
+            TimeValue.new(
+                "2009-10-10T12:00:00-05:00",
+                ":timeProp",
+                resource_id="res_id",
+                permissions=Permissions.OPEN,
+                comment=None,
+            )
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            TimeValue("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
+            TimeValue.new("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestUriValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
+            UriValue.new(
+                "https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            UriValue("invalidUri", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
+            UriValue.new("invalidUri", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 if __name__ == "__main__":

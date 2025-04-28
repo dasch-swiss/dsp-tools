@@ -270,7 +270,7 @@ class ListValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if not is_nonempty_value(value):
+        if not is_nonempty_value(list_name):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
             )

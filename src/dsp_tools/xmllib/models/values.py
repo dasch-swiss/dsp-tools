@@ -36,16 +36,6 @@ class BooleanValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if self.comment is not None:
-            check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
-                expected="string",
-                prop_name=self.prop_name,
-                field="comment on value",
-            )
-
     @classmethod
     def new(
         cls,
@@ -62,6 +52,14 @@ class BooleanValue(Value):
                 expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
             )
             val = str(value)
+        if comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=comment,
+                res_id=resource_id,
+                expected="string",
+                prop_name=prop_name,
+                field="comment on value",
+            )
         return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=resource_id)
 
 

@@ -262,7 +262,7 @@ class Richtext(Value):
         permissions: Permissions,
         comment: str | None,
         resource_id: str | None,
-        newline_replacement: NewlineReplacement,
+        newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
     ) -> Richtext:
         check_and_warn_potentially_empty_string(value=value, res_id=resource_id, expected="string", prop_name=prop_name)
         converted_val = replace_newlines_with_tags(str(value), newline_replacement)

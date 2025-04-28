@@ -257,6 +257,7 @@ dependencies = [
     { name = "requests" },
     { name = "rustworkx" },
     { name = "tqdm" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -287,7 +288,6 @@ dev = [
     { name = "types-regex" },
     { name = "types-requests" },
     { name = "types-tqdm" },
-    { name = "typing-extensions" },
     { name = "viztracer" },
     { name = "vulture" },
     { name = "yamllint" },
@@ -311,6 +311,7 @@ requires-dist = [
     { name = "requests" },
     { name = "rustworkx" },
     { name = "tqdm" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata.requires-dev]
@@ -341,7 +342,6 @@ dev = [
     { name = "types-regex" },
     { name = "types-requests" },
     { name = "types-tqdm" },
-    { name = "typing-extensions" },
     { name = "viztracer" },
     { name = "vulture" },
     { name = "yamllint" },

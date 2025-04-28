@@ -7,7 +7,7 @@ from dsp_tools.utils.ansi_colors import YELLOW
 
 
 class DspToolsWarning(Warning, ABC):
-    """Protocol for warnings that implement a custom showwarnings() function"""
+    """Abstract base class for warnings that implement a custom showwarnings() function"""
 
     @classmethod
     @abstractmethod

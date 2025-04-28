@@ -47,7 +47,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
 
 
 def check_and_warn_potentially_empty_string(
-    *, value: Any, res_id: str, expected: str, prop_name: str | None = None, field: str | None = None
+    *, value: Any, res_id: str | None, expected: str, prop_name: str | None = None, field: str | None = None
 ) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised

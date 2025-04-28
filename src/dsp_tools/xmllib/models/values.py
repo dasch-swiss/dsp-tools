@@ -60,7 +60,7 @@ class BooleanValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=resource_id)
+        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

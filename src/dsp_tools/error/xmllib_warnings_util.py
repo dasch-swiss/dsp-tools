@@ -33,7 +33,7 @@ def emit_xmllib_input_type_mismatch_warning(
         message=f"The input should be a valid {expected_type}, your input '{value}' does not match the type.",
         resource_id=res_id,
         prop_name=prop_name,
-        field_=value_field,
+        field=value_field,
     )
     emit_xmllib_input_warning(msg_info)
 

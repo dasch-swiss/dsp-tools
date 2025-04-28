@@ -7,6 +7,7 @@ from typing import Protocol
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_uri
+from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_color
@@ -34,6 +35,16 @@ class BooleanValue(Value):
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
     @classmethod
     def new(
@@ -67,6 +78,14 @@ class ColorValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="color", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -81,6 +100,14 @@ class DateValue(Value):
         if not is_date(self.value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="date", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
             )
 
 
@@ -97,6 +124,14 @@ class DecimalValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="decimal", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -111,6 +146,14 @@ class GeonameValue(Value):
         if not is_geoname(self.value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="geoname", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
             )
 
 
@@ -127,6 +170,14 @@ class IntValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="integer", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -141,6 +192,14 @@ class LinkValue(Value):
         if not is_nonempty_value(self.value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="string", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
             )
 
 
@@ -162,6 +221,14 @@ class ListValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="list name", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -176,6 +243,14 @@ class SimpleText(Value):
         if not is_nonempty_value(self.value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="string", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
             )
 
 
@@ -194,6 +269,14 @@ class Richtext(Value):
             )
         else:
             check_richtext_syntax(self.value)
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -209,6 +292,14 @@ class TimeValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="timestamp", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
             )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
+            )
 
 
 @dataclass
@@ -223,4 +314,12 @@ class UriValue(Value):
         if not is_uri(self.value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="uri", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                prop_name=self.prop_name,
+                field="comment on value",
             )

@@ -11,6 +11,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -50,9 +51,8 @@ class Resource:
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
         msg = []
-        if not is_nonempty_value(str(self.label)):
-            msg.append(f"Label '{self.label}'")
         if not is_nonempty_value(str(self.res_id)):
             msg.append(f"Resource ID '{self.res_id}'")
         if not is_nonempty_value(str(self.restype)):

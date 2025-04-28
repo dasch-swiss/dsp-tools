@@ -39,10 +39,13 @@ def emit_xmllib_input_type_mismatch_warning(
 
 
 def _get_calling_code_context() -> str | None:
+    """
+    Find file name and line number of the file that was written by the user.
+    """
     all_stack_frames = inspect.stack()
     frame_files = [x.filename for x in all_stack_frames]
     calling_func_index = _get_stack_frame_number(frame_files)
-    if calling_func_index == -1:
+    if calling_func_index == 0:
         return None
     user_frame_info = all_stack_frames.pop(calling_func_index)
     file_name = user_frame_info.filename.rsplit("/", 1)[1]
@@ -50,20 +53,26 @@ def _get_calling_code_context() -> str | None:
 
 
 def _get_stack_frame_number(file_names: list[str]) -> int:
+    """
+    Get index number of first python file of the stack trace which is not any more in the dsp-tools code.
+    This is the index of the first user python file.
+    """
     calling_func_index = -1
     for file in file_names:
         if _filter_stack_frames(file):
             calling_func_index += 1
         else:
+            calling_func_index += 1
             break
     return calling_func_index
 
 
 def _filter_stack_frames(file_path: str) -> bool:
-    dsp_tools_path = r"\/dsp[-_]tools\/(test|xmllib|error)\/"
+    dsp_tools_path = r"\/dsp[-_]tools\/(xmllib|error)\/"
     if regex.search(dsp_tools_path, file_path):
         return True
     elif regex.search(r"^<[a-zA-Z]+>$", file_path):
+        # This is for functions like str(), which appear in the stack trace as filename "<string>"
         return True
     return False
 
@@ -74,7 +83,7 @@ def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str
         str_list.append(f"Resource ID '{msg.resource_id}'")
     if msg.prop_name:
         str_list.append(f"Property '{msg.prop_name}'")
-    if msg.field_:
-        str_list.append(f"Field '{msg.field_}'")
+    if msg.field:
+        str_list.append(f"Field '{msg.field}'")
     str_list.append(msg.message)
     return " | ".join(str_list)

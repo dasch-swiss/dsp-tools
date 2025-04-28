@@ -86,7 +86,7 @@ class TestStackFrame:
             "/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py",
             ("/Users/UserName/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py"),
         ]
-        assert _get_stack_frame_number(file_paths) == -1
+        assert _get_stack_frame_number(file_paths) == 0
 
     @pytest.mark.parametrize(
         ("f_path", "expected"),
@@ -94,7 +94,7 @@ class TestStackFrame:
             ("/Users/UserName/repoLocation/dsp-tools/src/dsp_tools/error/xmllib_warnings_util.py", True),
             ("/Users/UserName/repoLocation/dsp-tools/src/dsp_tools/xmllib/models/dsp_base_resources.py", True),
             ("<string>", True),
-            ("/Users/UserName/repoLocation/dsp-tools/test/unittests/xmllib/models/test_dsp_base_resources.py", True),
+            ("/Users/UserName/repoLocation/dsp-tools/test/unittests/xmllib/models/test_dsp_base_resources.py", False),
             ("/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py", False),
             (
                 ("/Users/UserName/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py"),

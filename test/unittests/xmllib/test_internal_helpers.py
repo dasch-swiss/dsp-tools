@@ -35,13 +35,18 @@ def test_check_and_warn_potentially_empty_string_good(in_val):
 
 @pytest.mark.parametrize("in_val", ["  ", pd.NA, None])
 def test_check_and_warn_potentially_empty_string_empty(in_val):
-    expected = regex.escape("asdf")
+    expected = regex.escape("Your input is empty. Please enter a valid non-empty string.")
     with pytest.warns(XmllibInputWarning, match=expected):
         check_and_warn_potentially_empty_string(in_val, "res")
 
 
-@pytest.mark.parametrize("in_val", [str(pd.NA), str(np.nan), str(None)])
-def test_check_and_warn_potentially_empty_string_potentially_empty(in_val):
-    expected = regex.escape(rf"asdf {in_val}")
+@pytest.mark.parametrize(
+    ("in_val", "type_for_message"), [(str(pd.NA), "pd.NA"), (str(np.nan), "np.nan"), (str(None), "None")]
+)
+def test_check_and_warn_potentially_empty_string_potentially_empty(in_val, type_for_message):
+    expected = regex.escape(
+        rf"Your input '{in_val}' is a string but may be the result of `str({type_for_message})`. "
+        r"Please verify that the input is as expected."
+    )
     with pytest.warns(XmllibInputInfo, match=expected):
         check_and_warn_potentially_empty_string(in_val, "res")

@@ -77,17 +77,14 @@ class TestStackFrame:
             "/Users/UserName/repoLocation/dsp-tools/src/dsp_tools/xmllib/models/dsp_base_resources.py",
             "/Users/UserName/repoLocation/dsp-tools/test/unittests/xmllib/models/test_dsp_base_resources.py",
             "/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py",
-            "/Users/UserName/Applications/PyCharm Community Edition.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py",
+            "/Users/UserName/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py",
         ]
         assert _get_stack_frame_number(file_paths) == 6
 
     def test_get_stack_frame_number_none(self):
         file_paths = [
             "/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py",
-            (
-                "/Users/UserName/Applications/PyCharm Community Edition.app"
-                "/Contents/plugins/python-ce/helpers/pydev/pydevd.py"
-            ),
+            ("/Users/UserName/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py"),
         ]
         assert _get_stack_frame_number(file_paths) == -1
 
@@ -100,10 +97,7 @@ class TestStackFrame:
             ("/Users/UserName/repoLocation/dsp-tools/test/unittests/xmllib/models/test_dsp_base_resources.py", True),
             ("/Users/UserName/repoLocation/dsp-tools/.venv/lib/python3.12/site-packages/_pytest/python.py", False),
             (
-                (
-                    "/Users/UserName/Applications/PyCharm Community Edition.app"
-                    "/Contents/plugins/python-ce/helpers/pydev/pydevd.py"
-                ),
+                ("/Users/UserName/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py"),
                 False,
             ),
         ],

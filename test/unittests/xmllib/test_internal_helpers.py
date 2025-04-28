@@ -29,7 +29,7 @@ def test_numeric_entities(original: str, expected: str) -> None:
 @pytest.mark.parametrize("in_val", ["string", 2, False])
 def test_check_and_warn_potentially_empty_string_good(in_val):
     with warnings.catch_warnings(record=True) as caught_warnings:
-        check_and_warn_potentially_empty_string(in_val, "res", "input")
+        check_and_warn_potentially_empty_string(value=in_val, res_id="res", expected="input")
     assert len(caught_warnings) == 0
 
 
@@ -37,7 +37,7 @@ def test_check_and_warn_potentially_empty_string_good(in_val):
 def test_check_and_warn_potentially_empty_string_empty(in_val):
     expected = regex.escape("Your input is empty. Please enter a valid input.")
     with pytest.warns(XmllibInputWarning, match=expected):
-        check_and_warn_potentially_empty_string(in_val, "res", "input")
+        check_and_warn_potentially_empty_string(value=in_val, res_id="res", expected="input")
 
 
 @pytest.mark.parametrize(
@@ -49,4 +49,4 @@ def test_check_and_warn_potentially_empty_string_potentially_empty(in_val, type_
         r"Please verify that the input is as expected."
     )
     with pytest.warns(XmllibInputInfo, match=expected):
-        check_and_warn_potentially_empty_string(in_val, "res", "input")
+        check_and_warn_potentially_empty_string(value=in_val, res_id="res", expected="input")

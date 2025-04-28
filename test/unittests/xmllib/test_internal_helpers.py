@@ -35,7 +35,7 @@ def test_check_and_warn_potentially_empty_string_good(in_val):
 
 @pytest.mark.parametrize("in_val", ["  ", pd.NA, None])
 def test_check_and_warn_potentially_empty_string_empty(in_val):
-    expected = regex.escape("Your input is empty. Please enter a valid input.")
+    expected = regex.escape(rf"Your input '{in_val}' is empty. Please enter a valid input.")
     with pytest.warns(XmllibInputWarning, match=expected):
         check_and_warn_potentially_empty_string(value=in_val, res_id="res", expected="input")
 

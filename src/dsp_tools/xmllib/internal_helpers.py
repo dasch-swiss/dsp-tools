@@ -69,7 +69,7 @@ def check_and_warn_potentially_empty_string(
     """
     if not is_nonempty_value_internal(value):
         msg_info = MessageInfo(
-            message=f"Your input is empty. Please enter a valid {expected}.",
+            message=f"Your input '{value}' is empty. Please enter a valid {expected}.",
             resource_id=res_id,
             prop_name=prop_name,
             field=field,

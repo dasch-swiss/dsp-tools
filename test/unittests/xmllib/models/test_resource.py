@@ -265,17 +265,14 @@ class TestAddValues:
     def test_add_richtext_warns_empty_string(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+            match=regex.escape("Your input '' is empty. Please enter a valid string."),
         ):
-            with pytest.warns(XmllibInputWarning, match=regex.escape("has a richtext value that is not a string")):
-                Resource.create_new("res_id", "restype", "label").add_richtext("", "")
+            Resource.create_new("res_id", "restype", "label").add_richtext("prop", "")
 
     def test_add_richtext_warns_pd_na(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape(
-                "Resource 'res_id' has a richtext value that is not a string: Value: <NA> | Property: :prop"
-            ),
+            match=regex.escape("Your input '<NA>' is empty. Please enter a valid string."),
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
 
@@ -371,7 +368,7 @@ class TestAddFiles:
     def test_add_file_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Field 'bitstream' | Your input is empty. Please enter a valid file name."),
+            match=regex.escape("Field 'bitstream' | Your input '' is empty. Please enter a valid file name."),
         ):
             Resource.create_new("res_id", "restype", "label").add_file(
                 "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]

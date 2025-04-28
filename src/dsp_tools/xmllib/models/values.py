@@ -252,6 +252,17 @@ class Richtext(Value):
     comment: str | None = None
     resource_id: str | None = None
 
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> Richtext:
+        pass
+
     def __post_init__(self) -> None:
         if not is_nonempty_value(self.value):
             emit_xmllib_input_type_mismatch_warning(

@@ -10,6 +10,7 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
@@ -41,7 +42,7 @@ class RegionResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -409,7 +410,7 @@ class LinkResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -646,7 +647,7 @@ class VideoSegmentResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
         _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
@@ -1037,7 +1038,7 @@ class AudioSegmentResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
         _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod

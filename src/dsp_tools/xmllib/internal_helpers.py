@@ -10,7 +10,6 @@ import regex
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -118,20 +117,6 @@ def check_and_create_richtext_string(
     # Therefore, a check must occur before the casting takes place.
     check_and_warn_potentially_empty_string(value=value, res_id=res_id, expected="string", prop_name=prop_name)
     return replace_newlines_with_tags(str(value), newline_replacement)
-
-
-def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) -> None:
-    """
-    Checks if the input which is expected to be richtext is a string.
-
-    Args:
-        value: Input value
-        prop_name: Property name
-        res_id: Resource ID
-    """
-    if not is_nonempty_value_internal(value):
-        msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
-        warnings.warn(XmllibInputWarning(msg))
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

@@ -8,8 +8,8 @@ from typing import Protocol
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
+from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 @dataclass
@@ -32,20 +32,18 @@ class Metadata:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_nonempty_value(self.license):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="xmllib.License",
-                value=self.license,
-                res_id=self.resource_id,
-                value_field="license (bistream/iiif-uri)",
-            )
-        if not is_nonempty_value(str(self.copyright_holder)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string",
-                value=self.copyright_holder,
-                res_id=self.resource_id,
-                value_field="copyright_holder (bistream/iiif-uri)",
-            )
+        check_and_warn_potentially_empty_string(
+            value=self.license,
+            res_id=self.resource_id,
+            expected="xmllib.License",
+            field="license (bistream/iiif-uri)",
+        )
+        check_and_warn_potentially_empty_string(
+            value=self.copyright_holder,
+            res_id=self.resource_id,
+            expected="string",
+            field="copyright_holder (bistream/iiif-uri)",
+        )
         if len(self.authorship) == 0:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="list of authorship strings",
@@ -54,13 +52,9 @@ class Metadata:
                 value_field="authorship (bistream/iiif-uri)",
             )
         for author in self.authorship:
-            if not is_nonempty_value(author):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="string",
-                    value=author,
-                    res_id=self.resource_id,
-                    value_field="authorship (bistream/iiif-uri)",
-                )
+            check_and_warn_potentially_empty_string(
+                value=author, res_id=self.resource_id, expected="string", field="authorship (bistream/iiif-uri)"
+            )
 
 
 class AbstractFileValue(Protocol):
@@ -77,10 +71,18 @@ class FileValue(AbstractFileValue):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_nonempty_value(str(self.value)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="file name", value=self.value, res_id=self.resource_id
-            )
+        check_and_warn_potentially_empty_string(
+            value=self.value,
+            res_id=self.resource_id,
+            expected="file name",
+            field="bistream",
+        )
+        check_and_warn_potentially_empty_string(
+            value=self.comment,
+            res_id=self.resource_id,
+            expected="string",
+            field="comment (bistream)",
+        )
 
 
 @dataclass
@@ -92,4 +94,14 @@ class IIIFUri(AbstractFileValue):
 
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):
-            emit_xmllib_input_type_mismatch_warning(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="IIIF uri",
+                value=self.value,
+                res_id=self.resource_id,
+            )
+        check_and_warn_potentially_empty_string(
+            value=self.comment,
+            res_id=self.resource_id,
+            expected="string",
+            field="comment (iiif-uri)",
+        )

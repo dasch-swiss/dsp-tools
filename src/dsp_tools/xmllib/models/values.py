@@ -95,65 +95,92 @@ class DateValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_date(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> DateValue:
+        if not is_date(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="date", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass
 class DecimalValue(Value):
-    value: Any
+    value: str | float | int
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_decimal(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> DecimalValue:
+        if not is_decimal(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="decimal", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass
 class GeonameValue(Value):
-    value: Any
+    value: str
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_geoname(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> GeonameValue:
+        if not is_geoname(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="geoname", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass
@@ -164,19 +191,28 @@ class IntValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_integer(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> IntValue:
+        if not is_integer(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="integer", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass
@@ -187,19 +223,28 @@ class LinkValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_nonempty_value(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> LinkValue:
+        if not is_nonempty_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="string", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass
@@ -211,23 +256,35 @@ class ListValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_nonempty_value(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        list_name: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> ListValue:
+        if not is_nonempty_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="list node", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if not is_nonempty_value(self.list_name):
+        if not is_nonempty_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="list name", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(
+            value=str(value), list_name=str(list_name), prop_name=prop_name, permissions=permissions, comment=comment
+        )
 
 
 @dataclass
@@ -238,19 +295,30 @@ class SimpleText(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_nonempty_value(self.value):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
-            )
-        if self.comment is not None:
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> SimpleText:
+        check_and_warn_potentially_empty_string(
+            value=value,
+            res_id=resource_id,
+            expected="string",
+            prop_name=prop_name,
+        )
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

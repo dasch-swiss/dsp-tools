@@ -38,11 +38,11 @@ class BooleanValue(Value):
     @classmethod
     def new(
         cls,
-        prop_name: str,
         value: Any,
-        resource_id: str | None = None,
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
-        comment: str | None = None,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
     ) -> BooleanValue:
         try:
             val = str(convert_to_bool(value)).lower()

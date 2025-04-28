@@ -21,12 +21,12 @@ from dsp_tools.xmllib.models.values import UriValue
 class TestBooleanValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            BooleanValue.new("False", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
+            BooleanValue.new("False", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=None)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            BooleanValue.new("other", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
+            BooleanValue.new("other", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=None)
 
 
 class TestColorValue:

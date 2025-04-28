@@ -147,7 +147,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(BooleanValue.new(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            BooleanValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_bool_optional(
@@ -192,7 +196,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(BooleanValue.new(value, prop_name, permissions, comment, self.res_id))
+            self.add_bool(value=value, prop_name=prop_name, permissions=permissions, comment=comment)
         return self
 
     #######################

@@ -63,19 +63,28 @@ class ColorValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_color(self.value):
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> ColorValue:
+        if not is_color(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="color", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if self.comment is not None:
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

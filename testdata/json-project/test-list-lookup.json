@@ -121,7 +121,13 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Minimal Resource"
+                        },
+                      "cardinalities": [
+                        {
+                          "propname": ":defaultOntoHasListOne",
+                          "cardinality": "0-n"
                         }
+                      ]
                     }
                 ]
             },

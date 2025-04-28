@@ -80,7 +80,7 @@ def check_and_warn_potentially_empty_string(
             type_lookup = {"<NA>": "pd.NA", "nan": "np.nan", "None": "None"}
             msg = (
                 f"Your input '{value}' is a string but may be the result of `str({type_lookup[str(value)]})`. "
-                f"Please verify that the input is as intended."
+                f"Please verify that the input is as expected."
             )
             msg_info = MessageInfo(
                 message=msg,

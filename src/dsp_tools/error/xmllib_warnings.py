@@ -10,8 +10,10 @@ from dsp_tools.utils.ansi_colors import YELLOW
 @dataclass
 class MessageInfo:
     """
-    prop_name: property name
-    field: information about which field of the resource is affected, e.g. "resource id", "label"
+    message: message about what went wrong
+    resource_id: ID of the affected resource
+    prop_name: property name of the affected property (if applicable)
+    field: information about which field of the resource is affected (if not the property), e.g. "resource id", "label"
     """
 
     message: str

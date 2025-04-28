@@ -485,7 +485,7 @@ class TestFindLicense:
         ],
     )
     def test_find_license_wrong_order(self, string: str, expected: License) -> None:
-        assert not find_license_in_string(string)
+        assert find_license_in_string(string) == expected
 
     @pytest.mark.parametrize(
         "string",
@@ -497,3 +497,55 @@ class TestFindLicense:
     @pytest.mark.parametrize("string", ["CC ND SA"])
     def test_find_license_non_existent(self, string: str) -> None:
         assert not find_license_in_string(string)
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text AI Generated text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ai generated text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text AI text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ai text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text IA text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ia text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text KI text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ki text", LicenseRecommended.DSP.AI_GENERATED),
+            ("textkitext", None),
+            ("textKItext", None),
+            ("textaitext", None),
+            ("textAItext", None),
+            ("textiatext", None),
+            ("textIAtext", None),
+        ],
+    )
+    def test_find_license_ai_generated(self, string: str, expected: License | None) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text PUBLIC DOMAIN text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text public domain text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text GEMEINFREI text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text gemeinfrei text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text frei von Urheberrechten text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text urheberrechtsbefreit text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text libre de droits text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text domaine public text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+        ],
+    )
+    def test_find_public_domain(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text UNKNOWN text", LicenseRecommended.DSP.UNKNOWN),
+            ("text unknown text", LicenseRecommended.DSP.UNKNOWN),
+            ("text UNBEKANNT text", LicenseRecommended.DSP.UNKNOWN),
+            ("text unbekannt text", LicenseRecommended.DSP.UNKNOWN),
+            ("text INCONNU text", LicenseRecommended.DSP.UNKNOWN),
+            ("text inconnu text", LicenseRecommended.DSP.UNKNOWN),
+        ],
+    )
+    def test_find_unknown(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected

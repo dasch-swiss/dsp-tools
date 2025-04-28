@@ -76,7 +76,7 @@ class IIIFUri(AbstractFileValue):
 
 
 def _warn_type_mismatch(expected_type: str, value: Any, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
+    """Emits a warning if a value is not in the expected format."""
     if res_id:
         msg = f"The Resource '{res_id}' has an invalid input: The value '{value}' is not a valid {expected_type}."
     else:

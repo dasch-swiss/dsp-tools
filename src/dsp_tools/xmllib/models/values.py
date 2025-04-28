@@ -216,7 +216,7 @@ class UriValue(Value):
 
 
 def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
+    """Emits a warning if a value is not in the expected format."""
     msg = f"At the following location a '{expected_type}' does not conform to the expected format.\n"
     msg += f"Resource: {res_id} | " if res_id else ""
     msg += f"Value: {value} | Property: {prop_name}"

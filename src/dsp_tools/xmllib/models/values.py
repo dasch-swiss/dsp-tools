@@ -275,7 +275,7 @@ class Richtext(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=value, prop_name=prop_name, permissions=permissions, comment=comment)
+        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

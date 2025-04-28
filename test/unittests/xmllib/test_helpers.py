@@ -404,6 +404,8 @@ class TestFindLicense:
     @pytest.mark.parametrize(
         ("string", "expected"),
         [
+            ("text Creative Commons BY 4.0 text", LicenseRecommended.CC.BY),
+            ("text Creative Commons BY text", LicenseRecommended.CC.BY),
             ("text CC BY 4.0 text", LicenseRecommended.CC.BY),
             ("text CC-BY-4.0 text", LicenseRecommended.CC.BY),
             ("text CC_BY_4.0 text", LicenseRecommended.CC.BY),
@@ -424,6 +426,7 @@ class TestFindLicense:
             ("text, CC BY, text", LicenseRecommended.CC.BY),
             ("text. CC-BY. text", LicenseRecommended.CC.BY),
             ("text-CC BY-text", LicenseRecommended.CC.BY),
+            ("text-CC-BY-text", LicenseRecommended.CC.BY),
             ("text (CC BY) text", LicenseRecommended.CC.BY),
         ],
     )
@@ -447,6 +450,20 @@ class TestFindLicense:
     @pytest.mark.parametrize(
         ("string", "expected"),
         [
+            ("text cc by text", LicenseRecommended.CC.BY),
+            ("text cc by nd text", LicenseRecommended.CC.BY_ND),
+            ("text cc by sa text", LicenseRecommended.CC.BY_SA),
+            ("text cc by nc text", LicenseRecommended.CC.BY_NC),
+            ("text cc by nc nd text", LicenseRecommended.CC.BY_NC_ND),
+            ("text cc by nc sa text", LicenseRecommended.CC.BY_NC_SA),
+        ],
+    )
+    def test_find_license_lowercase(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
             ("CC BY NC SA 1.0", LicenseRecommended.CC.BY_NC_SA),
             ("CC BY NC SA 2.0", LicenseRecommended.CC.BY_NC_SA),
             ("CC BY NC SA 3.1", LicenseRecommended.CC.BY_NC_SA),
@@ -459,13 +476,20 @@ class TestFindLicense:
     def test_find_license_ignore_subsequent(self) -> None:
         assert find_license_in_string("CC BY and CC BY SA") == LicenseRecommended.CC.BY
 
-    @pytest.mark.parametrize("string", ["CC SA BY 4.0", "CC BY SA NC", "CC BY-ND-NC"])
-    def test_find_license_wrong_order(self, string: str) -> None:
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("CC SA BY 4.0", LicenseRecommended.CC.BY_SA),
+            ("CC BY SA NC", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY-ND-NC", LicenseRecommended.CC.BY_NC_ND),
+        ],
+    )
+    def test_find_license_wrong_order(self, string: str, expected: License) -> None:
         assert not find_license_in_string(string)
 
     @pytest.mark.parametrize(
         "string",
-        ["Creative Commons BY SA 4.0", "CC", "CC/BY/SA", "CC-BY_SA", "CC,BY,SA", "CC.BY.SA", "textCC-BY-SAtext"],
+        ["CC", "CC/BY/SA", "CC-BY_SA", "CC,BY,SA", "CC.BY.SA", "textCC-BY-SAtext"],
     )
     def test_find_license_wrong_format(self, string: str) -> None:
         assert not find_license_in_string(string)

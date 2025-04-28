@@ -1,5 +1,5 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
-
+import pandas as pd
 import pytest
 import regex
 
@@ -10,6 +10,7 @@ from dsp_tools.error.xmllib_warnings_util import _filter_stack_frames
 from dsp_tools.error.xmllib_warnings_util import _get_calling_code_context
 from dsp_tools.error.xmllib_warnings_util import _get_stack_frame_number
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import get_user_message_string
 
@@ -29,6 +30,15 @@ def test_emit_xmllib_input_warning(message_info):
     expected = regex.escape("Resource ID 'id' | msg")
     with pytest.warns(XmllibInputWarning, match=expected):
         emit_xmllib_input_warning(message_info)
+
+
+def test_emit_xmllib_input_type_mismatch_warning():
+    expected = regex.escape(
+        "' | Resource ID 'id' | Field 'field' | "
+        "The input should be a valid string, your input '<NA>' does not match the type."
+    )
+    with pytest.warns(XmllibInputWarning, match=expected):
+        emit_xmllib_input_type_mismatch_warning(expected_type="string", value=pd.NA, res_id="id", value_field="field")
 
 
 class TestGetMessageString:

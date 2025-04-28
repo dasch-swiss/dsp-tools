@@ -1,5 +1,6 @@
 import inspect
 import warnings
+from typing import Any
 
 import regex
 
@@ -18,6 +19,23 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
     msg_str = get_user_message_string(msg, function_trace)
     warnings.warn(XmllibInputWarning(msg_str))
+
+
+def emit_xmllib_input_type_mismatch_warning(
+    *,
+    expected_type: str,
+    value: Any,
+    res_id: str | None,
+    value_field: str | None = None,
+    prop_name: str | None = None,
+) -> None:
+    msg_info = MessageInfo(
+        message=f"The input should be a valid {expected_type}, your input '{value}' does not match the type.",
+        resource_id=res_id,
+        prop_name=prop_name,
+        field=value_field,
+    )
+    emit_xmllib_input_warning(msg_info)
 
 
 def _get_calling_code_context() -> str | None:

@@ -5,8 +5,8 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -87,7 +87,7 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
             f"The region resource with the ID '{res.res_id}' does not have a geometry, "
             f"please note that an xmlupload will fail."
         )
-        warnings.warn(DspToolsUserWarning(msg))
+        warnings.warn(XmllibInputWarning(msg))
 
         return prop_list
     geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
@@ -112,7 +112,7 @@ def _serialise_link(res: LinkResource) -> etree._Element:
             f"The link object with the ID '{res.res_id}' requires {' and '.join(problems)}. "
             f"Please note that an xmlupload will fail."
         )
-        warnings.warn(DspToolsUserWarning(msg))
+        warnings.warn(XmllibInputWarning(msg))
     ele = _make_generic_resource_element(res, "link")
     comments = cast(list[Value], res.comments)
     links_to = cast(list[Value], res.link_to)
@@ -155,7 +155,7 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
     if problems:
         msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
-        warnings.warn(DspToolsUserWarning(msg))
+        warnings.warn(XmllibInputWarning(msg))
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:

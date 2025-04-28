@@ -3,13 +3,13 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 from typing import Protocol
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
+from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 @dataclass
@@ -18,7 +18,7 @@ class AuthorshipLookup:
 
     def get_id(self, authors: tuple[str, ...]) -> str:
         if not (found := self.lookup.get(authors)):
-            warnings.warn(DspToolsUserWarning(f"The input authors {authors} are not defined in the look-up."))
+            warnings.warn(XmllibInputWarning(f"The input authors {authors} are not defined in the look-up."))
             return " / ".join([str(x) for x in authors])
         return found
 
@@ -32,17 +32,29 @@ class Metadata:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_nonempty_value(self.license):
-            _warn_type_mismatch(expected_type="license", value=self.license, res_id=self.resource_id)
-        if not is_nonempty_value(str(self.copyright_holder)):
-            _warn_type_mismatch(expected_type="copyright holder", value=self.copyright_holder, res_id=self.resource_id)
+        check_and_warn_potentially_empty_string(
+            value=self.license,
+            res_id=self.resource_id,
+            expected="xmllib.License",
+            field="license (bistream/iiif-uri)",
+        )
+        check_and_warn_potentially_empty_string(
+            value=self.copyright_holder,
+            res_id=self.resource_id,
+            expected="string",
+            field="copyright_holder (bistream/iiif-uri)",
+        )
         if len(self.authorship) == 0:
-            _warn_type_mismatch(
-                expected_type="list of authorship strings", value="empty input", res_id=self.resource_id
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="list of authorship strings",
+                value="empty input",
+                res_id=self.resource_id,
+                value_field="authorship (bistream/iiif-uri)",
             )
         for author in self.authorship:
-            if not is_nonempty_value(author):
-                _warn_type_mismatch(expected_type="author", value=author, res_id=self.resource_id)
+            check_and_warn_potentially_empty_string(
+                value=author, res_id=self.resource_id, expected="string", field="authorship (bistream/iiif-uri)"
+            )
 
 
 class AbstractFileValue(Protocol):
@@ -59,8 +71,19 @@ class FileValue(AbstractFileValue):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_nonempty_value(str(self.value)):
-            _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
+        check_and_warn_potentially_empty_string(
+            value=self.value,
+            res_id=self.resource_id,
+            expected="file name",
+            field="bitstream",
+        )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                field="comment (bitstream)",
+            )
 
 
 @dataclass
@@ -72,13 +95,15 @@ class IIIFUri(AbstractFileValue):
 
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):
-            _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
-
-
-def _warn_type_mismatch(expected_type: str, value: Any, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
-    if res_id:
-        msg = f"The Resource '{res_id}' has an invalid input: The value '{value}' is not a valid {expected_type}."
-    else:
-        msg = f"The value '{value}' is not a valid {expected_type}."
-    warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="IIIF uri",
+                value=self.value,
+                res_id=self.resource_id,
+            )
+        if self.comment is not None:
+            check_and_warn_potentially_empty_string(
+                value=self.comment,
+                res_id=self.resource_id,
+                expected="string",
+                field="comment (iiif-uri)",
+            )

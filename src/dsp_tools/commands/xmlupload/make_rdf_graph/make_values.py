@@ -13,23 +13,23 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInterval
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import BaseError
@@ -41,24 +41,24 @@ from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
 LiteralValueTypesAlias: TypeAlias = Union[
-    IntermediaryBoolean,
-    IntermediaryColor,
-    IntermediaryDecimal,
-    IntermediaryGeoname,
-    IntermediaryGeometry,
-    IntermediaryInt,
-    IntermediarySimpleText,
-    IntermediaryTime,
-    IntermediaryUri,
+    ProcessedBoolean,
+    ProcessedColor,
+    ProcessedDecimal,
+    ProcessedGeoname,
+    ProcessedGeometry,
+    ProcessedInt,
+    ProcessedSimpleText,
+    ProcessedTime,
+    ProcessedUri,
 ]
 
 
-def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
+def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
     """
     Serialise the values of a resource.
 
     Args:
-        values: list of IntermediaryValues of the resource
+        values: list of ProcessedValues of the resource
         res_node: node of the resource
         lookups: lookups to resolve IRIs
 
@@ -72,18 +72,18 @@ def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef, looku
     return properties_graph
 
 
-def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
+def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
     match val:
         case (
-            IntermediaryBoolean()
-            | IntermediaryColor()
-            | IntermediaryDecimal()
-            | IntermediaryGeometry()
-            | IntermediaryGeoname()
-            | IntermediaryInt()
-            | IntermediaryTime()
-            | IntermediaryUri()
-            | IntermediarySimpleText()
+            ProcessedBoolean()
+            | ProcessedColor()
+            | ProcessedDecimal()
+            | ProcessedGeometry()
+            | ProcessedGeoname()
+            | ProcessedInt()
+            | ProcessedTime()
+            | ProcessedUri()
+            | ProcessedSimpleText()
         ):
             literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val)]
             properties_graph = _make_value_graph_with_literal_object(
@@ -91,9 +91,9 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 res_node=res_node,
                 prop_type_info=literal_info,
             )
-        case IntermediaryList():
+        case ProcessedList():
             properties_graph = _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
-        case IntermediaryLink():
+        case ProcessedLink():
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
             properties_graph = make_link_value_graph(
                 val=val,
@@ -101,19 +101,19 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 res_node=res_node,
                 target_iri=URIRef(target_iri),
             )
-        case IntermediaryRichtext():
+        case ProcessedRichtext():
             properties_graph = make_richtext_value_graph(
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
                 iri_resolver=iri_lookups.id_to_iri,
             )
-        case IntermediaryDate():
+        case ProcessedDate():
             properties_graph = _make_date_value_graph(
                 val=val,
                 res_node=res_node,
             )
-        case IntermediaryInterval():
+        case ProcessedInterval():
             properties_graph = _make_interval_value_graph(
                 val=val,
                 res_node=res_node,
@@ -124,7 +124,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
 
 
 def _make_base_value_graph(
-    val: IntermediaryValue,
+    val: ProcessedValue,
     val_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
@@ -156,7 +156,7 @@ def _make_value_graph_with_literal_object(
 
 
 def _make_list_value_graph(
-    val: IntermediaryList,
+    val: ProcessedList,
     res_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
@@ -167,7 +167,7 @@ def _make_list_value_graph(
 
 
 def make_link_value_graph(
-    val: IntermediaryLink,
+    val: ProcessedLink,
     val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     target_iri: URIRef,
@@ -192,7 +192,7 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
 
 
 def _make_date_value_graph(
-    val: IntermediaryDate,
+    val: ProcessedDate,
     res_node: BNode | URIRef,
 ) -> Graph:
     val_bn = BNode()
@@ -225,7 +225,7 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 
 def _make_interval_value_graph(
-    val: IntermediaryInterval,
+    val: ProcessedInterval,
     res_node: BNode | URIRef,
 ) -> Graph:
     val_bn = BNode()
@@ -238,7 +238,7 @@ def _make_interval_value_graph(
 
 
 def make_richtext_value_graph(
-    val: IntermediaryRichtext,
+    val: ProcessedRichtext,
     val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     iri_resolver: IriResolver,

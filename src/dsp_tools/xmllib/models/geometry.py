@@ -5,7 +5,7 @@ import warnings
 from dataclasses import dataclass
 from typing import Protocol
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
 
@@ -55,7 +55,7 @@ class Polygon(GeometryShape):
                 f"Polygons should have at least 3 points. If you would like to display a rectangle "
                 f"we recommend ot use the designated rectangle shape."
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(XmllibInputWarning(msg))
 
     def to_json_string(self) -> str:
         json_dict = {
@@ -102,7 +102,7 @@ class GeometryPoint:
                 f"The entered geometry points for the resource with the ID '{self.resource_id}' are not floats. "
                 f"x: '{self.x}', y: '{self.y}'"
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(XmllibInputWarning(msg))
         else:
             info = []
             if not 0 <= float(self.x) <= 1:
@@ -115,7 +115,7 @@ class GeometryPoint:
                     f"The following points of the resource with the ID '{self.resource_id}' "
                     f"are not valid: {', '.join(info)}"
                 )
-                warnings.warn(DspToolsUserWarning(msg))
+                warnings.warn(XmllibInputWarning(msg))
             self.x = float(self.x)
             self.y = float(self.y)
 
@@ -135,7 +135,7 @@ class Vector:
                 f"The radius vector for the resource with the ID '{self.resource_id}' are not floats. "
                 f"x: '{self.x}', y: '{self.y}'"
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(XmllibInputWarning(msg))
         else:
             info = []
             if not 0 <= float(self.x) <= 1:
@@ -148,7 +148,7 @@ class Vector:
                     f"The following values of the resource with the ID '{self.resource_id}' "
                     f"are not valid: {', '.join(info)}"
                 )
-                warnings.warn(DspToolsUserWarning(msg))
+                warnings.warn(XmllibInputWarning(msg))
             self.x = float(self.x)
             self.y = float(self.y)
 
@@ -167,7 +167,7 @@ def _check_warn_shape_info(color: str, line_width: float, res_id: str) -> None:
         problems.append(f"The color must be a valid hexadecimal color. The provided value is not valid: {color}")
     if problems:
         warnings.warn(
-            DspToolsUserWarning(
+            XmllibInputWarning(
                 f"Some of the shape values of the resource with the ID '{res_id}' are not valid: "
                 f"\n- {'\n- '.join(problems)}"
             )

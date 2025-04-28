@@ -11,7 +11,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _make_richtext_update_graph
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _serialise_richtext_for_update
@@ -32,7 +32,7 @@ VAL_IRI = URIRef(VAL_IRI_STR)
 
 @pytest.fixture
 def standoff_stash_item() -> StandoffStashItem:
-    val = IntermediaryRichtext(
+    val = ProcessedRichtext(
         value=FormattedTextValue("text"),
         prop_iri=str(PROP_IRI),
         resource_references=set(),

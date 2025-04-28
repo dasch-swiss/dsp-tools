@@ -33,6 +33,7 @@ dependencies = [
     "requests",
     "rustworkx",
     "tqdm",
+    "typing-extensions",
 ]
 
 
@@ -83,7 +84,6 @@ dev-dependencies = [
     "types-tqdm",
     "viztracer",
     "yamllint",
-    "typing-extensions",
     "pytest-xdist>=3.6.1",
     "vulture"
 ]
@@ -191,7 +191,9 @@ force-single-line = true
 [tool.vulture]
 paths = ["src/dsp_tools", ".vulture_whitelist.py"]
 exclude = [
-    "src/dsp_tools/xmllib/", 
+    "src/dsp_tools/xmllib/",
+    "src/dsp_tools/error/xmllib_warnings.py",
+    "src/dsp_tools/error/xmllib_warnings_util.py",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
 ]

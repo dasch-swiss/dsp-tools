@@ -108,5 +108,16 @@ def test_validate_xml_empty_label() -> None:
         parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 
 
+def test_beautify_err_msg() -> None:
+    _match = (
+        r"Line \d+: The resource ID 'res_1' is not valid\. IDs must be unique across the entire file\. "
+        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\.\n +"
+        r"Line \d+: The resource ID 'res_2' is not valid\. IDs must be unique across the entire file\. "
+        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\."
+    )
+    with pytest.raises(InputError, match=_match):
+        parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

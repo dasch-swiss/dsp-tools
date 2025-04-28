@@ -7,9 +7,11 @@ from enum import StrEnum
 from pathlib import Path
 
 import regex
+from loguru import logger
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
@@ -43,7 +45,11 @@ class OntologyResourceProblem:
 @dataclass
 class UnknownClassesInData:
     unknown_classes: set[str]
-    classes_onto: set[str]
+    defined_classes: set[str]
+
+    def __post_init__(self) -> None:
+        self.unknown_classes = {reformat_onto_iri(x) for x in self.unknown_classes}
+        self.defined_classes = {reformat_onto_iri(x) for x in self.defined_classes}
 
     def get_msg(self) -> str:
         if unknown := self._get_unknown_ontos_msg():
@@ -51,27 +57,29 @@ class UnknownClassesInData:
         return self._get_unknown_classes_msg()
 
     def _get_unknown_ontos_msg(self) -> str:
-        def split_prefix(relative_iri: str) -> str:
+        def split_prefix(relative_iri: str) -> str | None:
+            if ":" not in relative_iri:
+                return None
             return relative_iri.split(":")[0]
 
-        used_ontos = set(split_prefix(x) for x in self.unknown_classes)
-        exising_ontos = set(split_prefix(x) for x in self.classes_onto)
+        used_ontos = set(not_knora for x in self.unknown_classes if (not_knora := split_prefix(x)))
+        exising_ontos = set(not_knora for x in self.defined_classes if (not_knora := split_prefix(x)))
         msg = ""
         if unknown := used_ontos - exising_ontos:
             msg = (
                 f"Your data uses ontologies that don't exist in the database.\n"
-                f"The following ontologies that are used in the data are unknown: {', '.join(exising_ontos)}"
-                f"The following ontologies are uploaded: {', '.join(unknown)}\n"
+                f"The following ontologies that are used in the data are unknown: {', '.join(unknown)}\n"
+                f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
             )
         return msg
 
     def _get_unknown_classes_msg(self) -> str:
         unknown_classes = sorted(list(self.unknown_classes))
-        known_classes = sorted(list(self.classes_onto))
+        known_classes = sorted(list(self.defined_classes))
         return (
             f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
             f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
-            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
         )
 
 
@@ -84,6 +92,7 @@ class UnexpectedResults:
         prefix = f"{datetime.now()!s}_"
         unique_components = list(set(x.component_type for x in self.components))
         components = sorted(unique_components)
+        logger.info(f"Unexpected components found: {', '.join(components)}")
         msg = (
             f"Unexpected violations were found in the validation results:"
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"

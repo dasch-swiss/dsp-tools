@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from typing_extensions import deprecated
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_timestamp
@@ -37,7 +37,7 @@ class MigrationMetadata:
                 f"The migration metadata of the resource with the ID '{self.res_id}' has the following problem(s):"
                 f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg_list)}"
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(XmllibInputWarning(msg))
 
     def as_attrib(self) -> dict[str, str]:
         attrib_dict = {}
@@ -52,5 +52,5 @@ class MigrationMetadata:
                 f"The metadata of the resource with the ID '{self.res_id}' does not contain any values. "
                 f"Please check if an error occurred."
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(XmllibInputWarning(msg))
         return attrib_dict

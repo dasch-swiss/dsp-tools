@@ -6,7 +6,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 
 
 @dataclass
-class IntermediaryFileMetadata:
+class ProcessedFileMetadata:
     license_iri: str | None
     copyright_holder: str | None
     authorships: list[str] | None
@@ -17,14 +17,14 @@ class IntermediaryFileMetadata:
 
 
 @dataclass
-class IntermediaryFileValue:
+class ProcessedFileValue:
     value: str
-    metadata: IntermediaryFileMetadata
+    metadata: ProcessedFileMetadata
     res_id: str
     res_label: str
 
 
 @dataclass
-class IntermediaryIIIFUri:
+class ProcessedIIIFUri:
     value: str
-    metadata: IntermediaryFileMetadata
+    metadata: ProcessedFileMetadata

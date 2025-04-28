@@ -11,12 +11,12 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 @dataclass
-class DataDeserialised:
-    resources: list[ResourceDeserialised]
+class RdfLikeData:
+    resources: list[RdfLikeResource]
 
 
 @dataclass
-class ResourceDeserialised:
+class RdfLikeResource:
     """
     Represents a user facing project-specific resource.
 
@@ -32,8 +32,8 @@ class ResourceDeserialised:
 
     res_id: str
     property_objects: list[PropertyObject]
-    values: list[ValueInformation]
-    asset_value: ValueInformation | None
+    values: list[RdfLikeValue]
+    asset_value: RdfLikeValue | None
     migration_metadata: MigrationMetadata
 
 
@@ -64,7 +64,7 @@ class PropertyObject:
 
 
 @dataclass
-class ValueInformation:
+class RdfLikeValue:
     """
     Contains information about a user-facing value, for example BooleanValue.
 

@@ -8,8 +8,11 @@ import pandas as pd
 import regex
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -43,7 +46,9 @@ def is_nonempty_value_internal(value: Any) -> bool:
     return False
 
 
-def check_and_warn_potentially_empty_string(value: Any) -> None:
+def check_and_warn_potentially_empty_string(
+    value: Any, res_id: str, prop_name: str | None = None, field: str | None = None
+) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
     as potentially empty.
@@ -52,6 +57,9 @@ def check_and_warn_potentially_empty_string(value: Any) -> None:
 
     Args:
         value: user input
+        res_id: Resource ID
+        prop_name: property name if used to check a property
+        field: if used to check a non-property field, for example a comment on a value
 
     Warnings:
         XmllibInputWarning: if it is an empty value or a string only with whitespaces
@@ -59,11 +67,28 @@ def check_and_warn_potentially_empty_string(value: Any) -> None:
             that may be the result of str() casting an empty value
     """
     if not is_nonempty_value_internal(value):
-        warnings.warn("Warn empty input")
+        msg_info = MessageInfo(
+            message="Your input is empty. Please enter a valid non-empty string.",
+            resource_id=res_id,
+            prop_name=prop_name,
+            field=field,
+        )
+        emit_xmllib_input_warning(msg_info)
     else:
         empty_val_string = r"^(<NA>|nan|None)$"
         if bool(regex.search(empty_val_string, str(value))):
-            warnings.warn("INFO: may be empty")
+            type_lookup = {"<NA>": "pd.NA", "nan": "np.nan", "None": "None"}
+            msg = (
+                f"Your input '{value}' is a string but may be the result of `str({type_lookup[str(value)]})`. "
+                f"Please verify that the input is as intended."
+            )
+            msg_info = MessageInfo(
+                message=msg,
+                resource_id=res_id,
+                prop_name=prop_name,
+                field=field,
+            )
+            emit_xmllib_input_info(msg_info)
 
 
 def check_and_create_richtext_string(

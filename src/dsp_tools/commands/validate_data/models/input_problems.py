@@ -7,6 +7,7 @@ from enum import StrEnum
 from pathlib import Path
 
 import regex
+from loguru import logger
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -91,6 +92,7 @@ class UnexpectedResults:
         prefix = f"{datetime.now()!s}_"
         unique_components = list(set(x.component_type for x in self.components))
         components = sorted(unique_components)
+        logger.info(f"Unexpected components found: {', '.join(components)}")
         msg = (
             f"Unexpected violations were found in the validation results:"
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"

@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="0001"
+       default-ontology="default">
+
+    <resource label="Resource with IRI"
+              restype=":minimalResource"
+              id="resource_with_iri">
+        <list-prop name="defaultOntoHasListOne" list="">
+            <list>http://rdfh.ch/lists/0001/uuid</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Resource with Node names"
+              restype=":minimalResource"
+              id="resource_with_node_names">
+        <list-prop name="defaultOntoHasListOne" list="list1">
+            <list>list1_node1</list>
+        </list-prop>
+    </resource>
+
+</knora>

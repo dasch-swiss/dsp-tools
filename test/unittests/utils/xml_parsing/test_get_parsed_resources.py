@@ -11,7 +11,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_fo
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_unformatted_text_as_string
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
@@ -709,7 +709,10 @@ def test_cleanup_simpletext():
     ("input_val", "expected"),
     [
         ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
-        ('<text encoding="utf8">start &lt;unknown&gt; will be displayed as is &lt;/unknown&gt; end</text>', "start <unknown> will be displayed as is </unknown> end"),
+        (
+            '<text encoding="utf8">start <unknown> will be displayed as is </unknown> end</text>',
+            "start <unknown> will be displayed as is </unknown> end",
+        ),
         (
             """<author>
             Cavanagh, Annie       
@@ -721,7 +724,7 @@ def test_cleanup_simpletext():
     ],
 )
 def test_get_unformatted_text_as_string(input_val, expected):
-    result = _get_unformatted_text_as_string(etree.fromstring(input_val))
+    result = _get_simpletext_as_string(etree.fromstring(input_val))
     assert result == expected
 
 

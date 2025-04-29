@@ -236,8 +236,6 @@ def _get_unformatted_text_as_string(value: etree._Element) -> str | None:
     return regex.sub(r"\s+", " ", string).strip()
 
 
-
-
 def _get_richtext_as_string(value: etree._Element) -> str | None:
     if not value.text and not len(value) > 0:
         return None
@@ -279,9 +277,8 @@ def _cleanup_formatted_text(xmlstr_orig: str) -> str:
 def _get_simpletext_as_string(value: etree._Element) -> str | None:
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
-    if (simpletext := _get_etree_content_as_string(value)) is None:
-        return None
-    return _cleanup_simpletext(simpletext)
+    str_orig = "".join(value.itertext())
+    return _cleanup_simpletext(str_orig)
 
 
 def _cleanup_simpletext(str_val: str) -> str:

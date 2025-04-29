@@ -8,7 +8,6 @@ from typing import Any
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -271,19 +270,14 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
         self.comments.append(
-            Richtext(
-                value=checked_text,
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -313,24 +307,16 @@ class RegionResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
         comnts = [
-            Richtext(
+            Richtext.new(
                 value=x,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
-            for x in texts
+            for x in vals
         ]
         self.comments.extend(comnts)
         return self
@@ -485,19 +471,14 @@ class LinkResource:
             link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
         self.comments.append(
-            Richtext(
-                value=checked_text,
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -527,24 +508,16 @@ class LinkResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
         comnts = [
-            Richtext(
+            Richtext.new(
                 value=x,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
-            for x in texts
+            for x in vals
         ]
         self.comments.extend(comnts)
         return self

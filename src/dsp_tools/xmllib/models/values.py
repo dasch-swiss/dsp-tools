@@ -8,6 +8,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_color
@@ -18,6 +19,7 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
 class Value(Protocol):
@@ -337,21 +339,28 @@ class Richtext(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_nonempty_value(self.value):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
-            )
-        else:
-            check_richtext_syntax(self.value)
-        if self.comment is not None:
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
+    ) -> Richtext:
+        check_and_warn_potentially_empty_string(value=value, res_id=resource_id, expected="string", prop_name=prop_name)
+        converted_val = replace_newlines_with_tags(str(value), newline_replacement)
+        check_richtext_syntax(converted_val)
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

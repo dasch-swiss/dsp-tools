@@ -121,12 +121,14 @@ class TestListValue:
 class TestRichtext:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)
+            Richtext.new(
+                "<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            Richtext(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
+            Richtext.new(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestSimpleText:

@@ -339,17 +339,17 @@ class ListLookup:
             ```
         """
         if not (list_lookup := self._lookup.get(list_name)):
-            msg_info = MessageInfo(
-                message=f"The entered list name '{list_name}' was not found. An empty string is returned."
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered list name '{list_name}' was not found. An empty string is returned.")
             )
-            emit_xmllib_input_warning(msg_info)
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg_info = MessageInfo(
-                message=f"'{node_label}' was not recognised as label of the list '{list_name}'. "
-                f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
+            emit_xmllib_input_warning(
+                MessageInfo(
+                    f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                    f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
+                )
             )
-            emit_xmllib_input_warning(msg_info)
             return ""
         return found_node
 
@@ -400,10 +400,9 @@ class ListLookup:
             ```
         """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
-            msg_info = MessageInfo(
-                message=f"The entered property '{prop_name}' was not found. An empty string is returned."
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered property '{prop_name}' was not found. An empty string is returned.")
             )
-            emit_xmllib_input_warning(msg_info)
             return ""
         return list_name
 

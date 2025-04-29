@@ -1,12 +1,20 @@
 import inspect
 import warnings
 from typing import Any
+from typing import Never
 
 import regex
 
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+
+
+def raise_input_error(msg: MessageInfo) -> Never:
+    function_trace = _get_calling_code_context()
+    msg_str = get_user_message_string(msg, function_trace)
+    raise InputError(msg_str)
 
 
 def emit_xmllib_input_info(msg: MessageInfo) -> None:

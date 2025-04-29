@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import warnings
 from html.entities import html5
 from typing import Any
 
 import pandas as pd
 import regex
 
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
 
 # These named entities are defined by the XML specification and are always expanded during parsing,
 # regardless of parser options.
@@ -105,16 +103,23 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
     Raises:
         InputError: if the input is a dictionary
     """
-    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
     match value:
         case set() | list() | tuple():
             if len(value) == 0:
-                msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(XmllibInputInfo(msg))
+                msg_info = MessageInfo(
+                    message="The input is empty. Please note that no values will be added to the resource.",
+                    resource_id=res_id,
+                    prop_name=prop_name,
+                )
+                emit_xmllib_input_info(msg_info)
             return list(value)
         case dict():
-            msg += "is a dictionary. Only collections (list, set, tuple) are permissible."
-            raise InputError(msg)
+            msg_info = MessageInfo(
+                message="The input is a dictionary. Only collections (list, set, tuple) are permissible.",
+                resource_id=res_id,
+                prop_name=prop_name,
+            )
+            raise_input_error(msg_info)
         case _:
             return [value]
 

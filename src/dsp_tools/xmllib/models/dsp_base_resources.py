@@ -81,7 +81,9 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id),
+            region_of=LinkValue.new(
+                value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
+            ),
             geometry=None,
             permissions=permissions,
         )
@@ -444,7 +446,10 @@ class LinkResource:
             ```
         """
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
-        link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
+        link_vals = [
+            LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
+            for x in links_to
+        ]
         return LinkResource(
             res_id=res_id,
             label=label,

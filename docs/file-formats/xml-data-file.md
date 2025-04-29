@@ -698,7 +698,9 @@ Example of a property with a public and a hidden list value:
 </list-prop>
 ```
 
-It is possible to **reference existing list IRIs**. IRIs can be obtained through API requests or database queries.
+**Referencing Existing List IRIs:**
+
+It is possible to reference existing list IRIs. IRIs can be obtained through API requests or database queries.
 Please note that every time a project is created anew, new IRIs are generated.
 Therefore, this workflow is intended for projects that already exist on the production server.
 To reference the IRI in the XML, 

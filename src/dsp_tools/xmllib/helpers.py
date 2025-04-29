@@ -1149,6 +1149,8 @@ def find_license_in_string(string: str) -> License | None:
     Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
     Once a license has been found, subsequent licenses are ignored.
     Returns None if no license was found.
+    The case (upper case/lower case) is ignored.
+
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
 
@@ -1174,10 +1176,21 @@ def find_license_in_string(string: str) -> License | None:
         # result == LicenseRecommended.CC.BY
         ```
 
-        ```python
-        result = xmllib.find_license_in_string("text ai text")
-        # result == LicenseRecommended.DSP.AI_GENERATED
-        ```
+    Currently supported license formats:
+        - "AI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "KI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "IA" -> LicenseRecommended.DSP.AI_GENERATED
+        - "public domain" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "gemeinfrei" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "frei von Urheberrechten" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "urheberrechtsbefreit" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "libre de droits" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "domaine public" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "unknown" -> LicenseRecommended.DSP.UNKNOWN
+        - "unbekannt" -> LicenseRecommended.DSP.UNKNOWN
+        - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
+        - "CC BY" -> LicenseRecommended.CC.BY
+        - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
     """
     sep = r"[- _]+?"
     if match := regex.search(

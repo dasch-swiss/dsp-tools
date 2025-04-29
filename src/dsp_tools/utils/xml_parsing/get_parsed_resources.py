@@ -91,7 +91,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case "isSegmentOf":
                 val_type = KnoraValueType.LINK_VALUE
                 prop = f"{KNORA_API_STR}is{segment_type}SegmentOf"
-                value = _get_etree_content_as_string(val)
+                value = val.text.strip() if val.text else None
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE
                 value = (val.attrib["segment_start"], val.attrib["segment_end"])
@@ -100,7 +100,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 value = _get_richtext_as_string(val)
             case "relatesTo":
                 val_type = KnoraValueType.LINK_VALUE
-                value = _get_etree_content_as_string(val)
+                value = val.text.strip() if val.text else None
             case _:
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
                 value = _get_simpletext_as_string(val)
@@ -175,7 +175,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=_get_etree_content_as_string(val),
+                value=val.text.strip() if val.text else None,
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -188,10 +188,11 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     parsed_values = []
     list_name = values.attrib["list"]
     for val in values:
+        list_node = val.text.strip() if val.text else None
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=(list_name, _get_etree_content_as_string(val)),
+                value=(list_name, list_node),
                 value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -219,14 +220,6 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
             )
         )
     return parsed_values
-
-
-def _get_etree_content_as_string(value: etree._Element) -> str | None:
-    if not value.text and not len(value) > 0:
-        return None
-    xmlstr = etree.tostring(value, encoding="unicode", method="xml")
-    xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
-    return xmlstr.strip()
 
 
 def _get_unformatted_text_as_string(value: etree._Element) -> str | None:
@@ -277,8 +270,9 @@ def _cleanup_formatted_text(xmlstr_orig: str) -> str:
 def _get_simpletext_as_string(value: etree._Element) -> str | None:
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
-    str_orig = "".join(value.itertext())
-    return _cleanup_simpletext(str_orig)
+    if not (found := value.text):
+        return None
+    return _cleanup_simpletext(found)
 
 
 def _cleanup_simpletext(str_val: str) -> str:

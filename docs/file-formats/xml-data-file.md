@@ -704,7 +704,7 @@ It is possible to reference existing list IRIs. IRIs can be obtained through API
 Please note that every time a project is created anew, new IRIs are generated.
 Therefore, this workflow is intended for projects that already exist on the production server.
 To reference the IRI in the XML, 
-the `list` attribute must remain empty but may not be omitted in order to pass the xsd validation.
+the `list` attribute must remain empty, but may not be omitted.
 
 ```xml
 <list-prop name=":hasCategory" list="">

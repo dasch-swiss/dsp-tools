@@ -156,7 +156,7 @@ class TestLinkResource:
             "| Resource ID 'id' | Property 'hasLinkTo' | "
             "The input is empty. Please note that no values will be added to the resource."
         )
-        returned = sorted([x.message.args[0] for x in caught_warnings])
+        returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
         assert warning_0 == returned[0]
         assert regex.search(warning_1, returned[1])
 

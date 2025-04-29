@@ -1,6 +1,7 @@
 import warnings
 
 import pytest
+import regex
 from lxml import etree
 
 from dsp_tools.xmllib import LicenseRecommended
@@ -151,13 +152,13 @@ class TestLinkResource:
         warning_0 = (
             "The link object with the ID 'id' requires at least two links. Please note that an xmlupload will fail."
         )
-        warning_1 = (
-            "The input value of the resource with the ID 'id' and the property 'hasLinkTo' is empty. "
-            "Please note that no values will be added to the resource."
+        warning_1 = regex.escape(
+            "| Resource ID 'id' | Property 'hasLinkTo' | "
+            "The input is empty. Please note that no values will be added to the resource."
         )
-        expected = sorted([warning_0, warning_1])
         returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
-        assert returned == expected
+        assert warning_0 == returned[0]
+        assert regex.search(warning_1, returned[1])
 
 
 if __name__ == "__main__":

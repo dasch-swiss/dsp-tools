@@ -208,7 +208,7 @@ class TestAddValues:
     def test_add_list_name_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid list name, your input 'node' does not match the type."),
+            match=regex.escape("The input should be a valid list name, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_list("", "", "node")
 
@@ -234,7 +234,7 @@ class TestAddValues:
     def test_add_simple_text_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+            match=regex.escape("Your input '' is empty. Please enter a valid string."),
         ):
             Resource.create_new("res_id", "restype", "label").add_simpletext("", "")
 

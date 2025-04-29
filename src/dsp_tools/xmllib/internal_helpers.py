@@ -12,8 +12,6 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 # These named entities are defined by the XML specification and are always expanded during parsing,
 # regardless of parser options.
@@ -89,34 +87,6 @@ def check_and_warn_potentially_empty_string(
                 field=field,
             )
             emit_xmllib_input_info(msg_info)
-
-
-def check_and_create_richtext_string(
-    value: Any,
-    prop_name: str,
-    newline_replacement: NewlineReplacement,
-    res_id: str,
-) -> str:
-    """
-    Creates a RichtextValue with checks and optional conversions
-
-    Args:
-        value: richtext value
-        prop_name: name of the property
-        newline_replacement: the replacement for the newlines in the string
-        res_id: id of the calling resource
-
-    Returns:
-        A richtext value
-
-    Raises:
-        Input Error if the input is a dictionary
-    """
-    # Because of the richtext conversions, the input value is cast to a string.
-    # Values such as str(`pd.NA`) result in a non-empy string.
-    # Therefore, a check must occur before the casting takes place.
-    check_and_warn_potentially_empty_string(value=value, res_id=res_id, expected="string", prop_name=prop_name)
-    return replace_newlines_with_tags(str(value), newline_replacement)
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

@@ -50,7 +50,10 @@ RES_TYPE = f"{ONTO}ResourceType"
 def lookups() -> XmlReferenceLookups:
     return XmlReferenceLookups(
         permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
-        listnodes={("list", "node"): "http://rdfh.ch/9999/node"},
+        listnodes={
+            ("list", "node"): "http://rdfh.ch/9999/node",
+            ("", "http://rdfh.ch/9999/node"): "http://rdfh.ch/9999/node",
+        },
         namespaces={
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "onto": "http://0.0.0.0:3333/ontology/9999/onto/v2#",
@@ -463,6 +466,15 @@ class TestValues:
 
     def test_list_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedList)
+        assert result.value == "http://rdfh.ch/9999/node"
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+
+    def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "open", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"

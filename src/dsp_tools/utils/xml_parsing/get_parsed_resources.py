@@ -229,6 +229,13 @@ def _get_etree_content_as_string(value: etree._Element) -> str | None:
     return xmlstr.strip()
 
 
+def _get_unformatted_text_as_string(value: etree._Element) -> str | None:
+    str_orig = "".join(value.itertext())
+    string = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", str_orig)
+    # replace multiple whitespace characters
+    return regex.sub(r"\s+", " ", string).strip()
+
+
 def _get_richtext_as_string(value: etree._Element) -> str | None:
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.

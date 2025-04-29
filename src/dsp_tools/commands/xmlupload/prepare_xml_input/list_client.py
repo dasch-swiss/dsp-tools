@@ -63,7 +63,7 @@ class ListClientLive:
         if not self.list_info:
             self.list_info = _get_list_info_from_server(self.con, self.project_iri)
         lookup = dict(_get_node_tuples(self.list_info.lists))
-        # Enable referencing list node IRIs in the XML: 
+        # Enable referencing list node IRIs in the XML:
         # add a reference of the list node IRIs to themselves (with empty list names)
         lookup.update({("", v): v for v in lookup.values()})
         return lookup

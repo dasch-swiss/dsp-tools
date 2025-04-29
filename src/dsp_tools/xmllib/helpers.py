@@ -1174,21 +1174,15 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
         # result == LicenseRecommended.CC.BY
         ```
     """
-    sep_candidates = r"[- _]"
-    if not (sep_found := regex.search(rf"\bCC({sep_candidates})BY", string)):
-        return None
-    sep = sep_found.group(1)  # now we have settled for exactly one of the sep candidates
-    nc = rf"(?<NC>{sep}NC)?"
-    nd = rf"(?<ND>{sep}ND)?"
-    sa = rf"(?<SA>{sep}SA)?"
-    version = rf"({sep}\d+\.\d+)?"
-    no_continuation = rf"(?!{sep_candidates}(NC|ND|SA))"
-    rgx = rf"\bCC{sep}BY{nc}{nd}{sa}{version}\b{no_continuation}"
-    if not (found := regex.search(rgx, string)):
-        return None
-    has_nc = found.groupdict().get("NC")
-    has_nd = found.groupdict().get("ND")
-    has_sa = found.groupdict().get("SA")
+    if match := regex.search(r"\b(CC|Creative.+Commons).+BY(.+(NC|ND|SA))*(.+[\d\.]+)?\b", string, flags=regex.IGNORECASE):
+        return _find_cc_license(match.group(0))
+    return None
+
+
+def _find_cc_license(string: str) -> License | None:
+    has_nc = "NC" in string
+    has_nd = "ND" in string
+    has_sa = "SA" in string
     if not any((has_nc, has_nd, has_sa)):
         return LicenseRecommended.CC.BY
     if not has_nc and has_nd and not has_sa:

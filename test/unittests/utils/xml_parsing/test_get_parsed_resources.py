@@ -9,6 +9,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_simpletext
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_etree_content_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
@@ -701,6 +702,17 @@ def test_cleanup_simpletext():
     """
     expected = "Text line 1\n\nline 2\nThird line ..."
     result = _cleanup_simpletext(original)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
+    ],
+)
+def test_get_etree_content_as_string(input_val, expected):
+    result = _get_etree_content_as_string(etree.fromstring(input_val))
     assert result == expected
 
 

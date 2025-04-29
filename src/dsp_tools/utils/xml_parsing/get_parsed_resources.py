@@ -222,13 +222,6 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     return parsed_values
 
 
-def _get_unformatted_text_as_string(value: etree._Element) -> str | None:
-    str_orig = "".join(value.itertext())
-    string = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", str_orig)
-    # replace multiple whitespace characters
-    return regex.sub(r"\s+", " ", string).strip()
-
-
 def _get_richtext_as_string(value: etree._Element) -> str | None:
     if not value.text and not len(value) > 0:
         return None
@@ -272,12 +265,8 @@ def _get_simpletext_as_string(value: etree._Element) -> str | None:
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     if not (found := value.text):
         return None
-    return _cleanup_simpletext(found)
-
-
-def _cleanup_simpletext(str_val: str) -> str:
     # replace multiple spaces or tabstops by a single space
-    str_val = regex.sub(r" {2,}|\t+", " ", str_val)
+    str_val = regex.sub(r" {2,}|\t+", " ", found)
     # remove leading and trailing spaces (of every line, but also of the entire string)
     str_val = "\n".join([s.strip() for s in str_val.split("\n")])
     result = str_val.strip()

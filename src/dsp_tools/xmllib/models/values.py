@@ -8,6 +8,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
@@ -54,7 +55,8 @@ class BooleanValue(Value):
                 expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
             )
             val = str(value)
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -62,7 +64,9 @@ class BooleanValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -86,7 +90,8 @@ class ColorValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -94,7 +99,9 @@ class ColorValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -118,7 +125,8 @@ class DateValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -126,7 +134,9 @@ class DateValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -150,7 +160,8 @@ class DecimalValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -158,7 +169,9 @@ class DecimalValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -182,7 +195,8 @@ class GeonameValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -190,7 +204,9 @@ class GeonameValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -214,7 +230,8 @@ class IntValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -222,7 +239,9 @@ class IntValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -246,7 +265,8 @@ class LinkValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="string", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -254,7 +274,9 @@ class LinkValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -284,7 +306,8 @@ class ListValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -292,8 +315,14 @@ class ListValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
+        else:
+            fixed_comment = None
         return cls(
-            value=str(value), list_name=str(list_name), prop_name=prop_name, permissions=permissions, comment=comment
+            value=str(value),
+            list_name=str(list_name),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
         )
 
 
@@ -320,7 +349,8 @@ class SimpleText(Value):
             expected="string",
             prop_name=prop_name,
         )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -328,7 +358,9 @@ class SimpleText(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -352,7 +384,8 @@ class Richtext(Value):
         check_and_warn_potentially_empty_string(value=value, res_id=resource_id, expected="string", prop_name=prop_name)
         converted_val = replace_newlines_with_tags(str(value), newline_replacement)
         check_richtext_syntax(converted_val)
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -360,7 +393,9 @@ class Richtext(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -384,7 +419,8 @@ class TimeValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -392,7 +428,9 @@ class TimeValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -416,7 +454,8 @@ class UriValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
             )
-        if comment is not None:
+        if is_nonempty_value_internal(comment):
+            fixed_comment = comment
             check_and_warn_potentially_empty_string(
                 value=comment,
                 res_id=resource_id,
@@ -424,4 +463,6 @@ class UriValue(Value):
                 prop_name=prop_name,
                 field="comment on value",
             )
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=comment)
+        else:
+            fixed_comment = None
+        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)

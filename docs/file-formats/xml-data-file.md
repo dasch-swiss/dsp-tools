@@ -707,7 +707,7 @@ To reference the IRI in the XML,
 the `list` attribute must remain empty but may not be omitted in order to pass the xsd validation.
 
 ```xml
-<list-prop name=":hasProp" list="">
+<list-prop name=":hasCategory" list="">
     <list>http://rdfh.ch/lists/0001/uuid</list>
 </list-prop>
 ```

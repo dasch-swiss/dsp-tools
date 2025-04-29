@@ -1152,9 +1152,6 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
 
-    Currently, only [Creative Commons](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
-    licenses can be recognised.
-
     Args:
         string: string to check
 
@@ -1168,7 +1165,7 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
         ```
 
         ```python
-        result = xmllib.find_license_in_string("text without license")
+        result = xmllib.find_license_in_string("unsupported: CC Developing Nations 2.0 Generic Deed")
         # result == None
         ```
 

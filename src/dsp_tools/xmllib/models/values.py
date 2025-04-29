@@ -29,7 +29,6 @@ class Value(Protocol):
     prop_name: str
     permissions: Permissions
     comment: str | None
-    resource_id: str | None
 
 
 @dataclass
@@ -38,7 +37,6 @@ class BooleanValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -75,7 +73,6 @@ class ColorValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -109,7 +106,6 @@ class DateValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -143,7 +139,6 @@ class DecimalValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -177,7 +172,6 @@ class GeonameValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -211,7 +205,6 @@ class IntValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -245,7 +238,6 @@ class LinkValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -280,7 +272,6 @@ class ListValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -325,7 +316,6 @@ class SimpleText(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -361,7 +351,6 @@ class Richtext(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -395,7 +384,6 @@ class TimeValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(
@@ -429,7 +417,6 @@ class UriValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
-    resource_id: str | None = None
 
     @classmethod
     def new(

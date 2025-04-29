@@ -72,6 +72,7 @@
               id="test_thing_1"
               permissions="open">
         <text-prop name="testonto:hasSimpleText">
+            <text encoding="utf8">NEWLINE &#10;</text>
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
             <text encoding="utf8">text (&lt;2cm) text</text>

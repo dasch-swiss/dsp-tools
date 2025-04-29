@@ -236,12 +236,17 @@ def _get_unformatted_text_as_string(value: etree._Element) -> str | None:
     return regex.sub(r"\s+", " ", string).strip()
 
 
+
+
 def _get_richtext_as_string(value: etree._Element) -> str | None:
+    if not value.text and not len(value) > 0:
+        return None
+    xmlstr = etree.tostring(value, encoding="unicode", method="xml")
+    xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
+    striped_str = xmlstr.strip()
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
-    if (xml_str := _get_etree_content_as_string(value)) is None:
-        return None
-    return _cleanup_formatted_text(xml_str)
+    return _cleanup_formatted_text(striped_str)
 
 
 def _cleanup_formatted_text(xmlstr_orig: str) -> str:

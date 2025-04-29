@@ -1210,7 +1210,7 @@ def find_license_in_string(string: str) -> License | None:
     return None
 
 
-def _find_cc_license(string: str) -> License | None:
+def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
     if "BY".casefold() not in string.casefold():
         return None
     has_nc = "NC".casefold() in string.casefold()

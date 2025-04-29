@@ -415,7 +415,7 @@ class TestFindLicense:
             ("CC BY 4.0", LicenseRecommended.CC.BY),
             ("CC BY", LicenseRecommended.CC.BY),
             ("CC-BY", LicenseRecommended.CC.BY),
-            ("CC BY BY", LicenseRecommended.CC.BY), 
+            ("CC BY BY", LicenseRecommended.CC.BY),
             ("CC BY NC NC", LicenseRecommended.CC.BY_NC),
         ],
     )

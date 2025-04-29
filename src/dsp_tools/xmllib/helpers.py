@@ -3,7 +3,6 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -14,7 +13,8 @@ from lxml import etree
 from regex import Match
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
@@ -341,15 +341,17 @@ class ListLookup:
             ```
         """
         if not (list_lookup := self._lookup.get(list_name)):
-            msg = f"Entered list name '{list_name}' was not found."
-            warnings.warn(XmllibInputWarning(msg))
+            msg_info = MessageInfo(
+                message=f"The entered list name '{list_name}' was not found. An empty string is returned."
+            )
+            emit_xmllib_input_warning(msg_info)
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = (
-                f"'{node_label}' was not recognised as label of the list '{list_name}'. "
-                f"This ListLookup is configured for '{self._label_language}' labels."
+            msg_info = MessageInfo(
+                message=f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
             )
-            warnings.warn(XmllibInputWarning(msg))
+            emit_xmllib_input_warning(msg_info)
             return ""
         return found_node
 
@@ -400,8 +402,10 @@ class ListLookup:
             ```
         """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
-            msg = f"Entered property '{prop_name}' was not found."
-            warnings.warn(XmllibInputWarning(msg))
+            msg_info = MessageInfo(
+                message=f"The entered property '{prop_name}' was not found. An empty string is returned."
+            )
+            emit_xmllib_input_warning(msg_info)
             return ""
         return list_name
 
@@ -1137,6 +1141,8 @@ def clean_whitespaces_from_string(string: str) -> str:
     """
     cleaned = regex.sub(r"\s+", " ", string).strip()
     if len(cleaned) == 0:
-        msg = "The entered string is empty after all redundant whitespaces were removed."
-        warnings.warn(XmllibInputWarning(msg))
+        msg_info = MessageInfo(
+            "The entered string is empty after all redundant whitespaces were removed. An empty string is returned."
+        )
+        emit_xmllib_input_warning(msg_info)
     return cleaned

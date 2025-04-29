@@ -1144,7 +1144,7 @@ def clean_whitespaces_from_string(string: str) -> str:
     return cleaned
 
 
-def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
+def find_license_in_string(string: str) -> License | None:
     """
     Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
     Once a license has been found, subsequent licenses are ignored.
@@ -1165,7 +1165,7 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
         ```
 
         ```python
-        result = xmllib.find_license_in_string("unsupported: CC Developing Nations 2.0 Generic Deed")
+        result = xmllib.find_license_in_string("unsupported: Creative Commons Developing Nations 2.0 Generic Deed")
         # result == None
         ```
 
@@ -1173,16 +1173,36 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
         result = xmllib.find_license_in_string("CC BY. Second license is ignored: CC BY SA")
         # result == LicenseRecommended.CC.BY
         ```
+
+        ```python
+        result = xmllib.find_license_in_string("text ai text")
+        # result == LicenseRecommended.DSP.AI_GENERATED
+        ```
     """
-    if match := regex.search(r"\b(CC|Creative.+Commons).+BY(.+(NC|ND|SA))*(.+[\d\.]+)?\b", string, flags=regex.IGNORECASE):
+    sep = r"[- _]+?"
+    if match := regex.search(
+        rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
+    ):
         return _find_cc_license(match.group(0))
+    if regex.search(r"\b(AI|IA|KI)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.AI_GENERATED
+    if regex.search(
+        r"\b(public domain|gemeinfrei|frei von Urheberrechten|urheberrechtsbefreit|libre de droits|domaine public)\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseRecommended.DSP.PUBLIC_DOMAIN
+    if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.UNKNOWN
     return None
 
 
 def _find_cc_license(string: str) -> License | None:
-    has_nc = "NC" in string
-    has_nd = "ND" in string
-    has_sa = "SA" in string
+    if "BY".casefold() not in string.casefold():
+        return None
+    has_nc = "NC".casefold() in string.casefold()
+    has_nd = "ND".casefold() in string.casefold()
+    has_sa = "SA".casefold() in string.casefold()
     if not any((has_nc, has_nd, has_sa)):
         return LicenseRecommended.CC.BY
     if not has_nc and has_nd and not has_sa:

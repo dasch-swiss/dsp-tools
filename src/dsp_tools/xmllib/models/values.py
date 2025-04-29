@@ -7,6 +7,7 @@ from typing import Protocol
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_uri
+from dsp_tools.xmllib.internal_helpers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -56,11 +57,10 @@ class BooleanValue(Value):
             )
             val = str(value)
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -91,11 +91,10 @@ class ColorValue(Value):
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -126,11 +125,10 @@ class DateValue(Value):
                 expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -161,11 +159,10 @@ class DecimalValue(Value):
                 expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -196,11 +193,10 @@ class GeonameValue(Value):
                 expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -231,11 +227,10 @@ class IntValue(Value):
                 expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -266,11 +261,10 @@ class LinkValue(Value):
                 expected_type="string", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -307,11 +301,10 @@ class ListValue(Value):
                 expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -350,11 +343,10 @@ class SimpleText(Value):
             prop_name=prop_name,
         )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -385,11 +377,10 @@ class Richtext(Value):
         converted_val = replace_newlines_with_tags(str(value), newline_replacement)
         check_richtext_syntax(converted_val)
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -420,11 +411,10 @@ class TimeValue(Value):
                 expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )
@@ -455,11 +445,10 @@ class UriValue(Value):
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
             )
         if is_nonempty_value_internal(comment):
-            fixed_comment = comment
-            check_and_warn_potentially_empty_string(
+            fixed_comment = str(comment)
+            check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                expected="string",
                 prop_name=prop_name,
                 field="comment on value",
             )

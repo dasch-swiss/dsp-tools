@@ -36,23 +36,31 @@ class BooleanValue(Value):
     comment: str | None = None
     resource_id: str | None = None
 
-    def __post_init__(self) -> None:
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        resource_id: str | None,
+    ) -> BooleanValue:
         try:
-            converted_bool = convert_to_bool(self.value)
-            self.value = str(converted_bool).lower()
+            val = str(convert_to_bool(value)).lower()
         except InputError:
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="bool", value=self.value, res_id=self.resource_id, prop_name=self.prop_name
+                expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
             )
-            self.value = str(self.value)
-        if self.comment is not None:
+            val = str(value)
+        if comment is not None:
             check_and_warn_potentially_empty_string(
-                value=self.comment,
-                res_id=self.resource_id,
+                value=comment,
+                res_id=resource_id,
                 expected="string",
-                prop_name=self.prop_name,
+                prop_name=prop_name,
                 field="comment on value",
             )
+        return cls(value=val, prop_name=prop_name, permissions=permissions, comment=comment)
 
 
 @dataclass

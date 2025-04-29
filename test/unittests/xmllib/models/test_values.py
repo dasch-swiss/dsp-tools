@@ -128,7 +128,7 @@ class TestRichtext:
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            Richtext.new(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)  # type: ignore[arg-type]
+            Richtext.new(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
 
 
 class TestSimpleText:

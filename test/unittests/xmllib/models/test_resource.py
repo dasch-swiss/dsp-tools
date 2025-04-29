@@ -437,7 +437,7 @@ def test_check_and_fix_collection_input_success(input_val: Any, expected_val: li
 
 def test_check_and_fix_collection_input_warns() -> None:
     msg = regex.escape(
-        "The input value of the resource with the ID 'id' and the property 'prop' is empty. "
+        "Resource ID 'id' | Property 'prop' | The input is empty. "
         "Please note that no values will be added to the resource."
     )
     with pytest.warns(XmllibInputInfo, match=msg):
@@ -446,8 +446,8 @@ def test_check_and_fix_collection_input_warns() -> None:
 
 def test_check_and_fix_collection_input_raises() -> None:
     msg = regex.escape(
-        "The input value of the resource with the ID 'id' and the property 'prop' is a dictionary. "
-        "Only collections (list, set, tuple) are permissible."
+        "Resource ID 'id' | Property 'prop' | "
+        "The input is a dictionary. Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):
         check_and_fix_collection_input({1: 1}, "prop", "id")

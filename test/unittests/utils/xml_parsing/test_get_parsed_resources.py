@@ -677,6 +677,8 @@ def test_get_one_absolute_iri(local_name, expected):
     ("input_val", "expected"),
     [
         ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
+        ('<text encoding="utf8"></text>', None),
+        ('<text encoding="utf8">   </text>', ""),
         (
             """<author>
             Cavanagh, Annie       

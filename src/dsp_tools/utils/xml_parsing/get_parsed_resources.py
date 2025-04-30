@@ -223,13 +223,13 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
 
 
 def _get_richtext_as_string(value: etree._Element) -> str | None:
+    # Not entering any values within the tag results in None,
+    # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     if not value.text and not len(value) > 0:
         return None
     xmlstr = etree.tostring(value, encoding="unicode", method="xml")
     xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
     striped_str = xmlstr.strip()
-    # Not entering any values within the tag results in None,
-    # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     return _cleanup_formatted_text(striped_str)
 
 

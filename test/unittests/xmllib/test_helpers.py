@@ -337,7 +337,7 @@ class TestListLookup:
         assert list_lookup.get_node_via_list_name("list1", "Label 1") == "list1_node1"
 
     def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
-        msg = regex.escape("Entered list name 'inexistent' was not found.")
+        msg = regex.escape("The entered list name 'inexistent' was not found. An empty string is returned.")
         with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
         assert result == ""
@@ -359,7 +359,7 @@ class TestListLookup:
         assert node_name == "list2_node2"
 
     def test_get_node_via_property_warns_wrong_property(self, list_lookup):
-        msg = regex.escape("Entered property ':inexistent' was not found.")
+        msg = regex.escape("The entered property ':inexistent' was not found. An empty string is returned.")
         with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")

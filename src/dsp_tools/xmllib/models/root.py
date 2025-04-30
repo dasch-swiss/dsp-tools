@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -13,7 +12,8 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
@@ -184,7 +184,7 @@ class XMLRoot:
                 f"The XML file was successfully saved to {filepath}, "
                 f"but the following Schema validation error(s) occurred: {err.message}"
             )
-            warnings.warn(XmllibInputWarning(msg))
+            emit_xmllib_input_warning(MessageInfo(msg))
 
     def serialise(self) -> etree._Element:
         """

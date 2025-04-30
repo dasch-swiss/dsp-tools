@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Collection
 from typing import Protocol
 
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_if_a_string_contains_a_potentially_empty_value
@@ -23,7 +23,7 @@ class AuthorshipLookup:
 
     def get_id(self, authors: tuple[str, ...]) -> str:
         if not (found := self.lookup.get(authors)):
-            warnings.warn(XmllibInputWarning(f"The input authors {authors} are not defined in the look-up."))
+            emit_xmllib_input_warning(MessageInfo(f"The input authors {authors} are not defined in the look-up."))
             return " / ".join([str(x) for x in authors])
         return found
 

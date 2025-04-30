@@ -1,14 +1,13 @@
-import warnings
 from typing import Any
 
 import pandas as pd
 import regex
 from lxml import etree
 
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
-from dsp_tools.xmllib.models.internal.problems import IllegalTagProblem
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -351,5 +350,10 @@ def check_richtext_syntax(richtext: str) -> None:
     try:
         _ = etree.fromstring(pseudo_xml)
     except etree.XMLSyntaxError as err:
-        prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
-        warnings.warn(XmllibInputWarning(prob.execute_error_protocol()))
+        msg = (
+            "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+            "The special characters <, > and & are only allowed to construct a tag.\n"
+            f"Original error message: {err.msg}\n"
+            f"Eventual line/column numbers are relative to this text: {pseudo_xml}"
+        )
+        emit_xmllib_input_warning(MessageInfo(msg))

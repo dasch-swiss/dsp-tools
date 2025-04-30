@@ -1,9 +1,9 @@
-import warnings
 from dataclasses import dataclass
 
 from typing_extensions import deprecated
 
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_timestamp
@@ -33,11 +33,8 @@ class MigrationMetadata:
         if self.ark and not is_dsp_ark(self.ark):
             msg_list.append(f"The provided ARK is not valid: {self.ark}")
         if msg_list:
-            msg = (
-                f"The migration metadata of the resource with the ID '{self.res_id}' has the following problem(s):"
-                f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg_list)}"
-            )
-            warnings.warn(XmllibInputWarning(msg))
+            msg = f"The migration metadata has the following problem(s):{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg_list)}"
+            emit_xmllib_input_warning(MessageInfo(msg, self.res_id))
 
     def as_attrib(self) -> dict[str, str]:
         attrib_dict = {}
@@ -49,8 +46,7 @@ class MigrationMetadata:
             attrib_dict["ark"] = self.ark
         if not attrib_dict:
             msg = (
-                f"The metadata of the resource with the ID '{self.res_id}' does not contain any values. "
-                f"Please check if an error occurred."
+                "The migration metadata of the resource does not contain any values. Please check if an error occurred."
             )
-            warnings.warn(XmllibInputWarning(msg))
+            emit_xmllib_input_warning(MessageInfo(msg, self.res_id))
         return attrib_dict

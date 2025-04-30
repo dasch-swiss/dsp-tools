@@ -1,6 +1,7 @@
 from typing import Any
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
@@ -43,7 +44,7 @@ def convert_to_bool(value: Any) -> bool:
         return False
     elif str_val in ("true", "1", "1.0", "yes", "oui", "ja"):
         return True
-    raise InputError(f"The entered value '{value}' cannot be converted to a bool.")
+    raise_input_error(MessageInfo(f"The entered value '{value}' cannot be converted to a bool."))
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:

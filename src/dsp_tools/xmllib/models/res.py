@@ -13,12 +13,12 @@ from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_
 from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.file_values import AbstractFileValue
-from dsp_tools.xmllib.models.file_values import FileValue
-from dsp_tools.xmllib.models.file_values import IIIFUri
-from dsp_tools.xmllib.models.file_values import Metadata
+from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.internal.file_values import FileValue
+from dsp_tools.xmllib.models.internal.file_values import IIIFUri
+from dsp_tools.xmllib.models.internal.file_values import Metadata
+from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.licenses.recommended import License
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue

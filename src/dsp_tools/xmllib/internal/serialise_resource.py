@@ -17,7 +17,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
-from dsp_tools.xmllib.models.file_values import AuthorshipLookup
+from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import Value

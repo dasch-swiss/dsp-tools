@@ -100,6 +100,11 @@ class FileValue(AbstractFileValue):
 
     @classmethod
     def new(cls, value: str | Path, metadata: Metadata, comment: str | None, resource_id: str) -> FileValue:
+        if isinstance(value, Path):
+            if str(value) == ".":
+                value = ""
+            else:
+                value = str(value)
         check_and_warn_potentially_empty_string(
             value=value,
             res_id=resource_id,

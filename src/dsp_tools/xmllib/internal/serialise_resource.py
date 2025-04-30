@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import warnings
 from typing import cast
 
 from lxml import etree
 
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
@@ -51,11 +51,15 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
         case VideoSegmentResource():
             return _serialise_segment(res, "video-segment")
         case _:
-            raise InputError(
-                f"An unknown resource was added to the root. "
-                f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "
-                f"are permitted."
-                f"The input type is {res.__class__.__name__}"
+            raise_input_error(
+                MessageInfo(
+                    (
+                        f"An unknown resource was added to the root. "
+                        f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "
+                        f"are permitted."
+                        f"The input type is {res.__class__.__name__}"
+                    )
+                )
             )
 
 
@@ -83,11 +87,11 @@ def _serialise_region(res: RegionResource) -> etree._Element:
 def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     prop_list: list[etree._Element] = []
     if not res.geometry:
-        msg = (
-            f"The region resource with the ID '{res.res_id}' does not have a geometry, "
-            f"please note that an xmlupload will fail."
+        emit_xmllib_input_warning(
+            MessageInfo(
+                "The region resource does not have a geometry please note that an xmlupload will fail.", res.res_id
+            )
         )
-        warnings.warn(XmllibInputWarning(msg))
 
         return prop_list
     geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
@@ -108,11 +112,8 @@ def _serialise_link(res: LinkResource) -> etree._Element:
     if not res.link_to:
         problems.append("at least two links")
     if problems:
-        msg = (
-            f"The link object with the ID '{res.res_id}' requires {' and '.join(problems)}. "
-            f"Please note that an xmlupload will fail."
-        )
-        warnings.warn(XmllibInputWarning(msg))
+        msg = f"A link object requires {' and '.join(problems)}. Please note that an xmlupload will fail."
+        emit_xmllib_input_warning(MessageInfo(msg, res.res_id))
     ele = _make_generic_resource_element(res, "link")
     comments = cast(list[Value], res.comments)
     links_to = cast(list[Value], res.link_to)
@@ -154,8 +155,8 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
     if fails := [x for x in segment.relates_to if not is_nonempty_value(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
     if problems:
-        msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
-        warnings.warn(XmllibInputWarning(msg))
+        msg = f"This segemnt resource has the following problem(s):{'\n- '.join(problems)}"
+        emit_xmllib_input_warning(MessageInfo(msg, segment.res_id))
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:

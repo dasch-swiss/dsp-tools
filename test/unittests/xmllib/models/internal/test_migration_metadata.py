@@ -5,7 +5,7 @@ import pytest
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
 
 
 def test_migration_metadata_creation_date_good() -> None:

@@ -7,9 +7,9 @@ from typing import Protocol
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.xmllib.internal_helpers import check_and_warn_if_a_string_contains_a_potentially_empty_value
-from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_if_a_string_contains_a_potentially_empty_value
+from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax

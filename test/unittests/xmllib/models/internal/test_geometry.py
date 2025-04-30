@@ -2,11 +2,11 @@ import warnings
 
 import pytest
 
-from dsp_tools.xmllib.models.geometry import Circle
-from dsp_tools.xmllib.models.geometry import GeometryPoint
-from dsp_tools.xmllib.models.geometry import Polygon
-from dsp_tools.xmllib.models.geometry import Rectangle
-from dsp_tools.xmllib.models.geometry import Vector
+from dsp_tools.xmllib.models.internal.geometry import Circle
+from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
+from dsp_tools.xmllib.models.internal.geometry import Polygon
+from dsp_tools.xmllib.models.internal.geometry import Rectangle
+from dsp_tools.xmllib.models.internal.geometry import Vector
 
 
 class TestGeometryShape:

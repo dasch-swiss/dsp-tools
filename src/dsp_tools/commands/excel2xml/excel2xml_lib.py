@@ -27,7 +27,7 @@ from dsp_tools.utils.data_formats.shared import simplify_name
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
-from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
+from dsp_tools.xmllib.internal.input_converters import numeric_entities
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 

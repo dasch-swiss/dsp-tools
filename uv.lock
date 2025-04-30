@@ -305,7 +305,7 @@ requires-dist = [
     { name = "openpyxl" },
     { name = "packaging" },
     { name = "pandas", extras = ["excel"] },
-    { name = "polars", specifier = ">=1.28.1" },
+    { name = "polars" },
     { name = "pyld" },
     { name = "pyyaml" },
     { name = "rdflib" },

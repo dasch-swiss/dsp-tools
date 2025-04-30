@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -379,10 +379,10 @@ class RegionResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -580,10 +580,10 @@ class LinkResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -992,10 +992,10 @@ class VideoSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -1363,10 +1363,10 @@ class AudioSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 

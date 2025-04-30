@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Any
 
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -51,17 +51,14 @@ class Resource:
 
     def __post_init__(self) -> None:
         check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        msg = []
         if not is_nonempty_value(str(self.res_id)):
-            msg.append(f"Resource ID '{self.res_id}'")
-        if not is_nonempty_value(str(self.restype)):
-            msg.append(f"Resource Type '{self.restype}'")
-        if msg:
-            out_msg = (
-                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s). "
-                f"The input is not a valid string: {LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.res_id, res_id=self.res_id, value_field="resource ID"
             )
-            warnings.warn(XmllibInputWarning(out_msg))
+        if not is_nonempty_value(str(self.restype)):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.restype, res_id=self.res_id, value_field="resource type"
+            )
 
     @staticmethod
     def create_new(
@@ -1590,11 +1587,13 @@ class Resource:
             ```
         """
         if self.file_value:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
-                f"'{self.file_value.value}'.\n"
-                f"The new file with the name '{filename}' cannot be added."
+            msg_info = MessageInfo(
+                f"This resource already contains a file with the name: '{self.file_value.value}'. "
+                f"The new file with the name '{filename}' cannot be added.",
+                resource_id=self.res_id,
+                field="file / iiif-uri",
             )
+            raise_input_error(msg_info)
         meta = Metadata.new(
             license=license,
             copyright_holder=copyright_holder,
@@ -1645,11 +1644,13 @@ class Resource:
             ```
         """
         if self.file_value:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
-                f"'{self.file_value.value}'.\n"
-                f"The new file with the name '{iiif_uri}' cannot be added."
+            msg_info = MessageInfo(
+                f"This resource already contains a file with the name: '{self.file_value.value}'. "
+                f"The new file with the name '{iiif_uri}' cannot be added.",
+                resource_id=self.res_id,
+                field="file / iiif-uri",
             )
+            raise_input_error(msg_info)
         meta = Metadata.new(
             license=license,
             copyright_holder=copyright_holder,
@@ -1699,9 +1700,9 @@ class Resource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

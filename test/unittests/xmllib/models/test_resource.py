@@ -379,7 +379,8 @@ class TestAddFiles:
             "existing filename", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
         )
         msg = regex.escape(
-            "The resource with the ID 'res_id' already contains a file with the name: 'existing filename'.\n"
+            "Resource ID 'res_id' | Field 'file / iiif-uri' | "
+            "This resource already contains a file with the name: 'existing filename'. "
             "The new file with the name 'new filename' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
@@ -420,7 +421,8 @@ class TestAddFiles:
             "existing IIIF", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
         )
         msg = regex.escape(
-            "The resource with the ID 'res_id' already contains a file with the name: 'existing IIIF'.\n"
+            "Resource ID 'res_id' | Field 'file / iiif-uri' | "
+            "This resource already contains a file with the name: 'existing IIIF'. "
             "The new file with the name 'new IIIF' cannot be added."
         )
         with pytest.raises(InputError, match=msg):

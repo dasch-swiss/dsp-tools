@@ -16,8 +16,8 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
-from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
+from dsp_tools.xmllib.internal.internal_helpers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 

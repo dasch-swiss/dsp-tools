@@ -7,7 +7,7 @@ from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.internal_helpers import numeric_entities
+from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 

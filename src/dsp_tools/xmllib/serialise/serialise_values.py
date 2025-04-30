@@ -8,7 +8,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.internal_helpers import numeric_entities
+from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue

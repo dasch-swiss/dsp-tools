@@ -8,8 +8,8 @@ from typing import Any
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle

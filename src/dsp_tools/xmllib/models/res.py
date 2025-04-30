@@ -1602,7 +1602,7 @@ class Resource:
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = FileValue(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = FileValue.new(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     def add_iiif_uri(
@@ -1657,7 +1657,7 @@ class Resource:
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = IIIFUri(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = IIIFUri.new(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     #######################

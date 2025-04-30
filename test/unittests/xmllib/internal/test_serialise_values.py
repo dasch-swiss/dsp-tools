@@ -1,21 +1,21 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib.internal.serialise_values import serialise_values
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.values import BooleanValue
-from dsp_tools.xmllib.models.values import ColorValue
-from dsp_tools.xmllib.models.values import DateValue
-from dsp_tools.xmllib.models.values import DecimalValue
-from dsp_tools.xmllib.models.values import GeonameValue
-from dsp_tools.xmllib.models.values import IntValue
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import SimpleText
-from dsp_tools.xmllib.models.values import TimeValue
-from dsp_tools.xmllib.models.values import UriValue
-from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_values import serialise_values
+from dsp_tools.xmllib.models.internal.values import BooleanValue
+from dsp_tools.xmllib.models.internal.values import ColorValue
+from dsp_tools.xmllib.models.internal.values import DateValue
+from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeonameValue
+from dsp_tools.xmllib.models.internal.values import IntValue
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
+from dsp_tools.xmllib.models.internal.values import TimeValue
+from dsp_tools.xmllib.models.internal.values import UriValue
+from dsp_tools.xmllib.models.internal.values import Value
 
 
 def test_boolean() -> None:

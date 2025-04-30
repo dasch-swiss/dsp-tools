@@ -8,8 +8,8 @@ import regex
 
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib.internal_helpers import check_and_warn_potentially_empty_string
-from dsp_tools.xmllib.internal_helpers import numeric_entities
+from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
 
 
 @pytest.mark.parametrize(

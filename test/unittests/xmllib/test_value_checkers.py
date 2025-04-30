@@ -6,7 +6,7 @@ import pandas as pd
 import polars as pl
 import pytest
 
-from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color

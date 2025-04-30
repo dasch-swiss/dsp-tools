@@ -5,24 +5,24 @@ from typing import cast
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
-from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.internal_helpers import numeric_entities
+from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.internal_helpers import numeric_entities
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.values import BooleanValue
-from dsp_tools.xmllib.models.values import ColorValue
-from dsp_tools.xmllib.models.values import DateValue
-from dsp_tools.xmllib.models.values import DecimalValue
-from dsp_tools.xmllib.models.values import GeonameValue
-from dsp_tools.xmllib.models.values import IntValue
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import SimpleText
-from dsp_tools.xmllib.models.values import TimeValue
-from dsp_tools.xmllib.models.values import UriValue
-from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.models.internal.values import BooleanValue
+from dsp_tools.xmllib.models.internal.values import ColorValue
+from dsp_tools.xmllib.models.internal.values import DateValue
+from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeonameValue
+from dsp_tools.xmllib.models.internal.values import IntValue
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
+from dsp_tools.xmllib.models.internal.values import TimeValue
+from dsp_tools.xmllib.models.internal.values import UriValue
+from dsp_tools.xmllib.models.internal.values import Value
 
 PROP_TYPE_LOOKUP = {
     BooleanValue: "boolean",

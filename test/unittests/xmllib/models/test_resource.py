@@ -12,19 +12,19 @@ from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
+from dsp_tools.xmllib.models.internal.values import BooleanValue
+from dsp_tools.xmllib.models.internal.values import ColorValue
+from dsp_tools.xmllib.models.internal.values import DateValue
+from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeonameValue
+from dsp_tools.xmllib.models.internal.values import IntValue
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
+from dsp_tools.xmllib.models.internal.values import TimeValue
+from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.res import Resource
-from dsp_tools.xmllib.models.values import BooleanValue
-from dsp_tools.xmllib.models.values import ColorValue
-from dsp_tools.xmllib.models.values import DateValue
-from dsp_tools.xmllib.models.values import DecimalValue
-from dsp_tools.xmllib.models.values import GeonameValue
-from dsp_tools.xmllib.models.values import IntValue
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import SimpleText
-from dsp_tools.xmllib.models.values import TimeValue
-from dsp_tools.xmllib.models.values import UriValue
 
 
 class TestAddValues:

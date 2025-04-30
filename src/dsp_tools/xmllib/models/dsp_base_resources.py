@@ -19,8 +19,8 @@ from dsp_tools.xmllib.models.internal.geometry import Polygon
 from dsp_tools.xmllib.models.internal.geometry import Rectangle
 from dsp_tools.xmllib.models.internal.geometry import Vector
 from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 

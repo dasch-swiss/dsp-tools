@@ -153,9 +153,7 @@ class TestLinkResource:
             "| Resource ID 'id' | Property 'hasLinkTo' | "
             "The input is empty. Please note that no values will be added to the resource."
         )
-        warning_1 = regex.escape(
-            "A link object requires at least two links. Please note that an xmlupload will fail."
-        )
+        warning_1 = regex.escape("A link object requires at least two links. Please note that an xmlupload will fail.")
         returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
         assert regex.search(warning_0, returned[0])
         assert regex.search(warning_1, returned[1])

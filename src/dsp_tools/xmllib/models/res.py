@@ -1595,18 +1595,14 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-
-        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = [str(x).strip() for x in fixed_authors]
-        fixed_authors_list = sorted(fixed_authors_list)
-        meta = Metadata(
-            license=str(license),
+        meta = Metadata.new(
+            license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=authorship,
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = FileValue(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = FileValue.new(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     def add_iiif_uri(
@@ -1654,17 +1650,14 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = [str(x).strip() for x in fixed_authors]
-        fixed_authors_list = sorted(fixed_authors_list)
-        meta = Metadata(
-            license=str(license),
+        meta = Metadata.new(
+            license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=authorship,
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = IIIFUri(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = IIIFUri.new(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     #######################

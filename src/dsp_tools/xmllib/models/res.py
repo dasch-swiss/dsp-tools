@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -8,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.internal_helpers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -51,17 +50,14 @@ class Resource:
 
     def __post_init__(self) -> None:
         check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        msg = []
         if not is_nonempty_value(str(self.res_id)):
-            msg.append(f"Resource ID '{self.res_id}'")
-        if not is_nonempty_value(str(self.restype)):
-            msg.append(f"Resource Type '{self.restype}'")
-        if msg:
-            out_msg = (
-                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s). "
-                f"The input is not a valid string: {LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.res_id, res_id=self.res_id, value_field="resource ID"
             )
-            warnings.warn(XmllibInputWarning(out_msg))
+        if not is_nonempty_value(str(self.restype)):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.restype, res_id=self.res_id, value_field="resource type"
+            )
 
     @staticmethod
     def create_new(

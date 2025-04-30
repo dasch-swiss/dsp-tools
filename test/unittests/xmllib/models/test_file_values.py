@@ -48,7 +48,7 @@ class TestMetadata:
                 "id",
             )
         assert len(caught_warnings) == 0
-        assert res.authorship == tuple(["authorship"])
+        assert res.authorship == ("authorship",)
 
     def test_wrong_license(self):
         expected = regex.escape(

@@ -19,6 +19,8 @@ from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -1143,3 +1145,93 @@ def clean_whitespaces_from_string(string: str) -> str:
             )
         )
     return cleaned
+
+
+def find_license_in_string(string: str) -> License | None:
+    """
+    Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
+    Once a license has been found, subsequent licenses are ignored.
+    Returns None if no license was found.
+    The case (upper case/lower case) is ignored.
+
+    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    for details.
+
+    Args:
+        string: string to check
+
+    Returns:
+        `xmllib.LicenseRecommended` object or `None`
+
+    Examples:
+        ```python
+        result = xmllib.find_license_in_string("text CC BY text")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("unsupported: Creative Commons Developing Nations 2.0 Generic Deed")
+        # result == None
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("CC BY, CC BY SA. The second license will be ignored.")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+    Currently supported license formats:
+        - "AI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "KI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "IA" -> LicenseRecommended.DSP.AI_GENERATED
+        - "public domain" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "gemeinfrei" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "frei von Urheberrechten" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "urheberrechtsbefreit" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "libre de droits" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "domaine public" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "unknown" -> LicenseRecommended.DSP.UNKNOWN
+        - "unbekannt" -> LicenseRecommended.DSP.UNKNOWN
+        - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
+        - "CC BY" -> LicenseRecommended.CC.BY
+        - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
+    """
+    sep = r"[- _]+?"
+    if match := regex.search(
+        rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
+    ):
+        return _find_cc_license(match.group(0))
+    if regex.search(r"\b(AI|IA|KI)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.AI_GENERATED
+    if regex.search(
+        r"\b(public domain|gemeinfrei|frei von Urheberrechten|urheberrechtsbefreit|libre de droits|domaine public)\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseRecommended.DSP.PUBLIC_DOMAIN
+    if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.UNKNOWN
+    return None
+
+
+def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
+    string = string.lower()
+    if "by" not in string:
+        return None
+    if any((string.count("by") > 1, string.count("nd") > 1, string.count("sa") > 1, string.count("nc") > 1)):
+        return None
+    has_nc = "nc" in string
+    has_nd = "nd" in string
+    has_sa = "sa" in string
+    if not any((has_nc, has_nd, has_sa)):
+        return LicenseRecommended.CC.BY
+    if not has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_ND
+    if not has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_SA
+    if has_nc and not has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC
+    if has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC_ND
+    if has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_NC_SA
+    return None

@@ -1,4 +1,6 @@
 # The accepted XML tags are defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+from __future__ import annotations
+
 _COMMON_BASE = [
     "p",
     "em",
@@ -39,3 +41,8 @@ KNOWN_XML_TAGS = [
 ]
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
+# These named entities are defined by the XML specification and are always expanded during parsing,
+# regardless of parser options.
+# Numeric character references (e.g., `&#34;` or `&#x22;`) are also always resolved
+PREDEFINED_XML_ENTITIES = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]

@@ -8,7 +8,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import LicenseRecommended
-from dsp_tools.xmllib.internal.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri

@@ -89,7 +89,7 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     if not res.geometry:
         emit_xmllib_input_warning(
             MessageInfo(
-                "The region resource does not have a geometry please note that an xmlupload will fail.", res.res_id
+                "The region resource does not have a geometry. Please note that an xmlupload will fail.", res.res_id
             )
         )
 

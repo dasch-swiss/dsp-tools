@@ -26,6 +26,7 @@ dependencies = [
     "packaging",
     "pandas[excel]",
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
+    "polars",
     "pyld",
     "pyyaml",
     "rdflib",

@@ -22,7 +22,7 @@ def test_boolean() -> None:
     v: list[Value] = [
         BooleanValue.new("0", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
     ]
-    result = serialise_values(v)
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<boolean-prop "
@@ -36,8 +36,8 @@ def test_boolean() -> None:
 
 
 def test_color() -> None:
-    v: list[Value] = [ColorValue("#000000", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [ColorValue("#000000", ":colorProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<color-prop "
@@ -51,8 +51,8 @@ def test_color() -> None:
 
 
 def test_date() -> None:
-    v: list[Value] = [DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [DateValue("2023-01-01", ":dateProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<date-prop "
@@ -66,8 +66,8 @@ def test_date() -> None:
 
 
 def test_decimal() -> None:
-    v: list[Value] = [DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [DecimalValue("3.14", ":decimalProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<decimal-prop "
@@ -81,8 +81,8 @@ def test_decimal() -> None:
 
 
 def test_geoname() -> None:
-    v: list[Value] = [GeonameValue("99", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [GeonameValue("99", ":geonameProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<geoname-prop "
@@ -96,8 +96,8 @@ def test_geoname() -> None:
 
 
 def test_int() -> None:
-    v: list[Value] = [IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [IntValue("42", ":intProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<integer-prop "
@@ -111,8 +111,8 @@ def test_int() -> None:
 
 
 def test_link() -> None:
-    v: list[Value] = [LinkValue("res_link", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [LinkValue("res_link", ":linkProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<resptr-prop "
@@ -126,8 +126,8 @@ def test_link() -> None:
 
 
 def test_list() -> None:
-    v: list[Value] = [ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [ListValue("item1", "listName", ":listProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<list-prop "
@@ -153,7 +153,7 @@ def test_list() -> None:
     ],
 )
 def test_richtext_tags(orig: str, expected: str) -> None:
-    result = serialise_values([Richtext(orig, ":richtextProp")])
+    result = serialise_values([Richtext(orig, ":richtextProp")], "")
     assert len(result) == 1
     expected_xml = (
         '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -165,8 +165,8 @@ def test_richtext_tags(orig: str, expected: str) -> None:
 
 
 def test_simpletext() -> None:
-    v: list[Value] = [SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [SimpleText("Hello World", ":simpleTextProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<text-prop "
@@ -182,7 +182,7 @@ def test_simpletext() -> None:
 def test_simpletext_escapes() -> None:
     original = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
     expected = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
-    result = serialise_values([SimpleText(original, ":simpleTextProp")])
+    result = serialise_values([SimpleText(original, ":simpleTextProp")], "")
     assert len(result) == 1
     expected_xml = (
         '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -194,10 +194,8 @@ def test_simpletext_escapes() -> None:
 
 
 def test_time() -> None:
-    v: list[Value] = [
-        TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
-    ]
-    result = serialise_values(v)
+    v: list[Value] = [TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<time-prop "
@@ -211,8 +209,8 @@ def test_time() -> None:
 
 
 def test_uri() -> None:
-    v: list[Value] = [UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)]
-    result = serialise_values(v)
+    v: list[Value] = [UriValue("https://example.com", ":uriProp", permissions=Permissions.OPEN)]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<uri-prop "
@@ -226,8 +224,8 @@ def test_uri() -> None:
 
 
 def test_value_with_default_permission() -> None:
-    v: list[Value] = [BooleanValue("false", ":booleanProp", resource_id="res_id")]
-    result = serialise_values(v)
+    v: list[Value] = [BooleanValue("false", ":booleanProp")]
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b"<boolean-prop "
@@ -242,10 +240,10 @@ def test_value_with_default_permission() -> None:
 
 def test_several_values_different_generic_property() -> None:
     v: list[Value] = [
-        LinkValue("res_link", ":linkProp", resource_id="res_id"),
-        SimpleText("Hello World", ":simpleTextProp", resource_id="res_id"),
+        LinkValue("res_link", ":linkProp"),
+        SimpleText("Hello World", ":simpleTextProp"),
     ]
-    result = serialise_values(v)
+    result = serialise_values(v, "")
     assert len(result) == 2
     expected = (
         b"<resptr-prop "
@@ -268,10 +266,10 @@ def test_several_values_different_generic_property() -> None:
 
 def test_several_values_different_property() -> None:
     v: list[Value] = [
-        BooleanValue("false", ":booleanProp", resource_id="res_id"),
-        LinkValue("res_link", ":linkProp", resource_id="res_id"),
+        BooleanValue("false", ":booleanProp"),
+        LinkValue("res_link", ":linkProp"),
     ]
-    result = serialise_values(v)
+    result = serialise_values(v, "")
     assert len(result) == 2
     expected = (
         b'<boolean-prop xmlns="https://dasch.swiss/schema" '
@@ -295,10 +293,10 @@ def test_several_values_different_property() -> None:
 
 def test_several_values_same_property() -> None:
     v: list[Value] = [
-        LinkValue("open_permission", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN),
-        LinkValue("default_permission", ":linkProp", resource_id="res_id"),
+        LinkValue("open_permission", ":linkProp", permissions=Permissions.OPEN),
+        LinkValue("default_permission", ":linkProp"),
     ]
-    result = serialise_values(v)
+    result = serialise_values(v, "")
     assert len(result) == 1
     expected = (
         b'<resptr-prop xmlns="https://dasch.swiss/schema" '

@@ -1,6 +1,4 @@
 # The accepted XML tags are defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-from __future__ import annotations
-
 _COMMON_BASE = [
     "p",
     "em",

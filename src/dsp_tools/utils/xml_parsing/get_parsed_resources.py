@@ -264,8 +264,14 @@ def _cleanup_formatted_text(xmlstr_orig: str) -> str:
 def _get_simpletext_as_string(value: etree._Element) -> str | None:
     # Not entering any values within the tag results in None,
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
-    if not (found := value.text):
-        return None
+    if len(value) == 0:
+        if not (found := value.text):
+            return None
+    else:
+        # Extract the inner XML content, preserving tags
+        found = "".join(etree.tostring(child, encoding="unicode") for child in value.iterchildren())
+        if value.text:
+            found = value.text + found
     # replace multiple spaces or tabstops by a single space
     str_val = regex.sub(r" {2,}|\t+", " ", found)
     # remove leading and trailing spaces (of every line, but also of the entire string)

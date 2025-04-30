@@ -679,10 +679,11 @@ def test_get_one_absolute_iri(local_name, expected):
     [
         ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
         ('<text encoding="utf8"></text>', None),
+        ('<text encoding="utf8">&lt; Hallo <foobar>inner</foobar> tail</text>', "< Hallo <foobar>inner</foobar> tail"),
         ('<text encoding="utf8">   </text>', ""),
         (
             """<author>
-            Cavanagh, Annie       
+            Cavanagh, Annie
         </author>""",
             "Cavanagh, Annie",
         ),
@@ -692,7 +693,7 @@ def test_get_one_absolute_iri(local_name, expected):
             """<text>
     Text line 1
 
-            line 2  
+            line 2
     Third line ...
 
     </text>""",

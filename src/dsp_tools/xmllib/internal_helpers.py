@@ -71,20 +71,43 @@ def check_and_warn_potentially_empty_string(
         )
         emit_xmllib_input_warning(msg_info)
     else:
-        empty_val_string = r"^(<NA>|nan|None)$"
-        if bool(regex.search(empty_val_string, str(value))):
-            type_lookup = {"<NA>": "pd.NA", "nan": "np.nan", "None": "None"}
-            msg = (
-                f"Your input '{value}' is a string but may be the result of `str({type_lookup[str(value)]})`. "
-                f"Please verify that the input is as expected."
-            )
-            msg_info = MessageInfo(
-                message=msg,
-                resource_id=res_id,
-                prop_name=prop_name,
-                field=field,
-            )
-            emit_xmllib_input_info(msg_info)
+        check_and_warn_if_a_string_contains_a_potentially_empty_value(
+            value=value, res_id=res_id, prop_name=prop_name, field=field
+        )
+
+
+def check_and_warn_if_a_string_contains_a_potentially_empty_value(
+    *, value: Any, res_id: str | None, prop_name: str | None = None, field: str | None = None
+) -> None:
+    """
+    If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
+    as potentially empty.
+    This is to be used if the potentially erroneous input is not detectable through any other check.
+
+    Args:
+        value: user input
+        res_id: Resource ID
+        prop_name: property name if used to check a property
+        field: if used to check a non-property field, for example a comment on a value
+
+    Warnings:
+        XmllibInputInfo: if it is a string containing a string value
+            that may be the result of str() casting an empty value
+    """
+    empty_val_string = r"^(<NA>|nan|None)$"
+    if bool(regex.search(empty_val_string, str(value))):
+        type_lookup = {"<NA>": "pd.NA", "nan": "np.nan", "None": "None"}
+        msg = (
+            f"Your input '{value}' is a string but may be the result of `str({type_lookup[str(value)]})`. "
+            f"Please verify that the input is as expected."
+        )
+        msg_info = MessageInfo(
+            message=msg,
+            resource_id=res_id,
+            prop_name=prop_name,
+            field=field,
+        )
+        emit_xmllib_input_info(msg_info)
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

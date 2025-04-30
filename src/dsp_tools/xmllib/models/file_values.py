@@ -85,17 +85,26 @@ class Metadata:
 
 
 class AbstractFileValue(Protocol):
-    value: str | Path
+    value: str
     metadata: Metadata
     comment: str | None
 
 
 @dataclass
 class FileValue(AbstractFileValue):
-    value: str | Path
+    value: str
     metadata: Metadata
     comment: str | None
-    resource_id: str | None = None
+
+    @classmethod
+    def new(cls, value: str | Path, metadata: Metadata, comment: str | None, resource_id: str) -> FileValue:
+        check_and_warn_potentially_empty_string(
+            value=value,
+            res_id=resource_id,
+            expected="file name",
+            field="bitstream",
+        )
+
 
     def __post_init__(self) -> None:
         check_and_warn_potentially_empty_string(
@@ -118,7 +127,6 @@ class IIIFUri(AbstractFileValue):
     value: str
     metadata: Metadata
     comment: str | None
-    resource_id: str | None = None
 
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):

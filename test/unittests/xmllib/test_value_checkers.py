@@ -3,6 +3,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import polars as pl
 import pytest
 
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
@@ -60,6 +61,12 @@ def test_is_nonempty_value_correct(text: str) -> None:
 )
 def test_is_nonempty_value_wrong(text: str) -> None:
     assert not is_nonempty_value(text)
+
+
+def test_is_nonempty_value_wrong_polars_types() -> None:
+    df = pl.DataFrame({"col": [float("nan"), np.nan, None]})
+    for row in df.iter_rows(named=True):
+        assert not is_nonempty_value(row["col"])
 
 
 @pytest.mark.parametrize(

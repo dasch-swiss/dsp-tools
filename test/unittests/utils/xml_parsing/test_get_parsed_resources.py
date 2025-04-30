@@ -6,11 +6,12 @@ from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_simpletext
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
@@ -499,24 +500,6 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
-    def test_text_simpletext_not_tags_but_angular_brackets(self):
-        # It is permissible for simpletext to contain angular brackets,
-        # even though they will not be displayed as XML on the app.
-        # lxml will see them as XMl and we must ensure that they are parsed correctly.
-        xml_val = etree.fromstring("""
-        <text-prop name=":hasProp">
-            <text encoding="utf8"><notARecognisedTag>Text</notARecognisedTag></text>
-        </text-prop>
-        """)
-        result = _parse_one_value(xml_val, IRI_LOOKUP)
-        assert len(result) == 1
-        val = result.pop(0)
-        assert val.prop_name == HAS_PROP
-        assert val.value == "<notARecognisedTag>Text</notARecognisedTag>"
-        assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
-        assert not val.permissions_id
-        assert not val.comment
-
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">
@@ -691,17 +674,50 @@ def test_get_one_absolute_iri(local_name, expected):
     assert result == expected
 
 
-def test_cleanup_simpletext():
-    original = """
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
+        ('<text encoding="utf8"></text>', None),
+        ('<text encoding="utf8">&lt; Hallo <foobar>inner</foobar> tail</text>', "< Hallo <foobar>inner</foobar> tail"),
+        ('<text encoding="utf8">   </text>', ""),
+        (
+            """<author>
+            Cavanagh, Annie
+        </author>""",
+            "Cavanagh, Annie",
+        ),
+        ('<text encoding="utf8">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
+        ('<hasKeyword permissions="open">Keyword&#10;</hasKeyword>', "Keyword"),
+        (
+            """<text>
     Text line 1
 
-            line 2  
+            line 2
     Third line ...
 
-    """
-    expected = "Text line 1\n\nline 2\nThird line ..."
-    result = _cleanup_simpletext(original)
+    </text>""",
+            "Text line 1\n\nline 2\nThird line ...",
+        ),
+    ],
+)
+def test_get_simpletext_as_string(input_val, expected):
+    result = _get_simpletext_as_string(etree.fromstring(input_val))
     assert result == expected
+
+
+def test_get_richtext_as_string_using_text_tags():
+    user_value = "<text>Using also text tags that should stay.</text>"
+    original = etree.fromstring(f'  <text encoding="xml">{user_value}</text>  ')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
+
+
+def test_get_richtext_as_string_with_paragraph():
+    user_value = "<p>With paragraph.</p>"
+    original = etree.fromstring(f'\n<text encoding="xml">{user_value}</text>\n')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
 
 
 def test_cleanup_formatted_text():

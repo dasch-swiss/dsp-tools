@@ -52,7 +52,7 @@ class Polygon(GeometryShape):
         if len(self.points) < 3:
             msg = (
                 "The region shape is a polygon. Polygons should have at least 3 points. "
-                "If you would like to display a rectangle we recommend ot use the designated rectangle shape."
+                "If you would like to display a rectangle we recommend to use the designated rectangle shape."
             )
             emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
 

@@ -40,7 +40,7 @@ class Metadata:
         copyright_holder: str,
         authorship: Collection[str],
         permissions: Permissions,
-        resource_id: str | None = None,
+        resource_id: str,
     ) -> Metadata:
         check_and_warn_potentially_empty_string(
             value=license,

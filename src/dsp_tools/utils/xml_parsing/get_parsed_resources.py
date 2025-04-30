@@ -269,7 +269,7 @@ def _get_simpletext_as_string(value: etree._Element) -> str | None:
             return None
     else:
         # Extract the inner XML content, preserving tags
-        found = "".join(etree.tostring(child, encoding="unicode") for child in value.iterchildren())
+        found = "".join(etree.tostring(child, encoding="unicode") for child in value.iterdescendants())
         if value.text:
             found = value.text + found
     # replace multiple spaces or tabstops by a single space

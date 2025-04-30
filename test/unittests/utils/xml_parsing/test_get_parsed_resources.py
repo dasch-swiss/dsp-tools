@@ -10,6 +10,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_fo
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
@@ -702,6 +703,20 @@ def test_get_one_absolute_iri(local_name, expected):
 def test_get_simpletext_as_string(input_val, expected):
     result = _get_simpletext_as_string(etree.fromstring(input_val))
     assert result == expected
+
+
+def test_get_richtext_as_string_using_text_tags():
+    user_value = "<text>Using also text tags that should stay.</text>"
+    original = etree.fromstring(f'  <text encoding="xml">{user_value}</text>  ')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
+
+
+def test_get_richtext_as_string_with_paragraph():
+    user_value = "<p>With paragraph.</p>"
+    original = etree.fromstring(f'\n<text encoding="xml">{user_value}</text>\n')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
 
 
 def test_cleanup_formatted_text():

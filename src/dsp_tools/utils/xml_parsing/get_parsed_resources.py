@@ -227,8 +227,9 @@ def _get_richtext_as_string(value: etree._Element) -> str | None:
     # however if only whitespaces are entered then it should return an empty string so that the user message is precise.
     if not value.text and not len(value) > 0:
         return None
-    xmlstr = etree.tostring(value, encoding="unicode", method="xml")
-    xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
+    xmlstr = etree.tostring(value, encoding="unicode", method="xml").strip()
+    xmlstr = regex.sub(f"^<{value.tag!s}.*?>", "", xmlstr, count=1)
+    xmlstr = regex.sub(f"</{value.tag!s}>$", "", xmlstr)
     striped_str = xmlstr.strip()
     return _cleanup_formatted_text(striped_str)
 

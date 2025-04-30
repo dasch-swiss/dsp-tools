@@ -1,11 +1,12 @@
 # mypy: disable-error-code="method-assign"
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from dataclasses import field
 from importlib.metadata import version
 from typing import Any
-from typing import Callable
+from typing import Literal
 from typing import cast
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -14,7 +15,6 @@ import pytest
 import regex
 from requests import ReadTimeout
 from requests import RequestException
-from typing_extensions import Literal
 
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.error.exceptions import PermanentConnectionError

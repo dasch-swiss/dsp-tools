@@ -74,7 +74,7 @@ class InvalidOntologyElementsInData:
         return pd.DataFrame.from_records(unpacked)
 
     def _calculate_num_resources(self, to_count: list[tuple[str, list[str], str]]) -> int:
-        return sum((len(x[1]) for x in to_count))
+        return sum(len(x[1]) for x in to_count)
 
     def _compose_problem_string_for_cls(self) -> str | None:
         if self.classes:

@@ -1,6 +1,6 @@
 import shutil
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 import pytest
 import regex

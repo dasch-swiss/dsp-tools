@@ -1,4 +1,3 @@
-from typing import TypeAlias
 from typing import Union
 
 from rdflib import RDF
@@ -40,7 +39,7 @@ from dsp_tools.utils.data_formats.date_util import StartEnd
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
-LiteralValueTypesAlias: TypeAlias = Union[
+type LiteralValueTypesAlias = Union[
     ProcessedBoolean,
     ProcessedColor,
     ProcessedDecimal,

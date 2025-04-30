@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypeAlias
 from typing import Union
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -15,7 +14,7 @@ class IntervalFloats:
     end: float
 
 
-ProcessedValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
+type ProcessedValueTypes = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
 
 
 @dataclass

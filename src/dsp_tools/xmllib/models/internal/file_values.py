@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Collection
 from typing import Protocol
 
 from dsp_tools.error.xmllib_warnings import MessageInfo

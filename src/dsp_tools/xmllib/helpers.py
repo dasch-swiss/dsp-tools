@@ -1175,7 +1175,7 @@ def find_license_in_string(string: str) -> License | None:
         ```
 
         ```python
-        result = xmllib.find_license_in_string("CC BY. Second license is ignored: CC BY SA")
+        result = xmllib.find_license_in_string("CC BY, CC BY SA. The second license will be ignored.")
         # result == LicenseRecommended.CC.BY
         ```
 
@@ -1214,11 +1214,14 @@ def find_license_in_string(string: str) -> License | None:
 
 
 def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
-    if "BY".casefold() not in string.casefold():
+    string = string.lower()
+    if "by" not in string:
         return None
-    has_nc = "NC".casefold() in string.casefold()
-    has_nd = "ND".casefold() in string.casefold()
-    has_sa = "SA".casefold() in string.casefold()
+    if any((string.count("by") > 1, string.count("nd") > 1, string.count("sa") > 1, string.count("nc") > 1)):
+        return None
+    has_nc = "nc" in string
+    has_nd = "nd" in string
+    has_sa = "sa" in string
     if not any((has_nc, has_nd, has_sa)):
         return LicenseRecommended.CC.BY
     if not has_nc and has_nd and not has_sa:

@@ -1,6 +1,7 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib.internal.serialise_values import serialise_values
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -15,7 +16,6 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 
 
 def test_boolean() -> None:

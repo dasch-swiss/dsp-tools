@@ -1,13 +1,13 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib.internal.serialise_file_value import _serialise_metadata
+from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
-from dsp_tools.xmllib.serialise.serialise_file_value import _serialise_metadata
-from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
 
 
 @pytest.fixture

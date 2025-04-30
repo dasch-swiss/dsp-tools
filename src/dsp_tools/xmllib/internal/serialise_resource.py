@@ -9,6 +9,8 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
+from dsp_tools.xmllib.internal.serialise_values import serialise_values
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
@@ -19,8 +21,6 @@ from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
-from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 

@@ -361,7 +361,7 @@ class TestAddFiles:
             "foo/bar.baz", LicenseRecommended.CC.BY, "copy", ["auth"]
         )
         assert isinstance(res.file_value, FileValue)
-        assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert res.file_value.metadata.license == LicenseRecommended.CC.BY
         assert res.file_value.metadata.copyright_holder == "copy"
         assert res.file_value.metadata.authorship == tuple(["auth"])
 
@@ -402,7 +402,7 @@ class TestAddFiles:
             ["auth"],
         )
         assert isinstance(res.file_value, IIIFUri)
-        assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert res.file_value.metadata.license == LicenseRecommended.CC.BY
         assert res.file_value.metadata.copyright_holder == "copy"
         assert res.file_value.metadata.authorship == tuple(["auth"])
 

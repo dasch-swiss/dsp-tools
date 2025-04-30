@@ -28,7 +28,7 @@ class AuthorshipLookup:
 
 @dataclass
 class Metadata:
-    license: str
+    license: License
     copyright_holder: str
     authorship: tuple[str, ...]
     permissions: Permissions
@@ -77,7 +77,7 @@ class Metadata:
         fixed_authors_list = [str(x).strip() for x in fixed_authors]
         fixed_authors_list = sorted(fixed_authors_list)
         return cls(
-            license=str(license),
+            license=license,
             copyright_holder=copyright_holder,
             authorship=tuple(fixed_authors_list),
             permissions=permissions,

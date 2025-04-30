@@ -1,5 +1,6 @@
 import warnings
 
+import pandas as pd
 import pytest
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
@@ -24,9 +25,27 @@ class TestBooleanValue:
             BooleanValue.new("False", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=None)
         assert len(caught_warnings) == 0
 
+    def test_good_comment_is_nan(self) -> None:
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            val = BooleanValue.new(
+                "False",
+                ":booleanProp",
+                permissions=Permissions.OPEN,
+                resource_id="res_id",
+                comment=pd.NA,  # type: ignore[arg-type]
+            )
+        assert len(caught_warnings) == 0
+        assert val.comment is None
+
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
             BooleanValue.new("other", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=None)
+
+    def test_warns_potentially_empty_comment(self) -> None:
+        with pytest.warns(XmllibInputWarning):
+            BooleanValue.new(
+                "other", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=str(pd.NA)
+            )
 
 
 class TestColorValue:

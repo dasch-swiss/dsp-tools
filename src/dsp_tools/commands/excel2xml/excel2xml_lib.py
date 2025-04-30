@@ -1862,11 +1862,7 @@ def make_hasSegmentBounds_prop(
                 f"but you provided: {segment_start=} and {segment_end=}"
             )
             warnings.warn(DspToolsUserWarning(msg))
-    if (
-        isinstance(segment_start, int | float)
-        and isinstance(segment_end, int | float)
-        and segment_start > segment_end
-    ):
+    if isinstance(segment_start, int | float) and isinstance(segment_end, int | float) and segment_start > segment_end:
         msg = (
             f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
             f"The start of an audio/video segment must be less than the end, "

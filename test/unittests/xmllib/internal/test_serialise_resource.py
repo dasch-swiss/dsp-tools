@@ -149,15 +149,15 @@ class TestLinkResource:
         with warnings.catch_warnings(record=True) as caught_warnings:
             linkobj = LinkResource.create_new("id", "lbl", []).add_comment("cmt")
             _serialise_one_resource(linkobj, AUTHOR_LOOKUP)
-        warning_0 = (
-            "The link object with the ID 'id' requires at least two links. Please note that an xmlupload will fail."
-        )
-        warning_1 = regex.escape(
+        warning_0 = regex.escape(
             "| Resource ID 'id' | Property 'hasLinkTo' | "
             "The input is empty. Please note that no values will be added to the resource."
         )
+        warning_1 = regex.escape(
+            "A link object requires at least two links. Please note that an xmlupload will fail."
+        )
         returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
-        assert warning_0 == returned[0]
+        assert regex.search(warning_0, returned[0])
         assert regex.search(warning_1, returned[1])
 
 

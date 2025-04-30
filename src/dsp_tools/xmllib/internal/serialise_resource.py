@@ -155,7 +155,7 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
     if fails := [x for x in segment.relates_to if not is_nonempty_value(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
     if problems:
-        msg = f"This segemnt resource has the following problem(s):{'\n- '.join(problems)}"
+        msg = f"This segment resource has the following problem(s):{'\n- '.join(problems)}"
         emit_xmllib_input_warning(MessageInfo(msg, segment.res_id))
 
 

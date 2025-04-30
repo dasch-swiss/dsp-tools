@@ -42,12 +42,20 @@ class Metadata:
         permissions: Permissions,
         resource_id: str,
     ) -> Metadata:
-        check_and_warn_potentially_empty_string(
-            value=license,
-            res_id=resource_id,
-            expected="xmllib.License",
-            field="license (bistream/iiif-uri)",
-        )
+        if not isinstance(license, License):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="xmllib.License",
+                value=license,
+                res_id=resource_id,
+                value_field="license (bistream/iiif-uri)",
+            )
+        if not isinstance(permissions, Permissions):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="xmllib.Permissions",
+                value=permissions,
+                res_id=resource_id,
+                value_field="permissions (bistream/iiif-uri)",
+            )
         check_and_warn_potentially_empty_string(
             value=copyright_holder,
             res_id=resource_id,
@@ -61,11 +69,11 @@ class Metadata:
                 res_id=resource_id,
                 value_field="authorship (bistream/iiif-uri)",
             )
-        for author in authorship:
+        fixed_authors = set(check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id))
+        for author in fixed_authors:
             check_and_warn_potentially_empty_string(
                 value=author, res_id=resource_id, expected="string", field="authorship (bistream/iiif-uri)"
             )
-        fixed_authors = set(check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id))
         fixed_authors_list = [str(x).strip() for x in fixed_authors]
         fixed_authors_list = sorted(fixed_authors_list)
         return cls(

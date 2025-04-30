@@ -1,4 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
 import warnings
 
 import numpy as np
@@ -9,21 +8,6 @@ import regex
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
-from dsp_tools.xmllib.internal.input_converters import numeric_entities
-
-
-@pytest.mark.parametrize(
-    ("original", "expected"),
-    [
-        ("a &nbsp; a", "a &#160; a"),
-        ("a &#160; a", "a &#160; a"),
-        ("a &#x22; a", "a &#x22; a"),
-        ("a &quot; &amp; &apos; &lt; &gt; a", "a &quot; &amp; &apos; &lt; &gt; a"),
-        ("aäö&;", "aäö&;"),
-    ],
-)
-def test_numeric_entities(original: str, expected: str) -> None:
-    assert numeric_entities(original) == expected
 
 
 @pytest.mark.parametrize("in_val", ["string", 2, False])

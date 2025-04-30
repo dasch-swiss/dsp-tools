@@ -15,8 +15,8 @@ from lxml import etree
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
-from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource

@@ -683,7 +683,7 @@ def test_get_one_absolute_iri(local_name, expected):
         </author>""",
             "Cavanagh, Annie",
         ),
-        ('<text encoding="xml">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
+        ('<text encoding="utf8">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
         ('<hasKeyword permissions="open">Keyword&#10;</hasKeyword>', "Keyword"),
         (
             """<text>

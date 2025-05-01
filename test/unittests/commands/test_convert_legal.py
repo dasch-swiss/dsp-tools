@@ -1,6 +1,5 @@
 import pytest
 from lxml import etree
-import regex
 
 from dsp_tools.commands.convert_legal import _convert
 
@@ -10,7 +9,7 @@ LICENSE_PROP = ":hasLicense"
 
 
 @pytest.fixture
-def original() -> etree._Element:
+def one_res_with_bitstream() -> etree._Element:
     return etree.fromstring(f""" 
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -31,29 +30,21 @@ def original() -> etree._Element:
     """)
 
 
-@pytest.fixture
-def expected() -> etree._Element:
-    return etree.fromstring(""" 
-    <knora>
-        <authorship id="authorship_0">
-            <author>Maurice et Pierre Chuzeville</author>
-        </authorship>
+def test_convert_legal(one_res_with_bitstream: etree._Element) -> None:
+    result = _convert(one_res_with_bitstream, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    assert len(result) == 2
+    auth_def = result[0]
+    resource = result[1]
 
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream 
-                license="http://rdfh.ch/licenses/cc-by-4.0" 
-                copyright-holder="© Musée du Louvre, Dist. GrandPalaisRmn" 
-                authorship-id="authorship_0"
-            >
-                testdata/bitstreams/test.jpg
-            </bitstream>
-        </resource>
-    </knora>
-    """)
+    assert auth_def.tag == "authorship"
+    assert auth_def.attrib["id"] == "authorship_0"
+    assert auth_def[0].tag == "author"
+    assert auth_def[0].text == "Maurice et Pierre Chuzeville"
 
-
-def test_convert_legal(original: etree._Element, expected: etree._Element) -> None:
-    result = _convert(original, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    result_str = regex.sub(r"[\s]+", " ", etree.tostring(result, encoding="unicode"))
-    expected_str = regex.sub(r"[\s]+", " ", etree.tostring(expected, encoding="unicode"))
-    assert result_str == expected_str
+    assert resource.tag == "resource"
+    assert len(resource) == 1
+    assert resource[0].tag == "bitstream"
+    assert resource[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert resource[0].attrib["copyright-holder"] == "© Musée du Louvre, Dist. GrandPalaisRmn"
+    assert resource[0].attrib["authorship-id"] == "authorship_0"
+    assert str(resource[0].text).strip() == "testdata/bitstreams/test.jpg"

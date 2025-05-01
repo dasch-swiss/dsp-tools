@@ -33,28 +33,28 @@ def _convert(
         if not (media_tag_candidates := res.xpath("bitstream|iiif-uri")):
             continue
         media_elem = media_tag_candidates[0]
-        copy_elem = res.xpath(f"./text-prop[@name='{copy_prop}']/text")[0]
-        license_elem = res.xpath(f"./text-prop[@name='{license_prop}']/text")[0]
-        auth_elem = res.xpath(f"./text-prop[@name='{auth_prop}']/text")[0]
-        if not (auth_id := auth_text_to_id.get(auth_elem.text)):
+        copy_elem: etree._Element = res.xpath(f"./text-prop[@name='{copy_prop}']/text")[0]
+        license_elem: etree._Element = res.xpath(f"./text-prop[@name='{license_prop}']/text")[0]
+        auth_elem: etree._Element = res.xpath(f"./text-prop[@name='{auth_prop}']/text")[0]
+        if not (auth_id := auth_text_to_id.get(str(auth_elem.text))):
             auth_id = len(auth_text_to_id)
-            auth_text_to_id[auth_elem.text] = auth_id
+            auth_text_to_id[str(auth_elem.text)] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
         media_elem.attrib["copyright-holder"] = copy_elem.text
-        if not (lic := find_license_in_string(license_elem.text)):
+        if not (lic := find_license_in_string(str(license_elem.text))):
             raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")
         media_elem.attrib["license"] = lic.value
-        res.remove(copy_elem.parent)
-        res.remove(license_elem.parent)
-        res.remove(auth_elem.parent)
+        res.remove(copy_elem.getparent())
+        res.remove(license_elem.getparent())
+        res.remove(auth_elem.getparent())
 
-    for auth_elem, auth_id in auth_text_to_id.items():
+    for auth_text, auth_id in auth_text_to_id.items():
         auth_def = etree.Element(
             "authorship",
             attrib={"id": f"authorship_{auth_id}"},
         )
         auth_child = etree.Element("author")
-        auth_child.text = auth_elem
+        auth_child.text = auth_text
         auth_def.append(auth_child)
         root.insert(0, auth_def)
 

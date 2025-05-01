@@ -1,5 +1,6 @@
 import pytest
 from lxml import etree
+import regex
 
 from dsp_tools.commands.convert_legal import _convert
 
@@ -34,7 +35,7 @@ def original() -> etree._Element:
 def expected() -> etree._Element:
     return etree.fromstring(""" 
     <knora>
-        <authorship id="authorship_1">
+        <authorship id="authorship_0">
             <author>Maurice et Pierre Chuzeville</author>
         </authorship>
 
@@ -42,8 +43,9 @@ def expected() -> etree._Element:
             <bitstream 
                 license="http://rdfh.ch/licenses/cc-by-4.0" 
                 copyright-holder="© Musée du Louvre, Dist. GrandPalaisRmn" 
-                authorship-id="authorship_1">
-                    testdata/bitstreams/test.jpg
+                authorship-id="authorship_0"
+            >
+                testdata/bitstreams/test.jpg
             </bitstream>
         </resource>
     </knora>
@@ -52,6 +54,6 @@ def expected() -> etree._Element:
 
 def test_convert_legal(original: etree._Element, expected: etree._Element) -> None:
     result = _convert(original, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    assert len(result) == len(expected)
-    for res, ex in zip(result, expected):
-        assert etree.tostring(res) == etree.tostring(ex)
+    result_str = regex.sub(r"[\s]+", " ", etree.tostring(result, encoding="unicode"))
+    expected_str = regex.sub(r"[\s]+", " ", etree.tostring(expected, encoding="unicode"))
+    assert result_str == expected_str

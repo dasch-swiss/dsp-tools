@@ -18,7 +18,7 @@ def convert_legal_metadata(
     root = _transform_into_localnames(root)
     root_new = etree.ElementTree(_convert(root, auth_prop, copy_prop, license_prop))
     output_file = input_file.with_stem(f"{input_file.stem}_converted")
-    root_new.write(output_file, pretty_print=True, xml_declaration=True, encoding="utf-8")
+    root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
 
 
 def _convert(
@@ -33,18 +33,29 @@ def _convert(
         if not (media_tag_candidates := res.xpath("bitstream|iiif-uri")):
             continue
         media_elem = media_tag_candidates[0]
-        copy_text = res.xpath(f"./text-prop[@name='{copy_prop}']/text/text()")[0]
-        license_text = res.xpath(f"./text-prop[@name='{license_prop}']/text/text()")[0]
-        auth_text = res.xpath(f"./text-prop[@name='{auth_prop}']/text/text()")[0]
-        if not (auth_id := auth_text_to_id.get(auth_text)):
+        copy_elem = res.xpath(f"./text-prop[@name='{copy_prop}']/text")[0]
+        license_elem = res.xpath(f"./text-prop[@name='{license_prop}']/text")[0]
+        auth_elem = res.xpath(f"./text-prop[@name='{auth_prop}']/text")[0]
+        if not (auth_id := auth_text_to_id.get(auth_elem.text)):
             auth_id = len(auth_text_to_id)
-            auth_text_to_id[auth_text] = auth_id
+            auth_text_to_id[auth_elem.text] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
-        media_elem.attrib["copyright-holder"] = copy_text
-        if not (lic := find_license_in_string(license_text)):
-            raise InputError(f"Resource {res.attrib['id']} has invalid license {license_text}")
+        media_elem.attrib["copyright-holder"] = copy_elem.text
+        if not (lic := find_license_in_string(license_elem.text)):
+            raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")
         media_elem.attrib["license"] = lic.value
+        res.remove(copy_elem.parent)
+        res.remove(license_elem.parent)
+        res.remove(auth_elem.parent)
 
+    for auth_elem, auth_id in auth_text_to_id.items():
+        auth_def = etree.Element(
+            "authorship",
+            attrib={"id": f"authorship_{auth_id}"},
+        )
+        auth_child = etree.Element("author")
+        auth_child.text = auth_elem
+        auth_def.append(auth_child)
+        root.insert(0, auth_def)
 
-    
     return root

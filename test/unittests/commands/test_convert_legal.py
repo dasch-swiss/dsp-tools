@@ -52,4 +52,6 @@ def expected() -> etree._Element:
 
 def test_convert_legal(original: etree._Element, expected: etree._Element) -> None:
     result = _convert(original, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    assert result == expected
+    assert len(result) == len(expected)
+    for res, ex in zip(result, expected):
+        assert etree.tostring(res) == etree.tostring(ex)

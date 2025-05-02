@@ -648,3 +648,62 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 A DSP stack must be running before executing this command.
+
+
+
+## `convert-legal`
+
+In an XML file, convert legal metadata from old to new format.
+
+```bash
+dsp-tools convert-legal [options] data.xml
+```
+
+The following options are available:
+
+- `--authorship_prop` (optional): property used for the authorship, e.g. `:hasAuthor`
+- `--copyright_prop` (optional): property used for the copyright, e.g. `:hasCopyright`
+- `--license_prop` (optional): property used for the license, e.g. `:hasLicense`
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The output file is written to `[original name]_converted.xml`.
+
+If license information is present, an attempt is made to parse it using 
+[`xmllib.find_license_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
+
+
+**Example:**
+
+```bash
+dsp-tools convert-legal --authorship_prop=":hasAuthorship" --copyright_prop=":hasCopyright" --license_prop=":hasLicense" input.xml
+```
+
+Input:
+
+```xml
+<knora>
+    <resource label="lbl" restype=":type" id="res_1">
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasAuthorship"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+        <text-prop name=":hasCopyright"><text encoding="utf8">© Louvre</text></text-prop>
+        <text-prop name=":hasLicense"><text encoding="utf8">CC BY</text></text-prop>
+    </resource>
+</knora>
+```
+
+Output:
+
+```xml
+<knora>
+    <authorship id="authorship_0">
+        <author>Maurice Chuzeville</author>
+    </authorship>
+
+    <resource label="lbl" restype=":type" id="res_1">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="© Louvre" authorship-id="authorship_0">
+            testdata/bitstreams/test.jpg
+        </bitstream>
+    </resource>
+</knora>
+```

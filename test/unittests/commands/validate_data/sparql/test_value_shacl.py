@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 from rdflib import RDF
 from rdflib import SH
@@ -5,6 +7,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
@@ -14,9 +17,27 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_l
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
+from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+def test_construct_property_shapes(res_with_simpletext):
+    proj_li = AllProjectLists([])
+    res = construct_property_shapes(res_with_simpletext, proj_li)
+    trip_counts = {
+        ONTO.ClassWithEverything: 110,
+        ONTO.testBoolean_PropShape: 110,
+        ONTO.testSimpleText_PropShape: 110,
+        ONTO.testDecimalSimpleText_PropShape: 110,
+    }
+    for shape, num_triples in trip_counts.items():
+        created_triples = list(res.triples((shape, None, None)))
+        assert len(created_triples) == num_triples
+
+    total_triples = sum(trip_counts.values())
+    assert len(res) == total_triples
 
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:

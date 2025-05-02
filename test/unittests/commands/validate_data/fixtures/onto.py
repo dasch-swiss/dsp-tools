@@ -12,6 +12,62 @@ def onto_for_cardinality() -> Graph:
 
 
 @pytest.fixture
+def res_with_simpletext() -> Graph:
+    ttl = f"""{PREFIXES}
+    onto:ClassWithEverything a owl:Class ;
+    rdfs:label "ClassWithEverything" ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
+    rdfs:subClassOf 
+        knora-api:Resource ,
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:versionDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            salsah-gui:guiOrder 0 ;
+            owl:cardinality 1 ;
+            owl:onProperty onto:testBoolean ] ,
+        [ a owl:Restriction ;
+            salsah-gui:guiOrder 0 ;
+            owl:cardinality 1 ;
+            owl:onProperty onto:testSimpleText ] ,
+        [ a owl:Restriction ;
+            salsah-gui:guiOrder 0 ;
+            owl:cardinality 1 ;
+            owl:onProperty onto:testDecimalSimpleText ] .
+
+    onto:testBoolean a owl:ObjectProperty ;
+        rdfs:label "Test Boolean" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:BooleanValue ;
+        salsah-gui:guiElement salsah-gui:Checkbox ;
+        rdfs:subPropertyOf knora-api:hasValue .
+         
+    onto:testSimpleText a owl:ObjectProperty ;
+        rdfs:label "Test SimpleText" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:TextValue ;
+        salsah-gui:guiElement salsah-gui:SimpleText ;
+        rdfs:subPropertyOf knora-api:hasValue .    
+    
+    onto:testDecimalSimpleText a owl:ObjectProperty ;
+        rdfs:label "Test Decimal" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:DecimalValue ;
+        salsah-gui:guiElement salsah-gui:SimpleText ;
+        rdfs:subPropertyOf knora-api:hasValue .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
 def one_res_one_prop() -> Graph:
     ttl = f"""{PREFIXES}
     onto:CardOneResource a owl:Class ;

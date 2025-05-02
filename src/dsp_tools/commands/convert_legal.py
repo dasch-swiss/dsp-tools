@@ -118,7 +118,9 @@ def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str
     res.remove(copy_elem.getparent())  # type: ignore[arg-type]
 
 
-def _handle_license(res: etree._Element, media_elem: etree._Element, license_prop: str, problems: list[Problem]) -> None:
+def _handle_license(
+    res: etree._Element, media_elem: etree._Element, license_prop: str, problems: list[Problem]
+) -> None:
     license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
     if not license_elems:
         return

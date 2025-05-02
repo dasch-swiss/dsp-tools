@@ -29,10 +29,10 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
     proj_li = AllProjectLists([])
     res = construct_property_shapes(res_and_props_with_simpletext, proj_li)
     trip_counts = {
-        ONTO.ClassWithEverything: 110,
-        ONTO.testBoolean_PropShape: 110,
-        ONTO.testSimpleText_PropShape: 110,
-        ONTO.testDecimalSimpleText_PropShape: 110,
+        ONTO.ClassWithEverything: 4,
+        ONTO.testBoolean_PropShape: 4,
+        ONTO.testSimpleText_PropShape: 6,
+        ONTO.testDecimalSimpleText_PropShape: 5,
     }
     for shape, num_triples in trip_counts.items():
         created_triples = list(res.triples((shape, None, None)))
@@ -190,14 +190,12 @@ class TestConstructListNode:
 
 def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext):
     res = _construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext)
-    props = [ONTO.testBoolean_PropShape, ONTO.testSimpleText_PropShape, ONTO.testDecimalSimpleText_PropShape]
+    props = [ONTO.testSimpleText_PropShape, ONTO.testDecimalSimpleText_PropShape]
     for prp in props:
         prop_res, object_res = next(res.predicate_objects(prp))
-        msg = next(res.objects(prp, SH.message))
-        assert msg == Literal("This value must be a non-empty string without newlines.")
         assert prop_res == DASH.singleLine
         assert object_res == Literal(True)
-    assert len(res) == 6
+    assert len(res) == 2
 
 
 if __name__ == "__main__":

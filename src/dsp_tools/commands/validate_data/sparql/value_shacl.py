@@ -36,6 +36,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     g += _construct_seqnum_is_part_of_prop_shape(onto)
     g += _construct_value_type_shapes_to_class_shapes(onto)
     g += _construct_link_value_type_shapes_to_class_shapes(onto)
+    g += _construct_simple_text_single_line_prop_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -362,16 +363,16 @@ def _construct_simple_text_single_line_prop_shape(onto: Graph) -> Graph:
     logger.info("Constructing Single Line For SimpleText Shapes")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX dash: <http://datashapes.org/dash#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-        ?shapesIRI dash:singleLine true ;
-                    sh:message "This value must be a non-empty string without newlines.".
+        ?shapesIRI dash:singleLine true .
     } WHERE {
         ?prop a owl:ObjectProperty ;
-              salsah-gui:guiElement knora-api:SimpleText .
+              salsah-gui:guiElement salsah-gui:SimpleText .
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
     """

@@ -193,9 +193,11 @@ def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simplet
     props = [ONTO.testBoolean_PropShape, ONTO.testSimpleText_PropShape, ONTO.testDecimalSimpleText_PropShape]
     for prp in props:
         prop_res, object_res = next(res.predicate_objects(prp))
+        msg = next(res.objects(prp, SH.message))
+        assert msg == Literal("This value must be a non-empty string without newlines.")
         assert prop_res == DASH.singleLine
         assert object_res == Literal(True)
-    assert len(res) == 3
+    assert len(res) == 6
 
 
 if __name__ == "__main__":

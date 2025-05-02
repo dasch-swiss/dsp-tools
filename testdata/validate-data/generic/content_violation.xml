@@ -80,6 +80,17 @@
         </text-prop>
     </resource>
 
+    <!-- SimpleText may not have line breaks -->
+    <resource label="With linebreaks" restype=":ClassWithEverything" id="simple_text_with_linebreaks">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">
+            This may not
+
+            have line breaks
+            </text>
+        </text-prop>
+    </resource>
+
     <!-- The target of the stand-off link does not exist. -->
     <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_nonexistent">
         <text-prop name=":testRichtext">

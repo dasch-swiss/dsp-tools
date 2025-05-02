@@ -214,6 +214,11 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "hasStandoffLinkTo",
             "A stand-off link must target an existing resource.",
         ),
+        (
+            "simple_text_with_linebreaks",
+            "onto:testSimpleText",
+            "This value must be a non-empty string without newlines.",
+        ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
     ]
     assert len(result.problems) == len(expected_info_tuples)

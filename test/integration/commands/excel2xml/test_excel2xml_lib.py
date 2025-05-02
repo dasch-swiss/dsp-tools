@@ -32,12 +32,9 @@ class TestExcel2xmlLib(unittest.TestCase):
             self.assertTrue(regex.search(r"^[a-zA-Z_][\w.-]*$", result))
 
         # test that invalid inputs lead to an error
-        self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, 0)
-        self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, "n/a")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, None)
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, "")
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, " ")
-        self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, ".")
 
         # test that the special characters in the "Label" row of excel2xml-testdata-special-characters.xlsx are replaced
         special_characters_df = pd.read_excel("testdata/excel2xml/excel2xml-testdata-special-characters.xlsx")

@@ -29,7 +29,7 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
     proj_li = AllProjectLists([])
     res = construct_property_shapes(res_and_props_with_simpletext, proj_li)
     trip_counts = {
-        ONTO.ClassWithEverything: 6,
+        ONTO.ClassWithEverything: 5,
         ONTO.testBoolean_PropShape: 4,
         ONTO.testSimpleText_PropShape: 5,
         ONTO.testDecimalSimpleText_PropShape: 4,
@@ -39,15 +39,13 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
         assert len(created_triples) == num_triples
 
     number_of_single_line_triples = 5
-    simple_text_props = [ONTO.testSimpleText, ONTO.testDecimalSimpleText]
-    for prop in simple_text_props:
-        bn = next(res.subjects(SH.path, prop))
-        trips = list(res.triples((bn, None, None)))
-        assert len(trips) == number_of_single_line_triples
-        cls_statement = next(res.subjects(SH.property, bn))
-        assert cls_statement == ONTO.ClassWithEverything
+    bn = next(res.subjects(SH.path, ONTO.testSimpleText))
+    trips = list(res.triples((bn, None, None)))
+    assert len(trips) == number_of_single_line_triples
+    cls_statement = next(res.subjects(SH.property, bn))
+    assert cls_statement == ONTO.ClassWithEverything
 
-    total_triples = sum(trip_counts.values()) + len(simple_text_props) * number_of_single_line_triples
+    total_triples = sum(trip_counts.values()) + number_of_single_line_triples
     assert len(res) == total_triples
 
 
@@ -199,14 +197,11 @@ class TestConstructListNode:
 
 def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext):
     res = _construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext)
-    props = [ONTO.testSimpleText, ONTO.testDecimalSimpleText]
-    for prp in props:
-        bn = next(res.subjects(SH.path, prp))
-        assert next(res.objects(bn, DASH.singleLine)) == Literal(True)
-        assert next(res.objects(bn, SH.severity)) == SH.Violation
-        assert next(res.objects(bn, SH.message)) == Literal("This value may not contain any newlines.")
-
-    assert len(res) == 12
+    bn = next(res.subjects(SH.path, ONTO.testSimpleText))
+    assert next(res.objects(bn, DASH.singleLine)) == Literal(True)
+    assert next(res.objects(bn, SH.severity)) == SH.Violation
+    assert next(res.objects(bn, SH.message)) == Literal("This value may not contain any newlines.")
+    assert len(res) == 6
 
 
 if __name__ == "__main__":

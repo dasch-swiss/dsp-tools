@@ -379,6 +379,7 @@ def _construct_simple_text_single_line_prop_shape(onto: Graph) -> Graph:
                 ] .
     } WHERE {    
         ?prop a owl:ObjectProperty ;
+              knora-api:objectType knora-api:TextValue ;
               salsah-gui:guiElement salsah-gui:SimpleText .
         
         ?class a owl:Class ;

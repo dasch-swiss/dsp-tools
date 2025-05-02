@@ -31,8 +31,8 @@ from dsp_tools.xmllib.internal.input_converters import numeric_entities
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
-make_xsd_id_compatible = make_xsd_compatible_id
-make_xsd_id_compatible_without_uuid = make_xsd_compatible_id_with_uuid
+make_xsd_id_compatible = make_xsd_compatible_id_with_uuid
+make_xsd_id_compatible_without_uuid = make_xsd_compatible_id
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 

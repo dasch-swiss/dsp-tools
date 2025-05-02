@@ -91,8 +91,10 @@ def _handle_license(res: etree._Element, media_elem: etree._Element, license_pro
     if len(license_elems) > 1:
         raise InputError(f"Resource {res.attrib['id']} has more than one license")
     license_elem = license_elems[0]
-    if not (lic := find_license_in_string(str(license_elem.text))):
-        raise InputError(f"Resource {res.attrib['id']} has an invalid license: {license_elem.text}")
+    if not license_elem.text or not (license_text := license_elem.text.strip()):
+        raise InputError(f"Resource {res.attrib['id']} has an empty license")
+    if not (lic := find_license_in_string(license_text)):
+        lic = LicenseRecommended.DSP.UNKNOWN
     media_elem.attrib["license"] = lic.value
     res.remove(license_elem.getparent())  # type: ignore[arg-type]
 

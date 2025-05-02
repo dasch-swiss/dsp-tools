@@ -671,6 +671,9 @@ The output file is written to `[original name]_converted.xml`.
 
 If license information is present, an attempt is made to parse it using [`xmllib.find_license_in_string()`](
 https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
+If none is recognized, [`LicenseRecommended.DSP.UNKNOWN`](
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
+is used.
 
 
 **Example:**

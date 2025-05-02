@@ -383,11 +383,13 @@ def _query_single_line_violation(
     result_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult:
     queried_val = next(results_and_onto.objects(result_bn, SH.value))
+    val = None
     if isinstance(queried_val, Literal):
         val = queried_val
     else:
         g = results_and_onto + data
-        val = next(g.objects(queried_val, KNORA_API.valueAsString))
+        if found_val := list(g.objects(queried_val, KNORA_API.valueAsString)):
+            val = found_val.pop()
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,

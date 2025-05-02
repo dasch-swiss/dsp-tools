@@ -33,57 +33,6 @@ def one_bitstream_one_iiif() -> etree._Element:
     """)
 
 
-@pytest.fixture
-def incomplete_legal() -> etree._Element:
-    return etree.fromstring(f""" 
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_2">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">© Musée du Louvre</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
-        </resource>
-    </knora>
-    """)
-
-
-@pytest.fixture
-def missing_legal() -> etree._Element:
-    return etree.fromstring("""
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>test/file.jpg</bitstream>
-        </resource>
-    </knora>
-    """)
-                            
-
-@pytest.fixture
-def different_authors() -> etree._Element:
-    return etree.fromstring(f""" 
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_2">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Pierre Maillard</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
-        </resource>
-    </knora>
-    """)
-
-
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     result = _convert(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 3
@@ -113,8 +62,24 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert str(resource_2[0].text).strip() == "https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg"
 
 
-def test_incomplete_legal(incomplete_legal: etree._Element) -> None:
-    result = _convert(incomplete_legal, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+def test_incomplete_legal() -> None:
+    orig = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">© Musée du Louvre</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    result = _convert(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 4
     auth_def_0 = result[0]
     resource_1 = result[1]
@@ -145,8 +110,15 @@ def test_incomplete_legal(incomplete_legal: etree._Element) -> None:
     assert str(resource_3[0].text).strip() == "test/file.jpg"
 
 
-def test_missing_legal(missing_legal: etree._Element) -> None:
-    result = _convert(missing_legal, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+def test_missing_legal() -> None:
+    orig = etree.fromstring("""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+        </resource>
+    </knora>
+    """)
+    result = _convert(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 1
     resource_1 = result[0]
 
@@ -156,8 +128,24 @@ def test_missing_legal(missing_legal: etree._Element) -> None:
     assert not resource_1[0].attrib
 
 
-def test_different_authors(different_authors: etree._Element) -> None:
-    result = _convert(different_authors, auth_prop=AUTH_PROP)
+def test_different_authors() -> None:
+    orig = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Pierre Maillard</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    result = _convert(orig, auth_prop=AUTH_PROP)
     assert len(result) == 5
     auth_def_0 = result[0]
     auth_def_1 = result[1]

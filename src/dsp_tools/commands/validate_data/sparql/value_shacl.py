@@ -356,3 +356,23 @@ def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def _construct_simple_text_single_line_prop_shape(onto: Graph) -> Graph:
+    logger.info("Constructing Single Line For SimpleText Shapes")
+    query_s = """
+    PREFIX dash: <http://datashapes.org/dash#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+        ?shapesIRI dash:singleLine true .
+    } WHERE {
+        ?prop a owl:ObjectProperty ;
+              salsah-gui:guiElement knora-api:SimpleText .
+        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+    }
+    """
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()

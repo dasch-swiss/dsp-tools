@@ -12,7 +12,7 @@ def onto_for_cardinality() -> Graph:
 
 
 @pytest.fixture
-def res_with_simpletext() -> Graph:
+def res_and_props_with_simpletext() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassWithEverything a owl:Class ;
     rdfs:label "ClassWithEverything" ;

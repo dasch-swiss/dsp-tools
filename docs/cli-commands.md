@@ -669,14 +669,18 @@ The following options are available:
 
 The output file is written to `[original name]_converted.xml`.
 
-If license information is present, an attempt is made to parse it using 
-[`xmllib.find_license_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
+If license information is present, an attempt is made to parse it using [`xmllib.find_license_in_string()`](
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
 
 
 **Example:**
 
 ```bash
-dsp-tools convert-legal --authorship_prop=":hasAuthorship" --copyright_prop=":hasCopyright" --license_prop=":hasLicense" input.xml
+dsp-tools convert-legal \
+--authorship_prop=":hasAuthorship" \
+--copyright_prop=":hasCopyright" \
+--license_prop=":hasLicense" \
+input.xml
 ```
 
 Input:
@@ -701,7 +705,11 @@ Output:
     </authorship>
 
     <resource label="lbl" restype=":type" id="res_1">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="© Louvre" authorship-id="authorship_0">
+        <bitstream 
+            license="http://rdfh.ch/licenses/cc-by-4.0" 
+            copyright-holder="© Louvre" 
+            authorship-id="authorship_0"
+        >
             testdata/bitstreams/test.jpg
         </bitstream>
     </resource>

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from json.decoder import JSONDecodeError
-from typing import Callable
-from typing import TypeAlias
 from typing import Union
 from typing import assert_never
 
@@ -16,7 +15,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
-InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
+type InputTypes = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
 
 
 @dataclass

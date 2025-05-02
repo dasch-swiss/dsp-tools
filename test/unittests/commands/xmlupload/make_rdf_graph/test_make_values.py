@@ -320,11 +320,9 @@ def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     prop = ProcessedLink("non_existing", absolute_iri("hasResource"), None, None, value_uuid=str(uuid4()))
     err_str = regex.escape(
-        (
-            "Could not find the ID non_existing in the id2iri mapping. "
-            "This is probably because the resource 'non_existing' could not be created. "
-            "See warnings.log for more information."
-        )
+        "Could not find the ID non_existing in the id2iri mapping. "
+        "This is probably because the resource 'non_existing' could not be created. "
+        "See warnings.log for more information."
     )
     with pytest.raises(BaseError, match=err_str):
         _make_one_value_graph(prop, res_bn, lookups)

@@ -24,7 +24,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     project_definition: dict[str, Any] = {}
     if isinstance(project_file_as_path_or_parsed, dict):
         project_definition = project_file_as_path_or_parsed
-    elif isinstance(project_file_as_path_or_parsed, (str, Path)) and Path(project_file_as_path_or_parsed).exists():
+    elif isinstance(project_file_as_path_or_parsed, str | Path) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)

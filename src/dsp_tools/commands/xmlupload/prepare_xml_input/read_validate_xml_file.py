@@ -44,7 +44,7 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     Raises:
         InputError: if a bitstream does not exist in the imgdir
     """
-    multimedia_resources = [x for x in root if any((y.tag == "bitstream" for y in x.iter()))]
+    multimedia_resources = [x for x in root if any(y.tag == "bitstream" for y in x.iter())]
     for res in multimedia_resources:
         pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
         if not Path(imgdir / pth).is_file():

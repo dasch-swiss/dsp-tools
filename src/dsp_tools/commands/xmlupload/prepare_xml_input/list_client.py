@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Iterable
 from typing import Protocol
 from urllib.parse import quote_plus
 

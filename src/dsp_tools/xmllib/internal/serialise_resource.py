@@ -53,12 +53,10 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
         case _:
             raise_input_error(
                 MessageInfo(
-                    (
-                        f"An unknown resource was added to the root. "
-                        f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "
-                        f"are permitted."
-                        f"The input type is {res.__class__.__name__}"
-                    )
+                    f"An unknown resource was added to the root. "
+                    f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "
+                    f"are permitted."
+                    f"The input type is {res.__class__.__name__}"
                 )
             )
 

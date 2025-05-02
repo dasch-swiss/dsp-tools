@@ -6,9 +6,9 @@ import json
 import os
 import uuid
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
-from typing import Iterable
 from typing import Optional
 from typing import Union
 
@@ -642,7 +642,7 @@ def make_boolean_prop(
     # validate input
     if isinstance(value, PropertyElement):
         value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
-    elif isinstance(value, (str, bool, int)):
+    elif isinstance(value, str | bool | int):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
         raise BaseError(
@@ -1851,7 +1851,7 @@ def make_hasSegmentBounds_prop(
     Returns:
         an etree._Element that can be appended to an audio/video segment with `segment.append(make_hasSegmentBounds_prop(...))`
     """
-    if not isinstance(segment_start, (int, float)) or not isinstance(segment_end, (int, float)):
+    if not isinstance(segment_start, int | float) or not isinstance(segment_end, int | float):
         try:
             segment_start = float(segment_start)
             segment_end = float(segment_end)
@@ -1862,11 +1862,7 @@ def make_hasSegmentBounds_prop(
                 f"but you provided: {segment_start=} and {segment_end=}"
             )
             warnings.warn(DspToolsUserWarning(msg))
-    if (
-        isinstance(segment_start, (int, float))
-        and isinstance(segment_end, (int, float))
-        and segment_start > segment_end
-    ):
+    if isinstance(segment_start, int | float) and isinstance(segment_end, int | float) and segment_start > segment_end:
         msg = (
             f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
             f"The start of an audio/video segment must be less than the end, "

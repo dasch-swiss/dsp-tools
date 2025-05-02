@@ -599,7 +599,7 @@ def test_convert_legal(convert_legal_metadata: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.convert_legal_metadata")
 def test_convert_legal_only_author(convert_legal_metadata: Mock) -> None:
-    args = "convert-legal --authorship_prop :hasAuthorship".split()
+    args = "convert-legal --authorship_prop :hasAuthorship input.xml".split()
     entry_point.run(args)
     convert_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),

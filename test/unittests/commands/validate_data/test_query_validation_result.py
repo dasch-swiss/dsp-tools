@@ -373,9 +373,9 @@ Second Line"""
         )
 
     def test_report_single_line_constraint_component_content_is_value(
-        self, report_single_line_constraint_component
+        self, report_single_line_constraint_component_content_is_value
     ) -> None:
-        res, data, info = report_single_line_constraint_component
+        res, data, info = report_single_line_constraint_component_content_is_value
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
@@ -386,7 +386,8 @@ Second Line"""
         assert result.input_value == Literal(
             """This may not
 
-have newlines"""
+have newlines""",
+            datatype=XSD.string,
         )
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:

@@ -5,6 +5,7 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
@@ -221,9 +222,10 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.LessThanConstraintComponent
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
-            | DASH.SingleLineConstraintComponent
         ):
             return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
+        case DASH.SingleLineConstraintComponent:
+            return _query_single_line_violation(base_info.result_bn, base_info, results_and_onto, data)
         case _:
             return UnexpectedComponent(str(component))
 
@@ -366,6 +368,26 @@ def _query_generic_violation(
     val = None
     if found_val := list(results_and_onto.objects(result_bn, SH.value)):
         val = found_val.pop()
+    msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        property=base_info.result_path,
+        message=msg,
+        input_value=val,
+    )
+
+
+def _query_single_line_violation(
+    result_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
+) -> ValidationResult:
+    queried_val = next(results_and_onto.objects(result_bn, SH.value))
+    if isinstance(queried_val, Literal):
+        val = queried_val
+    else:
+        g = results_and_onto + data
+        val = next(g.objects(queried_val, KNORA_API.valueAsString))
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,

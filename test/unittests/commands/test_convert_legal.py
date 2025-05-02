@@ -23,7 +23,7 @@ def _1_res_with_bitstream() -> etree._Element:
 
 
 @pytest.fixture
-def _3_res_with_iiif_and_2_different_authors() -> etree._Element:
+def _3_res_mixed_media_2_different_authors() -> etree._Element:
     return etree.fromstring(f""" 
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -42,6 +42,26 @@ def _3_res_with_iiif_and_2_different_authors() -> etree._Element:
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">© Musée du Louvre</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+    </knora>
+    """)
+
+
+@pytest.fixture
+def _3_res_with_incomplete_legal() -> etree._Element:
+    return etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">© Musée du Louvre</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>test/file.jpg</bitstream>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
         </resource>
     </knora>
@@ -68,9 +88,9 @@ def test_simple_good(_1_res_with_bitstream: etree._Element) -> None:
     assert str(resource[0].text).strip() == "test/file.jpg"
 
 
-def test_complex_good(_3_res_with_iiif_and_2_different_authors: etree._Element) -> None:
+def test_complex_good(_3_res_mixed_media_2_different_authors: etree._Element) -> None:
     result = _convert(
-        _3_res_with_iiif_and_2_different_authors, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP
+        _3_res_mixed_media_2_different_authors, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP
     )
     assert len(result) == 5
     auth_def_0 = result[0]
@@ -83,3 +103,7 @@ def test_complex_good(_3_res_with_iiif_and_2_different_authors: etree._Element) 
     assert auth_def_0.attrib["id"] == "authorship_0"
     assert auth_def_0[0].tag == "author"
     assert auth_def_0[0].text == "Maurice Chuzeville"
+
+
+def test_missing_legal(_3_res_with_incomplete_legal: etree._Element) -> None:
+    pytest.fail()

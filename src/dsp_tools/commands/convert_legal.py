@@ -56,9 +56,12 @@ def _handle_auth(
     if len(auth_elems) != 1:
         raise InputError(f"Resource {res.attrib['id']} has invalid number of authors")
     auth_elem = auth_elems[0]
-    if not (auth_id := auth_text_to_id.get(str(auth_elem.text))):
+    if auth_elem.text is None:
+        raise InputError(f"Resource {res.attrib['id']} has no author")
+    auth_text = auth_elem.text.strip()
+    if (auth_id := auth_text_to_id.get(auth_text)) is None:
         auth_id = len(auth_text_to_id)
-        auth_text_to_id[auth_elem.text] = auth_id
+        auth_text_to_id[auth_text] = auth_id
     media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
     res.remove(auth_elem.getparent())
 
@@ -68,7 +71,10 @@ def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str
     if len(copy_elems) != 1:
         raise InputError(f"Resource {res.attrib['id']} has invalid number of copyrights")
     copy_elem = copy_elems[0]
-    media_elem.attrib["copyright-holder"] = copy_elem.text
+    if copy_elem.text is None:
+        raise InputError(f"Resource {res.attrib['id']} has no copyright")
+    copy_text = copy_elem.text.strip()
+    media_elem.attrib["copyright-holder"] = copy_text
     res.remove(copy_elem.getparent())
 
 
@@ -84,6 +90,7 @@ def _handle_license(res: etree._Element, media_elem: etree._Element, license_pro
 
 
 def _add_auth_defs(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:
+    auth_defs = []
     for auth_text, auth_id in auth_text_to_id.items():
         auth_def = etree.Element(
             "authorship",
@@ -92,4 +99,8 @@ def _add_auth_defs(root: etree._Element, auth_text_to_id: dict[str, int]) -> Non
         auth_child = etree.Element("author")
         auth_child.text = auth_text
         auth_def.append(auth_child)
-        root.insert(0, auth_def)
+        auth_defs.append(auth_def)
+    for auth_def in reversed(auth_defs):
+       root.insert(0, auth_def)
+
+# TODO: make better formulations of error messages

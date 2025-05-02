@@ -3,6 +3,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.convert_legal import _convert
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
@@ -199,7 +200,8 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an empty authorship")):
+    match = regex.escape(f"Resource ID: res_1 | Property: {AUTH_PROP} | Message: Empty authorship. Skipping.")
+    with pytest.warns(DspToolsUserWarning, match=match):
         _convert(empty, auth_prop=AUTH_PROP)
 
 
@@ -212,7 +214,8 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an empty copyright")):
+    match = regex.escape(f"Resource ID: res_1 | Property: {COPY_PROP} | Message: Empty copyright. Skipping.")
+    with pytest.warns(DspToolsUserWarning, match=match):
         _convert(empty, copy_prop=COPY_PROP)
 
 
@@ -225,7 +228,8 @@ def test_empty_license() -> None:
         </resource>
     </knora>
     """)
-    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an empty license")):
+    match = regex.escape(f"Resource ID: res_1 | Property: {LICENSE_PROP} | Message: Empty license. Skipping.")
+    with pytest.warns(DspToolsUserWarning, match=match):
         _convert(empty, license_prop=LICENSE_PROP)
 
 

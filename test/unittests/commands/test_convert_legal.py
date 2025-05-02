@@ -1,4 +1,5 @@
 import pytest
+import regex
 from lxml import etree
 
 from dsp_tools.commands.convert_legal import _convert
@@ -187,3 +188,42 @@ def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
         _convert(one_bitstream_one_iiif, auth_prop="", copy_prop="", license_prop="")
     with pytest.raises(InputError):
         _convert(one_bitstream_one_iiif)
+
+
+def test_empty_author() -> None:
+    empty = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8"> </text></text-prop>
+        </resource>
+    </knora>
+    """)
+    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an empty authorship")):
+        _convert(empty, auth_prop=AUTH_PROP)
+
+
+def test_empty_copy() -> None:
+    empty = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8"> </text></text-prop>
+        </resource>
+    </knora>
+    """)
+    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an empty copyright")):
+        _convert(empty, copy_prop=COPY_PROP)
+
+
+def test_empty_license() -> None:
+    empty = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8"> </text></text-prop>
+        </resource>
+    </knora>
+    """)
+    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an invalid license:")):
+        _convert(empty, license_prop=LICENSE_PROP)

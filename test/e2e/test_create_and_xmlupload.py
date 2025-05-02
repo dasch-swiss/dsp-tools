@@ -1,8 +1,8 @@
 import json
 import urllib.parse
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
-from typing import Iterator
 
 import pytest
 import requests

@@ -1,8 +1,8 @@
 import urllib.parse
+from collections.abc import Iterator
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import Iterator
 
 import regex
 from loguru import logger

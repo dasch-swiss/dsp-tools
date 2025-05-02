@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 from typing import Never
 from typing import assert_never
 from typing import cast

@@ -145,9 +145,8 @@ select = [
     "PT",    # flake8-pytest-style plugin
     "TID",   # flake8-tidy-imports plugin
     "ICN",   # flake8-import-conventions plugin, which checks for import conventions
-    "ARG",   # flake8-unused-arguments
     "PGH",   # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
-    "UP031", # pyupgrade: printf-string-formatting
+    "UP",    # pyupgrade
     "D101",  # pydocstyle: undocumented-public-class
     "D102",  # pydocstyle: undocumented-public-method
     "D103",  # pydocstyle: undocumented-public-function
@@ -161,6 +160,8 @@ ignore = [
     "S106",   # flake8-bandit: hardcoded password
     "S603",   # flake8-bandit: subprocess-without-shell-equals-true
     "S320",   # flake8-bandit: xml parsing vulnerable to XML attacks
+    "UP007",  # forbid use of typing.Union and typing.Optional
+    "UP015",  # Unnecessary mode="r" argument in open()
 ]
 
 

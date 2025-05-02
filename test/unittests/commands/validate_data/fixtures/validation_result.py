@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache
 
 import pytest
 from rdflib import RDF
@@ -19,7 +19,7 @@ from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
-@lru_cache(maxsize=None)
+@cache
 @pytest.fixture
 def onto_graph() -> Graph:
     g = Graph()

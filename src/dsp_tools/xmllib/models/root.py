@@ -4,7 +4,6 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import TypeAlias
 from typing import Union
 from uuid import uuid4
 
@@ -26,7 +25,7 @@ from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.internal.serialise_permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
 
-AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
+type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
 
 # ruff: noqa: D101

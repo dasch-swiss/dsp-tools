@@ -1,4 +1,3 @@
-from typing import TypeAlias
 from typing import Union
 
 from rdflib import IdentifiedNode
@@ -8,8 +7,8 @@ from rdflib import Variable
 from rdflib.term import Node
 
 # rdflib typing
-PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]
-SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
+type PropertyTypeAlias = Union[IdentifiedNode, Variable]
+type SubjectObjectTypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
 
 # Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"

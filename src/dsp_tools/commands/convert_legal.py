@@ -23,10 +23,13 @@ def convert_legal_metadata(
 
 def _convert(
     root: etree._Element,
-    auth_prop: str,
-    copy_prop: str,
-    license_prop: str,
+    auth_prop: str | None = None,
+    copy_prop: str | None = None,
+    license_prop: str | None = None,
 ) -> etree._Element:
+    if not any([auth_prop, copy_prop, license_prop]):
+        raise InputError("At least one of auth_prop, copy_prop, license_prop must be provided")
+    
     auth_text_to_id: dict[str, int] = {}
 
     for res in root.iterchildren(tag="resource"):

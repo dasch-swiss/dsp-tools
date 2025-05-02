@@ -72,6 +72,8 @@ def make_parser(
 
     _add_rosetta(subparsers)
 
+    _add_convert_legal(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -91,6 +93,17 @@ def _add_rosetta(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         name="rosetta", help="Clone the most up to data rosetta repository, create the data model and upload the data"
     )
     subparser.set_defaults(action="rosetta")
+
+
+def _add_convert_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    subparser = subparsers.add_parser(
+        name="convert-legal", help="Convert the legal metadata of an XML file to the new format"
+    )
+    subparser.set_defaults(action="convert-legal")
+    subparser.add_argument("--authorship_prop", type=str, help="Property used for the authorship, e.g. ':hasAuthor'")
+    subparser.add_argument("--copyright_prop", type=str, help="Property used for the copyright, e.g. ':hasCopyright'")
+    subparser.add_argument("--license_prop", type=str, help="Property used for the license, e.g. ':hasLicense'")
+    subparser.add_argument("xmlfile", help="path to the XML file containing the data")
 
 
 def _add_create_template(subparsers: _SubParsersAction[ArgumentParser]) -> None:

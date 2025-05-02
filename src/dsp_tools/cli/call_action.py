@@ -4,6 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.convert_legal import convert_legal_metadata
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -87,6 +88,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = generate_template_repo()
         case "rosetta":
             result = upload_rosetta()
+        case "convert-legal":
+            result = _call_convert_legal(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")
@@ -253,6 +256,15 @@ def _call_create(args: argparse.Namespace) -> bool:
                 verbose=args.verbose,
             )
     return success
+
+
+def _call_convert_legal(args: argparse.Namespace) -> bool:
+    return convert_legal_metadata(
+        input_file=Path(args.xmlfile),
+        auth_prop=args.authorship_prop,
+        copy_prop=args.copyright_prop,
+        license_prop=args.license_prop,
+    )
 
 
 def _get_creds(args: argparse.Namespace) -> ServerCredentials:

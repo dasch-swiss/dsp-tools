@@ -101,6 +101,38 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert str(resource_2[0].text).strip() == "https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg"
 
 
+def test_incomplete_legal(incomplete_legal: etree._Element) -> None:
+    result = _convert(incomplete_legal, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    assert len(result) == 4
+    auth_def_0 = result[0]
+    resource_1 = result[1]
+    resource_2 = result[2]
+    resource_3 = result[3]
+
+    assert auth_def_0.tag == "authorship"
+    assert auth_def_0.attrib["id"] == "authorship_0"
+    assert auth_def_0[0].tag == "author"
+    assert auth_def_0[0].text == "Maurice Chuzeville"
+
+    assert resource_1.tag == "resource"
+    assert len(resource_1) == 1
+    assert resource_1[0].tag == "bitstream"
+    assert resource_1[0].attrib["authorship-id"] == "authorship_0"
+    assert str(resource_1[0].text).strip() == "test/file.jpg"
+
+    assert resource_2.tag == "resource"
+    assert len(resource_2) == 1
+    assert resource_2[0].tag == "bitstream"
+    assert resource_2[0].attrib["copyright-holder"] == "© Musée du Louvre"
+    assert str(resource_2[0].text).strip() == "test/file.jpg"
+
+    assert resource_3.tag == "resource"
+    assert len(resource_3) == 1
+    assert resource_3[0].tag == "bitstream"
+    assert resource_3[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert str(resource_3[0].text).strip() == "test/file.jpg"
+
+
 def test_different_authors(different_authors: etree._Element) -> None:
     result = _convert(different_authors, auth_prop=AUTH_PROP)
     assert len(result) == 5
@@ -137,36 +169,3 @@ def test_different_authors(different_authors: etree._Element) -> None:
     assert resource_3[0].tag == "bitstream"
     assert resource_3[0].attrib["authorship-id"] == "authorship_0"
     assert str(resource_3[0].text).strip() == "test/file.jpg"
-
-
-def test_incomplete_legal(incomplete_legal: etree._Element) -> None:
-    result = _convert(incomplete_legal, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    assert len(result) == 4
-    auth_def_0 = result[0]
-    resource_1 = result[1]
-    resource_2 = result[2]
-    resource_3 = result[3]
-
-    assert auth_def_0.tag == "authorship"
-    assert auth_def_0.attrib["id"] == "authorship_0"
-    assert auth_def_0[0].tag == "author"
-    assert auth_def_0[0].text == "Maurice Chuzeville"
-
-    assert resource_1.tag == "resource"
-    assert len(resource_1) == 1
-    assert resource_1[0].tag == "bitstream"
-    assert resource_1[0].attrib["authorship-id"] == "authorship_0"
-    assert str(resource_1[0].text).strip() == "test/file.jpg"
-
-    assert resource_2.tag == "resource"
-    assert len(resource_2) == 1
-    assert resource_2[0].tag == "bitstream"
-    assert resource_2[0].attrib["copyright-holder"] == "© Musée du Louvre"
-    assert str(resource_2[0].text).strip() == "test/file.jpg"
-
-    assert resource_3.tag == "resource"
-    assert len(resource_3) == 1
-    assert resource_3[0].tag == "bitstream"
-    assert resource_3[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
-    assert str(resource_3[0].text).strip() == "test/file.jpg"
-

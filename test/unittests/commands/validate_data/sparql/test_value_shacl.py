@@ -3,7 +3,6 @@
 import pytest
 from rdflib import RDF
 from rdflib import SH
-from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -39,7 +38,7 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
         created_triples = list(res.triples((shape, None, None)))
         assert len(created_triples) == num_triples
 
-    number_of_single_line_triples = 6
+    number_of_single_line_triples = 5
     simple_text_props = [ONTO.testSimpleText, ONTO.testDecimalSimpleText]
     for prop in simple_text_props:
         bn = next(res.subjects(SH.path, prop))
@@ -203,12 +202,11 @@ def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simplet
     props = [ONTO.testSimpleText, ONTO.testDecimalSimpleText]
     for prp in props:
         bn = next(res.subjects(SH.path, prp))
-        assert next(res.objects(bn, SH.datatype)) == XSD.string
         assert next(res.objects(bn, DASH.singleLine)) == Literal(True)
         assert next(res.objects(bn, SH.severity)) == SH.Violation
         assert next(res.objects(bn, SH.message)) == Literal("This value may not contain any newlines.")
 
-    assert len(res) == 14
+    assert len(res) == 12
 
 
 if __name__ == "__main__":

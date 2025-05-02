@@ -298,7 +298,7 @@ def _query_all_with_detail(
     return extracted_results, unexpected_components
 
 
-def _query_one_with_detail(
+def _query_one_with_detail(  # noqa:PLR0911 (Too many return statements)
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
     detail_info = cast(DetailBaseInfo, base_info.detail)
@@ -312,6 +312,9 @@ def _query_one_with_detail(
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case SH.InConstraintComponent:
+            detail = cast(DetailBaseInfo, base_info.detail)
+            return _query_generic_violation(detail.detail_bn, base_info, results_and_onto)
+        case DASH.SingleLineConstraintComponent:
             detail = cast(DetailBaseInfo, base_info.detail)
             return _query_generic_violation(detail.detail_bn, base_info, results_and_onto)
         case _:

@@ -60,6 +60,7 @@ def _handle_auth(
         return
     if len(auth_elems) > 1:
         raise InputError(f"Resource {res.attrib['id']} has more than one author. This is not implemented yet.")
+        # TODO: implement it
     auth_elem = auth_elems[0]
     if auth_elem.text is None:
         raise InputError(f"Resource {res.attrib['id']} has no author")
@@ -68,7 +69,7 @@ def _handle_auth(
         auth_id = len(auth_text_to_id)
         auth_text_to_id[auth_text] = auth_id
     media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
-    res.remove(auth_elem.getparent())
+    res.remove(auth_elem.getparent())  # type: ignore[arg-type]
 
 
 def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str) -> None:
@@ -82,7 +83,7 @@ def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str
         raise InputError(f"Resource {res.attrib['id']} has no copyright")
     copy_text = copy_elem.text.strip()
     media_elem.attrib["copyright-holder"] = copy_text
-    res.remove(copy_elem.getparent())
+    res.remove(copy_elem.getparent())  # type: ignore[arg-type]
 
 
 def _handle_license(res: etree._Element, media_elem: etree._Element, license_prop: str) -> None:
@@ -95,7 +96,7 @@ def _handle_license(res: etree._Element, media_elem: etree._Element, license_pro
     if not (lic := find_license_in_string(str(license_elem.text))):
         raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")
     media_elem.attrib["license"] = lic.value
-    res.remove(license_elem.getparent())
+    res.remove(license_elem.getparent())  # type: ignore[arg-type]
 
 
 def _add_auth_defs(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:

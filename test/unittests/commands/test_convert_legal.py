@@ -2,6 +2,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.commands.convert_legal import _convert
+from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
 COPY_PROP = ":hasCopyright"
@@ -51,6 +52,17 @@ def incomplete_legal() -> etree._Element:
     </knora>
     """)
 
+
+@pytest.fixture
+def missing_legal() -> etree._Element:
+    return etree.fromstring("""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+        </resource>
+    </knora>
+    """)
+                            
 
 @pytest.fixture
 def different_authors() -> etree._Element:
@@ -133,6 +145,17 @@ def test_incomplete_legal(incomplete_legal: etree._Element) -> None:
     assert str(resource_3[0].text).strip() == "test/file.jpg"
 
 
+def test_missing_legal(missing_legal: etree._Element) -> None:
+    result = _convert(missing_legal, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    assert len(result) == 1
+    resource_1 = result[0]
+
+    assert resource_1.tag == "resource"
+    assert len(resource_1) == 1
+    assert resource_1[0].tag == "bitstream"
+    assert not resource_1[0].attrib
+
+
 def test_different_authors(different_authors: etree._Element) -> None:
     result = _convert(different_authors, auth_prop=AUTH_PROP)
     assert len(result) == 5
@@ -169,3 +192,10 @@ def test_different_authors(different_authors: etree._Element) -> None:
     assert resource_3[0].tag == "bitstream"
     assert resource_3[0].attrib["authorship-id"] == "authorship_0"
     assert str(resource_3[0].text).strip() == "test/file.jpg"
+
+
+def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
+    with pytest.raises(InputError):
+        _convert(one_bitstream_one_iiif, auth_prop="", copy_prop="", license_prop="")
+    with pytest.raises(InputError):
+        _convert(one_bitstream_one_iiif)

@@ -369,11 +369,23 @@ def _construct_simple_text_single_line_prop_shape(onto: Graph) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-        ?shapesIRI dash:singleLine true .
-    } WHERE {
+        ?class sh:property    
+                [
+                    a               sh:PropertyShape ;
+                    sh:path         ?prop ;
+                    sh:datatype     xsd:string ;
+                    dash:singleLine true ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "This value may not contain any newlines." ;
+                ] .
+    } WHERE {    
         ?prop a owl:ObjectProperty ;
               salsah-gui:guiElement salsah-gui:SimpleText .
-        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+        
+        ?class a owl:Class ;
+               rdfs:subClassOf ?restriction .
+        ?restriction a owl:Restriction ;          
+                     owl:onProperty ?prop .
     }
     """
     if results_graph := onto.query(query_s).graph:

@@ -80,13 +80,13 @@
         </text-prop>
     </resource>
 
-    <!-- SimpleText may not have line breaks -->
-    <resource label="With linebreaks" restype=":ClassWithEverything" id="simple_text_with_linebreaks">
+    <!-- SimpleText may not have newlines -->
+    <resource label="With linebreaks" restype=":ClassWithEverything" id="simple_text_with_newlines">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">
             This may not
 
-            have line breaks
+            have newlines
             </text>
         </text-prop>
     </resource>

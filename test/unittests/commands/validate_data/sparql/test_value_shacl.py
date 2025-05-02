@@ -29,16 +29,25 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
     proj_li = AllProjectLists([])
     res = construct_property_shapes(res_and_props_with_simpletext, proj_li)
     trip_counts = {
-        ONTO.ClassWithEverything: 4,
+        ONTO.ClassWithEverything: 6,
         ONTO.testBoolean_PropShape: 4,
-        ONTO.testSimpleText_PropShape: 6,
-        ONTO.testDecimalSimpleText_PropShape: 5,
+        ONTO.testSimpleText_PropShape: 5,
+        ONTO.testDecimalSimpleText_PropShape: 4,
     }
     for shape, num_triples in trip_counts.items():
         created_triples = list(res.triples((shape, None, None)))
         assert len(created_triples) == num_triples
 
-    total_triples = sum(trip_counts.values())
+    number_of_single_line_triples = 6
+    simple_text_props = [ONTO.testSimpleText, ONTO.testDecimalSimpleText]
+    for prop in simple_text_props:
+        bn = next(res.subjects(SH.path, prop))
+        trips = list(res.triples((bn, None, None)))
+        assert len(trips) == number_of_single_line_triples
+        cls_statement = next(res.subjects(SH.property, bn))
+        assert cls_statement == ONTO.ClassWithEverything
+
+    total_triples = sum(trip_counts.values()) + len(simple_text_props) * number_of_single_line_triples
     assert len(res) == total_triples
 
 
@@ -195,7 +204,7 @@ def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simplet
         prop_res, object_res = next(res.predicate_objects(prp))
         assert prop_res == DASH.singleLine
         assert object_res == Literal(True)
-    assert len(res) == 2
+    assert len(res) == 14
 
 
 if __name__ == "__main__":

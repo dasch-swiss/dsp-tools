@@ -29,7 +29,7 @@ def _convert(
 ) -> etree._Element:
     if not any([auth_prop, copy_prop, license_prop]):
         raise InputError("At least one of auth_prop, copy_prop, license_prop must be provided")
-    
+
     auth_text_to_id: dict[str, int] = {}
 
     for res in root.iterchildren(tag="resource"):
@@ -60,7 +60,6 @@ def _handle_auth(
         return
     if len(auth_elems) > 1:
         raise InputError(f"Resource {res.attrib['id']} has more than one author. This is not implemented yet.")
-        # TODO: implement it
     auth_elem = auth_elems[0]
     if not auth_elem.text or not (auth_text := auth_elem.text.strip()):
         raise InputError(f"Resource {res.attrib['id']} has an empty authorship")
@@ -109,6 +108,4 @@ def _add_auth_defs(root: etree._Element, auth_text_to_id: dict[str, int]) -> Non
         auth_def.append(auth_child)
         auth_defs.append(auth_def)
     for auth_def in reversed(auth_defs):
-       root.insert(0, auth_def)
-
-# TODO: make better formulations of error messages
+        root.insert(0, auth_def)

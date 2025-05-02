@@ -33,21 +33,57 @@ def _convert(
         if not (media_tag_candidates := res.xpath("bitstream|iiif-uri")):
             continue
         media_elem = media_tag_candidates[0]
-        copy_elem: etree._Element = res.xpath(f"./text-prop[@name='{copy_prop}']/text")[0]
-        license_elem: etree._Element = res.xpath(f"./text-prop[@name='{license_prop}']/text")[0]
-        auth_elem: etree._Element = res.xpath(f"./text-prop[@name='{auth_prop}']/text")[0]
-        if not (auth_id := auth_text_to_id.get(str(auth_elem.text))):
-            auth_id = len(auth_text_to_id)
-            auth_text_to_id[str(auth_elem.text)] = auth_id
-        media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
-        media_elem.attrib["copyright-holder"] = copy_elem.text
-        if not (lic := find_license_in_string(str(license_elem.text))):
-            raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")
-        media_elem.attrib["license"] = lic.value
-        res.remove(copy_elem.getparent())
-        res.remove(license_elem.getparent())
-        res.remove(auth_elem.getparent())
+        if auth_prop:
+            _handle_auth(res, auth_text_to_id, media_elem, auth_prop)
+        if copy_prop:
+            _handle_copy(res, media_elem, copy_prop)
+        if license_prop:
+            _handle_license(res, media_elem, license_prop)
 
+    if auth_text_to_id:
+        _add_auth_defs(root, auth_text_to_id)
+
+    return root
+
+
+def _handle_auth(
+    res: etree._Element,
+    auth_text_to_id: dict[str, int],
+    media_elem: etree._Element,
+    auth_prop: str,
+) -> None:
+    auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
+    if len(auth_elems) != 1:
+        raise InputError(f"Resource {res.attrib['id']} has invalid number of authors")
+    auth_elem = auth_elems[0]
+    if not (auth_id := auth_text_to_id.get(str(auth_elem.text))):
+        auth_id = len(auth_text_to_id)
+        auth_text_to_id[auth_elem.text] = auth_id
+    media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
+    res.remove(auth_elem.getparent())
+
+
+def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str) -> None:
+    copy_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{copy_prop}']/text")
+    if len(copy_elems) != 1:
+        raise InputError(f"Resource {res.attrib['id']} has invalid number of copyrights")
+    copy_elem = copy_elems[0]
+    media_elem.attrib["copyright-holder"] = copy_elem.text
+    res.remove(copy_elem.getparent())
+
+
+def _handle_license(res: etree._Element, media_elem: etree._Element, license_prop: str) -> None:
+    license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
+    if len(license_elems) != 1:
+        raise InputError(f"Resource {res.attrib['id']} has invalid number of licenses")
+    license_elem = license_elems[0]
+    if not (lic := find_license_in_string(str(license_elem.text))):
+        raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")
+    media_elem.attrib["license"] = lic.value
+    res.remove(license_elem.getparent())
+
+
+def _add_auth_defs(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:
     for auth_text, auth_id in auth_text_to_id.items():
         auth_def = etree.Element(
             "authorship",
@@ -57,5 +93,3 @@ def _convert(
         auth_child.text = auth_text
         auth_def.append(auth_child)
         root.insert(0, auth_def)
-
-    return root

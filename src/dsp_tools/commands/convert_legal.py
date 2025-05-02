@@ -56,8 +56,10 @@ def _handle_auth(
     auth_prop: str,
 ) -> None:
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
-    if len(auth_elems) != 1:
-        raise InputError(f"Resource {res.attrib['id']} has invalid number of authors")
+    if not auth_elems:
+        return
+    if len(auth_elems) > 1:
+        raise InputError(f"Resource {res.attrib['id']} has more than one author. This is not implemented yet.")
     auth_elem = auth_elems[0]
     if auth_elem.text is None:
         raise InputError(f"Resource {res.attrib['id']} has no author")
@@ -71,8 +73,10 @@ def _handle_auth(
 
 def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str) -> None:
     copy_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{copy_prop}']/text")
-    if len(copy_elems) != 1:
-        raise InputError(f"Resource {res.attrib['id']} has invalid number of copyrights")
+    if not copy_elems:
+        return
+    if len(copy_elems) > 1:
+        raise InputError(f"Resource {res.attrib['id']} has more than one copyright")
     copy_elem = copy_elems[0]
     if copy_elem.text is None:
         raise InputError(f"Resource {res.attrib['id']} has no copyright")
@@ -83,8 +87,10 @@ def _handle_copy(res: etree._Element, media_elem: etree._Element, copy_prop: str
 
 def _handle_license(res: etree._Element, media_elem: etree._Element, license_prop: str) -> None:
     license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
-    if len(license_elems) != 1:
-        raise InputError(f"Resource {res.attrib['id']} has invalid number of licenses")
+    if not license_elems:
+        return
+    if len(license_elems) > 1:
+        raise InputError(f"Resource {res.attrib['id']} has more than one license")
     license_elem = license_elems[0]
     if not (lic := find_license_in_string(str(license_elem.text))):
         raise InputError(f"Resource {res.attrib['id']} has invalid license {license_elem.text}")

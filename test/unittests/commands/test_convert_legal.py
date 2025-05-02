@@ -227,3 +227,16 @@ def test_empty_license() -> None:
     """)
     with pytest.raises(InputError, match=regex.escape("Resource res_1 has an invalid license:")):
         _convert(empty, license_prop=LICENSE_PROP)
+
+
+def test_invalid_license() -> None:
+    empty = etree.fromstring(f""" 
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC FO BA 4.0</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    with pytest.raises(InputError, match=regex.escape("Resource res_1 has an invalid license:")):
+        _convert(empty, license_prop=LICENSE_PROP)

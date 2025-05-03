@@ -5,8 +5,18 @@
        xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="4123"
        default-ontology="testonto">
+    
 
-    <!-- permissions: see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
+    <authorship id="authorship_1">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorship>
+    <authorship id="authorship_2">
+        <author>Johannes Nussbaum</author>
+    </authorship>
+
+
     <permissions id="open">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
@@ -29,14 +39,7 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
-    <authorship id="authorship_1">
-        <author>
-            Cavanagh, Annie
-        </author>
-    </authorship>
-    <authorship id="authorship_2">
-        <author>Johannes Nussbaum</author>
-    </authorship>
+
     <authorship id="authorship_3">
         <author>Lukas Rosenthaler</author>
     </authorship>
@@ -47,6 +50,7 @@
         <author>Nora Ammann</author>
         <author>Johannes Nussbaum</author>
     </authorship>
+
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"

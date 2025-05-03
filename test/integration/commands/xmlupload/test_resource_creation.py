@@ -17,9 +17,9 @@ from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
@@ -48,12 +48,12 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
     return {
         "foo_1_id": [
             LinkValueStashItem(
-                "foo_1_id", f"{ONTO}foo_1_type", IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
+                "foo_1_id", f"{ONTO}foo_1_type", ProcessedLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
             )
         ],
         "foo_2_id": [
             LinkValueStashItem(
-                "foo_2_id", f"{ONTO}foo_2_type", IntermediaryLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
+                "foo_2_id", f"{ONTO}foo_2_type", ProcessedLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
             )
         ],
     }
@@ -97,12 +97,12 @@ class ProjectClientStub:
 
 def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
     resources = [
-        IntermediaryResource(
+        ProcessedResource(
             "foo_1_id",
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediarySimpleText("foo_1 text", TEXT_PROP, None, None)],
+            [ProcessedSimpleText("foo_1 text", TEXT_PROP, None, None)],
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig())
@@ -156,12 +156,12 @@ def test_one_resource_with_link_to_existing_resource(
     ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
-        IntermediaryResource(
+        ProcessedResource(
             "foo_1_id",
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))],
+            [ProcessedLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))],
         )
     ]
     upload_state = UploadState(
@@ -251,7 +251,7 @@ def _2_resources_with_stash_interrupted_by_error(
     legal_info_client_mock: LegalInfoClient,
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
@@ -291,7 +291,7 @@ def test_2_resources_with_stash(
     link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
@@ -340,7 +340,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -389,7 +389,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -449,7 +449,7 @@ def test_logging(
     legal_info_client_mock: LegalInfoClient,
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -505,7 +505,7 @@ def test_post_requests(
     link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -535,7 +535,7 @@ def test_post_requests(
 
 def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_client_mock: LegalInfoClient) -> None:
     resources = [
-        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
+        ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     upload_state = UploadState(resources.copy(), Stash(None, None), UploadConfig(), [], IriResolver())
     con = ConnectionLive("foo")

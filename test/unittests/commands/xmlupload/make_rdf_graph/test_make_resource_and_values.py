@@ -9,10 +9,10 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_migration_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_resource
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
@@ -30,7 +30,7 @@ def migration_metadata() -> MigrationMetadata:
 
 
 def test_make_resource_mandatory_only() -> None:
-    res = IntermediaryResource(
+    res = ProcessedResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Resource Label",
@@ -49,7 +49,7 @@ def test_make_resource_mandatory_only() -> None:
 
 
 def test_make_resource_permissions() -> None:
-    res = IntermediaryResource(
+    res = ProcessedResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Resource Label",
@@ -70,7 +70,7 @@ def test_make_resource_permissions() -> None:
 
 
 def test_make_resource_migration_metadata() -> None:
-    res = IntermediaryResource(
+    res = ProcessedResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Resource Label",

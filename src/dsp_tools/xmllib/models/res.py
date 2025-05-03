@@ -1,37 +1,37 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Any
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
-from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.file_values import AbstractFileValue
-from dsp_tools.xmllib.models.file_values import FileValue
-from dsp_tools.xmllib.models.file_values import IIIFUri
-from dsp_tools.xmllib.models.file_values import Metadata
+from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.internal.file_values import FileValue
+from dsp_tools.xmllib.models.internal.file_values import IIIFUri
+from dsp_tools.xmllib.models.internal.file_values import Metadata
+from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.internal.values import BooleanValue
+from dsp_tools.xmllib.models.internal.values import ColorValue
+from dsp_tools.xmllib.models.internal.values import DateValue
+from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeonameValue
+from dsp_tools.xmllib.models.internal.values import IntValue
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
+from dsp_tools.xmllib.models.internal.values import TimeValue
+from dsp_tools.xmllib.models.internal.values import UriValue
+from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.values import BooleanValue
-from dsp_tools.xmllib.models.values import ColorValue
-from dsp_tools.xmllib.models.values import DateValue
-from dsp_tools.xmllib.models.values import DecimalValue
-from dsp_tools.xmllib.models.values import GeonameValue
-from dsp_tools.xmllib.models.values import IntValue
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import SimpleText
-from dsp_tools.xmllib.models.values import TimeValue
-from dsp_tools.xmllib.models.values import UriValue
-from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 # ruff: noqa: D101, D102
@@ -50,19 +50,15 @@ class Resource:
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
-        msg = []
-        if not is_nonempty_value(str(self.label)):
-            msg.append(f"Label '{self.label}'")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
         if not is_nonempty_value(str(self.res_id)):
-            msg.append(f"Resource ID '{self.res_id}'")
-        if not is_nonempty_value(str(self.restype)):
-            msg.append(f"Resource Type '{self.restype}'")
-        if msg:
-            out_msg = (
-                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s). "
-                f"The input is not a valid string: {LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.res_id, res_id=self.res_id, value_field="resource ID"
             )
-            warnings.warn(DspToolsUserWarning(out_msg))
+        if not is_nonempty_value(str(self.restype)):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="string", value=self.restype, res_id=self.res_id, value_field="resource type"
+            )
 
     @staticmethod
     def create_new(
@@ -147,7 +143,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            BooleanValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_bool_optional(
@@ -192,7 +192,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_bool(value=value, prop_name=prop_name, permissions=permissions, comment=comment)
         return self
 
     #######################
@@ -228,7 +228,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            ColorValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_color_multiple(
@@ -261,7 +265,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_color(prop_name, v, permissions, comment)
         return self
 
     def add_color_optional(
@@ -301,7 +306,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_color(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -336,7 +341,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            DateValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_date_multiple(
@@ -369,7 +378,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_date(prop_name, v, permissions, comment)
         return self
 
     def add_date_optional(
@@ -409,7 +419,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_date(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -446,7 +456,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            DecimalValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_decimal_multiple(
@@ -480,7 +494,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_decimal(prop_name, v, permissions, comment)
         return self
 
     def add_decimal_optional(
@@ -521,7 +536,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_decimal(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -560,7 +575,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            GeonameValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_geoname_multiple(
@@ -595,7 +614,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_geoname(prop_name, v, permissions, comment)
         return self
 
     def add_geoname_optional(
@@ -637,7 +657,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_geoname(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -674,7 +694,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            IntValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_integer_multiple(
@@ -708,7 +732,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_integer(prop_name, v, permissions, comment)
         return self
 
     def add_integer_optional(
@@ -749,7 +774,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_integer(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -785,7 +810,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            LinkValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_link_multiple(
@@ -818,7 +847,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_link(prop_name, v, permissions, comment)
         return self
 
     def add_link_optional(
@@ -859,7 +889,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_link(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -898,7 +928,16 @@ class Resource:
             )
             ```
         """
-        self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            ListValue.new(
+                value=value,
+                list_name=list_name,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
     def add_list_multiple(
@@ -934,7 +973,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_list(prop_name, list_name, v, permissions, comment)
         return self
 
     def add_list_optional(
@@ -978,7 +1018,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
+            self.add_list(prop_name, list_name, value, permissions, comment)
         return self
 
     #######################
@@ -1014,7 +1054,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            SimpleText.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_simpletext_multiple(
@@ -1047,7 +1091,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_simpletext(prop_name, v, permissions, comment)
         return self
 
     def add_simpletext_optional(
@@ -1087,7 +1132,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
+            self.add_simpletext(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -1142,19 +1187,14 @@ class Resource:
             )
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=value,
-            prop_name=prop_name,
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
         self.values.append(
-            Richtext(
-                value=checked_text,
+            Richtext.new(
+                value=value,
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -1198,25 +1238,18 @@ class Resource:
             )
             ```
         """
-        checked_text = [
-            check_and_create_richtext_string(
-                value=v,
-                prop_name=prop_name,
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for v in values
-        ]
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend(
             [
-                Richtext(
+                Richtext.new(
                     value=v,
                     prop_name=prop_name,
                     permissions=permissions,
                     comment=comment,
                     resource_id=self.res_id,
+                    newline_replacement=newline_replacement,
                 )
-                for v in checked_text
+                for v in vals
             ]
         )
         return self
@@ -1304,7 +1337,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            TimeValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_time_multiple(
@@ -1337,7 +1374,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_time(prop_name, v, permissions, comment)
         return self
 
     def add_time_optional(
@@ -1377,7 +1415,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_time(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -1413,7 +1451,11 @@ class Resource:
             )
             ```
         """
-        self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            UriValue.new(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_uri_multiple(
@@ -1446,7 +1488,8 @@ class Resource:
             ```
         """
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
+        for v in vals:
+            self.add_uri(prop_name, v, permissions, comment)
         return self
 
     def add_uri_optional(
@@ -1486,7 +1529,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
+            self.add_uri(prop_name, value, permissions, comment)
         return self
 
     #######################
@@ -1544,23 +1587,21 @@ class Resource:
             ```
         """
         if self.file_value:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
-                f"'{self.file_value.value}'.\n"
-                f"The new file with the name '{filename}' cannot be added."
+            msg_info = MessageInfo(
+                f"This resource already contains a file with the name: '{self.file_value.value}'. "
+                f"The new file with the name '{filename}' cannot be added.",
+                resource_id=self.res_id,
+                field="file / iiif-uri",
             )
-
-        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = [str(x).strip() for x in fixed_authors]
-        fixed_authors_list = sorted(fixed_authors_list)
-        meta = Metadata(
-            license=str(license),
+            raise_input_error(msg_info)
+        meta = Metadata.new(
+            license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=authorship,
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = FileValue(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = FileValue.new(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     def add_iiif_uri(
@@ -1603,22 +1644,21 @@ class Resource:
             ```
         """
         if self.file_value:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
-                f"'{self.file_value.value}'.\n"
-                f"The new file with the name '{iiif_uri}' cannot be added."
+            msg_info = MessageInfo(
+                f"This resource already contains a file with the name: '{self.file_value.value}'. "
+                f"The new file with the name '{iiif_uri}' cannot be added.",
+                resource_id=self.res_id,
+                field="file / iiif-uri",
             )
-        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = [str(x).strip() for x in fixed_authors]
-        fixed_authors_list = sorted(fixed_authors_list)
-        meta = Metadata(
-            license=str(license),
+            raise_input_error(msg_info)
+        meta = Metadata.new(
+            license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=authorship,
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = IIIFUri(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = IIIFUri.new(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     #######################
@@ -1660,9 +1700,9 @@ class Resource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

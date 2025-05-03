@@ -1,32 +1,31 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import TypeAlias
 from typing import Union
 from uuid import uuid4
 
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
-from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
-from dsp_tools.xmllib.models.file_values import AuthorshipLookup
-from dsp_tools.xmllib.models.permissions import XMLPermissions
+from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
+from dsp_tools.xmllib.models.internal.serialise_permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
-from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
 
-AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
+type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
 
 # ruff: noqa: D101
@@ -184,7 +183,7 @@ class XMLRoot:
                 f"The XML file was successfully saved to {filepath}, "
                 f"but the following Schema validation error(s) occurred: {err.message}"
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_warning(MessageInfo(msg))
 
     def serialise(self) -> etree._Element:
         """

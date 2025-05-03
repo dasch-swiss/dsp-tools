@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
@@ -16,7 +16,10 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
+from dsp_tools.xmllib.helpers import find_license_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 
 
 @pytest.fixture
@@ -334,8 +337,8 @@ class TestListLookup:
         assert list_lookup.get_node_via_list_name("list1", "Label 1") == "list1_node1"
 
     def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
-        msg = regex.escape("Entered list name 'inexistent' was not found.")
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        msg = regex.escape("The entered list name 'inexistent' was not found. An empty string is returned.")
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
         assert result == ""
 
@@ -344,7 +347,7 @@ class TestListLookup:
             "'inexistent' was not recognised as label of the list 'list1'. "
             "This ListLookup is configured for 'en' labels."
         )
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_node_via_list_name("list1", "inexistent")
         assert result == ""
 
@@ -356,8 +359,8 @@ class TestListLookup:
         assert node_name == "list2_node2"
 
     def test_get_node_via_property_warns_wrong_property(self, list_lookup):
-        msg = regex.escape("Entered property ':inexistent' was not found.")
-        with pytest.warns(DspToolsUserWarning, match=msg):
+        msg = regex.escape("The entered property ':inexistent' was not found. An empty string is returned.")
+        with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")
 
@@ -392,6 +395,165 @@ def test_clean_whitespaces_from_string(input_val: str, expected: str) -> None:
 
 def test_clean_whitespaces_from_string_warns() -> None:
     expected = regex.escape("The entered string is empty after all redundant whitespaces were removed.")
-    with pytest.warns(DspToolsUserWarning, match=expected):
+    with pytest.warns(XmllibInputWarning, match=expected):
         result = clean_whitespaces_from_string("   \r   \n\t ")
     assert result == ""
+
+
+class TestFindLicense:
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text Creative Commons BY 4.0 text", LicenseRecommended.CC.BY),
+            ("text Creative Commons BY text", LicenseRecommended.CC.BY),
+            ("text CC BY 4.0 text", LicenseRecommended.CC.BY),
+            ("text CC-BY-4.0 text", LicenseRecommended.CC.BY),
+            ("text CC_BY_4.0 text", LicenseRecommended.CC.BY),
+            ("text CC BY text", LicenseRecommended.CC.BY),
+            ("text CC-BY text", LicenseRecommended.CC.BY),
+            ("text CC_BY text", LicenseRecommended.CC.BY),
+            ("CC BY 4.0", LicenseRecommended.CC.BY),
+            ("CC BY", LicenseRecommended.CC.BY),
+            ("CC-BY", LicenseRecommended.CC.BY),
+        ],
+    )
+    def test_find_license_different_syntax(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text, CC BY, text", LicenseRecommended.CC.BY),
+            ("text. CC-BY. text", LicenseRecommended.CC.BY),
+            ("text-CC BY-text", LicenseRecommended.CC.BY),
+            ("text-CC-BY-text", LicenseRecommended.CC.BY),
+            ("text (CC BY) text", LicenseRecommended.CC.BY),
+        ],
+    )
+    def test_find_license_punctuation(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text CC BY text", LicenseRecommended.CC.BY),
+            ("text CC BY ND text", LicenseRecommended.CC.BY_ND),
+            ("text CC BY SA text", LicenseRecommended.CC.BY_SA),
+            ("text CC BY NC text", LicenseRecommended.CC.BY_NC),
+            ("text CC BY NC ND text", LicenseRecommended.CC.BY_NC_ND),
+            ("text CC BY NC SA text", LicenseRecommended.CC.BY_NC_SA),
+        ],
+    )
+    def test_find_license_different_licenses(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text cc by text", LicenseRecommended.CC.BY),
+            ("text cc by nd text", LicenseRecommended.CC.BY_ND),
+            ("text cc by sa text", LicenseRecommended.CC.BY_SA),
+            ("text cc by nc text", LicenseRecommended.CC.BY_NC),
+            ("text cc by nc nd text", LicenseRecommended.CC.BY_NC_ND),
+            ("text cc by nc sa text", LicenseRecommended.CC.BY_NC_SA),
+        ],
+    )
+    def test_find_license_lowercase(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("CC BY NC SA 1.0", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 2.0", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 3.1", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY NC SA 10.20", LicenseRecommended.CC.BY_NC_SA),
+        ],
+    )
+    def test_find_license_different_versions(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    def test_find_license_ignore_subsequent(self) -> None:
+        assert find_license_in_string("CC BY and CC BY SA") == LicenseRecommended.CC.BY
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("CC SA BY 4.0", LicenseRecommended.CC.BY_SA),
+            ("CC BY SA NC", LicenseRecommended.CC.BY_NC_SA),
+            ("CC BY-ND-NC", LicenseRecommended.CC.BY_NC_ND),
+        ],
+    )
+    def test_find_license_wrong_order(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        "string",
+        [
+            "CC",
+            "CC/BY/SA",
+            "CC,BY,SA",
+            "CC.BY.SA",
+            "textCC-BY-SAtext",
+            "CC BY BY",
+            "CC BY NC NC",
+        ],
+    )
+    def test_find_license_wrong_format(self, string: str) -> None:
+        assert not find_license_in_string(string)
+
+    @pytest.mark.parametrize("string", ["CC ND SA"])
+    def test_find_license_non_existent(self, string: str) -> None:
+        assert not find_license_in_string(string)
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text AI Generated text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ai generated text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text AI text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ai text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text IA text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ia text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text KI text", LicenseRecommended.DSP.AI_GENERATED),
+            ("text ki text", LicenseRecommended.DSP.AI_GENERATED),
+            ("textkitext", None),
+            ("textKItext", None),
+            ("textaitext", None),
+            ("textAItext", None),
+            ("textiatext", None),
+            ("textIAtext", None),
+        ],
+    )
+    def test_find_license_ai_generated(self, string: str, expected: License | None) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text PUBLIC DOMAIN text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text public domain text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text GEMEINFREI text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text gemeinfrei text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text frei von Urheberrechten text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text urheberrechtsbefreit text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text libre de droits text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+            ("text domaine public text", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+        ],
+    )
+    def test_find_public_domain(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("text UNKNOWN text", LicenseRecommended.DSP.UNKNOWN),
+            ("text unknown text", LicenseRecommended.DSP.UNKNOWN),
+            ("text UNBEKANNT text", LicenseRecommended.DSP.UNKNOWN),
+            ("text unbekannt text", LicenseRecommended.DSP.UNKNOWN),
+            ("text INCONNU text", LicenseRecommended.DSP.UNKNOWN),
+            ("text inconnu text", LicenseRecommended.DSP.UNKNOWN),
+        ],
+    )
+    def test_find_unknown(self, string: str, expected: License) -> None:
+        assert find_license_in_string(string) == expected

@@ -18,8 +18,8 @@ from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -70,9 +70,9 @@ def ingest_xmlupload(
 
     preliminary_validation_of_root(root, con, config)
 
-    transformed = get_transformed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(transformed)
-    sorted_resources, stash = get_stash_and_upload_order(transformed)
+    processed_resources = get_processed_resources_for_upload(root, clients)
+    check_if_link_targets_exist(processed_resources)
+    sorted_resources, stash = get_stash_and_upload_order(processed_resources)
 
     state = UploadState(
         pending_resources=sorted_resources,

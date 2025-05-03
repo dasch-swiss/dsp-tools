@@ -1,26 +1,26 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
-from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.geometry import Circle
-from dsp_tools.xmllib.models.geometry import GeometryPoint
-from dsp_tools.xmllib.models.geometry import GeometryShape
-from dsp_tools.xmllib.models.geometry import Polygon
-from dsp_tools.xmllib.models.geometry import Rectangle
-from dsp_tools.xmllib.models.geometry import Vector
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.internal.geometry import Circle
+from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
+from dsp_tools.xmllib.models.internal.geometry import GeometryShape
+from dsp_tools.xmllib.models.internal.geometry import Polygon
+from dsp_tools.xmllib.models.internal.geometry import Rectangle
+from dsp_tools.xmllib.models.internal.geometry import Vector
+from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
@@ -41,8 +41,7 @@ class RegionResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, field_name="isRegionOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -81,7 +80,9 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id),
+            region_of=LinkValue.new(
+                value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
+            ),
             geometry=None,
             permissions=permissions,
         )
@@ -269,19 +270,14 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
         self.comments.append(
-            Richtext(
-                value=checked_text,
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -311,24 +307,16 @@ class RegionResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
         comnts = [
-            Richtext(
+            Richtext.new(
                 value=x,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
-            for x in texts
+            for x in vals
         ]
         self.comments.extend(comnts)
         return self
@@ -391,10 +379,10 @@ class RegionResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -410,7 +398,7 @@ class LinkResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -444,7 +432,10 @@ class LinkResource:
             ```
         """
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
-        link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
+        link_vals = [
+            LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
+            for x in links_to
+        ]
         return LinkResource(
             res_id=res_id,
             label=label,
@@ -480,19 +471,14 @@ class LinkResource:
             link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
         self.comments.append(
-            Richtext(
-                value=checked_text,
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -522,24 +508,16 @@ class LinkResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
         comnts = [
-            Richtext(
+            Richtext.new(
                 value=x,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
-            for x in texts
+            for x in vals
         ]
         self.comments.extend(comnts)
         return self
@@ -602,10 +580,10 @@ class LinkResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -623,12 +601,12 @@ class SegmentBounds:
         if not is_decimal(self.segment_end):
             msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
         if msg:
-            title = (
-                f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "
-                f"The following places have an unexpected type:"
+            wrng = f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            msg_info = MessageInfo(
+                f"Segment bounds must be a float or integer. The following places have an unexpected type: {wrng}",
+                self.res_id,
             )
-            wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
-            warnings.warn(DspToolsUserWarning(wrng))
+            emit_xmllib_input_warning(msg_info)
 
 
 @dataclass
@@ -647,16 +625,16 @@ class VideoSegmentResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
@@ -1014,10 +992,10 @@ class VideoSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -1038,16 +1016,16 @@ class AudioSegmentResource:
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
@@ -1385,27 +1363,26 @@ class AudioSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
 
-def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
+def _check_strings(
+    *, string_to_check: str, res_id: str, prop_name: str | None = None, field_name: str | None = None
+) -> None:
     if not is_nonempty_value(string_to_check):
-        msg = (
-            f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
-            f"Field: {field_name} | Value: {string_to_check}"
-        )
-        warnings.warn(DspToolsUserWarning(msg))
+        msg_info = MessageInfo("The entered string is not valid.", res_id, prop_name, field_name)
+        emit_xmllib_input_warning(msg_info)
 
 
-def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
+def _warn_value_exists(*, old_value: Any, new_value: Any, res_id: str | None, value_field: str | None = None) -> None:
     msg = (
-        f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "
+        f"This resource already has a value in this location. "
         f"The old value '{old_value}' is being replace with '{new_value}'."
     )
-    warnings.warn(DspToolsUserWarning(msg))
+    msg_info = MessageInfo(msg, res_id, field=value_field)
+    emit_xmllib_input_warning(msg_info)

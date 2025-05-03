@@ -3,22 +3,24 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
-import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from typing import Iterable
 
 import regex
 from lxml import etree
 from regex import Match
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
-from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
+from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -106,9 +108,9 @@ def create_footnote_element(
         The footnote as a string
     """
     if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
-        raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
+        raise_input_error(MessageInfo("Currently the only supported newline replacement is linebreak (<br/>) or None."))
     if not is_nonempty_value_internal(footnote_text):
-        raise InputError("The input value is empty.")
+        raise_input_error(MessageInfo("The input value is empty."))
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
     unescaped_text = unescape_reserved_xml_chars(footnote_text)
     return etree.Element("footnote", attrib={"content": unescaped_text})
@@ -135,12 +137,11 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
         ```
     """
     if not all([is_nonempty_value_internal(resource_id), is_nonempty_value_internal(displayed_text)]):
-        raise InputError(
-            (
-                f"The entered resource ID and displayed text may not be empty. "
-                f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
-            )
+        msg_str = (
+            f"The entered resource ID and displayed text may not be empty. "
+            f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
         )
+        raise_input_error(MessageInfo(msg_str))
     attribs = {"class": "salsah-link", "href": f"IRI:{resource_id}:IRI"}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
@@ -168,12 +169,11 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
         ```
     """
     if not all([is_nonempty_value_internal(uri), is_nonempty_value_internal(displayed_text)]):
-        raise InputError(
-            (
-                f"The entered URI and displayed text may not be empty. "
-                f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
-            )
+        msg_str = (
+            f"The entered URI and displayed text may not be empty. "
+            f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
         )
+        raise_input_error(MessageInfo(msg_str))
     attribs = {"href": uri}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
@@ -341,15 +341,17 @@ class ListLookup:
             ```
         """
         if not (list_lookup := self._lookup.get(list_name)):
-            msg = f"Entered list name '{list_name}' was not found."
-            warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered list name '{list_name}' was not found. An empty string is returned.")
+            )
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = (
-                f"'{node_label}' was not recognised as label of the list '{list_name}'. "
-                f"This ListLookup is configured for '{self._label_language}' labels."
+            emit_xmllib_input_warning(
+                MessageInfo(
+                    f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                    f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
+                )
             )
-            warnings.warn(DspToolsUserWarning(msg))
             return ""
         return found_node
 
@@ -400,8 +402,9 @@ class ListLookup:
             ```
         """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
-            msg = f"Entered property '{prop_name}' was not found."
-            warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered property '{prop_name}' was not found. An empty string is returned.")
+            )
             return ""
         return list_name
 
@@ -991,7 +994,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         ```
     """
     if not is_nonempty_value_internal(input_value):
-        raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
+        raise_input_error(MessageInfo(f"The input '{input_value}' cannot be transformed to an xsd:ID"))
     # if the start of string is neither letter nor underscore, add an underscore
     res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
     # replace all illegal characters by underscore
@@ -1060,7 +1063,9 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         ```
     """
     if not isinstance(string, str):
-        raise InputError(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+        raise_input_error(
+            MessageInfo(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+        )
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
@@ -1099,15 +1104,12 @@ def create_non_empty_list_from_string(
     """
     lst = create_list_from_string(string, separator)
     if len(lst) == 0:
-        msg = "The input for this function must result in a non-empty list. Your input"
-        details = []
-        if resource_id:
-            details.append(f"resource with the ID '{resource_id}'")
-        if prop_name:
-            details.append(f"property '{prop_name}'")
-        details_msg = "for the " + " and ".join(details) + " " if details else ""
-        msg += " " + details_msg + "results in an empty list."
-        raise InputError(msg)
+        msg_info = MessageInfo(
+            message="The input for this function must result in a non-empty list. Your input results in an empty list.",
+            resource_id=resource_id,
+            prop_name=prop_name,
+        )
+        raise_input_error(msg_info)
     return lst
 
 
@@ -1137,6 +1139,99 @@ def clean_whitespaces_from_string(string: str) -> str:
     """
     cleaned = regex.sub(r"\s+", " ", string).strip()
     if len(cleaned) == 0:
-        msg = "The entered string is empty after all redundant whitespaces were removed."
-        warnings.warn(DspToolsUserWarning(msg))
+        emit_xmllib_input_warning(
+            MessageInfo(
+                "The entered string is empty after all redundant whitespaces were removed. An empty string is returned."
+            )
+        )
     return cleaned
+
+
+def find_license_in_string(string: str) -> License | None:
+    """
+    Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
+    Once a license has been found, subsequent licenses are ignored.
+    Returns None if no license was found.
+    The case (upper case/lower case) is ignored.
+
+    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    for details.
+
+    Args:
+        string: string to check
+
+    Returns:
+        `xmllib.LicenseRecommended` object or `None`
+
+    Examples:
+        ```python
+        result = xmllib.find_license_in_string("text CC BY text")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("unsupported: Creative Commons Developing Nations 2.0 Generic Deed")
+        # result == None
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("CC BY, CC BY SA. The second license will be ignored.")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+    Currently supported license formats:
+        - "AI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "KI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "IA" -> LicenseRecommended.DSP.AI_GENERATED
+        - "public domain" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "gemeinfrei" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "frei von Urheberrechten" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "urheberrechtsbefreit" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "libre de droits" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "domaine public" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "unknown" -> LicenseRecommended.DSP.UNKNOWN
+        - "unbekannt" -> LicenseRecommended.DSP.UNKNOWN
+        - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
+        - "CC BY" -> LicenseRecommended.CC.BY
+        - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
+    """
+    sep = r"[- _]+?"
+    if match := regex.search(
+        rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
+    ):
+        return _find_cc_license(match.group(0))
+    if regex.search(r"\b(AI|IA|KI)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.AI_GENERATED
+    if regex.search(
+        r"\b(public domain|gemeinfrei|frei von Urheberrechten|urheberrechtsbefreit|libre de droits|domaine public)\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseRecommended.DSP.PUBLIC_DOMAIN
+    if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.UNKNOWN
+    return None
+
+
+def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
+    string = string.lower()
+    if "by" not in string:
+        return None
+    if any((string.count("by") > 1, string.count("nd") > 1, string.count("sa") > 1, string.count("nc") > 1)):
+        return None
+    has_nc = "nc" in string
+    has_nd = "nd" in string
+    has_sa = "sa" in string
+    if not any((has_nc, has_nd, has_sa)):
+        return LicenseRecommended.CC.BY
+    if not has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_ND
+    if not has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_SA
+    if has_nc and not has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC
+    if has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC_ND
+    if has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_NC_SA
+    return None

@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "13.0.0"
+version = "13.1.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
@@ -27,6 +27,7 @@ dependencies = [
     "pandas[excel]",
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "pydantic",
+    "polars",
     "pyld",
     "python-dateutil",
     "pyyaml",
@@ -87,7 +88,6 @@ dev-dependencies = [
     "types-tqdm",
     "viztracer",
     "yamllint",
-    "typing-extensions",
     "pytest-xdist>=3.6.1",
     "vulture"
 ]
@@ -148,9 +148,8 @@ select = [
     "PT",    # flake8-pytest-style plugin
     "TID",   # flake8-tidy-imports plugin
     "ICN",   # flake8-import-conventions plugin, which checks for import conventions
-    "ARG",   # flake8-unused-arguments
     "PGH",   # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
-    "UP031", # pyupgrade: printf-string-formatting
+    "UP",    # pyupgrade
     "D101",  # pydocstyle: undocumented-public-class
     "D102",  # pydocstyle: undocumented-public-method
     "D103",  # pydocstyle: undocumented-public-function
@@ -164,6 +163,8 @@ ignore = [
     "S106",   # flake8-bandit: hardcoded password
     "S603",   # flake8-bandit: subprocess-without-shell-equals-true
     "S320",   # flake8-bandit: xml parsing vulnerable to XML attacks
+    "UP007",  # forbid use of typing.Union and typing.Optional
+    "UP015",  # Unnecessary mode="r" argument in open()
 ]
 
 
@@ -195,7 +196,9 @@ force-single-line = true
 [tool.vulture]
 paths = ["src/dsp_tools", ".vulture_whitelist.py"]
 exclude = [
-    "src/dsp_tools/xmllib/", 
+    "src/dsp_tools/xmllib/",
+    "src/dsp_tools/error/xmllib_warnings.py",
+    "src/dsp_tools/error/xmllib_warnings_util.py",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
 ]

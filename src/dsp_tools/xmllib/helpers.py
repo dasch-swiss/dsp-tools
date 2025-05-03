@@ -664,6 +664,8 @@ def find_date_in_string(string: str) -> str | None:
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
+    if already_parsed := _extract_already_parsed_date(string):
+        return already_parsed
     if not is_nonempty_value_internal(string):
         return None
     try:
@@ -967,6 +969,13 @@ def _from_year_range(year_range: Match[str]) -> str:
     if endyear <= startyear:
         raise ValueError
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
+
+
+def _extract_already_parsed_date(string: str) -> str | None:
+    rgx = r"(GREGORIAN|JULIAN|ISLAMIC):(CE|BC):\d+(-\d{2}(-\d{2})?)?:(CE:|BC:)?\d+(-\d{2}(-\d{2})?)?"
+    if match := regex.search(rgx, string):
+        return match.group(0)
+    return None
 
 
 def make_xsd_compatible_id(input_value: str | float | int) -> str:

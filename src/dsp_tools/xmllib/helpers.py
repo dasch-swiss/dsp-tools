@@ -972,7 +972,9 @@ def _from_year_range(year_range: Match[str]) -> str:
 
 
 def _extract_already_parsed_date(string: str) -> str | None:
-    rgx = r"(GREGORIAN|JULIAN|ISLAMIC):(CE|BC):\d+(-\d{2}(-\d{2})?)?:(CE:|BC:)?\d+(-\d{2}(-\d{2})?)?"
+    rgx_year = r"\d+(-\d{2}(-\d{2})?)?"
+    era_with_colon = r"(CE:|BC:)"
+    rgx = r"(GREGORIAN|JULIAN|ISLAMIC):{era_with_colon}{rgx_year}:{era_with_colon}?{rgx_year}"
     if match := regex.search(rgx, string):
         return match.group(0)
     return None

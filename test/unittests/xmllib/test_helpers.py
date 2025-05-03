@@ -307,19 +307,18 @@ class TestFindDate:
     @pytest.mark.parametrize(
         "already_parsed",
         [
-            "text GREGORIAN:BC:2001:BC:2000 text",
-            "text GREGORIAN:BC:2001-01:BC:2000-02 text",
-            "text GREGORIAN:BC:2001-01-01:BC:2000-01-02 text",
-            "text GREGORIAN:BC:1:AD:1 text",
-            "text GREGORIAN:CE:1993:CE:1994 text",
-            "text GREGORIAN:CE:1993-01:CE:1993-02 text",
-            "text GREGORIAN:CE:1993-01-26:CE:1993-01-27 text",
-            "text JULIAN:CE:1900:CE:1901 text",
-            "text JULIAN:AD:1900:AD:1901 text",
+            "GREGORIAN:BC:2001:BC:2000",
+            "GREGORIAN:BC:2001-01:BC:2000-02",
+            "GREGORIAN:BC:2001-01-01:BC:2000-01-02",
+            "GREGORIAN:BC:1:CE:1",
+            "GREGORIAN:CE:1993:CE:1994",
+            "GREGORIAN:CE:1993-01:CE:1993-02",
+            "GREGORIAN:CE:1993-01-26:CE:1993-01-27",
+            "JULIAN:CE:1900:CE:1901",
         ],
     )
     def test_find_date_in_string_already_parsed(self, already_parsed: str) -> None:
-        assert find_date_in_string(already_parsed) == already_parsed
+        assert find_date_in_string(f"text {already_parsed} text") == already_parsed
 
 
 class TestCreateListFromString:

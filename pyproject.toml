@@ -26,10 +26,8 @@ dependencies = [
     "packaging",
     "pandas[excel]",
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
-    "pydantic",
     "polars",
     "pyld",
-    "python-dateutil",
     "pyyaml",
     "rdflib",
     "regex",
@@ -37,7 +35,6 @@ dependencies = [
     "rustworkx",
     "tqdm",
     "typing-extensions",
-    "urllib3",
 ]
 
 
@@ -70,9 +67,12 @@ dev-dependencies = [
     "mypy",
     "pandas-stubs",
     "pre-commit",
+    "pydantic>=2.11.4",
     "pytest-cov",
     "pytest-unordered",
+    "pytest-xdist>=3.6.1",
     "pytest",
+    "python-dateutil>=2.9.0.post0",
     "requests-mock",
     "ruff",
     "testcontainers",
@@ -86,10 +86,10 @@ dev-dependencies = [
     "types-regex",
     "types-requests",
     "types-tqdm",
+    "urllib3>=2.4.0",
     "viztracer",
+    "vulture",
     "yamllint",
-    "pytest-xdist>=3.6.1",
-    "vulture"
 ]
 
 

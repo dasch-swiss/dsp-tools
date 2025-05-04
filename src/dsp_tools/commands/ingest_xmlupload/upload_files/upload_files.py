@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import openapi_client
 from loguru import logger
 from lxml import etree
+from openapi_client.rest import ApiException
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
@@ -38,11 +40,33 @@ def upload_files(
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    configuration = openapi_client.Configuration(
+        host=creds.server,
+        access_token=auth.get_token(),
+    )
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, imgdir)
 
     failures: list[UploadFailure] = []
     progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", dynamic_ncols=True)
     for path in progress_bar:
+        with openapi_client.ApiClient(configuration) as api_client:
+            api_instance = openapi_client.AdminFilesApi(api_client)
+            project_shortcode = "0001"  # str | The shortcode of a project. Must be a 4 digit hexadecimal String.
+            filename = "filename_example"  # str |
+            knora_authentication_mfygsltemfzwg2_boon3_ws43_thi2_dimy9 = (
+                "knora_authentication_mfygsltemfzwg2_boon3_ws43_thi2_dimy9_example"  # str |  (optional)
+            )
+
+            try:
+                api_response = api_instance.get_admin_files_projectshortcode_filename(
+                    project_shortcode,
+                    filename,
+                    knora_authentication_mfygsltemfzwg2_boon3_ws43_thi2_dimy9=knora_authentication_mfygsltemfzwg2_boon3_ws43_thi2_dimy9,
+                )
+                print("The response of AdminFilesApi->get_admin_files_projectshortcode_filename:\n")
+                pprint(api_response)
+            except ApiException as e:
+                print("Exception when calling AdminFilesApi->get_admin_files_projectshortcode_filename: %s\n" % e)
         if res := ingest_client.upload_file(path):
             failures.append(res)
             progress_bar.set_description(f"Uploading files (failed: {len(failures)})")

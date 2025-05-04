@@ -143,9 +143,18 @@ openapi-cli *ARGS:
 
 
 [no-exit-message]
-openapi-generate:
+openapi-generate-dsp-api:
     @just openapi-cli generate \
     -i https://api.dasch.swiss/api/docs/docs.yaml \
     -g python \
     --additional-properties=generateSourceCodeOnly=True \
-    -o /local/src/dsp_tools/clients/openapi
+    -o /local/src/dsp_tools/clients/openapi-api
+
+
+[no-exit-message]
+openapi-generate-dsp-ingest:
+    @just openapi-cli generate \
+    -i /Users/nussbaum/Desktop/Cloned_GitHub_repos/dsp-docs/docs/openapi/openapi-projects.yml \
+    -g python \
+    --additional-properties=generateSourceCodeOnly=True \
+    -o /local/src/dsp_tools/clients/openapi-ingest

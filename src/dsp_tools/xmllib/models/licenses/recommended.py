@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 
 
-class License: ...
+class License(StrEnum): ...
 
 
 class LicenseRecommended:
@@ -43,7 +43,7 @@ class LicenseRecommended:
     DSP: type[DSP]
 
 
-class CC(License, StrEnum):
+class CC(License):
     """
     Pre-defined and recommended [Creative Commons licenses:](https://creativecommons.org/share-your-work/)
 
@@ -78,7 +78,7 @@ class CC(License, StrEnum):
     BY_NC_ND = "http://rdfh.ch/licenses/cc-by-nc-nd-4.0"
 
 
-class DSP(License, StrEnum):
+class DSP(License):
     """
     Pre-defined and recommended licenses created and curated by DaSCH:
 

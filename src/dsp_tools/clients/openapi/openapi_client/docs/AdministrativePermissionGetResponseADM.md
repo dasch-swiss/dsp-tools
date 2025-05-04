@@ -1,0 +1,29 @@
+# AdministrativePermissionGetResponseADM
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**administrative_permission** | [**AdministrativePermissionADM**](AdministrativePermissionADM.md) |  | 
+
+## Example
+
+```python
+from openapi_client.models.administrative_permission_get_response_adm import AdministrativePermissionGetResponseADM
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of AdministrativePermissionGetResponseADM from a JSON string
+administrative_permission_get_response_adm_instance = AdministrativePermissionGetResponseADM.from_json(json)
+# print the JSON string representation of the object
+print(AdministrativePermissionGetResponseADM.to_json())
+
+# convert the object into a dict
+administrative_permission_get_response_adm_dict = administrative_permission_get_response_adm_instance.to_dict()
+# create an instance of AdministrativePermissionGetResponseADM from a dict
+administrative_permission_get_response_adm_from_dict = AdministrativePermissionGetResponseADM.from_dict(administrative_permission_get_response_adm_dict)
+```
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

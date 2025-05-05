@@ -262,13 +262,13 @@ api-shapes:SimpleTextValue_ClassShape
                   sh:message  "TextValue without formatting"
               ] ,
               [
-                  a           sh:PropertyShape ;
-                  sh:path     knora-api:valueAsString ;
-                  sh:datatype xsd:string ;
-                  sh:pattern  "\\s*\\S+\\s*" ;
+                  a               sh:PropertyShape ;
+                  sh:path         knora-api:valueAsString ;
+                  sh:datatype     xsd:string ;
+                  sh:pattern      "\\s*\\S+\\s*" ;
                   dash:singleLine true ;
-                  sh:severity sh:Violation ;
-                  sh:message  "The value must be a non-empty string without linebreaks."
+                  sh:severity     sh:Violation ;
+                  sh:message      "The value must be a non-empty string without linebreaks."
               ] .
 
 api-shapes:TextareaTextValue_ClassShape

@@ -69,6 +69,7 @@ dev-dependencies = [
     "pre-commit",
     "pytest-cov",
     "pytest-unordered",
+    "pytest-xdist>=3.6.1",
     "pytest",
     "requests-mock",
     "ruff",
@@ -84,9 +85,8 @@ dev-dependencies = [
     "types-requests",
     "types-tqdm",
     "viztracer",
+    "vulture",
     "yamllint",
-    "pytest-xdist>=3.6.1",
-    "vulture"
 ]
 
 

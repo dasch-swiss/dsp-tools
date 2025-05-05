@@ -81,12 +81,6 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
     reformatted = reformat_validation_graph(report)
     messages = get_user_message(reformatted.problems, filepath)
-    if messages.problems:
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(messages.problems)
-    else:
-        logger.info("Validation passed.")
-        print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     if messages.referenced_absolute_iris:
         print(
             BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
@@ -95,6 +89,9 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
             + RESET_TO_DEFAULT
             + f"{messages.referenced_absolute_iris}"
         )
+    if messages.problems:
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(messages.problems)
     if reformatted.unexpected_results:
         if save_graphs:
             print(

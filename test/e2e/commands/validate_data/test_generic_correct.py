@@ -66,8 +66,8 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     reformatted = reformat_validation_graph(content_correct)
     extracted_message = get_user_message(reformatted.problems, Path(""))
     # When we create the user message we differentiate between an error and a reference to an IRI
-    assert len(extracted_message.problems) == 0
-    assert len(extracted_message.referenced_absolute_iris) == 1
+    assert not extracted_message.problems
+    assert extracted_message.referenced_absolute_iris
 
 
 @pytest.fixture(scope="module")

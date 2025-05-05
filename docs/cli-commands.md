@@ -185,7 +185,7 @@ Output:
 
 - A file named `id2iri_mapping_[timestamp].json` is written to the current working directory.
   This file should be kept if a second data delivery is added at a later point of time 
-  [see here](./incremental-xmlupload.md).
+  [see here](./special-workflows/incremental-xmlupload.md).
 
 The defaults are intended for local testing: 
 
@@ -557,7 +557,7 @@ because normally, the resources occurring in the mapping already exist on the DS
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 
-that is documented [here](./incremental-xmlupload.md).
+that is documented [here](./special-workflows/incremental-xmlupload.md).
 
 
 

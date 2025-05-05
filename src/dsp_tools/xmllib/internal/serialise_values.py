@@ -21,6 +21,7 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 
+from dsp_tools.xmllib.internal.checkers import parse_richtext_as_xml
 PROP_TYPE_LOOKUP = {
     BooleanValue: "boolean",
     ColorValue: "color",
@@ -122,7 +123,8 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 
 
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
+    parsed = parse_richtext_as_xml(value.value)
     new_element = deepcopy(text_element)
-    new_element.text = value.value.text  # everything before the first child tag
-    new_element.extend(list(value.value))  # all (nested) children of the pseudo-xml
+    new_element.text = parsed.text  # everything before the first child tag
+    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
     return new_element

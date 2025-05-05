@@ -269,7 +269,7 @@ class SimpleText(Value):
 
 @dataclass
 class Richtext(Value):
-    value: etree._Element
+    value: str
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
@@ -291,7 +291,7 @@ class Richtext(Value):
         if isinstance(result, MessageInfo):
             raise_input_error(result)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=result, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass

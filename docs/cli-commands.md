@@ -669,4 +669,4 @@ The following options are available:
 
 The output file is written to `[original name]_updated.xml`.
 
-More details can be found [here](./update-legal.md).
+More details can be found [here](./special-workflows/update-legal.md).

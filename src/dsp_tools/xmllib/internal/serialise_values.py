@@ -4,10 +4,8 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.internal.input_converters import numeric_entities
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
@@ -125,10 +123,6 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     new_element = deepcopy(text_element)
-    escaped_text = escape_reserved_xml_characters(value.value)
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
-    parsed = etree.fromstring(pseudo_xml)
-    new_element.text = parsed.text  # everything before the first child tag
-    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    new_element.text = value.value.text  # everything before the first child tag
+    new_element.extend(list(value.value))  # all (nested) children of the pseudo-xml
     return new_element

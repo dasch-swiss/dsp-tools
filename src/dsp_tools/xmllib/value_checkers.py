@@ -2,12 +2,10 @@ from typing import Any
 
 import pandas as pd
 import regex
-from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.internal.checkers import parse_richtext_as_xml
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -344,16 +342,6 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         XmllibInputWarning: if the input contains XML syntax problems
     """
-    escaped_text = escape_reserved_xml_characters(richtext)
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<text>{num_ent}</text>"
-    try:
-        _ = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        msg = (
-            "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-            "The special characters <, > and & are only allowed to construct a tag.\n"
-            f"Original error message: {err.msg}\n"
-            f"Eventual line/column numbers are relative to this text: {pseudo_xml}"
-        )
-        emit_xmllib_input_warning(MessageInfo(msg))
+    result = parse_richtext_as_xml(richtext)
+    if isinstance(result, MessageInfo):
+        emit_xmllib_input_warning(result)

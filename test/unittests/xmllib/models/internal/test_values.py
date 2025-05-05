@@ -3,6 +3,7 @@ import warnings
 import pandas as pd
 import pytest
 
+from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.values import BooleanValue
@@ -42,9 +43,9 @@ class TestBooleanValue:
             BooleanValue.new("other", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=None)
 
     def test_warns_potentially_empty_comment(self) -> None:
-        with pytest.warns(XmllibInputWarning):
+        with pytest.warns(XmllibInputInfo):
             BooleanValue.new(
-                "other", ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=str(pd.NA)
+                True, ":booleanProp", permissions=Permissions.OPEN, resource_id="res_id", comment=str(pd.NA)
             )
 
 

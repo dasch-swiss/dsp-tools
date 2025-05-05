@@ -60,9 +60,12 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
     content_correct = _get_validation_result(graphs, shacl_validator, None)
+    # The referenced absolute IRIs are perceived as a violation in SHACL
+    # because the resource does not exist in the graph
     assert not content_correct.conforms
     reformatted = reformat_validation_graph(content_correct)
     extracted_message = get_user_message(reformatted.problems, Path(""))
+    # When we create the user message we differentiate between an error and a reference to an IRI
     assert len(extracted_message.problems) == 0
     assert len(extracted_message.referenced_absolute_iris) == 1
 

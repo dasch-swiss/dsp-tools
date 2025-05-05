@@ -305,6 +305,22 @@ class TestFindDate:
     def test_find_date_in_string_french_bc_invalid_range(self) -> None:
         assert find_date_in_string("Text 12-20 av. J.-C. text") is None
 
+    @pytest.mark.parametrize(
+        "already_parsed",
+        [
+            "GREGORIAN:BC:2001:BC:2000",
+            "GREGORIAN:BC:2001-01:BC:2000-02",
+            "GREGORIAN:BC:2001-01-01:BC:2000-01-02",
+            "GREGORIAN:BC:1:CE:1",
+            "GREGORIAN:CE:1993:CE:1994",
+            "GREGORIAN:CE:1993-01:CE:1993-02",
+            "GREGORIAN:CE:1993-01-26:CE:1993-01-27",
+            "JULIAN:CE:1900:CE:1901",
+        ],
+    )
+    def test_find_date_in_string_already_parsed(self, already_parsed: str) -> None:
+        assert find_date_in_string(f"text {already_parsed} text") == already_parsed
+
 
 class TestCreateListFromString:
     def test_create_list_from_string_ok(self) -> None:

@@ -1119,7 +1119,7 @@ def report_single_line_constraint_component_content_is_value(
             
     _:detail_bn a sh:ValidationResult ;
     sh:focusNode <http://data/value_simple_text_with_newlines> ;
-    sh:resultMessage "The value must be a non-empty string without linebreaks" ;
+    sh:resultMessage "The value must be a non-empty string without linebreaks." ;
     sh:resultPath <http://api.knora.org/ontology/knora-api/v2#valueAsString> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;

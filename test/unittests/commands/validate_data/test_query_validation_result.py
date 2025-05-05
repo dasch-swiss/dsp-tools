@@ -372,24 +372,6 @@ class TestQueryWithoutDetail:
 Second Line"""
         )
 
-    def test_report_single_line_constraint_component_content_is_value(
-        self, report_single_line_constraint_component_content_is_value
-    ) -> None:
-        res, data, info = report_single_line_constraint_component_content_is_value
-        result = _query_one_without_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.property == ONTO.testSimpleText
-        assert result.message == Literal("This value may not contain any newlines.")
-        assert result.input_value == Literal(
-            """This may not
-
-have newlines""",
-            datatype=XSD.string,
-        )
-
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())
@@ -464,6 +446,23 @@ class TestQueryWithDetail:
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("firstList / other")
+
+    def test_report_single_line_constraint_component_content_is_value(
+        self, report_single_line_constraint_component_content_is_value
+    ) -> None:
+        res, data, info = report_single_line_constraint_component_content_is_value
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == ONTO.testSimpleText
+        assert result.message == Literal("The value must be a non-empty string without linebreaks.")
+        assert result.input_value == Literal(
+            """This may not
+
+have newlines"""
+        )
 
 
 class TestQueryFileValueViolations:

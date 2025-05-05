@@ -268,7 +268,7 @@ api-shapes:SimpleTextValue_ClassShape
                   sh:pattern  "\\s*\\S+\\s*" ;
                   dash:singleLine true ;
                   sh:severity sh:Violation ;
-                  sh:message  "The value must be a non-empty string without linebreaks"
+                  sh:message  "The value must be a non-empty string without linebreaks."
               ] .
 
 api-shapes:TextareaTextValue_ClassShape

@@ -19,7 +19,7 @@ nav:
       - excel2xml: file-formats/excel2xml.md
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
-  - Special workflows: 
+  - Special workflows:
       - Incremental xmlupload: special-workflows/incremental-xmlupload.md
   - Information for developers:
       - Developers documentation: developers/index.md

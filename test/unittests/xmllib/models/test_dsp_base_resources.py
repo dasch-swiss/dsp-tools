@@ -88,7 +88,7 @@ class TestAudioSegmentResource:
 
 def test_check_strings_prop():
     expected = (
-        regex.escape("Trace 'test_dsp_base_resources.py:")
+        regex.escape("File 'test_dsp_base_resources.py:")
         + r"\d+"
         + regex.escape("' | Resource ID 'id' | Property 'prop' | The entered string is not valid.")
     )
@@ -98,7 +98,7 @@ def test_check_strings_prop():
 
 def test_check_strings_field():
     expected = (
-        regex.escape("Trace 'test_dsp_base_resources.py:")
+        regex.escape("File 'test_dsp_base_resources.py:")
         + r"\d+"
         + regex.escape("' | Resource ID 'id' | Field 'field' | The entered string is not valid.")
     )
@@ -108,7 +108,7 @@ def test_check_strings_field():
 
 def test_warn_value_exists():
     expected = (
-        regex.escape("Trace 'test_dsp_base_resources.py:")
+        regex.escape("File 'test_dsp_base_resources.py:")
         + r"\d+"
         + regex.escape(
             "' | Resource ID 'id' | Field 'field' | "

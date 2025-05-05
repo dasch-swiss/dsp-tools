@@ -86,7 +86,7 @@ def _filter_stack_frames(file_path: str) -> bool:
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
-    str_list = [f"Trace '{function_trace}'"] if function_trace else []
+    str_list = [f"File '{function_trace}'"] if function_trace else []
     if msg.resource_id:
         str_list.append(f"Resource ID '{msg.resource_id}'")
     if msg.prop_name:

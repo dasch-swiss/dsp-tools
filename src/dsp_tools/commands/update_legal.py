@@ -33,7 +33,7 @@ class ProblemAggregator:
         return msg
 
 
-def convert_legal_metadata(
+def update_legal_metadata(
     input_file: Path,
     auth_prop: str,
     copy_prop: str,
@@ -41,14 +41,14 @@ def convert_legal_metadata(
 ) -> bool:
     root = _parse_xml_file(input_file)
     root = _transform_into_localnames(root)
-    root_new = etree.ElementTree(_convert(root, auth_prop, copy_prop, license_prop))
-    output_file = input_file.with_stem(f"{input_file.stem}_converted")
+    root_new = etree.ElementTree(_update(root, auth_prop, copy_prop, license_prop))
+    output_file = input_file.with_stem(f"{input_file.stem}_updated")
     etree.indent(root_new, space="    ")
     root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
     return True
 
 
-def _convert(
+def _update(
     root: etree._Element,
     auth_prop: str | None = None,
     copy_prop: str | None = None,

@@ -651,12 +651,12 @@ A DSP stack must be running before executing this command.
 
 
 
-## `convert-legal`
+## `update-legal`
 
-In an XML file, convert legal metadata from old to new format.
+In an XML file, update legal metadata from old to new format.
 
 ```bash
-dsp-tools convert-legal [options] data.xml
+dsp-tools update-legal [options] data.xml
 ```
 
 The following options are available:
@@ -667,7 +667,7 @@ The following options are available:
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
-The output file is written to `[original name]_converted.xml`.
+The output file is written to `[original name]_updated.xml`.
 
 If license information is present, an attempt is made to parse it using [`xmllib.find_license_in_string()`](
 https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
@@ -679,7 +679,7 @@ is used.
 **Example:**
 
 ```bash
-dsp-tools convert-legal \
+dsp-tools update-legal \
 --authorship_prop=":hasAuthorship" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \

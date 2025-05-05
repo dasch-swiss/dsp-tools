@@ -2,7 +2,7 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.commands.convert_legal import _convert
+from dsp_tools.commands.update_legal import _update
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 
@@ -36,7 +36,7 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    result = _convert(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result = _update(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 3
     auth_def = result[0]
     resource_1 = result[1]
@@ -81,7 +81,7 @@ def test_incomplete_legal() -> None:
         </resource>
     </knora>
     """)
-    result = _convert(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 4
     auth_def_0 = result[0]
     resource_1 = result[1]
@@ -120,7 +120,7 @@ def test_missing_legal() -> None:
         </resource>
     </knora>
     """)
-    result = _convert(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 1
     resource_1 = result[0]
 
@@ -147,7 +147,7 @@ def test_different_authors() -> None:
         </resource>
     </knora>
     """)
-    result = _convert(orig, auth_prop=AUTH_PROP)
+    result = _update(orig, auth_prop=AUTH_PROP)
     assert len(result) == 5
     auth_def_0 = result[0]
     auth_def_1 = result[1]
@@ -186,9 +186,9 @@ def test_different_authors() -> None:
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
     with pytest.raises(InputError):
-        _convert(one_bitstream_one_iiif, auth_prop="", copy_prop="", license_prop="")
+        _update(one_bitstream_one_iiif, auth_prop="", copy_prop="", license_prop="")
     with pytest.raises(InputError):
-        _convert(one_bitstream_one_iiif)
+        _update(one_bitstream_one_iiif)
 
 
 def test_empty_author() -> None:
@@ -202,7 +202,7 @@ def test_empty_author() -> None:
     """)
     match = regex.escape(f"Resource ID: res_1 | Property: {AUTH_PROP} | Message: Empty authorship. Skipping.")
     with pytest.warns(DspToolsUserWarning, match=match):
-        _convert(empty, auth_prop=AUTH_PROP)
+        _update(empty, auth_prop=AUTH_PROP)
 
 
 def test_empty_copy() -> None:
@@ -216,7 +216,7 @@ def test_empty_copy() -> None:
     """)
     match = regex.escape(f"Resource ID: res_1 | Property: {COPY_PROP} | Message: Empty copyright. Skipping.")
     with pytest.warns(DspToolsUserWarning, match=match):
-        _convert(empty, copy_prop=COPY_PROP)
+        _update(empty, copy_prop=COPY_PROP)
 
 
 def test_empty_license() -> None:
@@ -230,7 +230,7 @@ def test_empty_license() -> None:
     """)
     match = regex.escape(f"Resource ID: res_1 | Property: {LICENSE_PROP} | Message: Empty license. Skipping.")
     with pytest.warns(DspToolsUserWarning, match=match):
-        _convert(empty, license_prop=LICENSE_PROP)
+        _update(empty, license_prop=LICENSE_PROP)
 
 
 def test_unknown_license() -> None:
@@ -242,7 +242,7 @@ def test_unknown_license() -> None:
         </resource>
     </knora>
     """)
-    result = _convert(empty, license_prop=LICENSE_PROP)
+    result = _update(empty, license_prop=LICENSE_PROP)
     assert len(result) == 1
     resource_1 = result[0]
 

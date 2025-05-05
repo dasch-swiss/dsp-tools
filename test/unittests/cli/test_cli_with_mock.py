@@ -580,16 +580,16 @@ def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock) 
     xmlupload.assert_called_once()
 
 
-@patch("dsp_tools.cli.call_action.convert_legal_metadata")
-def test_convert_legal(convert_legal_metadata: Mock) -> None:
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal(update_legal_metadata: Mock) -> None:
     args = (
-        "convert-legal "
+        "update-legal "
         "--authorship_prop :hasAuthorship "
         "--copyright_prop=:hasCopyright "
         "--license_prop :hasLicense input.xml"
     ).split()
     entry_point.run(args)
-    convert_legal_metadata.assert_called_once_with(
+    update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         auth_prop=":hasAuthorship",
         copy_prop=":hasCopyright",
@@ -597,11 +597,11 @@ def test_convert_legal(convert_legal_metadata: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.convert_legal_metadata")
-def test_convert_legal_only_author(convert_legal_metadata: Mock) -> None:
-    args = "convert-legal --authorship_prop :hasAuthorship input.xml".split()
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
+    args = "update-legal --authorship_prop :hasAuthorship input.xml".split()
     entry_point.run(args)
-    convert_legal_metadata.assert_called_once_with(
+    update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         auth_prop=":hasAuthorship",
         copy_prop=None,

@@ -4,11 +4,9 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
+from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.internal.input_converters import numeric_entities
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
@@ -40,13 +38,12 @@ PROP_TYPE_LOOKUP = {
 }
 
 
-def serialise_values(all_values: list[Value], res_id: str) -> list[etree._Element]:
+def serialise_values(all_values: list[Value]) -> list[etree._Element]:
     """
     Serialise a list of values for a resource.
 
     Args:
         all_values: List of Values
-        res_id: resource ID of the calling resource
 
     Returns:
         list of serialised values
@@ -61,9 +58,7 @@ def serialise_values(all_values: list[Value], res_id: str) -> list[etree._Elemen
             case "simpletext":
                 serialised.append(_serialise_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
             case "richtext":
-                serialised.append(
-                    _serialise_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name, res_id)
-                )
+                serialised.append(_serialise_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name))
             case _:
                 serialised.append(_serialise_complete_generic_prop(prop_values, prop_name, prop_type))
     return serialised
@@ -118,30 +113,22 @@ def _serialise_complete_simple_text_prop(values: list[SimpleText], prop_name: st
     return prop
 
 
-def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str, res_id: str) -> etree._Element:
+def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) -> etree._Element:
     prop = _serialise_generic_prop(prop_name, "text")
     for val in values:
         val_ele = _serialise_generic_element(val, "text")  # produces wrong text content
         val_ele.attrib["encoding"] = "xml"
-        prop.append(_create_richtext_elements_from_string(val, val_ele, res_id))  # overwrite the wrong text content
+        prop.append(_create_richtext_elements_from_string(val, val_ele))  # overwrite the wrong text content
     return prop
 
 
-def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element, res_id: str) -> etree._Element:
+def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     new_element = deepcopy(text_element)
-    escaped_text = escape_reserved_xml_characters(value.value)
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
-    try:
-        parsed = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        msg = (
-            f"The resource with the ID '{res_id}' and the property '{value.prop_name}' "
-            f"contains richtext which is not in correct XML syntax."
+    parsed_xml = parse_richtext_as_xml(value.value)
+    if not isinstance(parsed_xml, etree._Element):
+        raise ValueError(
+            "Richtexts should be validated for correct XML syntax when they are created. Apparently this didn't happen."
         )
-        msg += f"\nOriginal error message: {err.msg}"
-        msg += f"\nPotential line/column numbers are relative to this text: {pseudo_xml}"
-        raise InputError(msg) from None
-    new_element.text = parsed.text  # everything before the first child tag
-    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    new_element.text = parsed_xml.text  # everything before the first child tag
+    new_element.extend(list(parsed_xml))  # all (nested) children of the pseudo-xml
     return new_element

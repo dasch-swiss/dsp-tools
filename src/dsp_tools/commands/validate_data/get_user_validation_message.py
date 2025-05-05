@@ -51,7 +51,7 @@ def _remove_link_value_missing_if_reference_is_an_iri(
     for prblm in problems:
         if not prblm.input_value:
             no_iris_referenced.append(prblm)
-        if prblm.input_value.startswith("http://rdfh.ch/"):
+        elif prblm.input_value.startswith("http://rdfh.ch/"):
             iris_referenced.append(prblm)
         else:
             no_iris_referenced.append(prblm)

@@ -17,6 +17,7 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
 from dsp_tools.xmllib.helpers import find_license_in_string
+from dsp_tools.xmllib.helpers import make_xsd_compatible_id_with_uuid
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
@@ -573,3 +574,26 @@ class TestFindLicense:
     )
     def test_find_unknown(self, string: str, expected: License) -> None:
         assert find_license_in_string(string) == expected
+
+
+def test_make_xsd_compatible_id() -> None:
+    teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"  # noqa: RUF001
+    _expected = "_0a_Z__-___1234567890_____.__________________________r______________________________"
+
+    result_1 = make_xsd_compatible_id_with_uuid(teststring)
+    result_2 = make_xsd_compatible_id_with_uuid(teststring)
+    assert result_1 != result_2
+    assert result_1.startswith(_expected)
+    assert result_2.startswith(_expected)
+    assert bool(regex.search(r"^[a-zA-Z_][\w.-]*$", result_1))
+    assert bool(regex.search(r"^[a-zA-Z_][\w.-]*$", result_2))
+
+    # test that invalid inputs lead to an error
+    with pytest.raises(InputError):
+        make_xsd_compatible_id_with_uuid(None)  # type: ignore[arg-type]
+
+    with pytest.raises(InputError):
+        make_xsd_compatible_id_with_uuid("")
+
+    with pytest.raises(InputError):
+        make_xsd_compatible_id_with_uuid(" ")

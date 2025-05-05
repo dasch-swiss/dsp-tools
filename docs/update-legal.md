@@ -1,18 +1,22 @@
+# Update legal info in XML
 
-If license information is present, an attempt is made to parse it using [`xmllib.find_license_in_string()`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
-If none is recognized, [`LicenseRecommended.DSP.UNKNOWN`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
-is used.
+## Context
 
-**Example:**
+If an XML file contains multimedia files, they must be accompanied by legal metadata
+in this format: 
+`<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="Louvre" authorship-id="auth_0">`
+
+Older XML files may contain legal metadata as text properties. 
+Users may want to update their existing XML files to the new format.
+
+## Example
 
 ```bash
 dsp-tools update-legal \
 --authorship_prop=":hasAuthorship" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
-input.xml
+data.xml
 ```
 
 Input:
@@ -47,3 +51,20 @@ Output:
     </resource>
 </knora>
 ```
+
+## Fixing the update errors
+
+For each multimedia resource, one or more of these errors may occur:
+
+- copyright absent
+- authorship absent
+- license absent
+- license not parseable
+
+
+
+If license information is present, an attempt is made to parse it using [`xmllib.find_license_in_string()`](
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string). 
+If none is recognized, [`LicenseRecommended.DSP.UNKNOWN`](
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
+is used.

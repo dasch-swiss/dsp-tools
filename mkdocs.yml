@@ -18,6 +18,7 @@ nav:
       - excel2json: file-formats/excel2json.md
       - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
+  - Update legal info in XML: update-legal.md
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
   - Information for developers:

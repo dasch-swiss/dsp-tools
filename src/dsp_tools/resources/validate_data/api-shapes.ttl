@@ -262,6 +262,29 @@ api-shapes:SimpleTextValue_ClassShape
                   sh:message  "TextValue without formatting"
               ] ,
               [
+                  a               sh:PropertyShape ;
+                  sh:path         knora-api:valueAsString ;
+                  sh:datatype     xsd:string ;
+                  sh:pattern      "\\s*\\S+\\s*" ;
+                  dash:singleLine true ;
+                  sh:severity     sh:Violation ;
+                  sh:message      "The value must be a non-empty string without newlines."
+              ] .
+
+api-shapes:TextareaTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Ensures that the properties for a simple text value are used" ;
+  sh:property [
+                  # Because it is not a separate class we have to check the cardinality of the property
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:valueAsString ;
+                  sh:datatype xsd:string ;
+                  sh:minCount 1 ;
+                  sh:maxCount 1 ;
+                  sh:severity sh:Violation ;
+                  sh:message  "TextValue without formatting"
+              ] ,
+              [
                   a           sh:PropertyShape ;
                   sh:path     knora-api:valueAsString ;
                   sh:datatype xsd:string ;

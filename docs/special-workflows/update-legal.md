@@ -159,6 +159,10 @@ dsp-tools update-legal \
 data.xml
 ```
 
+!!! warning
+
+    Don't forget to include the path to the fixed errors file with the flag `--fixed_errors`.
+
 If everything is fine, `data_updated.xml` is created.
 If not, a new version of `legal_errors.csv` is created.
 Repeat the steps 2 and 3 until everything is fine.

@@ -16,11 +16,9 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
-from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_simple_text_single_line_prop_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import DASH
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -193,15 +191,6 @@ class TestConstructListNode:
         result = _construct_one_list_property_shape_with_collection(test_info)
         number_of_strings_in_list = 3
         assert len(list(result.objects(predicate=RDF.first))) == number_of_strings_in_list
-
-
-def test_construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext):
-    res = _construct_simple_text_single_line_prop_shape(res_and_props_with_simpletext)
-    bn = next(res.subjects(SH.path, ONTO.testSimpleText))
-    assert next(res.objects(bn, DASH.singleLine)) == Literal(True)
-    assert next(res.objects(bn, SH.severity)) == SH.Violation
-    assert next(res.objects(bn, SH.message)) == Literal("This value may not contain any newlines.")
-    assert len(res) == 6
 
 
 if __name__ == "__main__":

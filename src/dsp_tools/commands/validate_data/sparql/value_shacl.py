@@ -36,7 +36,6 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     g += _construct_seqnum_is_part_of_prop_shape(onto)
     g += _construct_value_type_shapes_to_class_shapes(onto)
     g += _construct_link_value_type_shapes_to_class_shapes(onto)
-    g += _construct_simple_text_single_line_prop_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -217,7 +216,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
 def _construct_property_type_text_value(onto: Graph) -> Graph:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
-        "salsah-gui:Textarea": "api-shapes:SimpleTextValue_ClassShape",
+        "salsah-gui:Textarea": "api-shapes:TextareaTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
     }
     g = Graph()
@@ -354,40 +353,6 @@ def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
     """
     # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
     # Therefore, we have a union query.
-    if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph()
-
-
-def _construct_simple_text_single_line_prop_shape(onto: Graph) -> Graph:
-    logger.info("Constructing Single Line For SimpleText Shapes")
-    query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX sh: <http://www.w3.org/ns/shacl#>
-    PREFIX dash: <http://datashapes.org/dash#>
-    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
-
-    CONSTRUCT {
-        ?class sh:property    
-                [
-                    a               sh:PropertyShape ;
-                    sh:path         ?prop ;
-                    dash:singleLine true ;
-                    sh:severity     sh:Violation ;
-                    sh:message      "This value may not contain any newlines." ;
-                ] .
-    } WHERE {    
-        ?prop a owl:ObjectProperty ;
-              knora-api:objectType knora-api:TextValue ;
-              salsah-gui:guiElement salsah-gui:SimpleText .
-        
-        ?class a owl:Class ;
-               rdfs:subClassOf ?restriction .
-        ?restriction a owl:Restriction ;          
-                     owl:onProperty ?prop .
-    }
-    """
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

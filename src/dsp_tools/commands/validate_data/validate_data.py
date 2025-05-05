@@ -75,9 +75,21 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
         reformatted = reformat_validation_graph(report)
-        problem_msg = get_user_message(reformatted.problems, filepath)
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(problem_msg)
+        messages = get_user_message(reformatted.problems, filepath)
+        if messages.problems:
+            print(VALIDATION_ERRORS_FOUND_MSG)
+            print(messages.problems)
+        else:
+            logger.info("Validation passed.")
+            print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
+        if messages.referenced_absolute_iris:
+            print(
+                BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
+                "If these resources do not exist in the database or are not of the expected resource type, "
+                "the xmlupload will fail. Below you find a list of the references."
+                + RESET_TO_DEFAULT
+                + f"{messages.referenced_absolute_iris}"
+            )
         if reformatted.unexpected_results:
             if save_graphs:
                 print(

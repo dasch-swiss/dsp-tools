@@ -217,7 +217,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         (
             "simple_text_with_newlines",
             "onto:testSimpleText",
-            "This value may not contain any newlines.",
+            "The value must be a non-empty string without newlines.",
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
     ]

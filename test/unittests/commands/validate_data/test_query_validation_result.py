@@ -457,7 +457,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testSimpleText
-        assert result.message == Literal("The value must be a non-empty string without linebreaks.")
+        assert result.message == Literal("The value must be a non-empty string without newlines.")
         assert result.input_value == Literal(
             """This may not
 

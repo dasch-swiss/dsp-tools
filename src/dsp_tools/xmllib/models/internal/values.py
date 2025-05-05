@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from lxml import etree
-
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning

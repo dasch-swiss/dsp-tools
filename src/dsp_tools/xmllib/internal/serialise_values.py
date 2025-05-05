@@ -4,6 +4,7 @@ from typing import cast
 
 from lxml import etree
 
+from dsp_tools.xmllib.internal.checkers import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -21,7 +22,6 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 
-from dsp_tools.xmllib.internal.checkers import parse_richtext_as_xml
 PROP_TYPE_LOOKUP = {
     BooleanValue: "boolean",
     ColorValue: "color",
@@ -125,6 +125,7 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     parsed = parse_richtext_as_xml(value.value)
     new_element = deepcopy(text_element)
-    new_element.text = parsed.text  # everything before the first child tag
-    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    parsed_xml = cast(etree._Element, parsed)
+    new_element.text = parsed_xml.text  # everything before the first child tag
+    new_element.extend(list(parsed_xml))  # all (nested) children of the pseudo-xml
     return new_element

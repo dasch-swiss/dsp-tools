@@ -74,35 +74,39 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
-        reformatted = reformat_validation_graph(report)
-        messages = get_user_message(reformatted.problems, filepath)
-        if messages.problems:
-            print(VALIDATION_ERRORS_FOUND_MSG)
-            print(messages.problems)
-        else:
-            logger.info("Validation passed.")
-            print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
-        if messages.referenced_absolute_iris:
+        _inform_user_about_problems(report, filepath, save_graphs)
+    return True
+
+
+def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
+    reformatted = reformat_validation_graph(report)
+    messages = get_user_message(reformatted.problems, filepath)
+    if messages.problems:
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(messages.problems)
+    else:
+        logger.info("Validation passed.")
+        print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
+    if messages.referenced_absolute_iris:
+        print(
+            BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
+            "If these resources do not exist in the database or are not of the expected resource type, "
+            "the xmlupload will fail. Below you find a list of the references."
+            + RESET_TO_DEFAULT
+            + f"{messages.referenced_absolute_iris}"
+        )
+    if reformatted.unexpected_results:
+        if save_graphs:
             print(
-                BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
-                "If these resources do not exist in the database or are not of the expected resource type, "
-                "the xmlupload will fail. Below you find a list of the references."
-                + RESET_TO_DEFAULT
-                + f"{messages.referenced_absolute_iris}"
+                BACKGROUND_BOLD_YELLOW + "\n   Unexpected violations were found! "
+                "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
-        if reformatted.unexpected_results:
-            if save_graphs:
-                print(
-                    BACKGROUND_BOLD_YELLOW + "\n   Unexpected violations were found! "
-                    "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
-                )
-                return True
+        else:
             reformatted.unexpected_results.save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graph,
                 data=report.data_graph,
             )
-    return True
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:

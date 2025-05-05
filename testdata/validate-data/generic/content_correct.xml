@@ -76,6 +76,23 @@
         </resptr-prop>
     </resource>
 
+    <!-- It is permissible to reference resources that exist in the database but not the XML. -->
+    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_in_db">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text with
+                <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">stand off</a>
+                to resource in DB.
+            </text>
+        </text-prop>
+    </resource>
+
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
             <text encoding="xml"> Text line 1

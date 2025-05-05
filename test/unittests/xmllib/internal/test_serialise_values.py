@@ -153,7 +153,7 @@ def test_list() -> None:
     ],
 )
 def test_richtext_tags(orig: str, expected: str) -> None:
-    result = serialise_values([Richtext(orig, ":richtextProp")], "")
+    result = serialise_values([Richtext(orig, ":richtextProp")])
     assert len(result) == 1
     expected_xml = (
         '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -182,7 +182,7 @@ def test_simpletext() -> None:
 def test_simpletext_escapes() -> None:
     original = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
     expected = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
-    result = serialise_values([SimpleText(original, ":simpleTextProp")], "")
+    result = serialise_values([SimpleText(original, ":simpleTextProp")])
     assert len(result) == 1
     expected_xml = (
         '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

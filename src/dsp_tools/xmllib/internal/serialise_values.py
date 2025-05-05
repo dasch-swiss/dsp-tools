@@ -45,7 +45,6 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
 
     Args:
         all_values: List of Values
-        res_id: resource ID of the calling resource
 
     Returns:
         list of serialised values

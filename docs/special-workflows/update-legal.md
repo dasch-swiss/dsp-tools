@@ -76,8 +76,8 @@ For each multimedia resource, one or more of these errors may occur:
       https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string).
 
 If there were errors, no output XML is written.
-Instead, you get a CSV file that lists all problematic resources.
-Please go through the CSV and fix the errors.
+Instead, you get the file `legal_errors.csv` that lists all problematic resources.
+Please go through the CSV and fix the errors directly in the CSV.
 
 ### 1. Copyright absent
 
@@ -145,3 +145,20 @@ https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.h
 It often happens that the provided license does not fulfill the requirements of a legally valid license.
 Examples are "Courtesy of Louvre", or "Mit freundlicher Genehmigung des Louvre".
 In this case, you don't really have a license, hence you have to set it to `unknown`.
+
+## Step 3: Rerun the command
+
+Run the command again, this time with a reference to the fixed errors file:
+
+```bash
+dsp-tools update-legal \
+--authorship_prop=":hasAuthor" \
+--copyright_prop=":hasCopyright" \
+--license_prop=":hasLicense" \
+--fixed_errors="legal_errors.csv" \
+data.xml
+```
+
+If everything is fine, `data_updated.xml` is created.
+If not, a new version of `legal_errors.csv` is created.
+Repeat the steps 2 and 3 until everything is fine.

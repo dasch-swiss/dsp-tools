@@ -447,6 +447,23 @@ class TestQueryWithDetail:
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("firstList / other")
 
+    def test_report_single_line_constraint_component_content_is_value(
+        self, report_single_line_constraint_component_content_is_value
+    ) -> None:
+        res, data, info = report_single_line_constraint_component_content_is_value
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == ONTO.testSimpleText
+        assert result.message == Literal("The value must be a non-empty string without newlines.")
+        assert result.input_value == Literal(
+            """This may not
+
+have newlines"""
+        )
+
 
 class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:

@@ -216,7 +216,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
 def _construct_property_type_text_value(onto: Graph) -> Graph:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
-        "salsah-gui:Textarea": "api-shapes:SimpleTextValue_ClassShape",
+        "salsah-gui:Textarea": "api-shapes:TextareaTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
     }
     g = Graph()

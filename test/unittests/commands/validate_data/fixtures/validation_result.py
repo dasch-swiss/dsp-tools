@@ -1106,16 +1106,28 @@ Second Line"""^^xsd:string ;
 def report_single_line_constraint_component_content_is_value(
     onto_graph: Graph,
 ) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
-    validation_str = f"""{PREFIXES}
-        [ a sh:ValidationResult ;
+    validation_str = f'''{PREFIXES}
+[ a sh:ValidationResult ;
+            sh:detail _:detail_bn ;
             sh:focusNode <http://data/simple_text_with_newlines> ;
-            sh:resultMessage "This value may not contain any newlines." ;
+            sh:resultMessage "This property requires a TextValue" ;
             sh:resultPath <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ;
             sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;
-            sh:sourceShape [ ] ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText_PropShape> ;
             sh:value <http://data/value_simple_text_with_newlines> ].
-    """
+            
+    _:detail_bn a sh:ValidationResult ;
+    sh:focusNode <http://data/value_simple_text_with_newlines> ;
+    sh:resultMessage "The value must be a non-empty string without linebreaks" ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#valueAsString> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;
+    sh:sourceShape [ ] ;
+    sh:value """This may not
+
+have newlines""" .
+    '''
     data_str = f'''{PREFIXES}
 <http://data/simple_text_with_newlines> a onto:ClassWithEverything ;
     rdfs:label "With linebreaks"^^xsd:string ;
@@ -1132,12 +1144,18 @@ have newlines"""^^xsd:string .
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=DASH.SingleLineConstraintComponent,
+    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
-        source_constraint_component=DASH.SingleLineConstraintComponent,
+        source_constraint_component=SH.NodeConstraintComponent,
         focus_node_iri=DATA.simple_text_with_newlines,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testSimpleText,
+        detail=detail,
     )
     return validation_g, onto_data_g, base_info
 

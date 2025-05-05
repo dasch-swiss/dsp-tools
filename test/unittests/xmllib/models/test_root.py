@@ -1,7 +1,7 @@
 from lxml import etree
 
-from dsp_tools.xmllib import LicenseRecommended
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup

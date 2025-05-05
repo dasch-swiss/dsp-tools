@@ -123,10 +123,12 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 
 
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
-    parsed = parse_richtext_as_xml(value.value)
     new_element = deepcopy(text_element)
+    parsed_xml = parse_richtext_as_xml(value.value)
     if not isinstance(parsed_xml, etree._Element):
-        raise ValueError("Richtexts should be validated for correct XML syntax when they are created. Apparently this didn't happen.")
+        raise ValueError(
+            "Richtexts should be validated for correct XML syntax when they are created. Apparently this didn't happen."
+        )
     new_element.text = parsed_xml.text  # everything before the first child tag
     new_element.extend(list(parsed_xml))  # all (nested) children of the pseudo-xml
     return new_element

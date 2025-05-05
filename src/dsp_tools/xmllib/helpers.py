@@ -180,68 +180,6 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
     return etree.tostring(ele, encoding="unicode")
 
 
-def create_label_to_name_list_node_mapping(
-    project_json_path: str,
-    list_name: str,
-    language_of_label: str,
-) -> dict[str, str]:
-    """
-    Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
-    which is needed for the `dsp-tools xmlupload`.
-    To create a correct XML, you need a dictionary that maps the "labels" to their correct "names".
-
-    Args:
-        project_json_path: path to a JSON project file (a.k.a. ontology)
-        list_name: name of a list in the JSON project
-        language_of_label: which language of the label to choose
-
-    Returns:
-        a dictionary of the form {label: name}
-
-    Examples:
-        ```json
-        "lists": [
-            {
-                "name": "listName",
-                "labels": {
-                    "en": "List",
-                    "de": "Liste"
-                },
-                "comments": { ... },
-                "nodes": [
-                    {
-                        "name": "n1",
-                        "labels": {
-                            "en": "Node 1",
-                            "de": "Knoten 1"
-                        }
-                    },
-                    {
-                        "name": "n2",
-                        "labels": {
-                            "en": "Node 2",
-                            "de": "Knoten 2"
-                        }
-                    }
-                ]
-            }
-        ]
-        ```
-
-        ```python
-        result = xmllib.create_label_to_name_list_node_mapping(
-            project_json_path="project.json",
-            list_name="listName",
-            language_of_label="de",
-        )
-        # result == {"Knoten 1": "n1", "knoten 1": "n1", "Knoten 2": "n2", "knoten 2": "n2"}
-        ```
-    """
-    with open(project_json_path, encoding="utf-8") as f:
-        json_file = json.load(f)
-    return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
-
-
 def _get_label_to_node_one_list(
     list_section: list[dict[str, Any]], list_name: str, language_of_label: str
 ) -> dict[str, str]:

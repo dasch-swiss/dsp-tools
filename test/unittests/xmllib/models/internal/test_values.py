@@ -2,7 +2,9 @@ import warnings
 
 import pandas as pd
 import pytest
+import regex
 
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -149,6 +151,17 @@ class TestRichtext:
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
             Richtext.new(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
+
+    def test_raises(self) -> None:
+        msg = regex.escape(
+            "The entered richtext value could not be converted to a valid XML.\n"
+            "Original error message: Opening and ending tag mismatch: p line 1 and ignore-this, line 1, column 43\n"
+            "Potential line/column numbers are relative to this text: <ignore-this><p> not escaped</ignore-this>"
+        )
+        with pytest.raises(InputError, match=msg):
+            Richtext.new(
+                "<p> not escaped", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None
+            )
 
 
 class TestSimpleText:

@@ -5,7 +5,8 @@ from typing import Any
 from typing import Protocol
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning, raise_input_error
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
@@ -21,7 +22,9 @@ from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
-
+from lxml import etree
+from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 
 class Value(Protocol):
     value: Any
@@ -282,7 +285,22 @@ class Richtext(Value):
     ) -> Richtext:
         check_and_warn_potentially_empty_string(value=value, res_id=resource_id, expected="string", prop_name=prop_name)
         converted_val = replace_newlines_with_tags(str(value), newline_replacement)
-        check_richtext_syntax(converted_val)
+
+        escaped_text = escape_reserved_xml_characters(converted_val)
+        num_ent = numeric_entities(escaped_text)
+        pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
+        try:
+            _ = etree.fromstring(pseudo_xml)
+        except etree.XMLSyntaxError as err:
+            msg_str = (f"The entered richtext value could not be converted to a valid XML.\n"
+                       f"Original error message: {err.msg}\n"
+                       f"Potential line/column numbers are relative to this text: {pseudo_xml}")
+            msg = MessageInfo(
+                resource_id=resource_id,
+                prop_name=prop_name,
+                message=msg_str
+            )
+            raise_input_error(msg)    
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 

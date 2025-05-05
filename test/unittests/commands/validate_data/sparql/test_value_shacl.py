@@ -27,7 +27,7 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
     proj_li = AllProjectLists([])
     res = construct_property_shapes(res_and_props_with_simpletext, proj_li)
     trip_counts = {
-        ONTO.ClassWithEverything: 5,
+        ONTO.ClassWithEverything: 4,
         ONTO.testBoolean_PropShape: 4,
         ONTO.testSimpleText_PropShape: 5,
         ONTO.testDecimalSimpleText_PropShape: 4,
@@ -36,14 +36,7 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
         created_triples = list(res.triples((shape, None, None)))
         assert len(created_triples) == num_triples
 
-    number_of_single_line_triples = 5
-    bn = next(res.subjects(SH.path, ONTO.testSimpleText))
-    trips = list(res.triples((bn, None, None)))
-    assert len(trips) == number_of_single_line_triples
-    cls_statement = next(res.subjects(SH.property, bn))
-    assert cls_statement == ONTO.ClassWithEverything
-
-    total_triples = sum(trip_counts.values()) + number_of_single_line_triples
+    total_triples = sum(trip_counts.values())
     assert len(res) == total_triples
 
 

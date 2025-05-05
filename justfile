@@ -154,7 +154,7 @@ openapi-generate-dsp-api:
 [no-exit-message]
 openapi-generate-dsp-ingest:
     @just openapi-cli generate \
-    -i /Users/nussbaum/Desktop/Cloned_GitHub_repos/dsp-docs/docs/openapi/openapi-projects.yml \
+    -i https://ingest.dasch.swiss/docs/docs.yaml \
     -g python \
     --additional-properties=generateSourceCodeOnly=True \
     -o /local/src/dsp_tools/clients/openapi-ingest

@@ -22,14 +22,20 @@ load_dotenv()
 
 def initialise_warning_file() -> None:
     if file_path := os.getenv("WARNINGS_CSV_SAVEPATH"):
-        print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
-        if not Path(file_path).is_file():
-            new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
-        else:
-            new_row = ["****" for _ in range(6)]
-        with open(file_path, "a", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(new_row)
+        try:
+            if not Path(file_path).is_file():
+                new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
+            else:
+                new_row = ["****" for _ in range(6)]
+            with open(file_path, "a", newline="") as file:
+                print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
+                writer = csv.writer(file)
+                writer.writerow(new_row)
+        except FileNotFoundError:
+            raise InputError(
+                f"The filepath '{file_path}' you entered in your .env file does not exist. "
+                f"Please ensure that the folder you named exists."
+            ) from None
 
 
 def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity) -> None:

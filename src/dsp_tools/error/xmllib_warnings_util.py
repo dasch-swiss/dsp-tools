@@ -14,7 +14,7 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 load_dotenv()
@@ -22,7 +22,7 @@ load_dotenv()
 
 def initialise_warning_file() -> None:
     if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
-        print(BACKGROUND_BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
+        print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
         if not Path(file_path).is_file():
             new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
         else:

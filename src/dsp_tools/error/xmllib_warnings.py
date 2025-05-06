@@ -1,10 +1,18 @@
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
+from enum import StrEnum
 
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
+
+
+@dataclass
+class UserMessageSeverity(StrEnum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
 
 
 @dataclass

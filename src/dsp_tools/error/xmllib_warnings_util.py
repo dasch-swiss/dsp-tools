@@ -1,14 +1,35 @@
+import csv
 import inspect
+import os
 import warnings
+from pathlib import Path
 from typing import Any
 from typing import Never
 
 import regex
+from dotenv import load_dotenv
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+
+load_dotenv()
+
+WARNING_CSV_SAVEPATH: str | None = None
+
+
+def configure_warning_logging():
+    if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
+        global WARNING_CSV_SAVEPATH
+        WARNING_CSV_SAVEPATH = file_path
+        if not Path(WARNING_CSV_SAVEPATH).is_file():
+            new_row = ["File", "Message", "Resource ID", "Property", "Field"]
+        else:
+            new_row = ["***" for _ in range(5)]
+        with open(WARNING_CSV_SAVEPATH, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(new_row)
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:

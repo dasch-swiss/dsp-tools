@@ -36,6 +36,9 @@ def _separate_link_value_missing_if_reference_is_an_iri(
     iris_referenced = []
     no_iris_referenced = []
     for prblm in problems:
+        if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
+            no_iris_referenced.append(prblm)
+            continue
         if not prblm.input_value:
             no_iris_referenced.append(prblm)
         elif prblm.input_value.startswith("http://rdfh.ch/"):

@@ -141,9 +141,19 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch)
         prop_name="onto:hasProp",
         input_value="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
     )
-    result = sort_user_problems(AllProblems([duplicate_value, link_value_type_mismatch, references_iri], []))
-    assert len(result.unique_violations) == 2
-    assert set([x.res_id for x in result.unique_violations]) == {"res_id"}
+    inexistent_license_iri = InputProblem(
+        problem_type=ProblemType.GENERIC,
+        res_id="inexistent_license_iri",
+        res_type="onto:TestStillImageRepresentation",
+        prop_name="bitstream / iiif-uri",
+        input_value="http://rdfh.ch/licenses/this-iri-does-not-exist",
+        message="Files and IIIF-URIs require a reference to a license.",
+    )
+    result = sort_user_problems(
+        AllProblems([duplicate_value, link_value_type_mismatch, references_iri, inexistent_license_iri], [])
+    )
+    assert len(result.unique_violations) == 3
+    assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
     assert len(result.user_info) == 1
     assert result.user_info[0].res_id == "references_iri"
     assert not result.unexpected_shacl_validation_components

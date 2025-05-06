@@ -104,7 +104,7 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     Creates the string to communicate the user message.
 
     Args:
-        problems: List of validation problems
+        sorted_problems: validation problems
         file_path: Path to the original data XML
 
     Returns:
@@ -116,9 +116,9 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         iri_info_message = _get_referenced_iri_info(sorted_problems.user_info)
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
-            specific_message = _save_problem_info_as_csv(sorted_problems.unique_violation, file_path)
+            specific_message = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
         else:
-            specific_message = _get_problem_print_message(sorted_problems.unique_violation)
+            specific_message = _get_problem_print_message(sorted_problems.unique_violations)
         problem_message = (
             f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
             f"errors were found:\n\n{specific_message}"
@@ -126,8 +126,9 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     return UserPrintMessages(problem_message, iri_info_message)
 
 
-def _get_problem_print_message(problems: list[list[InputProblem]]) -> str:
-    messages = [_get_message_for_one_resource(v) for v in sorted(problems, key=lambda x: x[0].res_id)]
+def _get_problem_print_message(problems: list[InputProblem]) -> str:
+    grouped = list(_group_problems_by_resource(problems).values())
+    messages = [_get_message_for_one_resource(v) for v in sorted(grouped, key=lambda x: x[0].res_id)]
     return GRAND_SEPARATOR.join(messages)
 
 

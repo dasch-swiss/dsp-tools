@@ -19,10 +19,7 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
-    if all_problems.unexpected_results:
-        unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results))
-    else:
-        unique_unexpected = []
+    unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
         unique_violations=filtered_problems,
         user_info=problems_with_iris,

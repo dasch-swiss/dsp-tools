@@ -189,14 +189,14 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
 def test_sort_user_problems_different_props():
     one = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="one",
+        res_id="res_id",
         res_type="",
         prop_name="onto:prop2",
         expected="TextValue without formatting",
     )
     two = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="two",
+        res_id="res_id",
         res_type="",
         prop_name="onto:prop1",
         expected="This property requires a TextValue",
@@ -205,7 +205,7 @@ def test_sort_user_problems_different_props():
     assert len(result.unique_violations) == 2
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components
-    assert set([x.res_id for x in result.unique_violations]) == {"one", "two"}
+    assert [x.res_id for x in result.unique_violations] == ["res_id", "res_id"]
 
 
 def test_get_message_for_one_resource_generic(generic_problem):

@@ -1,4 +1,4 @@
-from dsp_tools.error.xmllib_warnings_util import configure_warning_logging
+from dsp_tools.error.xmllib_warnings_util import initialise_warning_file
 
 from .helpers import ListLookup as ListLookup
 from .helpers import create_list_from_string as create_list_from_string
@@ -33,4 +33,4 @@ from .value_converters import replace_newlines_with_br_tags as replace_newlines_
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags
 
-configure_warning_logging()
+initialise_warning_file()

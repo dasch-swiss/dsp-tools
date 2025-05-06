@@ -14,27 +14,26 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 load_dotenv()
 
-WARNING_CSV_SAVEPATH: str | None = None
 
-
-def configure_warning_logging():
+def initialise_warning_file():
     if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
-        global WARNING_CSV_SAVEPATH
-        WARNING_CSV_SAVEPATH = file_path
-        if not Path(WARNING_CSV_SAVEPATH).is_file():
+        print(BACKGROUND_BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
+        if not Path(file_path).is_file():
             new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
         else:
             new_row = ["****" for _ in range(6)]
-        with open(WARNING_CSV_SAVEPATH, "a", newline="") as file:
+        with open(file_path, "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(new_row)
 
 
 def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity) -> None:
-    if WARNING_CSV_SAVEPATH:
+    if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
         new_row = [
             function_trace if function_trace else "",
             str(severity),
@@ -43,7 +42,7 @@ def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, sev
             msg.prop_name if msg.prop_name else "",
             msg.field if msg.field else "",
         ]
-        with open(WARNING_CSV_SAVEPATH, "a", newline="") as file:
+        with open(file_path, "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(new_row)
 

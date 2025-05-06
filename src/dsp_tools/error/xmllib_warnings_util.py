@@ -11,39 +11,16 @@ from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 
 
-def raise_input_error(msg: MessageInfo) -> Never:
-    function_trace = _get_calling_code_context()
-    msg_str = get_user_message_string(msg, function_trace)
-    raise InputError(msg_str)
-
-
-def emit_xmllib_input_info(msg: MessageInfo) -> None:
-    function_trace = _get_calling_code_context()
-    msg_str = get_user_message_string(msg, function_trace)
-    warnings.warn(XmllibInputInfo(msg_str))
-
-
-def emit_xmllib_input_warning(msg: MessageInfo) -> None:
-    function_trace = _get_calling_code_context()
-    msg_str = get_user_message_string(msg, function_trace)
-    warnings.warn(XmllibInputWarning(msg_str))
-
-
-def emit_xmllib_input_type_mismatch_warning(
-    *,
-    expected_type: str,
-    value: Any,
-    res_id: str | None,
-    value_field: str | None = None,
-    prop_name: str | None = None,
-) -> None:
-    msg_info = MessageInfo(
-        message=f"The input should be a valid {expected_type}, your input '{value}' does not match the type.",
-        resource_id=res_id,
-        prop_name=prop_name,
-        field=value_field,
-    )
-    emit_xmllib_input_warning(msg_info)
+def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
+    str_list = [f"File '{function_trace}'"] if function_trace else []
+    if msg.resource_id:
+        str_list.append(f"Resource ID '{msg.resource_id}'")
+    if msg.prop_name:
+        str_list.append(f"Property '{msg.prop_name}'")
+    if msg.field:
+        str_list.append(f"Field '{msg.field}'")
+    str_list.append(msg.message)
+    return " | ".join(str_list)
 
 
 def _get_calling_code_context() -> str | None:
@@ -85,13 +62,36 @@ def _filter_stack_frames(file_path: str) -> bool:
     return False
 
 
-def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
-    str_list = [f"File '{function_trace}'"] if function_trace else []
-    if msg.resource_id:
-        str_list.append(f"Resource ID '{msg.resource_id}'")
-    if msg.prop_name:
-        str_list.append(f"Property '{msg.prop_name}'")
-    if msg.field:
-        str_list.append(f"Field '{msg.field}'")
-    str_list.append(msg.message)
-    return " | ".join(str_list)
+def raise_input_error(msg: MessageInfo) -> Never:
+    function_trace = _get_calling_code_context()
+    msg_str = get_user_message_string(msg, function_trace)
+    raise InputError(msg_str)
+
+
+def emit_xmllib_input_info(msg: MessageInfo) -> None:
+    function_trace = _get_calling_code_context()
+    msg_str = get_user_message_string(msg, function_trace)
+    warnings.warn(XmllibInputInfo(msg_str))
+
+
+def emit_xmllib_input_warning(msg: MessageInfo) -> None:
+    function_trace = _get_calling_code_context()
+    msg_str = get_user_message_string(msg, function_trace)
+    warnings.warn(XmllibInputWarning(msg_str))
+
+
+def emit_xmllib_input_type_mismatch_warning(
+    *,
+    expected_type: str,
+    value: Any,
+    res_id: str | None,
+    value_field: str | None = None,
+    prop_name: str | None = None,
+) -> None:
+    msg_info = MessageInfo(
+        message=f"The input should be a valid {expected_type}, your input '{value}' does not match the type.",
+        resource_id=res_id,
+        prop_name=prop_name,
+        field=value_field,
+    )
+    emit_xmllib_input_warning(msg_info)

@@ -59,7 +59,6 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     return [item for sublist in filtered.values() for item in sublist]
 
 
-
 def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
     filtered_problems = [x for x in problems if x.problem_type != ProblemType.VALUE_TYPE_MISMATCH]
     type_problems = [x for x in problems if x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
@@ -173,7 +172,8 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
 
 def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_errors.csv"
-    df = pd.DataFrame.from_records(problems)
+    problem_dicts = [_get_message_dict(x) for x in problems]
+    df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
     df.to_csv(out_path, index=False)
     return f"Due to the large number or errors, the validation errors were saved at:\n{out_path}"

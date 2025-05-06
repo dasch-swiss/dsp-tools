@@ -120,7 +120,8 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         else:
             specific_message = _get_problem_print_message(sorted_problems.unique_violation)
         problem_message = (
-            f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} errors were found:\n\n{specific_message}"
+            f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
+            f"errors were found:\n\n{specific_message}"
         )
     return UserPrintMessages(problem_message, iri_info_message)
 

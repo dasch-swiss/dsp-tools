@@ -21,7 +21,7 @@ load_dotenv()
 
 
 def initialise_warning_file() -> None:
-    if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
+    if file_path := os.getenv("WARNINGS_CSV_SAVEPATH"):
         print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
         if not Path(file_path).is_file():
             new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
@@ -33,7 +33,7 @@ def initialise_warning_file() -> None:
 
 
 def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity) -> None:
-    if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
+    if file_path := os.getenv("WARNINGS_CSV_SAVEPATH"):
         new_row = [
             function_trace if function_trace else "",
             str(severity),

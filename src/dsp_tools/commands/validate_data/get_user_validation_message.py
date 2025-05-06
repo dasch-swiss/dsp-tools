@@ -5,6 +5,7 @@ import pandas as pd
 
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -13,7 +14,7 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
 
 
-def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
+def get_user_message(problems: list[InputProblem], file_path: Path) -> UserPrintMessages:
     """
     Creates the string to communicate the user message.
 
@@ -24,13 +25,45 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
     Returns:
         Problem message
     """
-    duplicates_removed = _filter_out_duplicate_problems(problems)
-    num_unique_problems = sum([len(x) for x in duplicates_removed])
-    if num_unique_problems > 50:
-        specific_message = _save_problem_info_as_csv(duplicates_removed, file_path)
-    else:
-        specific_message = _get_problem_print_message(duplicates_removed)
-    return f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
+    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(problems)
+    problem_message = None
+    iri_info_message = None
+    if problems_with_iris:
+        iri_info_message = _get_referenced_iri_info(problems_with_iris)
+    if iris_removed:
+        filtered_problems = _filter_out_duplicate_problems(iris_removed)
+        num_unique_problems = sum([len(x) for x in filtered_problems])
+        if num_unique_problems > 50:
+            specific_message = _save_problem_info_as_csv(filtered_problems, file_path)
+        else:
+            specific_message = _get_problem_print_message(filtered_problems)
+        problem_message = (
+            f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
+        )
+    return UserPrintMessages(problem_message, iri_info_message)
+
+
+def _remove_link_value_missing_if_reference_is_an_iri(
+    problems: list[InputProblem],
+) -> tuple[list[InputProblem], list[InputProblem]]:
+    iris_referenced = []
+    no_iris_referenced = []
+    for prblm in problems:
+        if not prblm.input_value:
+            no_iris_referenced.append(prblm)
+        elif prblm.input_value.startswith("http://rdfh.ch/"):
+            iris_referenced.append(prblm)
+        else:
+            no_iris_referenced.append(prblm)
+    return no_iris_referenced, iris_referenced
+
+
+def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
+    user_info_str = [
+        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
+        for x in problems
+    ]
+    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[InputProblem]]:

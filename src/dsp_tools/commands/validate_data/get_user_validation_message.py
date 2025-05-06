@@ -17,7 +17,7 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 
 
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
-    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(all_problems.problems)
+    iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     if all_problems.unexpected_results:
         unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results))
@@ -30,7 +30,7 @@ def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     )
 
 
-def _remove_link_value_missing_if_reference_is_an_iri(
+def _separate_link_value_missing_if_reference_is_an_iri(
     problems: list[InputProblem],
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     iris_referenced = []
@@ -45,18 +45,12 @@ def _remove_link_value_missing_if_reference_is_an_iri(
     return no_iris_referenced, iris_referenced
 
 
-def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
-    user_info_str = [
-        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
-        for x in problems
-    ]
-    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
-
-
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:
     grouped = _group_problems_by_resource(problems)
-    filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
-    return [item for sublist in filtered.values() for item in sublist]
+    filtered = []
+    for problems_per_resource in grouped.values():
+        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
+    return filtered
 
 
 def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
@@ -118,6 +112,14 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
             f"errors were found:\n\n{specific_message}"
         )
     return UserPrintMessages(problem_message, iri_info_message)
+
+
+def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
+    user_info_str = [
+        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
+        for x in problems
+    ]
+    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

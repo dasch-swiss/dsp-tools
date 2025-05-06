@@ -84,7 +84,7 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
     if messages.referenced_absolute_iris:
         print(
             BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
-            "If these resources do not exist in the database or are not of the expected resource type, "
+            "If these resources do not exist in the database or are not of the expected resource type then"
             "the xmlupload will fail. Below you find a list of the references."
             + RESET_TO_DEFAULT
             + f"{messages.referenced_absolute_iris}"
@@ -95,7 +95,7 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
     if reformatted.unexpected_results:
         if save_graphs:
             print(
-                BACKGROUND_BOLD_YELLOW + "\n   Unexpected violations were found! "
+                BACKGROUND_BOLD_YELLOW + "\nUnexpected violations were found! "
                 "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
         else:

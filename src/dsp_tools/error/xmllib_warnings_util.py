@@ -20,7 +20,7 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 load_dotenv()
 
 
-def initialise_warning_file():
+def initialise_warning_file() -> None:
     if file_path := os.getenv("WARNING_CSV_SAVEPATH"):
         print(BACKGROUND_BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
         if not Path(file_path).is_file():

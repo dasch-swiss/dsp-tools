@@ -17,6 +17,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "argparse",
+    "dotenv",
     "jsonpath-ng",
     "jsonschema",
     "loguru",

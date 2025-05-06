@@ -1,3 +1,5 @@
+from dsp_tools.error.xmllib_warnings_util import initialise_warning_file
+
 from .helpers import ListLookup as ListLookup
 from .helpers import create_list_from_string as create_list_from_string
 from .helpers import create_non_empty_list_from_string as create_non_empty_list_from_string
@@ -30,3 +32,5 @@ from .value_converters import convert_to_bool as convert_to_bool_string
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags
+
+initialise_warning_file()

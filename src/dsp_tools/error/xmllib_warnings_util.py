@@ -1,14 +1,56 @@
+import csv
 import inspect
+import os
 import warnings
+from pathlib import Path
 from typing import Any
 from typing import Never
 
 import regex
+from dotenv import load_dotenv
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+
+load_dotenv()
+
+
+def initialise_warning_file() -> None:
+    if file_path := os.getenv("WARNINGS_CSV_SAVEPATH"):
+        try:
+            if not Path(file_path).is_file():
+                new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
+            else:
+                new_row = ["****" for _ in range(6)]
+            with open(file_path, "a", newline="") as file:
+                print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
+                writer = csv.writer(file)
+                writer.writerow(new_row)
+        except FileNotFoundError:
+            raise InputError(
+                f"The filepath '{file_path}' you entered in your .env file does not exist. "
+                f"Please ensure that the folder you named exists."
+            ) from None
+
+
+def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity) -> None:
+    if file_path := os.getenv("WARNINGS_CSV_SAVEPATH"):
+        new_row = [
+            function_trace if function_trace else "",
+            str(severity),
+            msg.message if msg.message else "",
+            msg.resource_id if msg.resource_id else "",
+            msg.prop_name if msg.prop_name else "",
+            msg.field if msg.field else "",
+        ]
+        with open(file_path, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(new_row)
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
@@ -64,18 +106,21 @@ def _filter_stack_frames(file_path: str) -> bool:
 
 def raise_input_error(msg: MessageInfo) -> Never:
     function_trace = _get_calling_code_context()
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.ERROR)
     msg_str = get_user_message_string(msg, function_trace)
     raise InputError(msg_str)
 
 
 def emit_xmllib_input_info(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.INFO)
     msg_str = get_user_message_string(msg, function_trace)
     warnings.warn(XmllibInputInfo(msg_str))
 
 
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.WARNING)
     msg_str = get_user_message_string(msg, function_trace)
     warnings.warn(XmllibInputWarning(msg_str))
 

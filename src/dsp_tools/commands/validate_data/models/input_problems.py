@@ -109,12 +109,6 @@ class UnexpectedResults:
 
 
 @dataclass
-class AllProblemsOld:
-    problems: list[InputProblem]
-    unexpected_results: UnexpectedResults | None
-
-
-@dataclass
 class AllProblems:
     problems: list[InputProblem]
     unexpected_results: list[UnexpectedComponent]

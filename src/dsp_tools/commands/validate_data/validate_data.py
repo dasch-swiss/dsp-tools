@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -99,7 +100,7 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
                 "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
         else:
-            reformatted.unexpected_results.save_inform_user(
+            UnexpectedResults(reformatted.unexpected_results).save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graph,
                 data=report.data_graph,

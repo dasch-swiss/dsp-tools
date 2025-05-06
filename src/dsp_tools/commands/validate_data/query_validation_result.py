@@ -10,10 +10,9 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
-from dsp_tools.commands.validate_data.models.input_problems import AllProblemsOld
+from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
-from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
@@ -33,7 +32,7 @@ from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
-def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblemsOld:
+def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.
@@ -49,9 +48,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblemsOld:
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
     reformatted_results = _reformat_extracted_results(validation_results)
-
-    unexpected_found = UnexpectedResults(unexpected_extracted) if unexpected_extracted else None
-    return AllProblemsOld(reformatted_results, unexpected_found)
+    return AllProblems(reformatted_results, unexpected_extracted)
 
 
 def _query_all_results(

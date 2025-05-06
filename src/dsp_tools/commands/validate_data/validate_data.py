@@ -11,7 +11,6 @@ from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_messages
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
@@ -81,7 +80,6 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
 def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
     reformatted = reformat_validation_graph(report)
-    sorted_messages = sort_user_messages(reformatted)
     messages = get_user_message(reformatted.problems, filepath)
     if messages.referenced_absolute_iris:
         print(

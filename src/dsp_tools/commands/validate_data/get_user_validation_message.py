@@ -20,7 +20,10 @@ def sort_user_messages(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     num_unique_problems = sum([len(x) for x in filtered_problems])
-    unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results))
+    if all_problems.unexpected_results:
+        unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results.components))
+    else:
+        unique_unexpected = []
     return SortedProblems(
         grouped_violations=filtered_problems,
         number_of_violations=num_unique_problems,

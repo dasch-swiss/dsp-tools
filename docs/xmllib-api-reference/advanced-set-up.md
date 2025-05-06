@@ -5,7 +5,7 @@
 User information, warnings and errors are printed out on the command line.
 To additionally save them to a CSV file, you can set that up by following the next steps:
 
-- In the directory from where you run your code from, create a new file called `.env`. 
+- In the directory where you run your code from, create a new file called `.env`. 
   If this file already exists, skip this step and write in the existing file.
 - Set `WARNINGS_CSV_SAVEPATH` to the path of the CSV file
 

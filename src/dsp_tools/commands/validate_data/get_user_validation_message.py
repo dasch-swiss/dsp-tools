@@ -5,7 +5,9 @@ import pandas as pd
 
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
+from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -14,33 +16,19 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
 
 
-def get_user_message(problems: list[InputProblem], file_path: Path) -> UserPrintMessages:
-    """
-    Creates the string to communicate the user message.
-
-    Args:
-        problems: List of validation problems
-        file_path: Path to the original data XML
-
-    Returns:
-        Problem message
-    """
+def sort_user_messages(
+    problems: list[InputProblem], unexpected_components: list[UnexpectedComponent]
+) -> SortedProblems:
     iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(problems)
-    problem_message = None
-    iri_info_message = None
-    if problems_with_iris:
-        iri_info_message = _get_referenced_iri_info(problems_with_iris)
-    if iris_removed:
-        filtered_problems = _filter_out_duplicate_problems(iris_removed)
-        num_unique_problems = sum([len(x) for x in filtered_problems])
-        if num_unique_problems > 50:
-            specific_message = _save_problem_info_as_csv(filtered_problems, file_path)
-        else:
-            specific_message = _get_problem_print_message(filtered_problems)
-        problem_message = (
-            f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
-        )
-    return UserPrintMessages(problem_message, iri_info_message)
+    filtered_problems = _filter_out_duplicate_problems(iris_removed)
+    num_unique_problems = sum([len(x) for x in filtered_problems])
+    unique_unexpected = list(set(x.component_type for x in unexpected_components))
+    return SortedProblems(
+        grouped_violations=filtered_problems,
+        number_of_violations=num_unique_problems,
+        user_info=problems_with_iris,
+        unexpected_shacl_validation_components=unique_unexpected,
+    )
 
 
 def _remove_link_value_missing_if_reference_is_an_iri(
@@ -104,6 +92,35 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
     for prob in problems:
         grouped_res[prob.res_id].append(prob)
     return grouped_res
+
+
+def get_user_message(problems: list[InputProblem], file_path: Path) -> UserPrintMessages:
+    """
+    Creates the string to communicate the user message.
+
+    Args:
+        problems: List of validation problems
+        file_path: Path to the original data XML
+
+    Returns:
+        Problem message
+    """
+    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(problems)
+    problem_message = None
+    iri_info_message = None
+    if problems_with_iris:
+        iri_info_message = _get_referenced_iri_info(problems_with_iris)
+    if iris_removed:
+        filtered_problems = _filter_out_duplicate_problems(iris_removed)
+        num_unique_problems = sum([len(x) for x in filtered_problems])
+        if num_unique_problems > 50:
+            specific_message = _save_problem_info_as_csv(filtered_problems, file_path)
+        else:
+            specific_message = _get_problem_print_message(filtered_problems)
+        problem_message = (
+            f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
+        )
+    return UserPrintMessages(problem_message, iri_info_message)
 
 
 def _get_problem_print_message(problems: list[list[InputProblem]]) -> str:

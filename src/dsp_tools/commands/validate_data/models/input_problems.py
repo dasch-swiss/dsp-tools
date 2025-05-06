@@ -115,6 +115,14 @@ class AllProblems:
 
 
 @dataclass
+class SortedProblems:
+    grouped_violations: list[list[InputProblem]]
+    number_of_violations: int
+    user_info: list[InputProblem]
+    unexpected_shacl_validation_components: list[str]
+
+
+@dataclass
 class UserPrintMessages:
     problems: str | None
     referenced_absolute_iris: str | None

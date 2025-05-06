@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
-from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -16,13 +16,11 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
 
 
-def sort_user_messages(
-    problems: list[InputProblem], unexpected_components: list[UnexpectedComponent]
-) -> SortedProblems:
-    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(problems)
+def sort_user_messages(all_problems: AllProblems) -> SortedProblems:
+    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     num_unique_problems = sum([len(x) for x in filtered_problems])
-    unique_unexpected = list(set(x.component_type for x in unexpected_components))
+    unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results))
     return SortedProblems(
         grouped_violations=filtered_problems,
         number_of_violations=num_unique_problems,

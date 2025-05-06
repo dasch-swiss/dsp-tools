@@ -59,11 +59,6 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     return [item for sublist in filtered.values() for item in sublist]
 
 
-def _filter_out_duplicate_problems_old(problems: list[InputProblem]) -> list[list[InputProblem]]:
-    grouped = _group_problems_by_resource(problems)
-    filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
-    return list(filtered.values())
-
 
 def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
     filtered_problems = [x for x in problems if x.problem_type != ProblemType.VALUE_TYPE_MISMATCH]

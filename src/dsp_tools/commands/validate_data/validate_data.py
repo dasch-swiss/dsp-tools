@@ -95,14 +95,14 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
     if messages.problems:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
-    if reformatted.unexpected_results:
+    if sorted_problems.unexpected_shacl_validation_components:
         if save_graphs:
             print(
                 BACKGROUND_BOLD_YELLOW + "\nUnexpected violations were found! "
                 "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
         else:
-            UnexpectedResults(reformatted.unexpected_results).save_inform_user(
+            UnexpectedResults(sorted_problems.unexpected_shacl_validation_components).save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graph,
                 data=report.data_graph,

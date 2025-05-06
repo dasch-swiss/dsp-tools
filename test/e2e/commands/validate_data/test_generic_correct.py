@@ -6,7 +6,7 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_messages
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
@@ -64,9 +64,8 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     # because the resource does not exist in the graph
     assert not content_correct.conforms
     reformatted = reformat_validation_graph(content_correct)
-    sorted_messages = sort_user_messages(reformatted)
-    assert not sorted_messages.grouped_violations
-    assert sorted_messages.number_of_violations == 0
+    sorted_messages = sort_user_problems(reformatted)
+    assert not sorted_messages.unique_violations
     assert len(sorted_messages.user_info) == 1
     assert not sorted_messages.unexpected_shacl_validation_components
 

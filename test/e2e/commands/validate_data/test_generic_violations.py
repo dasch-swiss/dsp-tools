@@ -11,7 +11,8 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
+from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems_old
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -144,6 +145,7 @@ def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) ->
 
 def test_reformat_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
     result = reformat_validation_graph(cardinality_violation)
+    sorted_problems = sort_user_problems(result)
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -151,6 +153,7 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
         ("id_min_card", ProblemType.MIN_CARD),
         ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
     ]
+
     assert not result.unexpected_results
     assert len(result.problems) == len(expected_info_tuples)
     sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
@@ -246,7 +249,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
     result = reformat_validation_graph(value_type_violation)
     assert not result.unexpected_results
     # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
-    filtered_problems = _filter_out_duplicate_problems(result.problems)
+    filtered_problems = _filter_out_duplicate_problems_old(result.problems)
     flattened_problems = [item for sublist in filtered_problems for item in sublist]
     sorted_problems = sorted(flattened_problems, key=lambda x: x.res_id)
     expected_info_tuples = [

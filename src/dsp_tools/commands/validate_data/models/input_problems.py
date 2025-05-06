@@ -116,8 +116,7 @@ class AllProblems:
 
 @dataclass
 class SortedProblems:
-    grouped_violations: list[list[InputProblem]]
-    number_of_violations: int
+    unique_violations: list[InputProblem]
     user_info: list[InputProblem]
     unexpected_shacl_validation_components: list[str]
 

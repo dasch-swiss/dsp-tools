@@ -16,17 +16,15 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
 
 
-def sort_user_messages(all_problems: AllProblems) -> SortedProblems:
+def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
-    num_unique_problems = sum([len(x) for x in filtered_problems])
     if all_problems.unexpected_results:
         unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results.components))
     else:
         unique_unexpected = []
     return SortedProblems(
-        grouped_violations=filtered_problems,
-        number_of_violations=num_unique_problems,
+        unique_violations=filtered_problems,
         user_info=problems_with_iris,
         unexpected_shacl_validation_components=unique_unexpected,
     )
@@ -55,7 +53,13 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
     return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
 
 
-def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[InputProblem]]:
+def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    grouped = _group_problems_by_resource(problems)
+    filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
+    return [item for sublist in filtered.values() for item in sublist]
+
+
+def _filter_out_duplicate_problems_old(problems: list[InputProblem]) -> list[list[InputProblem]]:
     grouped = _group_problems_by_resource(problems)
     filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
     return list(filtered.values())
@@ -112,7 +116,7 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> UserPrint
     if problems_with_iris:
         iri_info_message = _get_referenced_iri_info(problems_with_iris)
     if iris_removed:
-        filtered_problems = _filter_out_duplicate_problems(iris_removed)
+        filtered_problems = _filter_out_duplicate_problems_old(iris_removed)
         num_unique_problems = sum([len(x) for x in filtered_problems])
         if num_unique_problems > 50:
             specific_message = _save_problem_info_as_csv(filtered_problems, file_path)

@@ -20,7 +20,7 @@ def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     if all_problems.unexpected_results:
-        unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results.components))
+        unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results))
     else:
         unique_unexpected = []
     return SortedProblems(

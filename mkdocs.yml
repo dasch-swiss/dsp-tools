@@ -17,9 +17,10 @@ nav:
       - XML data file: file-formats/xml-data-file.md
       - excel2json: file-formats/excel2json.md
       - excel2xml: file-formats/excel2xml.md
-  - Incremental xmlupload: incremental-xmlupload.md
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
+  - Special workflows:
+      - Incremental xmlupload: special-workflows/incremental-xmlupload.md
   - Information for developers:
       - Developers documentation: developers/index.md
       - Architectural Decision Records: developers/decision-log.md
@@ -52,6 +53,7 @@ nav:
       - Value Checkers: xmllib-api-reference/value-checkers.md
       - Value Converters: xmllib-api-reference/value-converters.md
       - Helpers: xmllib-api-reference/helpers.md
+      - Advanced Set-Up Options: xmllib-api-reference/advanced-set-up.md
 
 theme:
   name: material

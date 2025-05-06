@@ -115,6 +115,12 @@ class AllProblems:
 
 
 @dataclass
+class UserPrintMessages:
+    problems: str | None
+    referenced_absolute_iris: str | None
+
+
+@dataclass
 class InputProblem:
     problem_type: ProblemType
     res_id: str

@@ -180,68 +180,6 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
     return etree.tostring(ele, encoding="unicode")
 
 
-def create_label_to_name_list_node_mapping(
-    project_json_path: str,
-    list_name: str,
-    language_of_label: str,
-) -> dict[str, str]:
-    """
-    Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
-    which is needed for the `dsp-tools xmlupload`.
-    To create a correct XML, you need a dictionary that maps the "labels" to their correct "names".
-
-    Args:
-        project_json_path: path to a JSON project file (a.k.a. ontology)
-        list_name: name of a list in the JSON project
-        language_of_label: which language of the label to choose
-
-    Returns:
-        a dictionary of the form {label: name}
-
-    Examples:
-        ```json
-        "lists": [
-            {
-                "name": "listName",
-                "labels": {
-                    "en": "List",
-                    "de": "Liste"
-                },
-                "comments": { ... },
-                "nodes": [
-                    {
-                        "name": "n1",
-                        "labels": {
-                            "en": "Node 1",
-                            "de": "Knoten 1"
-                        }
-                    },
-                    {
-                        "name": "n2",
-                        "labels": {
-                            "en": "Node 2",
-                            "de": "Knoten 2"
-                        }
-                    }
-                ]
-            }
-        ]
-        ```
-
-        ```python
-        result = xmllib.create_label_to_name_list_node_mapping(
-            project_json_path="project.json",
-            list_name="listName",
-            language_of_label="de",
-        )
-        # result == {"Knoten 1": "n1", "knoten 1": "n1", "Knoten 2": "n2", "knoten 2": "n2"}
-        ```
-    """
-    with open(project_json_path, encoding="utf-8") as f:
-        json_file = json.load(f)
-    return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
-
-
 def _get_label_to_node_one_list(
     list_section: list[dict[str, Any]], list_name: str, language_of_label: str
 ) -> dict[str, str]:
@@ -664,6 +602,8 @@ def find_date_in_string(string: str) -> str | None:
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
+    if already_parsed := _extract_already_parsed_date(string):
+        return already_parsed
     if not is_nonempty_value_internal(string):
         return None
     try:
@@ -967,6 +907,15 @@ def _from_year_range(year_range: Match[str]) -> str:
     if endyear <= startyear:
         raise ValueError
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
+
+
+def _extract_already_parsed_date(string: str) -> str | None:
+    rgx_year = r"\d+(-\d{2}(-\d{2})?)?"
+    era_with_colon = r"(CE:|BC:)"
+    rgx = rf"(GREGORIAN|JULIAN|ISLAMIC):{era_with_colon}{rgx_year}:{era_with_colon}?{rgx_year}"
+    if match := regex.search(rgx, string):
+        return match.group(0)
+    return None
 
 
 def make_xsd_compatible_id(input_value: str | float | int) -> str:

@@ -1103,6 +1103,64 @@ Second Line"""^^xsd:string ;
 
 
 @pytest.fixture
+def report_single_line_constraint_component_content_is_value(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f'''{PREFIXES}
+[ a sh:ValidationResult ;
+            sh:detail _:detail_bn ;
+            sh:focusNode <http://data/simple_text_with_newlines> ;
+            sh:resultMessage "This property requires a TextValue" ;
+            sh:resultPath <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText_PropShape> ;
+            sh:value <http://data/value_simple_text_with_newlines> ].
+            
+    _:detail_bn a sh:ValidationResult ;
+    sh:focusNode <http://data/value_simple_text_with_newlines> ;
+    sh:resultMessage "The value must be a non-empty string without newlines." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#valueAsString> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent <http://datashapes.org/dash#SingleLineConstraintComponent> ;
+    sh:sourceShape [ ] ;
+    sh:value """This may not
+
+have newlines""" .
+    '''
+    data_str = f'''{PREFIXES}
+<http://data/simple_text_with_newlines> a onto:ClassWithEverything ;
+    rdfs:label "With linebreaks"^^xsd:string ;
+    onto:testSimpleText <http://data/value_simple_text_with_newlines> .
+
+<http://data/value_simple_text_with_newlines> a knora-api:TextValue ;
+    knora-api:valueAsString """This may not
+
+have newlines"""^^xsd:string .
+    '''
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=DASH.SingleLineConstraintComponent,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        focus_node_iri=DATA.simple_text_with_newlines,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSimpleText,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def extracted_single_line_constraint_component() -> ValidationResult:
     return ValidationResult(
         violation_type=ViolationType.GENERIC,

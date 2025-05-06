@@ -67,7 +67,7 @@ def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLook
     if res.file_value:
         auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)
         ele.append(serialise_file_value(res.file_value, auth_id))
-    ele.extend(serialise_values(res.values, res.res_id))
+    ele.extend(serialise_values(res.values))
     return ele
 
 
@@ -78,7 +78,7 @@ def _serialise_region(res: RegionResource) -> etree._Element:
     if res.comments:
         cmnt = cast(list[Value], res.comments)
         props.extend(cmnt)
-    ele.extend(serialise_values(props, res.res_id))
+    ele.extend(serialise_values(props))
     return ele
 
 
@@ -98,7 +98,7 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     geo_prop.append(ele)
     prop_list.append(geo_prop)
     prop_list.extend(
-        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor")], res.res_id),
+        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor")]),
     )
     return prop_list
 
@@ -116,7 +116,7 @@ def _serialise_link(res: LinkResource) -> etree._Element:
     comments = cast(list[Value], res.comments)
     links_to = cast(list[Value], res.link_to)
     generic_vals = comments + links_to
-    ele.extend(serialise_values(generic_vals, res.res_id))
+    ele.extend(serialise_values(generic_vals))
     return ele
 
 

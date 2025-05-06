@@ -311,7 +311,7 @@ def _query_one_with_detail(
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
-        case SH.InConstraintComponent:
+        case SH.InConstraintComponent | DASH.SingleLineConstraintComponent:
             detail = cast(DetailBaseInfo, base_info.detail)
             return _query_generic_violation(detail.detail_bn, base_info, results_and_onto)
         case _:

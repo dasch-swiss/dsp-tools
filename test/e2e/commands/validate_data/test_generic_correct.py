@@ -6,7 +6,9 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
@@ -58,7 +60,14 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
     content_correct = _get_validation_result(graphs, shacl_validator, None)
-    assert content_correct.conforms
+    # The referenced absolute IRIs are perceived as a violation in SHACL
+    # because the resource does not exist in the graph
+    assert not content_correct.conforms
+    reformatted = reformat_validation_graph(content_correct)
+    extracted_message = get_user_message(reformatted.problems, Path(""))
+    # When we create the user message we differentiate between an error and a reference to an IRI
+    assert not extracted_message.problems
+    assert extracted_message.referenced_absolute_iris
 
 
 @pytest.fixture(scope="module")

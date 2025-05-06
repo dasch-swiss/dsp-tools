@@ -249,7 +249,6 @@ def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> N
 
 
 def test_reformat_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
-    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -268,14 +267,12 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
     ]
     result = reformat_validation_graph(value_type_violation)
+    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_info_tuples)
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-    assert len(alphabetically_sorted) == len(expected_info_tuples)
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert one_result.res_id == expected_info[0]

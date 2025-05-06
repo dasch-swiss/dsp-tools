@@ -53,7 +53,7 @@ nav:
       - Value Checkers: xmllib-api-reference/value-checkers.md
       - Value Converters: xmllib-api-reference/value-converters.md
       - Helpers: xmllib-api-reference/helpers.md
-      - Advanced Set-Up: xmllib-api-reference/advanced-set-up.md
+      - Advanced Set-Up Options: xmllib-api-reference/advanced-set-up.md
 
 theme:
   name: material

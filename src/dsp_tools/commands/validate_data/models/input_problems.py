@@ -85,13 +85,12 @@ class UnknownClassesInData:
 
 @dataclass
 class UnexpectedResults:
-    components: list[UnexpectedComponent]
+    components: list[str]
 
     def save_inform_user(self, results_graph: Graph, shacl: Graph, data: Graph) -> None:
         cwdr = Path.cwd()
         prefix = f"{datetime.now()!s}_"
-        unique_components = list(set(x.component_type for x in self.components))
-        components = sorted(unique_components)
+        components = sorted(self.components)
         logger.info(f"Unexpected components found: {', '.join(components)}")
         msg = (
             f"Unexpected violations were found in the validation results:"
@@ -111,7 +110,14 @@ class UnexpectedResults:
 @dataclass
 class AllProblems:
     problems: list[InputProblem]
-    unexpected_results: UnexpectedResults | None
+    unexpected_results: list[UnexpectedComponent]
+
+
+@dataclass
+class SortedProblems:
+    unique_violations: list[InputProblem]
+    user_info: list[InputProblem]
+    unexpected_shacl_validation_components: list[str]
 
 
 @dataclass

@@ -11,7 +11,9 @@ from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -80,7 +82,8 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
 def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
     reformatted = reformat_validation_graph(report)
-    messages = get_user_message(reformatted.problems, filepath)
+    sorted_problems = sort_user_problems(reformatted)
+    messages = get_user_message(sorted_problems, filepath)
     if messages.referenced_absolute_iris:
         print(
             BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
@@ -92,14 +95,14 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
     if messages.problems:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
-    if reformatted.unexpected_results:
+    if sorted_problems.unexpected_shacl_validation_components:
         if save_graphs:
             print(
                 BACKGROUND_BOLD_YELLOW + "\nUnexpected violations were found! "
                 "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
         else:
-            reformatted.unexpected_results.save_inform_user(
+            UnexpectedResults(sorted_problems.unexpected_shacl_validation_components).save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graph,
                 data=report.data_graph,

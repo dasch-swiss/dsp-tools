@@ -6,6 +6,7 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -90,7 +91,6 @@ def test_special_characters_violation(special_characters_violation: ValidationRe
 
 
 def test_reformat_special_characters_violation(special_characters_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(special_characters_violation)
     expected_tuples = [
         (
             "node_backslash",
@@ -128,10 +128,13 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             "other / \\ backslash",
         ),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_tuples)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for prblm, expected in zip(sorted_problems, expected_tuples):
+    result = reformat_validation_graph(special_characters_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for prblm, expected in zip(alphabetically_sorted, expected_tuples):
         if prblm.problem_type == ProblemType.GENERIC:
             assert prblm.res_id == expected[0]
             assert prblm.message == expected[1]
@@ -153,17 +156,19 @@ def test_inheritance_violation(inheritance_violation: ValidationReportGraphs) ->
 
 
 def test_reformat_inheritance_violation(inheritance_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(inheritance_violation)
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceUnrelated", {"onto:hasText0"}),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_results)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for one_result, expected in zip(sorted_problems, expected_results):
+    result = reformat_validation_graph(inheritance_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_results)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]
         assert one_result.prop_name in expected[1]

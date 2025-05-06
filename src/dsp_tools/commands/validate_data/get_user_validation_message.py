@@ -3,8 +3,10 @@ from pathlib import Path
 
 import pandas as pd
 
+from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
 
 LIST_SEPARATOR = "\n    - "
@@ -14,41 +16,26 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
 
 
-def get_user_message(problems: list[InputProblem], file_path: Path) -> UserPrintMessages:
-    """
-    Creates the string to communicate the user message.
-
-    Args:
-        problems: List of validation problems
-        file_path: Path to the original data XML
-
-    Returns:
-        Problem message
-    """
-    iris_removed, problems_with_iris = _remove_link_value_missing_if_reference_is_an_iri(problems)
-    problem_message = None
-    iri_info_message = None
-    if problems_with_iris:
-        iri_info_message = _get_referenced_iri_info(problems_with_iris)
-    if iris_removed:
-        filtered_problems = _filter_out_duplicate_problems(iris_removed)
-        num_unique_problems = sum([len(x) for x in filtered_problems])
-        if num_unique_problems > 50:
-            specific_message = _save_problem_info_as_csv(filtered_problems, file_path)
-        else:
-            specific_message = _get_problem_print_message(filtered_problems)
-        problem_message = (
-            f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
-        )
-    return UserPrintMessages(problem_message, iri_info_message)
+def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
+    iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
+    filtered_problems = _filter_out_duplicate_problems(iris_removed)
+    unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
+    return SortedProblems(
+        unique_violations=filtered_problems,
+        user_info=problems_with_iris,
+        unexpected_shacl_validation_components=unique_unexpected,
+    )
 
 
-def _remove_link_value_missing_if_reference_is_an_iri(
+def _separate_link_value_missing_if_reference_is_an_iri(
     problems: list[InputProblem],
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     iris_referenced = []
     no_iris_referenced = []
     for prblm in problems:
+        if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
+            no_iris_referenced.append(prblm)
+            continue
         if not prblm.input_value:
             no_iris_referenced.append(prblm)
         elif prblm.input_value.startswith("http://rdfh.ch/"):
@@ -58,18 +45,12 @@ def _remove_link_value_missing_if_reference_is_an_iri(
     return no_iris_referenced, iris_referenced
 
 
-def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
-    user_info_str = [
-        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
-        for x in problems
-    ]
-    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
-
-
-def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[InputProblem]]:
+def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:
     grouped = _group_problems_by_resource(problems)
-    filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
-    return list(filtered.values())
+    filtered = []
+    for problems_per_resource in grouped.values():
+        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
+    return filtered
 
 
 def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
@@ -106,8 +87,44 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
     return grouped_res
 
 
-def _get_problem_print_message(problems: list[list[InputProblem]]) -> str:
-    messages = [_get_message_for_one_resource(v) for v in sorted(problems, key=lambda x: x[0].res_id)]
+def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPrintMessages:
+    """
+    Creates the string to communicate the user message.
+
+    Args:
+        sorted_problems: validation problems
+        file_path: Path to the original data XML
+
+    Returns:
+        Problem message
+    """
+    problem_message = None
+    iri_info_message = None
+    if sorted_problems.user_info:
+        iri_info_message = _get_referenced_iri_info(sorted_problems.user_info)
+    if sorted_problems.unique_violations:
+        if len(sorted_problems.unique_violations) > 50:
+            specific_message = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+        else:
+            specific_message = _get_problem_print_message(sorted_problems.unique_violations)
+        problem_message = (
+            f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
+            f"errors were found:\n\n{specific_message}"
+        )
+    return UserPrintMessages(problem_message, iri_info_message)
+
+
+def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
+    user_info_str = [
+        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
+        for x in problems
+    ]
+    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
+
+
+def _get_problem_print_message(problems: list[InputProblem]) -> str:
+    grouped = list(_group_problems_by_resource(problems).values())
+    messages = [_get_message_for_one_resource(v) for v in sorted(grouped, key=lambda x: x[0].res_id)]
     return GRAND_SEPARATOR.join(messages)
 
 
@@ -155,12 +172,10 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[list[InputProblem]], file_path: Path) -> str:
+def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_errors.csv"
-    all_problems = []
-    for resource_problems in problems:
-        all_problems.extend([_get_message_dict(x) for x in resource_problems])
-    df = pd.DataFrame.from_records(all_problems)
+    problem_dicts = [_get_message_dict(x) for x in problems]
+    df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
     df.to_csv(out_path, index=False)
     return f"Due to the large number or errors, the validation errors were saved at:\n{out_path}"

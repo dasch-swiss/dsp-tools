@@ -11,7 +11,7 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -143,7 +143,6 @@ def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) ->
 
 
 def test_reformat_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(cardinality_violation)
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -151,10 +150,13 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
         ("id_min_card", ProblemType.MIN_CARD),
         ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_info_tuples)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    result = reformat_validation_graph(cardinality_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
 
@@ -164,9 +166,6 @@ def test_content_violation(content_violation: ValidationReportGraphs) -> None:
 
 
 def test_reformat_content_violation(content_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(content_violation)
-    assert not result.unexpected_results
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     expected_info_tuples = [
         (
             "comment_on_value_empty",
@@ -221,8 +220,15 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
     ]
+    result = reformat_validation_graph(content_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    assert not result.unexpected_results
     assert len(result.problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.prop_name == expected_info[1]
         if one_result.problem_type == ProblemType.INPUT_REGEX:
@@ -243,12 +249,6 @@ def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> N
 
 
 def test_reformat_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(value_type_violation)
-    assert not result.unexpected_results
-    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
-    filtered_problems = _filter_out_duplicate_problems(result.problems)
-    flattened_problems = [item for sublist in filtered_problems for item in sublist]
-    sorted_problems = sorted(flattened_problems, key=lambda x: x.res_id)
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -266,8 +266,14 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
         ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
     ]
-    assert len(sorted_problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    result = reformat_validation_graph(value_type_violation)
+    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert one_result.res_id == expected_info[0]
         assert one_result.expected == expected_info[1]
@@ -288,7 +294,6 @@ def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) ->
 
 class TestReformatValidationGraph:
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(unique_value_violation)
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
@@ -296,15 +301,18 @@ class TestReformatValidationGraph:
             "identical_values_valueAsString",
             "identical_values_valueHas",
         ]
+        result = reformat_validation_graph(unique_value_violation)
+        sorted_problems = sort_user_problems(result)
+        assert len(sorted_problems.unique_violations) == len(expected_ids)
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_ids)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_id in zip(sorted_problems, expected_ids):
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
             ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -335,15 +343,18 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("inexistent_license_iri", ProblemType.GENERIC),
         ]
+        result = reformat_validation_graph(file_value_violation)
+        sorted_problems = sort_user_problems(result)
+        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -361,10 +372,14 @@ class TestReformatValidationGraph:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
+        result = reformat_validation_graph(dsp_inbuilt_violation)
+        sorted_problems = sort_user_problems(result)
+        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
@@ -417,7 +432,6 @@ def test_every_violation_combination_once(every_violation_combination_once: Vali
 
 
 def test_reformat_every_constraint_once(every_violation_combination_once: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(every_violation_combination_once)
     expected_info_tuples = [
         ("bitstream_no_legal_info", ProblemType.GENERIC),
         ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -445,10 +459,14 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
     ]
+    result = reformat_validation_graph(every_violation_combination_once)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    assert len(result.problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
 

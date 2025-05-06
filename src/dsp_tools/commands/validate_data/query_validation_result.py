@@ -13,7 +13,6 @@ from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
-from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
@@ -49,9 +48,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
     reformatted_results = _reformat_extracted_results(validation_results)
-
-    unexpected_found = UnexpectedResults(unexpected_extracted) if unexpected_extracted else None
-    return AllProblems(reformatted_results, unexpected_found)
+    return AllProblems(reformatted_results, unexpected_extracted)
 
 
 def _query_all_results(

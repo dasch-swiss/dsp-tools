@@ -7,6 +7,7 @@ from dsp_tools.commands.validate_data.get_user_validation_message import sort_us
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 
 
 @pytest.fixture
@@ -164,11 +165,14 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
         expected="This property requires a TextValue",
     )
     result = sort_user_problems(
-        AllProblems([duplicate_value, link_value_type_mismatch, should_remain, should_be_removed], [])
+        AllProblems(
+            [duplicate_value, link_value_type_mismatch, should_remain, should_be_removed],
+            [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
+        )
     )
     assert len(result.unique_violations) == 3
     assert not result.user_info
-    assert not result.unexpected_shacl_validation_components
+    assert len(result.unexpected_shacl_validation_components) == 1
     assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id"}
 
 

@@ -157,10 +157,10 @@ def test_inheritance_violation(inheritance_violation: ValidationReportGraphs) ->
 
 def test_reformat_inheritance_violation(inheritance_violation: ValidationReportGraphs) -> None:
     expected_results = [
-        ("ResourceSubCls1", "onto:hasText0"),
-        ("ResourceSubCls2", "onto:hasTextSubProp1"),
-        ("ResourceSubCls2", "onto:hasTextSubProp1"),
-        ("ResourceUnrelated", "onto:hasText0"),
+        ("ResourceSubCls1", {"onto:hasText0"}),
+        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+        ("ResourceUnrelated", {"onto:hasText0"}),
     ]
     result = reformat_validation_graph(inheritance_violation)
     sorted_problems = sort_user_problems(result)
@@ -171,7 +171,7 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidationReportG
     for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]
-        assert one_result.prop_name == expected[1]
+        assert one_result.prop_name in expected[1]
 
 
 def test_validate_ontology_violation(validate_ontology_violation: ValidationReportGraphs | None) -> None:

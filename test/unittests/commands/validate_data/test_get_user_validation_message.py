@@ -151,14 +151,14 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch)
 def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mismatch):
     should_remain = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="should_remain",
+        res_id="text_value_id",
         res_type="",
         prop_name="onto:hasProp",
         expected="TextValue without formatting",
     )
     should_be_removed = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="should_be_removed",
+        res_id="text_value_id",
         res_type="",
         prop_name="onto:hasProp",
         expected="This property requires a TextValue",
@@ -169,7 +169,7 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
     assert len(result.unique_violations) == 3
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components
-    assert set([x.res_id for x in result.unique_violations]) == {"should_remain", "res_id"}
+    assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id"}
 
 
 def test_sort_user_problems_different_props():

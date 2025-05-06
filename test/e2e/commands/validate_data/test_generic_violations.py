@@ -155,8 +155,8 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
 

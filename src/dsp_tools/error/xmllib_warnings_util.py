@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 
@@ -24,22 +25,24 @@ def configure_warning_logging():
         global WARNING_CSV_SAVEPATH
         WARNING_CSV_SAVEPATH = file_path
         if not Path(WARNING_CSV_SAVEPATH).is_file():
-            new_row = ["File", "Message", "Resource ID", "Property", "Field"]
+            new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
         else:
-            new_row = ["****" for _ in range(5)]
+            new_row = ["****" for _ in range(6)]
         with open(WARNING_CSV_SAVEPATH, "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(new_row)
 
 
-def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None) -> None:
+def write_to_csv_if_configured(msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity) -> None:
     if WARNING_CSV_SAVEPATH:
-        new_row = []
-        new_row.append(function_trace if function_trace else "")
-        new_row.append(msg.message if msg.message else "")
-        new_row.append(msg.resource_id if msg.resource_id else "")
-        new_row.append(msg.prop_name if msg.prop_name else "")
-        new_row.append(msg.field if msg.field else "")
+        new_row = [
+            function_trace if function_trace else "",
+            str(severity),
+            msg.message if msg.message else "",
+            msg.resource_id if msg.resource_id else "",
+            msg.prop_name if msg.prop_name else "",
+            msg.field if msg.field else "",
+        ]
         with open(WARNING_CSV_SAVEPATH, "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(new_row)
@@ -98,19 +101,21 @@ def _filter_stack_frames(file_path: str) -> bool:
 
 def raise_input_error(msg: MessageInfo) -> Never:
     function_trace = _get_calling_code_context()
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.ERROR)
     msg_str = get_user_message_string(msg, function_trace)
     raise InputError(msg_str)
 
 
 def emit_xmllib_input_info(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.INFO)
     msg_str = get_user_message_string(msg, function_trace)
     warnings.warn(XmllibInputInfo(msg_str))
 
 
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
-    write_to_csv_if_configured(msg, function_trace)
+    write_to_csv_if_configured(msg, function_trace, UserMessageSeverity.WARNING)
     msg_str = get_user_message_string(msg, function_trace)
     warnings.warn(XmllibInputWarning(msg_str))
 

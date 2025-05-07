@@ -8,9 +8,6 @@ import regex
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 
-LIST_SEPARATOR = "\n    - "
-GRAND_SEPARATOR = "\n\n----------------------------\n"
-
 
 @dataclass
 class OntologyValidationProblem:

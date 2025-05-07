@@ -55,7 +55,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     graphs, used_iris = _get_parsed_graphs(api_url, filepath)
 
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
-        msg = unknown_classes.get_msg()
+        msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
@@ -68,7 +68,9 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
-        _print_ontology_validation_violation_message(onto_validation_result)
+        msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(msg)
         # if the ontology itself has errors, we will not validate the data
         return True
 
@@ -81,21 +83,49 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return True
 
 
-def _print_ontology_validation_violation_message(onto_violations: OntologyValidationProblem) -> None:
+def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
+    if unknown_onto_msg := _get_unknown_ontos_msg(unknown):
+        return unknown_onto_msg
+    else:
+        unknown_classes = sorted(list(unknown.unknown_classes))
+        known_classes = sorted(list(unknown.defined_classes))
+        return (
+            f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
+            f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
+        )
+
+
+def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:
+    def split_prefix(relative_iri: str) -> str | None:
+        if ":" not in relative_iri:
+            return None
+        return relative_iri.split(":")[0]
+
+    used_ontos = set(not_knora for x in unknown.unknown_classes if (not_knora := split_prefix(x)))
+    exising_ontos = set(not_knora for x in unknown.defined_classes if (not_knora := split_prefix(x)))
+    if unknown := used_ontos - exising_ontos:
+        return (
+            f"Your data uses ontologies that don't exist in the database.\n"
+            f"The following ontologies that are used in the data are unknown: {', '.join(unknown)}\n"
+            f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
+        )
+    return None
+
+
+def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:
     probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
 
     def get_resource_msg(res: OntologyResourceProblem) -> str:
         return f"Resource Class: {res.res_iri} | Problem: {res.msg}"
 
     problems = [get_resource_msg(x) for x in probs]
-    msg = (
+    return (
         "The ontology structure contains errors that prevent the validation of the data.\n"
         "Please correct the following errors and re-upload the corrected ontology.\n"
         f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
         f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
     )
-    print(VALIDATION_ERRORS_FOUND_MSG)
-    print(msg)
 
 
 def _print_shacl_validation_violation_message(

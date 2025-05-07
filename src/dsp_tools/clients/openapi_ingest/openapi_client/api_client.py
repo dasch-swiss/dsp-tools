@@ -24,7 +24,7 @@ from urllib.parse import quote
 from dateutil.parser import parse
 from pydantic import SecretStr
 
-import openapi_client.models
+import src.dsp_tools.clients.openapi_ingest.openapi_client.models
 from src.dsp_tools.clients.openapi_ingest.openapi_client import rest
 from src.dsp_tools.clients.openapi_ingest.openapi_client.api_response import ApiResponse
 from src.dsp_tools.clients.openapi_ingest.openapi_client.api_response import T as ApiResponseT

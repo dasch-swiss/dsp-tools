@@ -187,6 +187,7 @@ exclude = ["src/dsp_tools/clients/openapi_ingest/**/*.py"]
 ]
 "!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 

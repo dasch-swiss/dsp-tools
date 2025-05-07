@@ -83,6 +83,7 @@ markdownlint:
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
     --ignore README.md \
+    --ignore src/dsp_tools/clients/openapi_ingest \
     "**/*.md"
 
 # Run vulture, dead code analysis

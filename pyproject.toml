@@ -167,6 +167,7 @@ ignore = [
     "UP007",  # forbid use of typing.Union and typing.Optional
     "UP015",  # Unnecessary mode="r" argument in open()
 ]
+exclude = ["src/dsp_tools/clients/openapi_ingest/**/*.py"]
 
 
 [tool.ruff.lint.per-file-ignores]
@@ -192,6 +193,10 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.ruff.format]
+exclude = ["src/dsp_tools/clients/openapi_ingest/**/*.py"]
 
 
 [tool.vulture]

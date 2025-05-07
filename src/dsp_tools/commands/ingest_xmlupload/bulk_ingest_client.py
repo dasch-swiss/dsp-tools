@@ -59,7 +59,7 @@ class BulkIngestClient:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
         if api_response.status_code != STATUS_OK:
@@ -72,9 +72,7 @@ class BulkIngestClient:
         url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
         logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}")
-        res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(
-            self.shortcode, _request_timeout=timeout
-        )
+        res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(self.shortcode, _request_timeout=timeout)
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
             raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")

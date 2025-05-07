@@ -56,6 +56,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
+        logger.info(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
@@ -69,6 +70,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
+        logger.info(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
@@ -135,22 +137,21 @@ def _print_shacl_validation_violation_message(
     sorted_problems = sort_user_problems(reformatted)
     messages = get_user_message(sorted_problems, filepath)
     if messages.referenced_absolute_iris:
-        print(
-            BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
+        iri_msg = (
+            "Your data references absolute IRIs of resources. "
             "If these resources do not exist in the database or are not of the expected resource type then"
             "the xmlupload will fail. Below you find a list of the references."
-            + RESET_TO_DEFAULT
-            + f"{messages.referenced_absolute_iris}"
         )
+        logger.info(iri_msg, messages.referenced_absolute_iris)
+        print(BACKGROUND_BOLD_YELLOW + iri_msg + RESET_TO_DEFAULT + f"{messages.referenced_absolute_iris}")
     if messages.problems:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
     if sorted_problems.unexpected_shacl_validation_components:
         if save_graphs:
-            print(
-                BACKGROUND_BOLD_YELLOW + "\nUnexpected violations were found! "
-                "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
-            )
+            unexpected_violations_msg = "Unexpected violations were found! Consult the saved graphs for details."
+            logger.info(unexpected_violations_msg)
+            print(BACKGROUND_BOLD_YELLOW + unexpected_violations_msg + RESET_TO_DEFAULT)
         else:
             _save_unexpected_results_and_inform_user(
                 sorted_problems.unexpected_shacl_validation_components, report, filepath

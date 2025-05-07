@@ -84,6 +84,7 @@ def test_filled_json_header_with_users_without_prefix(
             "longname": "Longname of the project",
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
+            "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
             "users": [
                 {
                     "username": "sys_admin",
@@ -133,6 +134,7 @@ def test_filled_json_header_with_users_with_prefix(filled_json_header_with_users
             "longname": "Longname of the project",
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
+            "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
         },
     }
     res = filled_json_header_with_users_with_prefix.to_dict()

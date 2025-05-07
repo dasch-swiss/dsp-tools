@@ -67,7 +67,7 @@ class Project:
             "longname": self.longname,
             "descriptions": self.descriptions.to_dict(),
             "keywords": self.keywords.to_dict(),
-            "licenses": self.licenses.to_dict(),
+            "enabled_licenses": self.licenses.to_dict(),
         }
         if self.users:
             proj_dict["users"] = self.users.to_dict()

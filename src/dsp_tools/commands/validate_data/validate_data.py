@@ -14,6 +14,8 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -66,9 +68,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
-        problem_msg = onto_validation_result.get_msg()
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(problem_msg)
+        _print_ontology_validation_violation_message(onto_validation_result)
         # if the ontology itself has errors, we will not validate the data
         return True
 
@@ -77,11 +77,30 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
-        _inform_user_about_problems(report, filepath, save_graphs)
+        _print_shacl_validation_violation_message(report, filepath, save_graphs)
     return True
 
 
-def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
+def _print_ontology_validation_violation_message(onto_violations: OntologyValidationProblem) -> None:
+    probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
+
+    def get_resource_msg(res: OntologyResourceProblem) -> str:
+        return f"Resource Class: {res.res_iri} | Problem: {res.msg}"
+
+    problems = [get_resource_msg(x) for x in probs]
+    msg = (
+        "The ontology structure contains errors that prevent the validation of the data.\n"
+        "Please correct the following errors and re-upload the corrected ontology.\n"
+        f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
+        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
+    )
+    print(VALIDATION_ERRORS_FOUND_MSG)
+    print(msg)
+
+
+def _print_shacl_validation_violation_message(
+    report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+) -> None:
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     messages = get_user_message(sorted_problems, filepath)

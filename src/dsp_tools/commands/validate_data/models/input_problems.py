@@ -16,24 +16,11 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 class OntologyValidationProblem:
     problems: list[OntologyResourceProblem]
 
-    def get_msg(self) -> str:
-        probs = sorted(self.problems, key=lambda x: x.res_iri)
-        problems = [x.get_msg() for x in probs]
-        return (
-            "The ontology structure contains errors that prevent the validation of the data.\n"
-            "Please correct the following errors and re-upload the corrected ontology.\n"
-            f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
-            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
-        )
-
 
 @dataclass
 class OntologyResourceProblem:
     res_iri: str
     msg: str
-
-    def get_msg(self) -> str:
-        return f"Resource Class: {self.res_iri} | Problem: {self.msg}"
 
 
 @dataclass

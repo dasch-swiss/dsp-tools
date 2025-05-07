@@ -69,10 +69,12 @@ class BulkIngestClient:
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
-        logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
-        res = self.session.post(url, timeout=timeout)
+        logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}")
+        res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(
+            self.shortcode, _request_timeout=timeout
+        )
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
             raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
@@ -111,11 +113,11 @@ class BulkIngestClient:
         Raises:
             InputError: if there are too many server errors in a row.
         """
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
-            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}")
-            res = self.session.get(url, timeout=timeout)
+            logger.debug(f"REQUEST: GET to {url_for_logging}, timeout: {timeout}")
+            res = self.bulk_ingest_api.get_projects_shortcode_bulk_ingest_mapping_csv(self.shortcode)
             logger.debug(f"RESPONSE: {res.status_code}")
             if res.status_code == STATUS_CONFLICT:
                 self.retrieval_failures = 0

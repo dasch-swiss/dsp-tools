@@ -43,8 +43,7 @@ def upload_files(
         host=creds.dsp_ingest_url,
         access_token=auth.get_token(),
     )
-    api_client = openapi_client.ApiClient(configuration)
-    bulk_ingest_api = openapi_client.BulkIngestApi(api_client)
+    bulk_ingest_api = openapi_client.BulkIngestApi(openapi_client.ApiClient(configuration))
     ingest_client = BulkIngestClient(bulk_ingest_api, shortcode, imgdir)
 
     failures: list[UploadFailure] = []

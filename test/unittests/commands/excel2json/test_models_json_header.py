@@ -3,6 +3,7 @@ import pytest
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import Keywords
+from dsp_tools.commands.excel2json.models.json_header import Licenses
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
@@ -28,6 +29,11 @@ def keywords() -> Keywords:
 
 
 @pytest.fixture
+def licenses() -> Licenses:
+    return Licenses(["http://rdfh.ch/licenses/cc-by-4.0"])
+
+
+@pytest.fixture
 def user_sys_admin() -> User:
     return User("sys_admin", "sys_admin@email.ch", "given name1", "family name1", "PW1", "en", UserRole(sys_admin=True))
 
@@ -48,13 +54,13 @@ def users(user_sys_admin: User, user_member: User, user_admin: User) -> Users:
 
 
 @pytest.fixture
-def project_with_users(descriptions: Descriptions, keywords: Keywords, users: Users) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, users)
+def project_with_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses, users: Users) -> Project:
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, users)
 
 
 @pytest.fixture
-def project_no_users(descriptions: Descriptions, keywords: Keywords) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, None)
+def project_no_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses) -> Project:
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, None)
 
 
 @pytest.fixture

@@ -246,7 +246,7 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
     project_df = df_dict["project"]
     extracted_description = _extract_descriptions(df_dict["description"])
     extracted_keywords = _extract_keywords(df_dict["keywords"])
-    if lic_df := df_dict.get("licenses") is not None:
+    if (lic_df := df_dict.get("licenses")) is not None:
         extracted_licenses = _extract_licenses(lic_df)
     else:
         extracted_licenses = Licenses([])

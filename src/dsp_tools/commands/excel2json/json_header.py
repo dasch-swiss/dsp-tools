@@ -20,6 +20,7 @@ from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
 from dsp_tools.commands.excel2json.models.json_header import Keywords
+from dsp_tools.commands.excel2json.models.json_header import Licenses
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
@@ -245,6 +246,10 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
     project_df = df_dict["project"]
     extracted_description = _extract_descriptions(df_dict["description"])
     extracted_keywords = _extract_keywords(df_dict["keywords"])
+    if lic_df := df_dict.get("licenses") is not None:
+        extracted_licenses = _extract_licenses(lic_df)
+    else:
+        extracted_licenses = Licenses([])
     all_users = None
     if (user_df := df_dict.get("users")) is not None:
         if len(user_df) > 0:
@@ -256,6 +261,7 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
         longname=str(project_df.loc[0, "longname"]),
         descriptions=extracted_description,
         keywords=extracted_keywords,
+        licenses=extracted_licenses,
         users=all_users,
     )
 
@@ -275,6 +281,11 @@ def _get_description_cols(cols: list[str]) -> dict[str, str]:
 def _extract_keywords(df: pd.DataFrame) -> Keywords:
     keywords = list({x for x in df["keywords"] if not pd.isna(x)})
     return Keywords(keywords)
+
+
+def _extract_licenses(df: pd.DataFrame) -> Licenses:
+    keywords = list({x for x in df["enabled"] if not pd.isna(x)})
+    return Licenses(keywords)
 
 
 def _extract_users(df: pd.DataFrame) -> Users:

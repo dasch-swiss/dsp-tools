@@ -1189,7 +1189,8 @@
                 "descriptions",
                 "ontologies",
                 "keywords"
-            ]
+            ],
+            "additionalProperties": false
         }
     },
     "required": [

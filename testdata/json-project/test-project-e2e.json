@@ -7,10 +7,6 @@
         "descriptions": {
             "en": "The e2e test project"
         },
-        "enabled_licenses": [
-            "http://rdfh.ch/licenses/cc-by-4.0",
-            "http://rdfh.ch/licenses/public-domain"
-        ],
         "keywords": [
             "e2e-test-projec-keyword"
         ],

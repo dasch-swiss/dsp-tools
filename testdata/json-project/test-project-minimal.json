@@ -7,10 +7,6 @@
         "descriptions": {
             "en": "A minimal test project"
         },
-        "enabled_licenses": [
-            "http://rdfh.ch/licenses/cc-by-4.0",
-            "http://rdfh.ch/licenses/public-domain"
-        ],
         "keywords": [
             "minimal"
         ],

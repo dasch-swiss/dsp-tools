@@ -190,10 +190,10 @@ Keywords are represented as an array of strings and are used to describe and/or 
 
 `"enabled_licenses": ["<license-iri>", "<license-iri>", ...]`
 
-In order for a project to be able to choose a license for their data, files and IIIF-URIs the licenses must be enabled.
-Only licenses that exist in DSP can be enabled and referenced. They must be referenced by their IRI.
-For example: `"http://rdfh.ch/licenses/cc-by-4.0"` is a valid license IRI.
-All the listed licenses will be enabled, licenses can be disabled by omitting them.
+In order for files/IIIF-URIs to reference a license, the license must be enabled here.
+Only licenses that exist in DSP can be enabled. They must be referenced by their IRI.
+For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
+All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
 
 ### `groups`

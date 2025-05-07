@@ -331,9 +331,9 @@ requires-dist = [
     { name = "packaging" },
     { name = "pandas", extras = ["excel"] },
     { name = "polars" },
-    { name = "pydantic", specifier = ">=2.11.4" },
+    { name = "pydantic" },
     { name = "pyld" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
+    { name = "python-dateutil" },
     { name = "pyyaml" },
     { name = "rdflib" },
     { name = "regex" },
@@ -341,7 +341,7 @@ requires-dist = [
     { name = "rustworkx" },
     { name = "tqdm" },
     { name = "typing-extensions" },
-    { name = "urllib3", specifier = ">=2.4.0" },
+    { name = "urllib3" },
 ]
 
 [package.metadata.requires-dev]
@@ -358,7 +358,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-unordered" },
-    { name = "pytest-xdist", specifier = ">=3.6.1" },
+    { name = "pytest-xdist" },
     { name = "requests-mock" },
     { name = "ruff" },
     { name = "testcontainers" },

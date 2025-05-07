@@ -21,6 +21,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -206,7 +207,9 @@ def _check_for_unknown_resource_classes(
 ) -> UnknownClassesInData | None:
     res_cls = _get_all_onto_classes(rdf_graphs)
     if extra_cls := used_resource_iris - res_cls:
-        return UnknownClassesInData(unknown_classes=extra_cls, defined_classes=res_cls)
+        unknown_classes = {reformat_onto_iri(x) for x in extra_cls}
+        defined_classes = {reformat_onto_iri(x) for x in res_cls}
+        return UnknownClassesInData(unknown_classes=unknown_classes, defined_classes=defined_classes)
     return None
 
 

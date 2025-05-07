@@ -6,7 +6,6 @@ from enum import StrEnum
 import regex
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 
 
 @dataclass
@@ -24,10 +23,6 @@ class OntologyResourceProblem:
 class UnknownClassesInData:
     unknown_classes: set[str]
     defined_classes: set[str]
-
-    def __post_init__(self) -> None:
-        self.unknown_classes = {reformat_onto_iri(x) for x in self.unknown_classes}
-        self.defined_classes = {reformat_onto_iri(x) for x in self.defined_classes}
 
 
 @dataclass

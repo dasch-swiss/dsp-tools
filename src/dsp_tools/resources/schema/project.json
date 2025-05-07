@@ -1135,7 +1135,7 @@
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        "pattern": "^http://rdfh/.ch//licenses//.+"
+                        "pattern": "^http://rdfh\\.ch/licenses/.+"
                     }
                 },
                 "groups": {

@@ -104,10 +104,10 @@ def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:
 
     used_ontos = set(not_knora for x in unknown.unknown_classes if (not_knora := split_prefix(x)))
     exising_ontos = set(not_knora for x in unknown.defined_classes if (not_knora := split_prefix(x)))
-    if unknown := used_ontos - exising_ontos:
+    if unknown_found := used_ontos - exising_ontos:
         return (
             f"Your data uses ontologies that don't exist in the database.\n"
-            f"The following ontologies that are used in the data are unknown: {', '.join(unknown)}\n"
+            f"The following ontologies that are used in the data are unknown: {', '.join(unknown_found)}\n"
             f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
         )
     return None

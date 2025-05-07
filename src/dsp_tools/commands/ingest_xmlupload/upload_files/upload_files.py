@@ -39,21 +39,17 @@ def upload_files(
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    configuration = openapi_client.Configuration(  # if __init__ works: openapi_client.Configuration
-        host=creds.server,
+    configuration = openapi_client.Configuration(
+        host=creds.dsp_ingest_url,
         access_token=auth.get_token(),
     )
-    ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, imgdir)
+    api_client = openapi_client.ApiClient(configuration)
+    bulk_ingest_api = openapi_client.BulkIngestApi(api_client)
+    ingest_client = BulkIngestClient(bulk_ingest_api, shortcode, imgdir)
 
     failures: list[UploadFailure] = []
     progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", dynamic_ncols=True)
     for path in progress_bar:
-        with openapi_client.ApiClient(configuration) as api_client:
-            api_instance = openapi_client.BulkIngestApi(api_client)
-            try:
-                api_response = api_instance.post_projects_shortcode_bulk_ingest_ingest_file(shortcode, file, body)
-            except Exception as e:
-                print("Exception when calling AdminFilesApi->get_admin_files_projectshortcode_filename: %s\n" % e)
         if res := ingest_client.upload_file(path):
             failures.append(res)
             progress_bar.set_description(f"Uploading files (failed: {len(failures)})")

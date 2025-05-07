@@ -7,12 +7,8 @@ from pathlib import Path
 import regex
 from loguru import logger
 from requests import JSONDecodeError
-from requests import RequestException
-from requests import Session
-from requests.adapters import HTTPAdapter
-from requests.adapters import Retry
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.openapi_ingest import openapi_client
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -31,28 +27,10 @@ STATUS_SERVER_UNAVAILABLE = 503
 class BulkIngestClient:
     """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
-    dsp_ingest_url: str
-    authentication_client: AuthenticationClient
+    bulk_ingest_api: openapi_client.BulkIngestApi
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
-    session: Session = field(init=False)
     retrieval_failures = 0
-
-    def __post_init__(self) -> None:
-        retries = 6
-        self.session = Session()
-        retry = Retry(
-            total=retries,
-            read=retries,
-            connect=retries,
-            backoff_factor=0.3,
-            allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE],
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        self.session.mount("http://", adapter)
-        self.session.mount("https://", adapter)
-        self.session.headers["Authorization"] = f"Bearer {self.authentication_client.get_token()}"
 
     def upload_file(
         self,
@@ -66,45 +44,28 @@ class BulkIngestClient:
         # noqa: DAR201
         """
         timeout = 58
-        url = self._build_url_for_bulk_ingest_ingest_route(filepath)
+        quoted_file_name = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
+        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted_file_name}"
         headers = {"Content-Type": "application/octet-stream"}
-        err_msg = f"Failed to upload '{filepath}' to '{url}'."
+        err_msg = f"Failed to upload '{filepath}' to '{url_for_logging}'."
         try:
-            logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")
+            logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}, headers: {headers}")
             with open(self.imgdir / filepath, "rb") as binary_io:
-                res = self.session.post(
-                    url=url,
-                    headers=headers,
-                    data=binary_io,  # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
-                    timeout=timeout,
+                api_response = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file(
+                    self.shortcode, quoted_file_name, binary_io, _request_timeout=timeout
                 )
-            logger.debug(f"RESPONSE: {res.status_code}")
-        except RequestException as e:
-            logger.error(err_msg)
-            return UploadFailure(filepath, f"Exception of requests library: {e}")
+            logger.debug(f"RESPONSE: {api_response.status_code}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
-        if res.status_code != STATUS_OK:
+        except Exception as e:
             logger.error(err_msg)
-            return UploadFailure(filepath, res.reason, res.status_code, res.text)
+            return UploadFailure(filepath, f"Exception of requests library: {e}")
+        if api_response.status_code != STATUS_OK:
+            logger.error(err_msg)
+            return UploadFailure(filepath, api_response.reason, api_response.status_code, api_response.text)
         return None
-
-    def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
-        """
-        Remove the leading slash of absolute filepaths,
-        because the `/project/<shortcode>/bulk-ingest/ingest` route only accepts relative paths.
-        The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
-
-        Args:
-            filepath: filepath
-
-        Returns:
-            url
-        """
-        quoted = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
-        return f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted}"
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""

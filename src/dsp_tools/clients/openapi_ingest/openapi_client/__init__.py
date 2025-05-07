@@ -17,42 +17,42 @@
 __version__ = "1.0.0"
 
 # import apis into sdk package
-from openapi_client.api.assets_api import AssetsApi
-from openapi_client.api.bulk_ingest_api import BulkIngestApi
-from openapi_client.api.import_export_api import ImportExportApi
-from openapi_client.api.maintenance_api import MaintenanceApi
-from openapi_client.api.monitoring_api import MonitoringApi
-from openapi_client.api.projects_api import ProjectsApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.assets_api import AssetsApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.bulk_ingest_api import BulkIngestApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.import_export_api import ImportExportApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.maintenance_api import MaintenanceApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.monitoring_api import MonitoringApi
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api.projects_api import ProjectsApi
 
 # import ApiClient
-from openapi_client.api_response import ApiResponse
-from openapi_client.api_client import ApiClient
-from openapi_client.configuration import Configuration
-from openapi_client.exceptions import OpenApiException
-from openapi_client.exceptions import ApiTypeError
-from openapi_client.exceptions import ApiValueError
-from openapi_client.exceptions import ApiKeyError
-from openapi_client.exceptions import ApiAttributeError
-from openapi_client.exceptions import ApiException
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api_response import ApiResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.api_client import ApiClient
+from src.dsp_tools.clients.openapi_ingest.openapi_client.configuration import Configuration
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import OpenApiException
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import ApiTypeError
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import ApiValueError
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import ApiKeyError
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import ApiAttributeError
+from src.dsp_tools.clients.openapi_ingest.openapi_client.exceptions import ApiException
 
 # import models into sdk package
-from openapi_client.models.action_name import ActionName
-from openapi_client.models.aggregated_health import AggregatedHealth
-from openapi_client.models.argument import Argument
-from openapi_client.models.asset_check_result_entry import AssetCheckResultEntry
-from openapi_client.models.asset_check_result_response import AssetCheckResultResponse
-from openapi_client.models.asset_check_result_summary import AssetCheckResultSummary
-from openapi_client.models.asset_info_response import AssetInfoResponse
-from openapi_client.models.bad_request import BadRequest
-from openapi_client.models.conflict import Conflict
-from openapi_client.models.forbidden import Forbidden
-from openapi_client.models.health import Health
-from openapi_client.models.info_endpoint_response import InfoEndpointResponse
-from openapi_client.models.internal_server_error import InternalServerError
-from openapi_client.models.not_found import NotFound
-from openapi_client.models.project_response import ProjectResponse
-from openapi_client.models.single_file_check_result_response import SingleFileCheckResultResponse
-from openapi_client.models.status import Status
-from openapi_client.models.unauthorized import Unauthorized
-from openapi_client.models.unhealthy import Unhealthy
-from openapi_client.models.upload_response import UploadResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.action_name import ActionName
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.aggregated_health import AggregatedHealth
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.argument import Argument
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.asset_check_result_entry import AssetCheckResultEntry
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.asset_check_result_response import AssetCheckResultResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.asset_check_result_summary import AssetCheckResultSummary
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.asset_info_response import AssetInfoResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.bad_request import BadRequest
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.conflict import Conflict
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.forbidden import Forbidden
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.health import Health
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.info_endpoint_response import InfoEndpointResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.internal_server_error import InternalServerError
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.not_found import NotFound
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.project_response import ProjectResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.single_file_check_result_response import SingleFileCheckResultResponse
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.status import Status
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.unauthorized import Unauthorized
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.unhealthy import Unhealthy
+from src.dsp_tools.clients.openapi_ingest.openapi_client.models.upload_response import UploadResponse

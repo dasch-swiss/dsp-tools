@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -27,6 +28,7 @@ from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
 from dsp_tools.utils.data_formats.uri_util import is_uri
@@ -59,6 +61,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
 
 
 def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    _futurewarning_about_inexistent_license_info(df_dict)
     if file_problems := _check_if_sheets_are_filled_and_exist(df_dict):
         return file_problems
     sheet_problems: list[Problem] = []
@@ -70,11 +73,31 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
         sheet_problems.append(description_problem)
     if keywords_problem := _check_keywords(df_dict["keywords"]):
         sheet_problems.append(keywords_problem)
+    if (licenses_df := df_dict.get("licenses")) is not None:
+        if license_problem := _check_licenses(licenses_df):
+            sheet_problems.append(license_problem)
     if (user_df := df_dict.get("users")) is not None:
         if user_problems := _check_all_users(user_df):
             sheet_problems.append(user_problems)
     if sheet_problems:
         return ExcelFileProblem("json_header.xlsx", sheet_problems)
+    return None
+
+
+def _futurewarning_about_inexistent_license_info(df_dict: dict[str, pd.DataFrame]) -> None:
+    if (license_df := df_dict.get("licenses")) is None:
+        msg = (
+            "The json_header.xlsx file does not have a sheet containing the enabled licenses. "
+            "Please note that this will become mandatory in the future."
+        )
+        warnings.warn(DspToolsFutureWarning(msg))
+        return None
+    if len(license_df) == 0:
+        msg = (
+            "The 'licenses' sheet of the json_header.xlsx file does not contain any enabled licenses. "
+            "Please note that it is mandatory to have at least one enabled license."
+        )
+        warnings.warn(DspToolsFutureWarning(msg))
     return None
 
 
@@ -145,6 +168,14 @@ def _check_keywords(df: pd.DataFrame) -> ExcelSheetProblem | None:
     extracted_keywords = _extract_keywords(df)
     if len(extracted_keywords.keywords) == 0:
         return ExcelSheetProblem("keywords", [MissingValuesProblem([PositionInExcel(column="keywords")])])
+    return None
+
+
+def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    if len(df) == 0:
+        return None
+    if missing_cols := check_contains_required_columns(df, {"enabled"}):
+        return ExcelSheetProblem("licenses", [missing_cols])
     return None
 
 

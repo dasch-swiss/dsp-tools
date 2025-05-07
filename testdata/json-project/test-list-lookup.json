@@ -7,6 +7,9 @@
         "descriptions": {
             "en": "Project to create list node lookups"
         },
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+        ],
         "keywords": [
             "list"
         ],

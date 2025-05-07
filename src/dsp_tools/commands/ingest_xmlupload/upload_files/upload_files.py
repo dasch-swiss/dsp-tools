@@ -1,9 +1,7 @@
 from pathlib import Path
 
-import openapi_client
 from loguru import logger
 from lxml import etree
-from openapi_client.rest import ApiException
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
@@ -14,6 +12,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import Upl
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from src.dsp_tools.clients.openapi_ingest import openapi_client
 
 
 def upload_files(
@@ -40,7 +39,7 @@ def upload_files(
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    configuration = openapi_client.Configuration(
+    configuration = openapi_client.Configuration(  # if __init__ works: openapi_client.Configuration
         host=creds.server,
         access_token=auth.get_token(),
     )

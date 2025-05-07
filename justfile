@@ -148,7 +148,7 @@ openapi-generate-dsp-api:
     -i https://api.dasch.swiss/api/docs/docs.yaml \
     -g python \
     --additional-properties=generateSourceCodeOnly=True \
-    -o /local/src/dsp_tools/clients/openapi-api
+    -o /local/src/dsp_tools/clients/openapi_api
 
 
 [no-exit-message]
@@ -157,4 +157,17 @@ openapi-generate-dsp-ingest:
     -i https://ingest.dasch.swiss/docs/docs.yaml \
     -g python \
     --additional-properties=generateSourceCodeOnly=True \
-    -o /local/src/dsp_tools/clients/openapi-ingest
+    -o /local/src/dsp_tools/clients/openapi_ingest
+
+# --import-mappings <import mappings>
+#             specifies mappings between a given class and the import that should
+#             be used for that class in the format of type=import,type=import. You
+#             can also have multiple occurrences of this option.
+
+# --package-name <package name>
+#             package for generated classes (where supported)
+
+# -t <template directory>, --template-dir <template directory>
+#             folder containing the template files
+
+# --additional-properties=packageName=src.dsp_tools.clients.openapi_ingest.ingest_client

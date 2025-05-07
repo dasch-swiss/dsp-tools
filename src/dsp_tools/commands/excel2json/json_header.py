@@ -85,20 +85,12 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
 
 
 def _futurewarning_about_inexistent_license_info(df_dict: dict[str, pd.DataFrame]) -> None:
-    if (license_df := df_dict.get("licenses")) is None:
+    if df_dict.get("licenses") is None:
         msg = (
             "The json_header.xlsx file does not have a sheet containing the enabled licenses. "
             "Please note that this will become mandatory in the future."
         )
         warnings.warn(DspToolsFutureWarning(msg))
-        return None
-    if len(license_df) == 0:
-        msg = (
-            "The 'licenses' sheet of the json_header.xlsx file does not contain any enabled licenses. "
-            "Please note that it is mandatory to have at least one enabled license."
-        )
-        warnings.warn(DspToolsFutureWarning(msg))
-    return None
 
 
 def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
@@ -172,8 +164,6 @@ def _check_keywords(df: pd.DataFrame) -> ExcelSheetProblem | None:
 
 
 def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
-    if len(df) == 0:
-        return None
     if missing_cols := check_contains_required_columns(df, {"enabled"}):
         return ExcelSheetProblem("licenses", [missing_cols])
     return None

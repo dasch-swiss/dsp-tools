@@ -43,6 +43,9 @@ A complete project definition looks like this:
       "example",
       "simple"
     ],
+    "enabled_licenses": [
+        ...
+    ],
     "groups": [
       ...
     ],
@@ -110,6 +113,7 @@ The `project` object contains the basic metadata about the project. The followin
 - longname
 - descriptions
 - keywords
+- enabled_licenses
 - ontologies
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
@@ -179,6 +183,17 @@ The description is represented as a collection of strings with language tags
 
 Keywords are represented as an array of strings and are used to describe and/or tag the project.
 
+
+### `enabled_licenses`
+
+(required)
+
+`"enabled_licenses": ["<license-iri>", "<license-iri>", ...]`
+
+In order for files/IIIF-URIs to reference a license, the license must be enabled here.
+Only licenses that exist in DSP can be enabled. They must be referenced by their IRI.
+For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
+All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
 
 ### `groups`
@@ -511,6 +526,12 @@ In addition, there is another complete example of a JSON project file here:
     "keywords": [
       "test",
       "import"
+    ],
+    "enabled_licenses": [
+        "http://rdfh.ch/licenses/cc-by-4.0",
+        "http://rdfh.ch/licenses/cc-by-sa-4.0",
+        "http://rdfh.ch/licenses/ai-generated",
+        "http://rdfh.ch/licenses/unknown"
     ],
     "lists": [
       {

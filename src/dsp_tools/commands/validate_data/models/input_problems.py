@@ -1,18 +1,12 @@
 from __future__ import annotations
 
-import warnings
 from dataclasses import dataclass
-from datetime import datetime
 from enum import StrEnum
-from pathlib import Path
 
 import regex
-from loguru import logger
-from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -81,30 +75,6 @@ class UnknownClassesInData:
             f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
             f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
         )
-
-
-@dataclass
-class UnexpectedResults:
-    components: list[str]
-
-    def save_inform_user(self, results_graph: Graph, shacl: Graph, data: Graph) -> None:
-        cwdr = Path.cwd()
-        prefix = f"{datetime.now()!s}_"
-        components = sorted(self.components)
-        logger.info(f"Unexpected components found: {', '.join(components)}")
-        msg = (
-            f"Unexpected violations were found in the validation results:"
-            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
-            f"Please contact the development team with the files starting with the timestamp '{prefix}' "
-            f"in the directory '{cwdr}'."
-        )
-        save_path = cwdr / f"{prefix}validation_result.ttl"
-        results_graph.serialize(save_path)
-        shacl_p = cwdr / f"{prefix}shacl.ttl"
-        shacl.serialize(shacl_p)
-        data_p = cwdr / f"{prefix}data.ttl"
-        data.serialize(data_p)
-        warnings.warn(DspToolsUserWarning(msg))
 
 
 @dataclass

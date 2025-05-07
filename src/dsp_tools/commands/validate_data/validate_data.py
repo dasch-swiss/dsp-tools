@@ -1,4 +1,6 @@
 import importlib.resources
+import warnings
+from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -13,13 +15,13 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
-from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
@@ -102,17 +104,30 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
                 "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
             )
         else:
-            UnexpectedResults(sorted_problems.unexpected_shacl_validation_components).save_inform_user(
-                results_graph=report.validation_graph,
-                shacl=report.shacl_graph,
-                data=report.data_graph,
+            _save_unexpected_results_and_inform_user(
+                sorted_problems.unexpected_shacl_validation_components, report, filepath
             )
 
 
 def _save_unexpected_results_and_inform_user(
     components: list[str], report: ValidationReportGraphs, filepath: Path
 ) -> None:
-    pass
+    timestamp = f"{datetime.now()!s}_"
+    components = sorted(components)
+    logger.info(f"Unexpected components found: {', '.join(components)}")
+    msg = (
+        f"Unexpected violations were found in the validation results:"
+        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
+        f"Please contact the development team with the files starting with the timestamp '{timestamp}' "
+        f"in the directory '{filepath.parent}'."
+    )
+    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
+    report.validation_graph.serialize(save_path)
+    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
+    report.shacl_graph.serialize(shacl_p)
+    data_p = filepath.parent / f"{timestamp}_data.ttl"
+    report.data_graph.serialize(data_p)
+    warnings.warn(DspToolsUserWarning(msg))
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:

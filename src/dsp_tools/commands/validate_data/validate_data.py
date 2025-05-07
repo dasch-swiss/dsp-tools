@@ -88,14 +88,13 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
     if unknown_onto_msg := _get_unknown_ontos_msg(unknown):
         return unknown_onto_msg
-    else:
-        unknown_classes = sorted(list(unknown.unknown_classes))
-        known_classes = sorted(list(unknown.defined_classes))
-        return (
-            f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
-            f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
-            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
-        )
+    unknown_classes = sorted(list(unknown.unknown_classes))
+    known_classes = sorted(list(unknown.defined_classes))
+    return (
+        f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
+        f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+        f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
+    )
 
 
 def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:

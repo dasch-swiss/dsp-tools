@@ -449,11 +449,13 @@ class TestExtractProject:
         description_good: pd.DataFrame,
         keywords_good: pd.DataFrame,
         users_good: pd.DataFrame,
+        licenses_good: pd.DataFrame,
     ) -> None:
         test_dict = {
             "project": project_good_missing_zero,
             "description": description_good,
             "keywords": keywords_good,
+            "licenses": licenses_good,
             "users": users_good,
         }
         result = _extract_project(test_dict)
@@ -463,9 +465,34 @@ class TestExtractProject:
         assert result.longname == "long"
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 2
         assert isinstance(result.users, Users)
 
     def test_no_users(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        licenses_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "licenses": licenses_good,
+        }
+        result = _extract_project(test_dict)
+        assert result.shortcode == "1111"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert isinstance(result.descriptions, Descriptions)
+        assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 2
+        assert not result.users
+
+    def test_no_licenses(
         self,
         prefixes_good: pd.DataFrame,
         project_good_no_zero: pd.DataFrame,
@@ -484,6 +511,7 @@ class TestExtractProject:
         assert result.longname == "long"
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 0
         assert not result.users
 
 

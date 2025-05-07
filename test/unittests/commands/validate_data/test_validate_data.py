@@ -81,7 +81,8 @@ class TestFindUnknownClasses:
             "The following classes exist in the uploaded ontologies: "
             "AudioSegment, LinkObj, Region, VideoSegment, onto:One"
         )
-        assert result.get_msg() == expected_msg
+        res_msg = _get_msg_str_unknown_classes_in_data(result)
+        assert res_msg == expected_msg
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self):
         ttl = f"""{PREFIXES}

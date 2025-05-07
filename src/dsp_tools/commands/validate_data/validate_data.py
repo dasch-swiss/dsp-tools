@@ -1,5 +1,4 @@
 import importlib.resources
-import warnings
 from datetime import datetime
 from pathlib import Path
 
@@ -21,11 +20,11 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -114,6 +113,12 @@ def _save_unexpected_results_and_inform_user(
 ) -> None:
     timestamp = f"{datetime.now()!s}_"
     components = sorted(components)
+    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
+    report.validation_graph.serialize(save_path)
+    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
+    report.shacl_graph.serialize(shacl_p)
+    data_p = filepath.parent / f"{timestamp}_data.ttl"
+    report.data_graph.serialize(data_p)
     logger.info(f"Unexpected components found: {', '.join(components)}")
     msg = (
         f"Unexpected violations were found in the validation results:"
@@ -121,13 +126,7 @@ def _save_unexpected_results_and_inform_user(
         f"Please contact the development team with the files starting with the timestamp '{timestamp}' "
         f"in the directory '{filepath.parent}'."
     )
-    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
-    report.validation_graph.serialize(save_path)
-    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
-    report.shacl_graph.serialize(shacl_p)
-    data_p = filepath.parent / f"{timestamp}_data.ttl"
-    report.data_graph.serialize(data_p)
-    warnings.warn(DspToolsUserWarning(msg))
+    print(BOLD_RED + msg + RESET_TO_DEFAULT)
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:

@@ -109,6 +109,12 @@ def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, 
             )
 
 
+def _save_unexpected_results_and_inform_user(
+    components: list[str], report: ValidationReportGraphs, filepath: Path
+) -> None:
+    pass
+
+
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode = _get_info_from_xml(filepath, api_url)
     used_iris = {x.res_type for x in parsed_resources}

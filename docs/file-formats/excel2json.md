@@ -104,6 +104,9 @@ The sheets should be filled as follows:
     - Only one row may be filled.
 - **Keywords**
     - At least one keyword has to be entered in the column "keywords".
+- **Licenses**
+    - At least one license IRI. This is required in order to be able to reference it in the data.
+    - [See the JSON project definition documentation for details.](./json-project/overview.md#enabled_licenses)
 - **Users (Optional)** 
     - This sheet may be omitted or left empty.
     - For each user, all the columns: username, email, givenName, familyName, password, lang and role are mandatory.

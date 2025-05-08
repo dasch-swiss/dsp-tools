@@ -28,6 +28,11 @@ def onto_iri(creds) -> str:
 
 
 @pytest.fixture(scope="module")
+def class_with_everything_iri(creds) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2#ClassWithEverything"
+
+
+@pytest.fixture(scope="module")
 def second_onto_iri(creds) -> str:
     return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{SECOND_ONTO}/v2"
 
@@ -45,9 +50,10 @@ def auth_header(_create_project: None, creds) -> dict[str, str]:
 
 
 @pytest.fixture(scope="module")
-def class_with_everything_resource_graph(_xmlupload, onto_iri, auth_header, project_iri, creds) -> Graph:
-    class_iri = f"{onto_iri}ClassWithEverything"
-    resources = _util_request_resources_by_class(class_iri, auth_header, project_iri, creds)
+def class_with_everything_resource_graph(
+    _xmlupload, class_with_everything_iri, auth_header, project_iri, creds
+) -> Graph:
+    resources = _util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
     g = Graph()
     g.parse(data=resources, format="json-ld")
     return g

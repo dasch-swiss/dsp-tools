@@ -73,9 +73,9 @@ class TestResources:
         assert len(resource_iris) == expected_number
 
         image = _util_get_res_iri_from_label(g, "image")
-        assert next(g.objects(image, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
         image_val = next(g.objects(image, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
+        assert next(g.objects(image_val, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
         assert next(g.objects(image_val, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
         assert next(g.objects(image_val, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
         assert next(g.objects(image_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")

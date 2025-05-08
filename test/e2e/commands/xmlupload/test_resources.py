@@ -13,34 +13,42 @@ from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_clas
 
 class TestResources:
     def test_class_with_everything_all_created(self, class_with_everything_resource_graph, class_with_everything_iri):
-        expected_number = 17
         cls_iri = URIRef(class_with_everything_iri)
-        resources_in_graph = list(class_with_everything_resource_graph.subjects(RDF.type, cls_iri))
-        assert resources_in_graph == expected_number
+        resource_iris = list(class_with_everything_resource_graph.subjects(RDF.type, cls_iri))
+        expected_number = 17
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_second_onto_class(self, second_onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{second_onto_iri}SecondOntoClass"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_still_image(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 2
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestAudioRepresentation"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestMovingImageRepresentation"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
 
 class TestDspResources:

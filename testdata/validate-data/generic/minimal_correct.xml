@@ -137,8 +137,19 @@
         </uri-prop>
     </resource>
 
+    <resource label="second_onto_class" restype="second-onto:SecondOntoClass" id="second_onto_class">
+        <boolean-prop name="second-onto:testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <!-- Resources with bitstreams -->
+
     <resource label="image" restype=":TestStillImageRepresentation" id="image">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >testdata/bitstreams/test.png</bitstream>
@@ -154,16 +165,39 @@
         </iiif-uri>
     </resource>
 
-    <resource label="second_onto_class" restype="second-onto:SecondOntoClass" id="second_onto_class">
-        <boolean-prop name="second-onto:testBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-        <text-prop name=":testSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
+    <resource label="audio" restype=":TestAudioRepresentation" id="audio">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.wav</bitstream>
+    </resource>
+
+    <resource label="video" restype=":TestMovingImageRepresentation" id="video">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.mp4</bitstream>
     </resource>
 
     <!-- DSP in-built resources -->
+
+    <audio-segment label="audio_segment" id="audio_segment">
+        <isSegmentOf>audio</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.2"/>
+        <hasTitle>hasTitle</hasTitle>
+        <hasComment>hasComment</hasComment>
+        <hasDescription>hasDescription</hasDescription>
+        <hasKeyword>hasKeyword</hasKeyword>
+    </audio-segment>
+
+    <video-segment label="video_segment" id="video_segment">
+        <isSegmentOf>video</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.2"/>
+        <hasTitle>hasTitle</hasTitle>
+        <hasComment>hasComment</hasComment>
+        <hasDescription>hasDescription</hasDescription>
+        <hasKeyword>hasKeyword</hasKeyword>
+    </video-segment>
 
     <link label="link_obj_with_comment" id="link_obj_with_comment">
         <text-prop name="hasComment">

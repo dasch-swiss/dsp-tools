@@ -3,6 +3,7 @@
 
 import pytest
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -12,6 +13,11 @@ from test.e2e.commands.xmlupload.conftest import _util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_class
 
 # ruff: noqa: ARG001 Unused function argument
+
+OPEN_PERMISSIONS = Literal(
+    "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+)
+DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
 
 class TestResources:
@@ -39,91 +45,97 @@ class TestResources:
 
     def test_resource_no_permissions_specified(self, cls_with_everything_graph):
         res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
-        expected_permissions = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert actual_permissions == expected_permissions
+        assert actual_permissions == DOAP_PERMISSIONS
 
     def test_resource_with_open_permissions(self, cls_with_everything_graph):
         res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values_open_permissions")
-        expected_permissions = Literal(
-            "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
-        )
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert actual_permissions == expected_permissions
+        assert actual_permissions == OPEN_PERMISSIONS
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_second_onto_class(self, second_onto_iri, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{second_onto_iri}SecondOntoClass"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
-        assert next(res_g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
-        assert next(res_g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
+        assert next(g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
+        assert next(g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_still_image(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 2
         assert len(resource_iris) == expected_number
 
-        image = _util_get_res_iri_from_label(res_g, "image")
-        image_val = next(res_g.objects(image, KNORA_API.hasStillImageFileValue))
-        assert next(res_g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
+        image = _util_get_res_iri_from_label(g, "image")
+        assert next(g.objects(image, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
+        image_val = next(g.objects(image, KNORA_API.hasStillImageFileValue))
+        assert next(g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
+        assert next(g.objects(image_val, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
+        assert next(g.objects(image_val, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+        assert next(g.objects(image_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
 
-        iiif_uri = _util_get_res_iri_from_label(res_g, "iiif_uri")
-        iiif_uri_val = next(res_g.objects(iiif_uri, KNORA_API.hasStillImageFileValue))
-        assert next(res_g.objects(iiif_uri_val, RDF.type)) == KNORA_API.StillImageExternalFileValue
+        iiif_uri = _util_get_res_iri_from_label(g, "iiif_uri")
+        iiif_uri_val = next(g.objects(iiif_uri, KNORA_API.hasStillImageFileValue))
+        assert next(g.objects(iiif_uri_val, RDF.type)) == KNORA_API.StillImageExternalFileValue
+        assert next(g.objects(iiif_uri_val, KNORA_API.hasPermissions)) == OPEN_PERMISSIONS
+        assert next(g.objects(iiif_uri_val, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
+        assert next(g.objects(iiif_uri_val, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
+        assert next(g.objects(iiif_uri_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestAudioRepresentation"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        assert next(g.objects(predicate=RDFS.label)) == Literal("audio")
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestMovingImageRepresentation"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        assert next(g.objects(predicate=RDFS.label)) == Literal("video")
 
 
 class TestDspResources:
     @pytest.mark.usefixtures("_xmlupload")
     def test_region(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_link_obj(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}LinkObj"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}VideoSegment"
-        res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        resource_iris = list(res_g.subjects(RDF.type, URIRef(cls_iri_str)))
+        g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number

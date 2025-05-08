@@ -104,13 +104,18 @@
 
     <resource label="richtext" restype=":ClassWithEverything" id="richtext">
         <text-prop name=":testRichtext">
-            <text encoding="xml">Text</text>
+            <text encoding="xml">
+                <p>
+                    Text
+                </p>
+            </text>
         </text-prop>
     </resource>
 
     <resource label="textarea" restype=":ClassWithEverything" id="textarea">
         <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
+            <text encoding="utf8">Line One
+            Line Two</text>
         </text-prop>
     </resource>
 

@@ -81,6 +81,24 @@ class TestResources:
         assert len(resources) != 0
 
     @pytest.mark.usefixtures("_xmlupload")
+    def test_still_image(self, onto_iri, auth_header, project_iri, creds):
+        cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
+        resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        assert len(resources) != 0
+
+    @pytest.mark.usefixtures("_xmlupload")
+    def test_audio(self, onto_iri, auth_header, project_iri, creds):
+        cls_iri_str = f"{onto_iri}TestAudioRepresentation"
+        resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        assert len(resources) != 0
+
+    @pytest.mark.usefixtures("_xmlupload")
+    def test_video(self, onto_iri, auth_header, project_iri, creds):
+        cls_iri_str = f"{onto_iri}TestMovingImageRepresentation"
+        resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        assert len(resources) != 0
+
+    @pytest.mark.usefixtures("_xmlupload")
     def test_region(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)

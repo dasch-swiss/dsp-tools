@@ -143,6 +143,7 @@
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-holder="Wellcome Collection"
                   authorship-id="authorship_2"
+                  permissions="open"
         >
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
@@ -174,10 +175,10 @@
             <color permissions="restricted">#5d1f1e</color>
         </color-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="open">image</resptr>
+            <resptr>image</resptr>
         </resptr-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="open">
+            <geometry>
                 {
                     "status": "active",
                     "type": "polygon",
@@ -190,7 +191,7 @@
             </geometry>
         </geometry-prop>
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="open">
+            <text encoding="xml">
                 This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>

@@ -8,6 +8,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
+from dsp_tools.commands.validate_data.validate_data import _get_msg_str_unknown_classes_in_data
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.unittests.commands.validate_data.constants import PREFIXES
 
@@ -80,7 +81,8 @@ class TestFindUnknownClasses:
             "The following classes exist in the uploaded ontologies: "
             "AudioSegment, LinkObj, Region, VideoSegment, onto:One"
         )
-        assert result.get_msg() == expected_msg
+        res_msg = _get_msg_str_unknown_classes_in_data(result)
+        assert res_msg == expected_msg
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self):
         ttl = f"""{PREFIXES}
@@ -105,7 +107,8 @@ class TestFindUnknownClasses:
             "The following ontologies that are used in the data are unknown: non-existent\n"
             "The following ontologies are uploaded: onto"
         )
-        assert result.get_msg() == expected_msg
+        res_msg = _get_msg_str_unknown_classes_in_data(result)
+        assert res_msg == expected_msg
 
     def test_get_all_onto_classes(self):
         graphs = _get_rdf_graphs(Graph())

@@ -1,4 +1,5 @@
 import importlib.resources
+from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -13,17 +14,20 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
-from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
+from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -52,7 +56,8 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     graphs, used_iris = _get_parsed_graphs(api_url, filepath)
 
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
-        msg = unknown_classes.get_msg()
+        msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
+        logger.info(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
@@ -65,9 +70,10 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
 
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
-        problem_msg = onto_validation_result.get_msg()
+        msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
+        logger.info(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
-        print(problem_msg)
+        print(msg)
         # if the ontology itself has errors, we will not validate the data
         return True
 
@@ -76,37 +82,101 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
-        _inform_user_about_problems(report, filepath, save_graphs)
+        _print_shacl_validation_violation_message(report, filepath, save_graphs)
     return True
 
 
-def _inform_user_about_problems(report: ValidationReportGraphs, filepath: Path, save_graphs: bool) -> None:
+def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
+    if unknown_onto_msg := _get_unknown_ontos_msg(unknown):
+        return unknown_onto_msg
+    unknown_classes = sorted(list(unknown.unknown_classes))
+    known_classes = sorted(list(unknown.defined_classes))
+    return (
+        f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
+        f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+        f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
+    )
+
+
+def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:
+    def split_prefix(relative_iri: str) -> str | None:
+        if ":" not in relative_iri:
+            return None
+        return relative_iri.split(":")[0]
+
+    used_ontos = set(not_knora for x in unknown.unknown_classes if (not_knora := split_prefix(x)))
+    exising_ontos = set(not_knora for x in unknown.defined_classes if (not_knora := split_prefix(x)))
+    if unknown_found := used_ontos - exising_ontos:
+        return (
+            f"Your data uses ontologies that don't exist in the database.\n"
+            f"The following ontologies that are used in the data are unknown: {', '.join(unknown_found)}\n"
+            f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
+        )
+    return None
+
+
+def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:
+    probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
+
+    def get_resource_msg(res: OntologyResourceProblem) -> str:
+        return f"Resource Class: {res.res_iri} | Problem: {res.msg}"
+
+    problems = [get_resource_msg(x) for x in probs]
+    return (
+        "The ontology structure contains errors that prevent the validation of the data.\n"
+        "Please correct the following errors and re-upload the corrected ontology.\n"
+        f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
+        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
+    )
+
+
+def _print_shacl_validation_violation_message(
+    report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+) -> None:
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     messages = get_user_message(sorted_problems, filepath)
     if messages.referenced_absolute_iris:
-        print(
-            BACKGROUND_BOLD_YELLOW + "\nYour data references absolute IRIs of resources. "
+        iri_msg = (
+            "Your data references absolute IRIs of resources. "
             "If these resources do not exist in the database or are not of the expected resource type then"
             "the xmlupload will fail. Below you find a list of the references."
-            + RESET_TO_DEFAULT
-            + f"{messages.referenced_absolute_iris}"
         )
+        logger.info(iri_msg, messages.referenced_absolute_iris)
+        print(BACKGROUND_BOLD_YELLOW + iri_msg + RESET_TO_DEFAULT + f"{messages.referenced_absolute_iris}")
     if messages.problems:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
     if sorted_problems.unexpected_shacl_validation_components:
         if save_graphs:
-            print(
-                BACKGROUND_BOLD_YELLOW + "\nUnexpected violations were found! "
-                "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
-            )
+            unexpected_violations_msg = "Unexpected violations were found! Consult the saved graphs for details."
+            logger.info(unexpected_violations_msg)
+            print(BACKGROUND_BOLD_YELLOW + unexpected_violations_msg + RESET_TO_DEFAULT)
         else:
-            UnexpectedResults(sorted_problems.unexpected_shacl_validation_components).save_inform_user(
-                results_graph=report.validation_graph,
-                shacl=report.shacl_graph,
-                data=report.data_graph,
+            _save_unexpected_results_and_inform_user(
+                sorted_problems.unexpected_shacl_validation_components, report, filepath
             )
+
+
+def _save_unexpected_results_and_inform_user(
+    components: list[str], report: ValidationReportGraphs, filepath: Path
+) -> None:
+    timestamp = f"{datetime.now()!s}_"
+    components = sorted(components)
+    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
+    report.validation_graph.serialize(save_path)
+    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
+    report.shacl_graph.serialize(shacl_p)
+    data_p = filepath.parent / f"{timestamp}_data.ttl"
+    report.data_graph.serialize(data_p)
+    logger.info(f"Unexpected components found: {', '.join(components)}")
+    msg = (
+        f"Unexpected violations were found in the validation results:"
+        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
+        f"Please contact the development team with the files starting with the timestamp '{timestamp}' "
+        f"in the directory '{filepath.parent}'."
+    )
+    print(BOLD_RED + msg + RESET_TO_DEFAULT)
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
@@ -137,7 +207,9 @@ def _check_for_unknown_resource_classes(
 ) -> UnknownClassesInData | None:
     res_cls = _get_all_onto_classes(rdf_graphs)
     if extra_cls := used_resource_iris - res_cls:
-        return UnknownClassesInData(unknown_classes=extra_cls, defined_classes=res_cls)
+        unknown_classes = {reformat_onto_iri(x) for x in extra_cls}
+        defined_classes = {reformat_onto_iri(x) for x in res_cls}
+        return UnknownClassesInData(unknown_classes=unknown_classes, defined_classes=defined_classes)
     return None
 
 

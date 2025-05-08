@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
+# mypy: disable-error-code="no-untyped-def"
 
 from pathlib import Path
 from typing import Never

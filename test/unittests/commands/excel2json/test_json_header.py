@@ -4,6 +4,7 @@ from typing import cast
 
 import pandas as pd
 import pytest
+import regex
 
 from dsp_tools.commands.excel2json.json_header import _check_all_users
 from dsp_tools.commands.excel2json.json_header import _check_descriptions
@@ -36,10 +37,30 @@ from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 
 class TestCheckAll:
     def test_good(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        licenses_good: pd.DataFrame,
+        users_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "licenses": licenses_good,
+            "users": users_good,
+        }
+        assert not _do_all_checks(test_dict)
+
+    def test_warns_licenses_missing(
         self,
         prefixes_good: pd.DataFrame,
         project_good_no_zero: pd.DataFrame,
@@ -54,7 +75,39 @@ class TestCheckAll:
             "keywords": keywords_good,
             "users": users_good,
         }
-        assert not _do_all_checks(test_dict)
+        expected_msg = regex.escape(
+            "The json_header.xlsx file does not have a sheet containing the enabled licenses. "
+            "Please note that this will become mandatory in the future."
+        )
+        with pytest.warns(DspToolsFutureWarning, match=expected_msg):
+            checks = _do_all_checks(test_dict)
+        assert not checks
+
+    def test_empty_licenses(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        users_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "licenses": pd.DataFrame({}),
+            "users": users_good,
+        }
+        result = _do_all_checks(test_dict)
+        assert isinstance(result, ExcelFileProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, ExcelSheetProblem)
+        assert problem.sheet_name == "licenses"
+        assert len(problem.problems) == 1
+        assert isinstance(problem.problems[0], RequiredColumnMissingProblem)
+        assert problem.problems[0].columns == ["enabled"]
 
     def test_empty_sheet_and_missing_sheet(self) -> None:
         test_dict = {
@@ -396,11 +449,13 @@ class TestExtractProject:
         description_good: pd.DataFrame,
         keywords_good: pd.DataFrame,
         users_good: pd.DataFrame,
+        licenses_good: pd.DataFrame,
     ) -> None:
         test_dict = {
             "project": project_good_missing_zero,
             "description": description_good,
             "keywords": keywords_good,
+            "licenses": licenses_good,
             "users": users_good,
         }
         result = _extract_project(test_dict)
@@ -410,9 +465,34 @@ class TestExtractProject:
         assert result.longname == "long"
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 2
         assert isinstance(result.users, Users)
 
     def test_no_users(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        licenses_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "licenses": licenses_good,
+        }
+        result = _extract_project(test_dict)
+        assert result.shortcode == "1111"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert isinstance(result.descriptions, Descriptions)
+        assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 2
+        assert not result.users
+
+    def test_no_licenses(
         self,
         prefixes_good: pd.DataFrame,
         project_good_no_zero: pd.DataFrame,
@@ -431,6 +511,7 @@ class TestExtractProject:
         assert result.longname == "long"
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
+        assert len(result.licenses.licenses) == 0
         assert not result.users
 
 

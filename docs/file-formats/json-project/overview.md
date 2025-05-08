@@ -195,6 +195,7 @@ Only licenses that exist in DSP can be enabled. They must be referenced by their
 For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
 All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
+See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license).
 
 ### `groups`
 

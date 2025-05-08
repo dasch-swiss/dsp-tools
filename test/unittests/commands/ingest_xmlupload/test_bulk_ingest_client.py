@@ -7,6 +7,7 @@ import pytest
 from requests import RequestException
 from requests_mock import Mocker
 
+from dsp_tools.clients.openapi_ingest import openapi_client
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
@@ -18,7 +19,12 @@ SHORTCODE = "0001"
 
 @pytest.fixture
 def ingest_client() -> BulkIngestClient:
-    return BulkIngestClient(DSP_INGEST_URL, AuthenticationClientMockBase(), SHORTCODE)
+    configuration = openapi_client.Configuration(
+        host=DSP_INGEST_URL,
+        access_token="foobar",
+    )
+    bulk_ingest_api = openapi_client.BulkIngestApi(openapi_client.ApiClient(configuration))
+    return BulkIngestClient(bulk_ingest_api, SHORTCODE)
 
 
 @pytest.fixture

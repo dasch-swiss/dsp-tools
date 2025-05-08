@@ -2,6 +2,8 @@
 
 
 import pytest
+from rdflib import RDF
+from rdflib import URIRef
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_class
@@ -10,8 +12,11 @@ from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_clas
 
 
 class TestResources:
-    def test_class_with_everything_all_created(self, class_with_everything_resource_graph):
-        assert len(class_with_everything_resource_graph) != 0
+    def test_class_with_everything_all_created(self, class_with_everything_resource_graph, class_with_everything_iri):
+        expected_number = 17
+        cls_iri = URIRef(class_with_everything_iri)
+        resources_in_graph = list(class_with_everything_resource_graph.subjects(RDF.type, cls_iri))
+        assert resources_in_graph == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_second_onto_class(self, second_onto_iri, auth_header, project_iri, creds):

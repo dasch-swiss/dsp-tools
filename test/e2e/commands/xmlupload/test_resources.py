@@ -19,7 +19,7 @@ OPEN_PERMISSIONS = Literal(
 )
 DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
-RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES = 9
+NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES = 9
 
 
 class TestResources:
@@ -34,7 +34,7 @@ class TestResources:
     ):
         res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
         number_of_triples = list(cls_with_everything_graph.triples((res_iri, None, None)))
-        assert len(number_of_triples) == RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES
+        assert len(number_of_triples) == NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES
         assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(project_iri)
         assert next(cls_with_everything_graph.objects(res_iri, RDF.type)) == URIRef(class_with_everything_iri)
         assert len(list(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))) == 1
@@ -75,7 +75,7 @@ class TestResources:
 
         image = _util_get_res_iri_from_label(g, "image")
         image_triples = list(g.triples((image, None, None)))
-        assert len(image_triples) == RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 1
+        assert len(image_triples) == NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 1
         image_val = next(g.objects(image, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
         assert next(g.objects(image_val, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
@@ -85,7 +85,7 @@ class TestResources:
 
         iiif_uri = _util_get_res_iri_from_label(g, "iiif_uri")
         iiif_uri_triples = list(g.triples((iiif_uri, None, None)))
-        assert len(iiif_uri_triples) == RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 1
+        assert len(iiif_uri_triples) == NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 1
         iiif_uri_val = next(g.objects(iiif_uri, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(iiif_uri_val, RDF.type)) == KNORA_API.StillImageExternalFileValue
         assert next(g.objects(iiif_uri_val, KNORA_API.hasPermissions)) == OPEN_PERMISSIONS
@@ -121,7 +121,7 @@ class TestDspResources:
         expected_number = 1
         assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
-        expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 4
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 4
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
         assert len(list(g.objects(res_iri, KNORA_API.hasColor))) == 1
@@ -137,7 +137,7 @@ class TestDspResources:
         expected_number = 1
         assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
-        expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 3
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 3
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
@@ -151,7 +151,7 @@ class TestDspResources:
         expected_number = 1
         assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
-        expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 6
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
         assert len(list(g.objects(res_iri, KNORA_API.isAudioSegmentOfValue))) == 1
@@ -169,7 +169,7 @@ class TestDspResources:
         expected_number = 1
         assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
-        expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 6
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
         assert len(list(g.objects(res_iri, KNORA_API.isVideoSegmentOfValue))) == 1

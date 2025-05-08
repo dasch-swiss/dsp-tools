@@ -1,4 +1,5 @@
-from collections.abc import Iterator
+# mypy: disable-error-code="no-untyped-def"
+
 from pathlib import Path
 from typing import Never
 from typing import assert_never
@@ -8,8 +9,6 @@ import pytest
 from rdflib import BNode
 from rdflib import URIRef
 
-from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -23,43 +22,12 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import get_containers
+
+# ruff: noqa: ARG001 Unused function argument
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ExternalContainerPorts]:
-    with get_containers() as metadata:
-        yield metadata.ports
-
-
-@pytest.fixture(scope="module")
-def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
-    return ServerCredentials(
-        "root@example.com",
-        "test",
-        f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
-    )
-
-
-@pytest.fixture(scope="module")
-def _create_projects(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
-
-
-@pytest.fixture(scope="module")
-def api_url(container_ports: ExternalContainerPorts) -> str:
-    return f"http://0.0.0.0:{container_ports.api}"
-
-
-@pytest.fixture(scope="module")
-def shacl_validator(api_url: str) -> ShaclValidator:
-    return ShaclValidator(api_url)
-
-
-@pytest.fixture(scope="module")
-def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> tuple[RDFGraphs, set[str]]:
+def unknown_classes_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
     graphs, used_iris = _get_parsed_graphs(api_url, file)
     return graphs, used_iris
@@ -75,7 +43,7 @@ def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGra
 
 @pytest.fixture(scope="module")
 def unique_value_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -84,7 +52,7 @@ def unique_value_violation(
 
 @pytest.fixture(scope="module")
 def file_value_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -93,7 +61,7 @@ def file_value_violation(
 
 @pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -102,7 +70,7 @@ def dsp_inbuilt_violation(
 
 @pytest.fixture(scope="module")
 def cardinality_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -110,9 +78,7 @@ def cardinality_violation(
 
 
 @pytest.fixture(scope="module")
-def content_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
-) -> ValidationReportGraphs:
+def content_violation(create_generic_project, api_url: str, shacl_validator: ShaclValidator) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
@@ -120,7 +86,7 @@ def content_violation(
 
 @pytest.fixture(scope="module")
 def value_type_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
@@ -131,7 +97,7 @@ def value_type_violation(
 
 @pytest.fixture(scope="module")
 def every_violation_combination_once(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)

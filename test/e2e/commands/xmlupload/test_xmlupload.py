@@ -11,13 +11,15 @@ from rdflib import Graph
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 
+# ruff: noqa: ARG001 Unused function argument
+
 PROJECT_SHORTCODE = "9999"
 ONTO_NAME = "onto"
 SECOND_ONTO = "second-onto"
 
 
 @pytest.fixture(scope="module")
-def project_iri(_create_project: None, creds) -> str:
+def project_iri(create_generic_project: None, creds) -> str:
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
@@ -39,12 +41,12 @@ def second_onto_iri(creds) -> str:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload(_create_project: None, creds) -> None:
+def _xmlupload(create_generic_project: None, creds) -> None:
     assert xmlupload(Path("testdata/validate-data/generic/minimal_correct.xml"), creds, ".")
 
 
 @pytest.fixture(scope="module")
-def auth_header(_create_project: None, creds) -> dict[str, str]:
+def auth_header(create_generic_project: None, creds) -> dict[str, str]:
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}

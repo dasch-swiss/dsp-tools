@@ -45,14 +45,14 @@ class BulkIngestClient:
         """
         timeout = 58
         quoted_file_name = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
-        headers = {"Content-Type": "application/octet-stream"}
         err_msg = f"Failed to upload '{filepath}' to dsp-ingest."
         try:
-            logger.debug(f"REQUEST: POST to ingest-file route, timeout: {timeout}, headers: {headers}")
+            logger.debug(f"REQUEST: POST to ingest-file route, timeout: {timeout}")
             with open(self.imgdir / filepath, "rb") as binary_io:
                 api_response = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file(
                     self.shortcode, quoted_file_name, binary_io, _request_timeout=timeout
                 )
+            logger.warning(f"This is the resulting 'ProjectResponse' object: {api_response.to_str()}")
             logger.debug(f"RESPONSE: {api_response.status_code}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"

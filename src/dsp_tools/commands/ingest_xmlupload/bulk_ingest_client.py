@@ -45,11 +45,10 @@ class BulkIngestClient:
         """
         timeout = 58
         quoted_file_name = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
-        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted_file_name}"
         headers = {"Content-Type": "application/octet-stream"}
-        err_msg = f"Failed to upload '{filepath}' to '{url_for_logging}'."
+        err_msg = f"Failed to upload '{filepath}' to dsp-ingest."
         try:
-            logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}, headers: {headers}")
+            logger.debug(f"REQUEST: POST to ingest-file route, timeout: {timeout}, headers: {headers}")
             with open(self.imgdir / filepath, "rb") as binary_io:
                 api_response = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file(
                     self.shortcode, quoted_file_name, binary_io, _request_timeout=timeout
@@ -69,9 +68,8 @@ class BulkIngestClient:
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
-        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
-        logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}")
+        logger.debug(f"REQUEST: POST to dsp-ingest route, timeout: {timeout}")
         res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(self.shortcode, _request_timeout=timeout)
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
@@ -111,10 +109,9 @@ class BulkIngestClient:
         Raises:
             InputError: if there are too many server errors in a row.
         """
-        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
-            logger.debug(f"REQUEST: GET to {url_for_logging}, timeout: {timeout}")
+            logger.debug(f"REQUEST: GET to dsp-ingest route, timeout: {timeout}")
             res = self.bulk_ingest_api.get_projects_shortcode_bulk_ingest_mapping_csv(self.shortcode)
             logger.debug(f"RESPONSE: {res.status_code}")
             if res.status_code == STATUS_CONFLICT:

@@ -1,4 +1,3 @@
-from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -14,38 +13,12 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import get_containers
+
+# ruff: noqa: ARG001 Unused function argument
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ExternalContainerPorts]:
-    with get_containers() as metadata:
-        yield metadata.ports
-
-
-@pytest.fixture(scope="module")
-def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
-    return ServerCredentials(
-        "root@example.com",
-        "test",
-        f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
-    )
-
-
-@pytest.fixture(scope="module")
-def api_url(container_ports: ExternalContainerPorts) -> str:
-    return f"http://0.0.0.0:{container_ports.api}"
-
-
-@pytest.fixture(scope="module")
-def shacl_validator(api_url: str) -> ShaclValidator:
-    return ShaclValidator(api_url)
-
-
-@pytest.fixture(scope="module")
-def _create_projects(creds: ServerCredentials) -> None:
+def _create_projects_edge_cases(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)
     assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), creds)
     assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), creds)
@@ -53,7 +26,7 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 @pytest.fixture(scope="module")
 def special_characters_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -62,7 +35,7 @@ def special_characters_violation(
 
 @pytest.fixture(scope="module")
 def inheritance_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -71,14 +44,14 @@ def inheritance_violation(
 
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
     return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
-@pytest.mark.usefixtures("_create_projects")
+@pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)
@@ -143,7 +116,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             assert prblm.res_id == expected[0]
 
 
-@pytest.mark.usefixtures("_create_projects")
+@pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs, _ = _get_parsed_graphs(api_url, file)

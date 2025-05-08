@@ -54,7 +54,7 @@
         </boolean-prop>
     </resource>
 
-    <resource label="bool_0_open_permissions_on_value" restype=":ClassWithEverything" id="bool_0_open_permissions_on_value">
+    <resource label="bool_0_comment_on_value" restype=":ClassWithEverything" id="bool_0_comment_on_value">
         <boolean-prop name=":testBoolean">
             <boolean comment="Comment on value">0</boolean>
         </boolean-prop>
@@ -96,11 +96,9 @@
         </list-prop>
     </resource>
 
-    <resource label="link_target" restype=":ClassWithEverything" id="link_target"/>
-
     <resource label="link" restype=":ClassWithEverything" id="link">
         <resptr-prop name=":testHasLinkTo">
-            <resptr>link_target</resptr>
+            <resptr>resource_no_values</resptr>
         </resptr-prop>
     </resource>
 
@@ -166,7 +164,7 @@
             <text encoding="xml">Comment Text</text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
-            <resptr>region_1</resptr>
+            <resptr>region</resptr>
             <resptr>second_onto_class</resptr>
         </resptr-prop>
     </link>

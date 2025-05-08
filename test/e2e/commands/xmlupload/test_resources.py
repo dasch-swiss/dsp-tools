@@ -140,6 +140,8 @@ class TestDspResources:
         expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 3
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
+        assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasLinkToValue))) == 2
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio_segment(self, auth_header, project_iri, creds):
@@ -152,6 +154,12 @@ class TestDspResources:
         expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
+        assert len(list(g.objects(res_iri, KNORA_API.isAudioSegmentOfValue))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasSegmentBounds))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasTitle))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasDescription))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasKeyword))) == 1
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video_segment(self, auth_header, project_iri, creds):
@@ -164,3 +172,9 @@ class TestDspResources:
         expected_number_of_triples = RESOURCE_NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(res_triples) == expected_number_of_triples
+        assert len(list(g.objects(res_iri, KNORA_API.isVideoSegmentOfValue))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasSegmentBounds))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasTitle))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasDescription))) == 1
+        assert len(list(g.objects(res_iri, KNORA_API.hasKeyword))) == 1

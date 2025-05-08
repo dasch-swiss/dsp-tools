@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 from pathlib import Path
 from typing import Never
 from typing import assert_never

@@ -19,6 +19,8 @@ OPEN_PERMISSIONS = Literal(
 )
 DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
+NUMBER_OF_TRIPLES_WITHOUT_VALUES = 9
+
 
 class TestResources:
     def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
@@ -31,17 +33,16 @@ class TestResources:
         self, cls_with_everything_graph, class_with_everything_iri, project_iri
     ):
         res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
-        expected_number_of_resource_triples = 9
         number_of_triples = list(cls_with_everything_graph.triples((res_iri, None, None)))
-        assert len(number_of_triples) == expected_number_of_resource_triples
+        assert len(number_of_triples) == NUMBER_OF_TRIPLES_WITHOUT_VALUES
         assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(project_iri)
         assert next(cls_with_everything_graph.objects(res_iri, RDF.type)) == (URIRef(class_with_everything_iri))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.arkUrl))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.versionArkUrl))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.userHasPermission))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.creationDate))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToUser))
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions)) == 1
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.arkUrl)) == 1
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.versionArkUrl)) == 1
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.userHasPermission)) == 1
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.creationDate)) == 1
+        assert list(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToUser)) == 1
 
     def test_resource_no_permissions_specified(self, cls_with_everything_graph):
         res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
@@ -73,6 +74,8 @@ class TestResources:
         assert len(resource_iris) == expected_number
 
         image = _util_get_res_iri_from_label(g, "image")
+        image_triples = list(g.triples((image, None, None)))
+        assert len(image_triples) == NUMBER_OF_TRIPLES_WITHOUT_VALUES + 1
         image_val = next(g.objects(image, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
         assert next(g.objects(image_val, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
@@ -81,6 +84,8 @@ class TestResources:
         assert next(g.objects(image_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
 
         iiif_uri = _util_get_res_iri_from_label(g, "iiif_uri")
+        iiif_uri_triples = list(g.triples((iiif_uri, None, None)))
+        assert len(iiif_uri_triples) == NUMBER_OF_TRIPLES_WITHOUT_VALUES + 1
         iiif_uri_val = next(g.objects(iiif_uri, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(iiif_uri_val, RDF.type)) == KNORA_API.StillImageExternalFileValue
         assert next(g.objects(iiif_uri_val, KNORA_API.hasPermissions)) == OPEN_PERMISSIONS
@@ -115,6 +120,14 @@ class TestDspResources:
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        res_iri = resource_iris.pop(0)
+        expected_number_of_triples = NUMBER_OF_TRIPLES_WITHOUT_VALUES + 4
+        res_triples = list(g.triples((res_iri, None, None)))
+        assert len(res_triples) == expected_number_of_triples
+        assert list(g.objects(res_iri, KNORA_API.hasColor)) == 1
+        assert list(g.objects(res_iri, KNORA_API.isRegionOf)) == 1
+        assert list(g.objects(res_iri, KNORA_API.hasGeometry)) == 1
+        assert list(g.objects(res_iri, KNORA_API.hasComment)) == 1
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_link_obj(self, auth_header, project_iri, creds):
@@ -123,6 +136,10 @@ class TestDspResources:
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        res_iri = resource_iris.pop(0)
+        expected_number_of_triples = NUMBER_OF_TRIPLES_WITHOUT_VALUES + 3
+        res_triples = list(g.triples((res_iri, None, None)))
+        assert len(res_triples) == expected_number_of_triples
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio_segment(self, auth_header, project_iri, creds):
@@ -131,6 +148,10 @@ class TestDspResources:
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        res_iri = resource_iris.pop(0)
+        expected_number_of_triples = NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
+        res_triples = list(g.triples((res_iri, None, None)))
+        assert len(res_triples) == expected_number_of_triples
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video_segment(self, auth_header, project_iri, creds):
@@ -139,3 +160,7 @@ class TestDspResources:
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number = 1
         assert len(resource_iris) == expected_number
+        res_iri = resource_iris.pop(0)
+        expected_number_of_triples = NUMBER_OF_TRIPLES_WITHOUT_VALUES + 6
+        res_triples = list(g.triples((res_iri, None, None)))
+        assert len(res_triples) == expected_number_of_triples

@@ -15,46 +15,40 @@ from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_clas
 
 
 class TestResources:
-    def test_class_with_everything_all_created(self, class_with_everything_resource_graph, class_with_everything_iri):
+    def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
         cls_iri = URIRef(class_with_everything_iri)
-        resource_iris = list(class_with_everything_resource_graph.subjects(RDF.type, cls_iri))
+        resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
         expected_number = 17
         assert len(resource_iris) == expected_number
 
     def test_resource_no_values_assert_triples_present(
-        self, class_with_everything_resource_graph, class_with_everything_iri, project_iri
+        self, cls_with_everything_graph, class_with_everything_iri, project_iri
     ):
-        res_iri = _util_get_res_iri_from_label(class_with_everything_resource_graph, "resource_no_values")
+        res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
         expected_number_of_resource_triples = 9
-        number_of_triples = list(class_with_everything_resource_graph.triples((res_iri, None, None)))
+        number_of_triples = list(cls_with_everything_graph.triples((res_iri, None, None)))
         assert len(number_of_triples) == expected_number_of_resource_triples
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(
-            project_iri
-        )
-        assert next(class_with_everything_resource_graph.objects(res_iri, RDF.type)) == (
-            URIRef(class_with_everything_iri)
-        )
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.arkUrl))
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.versionArkUrl))
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.userHasPermission))
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.creationDate))
-        assert next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.attachedToUser))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(project_iri)
+        assert next(cls_with_everything_graph.objects(res_iri, RDF.type)) == (URIRef(class_with_everything_iri))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.arkUrl))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.versionArkUrl))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.userHasPermission))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.creationDate))
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToUser))
 
-    def test_resource_no_permissions_specified(self, class_with_everything_resource_graph):
-        res_iri = _util_get_res_iri_from_label(class_with_everything_resource_graph, "resource_no_values")
+    def test_resource_no_permissions_specified(self, cls_with_everything_graph):
+        res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
         expected_permissions = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
-        actual_permissions = next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.hasPermissions))
+        actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
         assert actual_permissions == expected_permissions
 
-    def test_resource_with_open_permissions(self, class_with_everything_resource_graph):
-        res_iri = _util_get_res_iri_from_label(
-            class_with_everything_resource_graph, "resource_no_values_open_permissions"
-        )
+    def test_resource_with_open_permissions(self, cls_with_everything_graph):
+        res_iri = _util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values_open_permissions")
         expected_permissions = Literal(
             "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
         )
-        actual_permissions = next(class_with_everything_resource_graph.objects(res_iri, KNORA_API.hasPermissions))
+        actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
         assert actual_permissions == expected_permissions
 
     @pytest.mark.usefixtures("_xmlupload")

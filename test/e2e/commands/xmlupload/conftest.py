@@ -55,9 +55,7 @@ def auth_header(create_generic_project, creds) -> dict[str, str]:
 
 
 @pytest.fixture(scope="module")
-def class_with_everything_resource_graph(
-    _xmlupload, class_with_everything_iri, auth_header, project_iri, creds
-) -> Graph:
+def cls_with_everything_graph(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
     return _util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
 
 

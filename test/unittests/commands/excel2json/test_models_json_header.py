@@ -64,6 +64,11 @@ def project_no_users(descriptions: Descriptions, keywords: Keywords, licenses: L
 
 
 @pytest.fixture
+def project_no_licenses(descriptions: Descriptions, keywords: Keywords) -> Project:
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, Licenses([]), None)
+
+
+@pytest.fixture
 def filled_json_header_with_users_without_prefix(project_with_users: Project) -> FilledJsonHeader:
     return FilledJsonHeader(project_with_users, None)
 
@@ -138,6 +143,23 @@ def test_filled_json_header_with_users_with_prefix(filled_json_header_with_users
         },
     }
     res = filled_json_header_with_users_with_prefix.to_dict()
+    assert res == expected
+
+
+def test_filled_json_header_no_license(project_no_licenses: Project) -> None:
+    header = FilledJsonHeader(project_no_licenses, None)
+    expected = {
+        "$schema": SCHEMA,
+        "project": {
+            "shortcode": "0001",
+            "shortname": "shortname",
+            "longname": "Longname of the project",
+            "descriptions": {"de": "Beschreibungstext", "en": "description text"},
+            "keywords": ["Keyword 1"],
+            "enabled_licenses": [],
+        },
+    }
+    res = header.to_dict()
     assert res == expected
 
 

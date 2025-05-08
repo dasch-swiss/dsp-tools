@@ -25,6 +25,7 @@ class EmptyJsonHeader(JsonHeader):
                 "longname": "",
                 "descriptions": {"en": ""},
                 "keywords": [""],
+                "enabled_licenses": [""],
             },
         }
 

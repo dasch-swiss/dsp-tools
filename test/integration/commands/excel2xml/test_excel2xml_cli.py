@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,13 @@ INVALID_EXCEL_DIRECTORY = "testdata/invalid-testdata/excel2xml"
 def expected_output() -> str:
     with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
         return f.read()
+
+
+@pytest.fixture
+def cleanup_cli_output_file() -> Iterator[None]:
+    tmp_path = Path("excel2xml-invalid-data.xml")
+    yield
+    tmp_path.unlink(missing_ok=True)
 
 
 class TestDifferentExtensions:
@@ -60,6 +68,7 @@ class TestDifferentExtensions:
 
 
 class TestWarnings:
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_double_bool(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/boolean-prop-two-values.xlsx"
         expected_msg = (
@@ -71,6 +80,7 @@ class TestWarnings:
         catched = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert catched == expected_msg
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_child(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/empty-property.xlsx"
         expected_missing_prop = regex.escape(
@@ -85,6 +95,7 @@ class TestWarnings:
         message_xml_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_validation, message_xml_validation)
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_prop_permission(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-prop-permissions.xlsx"
         expected_msg = "Resource 'person_0': Missing permissions in column '2_permissions' of property ':hasName'"
@@ -93,6 +104,7 @@ class TestWarnings:
         message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert message == expected_msg
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_label(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-label.xlsx"
         expected_msg_missing = "Missing label for resource 'person_0' (Excel row 2)"
@@ -106,6 +118,7 @@ class TestWarnings:
         msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, msg_validation)
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_resource_permission(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-permissions.xlsx"
         expected_msg = "Missing permissions for resource 'person_0' (Excel row 2)"
@@ -119,6 +132,7 @@ class TestWarnings:
         msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, msg_validation)
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_restype(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-restype.xlsx"
         expected_msg = "Missing restype for resource 'person_0' (Excel row 2)"
@@ -127,6 +141,7 @@ class TestWarnings:
         message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
         assert message == expected_msg
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_missing_bitstream_permission(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/no-bitstream-permissions.xlsx"
         expected_res_perm_missing = "Missing permissions for resource 'test_thing_1' (Excel row 2)"
@@ -144,6 +159,7 @@ class TestWarnings:
         assert catched_warnings[1].message.args[0] == expected_msg_missing  # type:ignore[union-attr]
         assert regex.search(expected_xml_validation, catched_warnings[3].message.args[0])  # type:ignore[union-attr]
 
+    @pytest.mark.usefixtures("cleanup_cli_output_file")
     def test_invalid_prop_val(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/single-invalid-value-for-property.xlsx"
         expected_msg_missing = regex.escape(

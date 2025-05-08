@@ -29,6 +29,11 @@ def prefixes_wrong_val() -> pd.DataFrame:
 
 
 @pytest.fixture
+def licenses_good() -> pd.DataFrame:
+    return pd.DataFrame({"enabled": ["http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/ai-generated"]})
+
+
+@pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
     return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
 

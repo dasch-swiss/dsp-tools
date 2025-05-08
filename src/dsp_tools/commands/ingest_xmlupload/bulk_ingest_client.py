@@ -45,7 +45,7 @@ class BulkIngestClient:
         """
         timeout = 58
         quoted_file_name = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
-        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted_file_name}"
+        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted_file_name}"
         headers = {"Content-Type": "application/octet-stream"}
         err_msg = f"Failed to upload '{filepath}' to '{url_for_logging}'."
         try:
@@ -69,7 +69,7 @@ class BulkIngestClient:
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
-        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
         logger.debug(f"REQUEST: POST to {url_for_logging}, timeout: {timeout}")
         res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(self.shortcode, _request_timeout=timeout)
@@ -82,7 +82,7 @@ class BulkIngestClient:
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
         if res.status_code == STATUS_CONFLICT:
-            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            msg = f"Ingest process on the server {self.bulk_ingest_api.api_client.configuration.host} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
             return
@@ -96,8 +96,8 @@ class BulkIngestClient:
             failed = True
         if failed:
             raise InputError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-        print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
-        logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        print(f"Kicked off the ingest process on the server {self.bulk_ingest_api.api_client.configuration.host}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {self.bulk_ingest_api.api_client.configuration.host}. Wait until it completes...")
 
     def retrieve_mapping_generator(self) -> Iterator[str | bool]:
         """
@@ -111,7 +111,7 @@ class BulkIngestClient:
         Raises:
             InputError: if there are too many server errors in a row.
         """
-        url_for_logging = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        url_for_logging = f"{self.bulk_ingest_api.api_client.configuration.host}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
             logger.debug(f"REQUEST: GET to {url_for_logging}, timeout: {timeout}")

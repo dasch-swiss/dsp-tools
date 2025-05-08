@@ -284,8 +284,8 @@ def _extract_keywords(df: pd.DataFrame) -> Keywords:
 
 
 def _extract_licenses(df: pd.DataFrame) -> Licenses:
-    keywords = list({x for x in df["enabled"] if not pd.isna(x)})
-    return Licenses(keywords)
+    licenses = list({x for x in df["enabled"] if not pd.isna(x)})
+    return Licenses(licenses)
 
 
 def _extract_users(df: pd.DataFrame) -> Users:

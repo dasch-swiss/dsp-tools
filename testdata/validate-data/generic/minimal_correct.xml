@@ -36,7 +36,7 @@
     <resource label="resource_no_values" restype=":ClassWithEverything" id="resource_no_values"/>
 
     <resource
-            label="resource_no_values"
+            label="resource_no_values_open_permissions"
             restype=":ClassWithEverything"
             id="resource_no_values_open_permissions"
             permissions="open"

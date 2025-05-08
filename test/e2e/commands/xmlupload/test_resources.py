@@ -56,22 +56,30 @@ class TestDspResources:
     def test_region(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_link_obj(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}LinkObj"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_audio_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}VideoSegment"
         resources = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
-        assert len(resources) != 0
+        resource_iris = list(resources.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number

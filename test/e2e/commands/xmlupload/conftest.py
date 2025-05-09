@@ -6,9 +6,12 @@ from pathlib import Path
 
 import pytest
 import requests
+from rdflib import RDFS
 from rdflib import Graph
+from rdflib import Literal
 
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -67,3 +70,7 @@ def _util_request_resources_by_class(resclass_iri: str, auth_header: dict[str, s
     g = Graph()
     g.parse(data=resources, format="json-ld")
     return g
+
+
+def _util_get_res_iri_from_label(g: Graph, label_str: str) -> SubjectObjectTypeAlias:
+    return next(g.subjects(RDFS.label, Literal(label_str)))

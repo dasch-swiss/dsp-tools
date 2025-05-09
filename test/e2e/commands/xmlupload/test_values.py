@@ -1,6 +1,8 @@
 # mypy: disable-error-code="no-untyped-def"
 
+import urllib.parse
 
+import requests
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
@@ -151,11 +153,25 @@ def test_integer(class_with_everything_resource_graph, onto_iri):
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
 
-def test_list(class_with_everything_resource_graph, onto_iri):
+def _util_get_list_node(creds, auth_header) -> str:
+    all_list_one_project_endpoint = f"{creds.server}/admin/lists?9999"
+    headers = auth_header | {"Content-Type": "application/json"}
+    response_all_lists = requests.get(all_list_one_project_endpoint, timeout=3, headers=headers).json()
+    first_list = next(x for x in response_all_lists["lists"] if x["name"] == "firstList")
+    list_iri = urllib.parse.quote_plus(first_list["id"])
+    all_nodes_one_list_endpoint = f"{creds.server}/admin/lists/{list_iri}"
+    response_all_nodes = requests.get(all_nodes_one_list_endpoint, timeout=3, headers=headers).json()
+    children = response_all_nodes["list"]["children"]
+    node_one = next(x for x in children if x["name"] == "n1")
+    return node_one["id"]
+
+
+def test_list(class_with_everything_resource_graph, onto_iri, creds, auth_header):
     prop_iri = URIRef(f"{onto_iri}testListProp")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "list", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
-    expected_val = Literal("")
+    list_node_iri = _util_get_list_node(creds, auth_header)
+    expected_val = URIRef(list_node_iri)
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.listValueAsListNode))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.ListValue

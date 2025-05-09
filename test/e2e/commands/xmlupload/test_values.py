@@ -1,7 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 
 import urllib.parse
-
+from typing import cast
 import requests
 from rdflib import RDF
 from rdflib import XSD
@@ -163,7 +163,7 @@ def _util_get_list_node(creds, auth_header) -> str:
     response_all_nodes = requests.get(all_nodes_one_list_endpoint, timeout=3, headers=headers).json()
     children = response_all_nodes["list"]["children"]
     node_one = next(x for x in children if x["name"] == "n1")
-    return node_one["id"]
+    return cast(str, node_one["id"])
 
 
 def test_list(class_with_everything_resource_graph, onto_iri, creds, auth_header):

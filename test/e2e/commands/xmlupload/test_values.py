@@ -87,7 +87,6 @@ class TestSharedTriples:
 The following tests, test the triples that are specific to each value type.
 """
 
-
 def test_bool_true(class_with_everything_resource_graph, onto_iri):
     prop_iri = URIRef(f"{onto_iri}testBoolean")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(

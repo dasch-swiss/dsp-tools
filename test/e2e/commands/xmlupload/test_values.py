@@ -113,7 +113,7 @@ def test_decimal(class_with_everything_resource_graph, onto_iri):
     prop_iri = URIRef(f"{onto_iri}testDecimalSimpleText")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "decimal", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
-    expected_val = Literal(2.71)
+    expected_val = Literal("2.71", datatype=XSD.decimal)
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.decimalValueAsDecimal))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.DecimalValue
@@ -170,7 +170,7 @@ def test_richtext(class_with_everything_resource_graph, onto_iri):
         class_with_everything_resource_graph, "richtext", prop_iri
     )
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
-    expected_val = Literal("")
+    expected_val = Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text><p> Text </p></text>')
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.textValueAsXml))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
@@ -187,7 +187,11 @@ def test_textarea(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueAsString))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+    assert (
+        next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
+        == KNORA_API.UnformattedText
+    )
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
 
 
 def test_simpletext(class_with_everything_resource_graph, onto_iri):
@@ -200,11 +204,15 @@ def test_simpletext(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueAsString))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+    assert (
+        next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
+        == KNORA_API.UnformattedText
+    )
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
 
 
 def test_time(class_with_everything_resource_graph, onto_iri):
-    prop_iri = URIRef(f"{onto_iri}")
+    prop_iri = URIRef(f"{onto_iri}testTimeValue")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "time", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
     expected_val = Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
@@ -215,7 +223,7 @@ def test_time(class_with_everything_resource_graph, onto_iri):
 
 
 def test_uri(class_with_everything_resource_graph, onto_iri):
-    prop_iri = URIRef(f"{onto_iri}")
+    prop_iri = URIRef(f"{onto_iri}testUriValue")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "uri", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
     expected_val = Literal("https://dasch.swiss", datatype=XSD.anyURI)

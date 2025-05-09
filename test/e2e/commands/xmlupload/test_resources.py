@@ -29,7 +29,8 @@ Note on these tests:
   therefore it is not necessary to assert the correct creation for every FileValue type separately.
 - The content of values is tested.
 - For built-in DSP resources the presence of the expected values is explicitly tested here, 
-  but the content of the values is not, as that is included in the tests for the values.
+  but the content of the values is not as that is included in the tests for the values 
+  in the designated file of this directory.
 """
 
 

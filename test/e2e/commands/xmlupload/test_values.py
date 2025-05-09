@@ -102,11 +102,20 @@ def test_date(class_with_everything_resource_graph, onto_iri):
     prop_iri = URIRef(f"{onto_iri}testSubDate1")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "date", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
-    expected_val = Literal("JULIAN:BCE:0700:BCE:0600")
+    expected_val = Literal("JULIAN:0700 BCE:0600 BCE")
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueAsString))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.DateValue
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+    date_details = [
+        (KNORA_API.dateValueHasCalendar, Literal("JULIAN")),
+        (KNORA_API.dateValueHasStartEra, Literal("BCE")),
+        (KNORA_API.dateValueHasStartYear, Literal("700", datatype=XSD.integer)),
+        (KNORA_API.dateValueHasEndEra, Literal("BCE")),
+        (KNORA_API.dateValueHasEndYear, Literal("600", datatype=XSD.integer)),
+    ]
+    for prp, val in date_details:
+        assert next(class_with_everything_resource_graph.objects(val_iri, prp)) == val
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 5
 
 
 def test_decimal(class_with_everything_resource_graph, onto_iri):
@@ -215,7 +224,7 @@ def test_time(class_with_everything_resource_graph, onto_iri):
     prop_iri = URIRef(f"{onto_iri}testTimeValue")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(class_with_everything_resource_graph, "time", prop_iri)
     val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
-    expected_val = Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
+    expected_val = Literal("2019-10-24T03:45:12.010Z", datatype=XSD.dateTimeStamp)
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.timeValueAsTimeStamp))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TimeValue

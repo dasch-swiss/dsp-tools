@@ -11,6 +11,6 @@ BASE_NUMBER_OF_TRIPLES_PER_VALUE = 0
 
 def test_(class_with_everything_resource_graph):
     res_iri = _util_get_res_iri_from_label(class_with_everything_resource_graph, "")
-    
+
     expected_val = Literal("")
 

@@ -21,10 +21,23 @@ DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMem
 
 NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES = 9
 
+"""
+Note on tests:
+- The creation of metadata triples, such as the creation of permissions is done by code that is shared by all resources
+- FileValue metadata is also code that is shared by all file values, therefore it is not necessary to assert the correct
+  creation for every FileValue type separately
+- The content of Values is tested
+- For built-in DSP resources the presence of the expected values is explicitly tested, 
+  but the content of the values is not as that is included in the tests for the values
+"""
+
 
 class TestResources:
-    def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
+    def test_class_with_everything_all_created(self, class_with_everything_iri, auth_header, project_iri, creds):
         cls_iri = URIRef(class_with_everything_iri)
+        cls_with_everything_graph = util_request_resources_by_class(
+            class_with_everything_iri, auth_header, project_iri, creds
+        )
         resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
         expected_number_of_resources = 17
         assert len(resource_iris) == expected_number_of_resources

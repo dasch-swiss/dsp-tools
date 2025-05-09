@@ -174,7 +174,11 @@ def test_richtext(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.textValueAsXml))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
+    text_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
+    assert text_type == KNORA_API.FormattedText
+    mapping_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.textValueHasMapping))
+    assert mapping_type == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 2
 
 
 def test_textarea(class_with_everything_resource_graph, onto_iri):
@@ -187,10 +191,8 @@ def test_textarea(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueAsString))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
-    assert (
-        next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
-        == KNORA_API.UnformattedText
-    )
+    text_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
+    assert text_type == KNORA_API.UnformattedText
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
 
 
@@ -204,10 +206,8 @@ def test_simpletext(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueAsString))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
-    assert (
-        next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
-        == KNORA_API.UnformattedText
-    )
+    text_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
+    assert text_type == KNORA_API.UnformattedText
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
 
 

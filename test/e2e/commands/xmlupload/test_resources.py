@@ -196,6 +196,6 @@ class TestDspResources:
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasDescription))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasKeyword))) == 1
-        number_of_values = 4
+        number_of_values = 6
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples

@@ -29,6 +29,11 @@ def _assert_number_of_values_is_one_and_get_val_iri(g: Graph, label: str, prop_i
 
 
 class TestSharedTriples:
+    """
+    The xmlupload code that creates metadata triples (e.g. the permissions) is shared by all value types.
+    These generic triples are tested only once and not for each value type individually.
+    """
+
     def test_all_triples_of_a_value(self, class_with_everything_resource_graph, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(
@@ -74,7 +79,13 @@ class TestSharedTriples:
         val_triples = list(class_with_everything_resource_graph.triples((val_iri, None, None)))
         cmnt = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.valueHasComment))
         assert cmnt == Literal("Comment on value")
-        assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
+        comment_triple = 1
+        assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + comment_triple
+
+
+"""
+The following tests, test the triples that are specific to each value type.
+"""
 
 
 def test_bool_true(class_with_everything_resource_graph, onto_iri):
@@ -118,7 +129,7 @@ def test_date(class_with_everything_resource_graph, onto_iri):
     ]
     for prp, val in date_details:
         assert next(class_with_everything_resource_graph.objects(val_iri, prp)) == val
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 5
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + len(date_details)
 
 
 def test_decimal(class_with_everything_resource_graph, onto_iri):
@@ -204,7 +215,8 @@ def test_richtext(class_with_everything_resource_graph, onto_iri):
     assert text_type == KNORA_API.FormattedText
     mapping_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.textValueHasMapping))
     assert mapping_type == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 2
+    additional_richtext_triples = 2
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_richtext_triples
 
 
 def test_textarea(class_with_everything_resource_graph, onto_iri):
@@ -219,7 +231,8 @@ def test_textarea(class_with_everything_resource_graph, onto_iri):
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
     text_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
     assert text_type == KNORA_API.UnformattedText
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
+    additional_text_type_triple = 1
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_text_type_triple
 
 
 def test_simpletext(class_with_everything_resource_graph, onto_iri):
@@ -234,7 +247,8 @@ def test_simpletext(class_with_everything_resource_graph, onto_iri):
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.TextValue
     text_type = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.hasTextValueType))
     assert text_type == KNORA_API.UnformattedText
-    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 1
+    additional_text_type_triple = 1
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_text_type_triple
 
 
 def test_time(class_with_everything_resource_graph, onto_iri):

@@ -59,11 +59,11 @@ class TestResources:
         cls_iri_str = f"{second_onto_iri}SecondOntoClass"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
+        expected_number = 1
+        assert len(resource_iris) == expected_number
         res_iri = resource_iris.pop(0)
         assert next(g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
         assert next(g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_still_image(self, onto_iri, auth_header, project_iri, creds):

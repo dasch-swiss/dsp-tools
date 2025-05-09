@@ -28,7 +28,9 @@ dependencies = [
     "pandas[excel]",
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "polars",
+    "pydantic",
     "pyld",
+    "python-dateutil",
     "pyyaml",
     "rdflib",
     "regex",
@@ -36,6 +38,7 @@ dependencies = [
     "rustworkx",
     "tqdm",
     "typing-extensions",
+    "urllib3",
 ]
 
 
@@ -70,7 +73,7 @@ dev-dependencies = [
     "pre-commit",
     "pytest-cov",
     "pytest-unordered",
-    "pytest-xdist>=3.6.1",
+    "pytest-xdist",
     "pytest",
     "requests-mock",
     "ruff",
@@ -164,6 +167,7 @@ ignore = [
     "UP007",  # forbid use of typing.Union and typing.Optional
     "UP015",  # Unnecessary mode="r" argument in open()
 ]
+exclude = ["src/dsp_tools/clients/openapi_ingest/**/*.py"]
 
 
 [tool.ruff.lint.per-file-ignores]
@@ -183,12 +187,17 @@ ignore = [
 ]
 "!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.ruff.format]
+exclude = ["src/dsp_tools/clients/openapi_ingest/**/*.py"]
 
 
 [tool.vulture]

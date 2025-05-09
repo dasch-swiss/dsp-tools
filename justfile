@@ -83,6 +83,7 @@ markdownlint:
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
     --ignore README.md \
+    --ignore src/dsp_tools/clients/openapi_ingest \
     "**/*.md"
 
 # Run vulture, dead code analysis
@@ -134,3 +135,40 @@ clean:
     -rm -rf ./testdata/e2e/images/
     -rm -rf ./site
     -rm -f ./mapping-????.csv
+
+
+openapi-cli *ARGS:
+    docker run --rm \
+    -v ${PWD}:/local \
+    openapitools/openapi-generator-cli {{ARGS}}
+
+
+[no-exit-message]
+openapi-generate-dsp-api:
+    @just openapi-cli generate \
+    -i https://api.dasch.swiss/api/docs/docs.yaml \
+    -g python \
+    --additional-properties=generateSourceCodeOnly=True \
+    -o /local/src/dsp_tools/clients/openapi_api
+
+
+[no-exit-message]
+openapi-generate-dsp-ingest:
+    @just openapi-cli generate \
+    -i https://ingest.dasch.swiss/docs/docs.yaml \
+    -g python \
+    --additional-properties=generateSourceCodeOnly=True \
+    -o /local/src/dsp_tools/clients/openapi_ingest
+
+# --import-mappings <import mappings>
+#             specifies mappings between a given class and the import that should
+#             be used for that class in the format of type=import,type=import. You
+#             can also have multiple occurrences of this option.
+
+# --package-name <package name>
+#             package for generated classes (where supported)
+
+# -t <template directory>, --template-dir <template directory>
+#             folder containing the template files
+
+# --additional-properties=packageName=src.dsp_tools.clients.openapi_ingest.ingest_client

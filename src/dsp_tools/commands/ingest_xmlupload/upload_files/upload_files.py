@@ -12,6 +12,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import Upl
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from src.dsp_tools.clients.openapi_ingest import openapi_client
 
 
 def upload_files(
@@ -38,7 +39,12 @@ def upload_files(
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, imgdir)
+    configuration = openapi_client.Configuration(
+        host=creds.dsp_ingest_url,
+        access_token=auth.get_token(),
+    )
+    bulk_ingest_api = openapi_client.BulkIngestApi(openapi_client.ApiClient(configuration))
+    ingest_client = BulkIngestClient(bulk_ingest_api, shortcode, imgdir)
 
     failures: list[UploadFailure] = []
     progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", dynamic_ncols=True)

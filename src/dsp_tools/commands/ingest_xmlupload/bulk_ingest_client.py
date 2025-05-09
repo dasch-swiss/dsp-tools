@@ -64,7 +64,7 @@ class BulkIngestClient:
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
             return UploadFailure(
-                filepath, res.reason, res.status_code, res.text
+                filepath, "Non-okay response status", res.status_code, res.model_dump()["raw_data"].decode("utf-8")
             )  # TODO: test if these attributes exist
         return None
 
@@ -76,7 +76,7 @@ class BulkIngestClient:
         res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_with_http_info(
             self.shortcode, _request_timeout=timeout
         )
-        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
+        logger.debug(f"RESPONSE: {res.status_code}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
             raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
         if res.status_code == STATUS_NOT_FOUND:
@@ -93,7 +93,7 @@ class BulkIngestClient:
             raise InputError("Server is unavailable. Please try again later.")
 
         try:
-            returned_shortcode = res.json().get("id")
+            returned_shortcode = res.model_dump()["data"].get("id")
             failed: bool = returned_shortcode != self.shortcode
         except JSONDecodeError:
             failed = True
@@ -123,7 +123,7 @@ class BulkIngestClient:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
                 yield True
-            elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
+            elif res.status_code != STATUS_OK or not res.model_dump()["raw_data"].decode("utf-8").startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
                     raise InputError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
@@ -133,4 +133,4 @@ class BulkIngestClient:
             else:
                 logger.info("Ingest process completed.")
                 break
-        yield res.content.decode("utf-8")
+        yield res.model_dump()["raw_data"].decode("utf-8")

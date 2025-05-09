@@ -2,6 +2,7 @@
 
 import urllib.parse
 from typing import cast
+
 import requests
 from rdflib import RDF
 from rdflib import XSD

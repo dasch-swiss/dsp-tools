@@ -23,13 +23,13 @@ DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMem
 NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES = 9
 
 """
-Note on tests:
-- The creation of metadata triples, such as the creation of permissions is done by code that is shared by all resources
-- FileValue metadata is also code that is shared by all file values, therefore it is not necessary to assert the correct
-  creation for every FileValue type separately
-- The content of Values is tested
-- For built-in DSP resources the presence of the expected values is explicitly tested, 
-  but the content of the values is not as that is included in the tests for the values
+Note on these tests:
+- The xmlupload code that creates metadata triples (e.g. the permissions) is shared by all resource types.
+- FileValue metadata is also created by code that is shared by all file value types, 
+  therefore it is not necessary to assert the correct creation for every FileValue type separately.
+- The content of values is tested.
+- For built-in DSP resources the presence of the expected values is explicitly tested here, 
+  but the content of the values is not, as that is included in the tests for the values.
 """
 
 

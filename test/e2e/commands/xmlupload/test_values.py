@@ -179,6 +179,22 @@ def test_integer(class_with_everything_resource_graph, onto_iri):
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
 
+def test_interval(auth_header, project_iri, creds):
+    cls_iri_str = f"{KNORA_API_STR}AudioSegment"
+    res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "audio_segment", KNORA_API.hasSegmentBounds)
+    val_triples = list(res_g.triples((val_iri, None, None)))
+    interval_start = Literal("0.1", datatype=XSD.decimal)
+    actual_interval_start = next(res_g.objects(val_iri, KNORA_API.intervalValueHasStart))
+    assert actual_interval_start == interval_start
+    interval_end = Literal("0.2", datatype=XSD.decimal)
+    actual_interval_end = next(res_g.objects(val_iri, KNORA_API.intervalValueHasEnd))
+    assert actual_interval_end == interval_end
+    assert next(res_g.objects(val_iri, RDF.type)) == KNORA_API.IntervalValue
+    additional_interval_triple = 1
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_interval_triple
+
+
 def _util_get_list_node(creds, auth_header) -> str:
     all_list_one_project_endpoint = f"{creds.server}/admin/lists?9999"
     headers = auth_header | {"Content-Type": "application/json"}

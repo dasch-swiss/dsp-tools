@@ -2,8 +2,6 @@
 
 
 import pytest
-from e2e.commands.xmlupload.utils import util_get_res_iri_from_label
-from e2e.commands.xmlupload.utils import util_request_resources_by_class
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import Literal
@@ -11,6 +9,8 @@ from rdflib import URIRef
 
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
+from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
 # ruff: noqa: ARG001 Unused function argument
 

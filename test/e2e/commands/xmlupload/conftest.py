@@ -4,10 +4,11 @@ from pathlib import Path
 
 import pytest
 import requests
-from e2e.commands.xmlupload.utils import util_request_resources_by_class
 from rdflib import Graph
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -17,7 +18,7 @@ SECOND_ONTO = "second-onto"
 
 
 @pytest.fixture(scope="module")
-def project_iri(create_generic_project, creds) -> str:
+def project_iri(create_generic_project, creds: ServerCredentials) -> str:
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri

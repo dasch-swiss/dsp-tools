@@ -1,15 +1,15 @@
 # mypy: disable-error-code="no-untyped-def"
 
-import json
-import urllib.parse
 from pathlib import Path
-
+import urllib.parse
 import pytest
 import requests
+import json
 from rdflib import RDFS
 from rdflib import Graph
 from rdflib import Literal
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -21,7 +21,7 @@ SECOND_ONTO = "second-onto"
 
 
 @pytest.fixture(scope="module")
-def project_iri(create_generic_project, creds) -> str:
+def project_iri(create_generic_project, creds: ServerCredentials) -> str:
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri

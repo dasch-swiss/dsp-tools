@@ -26,8 +26,8 @@ class TestResources:
     def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
         cls_iri = URIRef(class_with_everything_iri)
         resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
-        expected_number = 17
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 17
+        assert len(resource_iris) == expected_number_of_resources
 
     def test_resource_no_values_assert_triples_present(
         self, cls_with_everything_graph, class_with_everything_iri, project_iri
@@ -59,8 +59,8 @@ class TestResources:
         cls_iri_str = f"{second_onto_iri}SecondOntoClass"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
         assert next(g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
         assert next(g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
@@ -70,8 +70,8 @@ class TestResources:
         cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 2
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 2
+        assert len(resource_iris) == expected_number_of_resources
 
         image = _util_get_res_iri_from_label(g, "image")
         image_triples = list(g.triples((image, None, None)))
@@ -99,8 +99,8 @@ class TestResources:
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         assert next(g.objects(predicate=RDFS.label)) == Literal("audio")
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
 
     @pytest.mark.usefixtures("_xmlupload")
     def test_video(self, onto_iri, auth_header, project_iri, creds):
@@ -108,8 +108,8 @@ class TestResources:
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         assert next(g.objects(predicate=RDFS.label)) == Literal("video")
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
 
 
 class TestDspResources:
@@ -118,8 +118,8 @@ class TestDspResources:
         cls_iri_str = f"{KNORA_API_STR}Region"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(list(g.objects(res_iri, KNORA_API.hasColor))) == 1
@@ -135,8 +135,8 @@ class TestDspResources:
         cls_iri_str = f"{KNORA_API_STR}LinkObj"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
@@ -150,8 +150,8 @@ class TestDspResources:
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(list(g.objects(res_iri, KNORA_API.isAudioSegmentOfValue))) == 1
@@ -169,8 +169,8 @@ class TestDspResources:
         cls_iri_str = f"{KNORA_API_STR}VideoSegment"
         g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
-        expected_number = 1
-        assert len(resource_iris) == expected_number
+        expected_number_of_resources = 1
+        assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(list(g.objects(res_iri, KNORA_API.isVideoSegmentOfValue))) == 1

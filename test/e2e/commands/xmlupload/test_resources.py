@@ -126,7 +126,8 @@ class TestDspResources:
         assert len(list(g.objects(res_iri, KNORA_API.isRegionOfValue))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasGeometry))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
-        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 4
+        number_of_values = 4
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
     @pytest.mark.usefixtures("_xmlupload")
@@ -140,7 +141,8 @@ class TestDspResources:
         res_triples = list(g.triples((res_iri, None, None)))
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasLinkToValue))) == 2
-        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 3
+        number_of_values = 3
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
     @pytest.mark.usefixtures("_xmlupload")
@@ -158,7 +160,8 @@ class TestDspResources:
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasDescription))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasKeyword))) == 1
-        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 6
+        number_of_values = 6
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
     @pytest.mark.usefixtures("_xmlupload")
@@ -176,5 +179,6 @@ class TestDspResources:
         assert len(list(g.objects(res_iri, KNORA_API.hasComment))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasDescription))) == 1
         assert len(list(g.objects(res_iri, KNORA_API.hasKeyword))) == 1
-        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 6
+        number_of_values = 4
+        expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples

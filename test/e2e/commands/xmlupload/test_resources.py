@@ -4,6 +4,7 @@
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -32,12 +33,14 @@ Note on tests:
 """
 
 
+@pytest.fixture(scope="module")
+def cls_with_everything_graph(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
+    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+
+
 class TestResources:
-    def test_class_with_everything_all_created(self, class_with_everything_iri, auth_header, project_iri, creds):
+    def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
         cls_iri = URIRef(class_with_everything_iri)
-        cls_with_everything_graph = util_request_resources_by_class(
-            class_with_everything_iri, auth_header, project_iri, creds
-        )
         resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
         expected_number_of_resources = 17
         assert len(resource_iris) == expected_number_of_resources

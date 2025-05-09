@@ -4,11 +4,9 @@ from pathlib import Path
 
 import pytest
 import requests
-from rdflib import Graph
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -49,8 +47,3 @@ def auth_header(create_generic_project, creds) -> dict[str, str]:
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
-
-
-@pytest.fixture(scope="module")
-def cls_with_everything_graph(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
-    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)

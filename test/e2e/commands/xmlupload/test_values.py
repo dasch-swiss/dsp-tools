@@ -1,5 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
-
+import json
 import urllib.parse
 from typing import cast
 
@@ -11,8 +11,10 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 from test.e2e.commands.xmlupload.conftest import _util_get_res_iri_from_label
+from test.e2e.commands.xmlupload.conftest import _util_request_resources_by_class
 
 BASE_NUMBER_OF_TRIPLES_PER_VALUE = 9
 OPEN_PERMISSIONS = Literal(
@@ -87,6 +89,7 @@ class TestSharedTriples:
 The following tests, test the triples that are specific to each value type.
 """
 
+
 def test_bool_true(class_with_everything_resource_graph, onto_iri):
     prop_iri = URIRef(f"{onto_iri}testBoolean")
     val_iri = _assert_number_of_values_is_one_and_get_val_iri(
@@ -139,6 +142,18 @@ def test_decimal(class_with_everything_resource_graph, onto_iri):
     actual_value = next(class_with_everything_resource_graph.objects(val_iri, KNORA_API.decimalValueAsDecimal))
     assert actual_value == expected_val
     assert next(class_with_everything_resource_graph.objects(val_iri, RDF.type)) == KNORA_API.DecimalValue
+    assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+
+
+def test_geometry(auth_header, project_iri, creds):
+    cls_iri_str = f"{KNORA_API_STR}Region"
+    res_g = _util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "region", KNORA_API.hasGeometry)
+    val_triples = list(res_g.triples((val_iri, None, None)))
+    actual_value = str(next(res_g.objects(val_iri, KNORA_API.geometryValueAsGeometry)))
+    geom_json = json.loads(actual_value)
+    assert set(geom_json.keys()) == {"status", "type", "lineWidth", "points"}
+    assert next(res_g.objects(val_iri, RDF.type)) == KNORA_API.GeomValue
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
 

@@ -1,4 +1,3 @@
-import urllib.parse
 from collections.abc import Iterator
 from dataclasses import dataclass
 from dataclasses import field
@@ -44,26 +43,27 @@ class BulkIngestClient:
         # noqa: DAR201
         """
         timeout = 58
-        quoted_file_name = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
+        file_name = regex.sub(r"^/", "", str(filepath))
         err_msg = f"Failed to upload '{filepath}' to dsp-ingest."
         try:
             logger.debug(f"REQUEST: POST to ingest-file route, timeout: {timeout}")
             with open(self.imgdir / filepath, "rb") as binary_io:
+                content = binary_io.read()
                 api_response = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file(
-                    self.shortcode, quoted_file_name, binary_io, _request_timeout=timeout
+                    self.shortcode, file_name, content, _request_timeout=timeout
                 )
-            logger.warning(f"This is the resulting 'ProjectResponse' object: {api_response.to_str()}")
-            logger.debug(f"RESPONSE: {api_response.status_code}")
+                status = api_response.to_dict().get("status")
+            logger.debug(f"RESPONSE status: {status}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
         except Exception as e:  # noqa: BLE001
             logger.error(err_msg)
-            return UploadFailure(filepath, f"Exception of requests library: {e}")
-        if api_response.status_code != STATUS_OK:
+            return UploadFailure(filepath, f"Exception of OpenAPI generated code: {e}")
+        if status != "ok":
             logger.error(err_msg)
-            return UploadFailure(filepath, api_response.reason, api_response.status_code, api_response.text)
+            return UploadFailure(filepath, api_response)
         return None
 
     def trigger_ingest_process(self) -> None:

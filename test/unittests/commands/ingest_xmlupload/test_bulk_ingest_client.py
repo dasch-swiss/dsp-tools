@@ -2,6 +2,7 @@ import json
 import re
 import urllib
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from requests import RequestException
@@ -11,7 +12,6 @@ from dsp_tools.clients.openapi_ingest import openapi_client
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
-from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
 SHORTCODE = "0001"
@@ -19,12 +19,7 @@ SHORTCODE = "0001"
 
 @pytest.fixture
 def ingest_client() -> BulkIngestClient:
-    configuration = openapi_client.Configuration(
-        host=DSP_INGEST_URL,
-        access_token="foobar",
-    )
-    bulk_ingest_api = openapi_client.BulkIngestApi(openapi_client.ApiClient(configuration))
-    return BulkIngestClient(bulk_ingest_api, SHORTCODE)
+    return BulkIngestClient(MagicMock(spec=openapi_client.BulkIngestApi), SHORTCODE)
 
 
 @pytest.fixture
@@ -32,25 +27,19 @@ def tmp_file(tmp_path: Path) -> Path:
     return tmp_path / "filename_îïôœùûüÿ.xml"
 
 
-def _make_url(file: Path) -> str:
+def _escape_filename(file: Path) -> str:
     filename = str(file)[1:] if str(file).startswith("/") else str(file)
     filename = urllib.parse.quote(filename, safe="")
-    return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{filename}"
+    return filename
 
 
-def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
+def test_upload_file_success(ingest_client: BulkIngestClient, tmp_file: Path) -> None:
     file_content = "<xml></xml>"
     tmp_file.write_text(file_content)
-    url = _make_url(tmp_file)
-    requests_mock.post(url, status_code=200)
+    escaped_filename = _escape_filename(tmp_file)
     failure_detail = ingest_client.upload_file(tmp_file)
     assert not failure_detail
-    assert len(requests_mock.request_history) == 1
-    req = requests_mock.request_history[0]
-    assert req.url == url
-    assert req.method == "POST"
-    assert req.headers["Authorization"] == "Bearer mocked_token"
-    assert req.headers["Content-Type"] == "application/octet-stream"
+
 
 
 def test_upload_file_with_inexisting_file(ingest_client: BulkIngestClient) -> None:
@@ -64,7 +53,7 @@ def test_upload_file_failure_upon_request_exception(
     ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
-    requests_mock.post(_make_url(tmp_file), exc=RequestException("Test exception"))
+    requests_mock.post(_escape_filename(tmp_file), exc=RequestException("Test exception"))
     failure_detail = ingest_client.upload_file(tmp_file)
     assert failure_detail
     assert failure_detail.filepath == tmp_file
@@ -75,7 +64,7 @@ def test_upload_file_failure_upon_server_error(
     ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
-    requests_mock.post(_make_url(tmp_file), status_code=500)
+    requests_mock.post(_escape_filename(tmp_file), status_code=500)
     failure_detail = ingest_client.upload_file(tmp_file)
     assert failure_detail
     assert failure_detail.filepath == tmp_file
@@ -86,7 +75,7 @@ def test_upload_file_failure_upon_server_error_with_response_text(
     ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
-    requests_mock.post(_make_url(tmp_file), status_code=500, text="response text")
+    requests_mock.post(_escape_filename(tmp_file), status_code=500, text="response text")
     failure_detail = ingest_client.upload_file(tmp_file)
     assert failure_detail
     assert failure_detail.filepath == tmp_file

@@ -49,11 +49,10 @@ class BulkIngestClient:
             logger.debug(f"REQUEST: POST to ingest-file route, timeout: {timeout}")
             with open(self.imgdir / filepath, "rb") as binary_io:
                 content = binary_io.read()
-                api_response = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file(
-                    self.shortcode, file_name, content, _request_timeout=timeout
-                )
-                status = api_response.to_dict().get("status")
-            logger.debug(f"RESPONSE status: {status}")
+            res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_ingest_file_with_http_info(
+                self.shortcode, file_name, content, _request_timeout=timeout
+            )
+            logger.debug(f"RESPONSE: {res.status_code}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
@@ -61,16 +60,22 @@ class BulkIngestClient:
         except Exception as e:  # noqa: BLE001
             logger.error(err_msg)
             return UploadFailure(filepath, f"Exception of OpenAPI generated code: {e}")
-        if status != "ok":
+            # TODO: retrieve more info with https://docs.python.org/3/library/traceback.html
+        if res.status_code != STATUS_OK:
             logger.error(err_msg)
-            return UploadFailure(filepath, api_response)
+            return UploadFailure(
+                filepath, res.reason, res.status_code, res.text
+            )  # TODO: test if these attributes exist
         return None
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
+        hostname = self.bulk_ingest_api.api_client.configuration.host
         timeout = 5
         logger.debug(f"REQUEST: POST to dsp-ingest route, timeout: {timeout}")
-        res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest(self.shortcode, _request_timeout=timeout)
+        res = self.bulk_ingest_api.post_projects_shortcode_bulk_ingest_with_http_info(
+            self.shortcode, _request_timeout=timeout
+        )
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
             raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
@@ -80,7 +85,7 @@ class BulkIngestClient:
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
         if res.status_code == STATUS_CONFLICT:
-            msg = f"Ingest process on the server {self.bulk_ingest_api.api_client.configuration.host} is already running. Wait until it completes..."
+            msg = f"Ingest process on the server {hostname} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
             return
@@ -94,8 +99,8 @@ class BulkIngestClient:
             failed = True
         if failed:
             raise InputError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-        print(f"Kicked off the ingest process on the server {self.bulk_ingest_api.api_client.configuration.host}. Wait until it completes...")
-        logger.info(f"Kicked off the ingest process on the server {self.bulk_ingest_api.api_client.configuration.host}. Wait until it completes...")
+        print(f"Kicked off the ingest process on the server {hostname}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {hostname}. Wait until it completes...")
 
     def retrieve_mapping_generator(self) -> Iterator[str | bool]:
         """

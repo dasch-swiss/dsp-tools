@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 import requests
-from e2e.commands.xmlupload.utils import _util_request_resources_by_class
+from e2e.commands.xmlupload.utils import util_request_resources_by_class
 from rdflib import Graph
 
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
@@ -52,4 +52,4 @@ def auth_header(create_generic_project, creds) -> dict[str, str]:
 
 @pytest.fixture(scope="module")
 def cls_with_everything_graph(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
-    return _util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)

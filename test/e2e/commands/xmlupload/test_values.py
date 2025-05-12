@@ -291,5 +291,7 @@ class TestTextParsing:
         self, g: Graph, res_label: str, prop_iri: URIRef, knora_api_prop: URIRef = KNORA_API.textValueAsXml
     ) -> str:
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g, res_label, prop_iri)
-        actual_value = next(g.objects(val_iri, knora_api_prop))
-        return str(actual_value)
+        actual_value = list(g.objects(val_iri, knora_api_prop))
+        assert len(actual_value) == 1
+        return str(actual_value.pop(0))
+

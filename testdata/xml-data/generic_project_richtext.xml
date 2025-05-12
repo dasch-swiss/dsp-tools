@@ -60,7 +60,7 @@
     <resource label="res_with_escaped_characters" restype=":ClassWithEverything" id="res_with_escaped_characters">
         <text-prop name=":testRichtext">
             <text encoding="xml">
-                text &lt;not a tag&gt; text and with ampersand &amp;
+                text &lt;notatag&gt; text and with ampersand &amp;
             </text>
         </text-prop>
     </resource>

@@ -23,9 +23,16 @@ OPEN_PERMISSIONS = Literal(
 )
 DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
+RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
 
 @pytest.fixture(scope="module")
 def g_minimal(_xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
+    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+
+
+@pytest.fixture(scope="module")
+def g_text_parsing(_xmlupload_text_parsing, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
     return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
 
 
@@ -223,7 +230,7 @@ class TestValues:
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "richtext", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
-        expected_val = Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text><p> Text </p></text>')
+        expected_val = Literal(f"{RICHTEXT_XML_DECLARATION}<text><p> Text </p></text>")
         actual_value = next(g_minimal.objects(val_iri, KNORA_API.textValueAsXml))
         assert actual_value == expected_val
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.TextValue
@@ -294,3 +301,14 @@ class TestTextParsing:
         actual_value = list(g.objects(val_iri, knora_api_prop))
         assert len(actual_value) == 1
         return str(actual_value.pop(0))
+
+    def test_richtext_res_with_tags_in_text(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_tags_in_text", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}This is <em>italicized and <strong>bold</strong> </em> text!"
+        assert returned_str == expected_str
+
+    # def test_richtext_(self, g_text_parsing, onto_iri):
+    #     prop_iri = URIRef(f"{onto_iri}testRichtext")
+    #     returned_str = self._util_get_string_value(g_text_parsing, "", prop_iri)
+    #     expected_str = f"{RICHTEXT_XML_DECLARATION}"

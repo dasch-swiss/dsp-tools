@@ -292,3 +292,12 @@ def test_uri(res_g, onto_iri):
     assert actual_value == expected_val
     assert next(res_g.objects(val_iri, RDF.type)) == KNORA_API.UriValue
     assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+
+
+class TestRichtextContent:
+
+    """
+    This tests if the content of the richtext is correctly parsed.
+    It does not test if the value is well-formed as that is done separately.
+    """
+

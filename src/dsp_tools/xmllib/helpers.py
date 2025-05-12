@@ -1144,19 +1144,23 @@ def find_license_in_string(string: str) -> License | None:
         - "CC BY" -> LicenseRecommended.CC.BY
         - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
     """
-    sep = r"[- _]+?"
+    sep = r"[- _]+"
+
     if match := regex.search(
         rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
     ):
         return _find_cc_license(match.group(0))
+
     if regex.search(r"\b(AI|IA|KI)\b", string, flags=regex.IGNORECASE):
         return LicenseRecommended.DSP.AI_GENERATED
-    if regex.search(
-        r"\b(public domain|gemeinfrei|frei von Urheberrechten|urheberrechtsbefreit|libre de droits|domaine public)\b",
-        string,
-        flags=regex.IGNORECASE,
-    ):
+
+    rgx_public_domain = (
+        rf"\b(public{sep}domain|gemeinfrei|frei{sep}von{sep}Urheberrechten|urheberrechtsbefreit|"
+        rf"libre{sep}de{sep}droits|domaine{sep}public)\b"
+    )
+    if regex.search(rgx_public_domain, string, flags=regex.IGNORECASE):
         return LicenseRecommended.DSP.PUBLIC_DOMAIN
+
     if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
         return LicenseRecommended.DSP.UNKNOWN
     return None

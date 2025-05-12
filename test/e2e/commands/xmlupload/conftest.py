@@ -1,6 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 import requests
@@ -39,7 +40,18 @@ def second_onto_iri(creds) -> str:
 
 @pytest.fixture(scope="module")
 def _xmlupload(create_generic_project, creds) -> None:
-    assert xmlupload(Path("testdata/validate-data/generic/minimal_correct.xml"), creds, ".")
+    """
+    If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
+    This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.
+    Then it can happen that they try to save the id2iri mapping at the same time,
+    which fails, because the id2iri mapping is named after the shortcode and the timestamp.
+    """
+    absolute_xml_path = Path("testdata/validate-data/generic/minimal_correct.xml").absolute()
+    original_cwd = Path.cwd()
+    with TemporaryDirectory() as tmpdir:
+        with pytest.MonkeyPatch.context() as m:
+            m.chdir(tmpdir)
+            assert xmlupload(absolute_xml_path, creds, str(original_cwd))
 
 
 @pytest.fixture(scope="module")

@@ -5,7 +5,7 @@ from enum import StrEnum
 from dsp_tools.xmllib.models.licenses.recommended import License
 
 
-class LicenseOther(License):
+class LicenseOther:
     """
     Pre-defined licenses that are available in DSP.
     If the user is free to choose a license, we recommend to chose from our [recommended licenses.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)

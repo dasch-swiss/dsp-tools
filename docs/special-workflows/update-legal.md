@@ -83,28 +83,28 @@ Please go through the CSV and fix the errors directly in the CSV.
 
 CSV Output:
 
-| file    | resource_id | license                           | copyright | authorship_1  | authorship_2    |
-| ------- | ----------- | --------------------------------- | --------- | ------------- | --------------- |
+| file    | resource_id | license                             | copyright | authorship_1  | authorship_2    |
+| ------- | ----------- | ----------------------------------- | --------- | ------------- | --------------- |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` |           | Rita Gautschy | Daniela Subotic |
 
 Please add a copyright holder to the CSV:
 
-| file    | resource_id | license                           | copyright | authorship_1  | authorship_2    |
-| ------- | ----------- | --------------------------------- | --------- | ------------- | --------------- |
+| file    | resource_id | license                             | copyright | authorship_1  | authorship_2    |
+| ------- | ----------- | ----------------------------------- | --------- | ------------- | --------------- |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy | Daniela Subotic |
 
 ### 2. Authorship absent
 
 CSV Output:
 
-| file    | resource_id | license                           | copyright | authorship_1 | authorship_2 |
-| ------- | ----------- | --------------------------------- | --------- | ------------ | ------------ |
+| file    | resource_id | license                             | copyright | authorship_1 | authorship_2 |
+| ------- | ----------- | ----------------------------------- | --------- | ------------ | ------------ |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     |              |              |
 
 Please add at least one authorship to the CSV:
 
-| file    | resource_id | license                           | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | --------------------------------- | --------- | ------------- | ------------ |
+| file    | resource_id | license                             | copyright | authorship_1  | authorship_2 |
+| ------- | ----------- | ----------------------------------- | --------- | ------------- | ------------ |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy |              |
 
 ### 3. License absent

@@ -338,6 +338,7 @@ class TestTextParsing:
         target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_id", prop_iri)
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
         assert not returned_tree.text
         emphasis = next(returned_tree.iter(tag="em"))
@@ -353,15 +354,14 @@ class TestTextParsing:
         # Therefore, a string comparison may fail at some times.
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_iri", prop_iri)
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
-        assert not returned_tree.text
-        emphasis = next(returned_tree.iter(tag="em"))
-        assert emphasis.text == "Text "
-        assert emphasis.tail == " end text"
-        stand_off_link = next(emphasis.iter(tag="a"))
+        assert returned_tree.text == "Text "
+        stand_off_link = next(returned_tree.iter(tag="a"))
         assert stand_off_link.text == "target_resource_with_iri"
         assert stand_off_link.attrib["class"] == "salsah-link"
         assert stand_off_link.attrib["href"] == "http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
+        assert stand_off_link.tail == " end text"
 
     def test_richtext_res_with_standoff_to_url(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
@@ -382,20 +382,22 @@ class TestTextParsing:
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
         expected_str = (
             f"{RICHTEXT_XML_DECLARATION}<text>"
-            f'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/> '
+            f'Text <footnote content="Text &lt;a href=\\&quot;https://www.google.com/\\&quot;&gt;Google&lt;/a&gt;"/> '
             f"end text</text>"
         )
         assert returned_str == expected_str
 
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
-        returned_str = self._util_get_string_value(g_text_parsing, "", prop_iri)
+        returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
         assert returned_str == expected_str
 
     def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testSimpleText")
-        returned_str = self._util_get_string_value(g_text_parsing, "res_simpletext_special_characters", prop_iri)
+        returned_str = self._util_get_string_value(
+            g_text_parsing, "res_simpletext_special_characters", prop_iri, KNORA_API.valueAsString
+        )
         assert returned_str == SPECIAL_CHARACTERS_STRING
 
     def test_special_characters_in_label(self, g_text_parsing):

@@ -8,8 +8,8 @@ class LicenseOther:
     Pre-defined licenses that are available in DSP.
     If the user is free to choose a license, we recommend to chose from our [recommended licenses.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
 
-    - `PublicDomains`: [See `PublicDomains` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.PublicDomains)
-    - `Various`: [See `Various` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.PublicDomains)
+    - `Public`: [See `Public` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Public)
+    - `Various`: [See `Various` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Various)
 
     Examples:
         ```python
@@ -23,11 +23,11 @@ class LicenseOther:
         ```
     """
 
-    PublicDomains: type[PublicDomains]
+    Public: type[Public]
     Various: type[Various]
 
 
-class PublicDomains(License):
+class Public(License):
     """
     Pre-defined public domain licenses.
     [See the API documentation for details about the licenses.](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license)
@@ -53,5 +53,5 @@ class Various(License):
     FRANCE_OUVERTE = "http://rdfh.ch/licenses/open-licence-2.0"
 
 
-LicenseOther.PublicDomains = PublicDomains
+LicenseOther.Public = Public
 LicenseOther.Various = Various

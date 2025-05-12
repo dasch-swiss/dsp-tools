@@ -25,6 +25,8 @@ DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMem
 
 RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
+SPECIAL_CHARACTERS_STRING = "àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+
 
 @pytest.fixture(scope="module")
 def g_minimal(_xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
@@ -311,7 +313,76 @@ class TestTextParsing:
         )
         assert returned_str == expected_str
 
-    # def test_richtext_(self, g_text_parsing, onto_iri):
-    #     prop_iri = URIRef(f"{onto_iri}testRichtext")
-    #     returned_str = self._util_get_string_value(g_text_parsing, "", prop_iri)
-    #     expected_str = f"{RICHTEXT_XML_DECLARATION}"
+    def test_richtext_res_text_wrapped_in_tag(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_text_wrapped_in_tag", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_multiple_paragraphs(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_multiple_paragraphs", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_escaped_characters(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_characters", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_standoff_to_id(self, g_text_parsing, onto_iri):
+        target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_id", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_standoff_to_iri(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_iri", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_standoff_to_url(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_url", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_footnotes(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_footnotes", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str
+
+    def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
+        assert returned_str == expected_str
+
+    def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testSimpleText")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_simpletext_special_characters", prop_iri)
+        assert returned_str == SPECIAL_CHARACTERS_STRING
+
+    def test_special_characters_in_label(self, g_text_parsing):
+        """
+        Since we search the resource according to its label we know that it was parsed correctly.
+        Otherwise, this function call would fail.
+        """
+        returned_iri = util_get_res_iri_from_label(g_text_parsing, SPECIAL_CHARACTERS_STRING)
+        assert str(returned_iri).startswith("http://rdfh.ch/9999/")
+
+    def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        assert returned_str == expected_str

@@ -115,7 +115,11 @@ class TestCheckAll:
             "project": pd.DataFrame({"one": [1]}),
             "description": pd.DataFrame({"one": [1]}),
         }
-        result = _do_all_checks(test_dict)
+        with pytest.warns(
+            DspToolsFutureWarning,
+            match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
+        ):
+            result = _do_all_checks(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -137,7 +141,11 @@ class TestCheckAll:
             "keywords": keywords_good,
             "users": users_wrong_lang,
         }
-        result = _do_all_checks(test_dict)
+        with pytest.warns(
+            DspToolsFutureWarning,
+            match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
+        ):
+            result = _do_all_checks(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         sheet_problem = result.problems[0]

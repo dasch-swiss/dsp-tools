@@ -25,7 +25,7 @@ DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMem
 
 
 @pytest.fixture(scope="module")
-def res_g(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
+def res_g(_xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
     return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
 
 

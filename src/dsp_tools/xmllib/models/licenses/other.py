@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from enum import StrEnum
-
 from dsp_tools.xmllib.models.licenses.recommended import License
 
 
@@ -18,7 +16,7 @@ class LicenseOther:
     Various: type[Various]
 
 
-class PublicDomains(StrEnum):
+class PublicDomains(License):
     """
     Pre-defined public domain licenses.
     [See the API documentation for details about the licenses.](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license)

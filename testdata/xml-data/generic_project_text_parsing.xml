@@ -20,7 +20,7 @@
 
     <resource label="target_resource_with_id" restype=":ClassWithEverything" id="target_resource_with_id"/>
 
-    <!-- Richtext -->
+    <!-- Richtext test cases -->
 
     <resource label="res_with_tags_in_text" restype=":ClassWithEverything" id="res_with_tags_in_text">
         <text-prop name=":testRichtext">

@@ -25,6 +25,7 @@ from .models.licenses.other import LicenseOther as LicenseOther
 from .models.licenses.recommended import LicenseRecommended as LicenseRecommended
 from .models.res import Resource as Resource
 from .models.root import XMLRoot as XMLRoot
+from .value_checkers import check_richtext_syntax as check_richtext_syntax
 from .value_checkers import is_bool_like as is_bool_like
 from .value_checkers import is_color as is_color
 from .value_checkers import is_date as is_date

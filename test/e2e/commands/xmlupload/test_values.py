@@ -201,7 +201,7 @@ def _util_get_list_node(creds, auth_header) -> str:
     response_all_nodes = requests.get(all_nodes_one_list_endpoint, timeout=3, headers=headers).json()
     children = response_all_nodes["list"]["children"]
     node_one = list(x for x in children if x["name"] == "n1")
-    assert len(node_one) == 0
+    assert len(node_one) == 1
     return cast(str, node_one.pop(0)["id"])
 
 

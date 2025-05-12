@@ -316,50 +316,64 @@ class TestTextParsing:
     def test_richtext_res_text_wrapped_in_tag(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_text_wrapped_in_tag", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph text </p></text>"
         assert returned_str == expected_str
 
     def test_richtext_res_with_multiple_paragraphs(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_multiple_paragraphs", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph 1 text </p> <p> Paragraph 2 text </p></text>"
         assert returned_str == expected_str
 
     def test_richtext_res_with_escaped_characters(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_characters", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>text &lt;notatag&gt; text and with ampersand &amp;</text>"
         assert returned_str == expected_str
 
     def test_richtext_res_with_standoff_to_id(self, g_text_parsing, onto_iri):
         target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_id", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>"
+            f'<em>Text <a href="{target_iri}" class="salsah-link">target_resource_with_id</a> '
+            f"</em> and some tags</text>"
+        )
         assert returned_str == expected_str
 
     def test_richtext_res_with_standoff_to_iri(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_iri", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>"
+            f'Text <a class="salsah-link" href="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA">'
+            f"target_resource_with_iri</a> end text</text>"
+        )
         assert returned_str == expected_str
 
     def test_richtext_res_with_standoff_to_url(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_url", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = (
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <a href="https://www.dasch.swiss/">URL</a> end text</text>'
+        )
         assert returned_str == expected_str
 
     def test_richtext_res_with_footnotes(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_footnotes", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="Footnote"/> end text</text>'
         assert returned_str == expected_str
 
     def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>"
+            f'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/> '
+            f"end text</text>"
+        )
         assert returned_str == expected_str
 
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
@@ -384,5 +398,7 @@ class TestTextParsing:
     def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text></text>"
+        expected_str = (
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{SPECIAL_CHARACTERS_STRING}"/> end text</text>'
+        )
         assert returned_str == expected_str

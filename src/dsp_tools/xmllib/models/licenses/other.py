@@ -6,10 +6,10 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 class LicenseOther:
     """
     Pre-defined licenses that are available in DSP.
-    If the user is free to choose a license, we recommend to chose from our [recommended licenses.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    If the user is free to choose a license, we recommend to choose from our [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
 
-    - `Public`: [See `Public` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Public)
-    - `Various`: [See `Various` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Various)
+    - `Public`: [See `Public` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Public).
+    - `Various`: [See `Various` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Various).
 
     Examples:
         ```python
@@ -42,7 +42,7 @@ class Public(License):
 
 class Various(License):
     """
-    A collection for various, pre-defined licenses.
+    A collection of various, pre-defined licenses.
     [See the API documentation for details about the licenses.](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license)
 
     - `BORIS_STANDARD`: BORIS Standard License

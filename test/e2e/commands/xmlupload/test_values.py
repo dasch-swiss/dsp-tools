@@ -5,6 +5,7 @@ from typing import cast
 
 import pytest
 import requests
+from lxml import etree
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
@@ -332,25 +333,35 @@ class TestTextParsing:
         assert returned_str == expected_str
 
     def test_richtext_res_with_standoff_to_id(self, g_text_parsing, onto_iri):
+        # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
+        # Therefore, a string comparison may fail at some times.
         target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_id", prop_iri)
-        expected_str = (
-            f"{RICHTEXT_XML_DECLARATION}<text>"
-            f'<em>Text <a href="{target_iri}" class="salsah-link">target_resource_with_id</a> '
-            f"</em> and some tags</text>"
-        )
-        assert returned_str == expected_str
+        returned_tree = etree.fromstring(returned_str)
+        assert not returned_tree.text
+        emphasis = next(returned_tree.iter(tag="em"))
+        assert emphasis.text == "Text "
+        assert emphasis.tail == " and some tags"
+        stand_off_link = next(emphasis.iter(tag="a"))
+        assert stand_off_link.text == "target_resource_with_id"
+        assert stand_off_link.attrib["class"] == "salsah-link"
+        assert stand_off_link.attrib["href"] == str(target_iri)
 
     def test_richtext_res_with_standoff_to_iri(self, g_text_parsing, onto_iri):
+        # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
+        # Therefore, a string comparison may fail at some times.
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_iri", prop_iri)
-        expected_str = (
-            f"{RICHTEXT_XML_DECLARATION}<text>"
-            f'Text <a class="salsah-link" href="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA">'
-            f"target_resource_with_iri</a> end text</text>"
-        )
-        assert returned_str == expected_str
+        returned_tree = etree.fromstring(returned_str)
+        assert not returned_tree.text
+        emphasis = next(returned_tree.iter(tag="em"))
+        assert emphasis.text == "Text "
+        assert emphasis.tail == " end text"
+        stand_off_link = next(emphasis.iter(tag="a"))
+        assert stand_off_link.text == "target_resource_with_iri"
+        assert stand_off_link.attrib["class"] == "salsah-link"
+        assert stand_off_link.attrib["href"] == "http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
 
     def test_richtext_res_with_standoff_to_url(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")

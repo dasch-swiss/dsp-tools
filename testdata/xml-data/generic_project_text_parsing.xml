@@ -20,7 +20,7 @@
 
     <resource label="target_resource_with_id" restype=":ClassWithEverything" id="target_resource_with_id"/>
 
-    <!-- Resources containing test cases -->
+    <!-- Richtext -->
 
     <resource label="res_with_tags_in_text" restype=":ClassWithEverything" id="res_with_tags_in_text">
         <text-prop name=":testRichtext">
@@ -119,7 +119,7 @@
         </text-prop>
     </resource>
 
-    <!-- Special characters -->
+    <!-- Special characters test cases -->
 
     <resource label="res_richtext_special_characters" restype=":ClassWithEverything" id="res_richtext_special_characters">
         <text-prop name=":testRichtext">

@@ -54,7 +54,7 @@ The output will be written to `data_updated.xml`:
     <resource label="lbl" restype=":type" id="res_1">
         <bitstream 
             license="http://rdfh.ch/licenses/cc-by-4.0" 
-            copyright-holder="© Louvre" 
+            copyright-holder="Louvre" 
             authorship-id="authorship_0"
         >
             testdata/bitstreams/test.jpg

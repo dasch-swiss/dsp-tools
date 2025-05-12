@@ -19,7 +19,7 @@ def one_bitstream_one_iiif() -> etree._Element:
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">  Maurice Chuzeville  </text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">
-                © Musée du Louvre
+                Musée du Louvre
             </text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
@@ -27,7 +27,7 @@ def one_bitstream_one_iiif() -> etree._Element:
             <iiif-uri>https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg</iiif-uri>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">  Maurice Chuzeville  </text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">
-                © Musée du Louvre
+                Musée du Louvre
             </text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
@@ -51,7 +51,7 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert len(resource_1) == 1
     assert resource_1[0].tag == "bitstream"
     assert resource_1[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
-    assert resource_1[0].attrib["copyright-holder"] == "© Musée du Louvre"
+    assert resource_1[0].attrib["copyright-holder"] == "Musée du Louvre"
     assert resource_1[0].attrib["authorship-id"] == "authorship_0"
     assert str(resource_1[0].text).strip() == "test/file.jpg"
 
@@ -59,7 +59,7 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert len(resource_2) == 1
     assert resource_2[0].tag == "iiif-uri"
     assert resource_2[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
-    assert resource_2[0].attrib["copyright-holder"] == "© Musée du Louvre"
+    assert resource_2[0].attrib["copyright-holder"] == "Musée du Louvre"
     assert resource_2[0].attrib["authorship-id"] == "authorship_0"
     assert str(resource_2[0].text).strip() == "https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg"
 
@@ -73,7 +73,7 @@ def test_incomplete_legal() -> None:
         </resource>
         <resource label="lbl" restype=":type" id="res_2">
             <bitstream>test/file.jpg</bitstream>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">© Musée du Louvre</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_3">
             <bitstream>test/file.jpg</bitstream>
@@ -102,7 +102,7 @@ def test_incomplete_legal() -> None:
     assert resource_2.tag == "resource"
     assert len(resource_2) == 1
     assert resource_2[0].tag == "bitstream"
-    assert resource_2[0].attrib["copyright-holder"] == "© Musée du Louvre"
+    assert resource_2[0].attrib["copyright-holder"] == "Musée du Louvre"
     assert str(resource_2[0].text).strip() == "test/file.jpg"
 
     assert resource_3.tag == "resource"

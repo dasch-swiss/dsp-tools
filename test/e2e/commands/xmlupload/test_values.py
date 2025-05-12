@@ -292,6 +292,7 @@ class TestTextParsing:
     """
     This tests if the content of text is correctly parsed (tags, special characters, etc.).
     It does not test if the value is well-formed as that is done separately.
+    All richtext values start with an XML header and are wrapped in a <text> tag which is not in the original data.
     """
 
     def _util_get_string_value(
@@ -305,7 +306,9 @@ class TestTextParsing:
     def test_richtext_res_with_tags_in_text(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_tags_in_text", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}This is <em>italicized and <strong>bold</strong> </em> text!"
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>This is <em>italicized and <strong>bold</strong> </em> text!</text>"
+        )
         assert returned_str == expected_str
 
     # def test_richtext_(self, g_text_parsing, onto_iri):

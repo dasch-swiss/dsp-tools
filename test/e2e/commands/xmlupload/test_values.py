@@ -294,4 +294,3 @@ class TestTextParsing:
         actual_value = list(g.objects(val_iri, knora_api_prop))
         assert len(actual_value) == 1
         return str(actual_value.pop(0))
-

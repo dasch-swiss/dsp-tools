@@ -116,8 +116,8 @@ class BulkIngestClient:
         """
         timeout = 5
         while True:
-            logger.debug(f"REQUEST: GET to dsp-ingest route, timeout: {timeout}")
-            res = self.bulk_ingest_api.get_projects_shortcode_bulk_ingest_mapping_csv(self.shortcode)
+            logger.debug(f"REQUEST: GET mapping csv from ingest, timeout: {timeout}")
+            res = self.bulk_ingest_api.get_projects_shortcode_bulk_ingest_mapping_csv_with_http_info(self.shortcode)
             logger.debug(f"RESPONSE: {res.status_code}")
             if res.status_code == STATUS_CONFLICT:
                 self.retrieval_failures = 0

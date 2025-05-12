@@ -6,6 +6,9 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <!-- This file contains test cases to ensure that richtext is correctly parsed during an xmlupload -->
+
+    
     <!-- Resources that are referenced by other resources -->
 
     <resource

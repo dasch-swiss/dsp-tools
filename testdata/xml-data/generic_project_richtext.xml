@@ -19,7 +19,7 @@
 
     <!-- Resources containing test cases -->
 
-    <resource label="res_with_tags" restype=":ClassWithEverything" id="res_with_tags">
+    <resource label="res_with_tags_in_text" restype=":ClassWithEverything" id="res_with_tags_in_text">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 This is
@@ -27,6 +27,29 @@
                     <strong>bold</strong>
                 </em>
                 text!
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_text_wrapped_in_tag" restype=":ClassWithEverything" id="res_text_wrapped_in_tag">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <p>
+                    Paragraph text
+                </p>
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_multiple_paragraphs" restype=":ClassWithEverything" id="res_with_multiple_paragraphs">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <p>
+                    Paragraph 1 text
+                </p>
+                <p>
+                    Paragraph 2 text
+                </p>
             </text>
         </text-prop>
     </resource>

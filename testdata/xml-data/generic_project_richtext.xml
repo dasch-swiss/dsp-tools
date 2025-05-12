@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- Resources that are referenced by other resources -->
+
+    <resource
+            label="target_resource_with_iri"
+            restype=":ClassWithEverything"
+            id="target_resource_with_iri"
+            iri="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
+    />
+
+    <resource label="target_resource_with_id" restype=":ClassWithEverything" id="target_resource_with_id"/>
+
+    <!-- Resources containing test cases -->
+
+    <resource label="res_with_tags" restype=":ClassWithEverything" id="res_with_tags">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is
+                <em>italicized and
+                    <strong>bold</strong>
+                </em>
+                text!
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_escaped_characters" restype=":ClassWithEverything" id="res_with_escaped_characters">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                text &lt;not a tag&gt; text and with ampersand &amp;
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_standoff_to_id" restype=":ClassWithEverything" id="res_with_standoff_to_id">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <em>Text
+                    <a class="salsah-link" href="IRI:target_resource_with_id:IRI">target_resource_with_id</a>
+                </em>
+                and some tags
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_standoff_to_iri" restype=":ClassWithEverything" id="res_with_standoff_to_iri">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <a class="salsah-link" href="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA">target_resource_with_iri</a>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_standoff_to_url" restype=":ClassWithEverything" id="res_with_standoff_to_url">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <a href="https://www.dasch.swiss/">URL</a>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_footnotes" restype=":ClassWithEverything" id="res_with_footnotes">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="Footnote"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_escaped_chars_in_footnote"
+              restype=":ClassWithEverything"
+              id="res_with_escaped_chars_in_footnote"
+    >
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+</knora>

@@ -8,7 +8,7 @@
 
     <!-- This file contains test cases to ensure that richtext is correctly parsed during an xmlupload -->
 
-    
+
     <!-- Resources that are referenced by other resources -->
 
     <resource
@@ -121,7 +121,9 @@
 
     <!-- Special characters test cases -->
 
-    <resource label="res_richtext_special_characters" restype=":ClassWithEverything" id="res_richtext_special_characters">
+    <resource label="res_richtext_special_characters"
+              restype=":ClassWithEverything"
+              id="res_richtext_special_characters">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦
@@ -129,7 +131,9 @@
         </text-prop>
     </resource>
 
-    <resource label="res_simpletext_special_characters" restype=":ClassWithEverything" id="res_simpletext_special_characters">
+    <resource label="res_simpletext_special_characters"
+              restype=":ClassWithEverything"
+              id="res_simpletext_special_characters">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">
                 àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦
@@ -140,5 +144,15 @@
     <resource label="àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
               restype=":ClassWithEverything"
               id="res_label_special_characters"/>
+
+    <resource label="res_special_chars_in_footnote" restype=":ClassWithEverything" id="res_special_chars_in_footnote">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
 
 </knora>

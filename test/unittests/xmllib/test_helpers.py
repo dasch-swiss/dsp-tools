@@ -505,6 +505,23 @@ class TestFindLicense:
         assert find_license_in_string(string) == expected
 
     @pytest.mark.parametrize(
+        ("iri", "lic"),
+        [
+            ("http://rdfh.ch/licenses/cc-by-4.0", LicenseRecommended.CC.BY),
+            ("http://rdfh.ch/licenses/cc-by-nd-4.0", LicenseRecommended.CC.BY_ND),
+            ("http://rdfh.ch/licenses/cc-by-nc-4.0", LicenseRecommended.CC.BY_NC),
+            ("http://rdfh.ch/licenses/cc-by-nc-nd-4.0", LicenseRecommended.CC.BY_NC_ND),
+            ("http://rdfh.ch/licenses/cc-by-nc-sa-4.0", LicenseRecommended.CC.BY_NC_SA),
+            ("http://rdfh.ch/licenses/cc-by-sa-4.0", LicenseRecommended.CC.BY_SA),
+            ("http://rdfh.ch/licenses/ai-generated", LicenseRecommended.DSP.AI_GENERATED),
+            ("http://rdfh.ch/licenses/unknown", LicenseRecommended.DSP.UNKNOWN),
+            ("http://rdfh.ch/licenses/public-domain", LicenseRecommended.DSP.PUBLIC_DOMAIN),
+        ],
+    )
+    def test_find_license_already_parsed(self, iri: str, lic: License) -> None:
+        assert find_license_in_string(iri) == lic
+
+    @pytest.mark.parametrize(
         "string",
         [
             "CC",

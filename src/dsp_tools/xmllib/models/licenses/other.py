@@ -10,6 +10,17 @@ class LicenseOther:
 
     - `PublicDomains`: [See `PublicDomains` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.PublicDomains)
     - `Various`: [See `Various` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.PublicDomains)
+
+    Examples:
+        ```python
+        # adding a BORIS Standard License to a file
+        resource = resource.add_file(
+            filename="images/cat.jpg",
+            license=xmllib.LicenseOther.Various.BORIS_STANDARD,
+            copyright_holder="Meow University",
+            authorship=["Kitty Meow"],
+        )
+        ```
     """
 
     PublicDomains: type[PublicDomains]

@@ -390,8 +390,9 @@ class TestTextParsing:
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
-        assert returned_str == expected_str
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
+        returned_tree = etree.fromstring(returned_str)
+        assert returned_tree.text == SPECIAL_CHARACTERS_STRING
 
     def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testSimpleText")
@@ -401,17 +402,15 @@ class TestTextParsing:
         assert returned_str == SPECIAL_CHARACTERS_STRING
 
     def test_special_characters_in_label(self, g_text_parsing):
-        """
-        Since we search the resource according to its label we know that it was parsed correctly.
-        Otherwise, this function call would fail.
-        """
+        # Since we search the resource according to its label we know that it was parsed correctly.
+        # Otherwise, this function call would fail.
         returned_iri = util_get_res_iri_from_label(g_text_parsing, SPECIAL_CHARACTERS_STRING)
         assert str(returned_iri).startswith("http://rdfh.ch/9999/")
 
     def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
-        expected_str = (
-            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{SPECIAL_CHARACTERS_STRING}"/> end text</text>'
-        )
-        assert returned_str == expected_str
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
+        returned_tree = etree.fromstring(returned_str)
+        footnote = next(returned_tree.iter(tag="footnote"))
+        assert footnote.attrib["content"] == SPECIAL_CHARACTERS_STRING

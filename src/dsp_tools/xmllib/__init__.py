@@ -1,10 +1,16 @@
 from dsp_tools.error.xmllib_warnings_util import initialise_warning_file
 
 from .helpers import ListLookup as ListLookup
+from .helpers import clean_whitespaces_from_string as clean_whitespaces_from_string
+from .helpers import create_footnote_element as create_footnote_element
+from .helpers import create_footnote_string as create_footnote_string
 from .helpers import create_list_from_string as create_list_from_string
 from .helpers import create_non_empty_list_from_string as create_non_empty_list_from_string
+from .helpers import create_standoff_link_to_resource as create_standoff_link_to_resource
+from .helpers import create_standoff_link_to_uri as create_standoff_link_to_uri
 from .helpers import escape_reserved_xml_characters as escape_reserved_xml_characters
 from .helpers import find_date_in_string as find_date_in_string
+from .helpers import find_license_in_string as find_license_in_string
 from .helpers import get_list_nodes_from_string_via_list_name as get_list_nodes_from_string_via_list_name
 from .helpers import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .helpers import make_xsd_compatible_id as make_xsd_compatible_id

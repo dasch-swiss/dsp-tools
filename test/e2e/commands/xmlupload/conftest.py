@@ -39,7 +39,7 @@ def second_onto_iri(creds) -> str:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload(create_generic_project, creds) -> None:
+def _xmlupload_minimal_correct(create_generic_project, creds) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.

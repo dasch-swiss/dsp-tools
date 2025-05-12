@@ -35,7 +35,9 @@ Note on these tests:
 
 
 @pytest.fixture(scope="module")
-def cls_with_everything_graph(_xmlupload, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
+def cls_with_everything_graph(
+    _xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds
+) -> Graph:
     return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
 
 
@@ -71,7 +73,7 @@ class TestResources:
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
         assert actual_permissions == OPEN_PERMISSIONS
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_second_onto_class(self, second_onto_iri, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{second_onto_iri}SecondOntoClass"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -82,7 +84,7 @@ class TestResources:
         assert next(g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
         assert next(g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_still_image(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -110,7 +112,7 @@ class TestResources:
         assert next(g.objects(iiif_uri_val, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
         assert next(g.objects(iiif_uri_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_audio(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestAudioRepresentation"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -119,7 +121,7 @@ class TestResources:
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_video(self, onto_iri, auth_header, project_iri, creds):
         cls_iri_str = f"{onto_iri}TestMovingImageRepresentation"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -130,7 +132,7 @@ class TestResources:
 
 
 class TestDspResources:
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_region(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -147,7 +149,7 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_link_obj(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}LinkObj"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -162,7 +164,7 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_audio_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
@@ -181,7 +183,7 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload")
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_video_segment(self, auth_header, project_iri, creds):
         cls_iri_str = f"{KNORA_API_STR}VideoSegment"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)

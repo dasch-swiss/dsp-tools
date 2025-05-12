@@ -279,3 +279,17 @@ class TestValues:
         assert actual_value == expected_val
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.UriValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+
+
+class TestTextParsing:
+    """
+    This tests if the content of text is correctly parsed (tags, special characters, etc.).
+    It does not test if the value is well-formed as that is done separately.
+    """
+
+    def _util_get_string_value(
+        self, g: Graph, res_label: str, prop_iri: URIRef, knora_api_prop: URIRef = KNORA_API.textValueAsXml
+    ) -> str:
+        val_iri = _assert_number_of_values_is_one_and_get_val_iri(g, res_label, prop_iri)
+        actual_value = next(g.objects(val_iri, knora_api_prop))
+        return str(actual_value)

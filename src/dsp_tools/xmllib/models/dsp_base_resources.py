@@ -21,6 +21,7 @@ from dsp_tools.xmllib.models.internal.geometry import Vector
 from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
@@ -33,9 +34,8 @@ LIST_SEPARATOR = "\n    - "
 class RegionResource:
     res_id: str
     label: str
-    region_of: LinkValue
+    values: list[Value]
     geometry: GeometryShape | None
-    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -80,9 +80,11 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=LinkValue.new(
-                value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
-            ),
+            values=[
+                LinkValue.new(
+                    value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
+                )
+            ],
             geometry=None,
             permissions=permissions,
         )
@@ -270,7 +272,7 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        self.comments.append(
+        self.values.append(
             Richtext.new(
                 value=text,
                 prop_name="hasComment",
@@ -318,7 +320,7 @@ class RegionResource:
             )
             for x in vals
         ]
-        self.comments.extend(comnts)
+        self.values.extend(comnts)
         return self
 
     def add_comment_optional(
@@ -391,8 +393,7 @@ class RegionResource:
 class LinkResource:
     res_id: str
     label: str
-    link_to: list[LinkValue]
-    comments: list[Richtext] = field(default_factory=list)
+    values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -439,7 +440,7 @@ class LinkResource:
         return LinkResource(
             res_id=res_id,
             label=label,
-            link_to=link_vals,
+            values=link_vals,
             permissions=permissions,
         )
 
@@ -471,7 +472,7 @@ class LinkResource:
             link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        self.comments.append(
+        self.values.append(
             Richtext.new(
                 value=text,
                 prop_name="hasComment",
@@ -519,7 +520,7 @@ class LinkResource:
             )
             for x in vals
         ]
-        self.comments.extend(comnts)
+        self.values.extend(comnts)
         return self
 
     def add_comment_optional(

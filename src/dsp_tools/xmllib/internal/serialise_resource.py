@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import cast
-
 from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
@@ -19,7 +17,8 @@ from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.internal.values import ColorValue
-from dsp_tools.xmllib.models.internal.values import Value
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
@@ -74,11 +73,7 @@ def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLook
 def _serialise_region(res: RegionResource) -> etree._Element:
     ele = _make_generic_resource_element(res, "region")
     ele.extend(_serialise_geometry_shape(res))
-    props: list[Value] = [res.region_of]
-    if res.comments:
-        cmnt = cast(list[Value], res.comments)
-        props.extend(cmnt)
-    ele.extend(serialise_values(props))
+    ele.extend(serialise_values(res.values))
     return ele
 
 
@@ -105,18 +100,15 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
 
 def _serialise_link(res: LinkResource) -> etree._Element:
     problems = []
-    if not res.comments:
+    if not any([isinstance(x, Richtext) for x in res.values]):
         problems.append("at least one comment")
-    if not res.link_to:
+    if not any([isinstance(x, LinkValue) for x in res.values]):
         problems.append("at least two links")
     if problems:
         msg = f"A link object requires {' and '.join(problems)}. Please note that an xmlupload will fail."
         emit_xmllib_input_warning(MessageInfo(msg, res.res_id))
     ele = _make_generic_resource_element(res, "link")
-    comments = cast(list[Value], res.comments)
-    links_to = cast(list[Value], res.link_to)
-    generic_vals = comments + links_to
-    ele.extend(serialise_values(generic_vals))
+    ele.extend(serialise_values(res.values))
     return ele
 
 

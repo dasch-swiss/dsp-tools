@@ -740,6 +740,7 @@ class VideoSegmentResource:
         text: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add a comment to the resource
@@ -755,7 +756,16 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(text)
+        self.values.append(
+            Richtext.new(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
     def add_comment_multiple(
@@ -763,6 +773,7 @@ class VideoSegmentResource:
         texts: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add several comments to the resource
@@ -779,7 +790,8 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        for v in vals:
+            self.add_comment(v, permissions, comment, newline_replacement)
         return self
 
     def add_comment_optional(
@@ -787,6 +799,7 @@ class VideoSegmentResource:
         text: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -807,7 +820,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(text)
+            self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
     def add_description(
@@ -815,6 +828,7 @@ class VideoSegmentResource:
         description: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add a description to the resource
@@ -830,7 +844,16 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description("description text")
             ```
         """
-        self.descriptions.append(description)
+        self.values.append(
+            Richtext.new(
+                value=description,
+                prop_name="hasDescription",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
     def add_description_multiple(
@@ -838,6 +861,7 @@ class VideoSegmentResource:
         descriptions: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
@@ -854,7 +878,8 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
-        self.descriptions.extend(vals)
+        for v in vals:
+            self.add_description(v, permissions, comment, newline_replacement)
         return self
 
     def add_description_optional(
@@ -862,6 +887,7 @@ class VideoSegmentResource:
         description: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
@@ -882,7 +908,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.descriptions.append(description)
+            self.add_description(description, permissions, comment, newline_replacement)
         return self
 
     def add_keyword(
@@ -905,7 +931,15 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword("keyword")
             ```
         """
-        self.keywords.append(keyword)
+        self.values.append(
+            SimpleText.new(
+                value=keyword,
+                prop_name="hasKeyword",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
     def add_keyword_multiple(
@@ -929,7 +963,8 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
-        self.keywords.extend(vals)
+        for v in vals:
+            self.add_keyword(v, permissions, comment)
         return self
 
     def add_keyword_optional(
@@ -957,7 +992,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.keywords.append(keyword)
+            self.add_keyword(keyword, permissions, comment)
         return self
 
     def add_relates_to(
@@ -980,7 +1015,15 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to("target_resource_id")
             ```
         """
-        self.relates_to.append(relates_to)
+        self.values.append(
+            LinkValue.new(
+                value=relates_to,
+                prop_name="relatesTo",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
     def add_relates_to_multiple(
@@ -1004,7 +1047,8 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
-        self.relates_to.extend(vals)
+        for v in vals:
+            self.add_relates_to(v, permissions, comment)
         return self
 
     def add_relates_to_optional(
@@ -1032,7 +1076,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.relates_to.append(relates_to)
+            self.add_relates_to(relates_to, permissions, comment)
         return self
 
     def add_migration_metadata(
@@ -1196,6 +1240,7 @@ class AudioSegmentResource:
         text: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         Add a comment to the resource
@@ -1219,6 +1264,7 @@ class AudioSegmentResource:
         texts: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         Add several comments to the resource
@@ -1243,6 +1289,7 @@ class AudioSegmentResource:
         text: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -1271,6 +1318,7 @@ class AudioSegmentResource:
         description: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         Add a description to the resource
@@ -1294,6 +1342,7 @@ class AudioSegmentResource:
         descriptions: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
@@ -1318,6 +1367,7 @@ class AudioSegmentResource:
         description: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.

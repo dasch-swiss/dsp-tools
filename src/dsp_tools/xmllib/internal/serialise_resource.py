@@ -20,7 +20,6 @@ from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.res import Resource
-from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
@@ -113,7 +112,6 @@ def _serialise_link(res: LinkResource) -> etree._Element:
 
 
 def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:
-    _validate_segment(res)
     seg = _make_generic_resource_element(res, segment_type)
     seg.extend(_serialise_segment_children(res))
     return seg
@@ -124,29 +122,6 @@ def _make_generic_resource_element(res: AnyResource, res_type: str) -> etree._El
     if res.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
         attribs["permissions"] = res.permissions.value
     return etree.Element(f"{DASCH_SCHEMA}{res_type}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-
-def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
-    problems = []
-    if not is_nonempty_value(segment.res_id):
-        problems.append(f"Field: Resource ID | Value: {segment.res_id}")
-    if not is_nonempty_value(segment.label):
-        problems.append(f"Field: label | Value: {segment.label}")
-    if not is_nonempty_value(segment.segment_of):
-        problems.append(f"Field: segment_of | Value: {segment.segment_of}")
-    if segment.title and not is_nonempty_value(segment.title):
-        problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comments if not is_nonempty_value(x)]:
-        problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.descriptions if not is_nonempty_value(x)]:
-        problems.extend([f"Field: description | Value: {x}" for x in fails])
-    if fails := [x for x in segment.keywords if not is_nonempty_value(x)]:
-        problems.extend([f"Field: keywords | Value: {x}" for x in fails])
-    if fails := [x for x in segment.relates_to if not is_nonempty_value(x)]:
-        problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
-    if problems:
-        msg = f"This segment resource has the following problem(s):{'\n- '.join(problems)}"
-        emit_xmllib_input_warning(MessageInfo(msg, segment.res_id))
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:

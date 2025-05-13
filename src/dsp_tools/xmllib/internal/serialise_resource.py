@@ -24,18 +24,35 @@ from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
-def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
+def serialise_resources(
+    resources: list[AnyResource], authorship_lookup: AuthorshipLookup, default_permissions: Permissions | None
+) -> list[etree._Element]:
     """
     Serialise all the resources
 
     Args:
         resources: list of resources
         authorship_lookup: lookup to map the authors to the corresponding IDs
+        default_permissions: default permissions to overwrite the `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
     Returns:
         serialised resources
     """
+    if default_permissions:
+        _resolve_default_permissions(resources, default_permissions)
     return [_serialise_one_resource(x, authorship_lookup) for x in resources]
+
+
+def _resolve_default_permissions(resources: list[AnyResource], default_permissions: Permissions) -> None:
+    for r in resources:
+        if r.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            r.permissions = default_permissions
+        for v in r.values:
+            if v.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+                v.permissions = default_permissions
+        if r.file_value:
+            if r.file_value.metadata.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+                r.file_value.metadata.permissions = default_permissions
 
 
 def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:

@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def,comparison-overlap"
+
 from lxml import etree
 
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
@@ -80,6 +82,7 @@ class TestSerialise:
         geo_prop = all_geo[0]
         assert geo_prop.attrib == {"name": "hasGeometry"}
         geo_child = next(geo_prop.iterchildren())
+        assert geo_child.text
         assert len(geo_child.text) > 0
         assert geo_child.attrib == {"permissions": "restricted"}
 

@@ -48,14 +48,14 @@ class TestSerialise:
                 "region",
                 "lbl",
                 "region_of_val",
-                Permissions.OPEN,
+                Permissions.RESTRICTED,
             ).add_rectangle((0.1, 0.1), (0.2, 0.2))
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}region"))
         assert len(found) == 1
         resource = found[0]
-        res_attribs = {"label": "lbl", "id": "region", "permissions": "open"}
+        res_attribs = {"label": "lbl", "id": "region", "permissions": "restricted"}
         assert resource.attrib == res_attribs
         assert len(resource) == 3
         # Check color
@@ -65,7 +65,7 @@ class TestSerialise:
         assert color_prop.attrib == {"name": "hasColor"}
         color_child = next(color_prop.iterchildren())
         assert color_child.text == "#5b24bf"
-        assert color_child.attrib == {"permissions": "open"}
+        assert color_child.attrib == {"permissions": "restricted"}
         # Check is region of
         all_resptrs = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}resptr-prop"))
         assert len(all_resptrs) == 1
@@ -73,7 +73,7 @@ class TestSerialise:
         assert resptr_prop.attrib == {"name": "isRegionOf"}
         resptr_child = next(resptr_prop.iterchildren())
         assert resptr_child.text == "region_of_val"
-        assert resptr_child.attrib == {"permissions": "open"}
+        assert resptr_child.attrib == {"permissions": "restricted"}
         # Check geometry
         all_geo = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}geometry-prop"))
         assert len(all_geo) == 1
@@ -81,7 +81,7 @@ class TestSerialise:
         assert geo_prop.attrib == {"name": "hasGeometry"}
         geo_child = next(geo_prop.iterchildren())
         assert len(geo_child.text) > 0
-        assert geo_child.attrib == {"permissions": "open"}
+        assert geo_child.attrib == {"permissions": "restricted"}
 
     def test_link_resource(self):
         xml_root = XMLRoot.create_new("0000", "test")
@@ -130,19 +130,33 @@ class TestSerialise:
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}audio-segment"))
         assert len(found) == 1
         resource = found[0]
-        vals = list(resource.iterchildren())
-        assert len(vals) == 0
+        assert len(resource) == 7
+        segment_of = next(resource.iter(tag=f"{DASCH_SCHEMA}isSegmentOf"))
+        assert not segment_of.attrib
+        assert segment_of.text == "segment_of"
+        bounds = next(resource.iter(tag=f"{DASCH_SCHEMA}hasSegmentBounds"))
+        assert not bounds.text
+        assert bounds.attrib == {"segment_start": "1", "segment_end": "2"}
+        title = next(resource.iter(tag=f"{DASCH_SCHEMA}hasTitle"))
+        assert not title.attrib
+        assert title.text == "title"
+        comment = next(resource.iter(tag=f"{DASCH_SCHEMA}hasComment"))
+        assert not comment.attrib
+        assert comment.text == "cmnt"
+        description = next(resource.iter(tag=f"{DASCH_SCHEMA}hasDescription"))
+        assert not description.attrib
+        assert description.text == "desc"
+        keywrd = next(resource.iter(tag=f"{DASCH_SCHEMA}hasKeyword"))
+        assert not keywrd.attrib
+        assert keywrd.text == "keywrd"
+        relates_to = next(resource.iter(tag=f"{DASCH_SCHEMA}relatesTo"))
+        assert not relates_to.attrib
+        assert relates_to.text == "relates_to"
 
-    def test_video_segment(self):
+    def test_video_segment_with_permissions(self):
         xml_root = XMLRoot.create_new("0000", "test")
         xml_root.add_resource(
-            VideoSegmentResource.create_new(
-                "audio_id",
-                "lbl",
-                "segment_of",
-                1,
-                2,
-            )
+            VideoSegmentResource.create_new("audio_id", "lbl", "segment_of", 1, 2, permissions=Permissions.RESTRICTED)
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}video-segment"))

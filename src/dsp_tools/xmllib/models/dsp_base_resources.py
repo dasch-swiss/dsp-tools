@@ -433,7 +433,7 @@ class LinkResource:
             ```
         """
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
-        link_vals = [
+        link_vals: list[Value] = [
             LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
             for x in links_to
         ]

@@ -747,6 +747,9 @@ class VideoSegmentResource:
 
         Args:
             text: text
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -780,6 +783,9 @@ class VideoSegmentResource:
 
         Args:
             texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about these comments
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -806,6 +812,9 @@ class VideoSegmentResource:
 
         Args:
             text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -835,6 +844,9 @@ class VideoSegmentResource:
 
         Args:
             description: text
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -868,6 +880,9 @@ class VideoSegmentResource:
 
         Args:
             descriptions: list of texts
+            permissions: optional permissions of these value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added descriptions
@@ -894,6 +909,9 @@ class VideoSegmentResource:
 
         Args:
             description: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -922,6 +940,8 @@ class VideoSegmentResource:
 
         Args:
             keyword: text
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -953,6 +973,8 @@ class VideoSegmentResource:
 
         Args:
             keywords: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added keywords
@@ -978,6 +1000,8 @@ class VideoSegmentResource:
 
         Args:
             keyword: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -1006,6 +1030,8 @@ class VideoSegmentResource:
 
         Args:
             relates_to: ID of the related resource
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resource
@@ -1037,6 +1063,8 @@ class VideoSegmentResource:
 
         Args:
             relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1062,6 +1090,8 @@ class VideoSegmentResource:
 
         Args:
             relates_to: ID or the related resource or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1247,6 +1277,9 @@ class AudioSegmentResource:
 
         Args:
             text: text of the comment
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -1256,7 +1289,16 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(text)
+        self.values.append(
+            Richtext.new(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
     def add_comment_multiple(
@@ -1271,6 +1313,9 @@ class AudioSegmentResource:
 
         Args:
             texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about these comments
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -1281,7 +1326,8 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        for v in vals:
+            self.add_comment(v, permissions, comment, newline_replacement)
         return self
 
     def add_comment_optional(
@@ -1296,6 +1342,9 @@ class AudioSegmentResource:
 
         Args:
             text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -1310,7 +1359,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(text)
+            self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
     def add_description(
@@ -1325,6 +1374,9 @@ class AudioSegmentResource:
 
         Args:
             description: text
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -1334,7 +1386,16 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description("description text")
             ```
         """
-        self.descriptions.append(description)
+        self.values.append(
+            Richtext.new(
+                value=description,
+                prop_name="hasDescription",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
     def add_description_multiple(
@@ -1349,6 +1410,9 @@ class AudioSegmentResource:
 
         Args:
             descriptions: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added descriptions
@@ -1359,7 +1423,8 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
-        self.descriptions.extend(vals)
+        for v in vals:
+            self.add_description(v, permissions, comment, newline_replacement)
         return self
 
     def add_description_optional(
@@ -1374,6 +1439,9 @@ class AudioSegmentResource:
 
         Args:
             description: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -1388,7 +1456,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.descriptions.append(description)
+            self.add_description(description, permissions, comment, newline_replacement)
         return self
 
     def add_keyword(
@@ -1402,6 +1470,8 @@ class AudioSegmentResource:
 
         Args:
             keyword: text
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -1412,9 +1482,14 @@ class AudioSegmentResource:
             ```
         """
         self.values.append(
-            SimpleText.new(value=keyword, prop_name="hasKeyword", permissions=permissions, comment=comment)
+            SimpleText.new(
+                value=keyword,
+                prop_name="hasKeyword",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
         )
-        self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(
@@ -1428,6 +1503,8 @@ class AudioSegmentResource:
 
         Args:
             keywords: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added keywords
@@ -1438,7 +1515,8 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
-        self.keywords.extend(vals)
+        for v in vals:
+            self.add_keyword(v, permissions, comment)
         return self
 
     def add_keyword_optional(
@@ -1452,6 +1530,8 @@ class AudioSegmentResource:
 
         Args:
             keyword: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -1466,7 +1546,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.keywords.append(keyword)
+            self.add_keyword(keyword, permissions, comment)
         return self
 
     def add_relates_to(
@@ -1480,6 +1560,8 @@ class AudioSegmentResource:
 
         Args:
             relates_to: ID of the related resource
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resource
@@ -1489,7 +1571,15 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to("target_resource_id")
             ```
         """
-        self.relates_to.append(relates_to)
+        self.values.append(
+            LinkValue.new(
+                value=relates_to,
+                prop_name="relatesTo",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
     def add_relates_to_multiple(
@@ -1503,6 +1593,8 @@ class AudioSegmentResource:
 
         Args:
             relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1513,7 +1605,8 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
-        self.relates_to.extend(vals)
+        for v in vals:
+            self.add_relates_to(v, permissions, comment)
         return self
 
     def add_relates_to_optional(
@@ -1527,6 +1620,8 @@ class AudioSegmentResource:
 
         Args:
             relates_to: ID of the related resource or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1541,7 +1636,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.relates_to.append(relates_to)
+            self.add_relates_to(relates_to, permissions, comment)
         return self
 
     def add_migration_metadata(

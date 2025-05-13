@@ -1,5 +1,7 @@
 from lxml import etree
 
+from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.res import Resource
@@ -65,3 +67,25 @@ def test_serialise_authorship() -> None:
     assert len(result) == len(expected)
     for res, ex in zip(result, expected):
         assert res == ex
+
+
+def test_serialise_root_no_default_permissions():
+    root = XMLRoot.create_new("0000", "onto").add_resource(
+        Resource.create_new("bool", ":Type", "lbl", Permissions.RESTRICTED).add_bool(":prop", "true")
+    )
+    serialised = root.serialise()
+    resource = next(serialised.iter(tag=f"{DASCH_SCHEMA}resource"))
+    assert resource.attrib["permissions"] == "restricted"
+    value = next(serialised.iter(tag=f"{DASCH_SCHEMA}boolean"))
+    assert not value.attrib.get("permissions")
+
+
+def test_serialise_root_with_default_permissions():
+    root = XMLRoot.create_new("0000", "onto").add_resource(
+        Resource.create_new("bool", ":Type", "lbl", Permissions.RESTRICTED).add_bool(":prop", "true")
+    )
+    serialised = root.serialise(Permissions.OPEN)
+    resource = next(serialised.iter(tag=f"{DASCH_SCHEMA}resource"))
+    assert resource.attrib["permissions"] == "restricted"
+    value = next(serialised.iter(tag=f"{DASCH_SCHEMA}boolean"))
+    assert value.attrib["permissions"] == "open"

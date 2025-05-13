@@ -96,7 +96,7 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     geo_prop.append(ele)
     prop_list.append(geo_prop)
     prop_list.extend(
-        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor")]),
+        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor", permissions=res.permissions)]),
     )
     return prop_list
 

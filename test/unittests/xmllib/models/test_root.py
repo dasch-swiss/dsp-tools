@@ -18,43 +18,70 @@ class TestSerialise:
         xml_root = XMLRoot.create_new("0000", "test")
         xml_root.add_resource(
             Resource.create_new(
-                "with_open_permissions",
+                "res_id",
                 ":Restype",
-                "label",
-                Permissions.OPEN,
+                "lbl",
             ).add_bool(":boolProp", True, comment="cmnt")
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
         assert len(found) == 1
-        resource = found.pop(0)
-        vals = list(resource.iterchildren())
-        assert len(vals) == 1
-        bool_val = vals.pop(0)
-        assert bool_val.tag == f"{DASCH_SCHEMA}boolean-prop"
-        assert bool_val.attrib["name"] == ":boolProp"
-        child = list(bool_val.iterchildren())
-        assert len(child) == 1
-        prop_val = child.pop(0)
+        resource = found[0]
+        res_attribs = {"label": "lbl", "restype": ":Restype", "id": "res_id"}
+        assert resource.attrib == res_attribs
+        value_list = list(resource.iterchildren())
+        assert len(value_list) == 1
+        bool_prop = value_list[0]
+        assert bool_prop.tag == f"{DASCH_SCHEMA}boolean-prop"
+        assert bool_prop.attrib == {"name": ":boolProp"}
+        bool_prop_values = list(bool_prop.iterchildren())
+        assert len(bool_prop_values) == 1
+        prop_val = bool_prop_values[0]
         assert prop_val.tag == f"{DASCH_SCHEMA}boolean"
         assert prop_val.text == "true"
-        assert prop_val.attrib["comment"] == "cmnt"
+        assert prop_val.attrib == {"comment": "cmnt"}
 
     def test_region(self):
         xml_root = XMLRoot.create_new("0000", "test")
         xml_root.add_resource(
             RegionResource.create_new(
-                "region_no_permissions",
-                "label",
+                "region",
+                "lbl",
                 "region_of_val",
+                Permissions.OPEN,
             ).add_rectangle((0.1, 0.1), (0.2, 0.2))
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}region"))
         assert len(found) == 1
-        resource = found.pop(0)
-        vals = list(resource.iterchildren())
-        assert len(vals) == 0
+        resource = found[0]
+        res_attribs = {"label": "lbl", "id": "region", "permissions": "open"}
+        assert resource.attrib == res_attribs
+        assert len(resource) == 3
+        # Check color
+        all_colors = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}color-prop"))
+        assert len(all_colors) == 1
+        color_prop = all_colors[0]
+        assert color_prop.attrib == {"name": "hasColor"}
+        color_child = next(color_prop.iterchildren())
+        assert color_child.text == "#5b24bf"
+        assert color_child.attrib == {"permissions": "open"}
+        # Check is region of
+        all_resptrs = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}resptr-prop"))
+        assert len(all_colors) == 1
+        resptr_prop = all_resptrs[0]
+        assert resptr_prop.attrib == {"name": "isRegionOf"}
+        resptr_child = next(resptr_prop.iterchildren())
+        assert resptr_child.text == "region_of_val"
+        assert resptr_child.attrib == {"permissions": "open"}
+        # Check geometry
+        all_geo = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}geometry-prop"))
+        assert len(all_geo) == 1
+        geo_prop = all_geo[0]
+        assert geo_prop.attrib == {"name": "hasGeometry"}
+        geo_child = next(geo_prop.iterchildren())
+        assert len(geo_child.text) > 0
+        assert geo_child.attrib == {"permissions": "open"}
 
     def test_link_resource(self):
         xml_root = XMLRoot.create_new("0000", "test")
@@ -68,7 +95,7 @@ class TestSerialise:
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
         assert len(found) == 1
-        resource = found.pop(0)
+        resource = found[0]
         vals = list(resource.iterchildren())
         assert len(vals) == 0
 
@@ -85,7 +112,7 @@ class TestSerialise:
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}audio-segment"))
         assert len(found) == 1
-        resource = found.pop(0)
+        resource = found[0]
         vals = list(resource.iterchildren())
         assert len(vals) == 0
 
@@ -103,7 +130,7 @@ class TestSerialise:
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}video-segment"))
         assert len(found) == 1
-        resource = found.pop(0)
+        resource = found[0]
         vals = list(resource.iterchildren())
         assert len(vals) == 0
 

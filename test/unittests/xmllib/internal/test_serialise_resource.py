@@ -4,6 +4,7 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.xmllib.internal.serialise_resource import _resolve_default_permissions
 from dsp_tools.xmllib.internal.serialise_resource import _serialise_one_resource
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -175,6 +176,24 @@ class TestLinkResource:
         returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
         assert regex.search(warning_0, returned[0])
         assert regex.search(warning_1, returned[1])
+
+
+def test_resolve_default_permissions_with_override():
+    resources = [
+        Resource.create_new("file", ":Type", "lbl").add_file(
+            "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["one", "one2"], Permissions.RESTRICTED_VIEW
+        ),
+        Resource.create_new("bool", ":Type", "lbl", Permissions.RESTRICTED).add_bool(":prop", "true"),
+    ]
+    _resolve_default_permissions(resources, Permissions.OPEN)
+    res_file = resources[0]
+    assert res_file.res_id == "file"
+    assert res_file.permissions == Permissions.OPEN
+    assert res_file.file_value.metadata.permissions == Permissions.RESTRICTED_VIEW
+    res_bool = resources[1]
+    assert res_bool.res_id == "bool"
+    assert res_bool.permissions == Permissions.RESTRICTED
+    assert res_bool.values[0].permissions == Permissions.OPEN
 
 
 if __name__ == "__main__":

@@ -187,7 +187,7 @@ class XMLRoot:
             )
             emit_xmllib_input_warning(MessageInfo(msg))
 
-    def serialise(self, default_permissions: Permissions | None) -> etree._Element:
+    def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.

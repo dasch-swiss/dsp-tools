@@ -38,28 +38,18 @@ def serialise_resources(
     Returns:
         serialised resources
     """
-    if default_permissions:
-        _resolve_default_permissions(resources, default_permissions)
-    return [_serialise_one_resource(x, authorship_lookup) for x in resources]
+    return [_serialise_one_resource(x, authorship_lookup, default_permissions) for x in resources]
 
 
-def _resolve_default_permissions(resources: list[AnyResource], default_permissions: Permissions) -> None:
-    for r in resources:
-        if r.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            r.permissions = default_permissions
-        for v in r.values:
-            if v.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-                v.permissions = default_permissions
-        if r.file_value:
-            if r.file_value.metadata.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-                r.file_value.metadata.permissions = default_permissions
-
-
-def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:
+def _serialise_one_resource(
+    res: AnyResource, authorship_lookup: AuthorshipLookup, default_permissions: Permissions | None = None
+) -> etree._Element:
     match res:
         case Resource():
+            _resolve_default_permissions_normal_resource(res, default_permissions)
             return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
+            _resolve_default_permissions_region(res, default_permissions)
             return _serialise_region(res)
         case LinkResource():
             return _serialise_link(res)
@@ -76,6 +66,33 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
                     f"The input type is {res.__class__.__name__}"
                 )
             )
+
+
+def _resolve_default_permission(permission: Permissions, default_permission: Permissions) -> Permissions:
+    if permission == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+        return default_permission
+    return permission
+
+
+def _resolve_default_permissions_normal_resource(resource: Resource, default_permissions: Permissions | None) -> None:
+    if default_permissions:
+        resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
+        for v in resource.values:
+            v.permissions = _resolve_default_permission(v.permissions, default_permissions)
+        if resource.file_value:
+            resource.file_value.metadata.permissions = _resolve_default_permission(
+                resource.file_value.metadata.permissions, default_permissions
+            )
+
+
+def _resolve_default_permissions_region(resource: RegionResource, default_permissions: Permissions | None) -> None:
+    if default_permissions:
+        resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
+        resource.region_of.permissions = _resolve_default_permission(
+            resource.region_of.permissions, default_permissions
+        )
+        for cmnt in resource.comments:
+            cmnt.permissions = _resolve_default_permission(cmnt.permissions, default_permissions)
 
 
 def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:
@@ -100,6 +117,9 @@ def _serialise_region(res: RegionResource) -> etree._Element:
 
 
 def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
+    attribs = (
+        {"permissions": res.permissions.value} if res.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS else {}
+    )
     prop_list: list[etree._Element] = []
     if not res.geometry:
         emit_xmllib_input_warning(
@@ -110,12 +130,12 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
 
         return prop_list
     geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
-    ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
+    ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP, attrib=attribs)
     ele.text = res.geometry.to_json_string()
     geo_prop.append(ele)
     prop_list.append(geo_prop)
     prop_list.extend(
-        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor")]),
+        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor", permissions=res.permissions)]),
     )
     return prop_list
 
@@ -175,30 +195,38 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
+    attribs = (
+        {"permissions": segment.permissions.value}
+        if segment.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        else {}
+    )
     segment_elements = []
-    segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP)
+    segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP, attrib=attribs)
     segment_of.text = segment.segment_of
     segment_elements.append(segment_of)
+    segment_bounds_attrib = {
+        "segment_start": str(segment.segment_bounds.segment_start),
+        "segment_end": str(segment.segment_bounds.segment_end),
+    } | attribs
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={
-                "segment_start": str(segment.segment_bounds.segment_start),
-                "segment_end": str(segment.segment_bounds.segment_end),
-            },
+            attrib=segment_bounds_attrib,
             nsmap=XML_NAMESPACE_MAP,
         )
     )
     if segment.title:
-        segment_elements.append(_make_element_with_text("hasTitle", segment.title))
-    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comments])
-    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.descriptions])
-    segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
-    segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
+        segment_elements.append(_make_element_with_text("hasTitle", segment.title, attribs=attribs))
+    segment_elements.extend([_make_element_with_text("hasComment", x, attribs=attribs) for x in segment.comments])
+    segment_elements.extend(
+        [_make_element_with_text("hasDescription", x, attribs=attribs) for x in segment.descriptions]
+    )
+    segment_elements.extend([_make_element_with_text("hasKeyword", x, attribs=attribs) for x in segment.keywords])
+    segment_elements.extend([_make_element_with_text("relatesTo", x, attribs=attribs) for x in segment.relates_to])
     return segment_elements
 
 
-def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
-    ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
+def _make_element_with_text(tag_name: str, text_content: str, attribs: dict[str, str]) -> etree._Element:
+    ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP, attrib=attribs)
     ele.text = text_content
     return ele

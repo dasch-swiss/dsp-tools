@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def"
 from lxml import etree
 
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA

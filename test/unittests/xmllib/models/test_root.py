@@ -68,7 +68,7 @@ class TestSerialise:
         assert color_child.attrib == {"permissions": "open"}
         # Check is region of
         all_resptrs = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}resptr-prop"))
-        assert len(all_colors) == 1
+        assert len(all_resptrs) == 1
         resptr_prop = all_resptrs[0]
         assert resptr_prop.attrib == {"name": "isRegionOf"}
         resptr_child = next(resptr_prop.iterchildren())
@@ -97,7 +97,24 @@ class TestSerialise:
         assert len(found) == 1
         resource = found[0]
         vals = list(resource.iterchildren())
-        assert len(vals) == 0
+        assert len(vals) == 3
+        # link tos
+        all_resptrs = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}resptr-prop"))
+        assert len(all_resptrs) == 1
+        resptr = all_resptrs[0]
+        assert resptr.attrib == {"name": "hasLinkTo"}
+        for v in resptr.iterchildren():
+            assert v.tag == "resptr"
+            assert v.text in ["link1", "link2"]
+            assert not v.attrib
+        # comment
+        all_text = list(resource.iterchildren(tag=f"{DASCH_SCHEMA}text-prop"))
+        assert len(all_text) == 1
+        text_prop = all_text[0]
+        assert text_prop.attrib == {"name": "hasComment"}
+        text_child = next(text_prop.iterchildren())
+        assert text_child.text == "cmnt"
+        assert text_child.attrib == {"permissions": "restriced", "encoding": "xml"}
 
     def test_audio_segment(self):
         xml_root = XMLRoot.create_new("0000", "test")

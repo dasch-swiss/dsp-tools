@@ -88,7 +88,10 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
 
         return prop_list
     geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
-    ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
+    geo_attrib = (
+        {"permissions": res.permissions.value} if res.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS else {}
+    )
+    ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP, attrib=geo_attrib)
     ele.text = res.geometry.to_json_string()
     geo_prop.append(ele)
     prop_list.append(geo_prop)
@@ -129,13 +132,16 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     # The segment elements need to be in a specific order in order to pass the XSD validation
     # Therefore, this filtering according to the properties is necessary
     segment_elements = _serialise_according_to_prop_name(segment.values, "isSegmentOf")
+    bounds_attrib = {
+        "segment_start": str(segment.segment_bounds.segment_start),
+        "segment_end": str(segment.segment_bounds.segment_end),
+    }
+    if segment.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+        bounds_attrib["permissions"] = segment.permissions.value
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={
-                "segment_start": str(segment.segment_bounds.segment_start),
-                "segment_end": str(segment.segment_bounds.segment_end),
-            },
+            attrib=bounds_attrib,
             nsmap=XML_NAMESPACE_MAP,
         )
     )
@@ -158,6 +164,6 @@ def _make_element_with_text(value: Value) -> etree._Element:
         attribs["permissions"] = value.permissions.value
     if value.comment is not None:
         attribs["comment"] = str(value.comment)
-    ele = etree.Element(f"{DASCH_SCHEMA}{value.prop_name}", nsmap=XML_NAMESPACE_MAP)
+    ele = etree.Element(f"{DASCH_SCHEMA}{value.prop_name}", nsmap=XML_NAMESPACE_MAP, attrib=attribs)
     ele.text = value.value
     return ele

@@ -201,7 +201,7 @@ class XMLRoot:
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
-        serialised_resources = serialise_resources(self.resources, author_lookup)
+        serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
         root.extend(serialised_resources)
         return root
 

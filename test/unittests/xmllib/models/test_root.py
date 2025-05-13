@@ -29,7 +29,16 @@ class TestSerialise:
         assert len(found) == 1
         resource = found.pop(0)
         vals = list(resource.iterchildren())
-        assert len(vals) == 0
+        assert len(vals) == 1
+        bool_val = vals.pop(0)
+        assert bool_val.tag == f"{DASCH_SCHEMA}boolean-prop"
+        assert bool_val.attrib["name"] == ":boolProp"
+        child = list(bool_val.iterchildren())
+        assert len(child) == 1
+        prop_val = child.pop(0)
+        assert prop_val.tag == f"{DASCH_SCHEMA}boolean"
+        assert prop_val.text == "true"
+        assert prop_val.attrib["comment"] == "cmnt"
 
     def test_region(self):
         xml_root = XMLRoot.create_new("0000", "test")

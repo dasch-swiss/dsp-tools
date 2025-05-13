@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Collection
 from dataclasses import dataclass
-from dataclasses import field
 from typing import Any
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
@@ -606,21 +605,14 @@ class SegmentBounds:
 class VideoSegmentResource:
     res_id: str
     label: str
-    segment_of: str
     segment_bounds: SegmentBounds
     values: list[Value]
-    title: str | None = None
-    comments: list[str] = field(default_factory=list)
-    descriptions: list[str] = field(default_factory=list)
-    keywords: list[str] = field(default_factory=list)
-    relates_to: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -665,7 +657,6 @@ class VideoSegmentResource:
             res_id=res_id,
             label=label,
             values=[segment_of_val],
-            segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             permissions=permissions,
         )
@@ -692,8 +683,11 @@ class VideoSegmentResource:
             video_segment = video_segment.add_title("segment title")
             ```
         """
-        if any([x for x in self.values if x.prop_name == "hasTitle"]):
-            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
+        existing_title = [x for x in self.values if x.prop_name == "hasTitle"]
+        if any(existing_title):
+            _warn_value_exists(
+                old_value=existing_title.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
+            )
         self.values.append(
             SimpleText.new(
                 value=title,
@@ -1147,21 +1141,14 @@ class VideoSegmentResource:
 class AudioSegmentResource:
     res_id: str
     label: str
-    segment_of: str
     segment_bounds: SegmentBounds
     values: list[Value]
-    title: str | None = None
-    comments: list[str] = field(default_factory=list)
-    descriptions: list[str] = field(default_factory=list)
-    keywords: list[str] = field(default_factory=list)
-    relates_to: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, prop_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -1194,7 +1181,6 @@ class AudioSegmentResource:
         return AudioSegmentResource(
             res_id=res_id,
             label=label,
-            segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             values=[segment_of_val],
             permissions=permissions,
@@ -1222,8 +1208,11 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_title("segment title")
             ```
         """
-        if any([x for x in self.values if x.prop_name == "hasTitle"]):
-            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
+        existing_title = [x for x in self.values if x.prop_name == "hasTitle"]
+        if any(existing_title):
+            _warn_value_exists(
+                old_value=existing_title.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
+            )
         self.values.append(
             SimpleText.new(
                 value=title,

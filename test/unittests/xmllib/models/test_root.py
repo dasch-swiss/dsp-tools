@@ -96,7 +96,7 @@ class TestSerialise:
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
         assert len(found) == 1
         resource = found[0]
-        res_attribs = {"label": "lbl", "id": "link_id", "permissions": "restricted"}
+        res_attribs = {"label": "lbl", "id": "link_id"}
         assert resource.attrib == res_attribs
         vals = list(resource.iterchildren())
         assert len(vals) == 2

@@ -1552,7 +1552,7 @@ class Resource:
 
         Args:
             filename: path to the file
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1620,7 +1620,7 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.

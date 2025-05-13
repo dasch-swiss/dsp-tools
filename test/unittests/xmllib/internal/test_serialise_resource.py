@@ -4,12 +4,13 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.xmllib import LicenseRecommended
 from dsp_tools.xmllib.internal.serialise_resource import _serialise_one_resource
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
+from dsp_tools.xmllib.models.licenses.other import LicenseOther
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.res import Resource
 
 AUTHOR_LOOKUP = AuthorshipLookup({("one", "one2"): "authorship_1"})
@@ -87,6 +88,23 @@ class TestResource:
             b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id" restype=":Type">'
             b'<bitstream license="http://rdfh.ch/licenses/unknown" copyright-holder="copy" authorship-id="unknown">'
+            b"file.jpg"
+            b"</bitstream>"
+            b"</resource>"
+        )
+        assert etree.tostring(result) == expected
+
+    def test_file_value_other_license(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl").add_file(
+            "file.jpg", LicenseOther.Various.BORIS_STANDARD, "copy", ["unknown"]
+        )
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 1
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type">'
+            b'<bitstream license="http://rdfh.ch/licenses/boris" copyright-holder="copy" authorship-id="unknown">'
             b"file.jpg"
             b"</bitstream>"
             b"</resource>"

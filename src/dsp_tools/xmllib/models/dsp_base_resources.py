@@ -21,6 +21,7 @@ from dsp_tools.xmllib.models.internal.geometry import Vector
 from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -593,6 +594,7 @@ class LinkResource:
 class SegmentBounds:
     segment_start: float | int | str
     segment_end: float | int | str
+    permissions: Permissions
     res_id: str
 
     def __post_init__(self) -> None:
@@ -616,6 +618,7 @@ class VideoSegmentResource:
     label: str
     segment_of: str
     segment_bounds: SegmentBounds
+    values: list[Value]
     title: str | None = None
     comments: list[str] = field(default_factory=list)
     descriptions: list[str] = field(default_factory=list)
@@ -665,20 +668,31 @@ class VideoSegmentResource:
             )
             ```
         """
+        segment_of_val = LinkValue.new(
+            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+        )
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
+            values=[segment_of_val],
             segment_of=segment_of,
-            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             permissions=permissions,
         )
 
-    def add_title(self, title: str) -> VideoSegmentResource:
+    def add_title(
+        self,
+        title: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add a title to the resource.
 
         Args:
             title: text
+            permissions: permissions of the value
+            comment: comments on the value
 
         Returns:
             The original resource, with the added title
@@ -688,9 +702,13 @@ class VideoSegmentResource:
             video_segment = video_segment.add_title("segment title")
             ```
         """
-        if self.title:
+        if any([x for x in self.values if x.prop_name == "hasTitle"]):
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
-        self.title = title
+        self.values.append(
+            SimpleText.new(
+                value=title, prop_name="hasTitle", permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
@@ -1007,6 +1025,7 @@ class AudioSegmentResource:
     label: str
     segment_of: str
     segment_bounds: SegmentBounds
+    values: list[Value]
     title: str | None = None
     comments: list[str] = field(default_factory=list)
     descriptions: list[str] = field(default_factory=list)
@@ -1045,11 +1064,15 @@ class AudioSegmentResource:
         Returns:
             An audio segment resource
         """
+        segment_of_val = LinkValue.new(
+            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+        )
         return AudioSegmentResource(
             res_id=res_id,
             label=label,
             segment_of=segment_of,
-            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
+            values=[segment_of_val],
             permissions=permissions,
         )
 

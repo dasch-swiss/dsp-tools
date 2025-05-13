@@ -96,6 +96,8 @@ class TestSerialise:
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
         assert len(found) == 1
         resource = found[0]
+        res_attribs = {"label": "lbl", "id": "link_id", "permissions": "restricted"}
+        assert resource.attrib == res_attribs
         vals = list(resource.iterchildren())
         assert len(vals) == 2
         # link tos
@@ -130,6 +132,8 @@ class TestSerialise:
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}audio-segment"))
         assert len(found) == 1
         resource = found[0]
+        res_attribs = {"label": "lbl", "id": "audio_id"}
+        assert resource.attrib == res_attribs
         assert len(resource) == 7
         segment_of = next(resource.iter(tag=f"{DASCH_SCHEMA}isSegmentOf"))
         assert not segment_of.attrib
@@ -156,14 +160,28 @@ class TestSerialise:
     def test_video_segment_with_permissions(self):
         xml_root = XMLRoot.create_new("0000", "test")
         xml_root.add_resource(
-            VideoSegmentResource.create_new("audio_id", "lbl", "segment_of", 1, 2, permissions=Permissions.RESTRICTED)
+            VideoSegmentResource.create_new(
+                "video_id",
+                "lbl",
+                "segment_of",
+                1,
+                2,
+                permissions=Permissions.RESTRICTED,
+            )
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}video-segment"))
         assert len(found) == 1
         resource = found[0]
-        vals = list(resource.iterchildren())
-        assert len(vals) == 0
+        res_attribs = {"label": "lbl", "id": "video_id", "permissions": "restricted"}
+        assert resource.attrib == res_attribs
+        assert len(resource) == 2
+        segment_of = next(resource.iter(tag=f"{DASCH_SCHEMA}isSegmentOf"))
+        assert segment_of.attrib == {"permissions": "restricted"}
+        assert segment_of.text == "segment_of"
+        bounds = next(resource.iter(tag=f"{DASCH_SCHEMA}hasSegmentBounds"))
+        assert not bounds.text
+        assert bounds.attrib == {"segment_start": "1", "segment_end": "2", "permissions": "restricted"}
 
 
 def test_root_add_resources() -> None:

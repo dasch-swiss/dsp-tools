@@ -10,6 +10,7 @@ from uuid import uuid4
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
@@ -149,12 +150,13 @@ class XMLRoot:
             self.resources.append(resource)
         return self
 
-    def write_file(self, filepath: str | Path) -> None:
+    def write_file(self, filepath: str | Path, default_permission: Permissions | None = None) -> None:
         """
         Write the finished XML to a file.
 
         Args:
             filepath: where to save the file
+            default_permission: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Warning:
             if the XML is not valid according to the schema
@@ -164,7 +166,7 @@ class XMLRoot:
             root.write_file("xml_file_name.xml")
             ```
         """
-        root = self.serialise()
+        root = self.serialise(default_permission)
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -185,7 +187,7 @@ class XMLRoot:
             )
             emit_xmllib_input_warning(MessageInfo(msg))
 
-    def serialise(self) -> etree._Element:
+    def serialise(self, default_permissions: Permissions | None) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.

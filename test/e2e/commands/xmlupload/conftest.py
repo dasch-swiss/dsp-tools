@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -52,6 +53,14 @@ def _xmlupload_minimal_correct(create_generic_project, creds) -> None:
         with pytest.MonkeyPatch.context() as m:
             m.chdir(tmpdir)
             assert xmlupload(absolute_xml_path, creds, str(original_cwd))
+
+
+@pytest.fixture(scope="module")
+def _xmlupload_text_parsing(create_generic_project: None, creds: ServerCredentials) -> Iterator[None]:
+    assert xmlupload(Path("testdata/xml-data/generic_project_text_parsing.xml"), creds, ".")
+    yield
+    if found := list(Path.cwd().glob(f"id2iri_{PROJECT_SHORTCODE}_localhost_*.json")):
+        found[0].unlink()
 
 
 @pytest.fixture(scope="module")

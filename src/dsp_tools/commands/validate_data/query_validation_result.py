@@ -36,7 +36,6 @@ LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_AP
 SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
     SH.Violation: Severity.VIOLATION,
     SH.Warning: Severity.WARNING,
-    SH.Info: Severity.INFO,
 }
 
 

@@ -90,7 +90,10 @@ def _get_validation_bool(filepath: Path, api_url: str, save_graphs: bool) -> boo
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
         return True
-    return _print_shacl_validation_violation_message(report, filepath, save_graphs)
+    reformatted = reformat_validation_graph(report)
+    sorted_problems = sort_user_problems(reformatted)
+    _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
+    return any([bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)])
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -138,12 +141,8 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _print_shacl_validation_violation_message(
-    report: ValidationReportGraphs, filepath: Path, save_graphs: bool
-) -> bool:
-    # Not all results are violations, some are only warnings. In that case we do not want to return True
-    errors_found = False
-    reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted)
+    sorted_problems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+) -> None:
     messages = get_user_message(sorted_problems, filepath)
     if messages.referenced_absolute_iris:
         iri_msg = (
@@ -154,11 +153,9 @@ def _print_shacl_validation_violation_message(
         logger.info(iri_msg, messages.referenced_absolute_iris)
         print(BACKGROUND_BOLD_YELLOW + iri_msg + RESET_TO_DEFAULT + f"{messages.referenced_absolute_iris}")
     if messages.problems:
-        errors_found = True
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
     if sorted_problems.unexpected_shacl_validation_components:
-        errors_found = True
         if save_graphs:
             unexpected_violations_msg = "Unexpected violations were found! Consult the saved graphs for details."
             logger.info(unexpected_violations_msg)
@@ -167,7 +164,6 @@ def _print_shacl_validation_violation_message(
             _save_unexpected_results_and_inform_user(
                 sorted_problems.unexpected_shacl_validation_components, report, filepath
             )
-    return errors_found
 
 
 def _save_unexpected_results_and_inform_user(

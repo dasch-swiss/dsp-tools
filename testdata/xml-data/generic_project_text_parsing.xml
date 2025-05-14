@@ -65,7 +65,7 @@
         </text-prop>
     </resource>
 
-    <resource label="res_with_standoff_to_id" restype=":ClassWithEverything" id="res_with_standoff_to_id">
+    <resource label="richtext_res_with_standoff_link_to_id" restype=":ClassWithEverything" id="richtext_res_with_standoff_link_to_id">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 <em>Text
@@ -76,7 +76,7 @@
         </text-prop>
     </resource>
 
-    <resource label="res_with_standoff_to_iri" restype=":ClassWithEverything" id="res_with_standoff_to_iri">
+    <resource label="res_with_standoff_link_to_iri" restype=":ClassWithEverything" id="res_with_standoff_link_to_iri">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text
@@ -86,7 +86,7 @@
         </text-prop>
     </resource>
 
-    <resource label="res_with_standoff_to_url" restype=":ClassWithEverything" id="res_with_standoff_to_url">
+    <resource label="richtext_res_with_standoff_link_to_url" restype=":ClassWithEverything" id="richtext_res_with_standoff_link_to_url">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text

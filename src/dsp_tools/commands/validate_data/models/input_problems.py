@@ -34,6 +34,7 @@ class AllProblems:
 @dataclass
 class SortedProblems:
     unique_violations: list[InputProblem]
+    user_warnings: list[InputProblem]
     user_info: list[InputProblem]
     unexpected_shacl_validation_components: list[str]
 
@@ -41,7 +42,8 @@ class SortedProblems:
 @dataclass
 class UserPrintMessages:
     problems: str | None
-    referenced_absolute_iris: str | None
+    user_warning: str | None
+    user_info: str | None
 
 
 @dataclass

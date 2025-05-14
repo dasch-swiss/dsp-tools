@@ -138,14 +138,9 @@ def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
 ) -> None:
     messages = get_user_message(sorted_problems, filepath)
-    if messages.referenced_absolute_iris:
-        iri_msg = (
-            "Your data references absolute IRIs of resources. "
-            "If these resources do not exist in the database or are not of the expected resource type then"
-            "the xmlupload will fail. Below you find a list of the references."
-        )
-        logger.info(iri_msg, messages.referenced_absolute_iris)
-        print(BACKGROUND_BOLD_YELLOW + iri_msg + RESET_TO_DEFAULT + f"{messages.referenced_absolute_iris}")
+    if messages.user_info:
+        logger.info(messages.user_info)
+        print(BACKGROUND_BOLD_YELLOW + "Potential Problems Found" + RESET_TO_DEFAULT + f"{messages.user_info}")
     if messages.problems:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)

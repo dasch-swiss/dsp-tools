@@ -22,6 +22,7 @@ def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
         unique_violations=filtered_problems,
+        user_warnings=[],
         user_info=problems_with_iris,
         unexpected_shacl_validation_components=unique_unexpected,
     )
@@ -111,7 +112,7 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
             f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
             f"errors were found:\n\n{specific_message}"
         )
-    return UserPrintMessages(problem_message, iri_info_message)
+    return UserPrintMessages(problem_message, "", iri_info_message)
 
 
 def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
@@ -119,7 +120,12 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
         f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
         for x in problems
     ]
-    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
+    iri_msg = (
+        "Your data references absolute IRIs of resources. "
+        "If these resources do not exist in the database or are not of the expected resource type then"
+        "the xmlupload will fail. Below you find a list of the references."
+    )
+    return iri_msg + LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

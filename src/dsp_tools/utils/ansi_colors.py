@@ -23,7 +23,6 @@ YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"  # 0 (normal font) ; 33 (yellow)
 RED = f"{SEQUENCE_START}0;31{SEQUENCE_END}"  # 0 (normal font) ; 31 (red)
 
 # Colored Background
-BACKGROUND_BOLD_MAGENTA = f"{SEQUENCE_START}1;45{SEQUENCE_END}"  # 1 (bold) ; 45 (background magenta)
 BACKGROUND_BOLD_RED = f"{SEQUENCE_START}1;41{SEQUENCE_END}"  # 1 (bold) ; 41 (background red)
 BACKGROUND_BOLD_YELLOW = f"{SEQUENCE_START}1;43{SEQUENCE_END}"  # 1 (bold) ; 43 (background yellow)
 BACKGROUND_BOLD_GREEN = f"{SEQUENCE_START}1;42{SEQUENCE_END}"  # 1 (bold) ; 42 (background green)

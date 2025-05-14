@@ -45,13 +45,13 @@ def _serialise_one_resource(
 ) -> etree._Element:
     match res:
         case Resource():
-            _resolve_default_permissions_normal_resource(res, default_permissions)
+            _resolve_user_resource_default_permissions(res, default_permissions)
             return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
-            _resolve_default_permissions_normal_resource(res, default_permissions)
+            _resolve_permissions_resource_and_generic_values(res, default_permissions)
             return _serialise_region(res)
         case LinkResource():
-            _resolve_default_permissions_normal_resource(res, default_permissions)
+            _resolve_permissions_resource_and_generic_values(res, default_permissions)
             return _serialise_link(res)
         case AudioSegmentResource():
             _resolve_segment_permissions(res, default_permissions)
@@ -76,13 +76,18 @@ def _resolve_default_permission(permission: Permissions, default_permission: Per
     return permission
 
 
-def _resolve_default_permissions_normal_resource(
+def _resolve_permissions_resource_and_generic_values(
     resource: AnyResource, default_permissions: Permissions | None
 ) -> None:
     if default_permissions:
         resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
         for v in resource.values:
             v.permissions = _resolve_default_permission(v.permissions, default_permissions)
+
+
+def _resolve_user_resource_default_permissions(resource: Resource, default_permissions: Permissions | None) -> None:
+    _resolve_permissions_resource_and_generic_values(resource, default_permissions)
+    if default_permissions:
         if resource.file_value:
             resource.file_value.metadata.permissions = _resolve_default_permission(
                 resource.file_value.metadata.permissions, default_permissions
@@ -92,7 +97,7 @@ def _resolve_default_permissions_normal_resource(
 def _resolve_segment_permissions(
     segment: AudioSegmentResource | VideoSegmentResource, default_permissions: Permissions | None
 ) -> None:
-    _resolve_default_permissions_normal_resource(segment, default_permissions)
+    _resolve_permissions_resource_and_generic_values(segment, default_permissions)
     if default_permissions:
         segment.segment_bounds.permissions = _resolve_default_permission(
             segment.segment_bounds.permissions, default_permissions

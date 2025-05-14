@@ -309,7 +309,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("inexistent_license_iri", ProblemType.GENERIC),
-            ("unknown_authorship_id", ProblemType.GENERIC),
+            ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)

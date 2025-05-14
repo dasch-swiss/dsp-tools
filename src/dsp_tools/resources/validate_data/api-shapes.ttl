@@ -364,7 +364,7 @@ api-shapes:FileValue_ClassShape
                     sh:path     knora-api:hasLicense ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
-                    sh:severity sh:Warning ;
+                    sh:severity sh:Violation ;
                     sh:message  "Files and IIIF-URIs require a reference to a license." ;
                   ] ,
                   [
@@ -372,7 +372,7 @@ api-shapes:FileValue_ClassShape
                     sh:path     knora-api:hasAuthorship ;
                     sh:datatype xsd:string ;
                     sh:minCount 1 ;
-                    sh:severity sh:Warning ;
+                    sh:severity sh:Violation ;
                     sh:message  "Files and IIIF-URIs require at least one authorship." ;
                   ] ,
                   [
@@ -390,7 +390,7 @@ api-shapes:FileValue_ClassShape
                     sh:datatype xsd:string ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
-                    sh:severity sh:Warning ;
+                    sh:severity sh:Violation ;
                     sh:message  "Files and IIIF-URIs require a copyright holder." ;
                   ] ,
                   [

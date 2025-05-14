@@ -683,10 +683,10 @@ class VideoSegmentResource:
             video_segment = video_segment.add_title("segment title")
             ```
         """
-        existing_title = [x for x in self.values if x.prop_name == "hasTitle"]
-        if any(existing_title):
+        existing_titles = [x for x in self.values if x.prop_name == "hasTitle"]
+        if any(existing_titles):
             _warn_value_exists(
-                old_value=existing_title.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
+                old_value=existing_titles.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
             )
         self.values.append(
             SimpleText.new(

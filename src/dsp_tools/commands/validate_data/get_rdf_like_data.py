@@ -19,15 +19,15 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
-def get_rdf_like_data(resources: list[ParsedResource]) -> RdfLikeData:
-    rdf_like_resources = [_get_one_resource(x) for x in resources]
+def get_rdf_like_data(resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]) -> RdfLikeData:
+    rdf_like_resources = [_get_one_resource(x, authorship_lookup) for x in resources]
     return RdfLikeData(rdf_like_resources)
 
 
-def _get_one_resource(resource: ParsedResource) -> RdfLikeResource:
+def _get_one_resource(resource: ParsedResource, authorship_lookup: dict[str, list[str]]) -> RdfLikeResource:
     values = [_get_one_value(x) for x in resource.values]
     if resource.file_value:
-        if file_val := _get_file_value(resource.file_value):
+        if file_val := _get_file_value(resource.file_value, authorship_lookup):
             values.append(file_val)
     metadata = [
         PropertyObject(TriplePropertyType.RDFS_LABEL, resource.label, TripleObjectType.STRING),
@@ -151,7 +151,7 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
     return metadata
 
 
-def _get_file_value(file_value: ParsedFileValue) -> RdfLikeValue | None:
+def _get_file_value(file_value: ParsedFileValue, authorship_lookup: dict[str, list[str]]) -> RdfLikeValue | None:
     if not all([file_value.value, file_value.value_type]):
         return None
     file_type = cast(KnoraValueType, file_value.value_type)
@@ -160,11 +160,13 @@ def _get_file_value(file_value: ParsedFileValue) -> RdfLikeValue | None:
         user_facing_prop=user_prop,
         user_facing_value=file_value.value,
         knora_type=file_type,
-        value_metadata=_get_file_metadata(file_value.metadata),
+        value_metadata=_get_file_metadata(file_value.metadata, authorship_lookup),
     )
 
 
-def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject]:
+def _get_file_metadata(
+    metadata: ParsedFileValueMetadata, authorship_lookup: dict[str, list[str]]
+) -> list[PropertyObject]:
     property_objects = []
     if metadata.license_iri is not None:
         property_objects.append(
@@ -183,13 +185,23 @@ def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject
             )
         )
     if metadata.authorship_id is not None:
-        property_objects.append(
-            PropertyObject(
-                property_type=TriplePropertyType.KNORA_AUTHORSHIP,
-                object_value=metadata.authorship_id,
-                object_type=TripleObjectType.STRING,
+        if not (found_authors := authorship_lookup.get(metadata.authorship_id)):
+            property_objects.append(
+                PropertyObject(
+                    property_type=TriplePropertyType.KNORA_AUTHORSHIP,
+                    object_value="",
+                    object_type=TripleObjectType.STRING,
+                )
             )
-        )
+        else:
+            for auth in found_authors:
+                property_objects.append(
+                    PropertyObject(
+                        property_type=TriplePropertyType.KNORA_AUTHORSHIP,
+                        object_value=auth,
+                        object_type=TripleObjectType.STRING,
+                    )
+                )
     if metadata.permissions_id is not None:
         property_objects.append(
             PropertyObject(

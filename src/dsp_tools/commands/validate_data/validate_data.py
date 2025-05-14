@@ -31,6 +31,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
@@ -199,24 +200,27 @@ def _save_unexpected_results_and_inform_user(
 
 
 def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode = _get_info_from_xml(filepath, api_url)
+    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
     used_iris = {x.res_type for x in parsed_resources}
-    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources)
+    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
     onto_client = OntologyClient(api_url, shortcode)
     list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     return rdf_graphs, used_iris
 
 
-def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str]:
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
+    authorship_lookup = get_authorship_lookup(root)
     parsed_resources = get_parsed_resources(root, api_url)
-    return parsed_resources, shortcode
+    return parsed_resources, shortcode, authorship_lookup
 
 
-def _make_data_graph_from_parsed_resources(parsed_resources: list[ParsedResource]) -> Graph:
-    rdf_like_data = get_rdf_like_data(parsed_resources)
+def _make_data_graph_from_parsed_resources(
+    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]
+) -> Graph:
+    rdf_like_data = get_rdf_like_data(parsed_resources, authorship_lookup)
     rdf_data = make_data_graph(rdf_like_data)
     return rdf_data
 

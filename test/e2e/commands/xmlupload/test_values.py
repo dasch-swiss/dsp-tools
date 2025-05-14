@@ -5,6 +5,7 @@ from typing import cast
 
 import pytest
 import requests
+from lxml import etree
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
@@ -23,9 +24,18 @@ OPEN_PERMISSIONS = Literal(
 )
 DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
+RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
+SPECIAL_CHARACTERS_STRING = "àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+
 
 @pytest.fixture(scope="module")
 def g_minimal(_xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
+    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+
+
+@pytest.fixture(scope="module")
+def g_text_parsing(_xmlupload_text_parsing, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
     return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
 
 
@@ -223,7 +233,7 @@ class TestValues:
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "richtext", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
-        expected_val = Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text><p> Text </p></text>')
+        expected_val = Literal(f"{RICHTEXT_XML_DECLARATION}<text><p> Text </p></text>")
         actual_value = next(g_minimal.objects(val_iri, KNORA_API.textValueAsXml))
         assert actual_value == expected_val
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.TextValue
@@ -279,3 +289,138 @@ class TestValues:
         assert actual_value == expected_val
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.UriValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
+
+
+class TestTextParsing:
+    """
+    This tests if the content of text is correctly parsed (tags, special characters, etc.).
+    It does not test if the value is well-formed as that is done separately.
+    All richtext values start with an XML header and are wrapped in a <text> tag which is not in the original data.
+    """
+
+    def _util_get_string_value(
+        self, g: Graph, res_label: str, prop_iri: URIRef, knora_api_prop: URIRef = KNORA_API.textValueAsXml
+    ) -> str:
+        val_iri = _assert_number_of_values_is_one_and_get_val_iri(g, res_label, prop_iri)
+        actual_value = list(g.objects(val_iri, knora_api_prop))
+        assert len(actual_value) == 1
+        return str(actual_value.pop(0))
+
+    def test_richtext_res_with_tags_in_text(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_tags_in_text", prop_iri)
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>This is <em>italicized and <strong>bold</strong> </em> text!</text>"
+        )
+        assert returned_str == expected_str
+
+    def test_richtext_res_text_wrapped_in_tag(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_text_wrapped_in_tag", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph text </p></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_multiple_paragraphs(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_multiple_paragraphs", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph 1 text </p> <p> Paragraph 2 text </p></text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_escaped_characters(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_characters", prop_iri)
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>text &lt;notatag&gt; text and with ampersand &amp;</text>"
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_standoff_link_to_id(self, g_text_parsing, onto_iri):
+        # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
+        # Therefore, a string comparison may fail at some times.
+        target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "richtext_res_with_standoff_link_to_id", prop_iri)
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
+        returned_tree = etree.fromstring(returned_str)
+        assert not returned_tree.text
+        emphasis = next(returned_tree.iter(tag="em"))
+        assert emphasis.text == "Text "
+        assert emphasis.tail == " and some tags"
+        stand_off_link = next(emphasis.iter(tag="a"))
+        assert stand_off_link.text == "target_resource_with_id"
+        assert stand_off_link.attrib["class"] == "salsah-link"
+        assert stand_off_link.attrib["href"] == str(target_iri)
+
+    def test_richtext_res_with_standoff_link_to_iri(self, g_text_parsing, onto_iri):
+        # When serialised as string, the order of the attributes in the <a> tag is not always the same.
+        # Therefore, we must test against the etree object, not against a string.
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_link_to_iri", prop_iri)
+        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
+        returned_tree = etree.fromstring(returned_str)
+        assert returned_tree.text == "Text "
+        stand_off_link = next(returned_tree.iter(tag="a"))
+        assert stand_off_link.text == "target_resource_with_iri"
+        assert stand_off_link.attrib["class"] == "salsah-link"
+        assert stand_off_link.attrib["href"] == "http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
+        assert stand_off_link.tail == " end text"
+
+    def test_richtext_res_with_standoff_link_to_url(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "richtext_res_with_standoff_link_to_url", prop_iri)
+        expected_str = (
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <a href="https://www.dasch.swiss/">URL</a> end text</text>'
+        )
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_footnotes(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_footnotes", prop_iri)
+        expected_str = f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="Footnote"/> end text</text>'
+        assert returned_str == expected_str
+
+    def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri):
+        """
+        Currently, DSP-API doesn't create this value correctly,
+        see [DEV-4796](https://linear.app/dasch/issue/DEV-4796).
+        This test succeeds currently, but as soon as the bug is fixed, it will fail.
+        The correct API response would be `href=&quot;` instead of `href=\\&quot;`.
+        This is also true for the single apostrophe in the following two tests.
+        Use this ticket to fix the tests: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
+        """
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
+        expected_str = (
+            f"{RICHTEXT_XML_DECLARATION}<text>"
+            f'Text <footnote content="Text &lt;a href=\\&quot;https://www.google.com/\\&quot;&gt;Google&lt;/a&gt;"/> '
+            f"end text</text>"
+        )
+        assert returned_str == expected_str
+
+    def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
+        wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{wrongly_escaped_special_char_string}</text>"
+        assert returned_str == expected_str
+
+    def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
+        wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-\&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+        expected_str = (
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{wrongly_escaped_special_char_string}"/> '
+            f"end text</text>"
+        )
+        assert returned_str == expected_str
+
+    def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testSimpleText")
+        returned_str = self._util_get_string_value(
+            g_text_parsing, "res_simpletext_special_characters", prop_iri, KNORA_API.valueAsString
+        )
+        assert returned_str == SPECIAL_CHARACTERS_STRING
+
+    def test_special_characters_in_label(self, g_text_parsing):
+        # Since we search the resource according to its label we know that it was parsed correctly.
+        # Otherwise, this function call would fail.
+        returned_iri = util_get_res_iri_from_label(g_text_parsing, SPECIAL_CHARACTERS_STRING)
+        assert str(returned_iri).startswith("http://rdfh.ch/9999/")

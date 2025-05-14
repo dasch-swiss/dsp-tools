@@ -43,9 +43,9 @@ class SortedProblems:
 
 @dataclass
 class UserPrintMessages:
-    problems: str | None
-    user_warning: str | None
-    user_info: str | None
+    violations: str | None
+    warnings: str | None
+    infos: str | None
 
 
 @dataclass

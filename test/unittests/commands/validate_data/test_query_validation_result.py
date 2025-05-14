@@ -112,7 +112,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
         assert result.property == KNORA_API.isRegionOf
-        assert result.severity == Severity.VIOLATION
+        assert result.severity == SH.Violation
         assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
@@ -128,7 +128,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.bitstream_no_legal_info
         assert result.res_class == ONTO.TestArchiveRepresentation
         assert result.property == KNORA_API.hasLicense
-        assert result.severity == Severity.WARNING
+        assert result.severity == SH.Warning
         assert not result.input_value
         assert not result.input_type
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
@@ -141,7 +141,7 @@ class TestQueryAllResults:
         result = extracted_results.pop(0)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
-        assert result.severity == Severity.VIOLATION
+        assert result.severity == SH.Violation
         assert result.res_iri == DATA.geoname_not_number
         assert result.res_class == ONTO.ClassWithEverything
         assert result.property == ONTO.testGeoname

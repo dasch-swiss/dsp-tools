@@ -111,6 +111,7 @@ def _extract_one_base_info(
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+    severity = next(results_and_onto.objects(info.validation_bn, SH.severity))
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
         for single_detail in detail_bn_list:
             detail_component = next(results_and_onto.objects(single_detail, SH.sourceConstraintComponent))
@@ -125,6 +126,7 @@ def _extract_one_base_info(
                     focus_node_iri=info.focus_iri,
                     focus_node_type=info.focus_rdf_type,
                     result_path=path,
+                    severity=severity,
                     detail=detail,
                 )
             )
@@ -139,6 +141,7 @@ def _extract_one_base_info(
                 focus_node_iri=resource_iri,
                 focus_node_type=resource_type,
                 result_path=user_facing_prop,
+                severity=severity,
                 detail=None,
             )
         )

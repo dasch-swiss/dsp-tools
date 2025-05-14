@@ -365,7 +365,7 @@ class TestTextParsing:
 
     def test_richtext_res_with_standoff_link_to_url(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
-        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_link_to_url", prop_iri)
+        returned_str = self._util_get_string_value(g_text_parsing, "richtext_res_with_standoff_link_to_url", prop_iri)
         expected_str = (
             f'{RICHTEXT_XML_DECLARATION}<text>Text <a href="https://www.dasch.swiss/">URL</a> end text</text>'
         )
@@ -396,7 +396,6 @@ class TestTextParsing:
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
-        returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
         assert returned_str == expected_str
 

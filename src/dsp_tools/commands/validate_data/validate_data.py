@@ -25,7 +25,6 @@ from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_sh
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_ORANGE
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
@@ -146,14 +145,14 @@ def _print_shacl_validation_violation_message(
     if messages.warnings:
         logger.info(messages.warnings)
         print(
-            BACKGROUND_BOLD_ORANGE
-            + "Problems were found that are currently permissible but may become violations in the future."
+            BACKGROUND_BOLD_YELLOW
+            + "\n    Problems were found that do not impede a successful xmlupload but may do so in the future."
             + RESET_TO_DEFAULT
         )
         print(messages.warnings)
     if messages.infos:
         logger.info(messages.infos)
-        print(BACKGROUND_BOLD_YELLOW + "Potential Problems Found" + RESET_TO_DEFAULT)
+        print(BACKGROUND_BOLD_YELLOW + "\n    Potential Problems Found" + RESET_TO_DEFAULT)
         print(messages.infos)
     if sorted_problems.unexpected_shacl_validation_components:
         if save_graphs:

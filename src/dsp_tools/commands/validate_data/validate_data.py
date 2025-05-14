@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.get_user_validation_message import sort_us
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -141,7 +142,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _print_shacl_validation_violation_message(
-    sorted_problems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+    sorted_problems: SortedProblems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
 ) -> None:
     messages = get_user_message(sorted_problems, filepath)
     if messages.referenced_absolute_iris:

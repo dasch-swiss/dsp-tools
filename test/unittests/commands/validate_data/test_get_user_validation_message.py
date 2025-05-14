@@ -184,7 +184,7 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
     assert len(result.unique_violations) == 3
     assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
     assert len(result.user_warnings) == 1
-    assert result.user_warnings[0] == "image_no_legal_info"
+    assert result.user_warnings[0].res_id == "image_no_legal_info"
     assert len(result.user_info) == 1
     assert result.user_info[0].res_id == "references_iri"
     assert not result.unexpected_shacl_validation_components

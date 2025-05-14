@@ -7,7 +7,9 @@
        default-ontology="onto">
 
     <authorship id="authorship_1">
-        <author>Author One</author>
+        <author>
+            Author One
+        </author>
     </authorship>
     <authorship id="authorship_id_with_newline">
         <author>Author&#10;Newline</author>

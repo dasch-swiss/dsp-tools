@@ -49,6 +49,7 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.res_id == "region_isRegionOf_resource_not_a_representation"
     assert result.res_type == "Region"
     assert result.prop_name == "isRegionOf"
+    assert result.severity == Severity.VIOLATION
     assert result.input_value == "target_res_without_representation_1"
     assert result.input_type == "in-built:TestNormalResource"
     assert result.expected == "Representation"
@@ -265,6 +266,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testBoolean
+        assert result.severity == SH.Violation
         assert result.expected == Literal("1")
 
     def test_result_id_closed_constraint(
@@ -276,6 +278,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.NON_EXISTING_CARD
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testIntegerSimpleText
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -286,6 +289,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.severity == SH.Violation
         assert result.expected == Literal("1")
 
     def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
@@ -296,6 +300,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == RDFS.label
+        assert result.severity == SH.Violation
         assert result.expected == Literal("The label must be a non-empty string")
         assert result.input_value == Literal(" ")
 
@@ -308,6 +313,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testGeoname
         assert result.input_value == Literal("00111111")
 
@@ -318,6 +324,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testHasLinkTo
         assert result.input_value == DATA.link_valueTarget_id
 
@@ -328,6 +335,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.SEQNUM_IS_PART_OF
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
 
@@ -340,6 +348,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Warning
         assert result.property == KNORA_API.hasLicense
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
@@ -351,6 +360,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testUriValue
+        assert result.severity == SH.Violation
         assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
 
@@ -362,6 +372,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasSegmentBounds
+        assert result.severity == SH.Violation
         assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
         assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
@@ -372,6 +383,7 @@ class TestQueryWithoutDetail:
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasCopyrightHolder
         assert result.message == Literal("The copyright holder must be a string without newlines.")
         assert result.input_value == Literal(
@@ -397,6 +409,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testTextarea
+        assert result.severity == SH.Violation
         assert result.expected == Literal("TextValue without formatting")
         assert result.input_type == KNORA_API.TextValue
 
@@ -410,6 +423,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkTo
+        assert result.severity == SH.Violation
         assert result.expected == KNORA_API.Resource
         assert result.input_value == DATA.other
         assert not result.input_type
@@ -423,6 +437,7 @@ class TestQueryWithDetail:
         assert result.violation_type == ViolationType.LINK_TARGET
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.expected == ONTO.CardOneResource
         assert result.input_value == DATA.id_9_target
@@ -437,6 +452,7 @@ class TestQueryWithDetail:
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("other / n1")
@@ -450,6 +466,7 @@ class TestQueryWithDetail:
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("firstList / other")
@@ -463,6 +480,7 @@ class TestQueryWithDetail:
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == ONTO.testSimpleText
         assert result.message == Literal("The value must be a non-empty string without newlines.")
         assert result.input_value == Literal(
@@ -480,6 +498,7 @@ class TestQueryFileValueViolations:
         assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
@@ -499,6 +518,7 @@ class TestQueryFileValueViolations:
         assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
 
 
@@ -509,6 +529,7 @@ class TestReformatResult:
         assert result.res_id == "id_card_one"
         assert result.res_type == "onto:ClassInheritedCardinalityOverwriting"
         assert result.prop_name == "onto:testBoolean"
+        assert result.severity == Severity.VIOLATION
         assert result.expected == "1"
 
     def test_max(self, extracted_max_card: ValidationResult) -> None:
@@ -517,6 +538,7 @@ class TestReformatResult:
         assert result.res_id == "id_max_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testDecimalSimpleText"
+        assert result.severity == Severity.VIOLATION
         assert result.expected == "0-1"
 
     def test_violation_empty_label(self, extracted_empty_label: ValidationResult) -> None:
@@ -525,6 +547,7 @@ class TestReformatResult:
         assert result.res_id == "empty_label"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
+        assert result.severity == Severity.VIOLATION
         assert result.expected == "The label must be a non-empty string"
         assert result.input_value == " "
 
@@ -534,6 +557,7 @@ class TestReformatResult:
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
+        assert result.severity == Severity.VIOLATION
 
     def test_value_type_simpletext(self, extracted_value_type_simpletext: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_value_type_simpletext)
@@ -541,6 +565,7 @@ class TestReformatResult:
         assert result.res_id == "id_simpletext"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testTextarea"
+        assert result.severity == Severity.VIOLATION
         assert result.input_type == "TextValue"
         assert result.expected == "TextValue without formatting"
 
@@ -550,6 +575,7 @@ class TestReformatResult:
         assert result.res_id == "id_uri"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
+        assert result.severity == Severity.VIOLATION
         assert result.input_type == "TextValue"
         assert result.expected == "This property requires a UriValue"
 
@@ -559,6 +585,7 @@ class TestReformatResult:
         assert result.res_id == "geoname_not_number"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
+        assert result.severity == Severity.VIOLATION
         assert result.expected == "The value must be a valid geoname code"
         assert result.input_value == "this-is-not-a-valid-code"
 
@@ -568,6 +595,7 @@ class TestReformatResult:
         assert result.res_id == "link_target_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
+        assert result.severity == Severity.VIOLATION
         assert result.input_value == "other"
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ValidationResult) -> None:
@@ -576,6 +604,7 @@ class TestReformatResult:
         assert result.res_id == "link_target_wrong_class"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"
+        assert result.severity == Severity.VIOLATION
         assert result.input_value == "id_9_target"
         assert result.input_type == "onto:ClassWithEverything"
         assert result.expected == "onto:CardOneResource"
@@ -586,6 +615,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
+        assert result.severity == Severity.VIOLATION
         assert result.input_value == "00111111"
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ValidationResult) -> None:
@@ -594,6 +624,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
+        assert result.severity == Severity.VIOLATION
         assert result.input_value == "link_valueTarget_id"
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ValidationResult) -> None:
@@ -602,6 +633,7 @@ class TestReformatResult:
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
+        assert result.severity == Severity.VIOLATION
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
         assert result.input_value == "firstList / other"
 
@@ -611,6 +643,7 @@ class TestReformatResult:
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
+        assert result.severity == Severity.VIOLATION
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
         assert result.input_value == "other / n1"
 
@@ -620,6 +653,7 @@ class TestReformatResult:
         assert result.res_id == "video_segment_negative_bounds"
         assert result.res_type == "VideoSegment"
         assert result.prop_name == "hasSegmentBounds"
+        assert result.severity == Severity.VIOLATION
         assert result.message == "The interval start must be a non-negative integer or decimal."
         assert result.input_value == "-2.0"
 
@@ -629,6 +663,7 @@ class TestReformatResult:
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream"
+        assert result.severity == Severity.VIOLATION
         assert result.expected == "This resource requires a file with one of the following extensions: 'mp4'"
 
     def test_image_missing_legal_info(self, extracted_image_missing_legal_info: ValidationResult) -> None:
@@ -637,6 +672,7 @@ class TestReformatResult:
         assert result.res_id == "image_no_legal_info"
         assert result.res_type == "onto:TestStillImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
+        assert result.severity == Severity.WARNING
         assert result.expected == "Files and IIIF-URIs require a reference to a license."
 
     def test_single_line_constraint_component(
@@ -647,6 +683,7 @@ class TestReformatResult:
         assert result.res_id == "copyright_holder_with_newline"
         assert result.res_type == "onto:TestArchiveRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
+        assert result.severity == Severity.VIOLATION
         assert result.message == "The copyright holder must be a string without newlines."
         assert result.input_value == "with newline"
 
@@ -658,6 +695,7 @@ class TestReformatResult:
         assert result.res_id == "id_resource_without_representation"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
+        assert result.severity == Severity.VIOLATION
 
     def test_seqnum_is_part_of(self, extracted_coexist_with: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)
@@ -665,6 +703,7 @@ class TestReformatResult:
         assert result.res_id == "missing_seqnum"
         assert result.res_type == "in-built:TestStillImageRepresentationWithSeqnum"
         assert result.prop_name == "seqnum or isPartOf"
+        assert result.severity == Severity.VIOLATION
         assert result.message == "Coexist message from knora-api turtle"
 
 

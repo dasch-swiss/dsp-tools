@@ -33,7 +33,11 @@ from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
-SEVERITY_MAPPER = {SH.Violation: Severity.VIOLATION, SH.Warning: Severity.WARNING, SH.Info: Severity.INFO}
+SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
+    SH.Violation: Severity.VIOLATION,
+    SH.Warning: Severity.WARNING,
+    SH.Info: Severity.INFO,
+}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -494,6 +498,7 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=prop_str,
+        severity=SEVERITY_MAPPER[result.severity],
         message=detail_msg,
         input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=_convert_rdflib_input_to_string(result.input_type),
@@ -511,6 +516,7 @@ def _reformat_generic(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=user_prop,
+        severity=SEVERITY_MAPPER[result.severity],
         message=_convert_rdflib_input_to_string(result.message),
         input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=_convert_rdflib_input_to_string(result.input_type),
@@ -534,6 +540,7 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
+        severity=SEVERITY_MAPPER[result.severity],
         input_value=reformat_data_iri(str(result.input_value)),
         input_type=input_type,
         expected=expected,

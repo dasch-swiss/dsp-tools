@@ -163,7 +163,8 @@ class XMLRoot:
              and no permissions were assigned to values and resources,
              the default permissions (DOAP) on DSP will be applied.
              If the default permissions (DOAP) are not changed, only project members and admins have view permissions.
-             A project is ongoing where setting custom DOAPs can be done through the project JSON.
+             In the near future,
+             custom DOAPs will be able to be set in the project JSON file (ongoing DSP-TOOLS project)
              At that time this parameter will be deprecated.
 
              **This will not influence individually assigned permissions, for example

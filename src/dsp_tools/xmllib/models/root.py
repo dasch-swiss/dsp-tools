@@ -166,12 +166,20 @@ class XMLRoot:
              A project is ongoing where setting custom DOAPs can be done through the project JSON.
              At that time this parameter will be deprecated.
 
+             **This will not influence individually assigned permissions, for example
+             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.OPEN`.**
+
         Warning:
             if the XML is not valid according to the schema
 
         Examples:
             ```python
             root.write_file("xml_file_name.xml")
+            ```
+
+            ```python
+            # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+            root.write_file("xml_file_name.xml", Permissions.OPEN)
             ```
         """
         root = self.serialise(default_permissions)

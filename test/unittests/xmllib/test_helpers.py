@@ -25,6 +25,7 @@ from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 
 NBSP = "\u00a0"
 
+
 @pytest.fixture
 def list_lookup() -> ListLookup:
     return ListLookup(
@@ -662,6 +663,7 @@ class TestFindLicense:
     def test_find_license_edge_cases(self) -> None:
         assert not find_license_in_string("BORIS")
         assert find_license_in_string("BORIS: CC BY 4.0") == LicenseRecommended.CC.BY
+
 
 def test_make_xsd_compatible_id() -> None:
     teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"  # noqa: RUF001

@@ -43,13 +43,6 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors 
 
 
 def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
-    # The command `validate-data` should always return true if the CLI command ran without exceptions,
-    # regardless of the validation result.
-    _ = _get_validation_bool(filepath, api_url, save_graphs)
-    return True
-
-
-def _get_validation_bool(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 

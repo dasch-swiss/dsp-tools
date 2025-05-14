@@ -332,12 +332,12 @@ class TestTextParsing:
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text>text &lt;notatag&gt; text and with ampersand &amp;</text>"
         assert returned_str == expected_str
 
-    def test_richtext_res_with_standoff_to_id(self, g_text_parsing, onto_iri):
+    def test_richtext_res_with_standoff_link_to_id(self, g_text_parsing, onto_iri):
         # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
         # Therefore, a string comparison may fail at some times.
         target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
         prop_iri = URIRef(f"{onto_iri}testRichtext")
-        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_id", prop_iri)
+        returned_str = self._util_get_string_value(g_text_parsing, "richtext_res_with_standoff_link_to_id", prop_iri)
         returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
         assert not returned_tree.text
@@ -349,11 +349,11 @@ class TestTextParsing:
         assert stand_off_link.attrib["class"] == "salsah-link"
         assert stand_off_link.attrib["href"] == str(target_iri)
 
-    def test_richtext_res_with_standoff_to_iri(self, g_text_parsing, onto_iri):
-        # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
-        # Therefore, a string comparison may fail at some times.
+    def test_richtext_res_with_standoff_link_to_iri(self, g_text_parsing, onto_iri):
+        # When serialised as string, the order of the attributes in the <a> tag is not always the same.
+        # Therefore, we must test against the etree object, not against a string.
         prop_iri = URIRef(f"{onto_iri}testRichtext")
-        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_iri", prop_iri)
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_link_to_iri", prop_iri)
         returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
         assert returned_tree.text == "Text "
@@ -363,9 +363,9 @@ class TestTextParsing:
         assert stand_off_link.attrib["href"] == "http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
         assert stand_off_link.tail == " end text"
 
-    def test_richtext_res_with_standoff_to_url(self, g_text_parsing, onto_iri):
+    def test_richtext_res_with_standoff_link_to_url(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
-        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_to_url", prop_iri)
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_link_to_url", prop_iri)
         expected_str = (
             f'{RICHTEXT_XML_DECLARATION}<text>Text <a href="https://www.dasch.swiss/">URL</a> end text</text>'
         )
@@ -378,6 +378,12 @@ class TestTextParsing:
         assert returned_str == expected_str
 
     def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri):
+        """
+        Currently, DSP-API doesn't create this value correctly,
+        see [DEV-4796](https://linear.app/dasch/issue/DEV-4796).
+        This test succeeds currently, but as soon as the bug is fixed, it will fail.
+        The correct API response would be `href=&quot;` instead of `href=\\&quot;`.
+        """
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
         expected_str = (
@@ -391,8 +397,8 @@ class TestTextParsing:
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
         returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
-        returned_tree = etree.fromstring(returned_str)
-        assert returned_tree.text == SPECIAL_CHARACTERS_STRING
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
+        assert returned_str == expected_str
 
     def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testSimpleText")
@@ -408,6 +414,7 @@ class TestTextParsing:
         assert str(returned_iri).startswith("http://rdfh.ch/9999/")
 
     # def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
+    #     Assert this test when the bug is fixed: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
     #     prop_iri = URIRef(f"{onto_iri}testRichtext")
     #     returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
     #     expected_str = (

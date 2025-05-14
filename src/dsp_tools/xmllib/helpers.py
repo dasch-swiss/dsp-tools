@@ -19,6 +19,7 @@ from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -1098,7 +1099,7 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 def find_license_in_string(string: str) -> License | None:
     """
-    Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
+    Checks if a string contains a license, and returns the first found license.
     Once a license has been found, subsequent licenses are ignored.
     Returns None if no license was found.
     The case (upper case/lower case) is ignored.
@@ -1110,7 +1111,7 @@ def find_license_in_string(string: str) -> License | None:
         string: string to check
 
     Returns:
-        `xmllib.LicenseRecommended` object or `None`
+        `License` object or `None`
 
     Examples:
         ```python
@@ -1143,8 +1144,18 @@ def find_license_in_string(string: str) -> License | None:
         - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
         - "CC BY" -> LicenseRecommended.CC.BY
         - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
+        - "CC 0 1.0" -> LicenseOther.Public.CC_0_1_0
+        - "CC PDM 1.0" -> LicenseOther.Public.CC_PDM_1_0
+        - "BORIS Standard License" -> LicenseOther.Various.BORIS_STANDARD
+        - "LICENCE OUVERTE 2.0" -> LicenseOther.Various.FRANCE_OUVERTE
     """
-    sep = r"[- _]+"
+    sep = r"[-_\p{Zs}]+"  # Zs = unicode category for space separator characters
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}0({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_0_1_0
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}PDM({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_PDM_1_0
 
     if match := regex.search(
         rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
@@ -1163,6 +1174,14 @@ def find_license_in_string(string: str) -> License | None:
 
     if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
         return LicenseRecommended.DSP.UNKNOWN
+
+    if regex.search(
+        rf"\b(BORIS|Bern{sep}Open{sep}Repository{sep}and{sep}Information{sep}System){sep}Standard{sep}License\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.BORIS_STANDARD
+
     return None
 
 

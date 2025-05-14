@@ -107,20 +107,30 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     Returns:
         Problem message
     """
-    problem_message = None
+    violation_message = None
+    warning_message = None
     iri_info_message = None
     if sorted_problems.user_info:
         iri_info_message = _get_referenced_iri_info(sorted_problems.user_info)
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
-            specific_message = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+            specific_message_violation = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
         else:
-            specific_message = _get_problem_print_message(sorted_problems.unique_violations)
-        problem_message = (
+            specific_message_violation = _get_problem_print_message(sorted_problems.unique_violations)
+        violation_message = (
             f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
-            f"errors were found:\n\n{specific_message}"
+            f"errors were found:\n\n{specific_message_violation}"
         )
-    return UserPrintMessages(problem_message, "", iri_info_message)
+    if sorted_problems.user_warnings:
+        if len(sorted_problems.unique_violations) > 50:
+            specific_message_warning = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
+        else:
+            specific_message_warning = _get_problem_print_message(sorted_problems.user_warnings)
+        warning_message = (
+            f"\nDuring the validation of the data {len(sorted_problems.user_warnings)} "
+            f"problems of the severity warning were found:\n\n{specific_message_warning}"
+        )
+    return UserPrintMessages(violation_message, warning_message, iri_info_message)
 
 
 def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
@@ -186,13 +196,13 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
-    out_path = file_path.parent / f"{file_path.stem}_validation_errors.csv"
+def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path, severity: str = "errors") -> str:
+    out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
     df.to_csv(out_path, index=False)
-    return f"Due to the large number or errors, the validation errors were saved at:\n{out_path}"
+    return f"Due to the large number of {severity}, the validation {severity} were saved at:\n{out_path}"
 
 
 def _get_message_dict(problem: InputProblem) -> dict[str, str]:

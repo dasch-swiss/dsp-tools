@@ -281,6 +281,7 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         expected_info_tuples = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
+            ("authorship_with_newline", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -308,6 +309,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("inexistent_license_iri", ProblemType.GENERIC),
+            ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)

@@ -23,7 +23,6 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
@@ -40,13 +39,6 @@ LIST_SEPARATOR = "\n    - "
 
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
-
-
-def validate_data_for_xmlupload(filepath: Path, api_url: str) -> None:
-    # For the `xmlupload`, the validation result is relevant so that the process can be stopped if errors were found.
-    validation_passed = _get_validation_bool(filepath, api_url, False)
-    if not validation_passed:
-        raise InputError("SHACL validation errors were found, the xmlupload cannot continue.")
 
 
 def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:

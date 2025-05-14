@@ -17,6 +17,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_valid
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -149,12 +150,26 @@ class XMLRoot:
             self.resources.append(resource)
         return self
 
-    def write_file(self, filepath: str | Path) -> None:
+    def write_file(self, filepath: str | Path, default_permissions: Permissions | None = None) -> None:
         """
         Write the finished XML to a file.
 
         Args:
             filepath: where to save the file
+            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+
+        Attention:
+            If the parameter `default_permission` is not filled
+             and no permissions were assigned to values and resources,
+             the default permissions (DOAP) on DSP will be applied.
+             If the default permissions (DOAP) are not changed via DSP-API,
+             only project members and admins have view permissions.
+             In the near future,
+             custom DOAPs will be able to be set in the project JSON file (ongoing DSP-TOOLS project).
+             At that time this parameter will be deprecated.
+
+             **This will not influence individually assigned permissions, for example
+             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.OPEN`.**
 
         Warning:
             if the XML is not valid according to the schema
@@ -163,8 +178,13 @@ class XMLRoot:
             ```python
             root.write_file("xml_file_name.xml")
             ```
+
+            ```python
+            # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+            root.write_file("xml_file_name.xml", Permissions.OPEN)
+            ```
         """
-        root = self.serialise()
+        root = self.serialise(default_permissions)
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -185,10 +205,13 @@ class XMLRoot:
             )
             emit_xmllib_input_warning(MessageInfo(msg))
 
-    def serialise(self) -> etree._Element:
+    def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.
+
+        Args:
+            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             The `XMLRoot` serialised as XML
@@ -199,7 +222,7 @@ class XMLRoot:
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
-        serialised_resources = serialise_resources(self.resources, author_lookup)
+        serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
         root.extend(serialised_resources)
         return root
 

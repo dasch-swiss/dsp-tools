@@ -6,6 +6,7 @@ import pandas as pd
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
 
@@ -19,13 +20,20 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
+    violations, warnings = _separate_according_to_severity(filtered_problems)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
-        unique_violations=filtered_problems,
-        user_warnings=[],
+        unique_violations=violations,
+        user_warnings=warnings,
         user_info=problems_with_iris,
         unexpected_shacl_validation_components=unique_unexpected,
     )
+
+
+def _separate_according_to_severity(problems: list[InputProblem]) -> tuple[list[InputProblem], list[InputProblem]]:
+    violations = [x for x in problems if x.severity == Severity.VIOLATION]
+    warnings = [x for x in problems if x.severity == Severity.WARNING]
+    return violations, warnings
 
 
 def _separate_link_value_missing_if_reference_is_an_iri(

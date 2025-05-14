@@ -150,13 +150,21 @@ class XMLRoot:
             self.resources.append(resource)
         return self
 
-    def write_file(self, filepath: str | Path, default_permission: Permissions | None = None) -> None:
+    def write_file(self, filepath: str | Path, default_permissions: Permissions | None = None) -> None:
         """
         Write the finished XML to a file.
 
         Args:
             filepath: where to save the file
-            default_permission: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+
+        Attention:
+            If the parameter `default_permission` is not filled
+             and no permissions were assigned to values and resources,
+             the default permissions (DOAP) on DSP will be applied.
+             If the default permissions (DOAP) are not changed, only project members and admins have view permissions.
+             A project is ongoing where setting custom DOAPs can be done through the project JSON.
+             At that time this parameter will be deprecated.
 
         Warning:
             if the XML is not valid according to the schema
@@ -166,7 +174,7 @@ class XMLRoot:
             root.write_file("xml_file_name.xml")
             ```
         """
-        root = self.serialise(default_permission)
+        root = self.serialise(default_permissions)
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -191,6 +199,9 @@ class XMLRoot:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.
+
+        Args:
+            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             The `XMLRoot` serialised as XML

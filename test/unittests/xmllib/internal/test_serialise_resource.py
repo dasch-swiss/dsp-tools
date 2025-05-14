@@ -151,8 +151,8 @@ class TestLinkResource:
         expected = (
             b'<link xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id">'
-            b'<text-prop name="hasComment"><text encoding="xml">cmt</text></text-prop>'
             b'<resptr-prop name="hasLinkTo"><resptr>link</resptr></resptr-prop>'
+            b'<text-prop name="hasComment"><text encoding="xml">cmt</text></text-prop>'
             b"</link>"
         )
         assert serialised == expected

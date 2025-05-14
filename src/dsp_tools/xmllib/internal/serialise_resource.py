@@ -45,7 +45,7 @@ def _serialise_one_resource(
 ) -> etree._Element:
     match res:
         case Resource():
-            _resolve_user_resource_default_permissions(res, default_permissions)
+            _resolve_permissions_of_generic_resource(res, default_permissions)
             return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
             _resolve_permissions_resource_and_generic_values(res, default_permissions)
@@ -54,10 +54,10 @@ def _serialise_one_resource(
             _resolve_permissions_resource_and_generic_values(res, default_permissions)
             return _serialise_link(res)
         case AudioSegmentResource():
-            _resolve_segment_permissions(res, default_permissions)
+            _resolve_permissions_segment_resource(res, default_permissions)
             return _serialise_segment(res, "audio-segment")
         case VideoSegmentResource():
-            _resolve_segment_permissions(res, default_permissions)
+            _resolve_permissions_segment_resource(res, default_permissions)
             return _serialise_segment(res, "video-segment")
         case _:
             raise_input_error(
@@ -85,7 +85,7 @@ def _resolve_permissions_resource_and_generic_values(
             v.permissions = _resolve_default_permission(v.permissions, default_permissions)
 
 
-def _resolve_user_resource_default_permissions(resource: Resource, default_permissions: Permissions | None) -> None:
+def _resolve_permissions_of_generic_resource(resource: Resource, default_permissions: Permissions | None) -> None:
     _resolve_permissions_resource_and_generic_values(resource, default_permissions)
     if default_permissions:
         if resource.file_value:
@@ -94,7 +94,7 @@ def _resolve_user_resource_default_permissions(resource: Resource, default_permi
             )
 
 
-def _resolve_segment_permissions(
+def _resolve_permissions_segment_resource(
     segment: AudioSegmentResource | VideoSegmentResource, default_permissions: Permissions | None
 ) -> None:
     _resolve_permissions_resource_and_generic_values(segment, default_permissions)

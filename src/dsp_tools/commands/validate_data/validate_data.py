@@ -49,7 +49,7 @@ def validate_data_for_xmlupload(filepath: Path, api_url: str) -> None:
 
 
 def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
-    # The command `validate-data` should always return true if the CLI command passed,
+    # The command `validate-data` should always return true if the CLI command ran without exceptions,
     # regardless of the validation result.
     _ = _get_validation_bool(filepath, api_url, save_graphs)
     return True
@@ -97,8 +97,7 @@ def _get_validation_bool(filepath: Path, api_url: str, save_graphs: bool) -> boo
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
         return True
-    else:
-        return _print_shacl_validation_violation_message(report, filepath, save_graphs)
+    return _print_shacl_validation_violation_message(report, filepath, save_graphs)
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:

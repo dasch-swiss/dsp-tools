@@ -1149,6 +1149,9 @@ def find_license_in_string(string: str) -> License | None:
         - "BORIS Standard License" -> LicenseOther.Various.BORIS_STANDARD
         - "LICENCE OUVERTE 2.0" -> LicenseOther.Various.FRANCE_OUVERTE
     """
+    if lic := _get_already_parsed_license(string):
+        return lic
+
     sep = r"[-_\p{Zs}]+"  # Zs = unicode category for space separator characters
 
     if regex.search(rf"\b(Creative{sep}Commons|CC){sep}0({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
@@ -1182,6 +1185,13 @@ def find_license_in_string(string: str) -> License | None:
     ):
         return LicenseOther.Various.BORIS_STANDARD
 
+    if regex.search(
+        rf"\b(France{sep})?Licence{sep}ouverte({sep}2\.0)?\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.FRANCE_OUVERTE
+
     return None
 
 
@@ -1206,4 +1216,26 @@ def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many 
         return LicenseRecommended.CC.BY_NC_ND
     if has_nc and not has_nd and has_sa:
         return LicenseRecommended.CC.BY_NC_SA
+    return None
+
+
+def _get_already_parsed_license(string: str) -> License | None:
+    already_parsed_dict = {
+        r"http://rdfh\.ch/licenses/cc-by-4\.0": LicenseRecommended.CC.BY,
+        r"http://rdfh\.ch/licenses/cc-by-sa-4\.0": LicenseRecommended.CC.BY_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nc-4\.0": LicenseRecommended.CC.BY_NC,
+        r"http://rdfh\.ch/licenses/cc-by-nc-sa-4\.0": LicenseRecommended.CC.BY_NC_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nd-4\.0": LicenseRecommended.CC.BY_ND,
+        r"http://rdfh\.ch/licenses/cc-by-nc-nd-4\.0": LicenseRecommended.CC.BY_NC_ND,
+        r"http://rdfh\.ch/licenses/ai-generated": LicenseRecommended.DSP.AI_GENERATED,
+        r"http://rdfh\.ch/licenses/unknown": LicenseRecommended.DSP.UNKNOWN,
+        r"http://rdfh\.ch/licenses/public-domain": LicenseRecommended.DSP.PUBLIC_DOMAIN,
+        r"http://rdfh.ch/licenses/cc-0-1.0": LicenseOther.Public.CC_0_1_0,
+        r"http://rdfh.ch/licenses/cc-pdm-1.0": LicenseOther.Public.CC_PDM_1_0,
+        r"http://rdfh\.ch/licenses/boris": LicenseOther.Various.BORIS_STANDARD,
+        r"http://rdfh.ch/licenses/open-licence-2.0": LicenseOther.Various.FRANCE_OUVERTE,
+    }
+    for rgx, lic in already_parsed_dict.items():
+        if regex.search(rgx, string):
+            return lic
     return None

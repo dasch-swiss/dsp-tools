@@ -311,13 +311,13 @@ class TestSerialiseOverwriteDefaultPermissions:
         assert resource.attrib == res_attribs
         assert len(resource) == 7
         segment_of = next(resource.iter(tag=f"{DASCH_SCHEMA}isSegmentOf"))
-        assert not segment_of.attrib
+        assert segment_of.attrib == {"permissions": "open"}
         assert segment_of.text == "segment_of"
         bounds = next(resource.iter(tag=f"{DASCH_SCHEMA}hasSegmentBounds"))
         assert not bounds.text
         assert bounds.attrib == {"segment_start": "1", "segment_end": "2", "permissions": "open"}
         title = next(resource.iter(tag=f"{DASCH_SCHEMA}hasTitle"))
-        assert not title.attrib
+        assert title.attrib == {"permissions": "open"}
         assert title.text == "title"
         comment = next(resource.iter(tag=f"{DASCH_SCHEMA}hasComment"))
         assert comment.attrib == {"permissions": "open"}

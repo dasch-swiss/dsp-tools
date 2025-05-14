@@ -406,6 +406,20 @@ class TestFileValue:
         assert copyright_res.object_value == "copy"
         assert copyright_res.object_type == TripleObjectType.STRING
 
+    def test_iiif_with_legal_info_unknown_authorship(self):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknonw", None)
+        result = _get_file_metadata(metadata, AUTHORSHIP_LOOKUP)
+        assert len(result) == 3
+        license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
+        assert license_res.object_value == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert license_res.object_type == TripleObjectType.IRI
+        author_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_AUTHORSHIP)
+        assert author_res.object_value == ""
+        assert author_res.object_type == TripleObjectType.STRING
+        copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)
+        assert copyright_res.object_value == "copy"
+        assert copyright_res.object_type == TripleObjectType.STRING
+
     def test_no_file(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue(None, None, metadata)

@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
@@ -40,7 +41,21 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
+def validate_data_for_xmlupload(filepath: Path, api_url: str) -> None:
+    # For the `xmlupload`, the validation result is relevant so that the process can be stopped if errors were found.
+    validation_passed = _get_validation_bool(filepath, api_url, False)
+    if not validation_passed:
+        raise InputError("SHACL validation errors were found, the xmlupload cannot continue.")
+
+
 def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
+    # The command `validate-data` should always return true if the CLI command passed,
+    # regardless of the validation result.
+    _ = _get_validation_bool(filepath, api_url, save_graphs)
+    return True
+
+
+def _get_validation_bool(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -61,7 +76,7 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
-        return True
+        return False
 
     shacl_validator = ShaclValidator(api_url)
     save_path = None
@@ -75,15 +90,15 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
-        return True
+        return False
 
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
+        return True
     else:
-        _print_shacl_validation_violation_message(report, filepath, save_graphs)
-    return True
+        return _print_shacl_validation_violation_message(report, filepath, save_graphs)
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -132,7 +147,9 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 def _print_shacl_validation_violation_message(
     report: ValidationReportGraphs, filepath: Path, save_graphs: bool
-) -> None:
+) -> bool:
+    # Not all results are violations, some are only warnings. In that case we do not want to return True
+    errors_found = False
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     messages = get_user_message(sorted_problems, filepath)
@@ -145,9 +162,11 @@ def _print_shacl_validation_violation_message(
         logger.info(iri_msg, messages.referenced_absolute_iris)
         print(BACKGROUND_BOLD_YELLOW + iri_msg + RESET_TO_DEFAULT + f"{messages.referenced_absolute_iris}")
     if messages.problems:
+        errors_found = True
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(messages.problems)
     if sorted_problems.unexpected_shacl_validation_components:
+        errors_found = True
         if save_graphs:
             unexpected_violations_msg = "Unexpected violations were found! Consult the saved graphs for details."
             logger.info(unexpected_violations_msg)
@@ -156,6 +175,7 @@ def _print_shacl_validation_violation_message(
             _save_unexpected_results_and_inform_user(
                 sorted_problems.unexpected_shacl_validation_components, report, filepath
             )
+    return errors_found
 
 
 def _save_unexpected_results_and_inform_user(

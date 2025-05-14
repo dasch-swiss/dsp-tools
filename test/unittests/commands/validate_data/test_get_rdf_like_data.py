@@ -25,6 +25,9 @@ HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
 
 
+AUTHORSHIP_LOOKUP = {"auth_id": ["Author Resolved"]}
+
+
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
@@ -60,7 +63,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res)
+        result = _get_one_resource(res, {})
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
         assert not result.asset_value
@@ -81,7 +84,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res)
+        result = _get_one_resource(res, {})
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
         assert not result.asset_value
@@ -107,7 +110,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result_list = get_rdf_like_data([res])
+        result_list = get_rdf_like_data([res], {})
         assert len(result_list.resources) == 1
         result = result_list.resources.pop(0)
         assert result.res_id == "one"
@@ -130,7 +133,7 @@ class TestResource:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        result = _get_one_resource(res)
+        result = _get_one_resource(res, AUTHORSHIP_LOOKUP)
         assert len(result.values) == 1
         file_value = result.values.pop(0)
         assert isinstance(file_value, RdfLikeValue)
@@ -149,7 +152,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res)
+        result = _get_one_resource(res, {})
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
         assert not result.asset_value
@@ -382,7 +385,7 @@ class TestFileValue:
     def test_iiif(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
-        res = _get_file_value(val)
+        res = _get_file_value(val, AUTHORSHIP_LOOKUP)
         assert isinstance(res, RdfLikeValue)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert res.user_facing_value == "https://this/is/a/uri.jpg"
@@ -391,13 +394,27 @@ class TestFileValue:
 
     def test_iiif_with_legal_info(self):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        result = _get_file_metadata(metadata)
+        result = _get_file_metadata(metadata, AUTHORSHIP_LOOKUP)
         assert len(result) == 3
         license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
         assert license_res.object_value == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert license_res.object_type == TripleObjectType.IRI
         author_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_AUTHORSHIP)
-        assert author_res.object_value == "auth_id"
+        assert author_res.object_value == "Author Resolved"
+        assert author_res.object_type == TripleObjectType.STRING
+        copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)
+        assert copyright_res.object_value == "copy"
+        assert copyright_res.object_type == TripleObjectType.STRING
+
+    def test_iiif_with_legal_info_unknown_authorship(self):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknonw", None)
+        result = _get_file_metadata(metadata, AUTHORSHIP_LOOKUP)
+        assert len(result) == 3
+        license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
+        assert license_res.object_value == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert license_res.object_type == TripleObjectType.IRI
+        author_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_AUTHORSHIP)
+        assert author_res.object_value == ""
         assert author_res.object_type == TripleObjectType.STRING
         copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)
         assert copyright_res.object_value == "copy"
@@ -406,12 +423,12 @@ class TestFileValue:
     def test_no_file(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue(None, None, metadata)
-        assert not _get_file_value(val)
+        assert not _get_file_value(val, AUTHORSHIP_LOOKUP)
 
     def test_unknown_extension(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("unknown.extension", None, metadata)
-        assert not _get_file_value(val)
+        assert not _get_file_value(val, AUTHORSHIP_LOOKUP)
 
 
 @pytest.mark.parametrize(

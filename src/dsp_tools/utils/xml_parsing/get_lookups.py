@@ -14,7 +14,6 @@ def get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     def get_one_author(ele: etree._Element) -> str:
         # The xsd file ensures that the body of the element contains valid non-whitespace characters
         txt = cast(str, ele.text)
-        txt = regex.sub(r"[\n\t]", " ", txt)
         txt = regex.sub(r" +", " ", txt)
         return txt.strip()
 

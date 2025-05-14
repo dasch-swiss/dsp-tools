@@ -7,15 +7,17 @@
        default-ontology="onto">
 
     <authorship id="authorship_1">
-        <author>Author One</author>
+        <author>
+            Author One
+        </author>
     </authorship>
     <authorship id="authorship_id_with_newline">
         <author>Author&#10;Newline</author>
     </authorship>
 
-    <!-- 26 Violations -->
+    <!-- 29 Violations -->
 
-    <!-- 3 Legal Info Violations (not implemented) -->
+    <!-- Legal Info Violations -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -28,14 +30,6 @@
         </bitstream>
     </resource>
 
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder=""
-                   authorship-id="authorship_1"
-        >this/is/filepath/file.zip
-        </bitstream>
-    </resource>
-
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="authorship_with_newline">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="Copy"
@@ -44,7 +38,13 @@
         </bitstream>
     </resource>
 
-    <!-- Legal Info Violations -->
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder=""
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
 
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_license">
         <bitstream license=""

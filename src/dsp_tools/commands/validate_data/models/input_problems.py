@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from enum import StrEnum
+from enum import auto
 
 import regex
 
@@ -52,6 +54,7 @@ class InputProblem:
     res_id: str
     res_type: str
     prop_name: str
+    severity: Severity
     message: str | None = None
     input_value: str | None = None
     input_type: str | None = None
@@ -68,6 +71,12 @@ class InputProblem:
             return None
         str_split = [content for x in to_clean.split(" ") if (content := x.strip())]
         return " ".join(str_split)
+
+
+class Severity(Enum):
+    VIOLATION = auto()
+    WARNING = auto()
+    INFO = auto()
 
 
 class ProblemType(StrEnum):

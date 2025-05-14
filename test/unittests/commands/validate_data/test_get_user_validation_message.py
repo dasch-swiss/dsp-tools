@@ -7,6 +7,7 @@ from dsp_tools.commands.validate_data.get_user_validation_message import sort_us
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 
 
@@ -17,6 +18,7 @@ def generic_problem() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasGenericProblem",
+        severity=Severity.VIOLATION,
         message="This is a generic problem.",
     )
 
@@ -28,6 +30,7 @@ def file_value() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
         expected="A MovingImageRepresentation requires a file with the extension 'mp4'.",
     )
 
@@ -39,6 +42,7 @@ def max_card() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasMaxCardProblem",
+        severity=Severity.VIOLATION,
         expected="Cardinality 1",
     )
 
@@ -50,6 +54,7 @@ def min_card() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasMinCardProblem",
+        severity=Severity.VIOLATION,
         expected="Cardinality 1-n",
     )
 
@@ -61,6 +66,7 @@ def non_existing_card() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
     )
 
 
@@ -71,6 +77,7 @@ def file_value_prohibited() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
     )
 
 
@@ -81,6 +88,7 @@ def link_value_type_mismatch() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_type="LinkValue",
         expected="ListValue",
     )
@@ -93,6 +101,7 @@ def input_regex() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_value="wrong input",
         expected="Expected format information",
     )
@@ -105,6 +114,7 @@ def link_target_mismatch() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_value="link_target_id",
         input_type="onto:Class",
         expected="onto:File or a subclass",
@@ -118,6 +128,7 @@ def inexistent_linked_resource() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_value="link_target_id",
     )
 
@@ -129,6 +140,7 @@ def duplicate_value() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_value="Text",
     )
 
@@ -139,6 +151,7 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch)
         res_id="references_iri",
         res_type="onto:Class",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         input_value="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
     )
     inexistent_license_iri = InputProblem(
@@ -146,6 +159,7 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch)
         res_id="inexistent_license_iri",
         res_type="onto:TestStillImageRepresentation",
         prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
         input_value="http://rdfh.ch/licenses/this-iri-does-not-exist",
         message="Files and IIIF-URIs require a reference to a license.",
     )
@@ -165,6 +179,7 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
         res_id="text_value_id",
         res_type="",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         expected="TextValue without formatting",
     )
     should_be_removed = InputProblem(
@@ -172,6 +187,7 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
         res_id="text_value_id",
         res_type="",
         prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
     result = sort_user_problems(
@@ -192,6 +208,7 @@ def test_sort_user_problems_different_props():
         res_id="res_id",
         res_type="",
         prop_name="onto:prop2",
+        severity=Severity.VIOLATION,
         expected="TextValue without formatting",
     )
     two = InputProblem(
@@ -199,6 +216,7 @@ def test_sort_user_problems_different_props():
         res_id="res_id",
         res_type="",
         prop_name="onto:prop1",
+        severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
     result = sort_user_problems(AllProblems([one, two], []))

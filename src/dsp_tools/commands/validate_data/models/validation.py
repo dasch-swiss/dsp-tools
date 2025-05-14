@@ -62,11 +62,18 @@ class DetailBaseInfo:
     source_constraint_component: SubjectObjectTypeAlias
 
 
+class Severity(Enum):
+    VIOLATION = auto()
+    WARNING = auto()
+    INFO = auto()
+
+
 @dataclass
 class ValidationResult:
     violation_type: ViolationType
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
+    severity: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None = None
     message: SubjectObjectTypeAlias | None = None
     input_value: SubjectObjectTypeAlias | None = None

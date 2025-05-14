@@ -11,6 +11,7 @@ from rdflib import Literal
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
+from dsp_tools.commands.validate_data.models.validation import Severity
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -110,6 +111,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
         assert result.property == KNORA_API.isRegionOf
+        assert result.severity == Severity.VIOLATION
         assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
@@ -125,6 +127,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.bitstream_no_legal_info
         assert result.res_class == ONTO.TestArchiveRepresentation
         assert result.property == KNORA_API.hasLicense
+        assert result.severity == Severity.WARNING
         assert not result.input_value
         assert not result.input_type
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
@@ -137,6 +140,7 @@ class TestQueryAllResults:
         result = extracted_results.pop(0)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
+        assert result.severity == Severity.VIOLATION
         assert result.res_iri == DATA.geoname_not_number
         assert result.res_class == ONTO.ClassWithEverything
         assert result.property == ONTO.testGeoname
@@ -154,6 +158,7 @@ class TestExtractBaseInfo:
         assert found_result.focus_node_type == ONTO.ClassInheritedCardinalityOverwriting
         assert found_result.result_path == ONTO.testBoolean
         assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert found_result.severity == SH.Violation
         assert not found_result.detail
 
     def test_still_image_file(
@@ -167,6 +172,7 @@ class TestExtractBaseInfo:
         assert found_result.focus_node_type == ONTO.TestStillImageRepresentation
         assert found_result.result_path == KNORA_API.hasLicense
         assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert found_result.severity == SH.Warning
         assert not found_result.detail
 
     def test_with_detail(self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -178,6 +184,7 @@ class TestExtractBaseInfo:
         assert found_result.focus_node_type == ONTO.ClassWithEverything
         assert found_result.result_path == ONTO.testTextarea
         assert found_result.source_constraint_component == SH.NodeConstraintComponent
+        assert found_result.severity == SH.Violation
         detail = found_result.detail
         assert isinstance(detail, DetailBaseInfo)
         assert detail.source_constraint_component == SH.MinCountConstraintComponent

@@ -205,6 +205,7 @@ def extracted_file_value_for_resource_without_representation() -> ValidationResu
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,
+        severity=SH.Violation,
     )
 
 
@@ -216,6 +217,7 @@ def extracted_min_card() -> ValidationResult:
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
         expected=Literal("1"),
+        severity=SH.Violation,
     )
 
 
@@ -280,6 +282,7 @@ def extracted_value_type_simpletext() -> ValidationResult:
         property=ONTO.testTextarea,
         expected=Literal("TextValue without formatting"),
         input_type=KNORA_API.TextValue,
+        severity=SH.Violation,
     )
 
 
@@ -332,6 +335,7 @@ def extracted_min_inclusive() -> ValidationResult:
         property=KNORA_API.hasSegmentBounds,
         message=Literal("The interval start must be a non-negative integer or decimal."),
         input_value=Literal("-2.0"),
+        severity=SH.Violation,
     )
 
 
@@ -382,6 +386,7 @@ def extracted_value_type() -> ValidationResult:
         property=ONTO.testUriValue,
         expected=Literal("This property requires a UriValue"),
         input_type=KNORA_API.TextValue,
+        severity=SH.Violation,
     )
 
 
@@ -432,6 +437,7 @@ def extracted_regex() -> ValidationResult:
         property=ONTO.testGeoname,
         expected=Literal("The value must be a valid geoname code"),
         input_value=Literal("this-is-not-a-valid-code"),
+        severity=SH.Violation,
     )
 
 
@@ -498,6 +504,7 @@ def extracted_link_target_non_existent() -> ValidationResult:
         property=ONTO.testHasLinkTo,
         expected=KNORA_API.Resource,
         input_value=DATA.other,
+        severity=SH.Violation,
     )
 
 
@@ -568,6 +575,7 @@ def extracted_link_target_wrong_class() -> ValidationResult:
         expected=ONTO.CardOneResource,
         input_value=DATA.id_9_target,
         input_type=ONTO.ClassWithEverything,
+        severity=SH.Violation,
     )
 
 
@@ -578,7 +586,7 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
         sh:focusNode <http://data/value_image_no_legal_info> ;
         sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
-        sh:resultSeverity sh:Violation ;
+        sh:resultSeverity sh:Warning ;
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
     """
@@ -602,7 +610,7 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
         focus_node_iri=DATA.image_no_legal_info,
         focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasLicense,
-        severity=SH.Violation,
+        severity=SH.Warning,
     )
     return validation_g, onto_data_g, base_info
 
@@ -613,6 +621,7 @@ def extracted_image_missing_legal_info() -> ValidationResult:
         violation_type=ViolationType.GENERIC,
         res_iri=DATA.image_no_legal_info,
         res_class=ONTO.TestStillImageRepresentation,
+        severity=SH.Warning,
         property=KNORA_API.hasLicense,
         expected=Literal("Files and IIIF-URIs require a reference to a license."),
     )
@@ -625,7 +634,7 @@ def report_archive_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph]:
         sh:focusNode <http://data/value_bitstream_no_legal_info> ;
         sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
-        sh:resultSeverity sh:Violation ;
+        sh:resultSeverity sh:Warning ;
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
     """
@@ -688,6 +697,7 @@ def extracted_closed_constraint() -> ValidationResult:
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
+        severity=SH.Violation,
     )
 
 
@@ -737,6 +747,7 @@ def extracted_max_card() -> ValidationResult:
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
         expected=Literal("0-1"),
+        severity=SH.Violation,
     )
 
 
@@ -781,6 +792,7 @@ def extracted_empty_label() -> ValidationResult:
         property=RDFS.label,
         expected=Literal("The label must be a non-empty string"),
         input_value=Literal(" "),
+        severity=SH.Violation,
     )
 
 
@@ -825,6 +837,7 @@ def extracted_unique_value_literal() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
         input_value=Literal("00111111"),
+        severity=SH.Violation,
     )
 
 
@@ -869,6 +882,7 @@ def extracted_unique_value_iri() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         input_value=DATA.link_valueTarget_id,
+        severity=SH.Violation,
     )
 
 
@@ -913,6 +927,7 @@ def extracted_coexist_with() -> ValidationResult:
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         message=Literal("Coexist message from knora-api turtle"),
+        severity=SH.Violation,
     )
 
 
@@ -974,6 +989,7 @@ def extracted_unknown_list_node() -> ValidationResult:
         property=ONTO.testListProp,
         message=Literal("A valid node from the list 'firstList' must be used with this property."),
         input_value=Literal("firstList / other"),
+        severity=SH.Violation,
     )
 
 
@@ -1035,6 +1051,7 @@ def extracted_unknown_list_name() -> ValidationResult:
         property=ONTO.testListProp,
         message=Literal("A valid node from the list 'firstList' must be used with this property."),
         input_value=Literal("other / n1"),
+        severity=SH.Violation,
     )
 
 
@@ -1077,6 +1094,7 @@ def extracted_missing_file_value() -> ValidationResult:
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
         expected=Literal("Cardinality 1"),
+        severity=SH.Violation,
     )
 
 
@@ -1190,6 +1208,7 @@ def extracted_single_line_constraint_component() -> ValidationResult:
         property=KNORA_API.hasCopyrightHolder,
         message=Literal("The copyright holder must be a string without newlines."),
         input_value=Literal("with newline"),
+        severity=SH.Violation,
     )
 
 

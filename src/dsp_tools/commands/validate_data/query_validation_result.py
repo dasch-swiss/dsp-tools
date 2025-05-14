@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import Severity
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -30,6 +31,9 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
+
+
+SEVERITY_MAPPER = {SH.Violation: Severity.VIOLATION, SH.Warning: Severity.WARNING, SH.Info: Severity.INFO}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -111,7 +115,7 @@ def _extract_one_base_info(
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
-    severity = next(results_and_onto.objects(info.validation_bn, SH.severity))
+    severity = next(results_and_onto.objects(info.validation_bn, SH.resultSeverity))
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
         for single_detail in detail_bn_list:
             detail_component = next(results_and_onto.objects(single_detail, SH.sourceConstraintComponent))
@@ -200,6 +204,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 violation_type=ViolationType.MAX_CARD,
                 res_iri=base_info.focus_node_iri,
                 res_class=base_info.focus_node_type,
+                severity=base_info.severity,
                 property=base_info.result_path,
                 expected=msg,
             )
@@ -212,6 +217,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 violation_type=ViolationType.SEQNUM_IS_PART_OF,
                 res_iri=base_info.focus_node_iri,
                 res_class=base_info.focus_node_type,
+                severity=base_info.severity,
                 message=msg,
             )
         case SH.ClassConstraintComponent:
@@ -252,6 +258,7 @@ def _query_class_constraint_without_detail(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         message=msg,
         expected=expected,
@@ -279,6 +286,7 @@ def _query_for_non_existent_cardinality_violation(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
     )
 
@@ -339,6 +347,7 @@ def _query_for_value_type_violation(
         violation_type=ViolationType.VALUE_TYPE,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         expected=msg,
         input_type=val_type,
@@ -354,6 +363,7 @@ def _query_pattern_constraint_component_violation(
         violation_type=ViolationType.PATTERN,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         expected=msg,
         input_value=val,
@@ -371,6 +381,7 @@ def _query_generic_violation(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         message=msg,
         input_value=val,
@@ -390,6 +401,7 @@ def _query_for_link_value_target_violation(
         violation_type=ViolationType.LINK_TARGET,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         expected=expected_type,
         input_value=target_iri,
@@ -408,6 +420,7 @@ def _query_for_min_cardinality_violation(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         expected=msg,
     )
@@ -422,6 +435,7 @@ def _query_for_unique_value_violation(
         violation_type=ViolationType.UNIQUE_VALUE,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        severity=base_info.severity,
         property=base_info.result_path,
         input_value=val,
     )

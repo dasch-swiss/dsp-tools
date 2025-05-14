@@ -383,6 +383,8 @@ class TestTextParsing:
         see [DEV-4796](https://linear.app/dasch/issue/DEV-4796).
         This test succeeds currently, but as soon as the bug is fixed, it will fail.
         The correct API response would be `href=&quot;` instead of `href=\\&quot;`.
+        This is also true for the single apostrophe in the following two tests.
+        Use this ticket to fix the tests: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
         """
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
@@ -396,7 +398,18 @@ class TestTextParsing:
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{SPECIAL_CHARACTERS_STRING}</text>"
+        wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{wrongly_escaped_special_char_string}</text>"
+        assert returned_str == expected_str
+
+    def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
+        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
+        wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-\&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+        expected_str = (
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{wrongly_escaped_special_char_string}"/> '
+            f"end text</text>"
+        )
         assert returned_str == expected_str
 
     def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
@@ -411,12 +424,3 @@ class TestTextParsing:
         # Otherwise, this function call would fail.
         returned_iri = util_get_res_iri_from_label(g_text_parsing, SPECIAL_CHARACTERS_STRING)
         assert str(returned_iri).startswith("http://rdfh.ch/9999/")
-
-    # def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
-    #     Assert this test when the bug is fixed: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
-    #     prop_iri = URIRef(f"{onto_iri}testRichtext")
-    #     returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
-    #     expected_str = (
-    #         f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{SPECIAL_CHARACTERS_STRING}"/> end text</text>'
-    #     )
-    #     assert returned_str == expected_str

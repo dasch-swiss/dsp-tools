@@ -244,4 +244,3 @@ def test_serialise_authorship() -> None:
     assert len(result) == len(expected)
     for res, ex in zip(result, expected):
         assert res == ex
-

@@ -48,13 +48,16 @@ def _serialise_one_resource(
             _resolve_default_permissions_normal_resource(res, default_permissions)
             return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
-            _resolve_default_permissions_region(res, default_permissions)
+            _resolve_default_permissions_normal_resource(res, default_permissions)
             return _serialise_region(res)
         case LinkResource():
+            _resolve_default_permissions_normal_resource(res, default_permissions)
             return _serialise_link(res)
         case AudioSegmentResource():
+            _resolve_segment_permissions(res, default_permissions)
             return _serialise_segment(res, "audio-segment")
         case VideoSegmentResource():
+            _resolve_segment_permissions(res, default_permissions)
             return _serialise_segment(res, "video-segment")
         case _:
             raise_input_error(
@@ -73,7 +76,9 @@ def _resolve_default_permission(permission: Permissions, default_permission: Per
     return permission
 
 
-def _resolve_default_permissions_normal_resource(resource: Resource, default_permissions: Permissions | None) -> None:
+def _resolve_default_permissions_normal_resource(
+    resource: AnyResource, default_permissions: Permissions | None
+) -> None:
     if default_permissions:
         resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
         for v in resource.values:
@@ -84,14 +89,14 @@ def _resolve_default_permissions_normal_resource(resource: Resource, default_per
             )
 
 
-def _resolve_default_permissions_region(resource: RegionResource, default_permissions: Permissions | None) -> None:
+def _resolve_segment_permissions(
+    segment: AudioSegmentResource | VideoSegmentResource, default_permissions: Permissions | None
+) -> None:
+    _resolve_default_permissions_normal_resource(segment, default_permissions)
     if default_permissions:
-        resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
-        resource.region_of.permissions = _resolve_default_permission(
-            resource.region_of.permissions, default_permissions
+        segment.segment_bounds.permissions = _resolve_default_permission(
+            segment.segment_bounds.permissions, default_permissions
         )
-        for cmnt in resource.comments:
-            cmnt.permissions = _resolve_default_permission(cmnt.permissions, default_permissions)
 
 
 def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:

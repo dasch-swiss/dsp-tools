@@ -129,7 +129,6 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
                 "The region resource does not have a geometry. Please note that an xmlupload will fail.", res.res_id
             )
         )
-
         return prop_list
     geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
     geo_attrib = (

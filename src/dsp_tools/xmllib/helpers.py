@@ -1227,10 +1227,10 @@ def _get_already_parsed_license(string: str) -> License | None:
         r"http://rdfh\.ch/licenses/ai-generated": LicenseRecommended.DSP.AI_GENERATED,
         r"http://rdfh\.ch/licenses/unknown": LicenseRecommended.DSP.UNKNOWN,
         r"http://rdfh\.ch/licenses/public-domain": LicenseRecommended.DSP.PUBLIC_DOMAIN,
-        r"http://rdfh.ch/licenses/cc-0-1.0": LicenseOther.Public.CC_0_1_0,
-        r"http://rdfh.ch/licenses/cc-pdm-1.0": LicenseOther.Public.CC_PDM_1_0,
+        r"http://rdfh\.ch/licenses/cc-0-1.0": LicenseOther.Public.CC_0_1_0,
+        r"http://rdfh\.ch/licenses/cc-pdm-1.0": LicenseOther.Public.CC_PDM_1_0,
         r"http://rdfh\.ch/licenses/boris": LicenseOther.Various.BORIS_STANDARD,
-        r"http://rdfh.ch/licenses/open-licence-2.0": LicenseOther.Various.FRANCE_OUVERTE,
+        r"http://rdfh\.ch/licenses/open-licence-2.0": LicenseOther.Various.FRANCE_OUVERTE,
     }
     for rgx, lic in already_parsed_dict.items():
         if regex.search(rgx, string):

@@ -634,6 +634,7 @@ class TestFindLicense:
             "text licence ouverte text",
             f"text{NBSP}licence{NBSP}ouverte{NBSP}text",
             "text France-licence-ouverte text",
+            "text Etalab Licence ouverte text",
         ],
     )
     def test_find_france_ouverte(self, string: str) -> None:

@@ -119,6 +119,7 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     result = reformat_validation_graph(cardinality_violation)
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
@@ -189,6 +190,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     result = reformat_validation_graph(content_violation)
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
@@ -236,6 +238,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
     # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
@@ -270,6 +273,7 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(unique_value_violation)
         sorted_problems = sort_user_problems(result)
         assert len(sorted_problems.unique_violations) == len(expected_ids)
+        assert not sorted_problems.user_warnings
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
@@ -279,12 +283,9 @@ class TestReformatValidationGraph:
             assert one_result.res_id == expected_id
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
-        expected_info_tuples = [
+        expected_info_violation = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
             ("authorship_with_newline", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
             ("empty_copyright_holder", ProblemType.INPUT_REGEX),
             ("empty_license", ProblemType.GENERIC),
@@ -302,23 +303,33 @@ class TestReformatValidationGraph:
             ("id_video_missing", ProblemType.FILE_VALUE),
             ("id_video_unknown", ProblemType.FILE_VALUE),
             ("id_wrong_file_type", ProblemType.FILE_VALUE),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
             ("inexistent_license_iri", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
+        expected_info_warnings = [
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+        ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
-        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+        assert len(sorted_problems.unique_violations) == len(expected_info_violation)
+        assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
@@ -401,9 +412,6 @@ def test_every_violation_combination_once(every_violation_combination_once: Vali
 
 def test_reformat_every_constraint_once(every_violation_combination_once: ValidationReportGraphs) -> None:
     expected_info_tuples = [
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
         ("empty_label", ProblemType.INPUT_REGEX),
         ("geoname_not_number", ProblemType.INPUT_REGEX),
         ("id_card_one", ProblemType.MIN_CARD),
@@ -411,9 +419,6 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("id_max_card", ProblemType.MAX_CARD),
         ("id_missing_file_value", ProblemType.FILE_VALUE),
         ("identical_values", ProblemType.DUPLICATE_VALUE),
-        ("image_no_legal_info", ProblemType.GENERIC),
-        ("image_no_legal_info", ProblemType.GENERIC),
-        ("image_no_legal_info", ProblemType.GENERIC),
         ("inexistent_license_iri", ProblemType.GENERIC),
         ("label_with_newline", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -427,16 +432,29 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
     ]
+    expected_info_warnings = [
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+    ]
     result = reformat_validation_graph(every_violation_combination_once)
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
+    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
+        assert one_result.problem_type == expected_info[1]
+        assert one_result.res_id == expected_info[0]
 
 
 if __name__ == "__main__":

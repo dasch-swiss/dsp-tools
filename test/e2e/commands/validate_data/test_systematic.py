@@ -7,8 +7,7 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
-from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import validate_data
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 
 # ruff: noqa: ARG001 Unused function argument
@@ -32,6 +31,5 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 @pytest.mark.usefixtures("create_project_systematic")
 def test_systematic(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
-    graphs, _ = _get_parsed_graphs(api_url, file)
-    systematic_correct = _get_validation_result(graphs, shacl_validator, None)
-    assert not systematic_correct.conforms  # This test will be correct as soon as legal information is mandatory
+    no_violations = validate_data(file, api_url, False)
+    assert no_violations

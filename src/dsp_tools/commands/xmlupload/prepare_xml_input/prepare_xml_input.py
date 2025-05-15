@@ -61,7 +61,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
     return proj_context
 
 
-def get_processed_resources_from_parsed_resources(
+def get_processed_resources_for_upload(
     resources: list[ParsedResource], xml_lookups: XmlReferenceLookups
 ) -> list[ProcessedResource]:
     processing_result = get_processed_resources(resources, xml_lookups)

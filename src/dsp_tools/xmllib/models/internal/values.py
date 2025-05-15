@@ -26,7 +26,7 @@ from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
 class Value(Protocol):
-    value: Any
+    value: str
     prop_name: str
     permissions: Permissions
     comment: str | None
@@ -34,7 +34,7 @@ class Value(Protocol):
 
 @dataclass
 class BooleanValue(Value):
-    value: Any
+    value: str
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
@@ -109,7 +109,7 @@ class DateValue(Value):
 
 @dataclass
 class DecimalValue(Value):
-    value: str | float | int
+    value: str
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
@@ -157,7 +157,7 @@ class GeonameValue(Value):
 
 @dataclass
 class IntValue(Value):
-    value: int | str
+    value: str
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None

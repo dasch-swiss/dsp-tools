@@ -44,27 +44,27 @@ class DateTimeStamp:
         else:
             raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
 
-    def __eq__(self, other: Union[str, "DateTimeStamp"]) -> bool:
+    def __eq__(self, other: Union[str, DateTimeStamp]) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp == other._dateTimeStamp
 
-    def __lt__(self, other: "DateTimeStamp") -> bool:
+    def __lt__(self, other: DateTimeStamp) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp < other._dateTimeStamp
 
-    def __le__(self, other: "DateTimeStamp") -> bool:
+    def __le__(self, other: DateTimeStamp) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp <= other._dateTimeStamp
 
-    def __gt__(self, other: "DateTimeStamp") -> bool:
+    def __gt__(self, other: DateTimeStamp) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp > other._dateTimeStamp
 
-    def __ge__(self, other: "DateTimeStamp") -> bool:
+    def __ge__(self, other: DateTimeStamp) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp >= other._dateTimeStamp
@@ -74,7 +74,7 @@ class DateTimeStamp:
             other = DateTimeStamp(other)
         return self._dateTimeStamp != other._dateTimeStamp
 
-    def __str__(self: "DateTimeStamp") -> str:
+    def __str__(self: DateTimeStamp) -> str:
         return self._dateTimeStamp
 
     def toJsonObj(self) -> dict[str, str]:

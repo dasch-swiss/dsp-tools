@@ -15,7 +15,7 @@ class ContextIterator:
     _prefixes: list[str]
     _index: int
 
-    def __init__(self, context: "Context"):
+    def __init__(self, context: Context):
         self._context = context
         self._prefixes = list(self._context.context)
         self._index = 0

@@ -105,7 +105,7 @@ class ListClient:
         timeout = 10
         log_request(RequestParameters("GET", url, timeout))
         response = requests.get(url=url, timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
@@ -171,7 +171,7 @@ class ShaclValidator:
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=post_files))
         response = requests.post(url=url, files=post_files.to_dict(), timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
@@ -182,7 +182,7 @@ class ShaclValidator:
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=card_files))
         response = requests.post(url=url, files=card_files.to_dict(), timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
@@ -197,7 +197,7 @@ class ShaclValidator:
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=content_files))
         response = requests.post(url=url, files=content_files.to_dict(), timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)

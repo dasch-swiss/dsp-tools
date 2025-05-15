@@ -1131,6 +1131,13 @@
                         "type": "string"
                     }
                 },
+                "enabled_licenses": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "pattern": "^http://rdfh\\.ch/licenses/.+"
+                    }
+                },
                 "groups": {
                     "type": "array",
                     "items": {

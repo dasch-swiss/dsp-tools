@@ -5,10 +5,13 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
@@ -52,8 +55,7 @@ class TestParseResource:
     def test_empty(self, root_no_resources, resource_no_values):
         root = deepcopy(root_no_resources)
         root.append(resource_no_values)
-        parsed_res, iris = get_parsed_resources(root, HTTPS_API_URL)
-        assert iris == {RES_CLASS}
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_no_values"
@@ -67,7 +69,7 @@ class TestParseResource:
     def test_resource_with_migration_data(self, root_no_resources, resource_with_migration_data):
         root = deepcopy(root_no_resources)
         root.append(resource_with_migration_data)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_migration_data"
@@ -85,7 +87,7 @@ class TestParseResource:
     def test_with_value(self, root_no_resources, resource_with_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_value)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_value"
@@ -105,7 +107,7 @@ class TestParseResource:
     def test_file_value(self, root_no_resources, resource_with_file_value):
         root = deepcopy(root_no_resources)
         root.append(resource_with_file_value)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_file_value"
@@ -122,7 +124,7 @@ class TestParseResource:
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
         root.append(resource_with_iiif)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_with_iiif"
@@ -138,7 +140,7 @@ class TestParseResource:
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
         root.append(resource_region)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_region"
@@ -152,7 +154,7 @@ class TestParseResource:
     def test_link(self, root_no_resources, resource_link):
         root = deepcopy(root_no_resources)
         root.append(resource_link)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_link"
@@ -168,7 +170,7 @@ class TestSegment:
     def test_video_segment(self, root_no_resources, resource_video_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_video_segment)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_video_segment"
@@ -182,7 +184,7 @@ class TestSegment:
     def test_audio_segment(self, root_no_resources, resource_audio_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_audio_segment)
-        parsed_res, _ = get_parsed_resources(root, HTTPS_API_URL)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_audio_segment"
@@ -371,6 +373,21 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
+    def test_list_value_iri(self):
+        xml_val = etree.fromstring("""
+        <list-prop name=":hasProp" list="">
+            <list>http://rdfh.ch/lists/0001/uuid</list>
+        </list-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == ("", "http://rdfh.ch/lists/0001/uuid")
+        assert val.value_type == KnoraValueType.LIST_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
     def test_list_value_several(self):
         xml_val = etree.fromstring("""
         <list-prop list="firstList" name=":hasProp">
@@ -479,24 +496,6 @@ class TestParseValues:
         val = result.pop(0)
         assert val.prop_name == HAS_PROP
         assert val.value == "Text"
-        assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
-        assert not val.permissions_id
-        assert not val.comment
-
-    def test_text_simpletext_not_tags_but_angular_brackets(self):
-        # It is permissible for simpletext to contain angular brackets,
-        # even though they will not be displayed as XML on the app.
-        # lxml will see them as XMl and we must ensure that they are parsed correctly.
-        xml_val = etree.fromstring("""
-        <text-prop name=":hasProp">
-            <text encoding="utf8"><notARecognisedTag>Text</notARecognisedTag></text>
-        </text-prop>
-        """)
-        result = _parse_one_value(xml_val, IRI_LOOKUP)
-        assert len(result) == 1
-        val = result.pop(0)
-        assert val.prop_name == HAS_PROP
-        assert val.value == "<notARecognisedTag>Text</notARecognisedTag>"
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
@@ -672,4 +671,79 @@ def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
 )
 def test_get_one_absolute_iri(local_name, expected):
     result = _get_one_absolute_iri(local_name, "0000", "default", HTTP_API_URL)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        ('<text encoding="utf8">Text (Special &amp; Ampersand)</text>', "Text (Special & Ampersand)"),
+        ('<text encoding="utf8"></text>', None),
+        ('<text encoding="utf8">&lt; Hallo <foobar>inner</foobar> tail</text>', "< Hallo <foobar>inner</foobar> tail"),
+        ('<text encoding="utf8">   </text>', ""),
+        (
+            """<author>
+            Cavanagh, Annie
+        </author>""",
+            "Cavanagh, Annie",
+        ),
+        ('<text encoding="utf8">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
+        ('<hasKeyword permissions="open">Keyword&#10;</hasKeyword>', "Keyword"),
+        (
+            """<text>
+    Text line 1
+
+            line 2
+    Third line ...
+
+    </text>""",
+            "Text line 1\n\nline 2\nThird line ...",
+        ),
+    ],
+)
+def test_get_simpletext_as_string(input_val, expected):
+    result = _get_simpletext_as_string(etree.fromstring(input_val))
+    assert result == expected
+
+
+def test_get_richtext_as_string_using_text_tags():
+    user_value = "<text>Using also text tags that should stay.</text>"
+    original = etree.fromstring(f'  <text encoding="xml">{user_value}</text>  ')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
+
+
+def test_get_richtext_as_string_with_paragraph():
+    user_value = "<p>With paragraph.</p>"
+    original = etree.fromstring(f'\n<text encoding="xml">{user_value}</text>\n')
+    result = _get_richtext_as_string(original)
+    assert result == user_value
+
+
+def test_cleanup_formatted_text():
+    original = """
+
+        This is <em>italicized and <strong>bold</strong></em> text!
+        It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
+        The same <pre>is   true   for   preformatted   text</pre>.
+
+        It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
+        Line breaks must be done with <code><br/></code> tags.<br/>
+        Otherwise they will be removed.<br/><br/>
+
+        It contains links to a resource:
+        <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+
+    """
+    expected = (
+        "This is <em>italicized and <strong>bold</strong></em> text! "
+        "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
+        "The same <pre>is   true   for   preformatted   text</pre>. "
+        "It contains multiple whitespaces and tabstops.<br/><br/>"
+        "Line breaks must be done with <code><br/></code> tags.<br/>"
+        "Otherwise they will be removed.<br/><br/>"
+        "It contains links to a resource: "
+        '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
+    )
+    result = _cleanup_formatted_text(original)
     assert result == expected

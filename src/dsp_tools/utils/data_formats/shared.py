@@ -69,7 +69,7 @@ def check_notna(value: Optional[Any]) -> TypeGuard[Any]:
     if isinstance(value, PropertyElement):
         value = value.value
 
-    if isinstance(value, (bool, int)) or (
+    if isinstance(value, bool | int) or (
         isinstance(value, float) and pd.notna(value)
     ):  # necessary because isinstance(np.nan, float)
         return True

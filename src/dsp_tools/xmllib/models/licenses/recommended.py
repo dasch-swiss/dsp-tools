@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 
 
-class License: ...
+class License(StrEnum): ...
 
 
 class LicenseRecommended:
@@ -12,6 +12,10 @@ class LicenseRecommended:
 
     - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
     - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
+
+    Tip:
+        Use the helper function [find_license_in_string()](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string)
+        to parse a license from a string.
 
     Examples:
         ```python
@@ -39,7 +43,7 @@ class LicenseRecommended:
     DSP: type[DSP]
 
 
-class CC(License, StrEnum):
+class CC(License):
     """
     Pre-defined and recommended [Creative Commons licenses:](https://creativecommons.org/share-your-work/)
 
@@ -49,6 +53,10 @@ class CC(License, StrEnum):
     - `BY_NC_SA`: [Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
     - `BY_ND`: [Attribution-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
     - `BY_NC_ND`: [Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+    Tip:
+        Use the helper function [find_license_in_string()](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string)
+        to parse a license from a string.
 
     Examples:
         ```python
@@ -70,7 +78,7 @@ class CC(License, StrEnum):
     BY_NC_ND = "http://rdfh.ch/licenses/cc-by-nc-nd-4.0"
 
 
-class DSP(License, StrEnum):
+class DSP(License):
     """
     Pre-defined and recommended licenses created and curated by DaSCH:
 

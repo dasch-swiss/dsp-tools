@@ -1,10 +1,10 @@
 import unittest
 import warnings
+from collections.abc import Callable
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
-from typing import Callable
 from typing import Optional
-from typing import Sequence
 from typing import Union
 
 import numpy as np

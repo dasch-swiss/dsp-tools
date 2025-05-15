@@ -193,19 +193,37 @@ class ConnectionLive(Connection):
         if should_retry(response):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
-        msg = "Permanently unable to execute the network action. "
-        blame: Literal["server", "client"] = "server"
-        if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
-            msg += f"\n{' ' * 37}Original Message: {original_str.group(1)}\n"
-            blame = "client"
-        if original_str and original_str.group(1).startswith("OntologyConstraintException"):
-            blame = "client"
-        if original_str and original_str.group(1).startswith("NotFoundException"):
-            blame = "client"
+        api_msg = self._extract_original_api_err_msg(str(response.content))
+        blame = self._determine_blame(api_msg)
         if blame == "client":
-            raise InvalidInputError(msg)
+            raise InvalidInputError(api_msg)
         else:
+            msg = f"Permanently unable to execute the network action.\n{' ' * 37}Original Message: {api_msg}\n"
             raise PermanentConnectionError(msg)
+
+    def _extract_original_api_err_msg(self, response_content: str) -> str:
+        if found := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', response_content):
+            api_msg = found.group(1)
+        if found := regex.search(r'{"message":"(.+)"}', response_content):
+            api_msg = found.group(1)
+        else:
+            api_msg = str(response_content)
+        return api_msg
+
+    def _determine_blame(self, api_msg: str) -> Literal["server", "client"]:
+        api_msg = api_msg.lower()
+        client_markers = [
+            "OntologyConstraintException",
+            "NotFoundException",
+            "One or more resources were not found",
+            "does not allow more than one value for property",
+            "Duplicate values for property",
+            "Text value contains invalid characters",
+        ]
+        blame: Literal["server", "client"] = "server"
+        if any(x.lower() in api_msg for x in client_markers):
+            blame = "client"
+        return blame
 
     def _renew_session(self) -> None:
         self.session.close()

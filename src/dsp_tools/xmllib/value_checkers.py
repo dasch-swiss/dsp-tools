@@ -1,14 +1,11 @@
-import warnings
 from typing import Any
 
 import pandas as pd
 import regex
-from lxml import etree
-from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.models.problems import IllegalTagProblem
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -343,14 +340,8 @@ def check_richtext_syntax(richtext: str) -> None:
         richtext: richtext to check
 
     Warns:
-        DspToolsUserWarning: if the input contains XML syntax problems
+        XmllibInputWarning: if the input contains XML syntax problems
     """
-    escaped_text = escape_reserved_xml_characters(richtext)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<text>{num_ent}</text>"
-    try:
-        _ = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
-        warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
+    result = parse_richtext_as_xml(richtext)
+    if isinstance(result, MessageInfo):
+        emit_xmllib_input_warning(result)

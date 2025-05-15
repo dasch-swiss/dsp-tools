@@ -8,6 +8,7 @@ from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.exceptions import InputError
 
 
@@ -41,8 +42,12 @@ def test_to_dict_json_header_invalid_missing_sheet() -> None:
         "The following sheet(s) are mandatory and may not be empty:\n"
         "    - keywords"
     )
-    with pytest.raises(InputError, match=expected):
-        get_json_header(test_path)
+    with pytest.warns(
+        DspToolsFutureWarning,
+        match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
+    ):
+        with pytest.raises(InputError, match=expected):
+            get_json_header(test_path)
 
 
 def test_to_dict_json_header_invalid_empty_sheet() -> None:
@@ -54,8 +59,12 @@ def test_to_dict_json_header_invalid_empty_sheet() -> None:
         "description_de, description_en, description_fr, description_it, description_rm\n"
         "Row 2 does not contain any values in those columns."
     )
-    with pytest.raises(InputError, match=expected):
-        get_json_header(test_path)
+    with pytest.warns(
+        DspToolsFutureWarning,
+        match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
+    ):
+        with pytest.raises(InputError, match=expected):
+            get_json_header(test_path)
 
 
 if __name__ == "__main__":

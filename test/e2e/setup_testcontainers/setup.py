@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import subprocess
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator
 from uuid import uuid4
 
 import regex

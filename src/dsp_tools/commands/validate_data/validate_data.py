@@ -56,9 +56,11 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     Returns:
         true unless it crashed
     """
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
+    return _validate_data(graphs, used_iris, api_url, filepath, save_graphs)
 
-    graphs, used_iris = _get_parsed_graphs(api_url, filepath)
 
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepath: Path, save_graphs: bool) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.info(msg)
@@ -66,12 +68,10 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-
     shacl_validator = ShaclValidator(api_url)
     save_path = None
     if save_graphs:
         save_path = _get_save_directory(filepath)
-
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
@@ -80,7 +80,6 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
         logger.info("Validation passed.")
@@ -96,6 +95,38 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         ]
     )
     return no_problems
+
+
+def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
+    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
+    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
+
+
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
+    root = parse_and_clean_xml_file(file)
+    shortcode = root.attrib["shortcode"]
+    authorship_lookup = get_authorship_lookup(root)
+    parsed_resources = get_parsed_resources(root, api_url)
+    return parsed_resources, shortcode, authorship_lookup
+
+
+def _prepare_data_for_validation_from_parsed_resource(
+    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], api_url: str, shortcode: str
+) -> tuple[RDFGraphs, set[str]]:
+    used_iris = {x.res_type for x in parsed_resources}
+    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
+    onto_client = OntologyClient(api_url, shortcode)
+    list_client = ListClient(api_url, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    return rdf_graphs, used_iris
+
+
+def _make_data_graph_from_parsed_resources(
+    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]
+) -> Graph:
+    rdf_like_data = get_rdf_like_data(parsed_resources, authorship_lookup)
+    rdf_data = make_data_graph(rdf_like_data)
+    return rdf_data
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -193,32 +224,6 @@ def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, fil
         f"in the directory '{filepath.parent}'."
     )
     print(BOLD_RED + msg + RESET_TO_DEFAULT)
-
-
-def _get_parsed_graphs(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    used_iris = {x.res_type for x in parsed_resources}
-    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    onto_client = OntologyClient(api_url, shortcode)
-    list_client = ListClient(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    return rdf_graphs, used_iris
-
-
-def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
-    root = parse_and_clean_xml_file(file)
-    shortcode = root.attrib["shortcode"]
-    authorship_lookup = get_authorship_lookup(root)
-    parsed_resources = get_parsed_resources(root, api_url)
-    return parsed_resources, shortcode, authorship_lookup
-
-
-def _make_data_graph_from_parsed_resources(
-    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]
-) -> Graph:
-    rdf_like_data = get_rdf_like_data(parsed_resources, authorship_lookup)
-    rdf_data = make_data_graph(rdf_like_data)
-    return rdf_data
 
 
 def _check_for_unknown_resource_classes(

@@ -1100,7 +1100,7 @@ def clean_whitespaces_from_string(string: str) -> str:
 def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
     """
     Checks if a string contains a license, and returns the first found license.
-    Once a license has been found, subsequent licenses are ignored.
+    Once a license has been found, subsequent licenses are ignored. # TODO That's not true, nor is it for find_date_in_string. In fact, there's a precedence rule. This should be clarified.
     Returns None if no license was found.
     The case (upper case/lower case) is ignored.
 

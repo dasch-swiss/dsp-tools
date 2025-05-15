@@ -5,6 +5,7 @@ import pandas as pd
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import MessageStrings
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -109,31 +110,40 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     """
     violation_message = None
     warning_message = None
-    iri_info_message = None
-    if sorted_problems.user_info:
-        iri_info_message = _get_referenced_iri_info(sorted_problems.user_info)
+    info_message = None
+    unexpected_violations = None
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
             specific_message_violation = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
         else:
             specific_message_violation = _get_problem_print_message(sorted_problems.unique_violations)
         violation_message = (
-            f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
+            f"During the validation of the data {len(sorted_problems.unique_violations)} "
             f"errors were found:\n\n{specific_message_violation}"
         )
+        violation_message = MessageStrings(violation_message, specific_message_violation)
     if sorted_problems.user_warnings:
         if len(sorted_problems.unique_violations) > 50:
             specific_message_warning = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
         else:
             specific_message_warning = _get_problem_print_message(sorted_problems.user_warnings)
         warning_message = (
-            f"\nDuring the validation of the data {len(sorted_problems.user_warnings)} "
-            f"problems of the severity warning were found:\n\n{specific_message_warning}"
+            f"During the validation of the data {len(sorted_problems.user_warnings)} "
+            f"problems were found. While they currently do not impede an xmlupload they may do so in the future."
         )
-    return UserPrintMessages(violation_message, warning_message, iri_info_message)
+        violation_message = MessageStrings(warning_message, specific_message_warning)
+    if sorted_problems.user_info:
+        info_message = _get_referenced_iri_info(sorted_problems.user_info)
+    if sorted_problems.unexpected_shacl_validation_components:
+        header_msg = "The following unknown violation types were found!"
+        unexpected_components = LIST_SEPARATOR + LIST_SEPARATOR.join(
+            sorted_problems.unexpected_shacl_validation_components
+        )
+        unexpected_violations = MessageStrings(header_msg, unexpected_components)
+    return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
 
 
-def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
+def _get_referenced_iri_info(problems: list[InputProblem]) -> MessageStrings:
     user_info_str = [
         f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
         for x in problems
@@ -143,7 +153,7 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
         "If these resources do not exist in the database or are not of the expected resource type then"
         "the xmlupload will fail. Below you find a list of the references."
     )
-    return iri_msg + LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
+    return MessageStrings(iri_msg, LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str))
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

@@ -42,10 +42,17 @@ class SortedProblems:
 
 
 @dataclass
+class MessageStrings:
+    message_header: str
+    message_body: str
+
+
+@dataclass
 class UserPrintMessages:
-    violations: str | None
-    warnings: str | None
-    infos: str | None
+    violations: MessageStrings | None
+    warnings: MessageStrings | None
+    infos: MessageStrings | None
+    unexpected_violations: MessageStrings | None
 
 
 @dataclass

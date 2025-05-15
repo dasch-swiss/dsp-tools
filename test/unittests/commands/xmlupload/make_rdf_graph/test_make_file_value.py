@@ -83,7 +83,7 @@ class TestMakeBitstreamFileGraph:
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
-        assert file_id == Literal("FileID", datatype=XSD.string)
+        assert file_id == Literal("FileID.txt", datatype=XSD.string)
         permissions = next(g.objects(file_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
@@ -97,7 +97,7 @@ class TestMakeBitstreamFileGraph:
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
-        assert file_id == Literal("FileID", datatype=XSD.string)
+        assert file_id == Literal("FileID.txt", datatype=XSD.string)
 
 
 class TestMakeFileValueGraph:

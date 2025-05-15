@@ -33,7 +33,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -100,8 +99,6 @@ def xmlupload(
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
-
-    preliminary_validation_of_root(root, con, config)
 
     processed_resources = get_processed_resources_for_upload(parsed_resources, lookups)
     check_if_link_targets_exist(processed_resources)

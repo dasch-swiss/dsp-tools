@@ -17,6 +17,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "argparse",
+    "jinja2>=3.1.6",
     "jsonpath-ng",
     "jsonschema",
     "loguru",

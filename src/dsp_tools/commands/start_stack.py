@@ -5,11 +5,11 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from jinja2 import Template
 
 import regex
 import requests
 import yaml
+from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
@@ -47,8 +47,10 @@ class StackConfiguration:
             raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
-        if self.custom_host is not None and regex.match(r"^((\d{1,3}\.)^{3}\d{1,3})|(((\w|\d|-|_|~)+\.)(\w){2,})$", self.custom_host):
-            raise InputError('Invalid format for custom host')
+        if self.custom_host is not None and regex.match(
+            r"^((\d{1,3}\.)^{3}\d{1,3})|(((\w|\d|-|_|~)+\.)(\w){2,})$", self.custom_host
+        ):
+            raise InputError("Invalid format for custom host")
 
 
 class StackHandler:
@@ -132,15 +134,23 @@ class StackHandler:
         if self.__stack_configuration.custom_host is not None:
             self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
 
-            docker_template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.override-host.j2")
+            docker_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/docker-compose.override-host.j2"
+            )
             docker_template = Template(docker_template_path.read_text(encoding="utf-8"))
             docker_template_rendered = docker_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
-            Path(self.__docker_path_of_user / "docker-compose.override-host.yml").write_text(docker_template_rendered, encoding="utf-8")
+            Path(self.__docker_path_of_user / "docker-compose.override-host.yml").write_text(
+                docker_template_rendered, encoding="utf-8"
+            )
 
-            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/dsp-app-config.override-host.j2")
+            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/dsp-app-config.override-host.j2"
+            )
             dsp_app_config_template = Template(dsp_app_config_template_path.read_text(encoding="utf-8"))
             dsp_app_config_rendered = dsp_app_config_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
-            Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(dsp_app_config_rendered, encoding="utf-8")
+            Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(
+                dsp_app_config_rendered, encoding="utf-8"
+            )
         Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
         Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 

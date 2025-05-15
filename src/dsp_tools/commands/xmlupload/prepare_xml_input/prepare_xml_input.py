@@ -7,7 +7,6 @@ from lxml import etree
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
-from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
@@ -42,12 +41,9 @@ def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> 
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
     return XmlReferenceLookups(
         permissions=permissions_lookup,
         listnodes=listnode_lookup,
-        namespaces=namespaces,
         authorships=authorship_lookup,
     )
 

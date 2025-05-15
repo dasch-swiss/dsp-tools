@@ -14,6 +14,5 @@ class BitstreamInfo:
     and optionally its permissions.
     """
 
-    local_file: str
     internal_file_name: str
     permissions: Permissions | None = None

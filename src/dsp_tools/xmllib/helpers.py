@@ -1103,7 +1103,7 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
     Returns None if no license was found.
     The case (upper case/lower case) is ignored.
 
-    Look out: Your string should contain no more than 1 license. 
+    Look out: Your string should contain no more than 1 license.
     If it contains more, there is no guarantee which one will be returned.
 
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)

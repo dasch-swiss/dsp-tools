@@ -160,9 +160,19 @@ def _print_shacl_validation_violation_message(
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
         print(messages.infos.message_body)
     if messages.unexpected_violations:
+        logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
+        print(
+            BACKGROUND_BOLD_RED,
+            "\n    Unknown violations found!   ",
+            RESET_TO_DEFAULT,
+        )
         if save_graphs:
-            logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
-            print(BACKGROUND_BOLD_RED, messages.unexpected_violations.message_header, RESET_TO_DEFAULT)
+            print(
+                BOLD_RED,
+                messages.unexpected_violations.message_header,
+                "Consult the saved graphs for details.",
+                RESET_TO_DEFAULT,
+            )
             print(messages.unexpected_violations.message_body)
         else:
             _save_unexpected_results_and_inform_user(report, filepath)
@@ -177,7 +187,7 @@ def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, fil
     data_p = filepath.parent / f"{timestamp}_data.ttl"
     report.data_graph.serialize(data_p)
     msg = (
-        f"Please contact the development team with the files starting with the timestamp '{timestamp}' "
+        f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
         f"in the directory '{filepath.parent}'."
     )
     print(BOLD_RED + msg + RESET_TO_DEFAULT)

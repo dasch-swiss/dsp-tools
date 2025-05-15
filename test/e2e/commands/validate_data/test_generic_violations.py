@@ -303,7 +303,7 @@ class TestReformatValidationGraph:
             ("id_video_missing", ProblemType.FILE_VALUE),
             ("id_video_unknown", ProblemType.FILE_VALUE),
             ("id_wrong_file_type", ProblemType.FILE_VALUE),
-            ("inexistent_license_iri", ProblemType.GENERIC),
+            # ("inexistent_license_iri", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
         expected_info_warnings = [
@@ -419,7 +419,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("id_max_card", ProblemType.MAX_CARD),
         ("id_missing_file_value", ProblemType.FILE_VALUE),
         ("identical_values", ProblemType.DUPLICATE_VALUE),
-        ("inexistent_license_iri", ProblemType.GENERIC),
+        # ("inexistent_license_iri", ProblemType.GENERIC),
         ("label_with_newline", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),

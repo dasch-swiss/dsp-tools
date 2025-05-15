@@ -90,7 +90,10 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
     no_problems = not any(
-        [bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)]
+        [
+            bool(sorted_problems.unique_violations),
+            bool(sorted_problems.unexpected_shacl_validation_components),
+        ]
     )
     return no_problems
 

@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Protocol
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -15,5 +16,5 @@ class LegalInfoClient(Protocol):
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
 
-    def get_enabled_licenses(self) -> list[str]:
+    def get_enabled_licenses(self) -> dict[str, Any]:
         """Get a list of enabled licenses for the project."""

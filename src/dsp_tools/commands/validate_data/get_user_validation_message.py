@@ -6,6 +6,7 @@ import pandas as pd
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
 
@@ -19,12 +20,20 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
+    violations, warnings = _separate_according_to_severity(filtered_problems)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
-        unique_violations=filtered_problems,
+        unique_violations=violations,
+        user_warnings=warnings,
         user_info=problems_with_iris,
         unexpected_shacl_validation_components=unique_unexpected,
     )
+
+
+def _separate_according_to_severity(problems: list[InputProblem]) -> tuple[list[InputProblem], list[InputProblem]]:
+    violations = [x for x in problems if x.severity == Severity.VIOLATION]
+    warnings = [x for x in problems if x.severity == Severity.WARNING]
+    return violations, warnings
 
 
 def _separate_link_value_missing_if_reference_is_an_iri(
@@ -98,20 +107,30 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     Returns:
         Problem message
     """
-    problem_message = None
+    violation_message = None
+    warning_message = None
     iri_info_message = None
     if sorted_problems.user_info:
         iri_info_message = _get_referenced_iri_info(sorted_problems.user_info)
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
-            specific_message = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+            specific_message_violation = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
         else:
-            specific_message = _get_problem_print_message(sorted_problems.unique_violations)
-        problem_message = (
+            specific_message_violation = _get_problem_print_message(sorted_problems.unique_violations)
+        violation_message = (
             f"\nDuring the validation of the data {len(sorted_problems.unique_violations)} "
-            f"errors were found:\n\n{specific_message}"
+            f"errors were found:\n\n{specific_message_violation}"
         )
-    return UserPrintMessages(problem_message, iri_info_message)
+    if sorted_problems.user_warnings:
+        if len(sorted_problems.unique_violations) > 50:
+            specific_message_warning = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
+        else:
+            specific_message_warning = _get_problem_print_message(sorted_problems.user_warnings)
+        warning_message = (
+            f"\nDuring the validation of the data {len(sorted_problems.user_warnings)} "
+            f"problems of the severity warning were found:\n\n{specific_message_warning}"
+        )
+    return UserPrintMessages(violation_message, warning_message, iri_info_message)
 
 
 def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
@@ -119,7 +138,12 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> str:
         f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
         for x in problems
     ]
-    return LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
+    iri_msg = (
+        "Your data references absolute IRIs of resources. "
+        "If these resources do not exist in the database or are not of the expected resource type then"
+        "the xmlupload will fail. Below you find a list of the references."
+    )
+    return iri_msg + LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str)
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
@@ -172,13 +196,13 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
-    out_path = file_path.parent / f"{file_path.stem}_validation_errors.csv"
+def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path, severity: str = "errors") -> str:
+    out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
     df.to_csv(out_path, index=False)
-    return f"Due to the large number or errors, the validation errors were saved at:\n{out_path}"
+    return f"Due to the large number of {severity}, the validation {severity} were saved at:\n{out_path}"
 
 
 def _get_message_dict(problem: InputProblem) -> dict[str, str]:

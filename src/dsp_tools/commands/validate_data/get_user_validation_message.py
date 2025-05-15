@@ -144,7 +144,7 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> MessageStrings:
     ]
     iri_msg = (
         "Your data references absolute IRIs of resources. "
-        "If these resources do not exist in the database or are not of the expected resource type then"
+        "If these resources do not exist in the database or are not of the expected resource type, then "
         "the xmlupload will fail. Below you find a list of the references."
     )
     return MessageStrings(iri_msg, LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str))

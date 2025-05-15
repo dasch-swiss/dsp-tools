@@ -24,6 +24,7 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
@@ -155,8 +156,8 @@ def _print_shacl_validation_violation_message(
         print(messages.warnings.message_body)
     if messages.infos:
         logger.info(messages.infos.message_header, messages.infos.message_body)
-        print(BACKGROUND_BOLD_YELLOW + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
-        print(BOLD_YELLOW, messages.infos.message_header, RESET_TO_DEFAULT)
+        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
+        print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
         print(messages.infos.message_body)
     if messages.unexpected_violations:
         if save_graphs:

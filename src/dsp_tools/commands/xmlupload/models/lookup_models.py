@@ -12,7 +12,6 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 class XmlReferenceLookups:
     permissions: dict[str, Permissions]
     listnodes: dict[tuple[str, str], str]
-    namespaces: dict[str, str]
     authorships: dict[str, list[str]]
 
 

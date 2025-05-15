@@ -356,9 +356,9 @@ class TestFileMetadata:
         assert result_metadata.authorships == ["author"]
 
     def test_raises_unknown_license(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/inexistent-iri", "copy", "auth_id", None)
+        metadata = ParsedFileValueMetadata("inexistent-iri", "copy", "auth_id", None)
         msg = regex.escape(
-            "The license 'http://rdfh.ch/licenses/inexistent-iri' used for an image or iiif-uri is unknown. "
+            "The license 'inexistent-iri' used for an image or iiif-uri is unknown. "
             "See documentation for accepted pre-defined licenses."
         )
         with pytest.raises(InputError, match=msg):

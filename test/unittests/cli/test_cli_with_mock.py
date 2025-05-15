@@ -580,5 +580,34 @@ def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock) 
     xmlupload.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal(update_legal_metadata: Mock) -> None:
+    args = (
+        "update-legal "
+        "--authorship_prop :hasAuthorship "
+        "--copyright_prop=:hasCopyright "
+        "--license_prop :hasLicense input.xml"
+    ).split()
+    entry_point.run(args)
+    update_legal_metadata.assert_called_once_with(
+        input_file=Path("input.xml"),
+        auth_prop=":hasAuthorship",
+        copy_prop=":hasCopyright",
+        license_prop=":hasLicense",
+    )
+
+
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
+    args = "update-legal --authorship_prop :hasAuthorship input.xml".split()
+    entry_point.run(args)
+    update_legal_metadata.assert_called_once_with(
+        input_file=Path("input.xml"),
+        auth_prop=":hasAuthorship",
+        copy_prop=None,
+        license_prop=None,
+    )
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

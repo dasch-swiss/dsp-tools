@@ -8,6 +8,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import FILE_TYPE_TO_RDF_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
@@ -72,7 +73,13 @@ def _make_values_graph_from_resource(
     elif bitstream_information:
         file_val = cast(ProcessedFileValue, resource.file_value)
         metadata = _make_file_value_metadata(file_val.metadata)
-        file_g = make_file_value_graph(bitstream_information, metadata, res_node)
+        prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.file_type]
+        file_g = make_file_value_graph(
+            bitstream_info=bitstream_information,
+            rdf_prop_type_info=prop_type_info,
+            file_value_metadata=metadata,
+            res_node=res_node,
+        )
         properties_graph += file_g
 
     return properties_graph

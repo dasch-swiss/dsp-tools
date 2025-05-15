@@ -120,7 +120,7 @@ class DspIngestClientLive(AssetClient):
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")
-            return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
+            return BitstreamInfo(res.internal_filename, file_info.metadata.permissions)
         except InvalidFileNameError:
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
@@ -135,4 +135,4 @@ class BulkIngestedAssetClient(AssetClient):
 
     def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo:
         """Returns the BitstreamInfo of the already ingested file based on the `ProcessedFileValue.value`."""
-        return BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions)
+        return BitstreamInfo(file_info.value, file_info.metadata.permissions)

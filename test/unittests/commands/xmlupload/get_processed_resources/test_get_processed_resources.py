@@ -30,6 +30,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidFileTypeError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
@@ -299,6 +300,13 @@ class TestFileValue:
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
+
+    def test_unknown_file_type(self, lookups: XmlReferenceLookups):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
+        val = ParsedFileValue("file.unknown", None, metadata)
+        expected = regex.escape("The file you entered is not one of the supported file types: file.unknown")
+        with pytest.raises(InvalidFileTypeError, match=expected):
+            _get_file_value(val, lookups, "id", "lbl")
 
     def test_file_value_with_permissions(self, file_with_permission, lookups: XmlReferenceLookups):
         result = _get_file_value(file_with_permission, lookups, "id", "lbl")

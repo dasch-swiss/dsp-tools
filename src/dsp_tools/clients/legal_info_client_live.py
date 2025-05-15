@@ -63,16 +63,30 @@ class LegalInfoClientLive(LegalInfoClient):
         log_response(response)
         return response
 
-    def get_enabled_licenses(self) -> dict[str, Any]:
+    def get_enabled_licenses(self) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
         page_num = 1
         all_data = []
         has_items = True
         while has_items:
-            response = self._get_one_enabled_license_page(page_num)
-            response_dict = response.json()
-            all_data.extend(response_dict["data"])
-            has_items = _has_more_items(response_dict)
+            try:
+                response = self._get_one_enabled_license_page(page_num)
+            except (TimeoutError, ReadTimeout) as err:
+                log_and_raise_timeouts(err)
+            if response.ok:
+                response_dict = response.json()
+                all_data.extend(response_dict["data"])
+                has_items = _is_not_last_page(response_dict)
+            elif response.status_code == HTTP_LACKING_PERMISSIONS:
+                raise BadCredentialsError(
+                    "Only a project or system administrator can create new copyright holders. "
+                    "Your permissions are insufficient for this action."
+                )
+            else:
+                raise BaseError(
+                    f"An unexpected response with the status code {response.status_code} was received from the API. "
+                    f"Please consult 'warnings.log' for details."
+                )
         return all_data
 
     def _get_one_enabled_license_page(self, page_num: int) -> Response:
@@ -96,7 +110,7 @@ class LegalInfoClientLive(LegalInfoClient):
         return response
 
 
-def _has_more_items(response: dict[str, Any]) -> bool:
+def _is_not_last_page(response: dict[str, Any]) -> bool:
     current_page = response["pagination"]["currentPage"]
     total_page = response["pagination"]["totalPages"]
     return bool(current_page != total_page)

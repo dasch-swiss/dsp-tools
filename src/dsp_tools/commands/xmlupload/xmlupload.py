@@ -18,6 +18,7 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -86,9 +87,20 @@ def xmlupload(
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
 
+    validation_passed = validate_parsed_resources(
+        parsed_resources=parsed_resources,
+        authorship_lookup=lookups.authorships,
+        api_url=creds.server,
+        shortcode=shortcode,
+        input_filepath=input_file,
+    )
+    if not validation_passed:
+        return False
+
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
+
     preliminary_validation_of_root(root, con, config)
 
     processed_resources = get_processed_resources_for_upload(parsed_resources, lookups)

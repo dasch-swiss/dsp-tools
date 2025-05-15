@@ -108,10 +108,7 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     Returns:
         Problem message
     """
-    violation_message = None
-    warning_message = None
-    info_message = None
-    unexpected_violations = None
+    violation_message, warning_message, info_message, unexpected_violations = None, None, None, None
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
             violation_body = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from enum import StrEnum
+from enum import auto
 
 import regex
 
@@ -34,14 +36,16 @@ class AllProblems:
 @dataclass
 class SortedProblems:
     unique_violations: list[InputProblem]
+    user_warnings: list[InputProblem]
     user_info: list[InputProblem]
     unexpected_shacl_validation_components: list[str]
 
 
 @dataclass
 class UserPrintMessages:
-    problems: str | None
-    referenced_absolute_iris: str | None
+    violations: str | None
+    warnings: str | None
+    infos: str | None
 
 
 @dataclass
@@ -50,6 +54,7 @@ class InputProblem:
     res_id: str
     res_type: str
     prop_name: str
+    severity: Severity
     message: str | None = None
     input_value: str | None = None
     input_type: str | None = None
@@ -66,6 +71,11 @@ class InputProblem:
             return None
         str_split = [content for x in to_clean.split(" ") if (content := x.strip())]
         return " ".join(str_split)
+
+
+class Severity(Enum):
+    VIOLATION = auto()
+    WARNING = auto()
 
 
 class ProblemType(StrEnum):

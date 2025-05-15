@@ -106,6 +106,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
     result = reformat_validation_graph(special_characters_violation)
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_tuples)
+    assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
@@ -140,6 +141,7 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidationReportG
     result = reformat_validation_graph(inheritance_violation)
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_results)
+    assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)

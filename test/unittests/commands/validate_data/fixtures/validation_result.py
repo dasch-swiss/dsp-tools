@@ -127,6 +127,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
         focus_node_iri=DATA.id_card_one,
         focus_node_type=ONTO.ClassInheritedCardinalityOverwriting,
         result_path=ONTO.testBoolean,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -159,6 +160,7 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
         focus_node_iri=DATA.id_wrong_file_type,
         focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
+        severity=SH.Violation,
     )
     return graphs, base_info
 
@@ -191,6 +193,7 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
         focus_node_iri=DATA.id_resource_without_representation,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=KNORA_API.hasMovingImageFileValue,
+        severity=SH.Violation,
     )
     return graphs, base_info
 
@@ -202,6 +205,7 @@ def extracted_file_value_for_resource_without_representation() -> ValidationResu
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,
+        severity=SH.Violation,
     )
 
 
@@ -213,6 +217,7 @@ def extracted_min_card() -> ValidationResult:
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
         expected=Literal("1"),
+        severity=SH.Violation,
     )
 
 
@@ -262,6 +267,7 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
         source_constraint_component=SH.NodeConstraintComponent,
         focus_node_iri=DATA.id_simpletext,
         focus_node_type=ONTO.ClassWithEverything,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -276,6 +282,7 @@ def extracted_value_type_simpletext() -> ValidationResult:
         property=ONTO.testTextarea,
         expected=Literal("TextValue without formatting"),
         input_type=KNORA_API.TextValue,
+        severity=SH.Violation,
     )
 
 
@@ -313,6 +320,7 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
         source_constraint_component=SH.NodeConstraintComponent,
         focus_node_iri=DATA.video_segment_negative_bounds,
         focus_node_type=KNORA_API.VideoSegment,
+        severity=SH.Violation,
         detail=None,
     )
     return validation_g, onto_data_g, base_info
@@ -327,6 +335,7 @@ def extracted_min_inclusive() -> ValidationResult:
         property=KNORA_API.hasSegmentBounds,
         message=Literal("The interval start must be a non-negative integer or decimal."),
         input_value=Literal("-2.0"),
+        severity=SH.Violation,
     )
 
 
@@ -362,6 +371,7 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
         focus_node_iri=DATA.id_uri,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
+        severity=SH.Violation,
         detail=None,
     )
     return validation_g, onto_data_g, base_info
@@ -376,6 +386,7 @@ def extracted_value_type() -> ValidationResult:
         property=ONTO.testUriValue,
         expected=Literal("This property requires a UriValue"),
         input_type=KNORA_API.TextValue,
+        severity=SH.Violation,
     )
 
 
@@ -411,6 +422,7 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
         focus_node_iri=DATA.geoname_not_number,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
+        severity=SH.Violation,
         detail=None,
     )
     return validation_g, onto_data_g, base_info
@@ -425,6 +437,7 @@ def extracted_regex() -> ValidationResult:
         property=ONTO.testGeoname,
         expected=Literal("The value must be a valid geoname code"),
         input_value=Literal("this-is-not-a-valid-code"),
+        severity=SH.Violation,
     )
 
 
@@ -476,6 +489,7 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
         focus_node_iri=DATA.link_target_non_existent,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -490,6 +504,7 @@ def extracted_link_target_non_existent() -> ValidationResult:
         property=ONTO.testHasLinkTo,
         expected=KNORA_API.Resource,
         input_value=DATA.other,
+        severity=SH.Violation,
     )
 
 
@@ -544,6 +559,7 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
         focus_node_iri=DATA.link_target_wrong_class,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkToCardOneResource,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -559,6 +575,7 @@ def extracted_link_target_wrong_class() -> ValidationResult:
         expected=ONTO.CardOneResource,
         input_value=DATA.id_9_target,
         input_type=ONTO.ClassWithEverything,
+        severity=SH.Violation,
     )
 
 
@@ -569,7 +586,7 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
         sh:focusNode <http://data/value_image_no_legal_info> ;
         sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
-        sh:resultSeverity sh:Violation ;
+        sh:resultSeverity sh:Warning ;
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
     """
@@ -593,6 +610,7 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
         focus_node_iri=DATA.image_no_legal_info,
         focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasLicense,
+        severity=SH.Warning,
     )
     return validation_g, onto_data_g, base_info
 
@@ -603,6 +621,7 @@ def extracted_image_missing_legal_info() -> ValidationResult:
         violation_type=ViolationType.GENERIC,
         res_iri=DATA.image_no_legal_info,
         res_class=ONTO.TestStillImageRepresentation,
+        severity=SH.Warning,
         property=KNORA_API.hasLicense,
         expected=Literal("Files and IIIF-URIs require a reference to a license."),
     )
@@ -615,7 +634,7 @@ def report_archive_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph]:
         sh:focusNode <http://data/value_bitstream_no_legal_info> ;
         sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
-        sh:resultSeverity sh:Violation ;
+        sh:resultSeverity sh:Warning ;
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
     """
@@ -666,6 +685,7 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
         focus_node_iri=DATA.id_closed_constraint,
         focus_node_type=ONTO.CardOneResource,
         result_path=ONTO.testIntegerSimpleText,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -677,6 +697,7 @@ def extracted_closed_constraint() -> ValidationResult:
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
+        severity=SH.Violation,
     )
 
 
@@ -713,6 +734,7 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
         focus_node_iri=DATA.id_max_card,
         focus_node_type=ONTO.ClassMixedCard,
         result_path=ONTO.testHasLinkToCardOneResource,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -725,6 +747,7 @@ def extracted_max_card() -> ValidationResult:
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
         expected=Literal("0-1"),
+        severity=SH.Violation,
     )
 
 
@@ -755,6 +778,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
         focus_node_iri=DATA.empty_label,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
+        severity=SH.Violation,
     )
     return graphs, base_info
 
@@ -768,6 +792,7 @@ def extracted_empty_label() -> ValidationResult:
         property=RDFS.label,
         expected=Literal("The label must be a non-empty string"),
         input_value=Literal(" "),
+        severity=SH.Violation,
     )
 
 
@@ -799,6 +824,7 @@ def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, Valida
         focus_node_iri=DATA.identical_values_valueHas,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -811,6 +837,7 @@ def extracted_unique_value_literal() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
         input_value=Literal("00111111"),
+        severity=SH.Violation,
     )
 
 
@@ -842,6 +869,7 @@ def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, Validation
         focus_node_iri=DATA.identical_values_LinkValue,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -854,6 +882,7 @@ def extracted_unique_value_iri() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         input_value=DATA.link_valueTarget_id,
+        severity=SH.Violation,
     )
 
 
@@ -886,6 +915,7 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
         focus_node_iri=DATA.missing_seqnum,
         focus_node_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         result_path=KNORA_API.seqnum,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -897,6 +927,7 @@ def extracted_coexist_with() -> ValidationResult:
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         message=Literal("Coexist message from knora-api turtle"),
+        severity=SH.Violation,
     )
 
 
@@ -943,6 +974,7 @@ sh:value <http://data/value_list_node_non_existent> ] .
         focus_node_iri=DATA.list_node_non_existent,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -957,6 +989,7 @@ def extracted_unknown_list_node() -> ValidationResult:
         property=ONTO.testListProp,
         message=Literal("A valid node from the list 'firstList' must be used with this property."),
         input_value=Literal("firstList / other"),
+        severity=SH.Violation,
     )
 
 
@@ -1003,6 +1036,7 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
         focus_node_iri=DATA.list_name_non_existent,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -1017,6 +1051,7 @@ def extracted_unknown_list_name() -> ValidationResult:
         property=ONTO.testListProp,
         message=Literal("A valid node from the list 'firstList' must be used with this property."),
         input_value=Literal("other / n1"),
+        severity=SH.Violation,
     )
 
 
@@ -1046,6 +1081,7 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
         focus_node_iri=DATA.id_video_missing,
         focus_node_type=ONTO.TestMovingImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
+        severity=SH.Violation,
     )
     return graphs, base_info
 
@@ -1058,6 +1094,7 @@ def extracted_missing_file_value() -> ValidationResult:
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
         expected=Literal("Cardinality 1"),
+        severity=SH.Violation,
     )
 
 
@@ -1098,6 +1135,7 @@ Second Line"""^^xsd:string ;
         focus_node_iri=DATA.copyright_holder_with_newline,
         focus_node_type=ONTO.TestArchiveRepresentation,
         result_path=KNORA_API.hasCopyrightHolder,
+        severity=SH.Violation,
     )
     return validation_g, onto_data_g, base_info
 
@@ -1155,6 +1193,7 @@ have newlines"""^^xsd:string .
         focus_node_iri=DATA.simple_text_with_newlines,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testSimpleText,
+        severity=SH.Violation,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -1169,6 +1208,7 @@ def extracted_single_line_constraint_component() -> ValidationResult:
         property=KNORA_API.hasCopyrightHolder,
         message=Literal("The copyright holder must be a string without newlines."),
         input_value=Literal("with newline"),
+        severity=SH.Violation,
     )
 
 
@@ -1199,5 +1239,6 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResult
         focus_node_iri=DATA.empty_label,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
+        severity=SH.Violation,
     )
     return graphs, base_info

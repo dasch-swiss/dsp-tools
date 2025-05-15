@@ -42,7 +42,6 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_s
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -142,38 +141,9 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-    _warn_about_future_mandatory_legal_info(upload_state.pending_resources)
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
-
-
-def _warn_about_future_mandatory_legal_info(resources: list[ProcessedResource]) -> None:
-    missing_info = []
-    counter = 0
-    for res in resources:
-        if res.file_value:
-            counter += 1
-            if not res.file_value.metadata.all_legal_info():
-                missing_info.append(res.file_value.value)
-        elif res.iiif_uri:
-            counter += 1
-            if not res.iiif_uri.metadata.all_legal_info():
-                missing_info.append(res.iiif_uri.value)
-    if counter == 0 or not missing_info:
-        return None
-    if len(missing_info) == counter:
-        number = "All"
-    else:
-        number = f"{len(missing_info)} of {counter}"
-    msg = (
-        f"{number} bitstreams and iiif-uris in your XML are lacking the legal info "
-        f"(copyright holders, license and authorship). "
-        "Soon this information will be mandatory for all files."
-    )
-    if len(missing_info) < 100:
-        msg += f" The following files are affected:\n-   {'\n-   '.join(missing_info)}"
-    warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:

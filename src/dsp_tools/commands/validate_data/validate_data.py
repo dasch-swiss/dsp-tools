@@ -88,7 +88,11 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
-    return any([bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)])
+    problems_found = any(
+        [bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)]
+    )
+    success = ~problems_found
+    return success
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -146,12 +150,12 @@ def _print_shacl_validation_violation_message(
         print(messages.violations.message_body)
     if messages.warnings:
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)
-        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!" + RESET_TO_DEFAULT)
+        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         print(messages.warnings.message_body)
     if messages.infos:
         logger.info(messages.infos.message_header, messages.infos.message_body)
-        print(BACKGROUND_BOLD_YELLOW + "\n    Potential Problems Found" + RESET_TO_DEFAULT)
+        print(BACKGROUND_BOLD_YELLOW + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.infos.message_header, RESET_TO_DEFAULT)
         print(messages.infos.message_body)
     if messages.unexpected_violations:

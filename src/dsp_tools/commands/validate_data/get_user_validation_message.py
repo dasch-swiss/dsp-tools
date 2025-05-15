@@ -114,32 +114,29 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
     unexpected_violations = None
     if sorted_problems.unique_violations:
         if len(sorted_problems.unique_violations) > 50:
-            specific_message_violation = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+            violation_body = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
         else:
-            specific_message_violation = _get_problem_print_message(sorted_problems.unique_violations)
-        violation_msg_str = (
-            f"During the validation of the data {len(sorted_problems.unique_violations)} "
-            f"errors were found:\n\n{specific_message_violation}"
+            violation_body = _get_problem_print_message(sorted_problems.unique_violations)
+        violation_header = (
+            f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found."
         )
-        violation_message = MessageStrings(violation_msg_str, specific_message_violation)
+        violation_message = MessageStrings(violation_header, violation_body)
     if sorted_problems.user_warnings:
         if len(sorted_problems.unique_violations) > 50:
-            specific_message_warning = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
+            warning_body = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
         else:
-            specific_message_warning = _get_problem_print_message(sorted_problems.user_warnings)
-        warning_msg_str = (
+            warning_body = _get_problem_print_message(sorted_problems.user_warnings)
+        warning_header = (
             f"During the validation of the data {len(sorted_problems.user_warnings)} "
             f"problems were found. While they currently do not impede an xmlupload they may do so in the future."
         )
-        violation_message = MessageStrings(warning_msg_str, specific_message_warning)
+        warning_message = MessageStrings(warning_header, warning_body)
     if sorted_problems.user_info:
         info_message = _get_referenced_iri_info(sorted_problems.user_info)
     if sorted_problems.unexpected_shacl_validation_components:
-        header_msg = "The following unknown violation types were found!"
-        unexpected_components = LIST_SEPARATOR + LIST_SEPARATOR.join(
-            sorted_problems.unexpected_shacl_validation_components
-        )
-        unexpected_violations = MessageStrings(header_msg, unexpected_components)
+        unexpected_header = "The following unknown violation types were found!"
+        unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
+        unexpected_violations = MessageStrings(unexpected_header, unexpected_body)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
 
 

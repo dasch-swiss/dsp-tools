@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Any
+from typing import cast
 
 import requests
 from loguru import logger
@@ -61,3 +63,41 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         log_response(response)
         return response
+
+    def get_enabled_licenses(self) -> list[str]:
+        """Get a list of enabled licenses for the project."""
+        page_num = 1
+        all_data = []
+        has_items = True
+        while has_items:
+            response = self._get_one_enabled_license_page(page_num)
+            all_data.extend(response["data"])
+            has_items = _has_more_items(response)
+        return all_data
+
+    def _get_one_enabled_license_page(self, page_num: int) -> dict[str, Any]:
+        url = (
+            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
+            f"legal-info/licenses?page={page_num}&page-size=25&order=Asc&showOnlyEnabled=true"
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+        }
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
+        log_request(params)
+        response = requests.get(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+        log_response(response)
+        response_json = cast(dict[str, Any], response.json())
+        return response_json
+
+
+def _has_more_items(response: dict[str, Any]) -> bool:
+    current_page = response["pagination"]["currentPage"]
+    total_page = response["pagination"]["totalPages"]
+    return bool(current_page != total_page)

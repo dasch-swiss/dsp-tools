@@ -14,3 +14,6 @@ class LegalInfoClient(Protocol):
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
+
+    def get_enabled_licenses(self) -> list[str]:
+        """Get a list of enabled licenses for the project."""

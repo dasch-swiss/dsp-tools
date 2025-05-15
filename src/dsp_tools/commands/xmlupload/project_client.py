@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Protocol
-from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.error.exceptions import BaseError
@@ -13,7 +12,6 @@ class ProjectInfo:
     """Information about a project."""
 
     project_iri: str
-    ontology_iris: list[str]
 
 
 class ProjectClient(Protocol):
@@ -44,8 +42,7 @@ class ProjectClientLive:
 
 def _get_project_info_from_server(con: Connection, shortcode: str) -> ProjectInfo:
     project_iri = _get_project_iri_from_server(con, shortcode)
-    ontologies = _get_ontologies_from_server(con, project_iri)
-    return ProjectInfo(project_iri=project_iri, ontology_iris=ontologies)
+    return ProjectInfo(project_iri=project_iri)
 
 
 def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
@@ -59,20 +56,3 @@ def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
     if not iri:
         raise BaseError(f"Unexpected response from server: {res}")
     return iri
-
-
-def _get_ontologies_from_server(con: Connection, project_iri: str) -> list[str]:
-    try:
-        iri = quote_plus(project_iri)
-        url = f"/v2/ontologies/metadata/{iri}"
-        res = con.get(url)
-        body = res.get("@graph", res)
-        match body:
-            case list():
-                return [o["@id"] for o in body]
-            case dict():
-                return [body["@id"]]
-            case _:
-                raise BaseError("Unexpected response from server")
-    except BaseError as e:
-        raise BaseError(f"Ontologies for project {project_iri} could not be retrieved from the DSP server") from e

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
 
 from rdflib import URIRef
 
@@ -21,17 +20,6 @@ class XmlReferenceLookups:
 class IRILookups:
     project_iri: URIRef
     id_to_iri: IriResolver
-
-
-AllowedEncodings = Literal["utf8", "xml"]
-
-
-@dataclass
-class TextValueData:
-    resource_id: str
-    res_type: str
-    property_name: str
-    encoding: AllowedEncodings
 
 
 def make_namespace_dict_from_onto_names(ontos: dict[str, str]) -> dict[str, str]:

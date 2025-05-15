@@ -37,6 +37,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidFileTypeError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -68,7 +69,7 @@ def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferen
         try:
             result = _get_one_resource(res, lookups)
             processed.append(result)
-        except (PermissionNotExistsError, InputError) as e:
+        except (PermissionNotExistsError, InputError, InvalidFileTypeError) as e:
             failures.append(ResourceInputProcessingFailure(res.res_id, str(e)))
     return ResourceProcessingResult(processed, failures)
 
@@ -111,9 +112,17 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
 def _get_file_value(
     val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
 ) -> ProcessedFileValue:
+    if not val.value_type:
+        raise InvalidFileTypeError(f"The file you entered is not one of the supported file types: {val.value}")
     metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
-    return ProcessedFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
+    return ProcessedFileValue(
+        value=file_val,
+        file_type=val.value_type,
+        metadata=metadata,
+        res_id=res_id,
+        res_label=res_label,
+    )
 
 
 def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:

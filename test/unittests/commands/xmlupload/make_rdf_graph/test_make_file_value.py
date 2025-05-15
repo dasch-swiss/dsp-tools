@@ -83,7 +83,7 @@ class TestMakeBitstreamFileGraph:
             permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, metadata_with_permissions_no_legal_info, res_bn)
+        g = make_file_value_graph(bitstream, TEXT_FILE_VALUE, metadata_with_permissions_no_legal_info, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
@@ -98,7 +98,7 @@ class TestMakeBitstreamFileGraph:
             permissions=None,
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, metadata_with_permissions_no_legal_info, res_bn)
+        g = make_file_value_graph(bitstream, TEXT_FILE_VALUE, metadata_with_permissions_no_legal_info, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))

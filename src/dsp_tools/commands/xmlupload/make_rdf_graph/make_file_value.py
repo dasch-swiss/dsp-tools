@@ -40,8 +40,8 @@ def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URI
 
 def make_file_value_graph(
     bitstream_info: BitstreamInfo,
-    file_value_metadata: FileValueMetadata,
     rdf_prop_type_info: RDFPropTypeInfo,
+    file_value_metadata: FileValueMetadata,
     res_node: BNode | URIRef,
 ) -> Graph:
     """
@@ -49,8 +49,8 @@ def make_file_value_graph(
 
     Args:
         bitstream_info: Information about the previously uploaded file
-        file_value_metadata: Metadata of the file value
         rdf_prop_type_info: the type of value based on the extension
+        file_value_metadata: Metadata of the file value
         res_node: Node of the resource
 
     Returns:

@@ -89,11 +89,10 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
-    problems_found = any(
+    no_problems = not any(
         [bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)]
     )
-    success = ~problems_found
-    return success
+    return no_problems
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:

@@ -18,14 +18,12 @@ from dsp_tools.error.exceptions import InputError
 
 
 def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:
-    if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
     default_ontology = root.attrib["default-ontology"]
     ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
     do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
-def _validate_iiif_uris(root: etree._Element) -> None:
+def validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()

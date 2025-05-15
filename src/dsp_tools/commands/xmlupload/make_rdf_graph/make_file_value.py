@@ -1,4 +1,3 @@
-
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode

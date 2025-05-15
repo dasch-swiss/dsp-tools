@@ -6,21 +6,9 @@ from pathlib import Path
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
-    do_xml_consistency_check_with_ontology,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-
-
-def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:
-    default_ontology = root.attrib["default-ontology"]
-    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
-    do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 def validate_iiif_uris(root: etree._Element) -> None:

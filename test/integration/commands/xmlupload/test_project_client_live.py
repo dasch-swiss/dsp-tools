@@ -32,24 +32,6 @@ class TestProjectClientLive:
         expected = "http://www.example.org/projects#a"
         assert project_iri == expected
 
-    def test_get_ontology_name_dict(self) -> None:
-        project_iri_response = {"project": {"id": "http://www.example.org/projects#a"}}
-        project_ontologies_response = {
-            "@graph": [
-                {"@id": "http://www.example.org/ontologies/a.1/v2"},
-                {"@id": "http://www.example.org/ontologies/a.2/v2"},
-            ]
-        }
-        con = ConnectionMock([project_iri_response, project_ontologies_response])
-        project_client = ProjectClientLive(con, "")
-        ontology_name_dict = project_client.get_ontology_name_dict()
-        expected = {
-            "a.1": "http://www.example.org/ontologies/a.1/v2",
-            "a.2": "http://www.example.org/ontologies/a.2/v2",
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2",
-        }
-        assert ontology_name_dict == expected
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

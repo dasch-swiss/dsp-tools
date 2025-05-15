@@ -60,6 +60,19 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     return _validate_data(graphs, used_iris, api_url, filepath, save_graphs)
 
 
+def validate_parsed_resources(
+    parsed_resources: list[ParsedResource],
+    authorship_lookup: dict[str, list[str]],
+    api_url: str,
+    shortcode: str,
+    input_filepath: Path,
+) -> bool:
+    rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
+        parsed_resources, authorship_lookup, api_url, shortcode
+    )
+    return _validate_data(rdf_graphs, used_iris, api_url, input_filepath, False)
+
+
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepath: Path, save_graphs: bool) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)

@@ -66,3 +66,14 @@ class TestPostCopyrightHolders:
         client._post_and_log_request = Mock(return_value=expected_response)
         with pytest.raises(BaseError):
             client.post_copyright_holders(["1"])
+
+
+class TestGetEnabledLicenses:
+    def test_get_ok(self):
+        pass
+
+    def test_get_no_licenses(self):
+        pass
+
+    def test_insufficient_credentials(self):
+        pass

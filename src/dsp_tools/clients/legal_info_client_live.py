@@ -79,7 +79,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 has_items = _is_not_last_page(response_dict)
             elif response.status_code == HTTP_LACKING_PERMISSIONS:
                 raise BadCredentialsError(
-                    "Only a project or system administrator can create new copyright holders. "
+                    "Only members of a project or system administrators can request the enabled licenses of a project."
                     "Your permissions are insufficient for this action."
                 )
             else:

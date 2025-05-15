@@ -1099,10 +1099,12 @@ def clean_whitespaces_from_string(string: str) -> str:
 
 def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
     """
-    Checks if a string contains a license, and returns the first found license.
-    Once a license has been found, subsequent licenses are ignored. # TODO That's not true, nor is it for find_date_in_string. In fact, there's a precedence rule. This should be clarified.
+    Checks if a string contains a license, and returns it.
     Returns None if no license was found.
     The case (upper case/lower case) is ignored.
+
+    Look out: Your string should contain no more than 1 license. 
+    If it contains more, there is no guarantee which one will be returned.
 
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
@@ -1115,18 +1117,13 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
 
     Examples:
         ```python
-        result = xmllib.find_license_in_string("text CC BY text")
+        result = xmllib.find_license_in_string("CC BY")
         # result == LicenseRecommended.CC.BY
         ```
 
         ```python
-        result = xmllib.find_license_in_string("unsupported: Creative Commons Developing Nations 2.0 Generic Deed")
+        result = xmllib.find_license_in_string("Creative Commons Developing Nations 2.0 Generic Deed")
         # result == None
-        ```
-
-        ```python
-        result = xmllib.find_license_in_string("CC BY, CC BY SA. The second license will be ignored.")
-        # result == LicenseRecommended.CC.BY
         ```
 
     Currently supported license formats:
@@ -1220,7 +1217,7 @@ def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many 
 
 
 def _get_already_parsed_license(string: str) -> License | None:
-    already_parsed_dict = {
+    already_parsed_dict: dict[str, License] = {
         r"http://rdfh\.ch/licenses/cc-by-4\.0": LicenseRecommended.CC.BY,
         r"http://rdfh\.ch/licenses/cc-by-sa-4\.0": LicenseRecommended.CC.BY_SA,
         r"http://rdfh\.ch/licenses/cc-by-nc-4\.0": LicenseRecommended.CC.BY_NC,

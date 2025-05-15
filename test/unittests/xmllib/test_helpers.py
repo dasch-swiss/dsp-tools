@@ -662,7 +662,6 @@ class TestFindLicense:
 
     def test_find_license_edge_cases(self) -> None:
         assert not find_license_in_string("BORIS")  # BORIS alone is not enough; must be followed by "Standard License"
-        assert find_license_in_string("BORIS Standard License: CC BY 4.0") == LicenseRecommended.CC.BY  # so in fact thzere is a precedence
 
 
 def test_make_xsd_compatible_id() -> None:

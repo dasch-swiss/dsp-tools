@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+
+from dotenv import load_dotenv
 from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
@@ -22,6 +25,8 @@ from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.res import Resource
 
+load_dotenv()
+
 
 def serialise_resources(
     resources: list[AnyResource], authorship_lookup: AuthorshipLookup, default_permissions: Permissions | None
@@ -37,6 +42,8 @@ def serialise_resources(
     Returns:
         serialised resources
     """
+    if os.getenv("XMLLIB_SORT_RESOURCES"):
+        resources = sorted(resources, key=lambda x: x.res_id)
     return [_serialise_one_resource(x, authorship_lookup, default_permissions) for x in resources]
 
 

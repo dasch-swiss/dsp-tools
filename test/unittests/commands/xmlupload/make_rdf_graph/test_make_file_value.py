@@ -75,7 +75,7 @@ class TestIIIFURI:
 class TestMakeBitstreamFileGraph:
     def test_make_file_value_graph_with_permissions(self, metadata_with_permissions_no_legal_info):
         bitstream = BitstreamInfo(
-            internal_file_name="FileID",
+            internal_file_name="FileID.txt",
             permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         )
         res_bn = BNode()
@@ -89,7 +89,7 @@ class TestMakeBitstreamFileGraph:
 
     def test_make_file_value_graph_no_permissions(self, metadata_with_permissions_no_legal_info):
         bitstream = BitstreamInfo(
-            internal_file_name="FileID",
+            internal_file_name="FileID.txt",
             permissions=None,
         )
         res_bn = BNode()

@@ -24,11 +24,13 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
@@ -87,7 +89,13 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
-    return any([bool(sorted_problems.unique_violations), bool(sorted_problems.unexpected_shacl_validation_components)])
+    no_problems = not any(
+        [
+            bool(sorted_problems.unique_violations),
+            bool(sorted_problems.unexpected_shacl_validation_components),
+        ]
+    )
+    return no_problems
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -139,48 +147,49 @@ def _print_shacl_validation_violation_message(
 ) -> None:
     messages = get_user_message(sorted_problems, filepath)
     if messages.violations:
-        logger.info(messages.violations)
+        logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
-        print(messages.violations)
+        print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
+        print(messages.violations.message_body)
     if messages.warnings:
-        logger.info(messages.warnings)
-        print(
-            BACKGROUND_BOLD_YELLOW
-            + "\n    Problems were found that do not impede a successful xmlupload but may do so in the future."
-            + RESET_TO_DEFAULT
-        )
-        print(messages.warnings)
+        logger.warning(messages.warnings.message_header, messages.warnings.message_body)
+        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
+        print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
+        print(messages.warnings.message_body)
     if messages.infos:
-        logger.info(messages.infos)
-        print(BACKGROUND_BOLD_YELLOW + "\n    Potential Problems Found" + RESET_TO_DEFAULT)
-        print(messages.infos)
-    if sorted_problems.unexpected_shacl_validation_components:
+        logger.info(messages.infos.message_header, messages.infos.message_body)
+        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
+        print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
+        print(messages.infos.message_body)
+    if messages.unexpected_violations:
+        logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
+        print(
+            BACKGROUND_BOLD_RED,
+            "\n    Unknown violations found!   ",
+            RESET_TO_DEFAULT,
+        )
         if save_graphs:
-            unexpected_violations_msg = "Unexpected violations were found! Consult the saved graphs for details."
-            logger.info(unexpected_violations_msg)
-            print(BACKGROUND_BOLD_YELLOW + unexpected_violations_msg + RESET_TO_DEFAULT)
-        else:
-            _save_unexpected_results_and_inform_user(
-                sorted_problems.unexpected_shacl_validation_components, report, filepath
+            print(
+                BOLD_RED,
+                messages.unexpected_violations.message_header,
+                "Consult the saved graphs for details.",
+                RESET_TO_DEFAULT,
             )
+            print(messages.unexpected_violations.message_body)
+        else:
+            _save_unexpected_results_and_inform_user(report, filepath)
 
 
-def _save_unexpected_results_and_inform_user(
-    components: list[str], report: ValidationReportGraphs, filepath: Path
-) -> None:
+def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
     timestamp = f"{datetime.now()!s}_"
-    components = sorted(components)
     save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
     report.validation_graph.serialize(save_path)
     shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
     report.shacl_graph.serialize(shacl_p)
     data_p = filepath.parent / f"{timestamp}_data.ttl"
     report.data_graph.serialize(data_p)
-    logger.info(f"Unexpected components found: {', '.join(components)}")
     msg = (
-        f"Unexpected violations were found in the validation results:"
-        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
-        f"Please contact the development team with the files starting with the timestamp '{timestamp}' "
+        f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
         f"in the directory '{filepath.parent}'."
     )
     print(BOLD_RED + msg + RESET_TO_DEFAULT)

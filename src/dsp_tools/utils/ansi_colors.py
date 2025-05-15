@@ -19,6 +19,7 @@ RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"
 BOLD_GREEN = f"{SEQUENCE_START}1;32{SEQUENCE_END}"  # 1 (bold) ; 32 (green)
 BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
 BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 36 (cyan)
+BOLD_YELLOW = f"{SEQUENCE_START}1;33{SEQUENCE_END}"  # 1 (bold) ; 33 (yellow)
 YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"  # 0 (normal font) ; 33 (yellow)
 RED = f"{SEQUENCE_START}0;31{SEQUENCE_END}"  # 0 (normal font) ; 31 (red)
 
@@ -26,3 +27,4 @@ RED = f"{SEQUENCE_START}0;31{SEQUENCE_END}"  # 0 (normal font) ; 31 (red)
 BACKGROUND_BOLD_RED = f"{SEQUENCE_START}1;41{SEQUENCE_END}"  # 1 (bold) ; 41 (background red)
 BACKGROUND_BOLD_YELLOW = f"{SEQUENCE_START}1;43{SEQUENCE_END}"  # 1 (bold) ; 43 (background yellow)
 BACKGROUND_BOLD_GREEN = f"{SEQUENCE_START}1;42{SEQUENCE_END}"  # 1 (bold) ; 42 (background green)
+BACKGROUND_BOLD_CYAN = f"{SEQUENCE_START}1;46{SEQUENCE_END}"  # 1 (bold) ; 46 (background cyan)

@@ -18,6 +18,7 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -28,10 +29,11 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -40,7 +42,6 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_s
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -82,9 +83,23 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
+    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+
+    validation_passed = validate_parsed_resources(
+        parsed_resources=parsed_resources,
+        authorship_lookup=lookups.authorships,
+        api_url=creds.server,
+        shortcode=shortcode,
+        input_filepath=input_file,
+    )
+    if not validation_passed:
+        return False
+
     check_if_bitstreams_exist(root, imgdir)
-    preliminary_validation_of_root(root, con, config)
-    processed_resources = get_processed_resources_for_upload(root, clients)
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+
+    processed_resources = get_processed_resources_for_upload(parsed_resources, lookups)
     check_if_link_targets_exist(processed_resources)
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
@@ -126,38 +141,9 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-    _warn_about_future_mandatory_legal_info(upload_state.pending_resources)
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
-
-
-def _warn_about_future_mandatory_legal_info(resources: list[ProcessedResource]) -> None:
-    missing_info = []
-    counter = 0
-    for res in resources:
-        if res.file_value:
-            counter += 1
-            if not res.file_value.metadata.all_legal_info():
-                missing_info.append(res.file_value.value)
-        elif res.iiif_uri:
-            counter += 1
-            if not res.iiif_uri.metadata.all_legal_info():
-                missing_info.append(res.iiif_uri.value)
-    if counter == 0 or not missing_info:
-        return None
-    if len(missing_info) == counter:
-        number = "All"
-    else:
-        number = f"{len(missing_info)} of {counter}"
-    msg = (
-        f"{number} bitstreams and iiif-uris in your XML are lacking the legal info "
-        f"(copyright holders, license and authorship). "
-        "Soon this information will be mandatory for all files."
-    )
-    if len(missing_info) < 100:
-        msg += f" The following files are affected:\n-   {'\n-   '.join(missing_info)}"
-    warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:

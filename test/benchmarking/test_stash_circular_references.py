@@ -4,7 +4,7 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _get_processed_resources
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
@@ -16,10 +16,8 @@ def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references.xml"))
     parsed_resources = get_parsed_resources(test_root, "https://namespace.ch/")
     permissions_lookup = {"open": Permissions()}
-    xml_lookups = XmlReferenceLookups(
-        permissions_lookup, {}, namespaces={"simcir": "https://namespace.ch/simcir#"}, authorships={}
-    )
-    processed_resources = _get_processed_resources(parsed_resources, xml_lookups)
+    xml_lookups = XmlReferenceLookups(permissions_lookup, {}, authorships={})
+    processed_resources = get_processed_resources_for_upload(parsed_resources, xml_lookups)
     _, stash = get_stash_and_upload_order(processed_resources)
     len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
     len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]

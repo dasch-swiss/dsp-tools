@@ -18,8 +18,7 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 @pytest.fixture(scope="module")
 def minimal_correct_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, file)
-    return graphs, used_iris
+    return _prepare_data_for_validation_from_file(api_url, file)
 
 
 def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:

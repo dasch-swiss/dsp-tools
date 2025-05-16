@@ -117,6 +117,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     max_file_size_text = "max. multimedia file size allowed for ingest, in MB (default: 2000, max: 100'000)"
     no_prune_text = "don't execute 'docker system prune' (and don't ask)"
     with_test_data_text = "initialise the database with built-in test data"
+    custom_host = "set host to use stack on a server"
     subparser = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
     subparser.set_defaults(action="start-stack")
     subparser.add_argument("--max_file_size", type=int, help=max_file_size_text)
@@ -124,6 +125,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("--no-prune", action="store_true", help=no_prune_text)
     subparser.add_argument("--latest", action="store_true", help=latest_text)
     subparser.add_argument("--with-test-data", action="store_true", help=with_test_data_text)
+    subparser.add_argument("--custom-host", default=None, type=str, help=custom_host)
 
 
 def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:

@@ -18,6 +18,7 @@ requires-python = ">=3.12"
 dependencies = [
     "argparse",
     "dotenv",
+    "jinja2>=3.1.6",
     "jsonpath-ng",
     "jsonschema",
     "loguru",

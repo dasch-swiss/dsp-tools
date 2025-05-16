@@ -1,0 +1,11 @@
+services:
+  api:
+    environment:
+      - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST={{ CUSTOM_HOST }}
+  sipi:
+    environment:
+      - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST={{ CUSTOM_HOST }}
+  ingest:
+    environment:
+      - JWT_ISSUER={{ CUSTOM_HOST }}:3333
+

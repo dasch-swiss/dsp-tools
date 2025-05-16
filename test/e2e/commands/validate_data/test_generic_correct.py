@@ -4,7 +4,10 @@ from pathlib import Path
 
 import pytest
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
@@ -19,9 +22,15 @@ CONFIG = ValidateDataConfig(Path(), False)
 
 
 @pytest.fixture(scope="module")
-def minimal_correct_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
+
+
+@pytest.fixture(scope="module")
+def minimal_correct_graphs(create_generic_project, authentication: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    return _prepare_data_for_validation_from_file(api_url, file)
+    return _prepare_data_for_validation_from_file(file, authentication)
 
 
 def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:
@@ -37,17 +46,17 @@ def test_check_for_unknown_resource_classes(minimal_correct_graphs: tuple[RDFGra
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_cardinality_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     cardinality_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert cardinality_correct.conforms
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_content_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     content_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     # The referenced absolute IRIs are perceived as a violation in SHACL
     # because the resource does not exist in the graph
@@ -60,16 +69,16 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_file_value_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     file_value_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert file_value_correct.conforms
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_dsp_inbuilt_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert dsp_inbuilt_correct.conforms

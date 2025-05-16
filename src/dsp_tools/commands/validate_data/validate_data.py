@@ -64,8 +64,8 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     """
     save_dir = _get_save_directory(filepath)
     config = ValidateDataConfig(save_dir, save_graphs)
-    graphs, used_iris = _prepare_data_for_validation_from_file(creds.server, config.save_dir)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    graphs, used_iris = _prepare_data_for_validation_from_file(config.save_dir, auth)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -80,7 +80,7 @@ def validate_parsed_resources(
     save_dir = _get_save_directory(input_filepath)
     config = ValidateDataConfig(save_dir, False)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, auth.server, shortcode
+        parsed_resources, authorship_lookup, auth, shortcode
     )
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
@@ -124,9 +124,9 @@ def _validate_data(
     return no_problems
 
 
-def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
+def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
+    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, auth.server)
+    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, auth, shortcode)
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
@@ -138,11 +138,14 @@ def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], 
 
 
 def _prepare_data_for_validation_from_parsed_resource(
-    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], api_url: str, shortcode: str
+    parsed_resources: list[ParsedResource],
+    authorship_lookup: dict[str, list[str]],
+    auth: AuthenticationClient,
+    shortcode: str,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    rdf_graphs = _create_graphs(data_rdf, api_url, shortcode)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth)
     return rdf_graphs, used_iris
 
 
@@ -294,11 +297,11 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
     onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
-def _create_graphs(data_rdf: Graph, api_url: str, shortcode: str) -> RDFGraphs:
+def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) -> RDFGraphs:
     logger.info("Create all graphs.")
-    onto_client = OntologyClient(api_url, shortcode)
-    list_client = ListClient(api_url, shortcode)
-    legal_info_client = LegalInfoClientLive(server=api_url, project_shortcode=shortcode)
+    onto_client = OntologyClient(auth.server, shortcode)
+    list_client = ListClient(auth.server, shortcode)
+    legal_info_client = LegalInfoClientLive(server=auth.server, project_shortcode=shortcode, authentication_client=auth)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()

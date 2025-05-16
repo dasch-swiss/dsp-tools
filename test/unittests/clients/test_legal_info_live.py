@@ -15,7 +15,32 @@ AUTH = Mock()
 AUTH.get_token = Mock(return_value="tkn")
 
 
-DATA_PAGE_1_OF_1 = {"data": [], "pagination": {"pageSize": 13, "totalItems": 13, "totalPages": 1, "currentPage": 1}}
+LICENSE_1 = {
+    "id": "http://rdfh.ch/1",
+    "uri": "https://uri.org/1",
+    "labelEn": "label 1",
+    "isRecommended": True,
+    "isEnabled": True,
+}
+
+LICENSE_2 = {
+    "id": "http://rdfh.ch/2",
+    "uri": "https://uri.org/2",
+    "labelEn": "label 2",
+    "isRecommended": True,
+    "isEnabled": True,
+}
+
+DATA_PAGE_1_OF_1 = {
+    "data": [
+        LICENSE_1,
+    ],
+    "pagination": {"pageSize": 1, "totalItems": 1, "totalPages": 1, "currentPage": 1},
+}
+
+PAGE_1_OF_2 = {"data": [LICENSE_1], "pagination": {"pageSize": 1, "totalItems": 2, "totalPages": 2, "currentPage": 1}}
+
+PAGE_2_OF_2 = {"data": [LICENSE_2], "pagination": {"pageSize": 1, "totalItems": 2, "totalPages": 2, "currentPage": 2}}
 
 
 class TestPostCopyrightHolders:
@@ -78,8 +103,18 @@ class TestGetEnabledLicenses:
     def test_get_enabled_license_page(self):
         pass
 
-    def test_get_enabled_licenses_no_licenses(self):
-        pass
+    @patch("dsp_tools.clients.legal_info_client_live.log_response")
+    @patch("dsp_tools.clients.legal_info_client_live.log_request")
+    def test_get_enabled_license_page_no_license(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        with patch("dsp_tools.clients.legal_info_client_live._get_one_enabled_license_page") as get_mock:
+            get_mock.return_value = Mock(
+                status_code=200,
+                ok=True,
+                body={"data": [], "pagination": {"pageSize": 1, "totalItems": 2, "totalPages": 2, "currentPage": 1}},
+            )
+            response = client.get_enabled_licenses()
+            assert response == []
 
     @patch("dsp_tools.clients.legal_info_client_live.log_response")
     @patch("dsp_tools.clients.legal_info_client_live.log_request")
@@ -98,15 +133,22 @@ class TestGetEnabledLicenses:
         assert response.json() == DATA_PAGE_1_OF_1
 
     def test_insufficient_credentials(self):
-        pass
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        expected_response = Mock(status_code=HTTP_LACKING_PERMISSIONS, ok=False)
+        client._post_and_log_request = Mock(return_value=expected_response)
+        with pytest.raises(BadCredentialsError):
+            client._get_one_enabled_license_page(1)
 
-    def test_other_response_code(self):
-        pass
+    def test_unknown_status_code(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        expected_response = Mock(status_code=404, ok=False)
+        client._post_and_log_request = Mock(return_value=expected_response)
+        with pytest.raises(BaseError):
+            client._get_one_enabled_license_page(1)
 
 
 def test_is_last_page_no():
-    response = {"data": [], "pagination": {"pageSize": 13, "totalItems": 13, "totalPages": 10, "currentPage": 1}}
-    assert not _is_last_page(response)
+    assert not _is_last_page(PAGE_1_OF_2)
 
 
 def test_is_last_page_yes():

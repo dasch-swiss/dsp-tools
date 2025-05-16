@@ -90,7 +90,6 @@ class LegalInfoClientLive(LegalInfoClient):
             response = requests.get(
                 url=params.url,
                 headers=params.headers,
-                data=params.data_serialized,
                 timeout=params.timeout,
             )
             log_response(response)

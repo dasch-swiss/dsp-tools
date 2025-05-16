@@ -100,13 +100,13 @@ class TestPostCopyrightHolders:
 class TestGetEnabledLicenses:
     def test_get_enabled_license_page(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        with patch("dsp_tools.clients.legal_info_client_live._get_one_enabled_license_page") as first_get:
+        with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as first_get:
             first_get.return_value = Mock(
                 status_code=200,
                 ok=True,
                 body=PAGE_1_OF_2,
             )
-            with patch("dsp_tools.clients.legal_info_client_live._get_one_enabled_license_page") as second_get:
+            with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as second_get:
                 second_get.return_value = Mock(
                     status_code=200,
                     ok=True,
@@ -115,11 +115,9 @@ class TestGetEnabledLicenses:
                 response = client.get_enabled_licenses()
                 assert response == [LICENSE_1, LICENSE_2]
 
-    @patch("dsp_tools.clients.legal_info_client_live.log_response")
-    @patch("dsp_tools.clients.legal_info_client_live.log_request")
     def test_get_enabled_license_page_no_license(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        with patch("dsp_tools.clients.legal_info_client_live._get_one_enabled_license_page") as get_mock:
+        with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as get_mock:
             get_mock.return_value = Mock(
                 status_code=200,
                 ok=True,
@@ -130,7 +128,7 @@ class TestGetEnabledLicenses:
 
     @patch("dsp_tools.clients.legal_info_client_live.log_response")
     @patch("dsp_tools.clients.legal_info_client_live.log_request")
-    def test_get_one_enabled_license_page(self):
+    def test_get_one_enabled_license_page(self, log_request: Mock, log_response: Mock):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
             method="GET",

@@ -45,19 +45,22 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
+def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
-        config: validate data configuration
+        filepath: path to the xml data file
         api_url: url of the api host
+        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.save_dir)
+    save_dir = _get_save_directory(filepath)
+    config = ValidateDataConfig(save_dir, save_graphs)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
     return _validate_data(graphs, used_iris, api_url, config)
 
 
@@ -66,11 +69,14 @@ def validate_parsed_resources(
     authorship_lookup: dict[str, list[str]],
     api_url: str,
     shortcode: str,
-    config: ValidateDataConfig,
+    input_filepath: Path,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, api_url, shortcode
     )
+    # The save directory is still relevant in case unexpected violations are found.
+    save_dir = _get_save_directory(input_filepath)
+    config = ValidateDataConfig(save_dir, False)
     return _validate_data(rdf_graphs, used_iris, api_url, config)
 
 
@@ -83,10 +89,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config:
         # if unknown classes are found, we cannot validate all the data in the file
         return False
     shacl_validator = ShaclValidator(api_url)
-    save_path = None
-    if config.save_graphs:
-        save_path = _get_save_directory(config.save_dir)
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.info(msg)
@@ -94,7 +97,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config:
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_result(graphs, shacl_validator, save_path)
+    report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
@@ -227,15 +230,15 @@ def _print_shacl_validation_violation_message(
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
     timestamp = f"{datetime.now()!s}_"
-    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
+    save_path = filepath / f"{timestamp}_validation_result.ttl"
     report.validation_graph.serialize(save_path)
-    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
+    shacl_p = filepath / f"{timestamp}_shacl.ttl"
     report.shacl_graph.serialize(shacl_p)
-    data_p = filepath.parent / f"{timestamp}_data.ttl"
+    data_p = filepath / f"{timestamp}_data.ttl"
     report.data_graph.serialize(data_p)
     msg = (
         f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
-        f"in the directory '{filepath.parent}'."
+        f"in the directory '{filepath}'."
     )
     print(BOLD_RED + msg + RESET_TO_DEFAULT)
 
@@ -262,13 +265,13 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_path: Path | None
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
-    if save_path:
-        _save_graphs(save_path, rdf_graphs)
+    if config.save_graphs:
+        _save_graphs(config.save_dir, rdf_graphs)
     report = _validate(shacl_validator, rdf_graphs)
-    if save_path:
-        report.validation_graph.serialize(f"{save_path}_VALIDATION_REPORT.ttl")
+    if config.save_graphs:
+        report.validation_graph.serialize(f"{config.save_dir}_VALIDATION_REPORT.ttl")
     return report
 
 

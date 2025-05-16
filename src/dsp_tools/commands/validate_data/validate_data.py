@@ -96,9 +96,6 @@ def _validate_data(
         # if unknown classes are found, we cannot validate all the data in the file
         return False
     shacl_validator = ShaclValidator(auth.server)
-    save_path = None
-    if config.save_graphs:
-        save_path = _get_save_directory(config.save_dir)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)

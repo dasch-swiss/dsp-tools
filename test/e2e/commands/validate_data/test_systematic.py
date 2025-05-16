@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.validate_data import validate_data
@@ -32,6 +31,5 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 @pytest.mark.usefixtures("create_project_systematic")
 def test_systematic(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
-    config = ValidateDataConfig(file, False)
-    no_violations = validate_data(config, api_url)
+    no_violations = validate_data(file, api_url, False)
     assert no_violations

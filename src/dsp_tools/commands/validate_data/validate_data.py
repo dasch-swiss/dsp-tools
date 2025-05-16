@@ -61,10 +61,12 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
-    save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(save_dir, save_graphs)
+    graph_save_dir = None
+    if save_graphs:
+        graph_save_dir = _get_graph_save_dir(filepath)
+    config = ValidateDataConfig(filepath.parent, graph_save_dir)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = _prepare_data_for_validation_from_file(config.save_dir, auth)
+    graphs, used_iris = _prepare_data_for_validation_from_file(config.xml_dir, auth)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -76,7 +78,7 @@ def validate_parsed_resources(
     auth: AuthenticationClient,
 ) -> bool:
     # The save directory is still relevant in case unexpected violations are found.
-    config = ValidateDataConfig(input_filepath.parent, False)
+    config = ValidateDataConfig(input_filepath.parent, None)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, auth, shortcode
     )
@@ -199,7 +201,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, config.save_dir)
+    messages = get_user_message(sorted_problems, config.xml_dir)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -222,7 +224,7 @@ def _print_shacl_validation_violation_message(
             "\n    Unknown violations found!   ",
             RESET_TO_DEFAULT,
         )
-        if config.save_graphs:
+        if config.save_graph_dir:
             print(
                 BOLD_RED,
                 messages.unexpected_violations.message_header,
@@ -231,7 +233,7 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.save_dir)
+            _save_unexpected_results_and_inform_user(report, config.xml_dir)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
@@ -273,11 +275,11 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 def _get_validation_result(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
-    if config.save_graphs:
-        _save_graphs(config.save_dir, rdf_graphs)
+    if config.save_graph_dir:
+        _save_graphs(config.save_graph_dir, rdf_graphs)
     report = _validate(shacl_validator, rdf_graphs)
-    if config.save_graphs:
-        report.validation_graph.serialize(f"{config.save_dir}_VALIDATION_REPORT.ttl")
+    if config.save_graph_dir:
+        report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
     return report
 
 

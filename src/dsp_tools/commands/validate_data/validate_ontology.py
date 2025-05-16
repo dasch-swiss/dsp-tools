@@ -39,7 +39,7 @@ def validate_ontology(
     if validation_result.conforms:
         return None
     if config.save_graphs:
-        validation_result.validation_graph.serialize(f"{config.save_dir}_ONTO_VIOLATIONS.ttl")
+        validation_result.validation_graph.serialize(f"{config.xml_dir}_ONTO_VIOLATIONS.ttl")
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))
 
 

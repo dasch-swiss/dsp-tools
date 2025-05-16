@@ -7,7 +7,9 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidateDataConfig, ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
@@ -46,7 +48,7 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
+def validate_data(config: ValidateDataConfig, creds: ServerCredentials) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -58,24 +60,25 @@ def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.xml_filepath)
-    return _validate_data(graphs, used_iris, api_url, config)
+    graphs, used_iris = _prepare_data_for_validation_from_file(creds.server, config.save_dir)
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return _validate_data(graphs, used_iris, auth, config)
 
 
 def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
-    api_url: str,
     shortcode: str,
+    auth: AuthenticationClient,
     config: ValidateDataConfig,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, shortcode
+        parsed_resources, authorship_lookup, auth.server, shortcode
     )
-    return _validate_data(rdf_graphs, used_iris, api_url, config)
+    return _validate_data(rdf_graphs, used_iris, auth, config)
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config: ValidateDataConfig) -> bool:
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.info(msg)
@@ -83,10 +86,10 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config:
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    shacl_validator = ShaclValidator(api_url)
+    shacl_validator = ShaclValidator(auth.server)
     save_path = None
     if config.save_graphs:
-        save_path = _get_save_directory(config.xml_filepath)
+        save_path = _get_save_directory(config.save_dir)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
@@ -189,7 +192,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, config.xml_filepath)
+    messages = get_user_message(sorted_problems, config.save_dir)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -221,7 +224,7 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.xml_filepath)
+            _save_unexpected_results_and_inform_user(report, config.save_dir)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:

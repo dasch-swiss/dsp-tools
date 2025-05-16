@@ -66,13 +66,11 @@ def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
     api_url: str,
-    shortcode: str,
-    input_filepath: Path,
+    config: ValidateDataConfig,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, shortcode
+        parsed_resources, authorship_lookup, api_url, config.shortcode
     )
-    config = ValidateDataConfig(shortcode=shortcode, filepath=input_filepath, save_graphs=False)
     return _validate_data(rdf_graphs, used_iris, api_url, config)
 
 

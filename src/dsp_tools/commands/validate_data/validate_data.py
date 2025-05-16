@@ -61,7 +61,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
-    save_dir = _get_save_directory(filepath)
+    save_dir = _get_graph_save_dir(filepath)
     config = ValidateDataConfig(save_dir, save_graphs)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(config.save_dir, auth)
@@ -76,8 +76,7 @@ def validate_parsed_resources(
     auth: AuthenticationClient,
 ) -> bool:
     # The save directory is still relevant in case unexpected violations are found.
-    save_dir = _get_save_directory(input_filepath)
-    config = ValidateDataConfig(save_dir, False)
+    config = ValidateDataConfig(input_filepath.parent, False)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, auth, shortcode
     )
@@ -345,7 +344,7 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     )
 
 
-def _get_save_directory(filepath: Path) -> Path:
+def _get_graph_save_dir(filepath: Path) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)

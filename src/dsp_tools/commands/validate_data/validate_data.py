@@ -57,8 +57,8 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     Returns:
         true unless it crashed
     """
-    graphs, used_iris, shortcode = _prepare_data_for_validation_from_file(api_url, filepath)
-    config = ValidateDataConfig(shortcode=shortcode, filepath=filepath, save_graphs=save_graphs)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
+    config = ValidateDataConfig(filepath=filepath, save_graphs=save_graphs)
     return _validate_data(graphs, used_iris, api_url, config)
 
 
@@ -66,10 +66,11 @@ def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
     api_url: str,
+    shortcode: str,
     config: ValidateDataConfig,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, config.shortcode
+        parsed_resources, authorship_lookup, api_url, shortcode
     )
     return _validate_data(rdf_graphs, used_iris, api_url, config)
 
@@ -111,12 +112,9 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config:
     return no_problems
 
 
-def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str], str]:
+def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, shortcode
-    )
-    return rdf_graphs, used_iris, shortcode
+    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:

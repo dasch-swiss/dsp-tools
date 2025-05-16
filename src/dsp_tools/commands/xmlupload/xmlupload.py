@@ -85,11 +85,12 @@ def xmlupload(
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-    validate_config = ValidateDataConfig(shortcode=shortcode, filepath=input_file, save_graphs=False)
+    validate_config = ValidateDataConfig(filepath=input_file, save_graphs=False)
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         api_url=creds.server,
+        shortcode=shortcode,
         config=validate_config,
     )
     if not validation_passed:

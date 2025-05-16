@@ -18,7 +18,7 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 @pytest.fixture(scope="module")
 def minimal_correct_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs, used_iris, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, file)
     return graphs, used_iris
 
 
@@ -37,7 +37,7 @@ def test_check_for_unknown_resource_classes(minimal_correct_graphs: tuple[RDFGra
 @pytest.mark.usefixtures("create_generic_project")
 def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     cardinality_correct = _get_validation_result(graphs, shacl_validator, None)
     assert cardinality_correct.conforms
 
@@ -45,7 +45,7 @@ def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> N
 @pytest.mark.usefixtures("create_generic_project")
 def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     content_correct = _get_validation_result(graphs, shacl_validator, None)
     # The referenced absolute IRIs are perceived as a violation in SHACL
     # because the resource does not exist in the graph
@@ -60,7 +60,7 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
 @pytest.mark.usefixtures("create_generic_project")
 def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     file_value_correct = _get_validation_result(graphs, shacl_validator, None)
     assert file_value_correct.conforms
 
@@ -68,6 +68,6 @@ def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> No
 @pytest.mark.usefixtures("create_generic_project")
 def test_dsp_inbuilt_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, None)
     assert dsp_inbuilt_correct.conforms

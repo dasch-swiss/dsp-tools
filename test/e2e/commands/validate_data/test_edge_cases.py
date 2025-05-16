@@ -31,7 +31,7 @@ def special_characters_violation(
     _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -40,7 +40,7 @@ def inheritance_violation(
     _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -49,14 +49,14 @@ def validate_ontology_violation(
     _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, None)
     assert special_characters_correct.conforms
 
@@ -122,7 +122,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, _, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, None)
     assert inheritance_correct.conforms
 

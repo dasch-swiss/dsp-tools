@@ -38,8 +38,8 @@ def validate_ontology(
     validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)
     if validation_result.conforms:
         return None
-    if config.save_graphs:
-        validation_result.validation_graph.serialize(f"{config.save_dir}_ONTO_VIOLATIONS.ttl")
+    if config.save_graph_dir:
+        validation_result.validation_graph.serialize(f"{config.save_graph_dir}_ONTO_VIOLATIONS.ttl")
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))
 
 

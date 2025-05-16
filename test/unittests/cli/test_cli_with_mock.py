@@ -144,15 +144,10 @@ def test_validate_data_default(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file}".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
-
-
-@patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_dev(validate_data: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file}".split()
-    entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -160,7 +155,10 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} --save-graphs".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=True)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=True, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -168,7 +166,27 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss", save_graphs=False)
+    creds = ServerCredentials(
+        user="root@example.com",
+        password="test",
+        server="https://api.dasch.swiss",
+        dsp_ingest_url="https://ingest.dasch.swiss",
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
+
+
+@patch("dsp_tools.cli.call_action.validate_data")
+def test_validate_data_other_creds(validate_data: Mock) -> None:
+    file = "filename.xml"
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"validate-data {file} --server={server} --user {user} --password={password}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")

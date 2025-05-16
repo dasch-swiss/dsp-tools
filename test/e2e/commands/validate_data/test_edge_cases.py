@@ -6,6 +6,8 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
@@ -19,7 +21,7 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), False)
+CONFIG = ValidateDataConfig(Path(), None)
 
 
 @pytest.fixture(scope="module")
@@ -30,36 +32,42 @@ def _create_projects_edge_cases(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
+
+
+@pytest.fixture(scope="module")
 def special_characters_violation(
-    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def inheritance_violation(
-    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
-    _create_projects_edge_cases, api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     return validate_ontology(graphs.ontos, shacl_validator, CONFIG)
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
-def test_special_characters_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert special_characters_correct.conforms
 
@@ -123,9 +131,9 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
-def test_inheritance_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert inheritance_correct.conforms
 

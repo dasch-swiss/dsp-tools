@@ -21,7 +21,6 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 CONFIG = ValidateDataConfig(Path(), False)
 
-
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)

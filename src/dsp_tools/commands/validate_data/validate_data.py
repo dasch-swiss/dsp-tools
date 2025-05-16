@@ -99,7 +99,7 @@ def _validate_data(
     save_path = None
     if config.save_graphs:
         save_path = _get_save_directory(config.save_dir)
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.info(msg)

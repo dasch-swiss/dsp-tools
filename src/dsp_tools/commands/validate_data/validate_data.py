@@ -11,7 +11,6 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
@@ -298,7 +297,6 @@ def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) 
     logger.info("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
     list_client = ListClient(auth.server, shortcode)
-    legal_info_client = LegalInfoClientLive(server=auth.server, project_shortcode=shortcode, authentication_client=auth)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()

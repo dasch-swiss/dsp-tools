@@ -47,22 +47,20 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, save_graphs: bool, user: str, password: str) -> bool:
+def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
-        filepath: path to the xml data file
+        config: validate data configuration
         api_url: url of the api host
-        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
-        true unless it crashed
+        True if no errors that impede an xmlupload were found.
+        Warnings and user info do not impede an xmlupload.
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
-    creds = ServerCredentials(user=user, password=password, server=api_url)
-    validate_config = ValidateDataConfig()
-    return _validate_data(graphs, used_iris, api_url, filepath, save_graphs)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.xml_filepath)
+    return _validate_data(graphs, used_iris, api_url, config)
 
 
 def validate_parsed_resources(
@@ -70,15 +68,15 @@ def validate_parsed_resources(
     authorship_lookup: dict[str, list[str]],
     api_url: str,
     shortcode: str,
-    input_filepath: Path,
+    config: ValidateDataConfig,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, api_url, shortcode
     )
-    return _validate_data(rdf_graphs, used_iris, api_url, input_filepath, False)
+    return _validate_data(rdf_graphs, used_iris, api_url, config)
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepath: Path, save_graphs: bool) -> bool:
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config: ValidateDataConfig) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.info(msg)
@@ -88,8 +86,8 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
         return False
     shacl_validator = ShaclValidator(api_url)
     save_path = None
-    if save_graphs:
-        save_path = _get_save_directory(filepath)
+    if config.save_graphs:
+        save_path = _get_save_directory(config.xml_filepath)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
@@ -105,7 +103,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
         return True
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
-    _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
+    _print_shacl_validation_violation_message(sorted_problems, report, config)
     no_problems = not any(
         [
             bool(sorted_problems.unique_violations),
@@ -117,10 +115,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
 
 def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, shortcode
-    )
-    return rdf_graphs, used_iris, shortcode
+    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
@@ -193,9 +188,9 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _print_shacl_validation_violation_message(
-    sorted_problems: SortedProblems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, filepath)
+    messages = get_user_message(sorted_problems, config.xml_filepath)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -218,7 +213,7 @@ def _print_shacl_validation_violation_message(
             "\n    Unknown violations found!   ",
             RESET_TO_DEFAULT,
         )
-        if save_graphs:
+        if config.save_graphs:
             print(
                 BOLD_RED,
                 messages.unexpected_violations.message_header,
@@ -227,7 +222,7 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, filepath)
+            _save_unexpected_results_and_inform_user(report, config.xml_filepath)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:

@@ -6,6 +6,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
@@ -71,12 +72,13 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    validate_config = ValidateDataConfig(xml_filepath=xml_file, save_graphs=False)
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         api_url=creds.server,
         shortcode=shortcode,
-        input_filepath=xml_file,
+        config=validate_config,
     )
     if not validation_passed:
         return False

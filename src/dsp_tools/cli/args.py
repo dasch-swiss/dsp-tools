@@ -16,6 +16,5 @@ class ServerCredentials:
 class ValidateDataConfig:
     """Contains the configuration for validate data."""
 
-    shortcode: str
-    input_filepath: Path
+    xml_filepath: Path
     save_graphs: bool

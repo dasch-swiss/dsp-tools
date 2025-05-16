@@ -12,7 +12,6 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
@@ -85,13 +84,13 @@ def xmlupload(
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-    validate_config = ValidateDataConfig(save_dir=input_file, save_graphs=False)
+
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         api_url=creds.server,
         shortcode=shortcode,
-        config=validate_config,
+        input_filepath=input_file,
     )
     if not validation_passed:
         return False

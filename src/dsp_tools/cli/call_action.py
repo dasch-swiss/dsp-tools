@@ -214,7 +214,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    config = ValidateDataConfig(xml_filepath=Path(args.xmlfile), save_graphs=args.save_graphs)
+    config = ValidateDataConfig(save_dir=Path(args.xmlfile), save_graphs=args.save_graphs)
     return validate_data(config, api_url=args.server)
 
 

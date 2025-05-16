@@ -57,7 +57,7 @@ def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.xml_filepath)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.save_dir)
     return _validate_data(graphs, used_iris, api_url, config)
 
 
@@ -85,7 +85,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, config:
     shacl_validator = ShaclValidator(api_url)
     save_path = None
     if config.save_graphs:
-        save_path = _get_save_directory(config.xml_filepath)
+        save_path = _get_save_directory(config.save_dir)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
@@ -190,7 +190,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, config.xml_filepath)
+    messages = get_user_message(sorted_problems, config.save_dir)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -222,7 +222,7 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.xml_filepath)
+            _save_unexpected_results_and_inform_user(report, config.save_dir)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:

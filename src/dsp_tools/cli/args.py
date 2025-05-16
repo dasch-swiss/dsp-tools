@@ -16,5 +16,5 @@ class ServerCredentials:
 class ValidateDataConfig:
     """Contains the configuration for validate data."""
 
-    xml_filepath: Path
+    save_dir: Path
     save_graphs: bool

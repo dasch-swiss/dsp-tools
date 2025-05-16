@@ -72,7 +72,7 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-    validate_config = ValidateDataConfig(filepath=xml_file, save_graphs=False)
+    validate_config = ValidateDataConfig(xml_filepath=xml_file, save_graphs=False)
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,

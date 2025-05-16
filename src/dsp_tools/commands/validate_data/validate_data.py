@@ -49,14 +49,14 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, save_graphs: bool, creds: ServerCredentials) -> bool:
+def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
-        api_url: url of the api host
         save_graphs: if this flag is set, all the graphs will be saved in a folder
+        creds: server credentials for authentication
 
     Returns:
         True if no errors that impede an xmlupload were found.

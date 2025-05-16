@@ -54,7 +54,8 @@ def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
         api_url: url of the api host
 
     Returns:
-        true unless it crashed
+        True if no errors that impede an xmlupload were found.
+        Warnings and user info do not impede an xmlupload.
     """
     graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.filepath)
     return _validate_data(graphs, used_iris, api_url, config)

@@ -7,6 +7,9 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
@@ -44,7 +47,7 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
+def validate_data(filepath: Path, api_url: str, save_graphs: bool, user: str, password: str) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -57,6 +60,8 @@ def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
         true unless it crashed
     """
     graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
+    creds = ServerCredentials(user=user, password=password, server=api_url)
+    validate_config = ValidateDataConfig()
     return _validate_data(graphs, used_iris, api_url, filepath, save_graphs)
 
 
@@ -112,7 +117,10 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
 
 def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
+    rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
+        parsed_resources, authorship_lookup, api_url, shortcode
+    )
+    return rdf_graphs, used_iris, shortcode
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
@@ -128,9 +136,7 @@ def _prepare_data_for_validation_from_parsed_resource(
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    onto_client = OntologyClient(api_url, shortcode)
-    list_client = ListClient(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    rdf_graphs = _create_graphs(data_rdf, api_url, shortcode)
     return rdf_graphs, used_iris
 
 
@@ -282,8 +288,11 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
     onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
-def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
+def _create_graphs(data_rdf: Graph, api_url: str, shortcode: str) -> RDFGraphs:
     logger.info("Create all graphs.")
+    onto_client = OntologyClient(api_url, shortcode)
+    list_client = ListClient(api_url, shortcode)
+    legal_info_client = LegalInfoClientLive(server=api_url, project_shortcode=shortcode)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()

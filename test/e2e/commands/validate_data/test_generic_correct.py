@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
@@ -14,6 +15,8 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 
 # ruff: noqa: ARG001 Unused function argument
 
+CONFIG = ValidateDataConfig(Path(), False)
+
 
 @pytest.fixture(scope="module")
 def minimal_correct_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
@@ -23,7 +26,7 @@ def minimal_correct_graphs(create_generic_project, api_url: str) -> tuple[RDFGra
 
 def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:
     graphs, _ = minimal_correct_graphs
-    minimal_correct = _get_validation_result(graphs, shacl_validator, None)
+    minimal_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert minimal_correct.conforms
 
 
@@ -37,7 +40,7 @@ def test_check_for_unknown_resource_classes(minimal_correct_graphs: tuple[RDFGra
 def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    cardinality_correct = _get_validation_result(graphs, shacl_validator, None)
+    cardinality_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert cardinality_correct.conforms
 
 
@@ -45,7 +48,7 @@ def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> N
 def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    content_correct = _get_validation_result(graphs, shacl_validator, None)
+    content_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     # The referenced absolute IRIs are perceived as a violation in SHACL
     # because the resource does not exist in the graph
     assert not content_correct.conforms
@@ -60,7 +63,7 @@ def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
 def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    file_value_correct = _get_validation_result(graphs, shacl_validator, None)
+    file_value_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert file_value_correct.conforms
 
 
@@ -68,5 +71,5 @@ def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> No
 def test_dsp_inbuilt_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, None)
+    dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert dsp_inbuilt_correct.conforms

@@ -128,7 +128,7 @@ class TestGetEnabledLicenses:
 
     @patch("dsp_tools.clients.legal_info_client_live.log_response")
     @patch("dsp_tools.clients.legal_info_client_live.log_request")
-    def test_get_one_enabled_license_page(self, log_request: Mock, log_response: Mock):
+    def test_get_one_enabled_license_page(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
             method="GET",

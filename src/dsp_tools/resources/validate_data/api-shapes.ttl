@@ -42,6 +42,7 @@ api-shapes:UniqueValue_Shape
                 {
                     ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
                 }
+                FILTER NOT EXISTS { ?valueClass knora-api:valueHasComment ?value }
             }
             GROUP BY $this ?path ?value
             HAVING (COUNT(?value) > 1)

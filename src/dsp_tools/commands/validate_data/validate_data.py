@@ -66,7 +66,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
         graph_save_dir = _get_graph_save_dir(filepath)
     config = ValidateDataConfig(filepath.parent, graph_save_dir)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = _prepare_data_for_validation_from_file(config.xml_dir, auth)
+    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -350,6 +350,6 @@ def _get_graph_save_dir(filepath: Path) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    save_path = new_directory / filepath.stem
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
-    return save_path
+    save_file_template = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_file_template}   " + RESET_TO_DEFAULT)
+    return save_file_template

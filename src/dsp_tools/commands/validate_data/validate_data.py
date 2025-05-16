@@ -7,9 +7,10 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.cli.args import ValidateDataConfig, ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
@@ -84,7 +85,9 @@ def validate_parsed_resources(
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig) -> bool:
+def _validate_data(
+    graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
+) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.info(msg)

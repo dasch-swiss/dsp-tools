@@ -30,7 +30,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserInfo
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), False)
+CONFIG = ValidateDataConfig(Path(), None)
 
 
 @pytest.fixture(scope="module")

@@ -21,7 +21,7 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), False)
+CONFIG = ValidateDataConfig(Path(), None)
 
 
 @pytest.fixture(scope="module")

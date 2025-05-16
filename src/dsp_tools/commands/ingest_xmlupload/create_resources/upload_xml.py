@@ -77,6 +77,7 @@ def ingest_xmlupload(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         api_url=creds.server,
+        shortcode=shortcode,
         config=validate_config,
     )
     if not validation_passed:

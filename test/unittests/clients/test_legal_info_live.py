@@ -105,19 +105,28 @@ class TestGetEnabledLicenses:
         second_response = Mock(status_code=200, ok=True)
         second_response.json.return_value = PAGE_2_OF_2
         with patch.object(
-            LegalInfoClientLive, "_get_one_enabled_license_page", side_effect=[first_response, second_response]
+            LegalInfoClientLive,
+            attribute="_get_one_enabled_license_page",
+            side_effect=[first_response, second_response],
         ):
             response = client.get_enabled_licenses()
             assert response == [LICENSE_1, LICENSE_2]
 
     def test_get_enabled_license_page_no_license(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as get_mock:
-            get_mock.return_value = Mock(
-                status_code=200,
-                ok=True,
-                body={"data": [], "pagination": {"pageSize": 1, "totalItems": 2, "totalPages": 2, "currentPage": 1}},
-            )
+        get_mock = Mock(
+            status_code=200,
+            ok=True,
+        )
+        get_mock.json.return_value = {
+            "data": [],
+            "pagination": {"pageSize": 0, "totalItems": 0, "totalPages": 1, "currentPage": 1},
+        }
+        with patch.object(
+            LegalInfoClientLive,
+            attribute="_get_one_enabled_license_page",
+            side_effect=[get_mock],
+        ):
             response = client.get_enabled_licenses()
             assert response == []
 
@@ -132,7 +141,8 @@ class TestGetEnabledLicenses:
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
         )
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
-            get_mock.return_value = Mock(status_code=200, ok=True, body=DATA_PAGE_1_OF_1)
+            get_mock.return_value = Mock(status_code=200, ok=True)
+            get_mock.json.return_value = DATA_PAGE_1_OF_1
             response = client._get_one_enabled_license_page(1)
             get_mock.assert_called_once_with(url=params.url, headers=params.headers, timeout=params.timeout)
         assert response.json() == DATA_PAGE_1_OF_1

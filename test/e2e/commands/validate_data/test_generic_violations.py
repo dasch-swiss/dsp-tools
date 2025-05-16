@@ -9,6 +9,7 @@ import pytest
 from rdflib import BNode
 from rdflib import URIRef
 
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -24,6 +25,9 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 
 # ruff: noqa: ARG001 Unused function argument
+
+
+CONFIG = ValidateDataConfig(Path(), False)
 
 
 @pytest.fixture(scope="module")
@@ -47,7 +51,7 @@ def unique_value_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +60,7 @@ def file_value_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -65,7 +69,7 @@ def dsp_inbuilt_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -74,14 +78,14 @@ def cardinality_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def content_violation(create_generic_project, api_url: str, shacl_validator: ShaclValidator) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -92,7 +96,7 @@ def value_type_violation(
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
     with pytest.warns(DspToolsUserInfo, match=match):
         graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -101,7 +105,7 @@ def every_violation_combination_once(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
     graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:

@@ -1,11 +1,11 @@
 import importlib.resources
-from pathlib import Path
 
 from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
 
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -16,7 +16,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclValidator, save_path: Path | None
+    onto_graph: Graph, shacl_validator: ShaclValidator, config: ValidateDataConfig
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -26,7 +26,7 @@ def validate_ontology(
     Args:
         onto_graph: the graph of the project ontologies
         shacl_validator: connection to the API for the validation
-        save_path: the path where the turtle file should be saved if so desired
+        config: The configuration where to save the information to
 
     Returns:
         A validation report if errors were found
@@ -38,8 +38,8 @@ def validate_ontology(
     validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)
     if validation_result.conforms:
         return None
-    if save_path:
-        validation_result.validation_graph.serialize(f"{save_path}_ONTO_VIOLATIONS.ttl")
+    if config.save_graphs:
+        validation_result.validation_graph.serialize(f"{config.save_dir}_ONTO_VIOLATIONS.ttl")
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))
 
 

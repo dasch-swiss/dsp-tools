@@ -6,12 +6,16 @@ import pytest
 
 from dsp_tools.clients.legal_info_client_live import HTTP_LACKING_PERMISSIONS
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.request_utils import RequestParameters
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="tkn")
+
+
+DATA_PAGE_1_OF_1 = {"data": [], "pagination": {"pageSize": 13, "totalItems": 13, "totalPages": 1, "currentPage": 1}}
 
 
 class TestPostCopyrightHolders:
@@ -69,11 +73,41 @@ class TestPostCopyrightHolders:
 
 
 class TestGetEnabledLicenses:
-    def test_get_ok(self):
+    @patch("dsp_tools.clients.legal_info_client_live.log_response")
+    @patch("dsp_tools.clients.legal_info_client_live.log_request")
+    def test_get_enabled_license_page(self):
         pass
 
-    def test_get_no_licenses(self):
+    def test_get_enabled_licenses_no_licenses(self):
         pass
+
+    @patch("dsp_tools.clients.legal_info_client_live.log_response")
+    @patch("dsp_tools.clients.legal_info_client_live.log_request")
+    def test_get_one_enabled_license_page(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        params = RequestParameters(
+            method="GET",
+            url="http://api.com/admin/projects/shortcode/9999/legal-info/licenses?page=1&page-size=25&order=Asc&showOnlyEnabled=true",
+            timeout=60,
+            headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
+        )
+        with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
+            get_mock.return_value = Mock(status_code=200, ok=True, body=DATA_PAGE_1_OF_1)
+            response = client._get_one_enabled_license_page(1)
+            get_mock.assert_called_once_with(url=params.url, headers=params.headers, timeout=params.timeout)
+        assert response.json() == DATA_PAGE_1_OF_1
 
     def test_insufficient_credentials(self):
         pass
+
+    def test_other_response_code(self):
+        pass
+
+
+def test_is_last_page_no():
+    response = {"data": [], "pagination": {"pageSize": 13, "totalItems": 13, "totalPages": 10, "currentPage": 1}}
+    assert not _is_last_page(response)
+
+
+def test_is_last_page_yes():
+    assert _is_last_page(DATA_PAGE_1_OF_1)

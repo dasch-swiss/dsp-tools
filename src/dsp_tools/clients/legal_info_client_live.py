@@ -67,26 +67,12 @@ class LegalInfoClientLive(LegalInfoClient):
         logger.debug("GET enabled licenses of the project.")
         page_num = 1
         all_data = []
-        has_items = True
-        while has_items:
-            try:
-                response = self._get_one_enabled_license_page(page_num)
-            except (TimeoutError, ReadTimeout) as err:
-                log_and_raise_timeouts(err)
-            if response.ok:
-                response_dict = response.json()
-                all_data.extend(response_dict["data"])
-                has_items = _is_not_last_page(response_dict)
-            elif response.status_code == HTTP_LACKING_PERMISSIONS:
-                raise BadCredentialsError(
-                    "Only members of a project or system administrators can request the enabled licenses of a project."
-                    "Your permissions are insufficient for this action."
-                )
-            else:
-                raise BaseError(
-                    f"An unexpected response with the status code {response.status_code} was received from the API. "
-                    f"Please consult 'warnings.log' for details."
-                )
+        is_last_page = False
+        while not is_last_page:
+            response = self._get_one_enabled_license_page(page_num)
+            response_dict = response.json()
+            all_data.extend(response_dict["data"])
+            is_last_page = _is_last_page(response_dict)
         return all_data
 
     def _get_one_enabled_license_page(self, page_num: int) -> Response:
@@ -100,17 +86,31 @@ class LegalInfoClientLive(LegalInfoClient):
         }
         params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
         log_request(params)
-        response = requests.get(
-            url=params.url,
-            headers=params.headers,
-            data=params.data_serialized,
-            timeout=params.timeout,
-        )
-        log_response(response)
-        return response
+        try:
+            response = requests.get(
+                url=params.url,
+                headers=params.headers,
+                data=params.data_serialized,
+                timeout=params.timeout,
+            )
+            log_response(response)
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
+        if response.ok:
+            return response
+        elif response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only members of a project or system administrators can request the enabled licenses of a project."
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
 
 
-def _is_not_last_page(response: dict[str, Any]) -> bool:
+def _is_last_page(response: dict[str, Any]) -> bool:
     current_page = response["pagination"]["currentPage"]
     total_page = response["pagination"]["totalPages"]
-    return bool(current_page != total_page)
+    return bool(current_page == total_page)

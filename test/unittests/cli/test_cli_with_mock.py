@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -143,16 +144,9 @@ def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
 def test_validate_data_default(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file}".split()
+    config = ValidateDataConfig(Path(file), False)
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
-
-
-@patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_dev(validate_data: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file}".split()
-    entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
+    validate_data.assert_called_once_with(config, api_url="http://0.0.0.0:3333")
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -160,7 +154,8 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} --save-graphs".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=True)
+    config = ValidateDataConfig(Path(file), True)
+    validate_data.assert_called_once_with(config, api_url="http://0.0.0.0:3333")
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -168,7 +163,8 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss", save_graphs=False)
+    config = ValidateDataConfig(Path(file), False)
+    validate_data.assert_called_once_with(config, api_url="https://api.dasch.swiss")
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")

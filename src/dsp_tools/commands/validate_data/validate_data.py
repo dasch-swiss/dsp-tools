@@ -64,7 +64,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath.parent, graph_save_dir)
+    config = ValidateDataConfig(filepath, graph_save_dir)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
@@ -78,7 +78,7 @@ def validate_parsed_resources(
     auth: AuthenticationClient,
 ) -> bool:
     # The save directory is still relevant in case unexpected violations are found.
-    config = ValidateDataConfig(input_filepath.parent, None)
+    config = ValidateDataConfig(input_filepath, None)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, auth, shortcode
     )
@@ -201,7 +201,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, config.xml_dir)
+    messages = get_user_message(sorted_problems, config.xml_file)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -233,20 +233,20 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.xml_dir)
+            _save_unexpected_results_and_inform_user(report, config.xml_file)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
     timestamp = f"{datetime.now()!s}_"
-    save_path = filepath / f"{timestamp}_validation_result.ttl"
+    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
     report.validation_graph.serialize(save_path)
-    shacl_p = filepath / f"{timestamp}_shacl.ttl"
+    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
     report.shacl_graph.serialize(shacl_p)
-    data_p = filepath / f"{timestamp}_data.ttl"
+    data_p = filepath.parent / f"{timestamp}_data.ttl"
     report.data_graph.serialize(data_p)
     msg = (
         f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
-        f"in the directory '{filepath}'."
+        f"in the directory '{filepath.parent}'."
     )
     print(BOLD_RED + msg + RESET_TO_DEFAULT)
 

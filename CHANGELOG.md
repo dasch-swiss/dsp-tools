@@ -1,5 +1,26 @@
 # Changelog
 
+## [14.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v14.0.0...v14.1.0) (2025-05-16)
+
+
+### Enhancements
+
+* **xmlupload:** validate XML input with `validate-data` (DEV-4461) ([#1722](https://github.com/dasch-swiss/dsp-tools/issues/1722)) ([93c2345](https://github.com/dasch-swiss/dsp-tools/commit/93c2345d8be0b507d1a38e25f0e71e2ba0eb5576))
+
+
+### Bug Fixes
+
+* allow all licenses, not only the recommended ones (DEV-4903) ([#1724](https://github.com/dasch-swiss/dsp-tools/issues/1724)) ([82a3214](https://github.com/dasch-swiss/dsp-tools/commit/82a32145be65b388f72058db0dbdc52359343859))
+* **validate-data:** allow values of the same property to have identical comments (DEV-4905) ([#1727](https://github.com/dasch-swiss/dsp-tools/issues/1727)) ([f35bd93](https://github.com/dasch-swiss/dsp-tools/commit/f35bd933ad634cf6c39ac51375b6d6e6100b6ecf))
+* **validate-data:** reorganise user print messages and fix validation bool (DEV-4898) ([#1718](https://github.com/dasch-swiss/dsp-tools/issues/1718)) ([899f74b](https://github.com/dasch-swiss/dsp-tools/commit/899f74b3cd2a2c2876b146e4ef76f6300b78ec4b))
+
+
+### Maintenance
+
+* **validate-data:** add validate config ([#1726](https://github.com/dasch-swiss/dsp-tools/issues/1726)) ([98ac8d6](https://github.com/dasch-swiss/dsp-tools/commit/98ac8d6f91f1110c641bb00452e167a2f4289e51))
+* **validate-data:** extract parsing of resources from validation command ([#1720](https://github.com/dasch-swiss/dsp-tools/issues/1720)) ([b591d1e](https://github.com/dasch-swiss/dsp-tools/commit/b591d1e5a5d05f87e8bb1f5c10fd432f4bdf6c5f))
+* **xmlupload:** separate parsing of processing of resources ([#1721](https://github.com/dasch-swiss/dsp-tools/issues/1721)) ([54c9b08](https://github.com/dasch-swiss/dsp-tools/commit/54c9b086ccdb82eea08bc94f85fcd5297b7e1151))
+
 ## [14.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v13.1.0...v14.0.0) (2025-05-15)
 
 

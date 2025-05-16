@@ -100,20 +100,15 @@ class TestPostCopyrightHolders:
 class TestGetEnabledLicenses:
     def test_get_enabled_license_page(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as first_get:
-            first_get.return_value = Mock(
-                status_code=200,
-                ok=True,
-                body=PAGE_1_OF_2,
-            )
-            with patch.object(LegalInfoClientLive, "_get_one_enabled_license_page") as second_get:
-                second_get.return_value = Mock(
-                    status_code=200,
-                    ok=True,
-                    body=PAGE_2_OF_2,
-                )
-                response = client.get_enabled_licenses()
-                assert response == [LICENSE_1, LICENSE_2]
+        first_response = Mock(status_code=200, ok=True)
+        first_response.json.return_value = PAGE_1_OF_2
+        second_response = Mock(status_code=200, ok=True)
+        second_response.json.return_value = PAGE_2_OF_2
+        with patch.object(
+            LegalInfoClientLive, "_get_one_enabled_license_page", side_effect=[first_response, second_response]
+        ):
+            response = client.get_enabled_licenses()
+            assert response == [LICENSE_1, LICENSE_2]
 
     def test_get_enabled_license_page_no_license(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)

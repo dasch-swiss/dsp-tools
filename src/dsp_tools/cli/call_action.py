@@ -4,6 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -213,7 +214,8 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    return validate_data(filepath=Path(args.xmlfile), api_url=args.server, save_graphs=args.save_graphs)
+    config = ValidateDataConfig(filepath=Path(args.xmlfile), save_graphs=args.save_graphs)
+    return validate_data(config, api_url=args.server)
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

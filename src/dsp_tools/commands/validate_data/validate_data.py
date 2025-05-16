@@ -45,20 +45,18 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
+def validate_data(config: ValidateDataConfig, api_url: str) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
-        filepath: path to the xml data file
+        config: validate data configuration
         api_url: url of the api host
-        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         true unless it crashed
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
-    config = ValidateDataConfig(filepath=filepath, save_graphs=save_graphs)
+    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, config.filepath)
     return _validate_data(graphs, used_iris, api_url, config)
 
 

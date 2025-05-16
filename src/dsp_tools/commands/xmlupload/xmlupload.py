@@ -90,7 +90,7 @@ def xmlupload(
         authorship_lookup=lookups.authorships,
         shortcode=shortcode,
         input_filepath=input_file,
-        auth=auth
+        auth=auth,
     )
     if not validation_passed:
         return False

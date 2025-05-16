@@ -6,6 +6,8 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
@@ -21,11 +23,18 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 CONFIG = ValidateDataConfig(Path(), False)
 
+
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)
     assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), creds)
     assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), creds)
+
+
+@pytest.fixture(scope="module")
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
 
 
 @pytest.fixture(scope="module")

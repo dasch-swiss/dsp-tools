@@ -50,6 +50,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
+NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
 def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
@@ -109,7 +110,7 @@ def _validate_data(
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
         logger.info("Validation passed.")
-        print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
@@ -209,12 +210,14 @@ def _print_shacl_validation_violation_message(
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         print(messages.violations.message_body)
-    if messages.warnings:
+    else:
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+    if messages.warnings and config.severity.value <= 2:
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         print(messages.warnings.message_body)
-    if messages.infos:
+    if messages.infos and config.severity.value == 1:
         logger.info(messages.infos.message_header, messages.infos.message_body)
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)

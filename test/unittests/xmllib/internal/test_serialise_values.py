@@ -25,12 +25,12 @@ from dsp_tools.xmllib.models.internal.values import Value
 def mixed_values() -> list[Value]:
     return [
         BooleanValue("false", ":bool"),
-        IntValue("1", ":int"),
+        LinkValue("b", ":link"),
         IntValue("2", ":int"),
+        LinkValue("a", ":link"),
+        IntValue("1", ":int"),
         SimpleText("a", ":text1"),
         SimpleText("b", ":text2"),
-        LinkValue("a", ":link"),
-        LinkValue("b", ":link"),
     ]
 
 
@@ -45,16 +45,27 @@ EXPECTED_TYPE_LOOKUP = {
 
 class TestSortValue:
     def test_no_sorting(self, mixed_values):
-        expected_tups = []
+        result_tups, type_lookup = _sort_and_group_values(mixed_values)
+        assert type_lookup == EXPECTED_TYPE_LOOKUP
+        expected_props = {x.prop_name for x in mixed_values}
+        actual_props = {x[0] for x in result_tups}
+        assert len(result_tups) == len(expected_props)
+        assert expected_props == actual_props
+
+    def test_with_sorting(self, mixed_values):
+        expected_tups = [
+            (":bool", [BooleanValue("false", ":bool")]),
+            (":int", [IntValue("1", ":int"), IntValue("2", ":int")]),
+            (":", []),
+            (":", []),
+            (":", []),
+            (":", []),
+        ]
         result_tups, type_lookup = _sort_and_group_values(mixed_values)
         assert type_lookup == EXPECTED_TYPE_LOOKUP
         assert len(result_tups) == len(expected_tups)
         for result_tups, expected_tups in zip(result_tups, expected_tups):
             assert result_tups[0] == expected_tups[0]
-            result_vals = result_tups[1]
-            expected_vals = expected_tups[1]
-            for result, expected in zip(result_vals, expected_vals):
-                assert result.value == expected.value
 
 
 class TestSerialiseValues:

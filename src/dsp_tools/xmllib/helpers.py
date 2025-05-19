@@ -534,11 +534,11 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def find_date_in_string(string: str) -> list[str]:
+def find_date_in_string(string: str) -> set[str]:
     """
     Checks if a string contains date values (single dates, or date ranges),
-    and return all found dates as list of DSP-formatted strings.
-    Returns an empty list if no date was found.
+    and return all found dates as set of DSP-formatted strings.
+    Returns an empty set if no date was found.
     [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
@@ -581,7 +581,7 @@ def find_date_in_string(string: str) -> list[str]:
         string: string to check
 
     Returns:
-        (possibly empty) list of DSP-formatted date strings
+        (possibly empty) set of DSP-formatted date strings
 
     Examples:
         ```python
@@ -602,13 +602,10 @@ def find_date_in_string(string: str) -> list[str]:
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
     if already_parsed := _extract_already_parsed_date(string):
-        return [already_parsed]
+        return {already_parsed}
     if not is_nonempty_value_internal(string):
-        return []
-    try:
-        return _find_date_in_string_raising(string)
-    except ValueError:
-        return []
+        return set()
+    return _find_date_in_string(string)
 
 
 _months_dict = {
@@ -648,10 +645,7 @@ _months_dict = {
 }
 
 
-def _find_date_in_string_raising(string: str) -> set[str]:
-    """
-    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning an empty list.
-    """
+def _find_date_in_string(string: str) -> set[str]:
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
@@ -661,7 +655,7 @@ def _find_date_in_string_raising(string: str) -> set[str]:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    results: set[str] = set()
+    results: set[str | None] = set()
 
     if english_bc_or_ce_dates := _find_english_BC_or_CE_dates(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
@@ -719,7 +713,7 @@ def _find_date_in_string_raising(string: str) -> set[str]:
     if year_onlies := list(regex.finditer(rf"{lookbehind}{year_regex}{lookahead}", string)):
         results.update(f"GREGORIAN:CE:{int(x.group(0))}:CE:{int(x.group(0))}" for x in year_onlies)
 
-    return results
+    return {x for x in results if x}
 
 
 def _find_english_BC_or_CE_dates(
@@ -796,7 +790,7 @@ def _find_french_bc_dates(
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
-) -> str | None:
+) -> set[str]:
     results: set[str | None] = set()
     french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
 
@@ -812,9 +806,9 @@ def _find_french_bc_dates(
     single_year_regex = rf"{lookbehind}({year_regex}) {french_bc_regex}{lookahead}"
     for single_year in list(regex.finditer(single_year_regex, string)):
         start_year = int(single_year.group(1))
-        return f"GREGORIAN:BC:{start_year}:BC:{start_year}"
+        results.add(f"GREGORIAN:BC:{start_year}:BC:{start_year}")
 
-    return None
+    return {x for x in results if x}
 
 
 def _from_iso_date(iso_date: Match[str]) -> str:
@@ -835,7 +829,7 @@ def _expand_2_digit_year(year: int) -> int:
         return year
 
 
-def _from_eur_date_range(eur_date_range: Match[str]) -> str:
+def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     startday = int(eur_date_range.group(1))
     startmonth = int(eur_date_range.group(2)) if eur_date_range.group(2) else int(eur_date_range.group(5))
     startyear = int(eur_date_range.group(3)) if eur_date_range.group(3) else int(eur_date_range.group(6))
@@ -847,7 +841,7 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str:
     startdate = datetime.date(startyear, startmonth, startday)
     enddate = datetime.date(endyear, endmonth, endday)
     if enddate < startdate:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
 
@@ -884,7 +878,7 @@ def _from_german_monthname_date(german_monthname_date: Match[str]) -> str:
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
 
-def _from_year_range(year_range: Match[str]) -> str:
+def _from_year_range(year_range: Match[str]) -> str | None:
     startyear = int(year_range.group(1))
     endyear = int(year_range.group(2))
     if endyear // 10 == 0:
@@ -894,7 +888,7 @@ def _from_year_range(year_range: Match[str]) -> str:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
     if endyear <= startyear:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 

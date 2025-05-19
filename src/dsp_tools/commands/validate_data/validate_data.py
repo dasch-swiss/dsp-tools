@@ -11,6 +11,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
@@ -18,6 +19,7 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -301,7 +303,8 @@ def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) 
     list_client = ListClient(auth.server, shortcode)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
-    project_data_from_api = ProjectDataFromApi(all_lists)
+    enabled_licenses = _get_license_iris(shortcode, auth)
+    project_data_from_api = ProjectDataFromApi(all_lists, enabled_licenses)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
@@ -334,6 +337,13 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
         og.parse(data=onto, format="ttl")
         onto_g += og
     return onto_g
+
+
+def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:
+    legal_client = LegalInfoClientLive(auth.server, shortcode, auth)
+    license_info = legal_client.get_licenses_of_a_project(enabled_only=False)
+    iris = [x["id"] for x in license_info]
+    return EnabledLicenseIris(iris)
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:

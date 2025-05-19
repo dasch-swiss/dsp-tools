@@ -198,7 +198,8 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
 - `--validation-severity` (optional, default: `info`): which severity level of messages will be printed out. 
-  Options: `info`, `warning` and `error` (each level of severity includes the higher levels).
+  Options: `info`, `warning` and `error` 
+  (each level of severity includes the higher levels see [`validate-data`](#validate-data) for details).
 
 Output:
 

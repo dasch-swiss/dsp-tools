@@ -118,8 +118,6 @@ class StackHandler:
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
-        if self.__stack_configuration.custom_host is not None:
-            Path(self.__docker_path_of_user / "dsp-app-config.json").unlink()
 
     def _set_custom_host(self) -> None:
         """
@@ -148,6 +146,7 @@ class StackHandler:
             )
             dsp_app_config_template = Template(dsp_app_config_template_path.read_text(encoding="utf-8"))
             dsp_app_config_rendered = dsp_app_config_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
+            Path(self.__docker_path_of_user / "dsp-app-config.json").unlink()
             Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(
                 dsp_app_config_rendered, encoding="utf-8"
             )

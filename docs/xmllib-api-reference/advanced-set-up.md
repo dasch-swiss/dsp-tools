@@ -42,3 +42,4 @@ If you only want to have either sorted, the keyword can either be omitted or set
 - The order is determined by the character number in the [Unicode chart](https://www.unicode.org/charts/)
 - This means that for example: `B` will come before `a` as capital letters have a lower number than lower case letters
 - Numbers are treated as strings, this means that for example: `01` and `1` are treated differently
+- 

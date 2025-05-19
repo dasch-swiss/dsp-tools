@@ -137,10 +137,27 @@ dsp-tools validate-data [options] xml_data_file.xml
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
+  This is primarily intended for development use.
 
 Output:
 
 - The result of the validation is printed out on the console.
+- There are three severity levels:
+    - `Error`: Will block an xmlupload.
+        - Content that is wrong for various reasons.
+        - For example, invalid values, empty values, data that does not conform to the definition in the data model.
+    - `Warning`: Will not block an xmlupload.
+        - Content that will currently not cause an xmlupload to fail but may do so in the future. 
+        - For example, before legal information became mandatory, missing legal information was a warning. 
+          As soon as it is mandatory it will become an error.
+    - `Info`: Will not block an xmlupload.
+        - Content that may cause errors during an upload. 
+        - For example, if you reference IRIs from resources that are already in the database.
+          You will get an info message.
+          The reason is, that if the resource does not exist, an xmlupload will fail.
 - If there are more than 50 validation errors, 
   a csv called `[xml_data_file]_validation_errors.csv` with the results is saved in the current directory.
 

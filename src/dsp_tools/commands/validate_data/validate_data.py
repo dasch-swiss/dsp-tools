@@ -7,6 +7,10 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
@@ -14,6 +18,7 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -44,36 +49,46 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
+def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
-        api_url: url of the api host
         save_graphs: if this flag is set, all the graphs will be saved in a folder
+        creds: server credentials for authentication
 
     Returns:
-        true unless it crashed
+        True if no errors that impede an xmlupload were found.
+        Warnings and user info do not impede an xmlupload.
     """
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, filepath)
-    return _validate_data(graphs, used_iris, api_url, filepath, save_graphs)
+    graph_save_dir = None
+    if save_graphs:
+        graph_save_dir = _get_graph_save_dir(filepath)
+    config = ValidateDataConfig(filepath, graph_save_dir)
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
+    return _validate_data(graphs, used_iris, auth, config)
 
 
 def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
-    api_url: str,
     shortcode: str,
     input_filepath: Path,
+    auth: AuthenticationClient,
 ) -> bool:
+    # The save directory is still relevant in case unexpected violations are found.
+    config = ValidateDataConfig(input_filepath, None)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, api_url, shortcode
+        parsed_resources, authorship_lookup, auth, shortcode
     )
-    return _validate_data(rdf_graphs, used_iris, api_url, input_filepath, False)
+    return _validate_data(rdf_graphs, used_iris, auth, config)
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepath: Path, save_graphs: bool) -> bool:
+def _validate_data(
+    graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
+) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.info(msg)
@@ -81,11 +96,8 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    shacl_validator = ShaclValidator(api_url)
-    save_path = None
-    if save_graphs:
-        save_path = _get_save_directory(filepath)
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
+    shacl_validator = ShaclValidator(auth.server)
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.info(msg)
@@ -93,14 +105,14 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_result(graphs, shacl_validator, save_path)
+    report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
         logger.info("Validation passed.")
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
         return True
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
-    _print_shacl_validation_violation_message(sorted_problems, report, filepath, save_graphs)
+    _print_shacl_validation_violation_message(sorted_problems, report, config)
     no_problems = not any(
         [
             bool(sorted_problems.unique_violations),
@@ -110,9 +122,9 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], api_url: str, filepat
     return no_problems
 
 
-def _prepare_data_for_validation_from_file(api_url: str, filepath: Path) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, api_url)
-    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, api_url, shortcode)
+def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
+    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, auth.server)
+    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, auth, shortcode)
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
@@ -124,13 +136,14 @@ def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], 
 
 
 def _prepare_data_for_validation_from_parsed_resource(
-    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], api_url: str, shortcode: str
+    parsed_resources: list[ParsedResource],
+    authorship_lookup: dict[str, list[str]],
+    auth: AuthenticationClient,
+    shortcode: str,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    onto_client = OntologyClient(api_url, shortcode)
-    list_client = ListClient(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth)
     return rdf_graphs, used_iris
 
 
@@ -187,9 +200,9 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _print_shacl_validation_violation_message(
-    sorted_problems: SortedProblems, report: ValidationReportGraphs, filepath: Path, save_graphs: bool
+    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, filepath)
+    messages = get_user_message(sorted_problems, config.xml_file)
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -212,7 +225,7 @@ def _print_shacl_validation_violation_message(
             "\n    Unknown violations found!   ",
             RESET_TO_DEFAULT,
         )
-        if save_graphs:
+        if config.save_graph_dir:
             print(
                 BOLD_RED,
                 messages.unexpected_violations.message_header,
@@ -221,7 +234,7 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, filepath)
+            _save_unexpected_results_and_inform_user(report, config.xml_file)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
@@ -261,13 +274,13 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_path: Path | None
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
-    if save_path:
-        _save_graphs(save_path, rdf_graphs)
+    if config.save_graph_dir:
+        _save_graphs(config.save_graph_dir, rdf_graphs)
     report = _validate(shacl_validator, rdf_graphs)
-    if save_path:
-        report.validation_graph.serialize(f"{save_path}_VALIDATION_REPORT.ttl")
+    if config.save_graph_dir:
+        report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
     return report
 
 
@@ -282,14 +295,17 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
     onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
-def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
+def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) -> RDFGraphs:
     logger.info("Create all graphs.")
+    onto_client = OntologyClient(auth.server, shortcode)
+    list_client = ListClient(auth.server, shortcode)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
+    project_data_from_api = ProjectDataFromApi(all_lists)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, all_lists)
+    shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
@@ -332,10 +348,10 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     )
 
 
-def _get_save_directory(filepath: Path) -> Path:
+def _get_graph_save_dir(filepath: Path) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    save_path = new_directory / filepath.stem
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
-    return save_path
+    save_file_template = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_file_template}   " + RESET_TO_DEFAULT)
+    return save_file_template

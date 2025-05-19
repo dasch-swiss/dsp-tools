@@ -7,7 +7,6 @@ import requests
 from rdflib import SH
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
@@ -78,12 +77,11 @@ class ListClient:
     api_url: str
     shortcode: str
 
-    def get_lists(self) -> AllProjectLists:
+    def get_lists(self) -> list[OneList]:
         list_json = self._get_all_list_iris()
         all_iris = self._extract_list_iris(list_json)
         all_lists = [self._get_one_list(iri) for iri in all_iris]
-        reformatted = [self._reformat_one_list(lst) for lst in all_lists]
-        return AllProjectLists(reformatted)
+        return [self._reformat_one_list(lst) for lst in all_lists]
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"

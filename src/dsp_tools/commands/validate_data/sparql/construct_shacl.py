@@ -1,21 +1,21 @@
 from loguru import logger
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
 from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_allowed_licenses_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 
-def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllProjectLists) -> SHACLGraphs:
+def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_info_from_api: ProjectDataFromApi) -> SHACLGraphs:
     """
     Constructs a shapes graph from a project ontology
 
     Args:
         onto: ontology as graph
         knora_api: the knora-api ontology
-        project_lists: the lists of a project
+        project_info_from_api: information from a project from the api, for example lists
 
     Returns:
         shapes graph
@@ -24,7 +24,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllPro
     knora_subset = _get_all_relevant_knora_subset(knora_api)
     graph_to_query = knora_subset + onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
-    content = construct_property_shapes(graph_to_query, project_lists)
+    content = construct_property_shapes(graph_to_query, project_info_from_api.all_lists)
     content += construct_allowed_licenses_shape()
     return SHACLGraphs(cardinality=cardinality, content=content)
 

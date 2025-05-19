@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 import requests
 from loguru import logger
@@ -61,3 +62,54 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         log_response(response)
         return response
+
+    def get_enabled_licenses(self) -> list[dict[str, Any]]:
+        logger.debug("GET enabled licenses of the project.")
+        page_num = 1
+        all_data = []
+        is_last_page = False
+        while not is_last_page:
+            response = self._get_one_enabled_license_page(page_num)
+            response_dict = response.json()
+            all_data.extend(response_dict["data"])
+            is_last_page = _is_last_page(response_dict)
+        return all_data
+
+    def _get_one_enabled_license_page(self, page_num: int) -> Response:
+        url = (
+            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
+            f"legal-info/licenses?page={page_num}&page-size=25&order=Asc&showOnlyEnabled=true"
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+        }
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
+        log_request(params)
+        try:
+            response = requests.get(
+                url=params.url,
+                headers=params.headers,
+                timeout=params.timeout,
+            )
+            log_response(response)
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
+        if response.ok:
+            return response
+        elif response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only members of a project or system administrators can request the enabled licenses of a project."
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
+
+
+def _is_last_page(response: dict[str, Any]) -> bool:
+    current_page = response["pagination"]["currentPage"]
+    total_page = response["pagination"]["totalPages"]
+    return bool(current_page == total_page)

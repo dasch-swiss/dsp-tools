@@ -1,9 +1,13 @@
 from loguru import logger
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 
-def construct_allowed_licenses_shape() -> Graph:
+
+def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
     """Create a constraint detailing the allowed licences."""
+    formatted_iris = [f"<{x}>" for x in license_iris.enabled_licenses]
+    license_str = " ".join(formatted_iris)
     logger.info("Constructing allowed licesnses shapes.")
     ttl_str = """
     @prefix sh:         <http://www.w3.org/ns/shacl#> .
@@ -14,12 +18,13 @@ def construct_allowed_licenses_shape() -> Graph:
       a sh:NodeShape ;
       sh:targetClass knora-api:FileValue ;
       sh:property [
-          a sh:PropertyShape ;
-          sh:path knora-api:hasLicense ;
+          a          sh:PropertyShape ;
+          sh:path    knora-api:hasLicense ;
+          sh:in      ( %(license_str)s ) ;
           sh:message "You are required to use one of the pre-defined licenses, please consult the documentation for details." ;
           sh:severity sh:Violation
                   ] .
-    """  # noqa: E501 Line too long (135 > 120)
+    """ % {"license_str": license_str}  # noqa: UP031,E501
     g = Graph()
     g.parse(data=ttl_str, format="turtle")
     return g

@@ -290,6 +290,12 @@ def _add_xmlupload(
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")
+    subparser.add_argument(
+        "--severity",
+        choices=["error", "warning", "info"],
+        help="Which severity level of validation message should be printed out",
+        default="info",
+    )
 
 
 def _add_validate_data(

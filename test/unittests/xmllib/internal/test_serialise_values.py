@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
 from lxml import etree
 
@@ -145,7 +147,7 @@ class TestSerialiseValues:
             ("1 < 2 & 4 > 3", "1 &lt; 2 &amp; 4 &gt; 3"),
         ],
     )
-    def test_richtext_tags(orig: str, expected: str):
+    def test_richtext_tags(self, orig: str, expected: str):
         result = serialise_values([Richtext(orig, ":richtextProp")])
         assert len(result) == 1
         expected_xml = (

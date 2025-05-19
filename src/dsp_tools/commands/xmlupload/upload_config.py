@@ -3,6 +3,8 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from dataclasses import field
+from enum import Enum
+from enum import auto
 from pathlib import Path
 
 import regex
@@ -39,6 +41,13 @@ class DiagnosticsConfig:
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
 
 
+@dataclass
+class ValidationSeverity(Enum):
+    ERROR = auto()
+    WARNING = auto()
+    INFO = auto()
+
+
 @dataclass(frozen=True)
 class UploadConfig:
     """Configuration for the upload process."""
@@ -49,6 +58,7 @@ class UploadConfig:
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
     interrupt_after: int | None = None
     skip_iiif_validation: bool = False
+    validation_severity: ValidationSeverity = ValidationSeverity.INFO
 
     def with_server_info(
         self,

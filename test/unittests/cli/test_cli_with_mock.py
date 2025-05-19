@@ -8,6 +8,7 @@ from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import ValidationSeverity
 
 EXIT_CODE_TWO = 2
 
@@ -91,7 +92,9 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+        config=UploadConfig(
+            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.INFO
+        ),
     )
 
 
@@ -120,6 +123,48 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
         creds=creds,
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=True),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity warning".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(
+            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.WARNING
+        ),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity error".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(
+            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.ERROR
+        ),
     )
 
 

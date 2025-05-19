@@ -10,7 +10,7 @@ from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_a
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
-NUMBER_OF_TRIPLES_NO_LICENSES = 8
+NUMBER_OF_TRIPLES_NO_LICENSES = 9
 
 
 def test_construct_allowed_licenses_shape_one_license():
@@ -24,6 +24,7 @@ def test_construct_allowed_licenses_shape_one_license():
     prop_shape = next(result.objects(subj, SH.property))
     assert next(result.objects(prop_shape, RDF.type)) == SH.PropertyShape
     assert next(result.objects(prop_shape, SH.path)) == KNORA_API.hasLicense
+    assert next(result.objects(prop_shape, SH.nodeKind)) == SH.IRI
     in_bn, license_iris = next(result.subject_objects(predicate=RDF.first))
     sh_in = URIRef("http://www.w3.org/ns/shacl#in")
     assert next(result.objects(prop_shape, sh_in)) == in_bn
@@ -45,6 +46,7 @@ def test_construct_allowed_licenses_shape_no_license():
     prop_shape = next(result.objects(subj, SH.property))
     assert next(result.objects(prop_shape, RDF.type)) == SH.PropertyShape
     assert next(result.objects(prop_shape, SH.path)) == KNORA_API.hasLicense
+    assert next(result.objects(prop_shape, SH.nodeKind)) == SH.IRI
     expected_msg = "You are only allowed to reference enabled licenses. No licenses are enabled for this project."
     assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg)
     assert next(result.objects(prop_shape, SH.severity)) == SH.Violation

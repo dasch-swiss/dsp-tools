@@ -24,11 +24,12 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
       a sh:NodeShape ;
       sh:targetClass knora-api:FileValue ;
       sh:property [
-          a          sh:PropertyShape ;
-          sh:path    knora-api:hasLicense ;
-          sh:in      ( %(license_str)s ) ;
-          sh:message %(msg)s ;
-          sh:severity sh:Violation
+          a           sh:PropertyShape ;
+          sh:path     knora-api:hasLicense ;
+          sh:nodeKind sh:IRI ;
+          sh:in       ( %(license_str)s ) ;
+          sh:message  %(msg)s ;
+          sh:severity  sh:Violation
                   ] .
     """ % {"license_str": license_str, "msg": msg_str}  # noqa: UP031 Use format specifiers instead of percent format
     g = Graph()

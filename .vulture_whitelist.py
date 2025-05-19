@@ -1,6 +1,3 @@
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
@@ -20,6 +17,3 @@ IriResolver.non_empty()
 is_full_date("")
 
 check_notna("")
-
-LegalInfoClient().get_enabled_licenses()
-LegalInfoClientLive("", "", AuthenticationClient()).get_enabled_licenses()

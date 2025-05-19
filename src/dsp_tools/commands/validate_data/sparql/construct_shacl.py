@@ -25,7 +25,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_info_from_api
     graph_to_query = knora_subset + onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
     content = construct_property_shapes(graph_to_query, project_info_from_api.all_lists)
-    content += construct_allowed_licenses_shape()
+    content += construct_allowed_licenses_shape(project_info_from_api.enabled_licenses)
     return SHACLGraphs(cardinality=cardinality, content=content)
 
 

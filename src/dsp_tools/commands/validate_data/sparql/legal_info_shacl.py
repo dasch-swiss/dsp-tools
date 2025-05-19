@@ -16,13 +16,6 @@ def construct_allowed_licenses_shape() -> Graph:
       sh:property [
           a sh:PropertyShape ;
           sh:path knora-api:hasLicense ;
-          sh:in (
-                  <http://rdfh.ch/licenses/cc-by-4.0> <http://rdfh.ch/licenses/cc-by-sa-4.0>
-                  <http://rdfh.ch/licenses/cc-by-nc-4.0> <http://rdfh.ch/licenses/cc-by-nc-sa-4.0>
-                  <http://rdfh.ch/licenses/cc-by-nd-4.0> <http://rdfh.ch/licenses/cc-by-nc-nd-4.0>
-                  <http://rdfh.ch/licenses/ai-generated> <http://rdfh.ch/licenses/unknown>
-                  <http://rdfh.ch/licenses/public-domain>
-                ) ;
           sh:message "You are required to use one of the pre-defined licenses, please consult the documentation for details." ;
           sh:severity sh:Violation
                   ] .

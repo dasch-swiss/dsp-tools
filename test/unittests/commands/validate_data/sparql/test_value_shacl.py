@@ -7,7 +7,6 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
@@ -24,8 +23,7 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 
 def test_construct_property_shapes(res_and_props_with_simpletext):
-    proj_li = AllProjectLists([])
-    res = construct_property_shapes(res_and_props_with_simpletext, proj_li)
+    res = construct_property_shapes(res_and_props_with_simpletext, [])
     trip_counts = {
         ONTO.ClassWithEverything: 4,
         ONTO.testBoolean_PropShape: 4,

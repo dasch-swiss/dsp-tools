@@ -1,7 +1,9 @@
+import os
 from collections import defaultdict
 from copy import deepcopy
 from typing import cast
 
+from dotenv import load_dotenv
 from lxml import etree
 
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
@@ -21,6 +23,8 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
+
+load_dotenv()
 
 PROP_TYPE_LOOKUP = {
     BooleanValue: "boolean",
@@ -48,9 +52,9 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
     Returns:
         list of serialised values
     """
-    prop_groups, type_lookup = _group_properties(all_values)
+    prop_tuples, type_lookup = _sort_and_group_values(all_values)
     serialised = []
-    for prop_name, prop_values in prop_groups.items():
+    for prop_name, prop_values in prop_tuples:
         prop_type = type_lookup[prop_name]
         match prop_type:
             case "list":
@@ -62,6 +66,18 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
             case _:
                 serialised.append(_serialise_complete_generic_prop(prop_values, prop_name, prop_type))
     return serialised
+
+
+def _sort_and_group_values(all_values: list[Value]) -> tuple[list[tuple[str, list[Value]]], dict[str, str]]:
+    prop_groups, type_lookup = _group_properties(all_values)
+    prop_tuples = [(prop_name, values) for prop_name, values in prop_groups.items()]
+    env_var = str(os.getenv("XMLLIB_SORT_PROPERTIES")).lower()
+    if env_var == "true":
+        prop_tuples = [
+            (prop_name, sorted(prop_values, key=lambda x: x.value)) for (prop_name, prop_values) in prop_tuples
+        ]
+        prop_tuples = sorted(prop_tuples, key=lambda x: x[0])
+    return prop_tuples, type_lookup
 
 
 def _group_properties(values: list[Value]) -> tuple[dict[str, list[Value]], dict[str, str]]:

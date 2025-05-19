@@ -19,16 +19,10 @@ This file is set-up in append mode, meaning that if you do not delete it after o
 the new warnings will be added to the existing file. If the file already exists a row containing `*` is added. 
 
 
-## Sorting of Resources and Values on XML Serialisation
+## Sorting of Resources and Values in the XML
 
 By default, resources and values are not sorted when creating the XML.
 You can configure sorting through the following `.env` variables.
-
-Please note that Python sorts by referencing the [Unicode number](https://www.unicode.org/charts/) for each character,
-meaning that for example `B` will come before `a` as capital letters have a lower number than lower case letters.
-To enable sorting across all value types the sorting will treat all entries as string.
-Numbers will therefore also be sorted according to the string value,
-meaning that `01` and `1` are treated differently.
 
 - `XMLLIB_SORT_RESOURCES`: sort resources by resource id
 - `XMLLIB_SORT_PROPERTIES`: sort properties by the property name, and the values within the properties
@@ -41,3 +35,10 @@ Example `.env` file content:
   ```
 
 If you only want to have either sorted, the keyword can either be omitted or set to `false`.
+
+
+**Note on the sorting order:**
+
+- The order is determined by the character number in the [Unicode chart](https://www.unicode.org/charts/)
+- This means that for example: `B` will come before `a` as capital letters have a lower number than lower case letters
+- Numbers are treated as strings, this means that for example: `01` and `1` are treated differently

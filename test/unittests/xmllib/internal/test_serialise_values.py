@@ -3,6 +3,7 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib.internal.serialise_values import _sort_and_group_values
 from dsp_tools.xmllib.internal.serialise_values import serialise_values
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.values import BooleanValue
@@ -18,6 +19,42 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
+
+
+@pytest.fixture
+def mixed_values() -> list[Value]:
+    return [
+        BooleanValue("false", ":bool"),
+        IntValue("1", ":int"),
+        IntValue("2", ":int"),
+        SimpleText("a", ":text1"),
+        SimpleText("b", ":text2"),
+        LinkValue("a", ":link"),
+        LinkValue("b", ":link"),
+    ]
+
+
+EXPECTED_TYPE_LOOKUP = {
+    ":bool": "boolean",
+    ":int": "integer",
+    ":text1": "simpletext",
+    ":text2": "simpletext",
+    ":link": "resptr",
+}
+
+
+class TestSortValue:
+    def test_no_sorting(self, mixed_values):
+        expected_tups = []
+        result_tups, type_lookup = _sort_and_group_values(mixed_values)
+        assert type_lookup == EXPECTED_TYPE_LOOKUP
+        assert len(result_tups) == len(expected_tups)
+        for result_tups, expected_tups in zip(result_tups, expected_tups):
+            assert result_tups[0] == expected_tups[0]
+            result_vals = result_tups[1]
+            expected_vals = expected_tups[1]
+            for result, expected in zip(result_vals, expected_vals):
+                assert result.value == expected.value
 
 
 class TestSerialiseValues:

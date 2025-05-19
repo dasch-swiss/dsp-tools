@@ -3,11 +3,12 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from dataclasses import field
-from enum import Enum
 from pathlib import Path
 
 import regex
 from loguru import logger
+
+from dsp_tools.cli.args import ValidationSeverity
 
 
 def _transform_server_url_to_foldername(server: str) -> str:
@@ -38,13 +39,6 @@ class DiagnosticsConfig:
 
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
-
-
-@dataclass
-class ValidationSeverity(Enum):
-    ERROR = 3
-    WARNING = 2
-    INFO = 1
 
 
 @dataclass(frozen=True)

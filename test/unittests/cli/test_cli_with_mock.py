@@ -6,9 +6,9 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.upload_config import ValidationSeverity
 
 EXIT_CODE_TWO = 2
 

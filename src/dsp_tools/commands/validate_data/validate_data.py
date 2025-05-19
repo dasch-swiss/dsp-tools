@@ -9,6 +9,7 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
@@ -67,7 +68,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir)
+    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
@@ -77,11 +78,9 @@ def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
     shortcode: str,
-    input_filepath: Path,
+    config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    # The save directory is still relevant in case unexpected violations are found.
-    config = ValidateDataConfig(input_filepath, None)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, auth, shortcode
     )

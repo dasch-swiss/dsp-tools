@@ -12,6 +12,7 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
@@ -89,7 +90,7 @@ def xmlupload(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         shortcode=shortcode,
-        input_filepath=input_file,
+        config=ValidateDataConfig(input_file, save_graph_dir=None, severity=config.validation_severity),
         auth=auth,
     )
     if not validation_passed:

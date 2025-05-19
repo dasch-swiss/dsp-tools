@@ -251,10 +251,11 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     sorted_authors = sorted(authors)
-    if os.getenv("XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS"):
-        auth_nums: list[int | str] = list(range(1, len(sorted_authors) + 1))
+    var = str(os.getenv("XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS")).lower()
+    if var != "true":
+        auth_nums: list[int | str] = [str(uuid4()) for _ in range(len(sorted_authors))]
     else:
-        auth_nums = [str(uuid4()) for _ in range(len(sorted_authors))]
+        auth_nums = list(range(1, len(sorted_authors) + 1))
     auth_ids = [f"authorship_{x}" for x in auth_nums]
     lookup = dict(zip(sorted_authors, auth_ids))
     return AuthorshipLookup(lookup)

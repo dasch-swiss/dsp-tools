@@ -42,7 +42,8 @@ def serialise_resources(
     Returns:
         serialised resources
     """
-    if os.getenv("XMLLIB_SORT_RESOURCES"):
+    var = str(os.getenv("XMLLIB_SORT_RESOURCES")).lower()
+    if var == "true":
         resources = sorted(resources, key=lambda x: x.res_id)
     return [_serialise_one_resource(x, authorship_lookup, default_permissions) for x in resources]
 

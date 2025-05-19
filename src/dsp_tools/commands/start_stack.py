@@ -48,9 +48,9 @@ class StackConfiguration:
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
         if self.custom_host is not None and regex.match(
-            r"^((\d{1,3}\.)^{3}\d{1,3})|(((\w|\d|-|_|~)+\.)(\w){2,})$", self.custom_host
+            r"^(((\d{1,3}\.){3}\d{1,3})|(((([a-z]|\d|-|_|~)+\.)*([a-z]){2,})))$", self.custom_host
         ):
-            raise InputError("Invalid format for custom host")
+            raise InputError("Invalid format for custom host. Please, enter an IP or a domain name.")
 
 
 class StackHandler:

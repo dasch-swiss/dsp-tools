@@ -534,12 +534,11 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def find_date_in_string(string: str) -> str | None:
+def find_date_in_string(string: str) -> list[str]:
     """
-    Checks if a string contains a date value (single date, or date range),
-    and returns the first found date as DSP-formatted string.
-    Once a date/date range has been found, subsequent dates/date ranges are ignored.
-    Returns None if no date was found.
+    Checks if a string contains date values (single dates, or date ranges),
+    and return all found dates as list of DSP-formatted strings.
+    Returns an empty list if no date was found.
     [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
@@ -582,34 +581,34 @@ def find_date_in_string(string: str) -> str | None:
         string: string to check
 
     Returns:
-        DSP-formatted date string, or None
+        (possibly empty) list of DSP-formatted date strings
 
     Examples:
         ```python
         result = xmllib.find_date_in_string("1849/1850")
-        # result == "GREGORIAN:CE:1849:CE:1850"
+        # result == ["GREGORIAN:CE:1849:CE:1850"]
         ```
 
         ```python
         result = xmllib.find_date_in_string("not a valid date")
-        # result == None
+        # result == []
         ```
 
         ```python
-        result = xmllib.find_date_in_string("first date: 2024. Second is ignored: 2025.")
-        # result == "GREGORIAN:CE:2024:CE:2024"
+        result = xmllib.find_date_in_string("first date: 2024. Second: 2025.")
+        # result == ["GREGORIAN:CE:2024:CE:2024", "GREGORIAN:CE:2025:CE:2025"]
         ```
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
     if already_parsed := _extract_already_parsed_date(string):
-        return already_parsed
+        return [already_parsed]
     if not is_nonempty_value_internal(string):
-        return None
+        return []
     try:
         return _find_date_in_string_raising(string)
     except ValueError:
-        return None
+        return []
 
 
 _months_dict = {
@@ -649,9 +648,9 @@ _months_dict = {
 }
 
 
-def _find_date_in_string_raising(string: str) -> str | None:
+def _find_date_in_string_raising(string: str) -> list[str]:
     """
-    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
+    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning an empty list.
     """
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
@@ -662,15 +661,17 @@ def _find_date_in_string_raising(string: str) -> str | None:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    if english_bc_or_ce_date := _find_english_BC_or_CE_date(
-        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
-    ):
-        return english_bc_or_ce_date
+    results: list[str] = []
 
-    if french_bc_date := _find_french_bc_date(
+    if english_bc_or_ce_dates := _find_english_BC_or_CE_date(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
     ):
-        return french_bc_date
+        results.extend(english_bc_or_ce_dates)
+
+    if french_bc_dates := _find_french_bc_date(
+        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
+    ):
+        results.extend(french_bc_dates)
 
     # template: 2021-01-01 | 2015_01_02
     iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)

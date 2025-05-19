@@ -26,7 +26,6 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
       sh:property [
           a           sh:PropertyShape ;
           sh:path     knora-api:hasLicense ;
-          sh:nodeKind sh:IRI ;
           sh:in       ( %(license_str)s ) ;
           sh:message  %(msg)s ;
           sh:severity  sh:Violation

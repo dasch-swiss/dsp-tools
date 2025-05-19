@@ -19,6 +19,7 @@ from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -1106,12 +1107,14 @@ def clean_whitespaces_from_string(string: str) -> str:
     return cleaned
 
 
-def find_license_in_string(string: str) -> License | None:
+def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
     """
-    Checks if a string contains a license, and returns the first found license as `xmllib.LicenseRecommended` object.
-    Once a license has been found, subsequent licenses are ignored.
+    Checks if a string contains a license, and returns it.
     Returns None if no license was found.
     The case (upper case/lower case) is ignored.
+
+    Look out: Your string should contain no more than 1 license.
+    If it contains more, there is no guarantee which one will be returned.
 
     See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
     for details.
@@ -1120,22 +1123,17 @@ def find_license_in_string(string: str) -> License | None:
         string: string to check
 
     Returns:
-        `xmllib.LicenseRecommended` object or `None`
+        `License` object or `None`
 
     Examples:
         ```python
-        result = xmllib.find_license_in_string("text CC BY text")
+        result = xmllib.find_license_in_string("CC BY")
         # result == LicenseRecommended.CC.BY
         ```
 
         ```python
-        result = xmllib.find_license_in_string("unsupported: Creative Commons Developing Nations 2.0 Generic Deed")
+        result = xmllib.find_license_in_string("Creative Commons Developing Nations 2.0 Generic Deed")
         # result == None
-        ```
-
-        ```python
-        result = xmllib.find_license_in_string("CC BY, CC BY SA. The second license will be ignored.")
-        # result == LicenseRecommended.CC.BY
         ```
 
     Currently supported license formats:
@@ -1153,8 +1151,21 @@ def find_license_in_string(string: str) -> License | None:
         - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
         - "CC BY" -> LicenseRecommended.CC.BY
         - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
+        - "CC 0 1.0" -> LicenseOther.Public.CC_0_1_0
+        - "CC PDM 1.0" -> LicenseOther.Public.CC_PDM_1_0
+        - "BORIS Standard License" -> LicenseOther.Various.BORIS_STANDARD
+        - "LICENCE OUVERTE 2.0" -> LicenseOther.Various.FRANCE_OUVERTE
     """
-    sep = r"[- _]+"
+    if lic := _get_already_parsed_license(string):
+        return lic
+
+    sep = r"[-_\p{Zs}]+"  # Zs = unicode category for space separator characters
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}0({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_0_1_0
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}PDM({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_PDM_1_0
 
     if match := regex.search(
         rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
@@ -1173,6 +1184,21 @@ def find_license_in_string(string: str) -> License | None:
 
     if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
         return LicenseRecommended.DSP.UNKNOWN
+
+    if regex.search(
+        rf"\b(BORIS|Bern{sep}Open{sep}Repository{sep}and{sep}Information{sep}System){sep}Standard{sep}License\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.BORIS_STANDARD
+
+    if regex.search(
+        rf"\b(France{sep})?Licence{sep}ouverte({sep}2\.0)?\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.FRANCE_OUVERTE
+
     return None
 
 
@@ -1197,4 +1223,26 @@ def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many 
         return LicenseRecommended.CC.BY_NC_ND
     if has_nc and not has_nd and has_sa:
         return LicenseRecommended.CC.BY_NC_SA
+    return None
+
+
+def _get_already_parsed_license(string: str) -> License | None:
+    already_parsed_dict: dict[str, License] = {
+        r"http://rdfh\.ch/licenses/cc-by-4\.0": LicenseRecommended.CC.BY,
+        r"http://rdfh\.ch/licenses/cc-by-sa-4\.0": LicenseRecommended.CC.BY_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nc-4\.0": LicenseRecommended.CC.BY_NC,
+        r"http://rdfh\.ch/licenses/cc-by-nc-sa-4\.0": LicenseRecommended.CC.BY_NC_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nd-4\.0": LicenseRecommended.CC.BY_ND,
+        r"http://rdfh\.ch/licenses/cc-by-nc-nd-4\.0": LicenseRecommended.CC.BY_NC_ND,
+        r"http://rdfh\.ch/licenses/ai-generated": LicenseRecommended.DSP.AI_GENERATED,
+        r"http://rdfh\.ch/licenses/unknown": LicenseRecommended.DSP.UNKNOWN,
+        r"http://rdfh\.ch/licenses/public-domain": LicenseRecommended.DSP.PUBLIC_DOMAIN,
+        r"http://rdfh\.ch/licenses/cc-0-1.0": LicenseOther.Public.CC_0_1_0,
+        r"http://rdfh\.ch/licenses/cc-pdm-1.0": LicenseOther.Public.CC_PDM_1_0,
+        r"http://rdfh\.ch/licenses/boris": LicenseOther.Various.BORIS_STANDARD,
+        r"http://rdfh\.ch/licenses/open-licence-2.0": LicenseOther.Various.FRANCE_OUVERTE,
+    }
+    for rgx, lic in already_parsed_dict.items():
+        if regex.search(rgx, string):
+            return lic
     return None

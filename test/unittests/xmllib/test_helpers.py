@@ -115,10 +115,10 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 class TestFindDate:
 
     def test_find_date_in_string_accept_only_dash_as_range_delimiter(self) -> None:
-        assert find_date_in_string("01.01.1900:31.12.2000") == "GREGORIAN:CE:1900-01-01:CE:1900-01-01"
-        assert find_date_in_string("01.01.1900 to 31.12.2000") == "GREGORIAN:CE:1900-01-01:CE:1900-01-01"
-        assert find_date_in_string("1900:2000") == "GREGORIAN:CE:1900:CE:1900"
-        assert find_date_in_string("1900 to 2000") == "GREGORIAN:CE:1900:CE:1900"
+        assert find_date_in_string("01.01.1900:31.12.2000") == {"GREGORIAN:CE:1900-01-01:CE:1900-01-01", "GREGORIAN:CE:2000-12-31:CE:2000-12-31"}
+        assert find_date_in_string("01.01.1900 to 31.12.2000") == {"GREGORIAN:CE:1900-01-01:CE:1900-01-01", "GREGORIAN:CE:2000-12-31:CE:2000-12-31"}
+        assert find_date_in_string("1900:2000") == {"GREGORIAN:CE:1900:CE:1900", "GREGORIAN:CE:2000:CE:2000"}
+        assert find_date_in_string("1900 to 2000") == {"GREGORIAN:CE:1900:CE:1900", "GREGORIAN:CE:2000:CE:2000"}
 
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
@@ -348,7 +348,7 @@ class TestFindDate:
             "GREGORIAN:CE:1993-01-26:CE:1993-01-27": "GREGORIAN:CE:1993-01-26:CE:1993-01-27",
         }
         input_string = " ".join(all_inputs.keys())
-        expected = [x for x in all_inputs.values() if x]
+        expected = {x for x in all_inputs.values() if x}
         assert find_date_in_string(input_string) == expected
 
 

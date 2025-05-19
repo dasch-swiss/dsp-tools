@@ -8,6 +8,10 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
     """Create a constraint detailing the allowed licences."""
     formatted_iris = [f"<{x}>" for x in license_iris.enabled_licenses]
     license_str = " ".join(formatted_iris)
+    if len(formatted_iris) == 0:
+        msg_str = "You are only allowed to reference enabled licenses. No licenses are enabled for this project."
+    else:
+        msg_str = "Please only use enabled licenses in your data. Consult the project information for enabled licenses."
     logger.info("Constructing allowed licesnses shapes.")
     ttl_str = """
     @prefix sh:         <http://www.w3.org/ns/shacl#> .
@@ -21,10 +25,10 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
           a          sh:PropertyShape ;
           sh:path    knora-api:hasLicense ;
           sh:in      ( %(license_str)s ) ;
-          sh:message "You are required to use one of the pre-defined licenses, please consult the documentation for details." ;
+          sh:message %(msg)s ;
           sh:severity sh:Violation
                   ] .
-    """ % {"license_str": license_str}  # noqa: UP031,E501
+    """ % {"license_str": license_str, "msg": msg_str}  # noqa: UP031 Use format specifiers instead of percent format
     g = Graph()
     g.parse(data=ttl_str, format="turtle")
     return g

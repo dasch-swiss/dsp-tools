@@ -9,9 +9,11 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
     formatted_iris = [f"<{x}>" for x in license_iris.enabled_licenses]
     license_str = " ".join(formatted_iris)
     if len(formatted_iris) == 0:
-        msg_str = "You are only allowed to reference enabled licenses. No licenses are enabled for this project."
+        msg_str = '"You are only allowed to reference enabled licenses. No licenses are enabled for this project."'
     else:
-        msg_str = "Please only use enabled licenses in your data. Consult the project information for enabled licenses."
+        msg_str = (
+            '"Please only use enabled licenses in your data. Consult the project information for enabled licenses."'
+        )
     logger.info("Constructing allowed licesnses shapes.")
     ttl_str = """
     @prefix sh:         <http://www.w3.org/ns/shacl#> .

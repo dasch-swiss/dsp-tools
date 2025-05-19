@@ -7,7 +7,10 @@ This file should lie in the directory where you run your code from.
 
 If you already have an `.env` file you can add the new variables to the existing file.
 
-Please note that if a parameter is omitted it has the same meaning as setting it to `false`
+Please note that if a parameter is omitted it has the same meaning as setting it to `false`.
+
+Oftentimes, `.env` files are used to store sensitive parameters, such as passwords.
+Therefore, it is best practice to add it to your `.gitignore` file if it is not already.
 
 
 ## Save Warnings Output to CSV

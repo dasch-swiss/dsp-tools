@@ -113,9 +113,6 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestFindDate:
-    def test_find_date_in_string_ignore_subsequent(self) -> None:
-        assert find_date_in_string("x 1492-10-12, 2025-01-01x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"
-        assert find_date_in_string("first date: 2024. Second is ignored: 2025.") == "GREGORIAN:CE:2024:CE:2024"
 
     def test_find_date_in_string_accept_only_dash_as_range_delimiter(self) -> None:
         assert find_date_in_string("01.01.1900:31.12.2000") == "GREGORIAN:CE:1900-01-01:CE:1900-01-01"
@@ -320,6 +317,39 @@ class TestFindDate:
     )
     def test_find_date_in_string_already_parsed(self, already_parsed: str) -> None:
         assert find_date_in_string(f"text {already_parsed} text") == already_parsed
+    
+    def test_find_date_in_string_multiple(self) -> None:
+        all_inputs = {
+            "01.01.1900-31.12.2000": "GREGORIAN:CE:1900-01-01:CE:2000-12-31",
+            "1492-10-12": "GREGORIAN:CE:1492-10-12:CE:1492-10-12",
+            "30.4.2021": "GREGORIAN:CE:2021-04-30:CE:2021-04-30",
+            "5/11/2021": "GREGORIAN:CE:2021-11-05:CE:2021-11-05",
+            "2193_01_26": "GREGORIAN:CE:2193-01-26:CE:2193-01-26",
+            "2193_02_30": None,
+            "25.-26.2.0800": "GREGORIAN:CE:0800-02-25:CE:0800-02-26",
+            "1.3. - 25.4.2022": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
+            "25/12/2022 - 3/1/2024": "GREGORIAN:CE:2022-12-25:CE:2024-01-03",
+            "Jan 26, 1993": "GREGORIAN:CE:1993-01-26:CE:1993-01-26",
+            "15 January 1927": "GREGORIAN:CE:1927-01-15:CE:1927-01-15",
+            "476": "GREGORIAN:CE:476:CE:476",
+            "1849/1850": "GREGORIAN:CE:1849:CE:1850",
+            "1850/1850": None,
+            "1845-1850": "GREGORIAN:CE:1845:CE:1850",
+            "844-8": "GREGORIAN:CE:844:CE:848",
+            "9 B.C.": "GREGORIAN:BC:9:BC:9",
+            "9 AD": "GREGORIAN:CE:9:CE:9",
+            "20 BCE - 50 C.E.": "GREGORIAN:BC:20:CE:50",
+            "33 av. J.-C.": "GREGORIAN:BC:33:BC:33",
+            "842-98 av. J.-C.": "GREGORIAN:BC:842:BC:98",
+            "1 av JC": "GREGORIAN:BC:1:BC:1",
+            "GREGORIAN:BC:2001:BC:2000": "GREGORIAN:BC:2001:BC:2000",
+            "GREGORIAN:BC:2001-01-01:BC:2000-01-02": "GREGORIAN:BC:2001-01-01:BC:2000-01-02",
+            "GREGORIAN:CE:1993:CE:1994": "GREGORIAN:CE:1993:CE:1994",
+            "GREGORIAN:CE:1993-01-26:CE:1993-01-27": "GREGORIAN:CE:1993-01-26:CE:1993-01-27",
+        }
+        input_string = " ".join(all_inputs.keys())
+        expected = [x for x in all_inputs.values() if x]
+        assert find_date_in_string(input_string) == expected
 
 
 class TestCreateListFromString:

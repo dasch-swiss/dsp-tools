@@ -1,14 +1,14 @@
 from loguru import logger
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
 from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_allowed_licenses_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 
-def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllProjectLists) -> SHACLGraphs:
+def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: ProjectDataFromApi) -> SHACLGraphs:
     """
     Constructs a shapes graph from a project ontology
 

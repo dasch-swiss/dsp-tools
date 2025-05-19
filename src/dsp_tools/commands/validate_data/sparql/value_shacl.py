@@ -8,21 +8,21 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
-def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+def construct_property_shapes(onto: Graph, api_info: ProjectDataFromApi) -> Graph:
     """
     Returns the sh:PropertyShape for the properties in the ontology.
 
     Args:
         onto: ontology graph
-        project_lists: lists of a project
+        api_info: lists of a project
 
     Returns:
         Graph with the property shapes
@@ -32,7 +32,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
-    g += _construct_list_shapes(onto, project_lists)
+    g += _construct_list_shapes(onto, api_info.all_lists)
     g += _construct_seqnum_is_part_of_prop_shape(onto)
     g += _construct_value_type_shapes_to_class_shapes(onto)
     g += _construct_link_value_type_shapes_to_class_shapes(onto)
@@ -254,11 +254,11 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     return Graph()
 
 
-def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
     lists_graph = Graph()
-    for one_list in project_lists.all_lists:
+    for one_list in project_lists:
         lists_graph += _construct_one_list_node_shape(one_list)
-    for one_list in project_lists.all_lists:
+    for one_list in project_lists:
         lists_graph += _construct_one_list_property_shape(onto, one_list)
     return lists_graph
 

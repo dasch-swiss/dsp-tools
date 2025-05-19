@@ -13,7 +13,7 @@ class SHACLValidationReport:
 
 
 @dataclass
-class AllProjectLists:
+class ProjectDataFromApi:
     all_lists: list[OneList]
 
 

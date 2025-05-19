@@ -18,6 +18,7 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
+from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -300,10 +301,11 @@ def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) 
     list_client = ListClient(auth.server, shortcode)
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
+    project_data_from_api = ProjectDataFromApi(all_lists)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, all_lists)
+    shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))

@@ -71,8 +71,8 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
 def _sort_and_group_values(all_values: list[Value]) -> tuple[list[tuple[str, list[Value]]], dict[str, str]]:
     prop_groups, type_lookup = _group_properties(all_values)
     prop_tuples = [(prop_name, values) for prop_name, values in prop_groups.items()]
-    var = str(os.getenv("XMLLIB_SORT_PROPERTIES")).lower()
-    if var == "true":
+    env_var = str(os.getenv("XMLLIB_SORT_PROPERTIES")).lower()
+    if env_var == "true":
         prop_tuples = [
             (prop_name, sorted(prop_values, key=lambda x: x.value)) for (prop_name, prop_values) in prop_tuples
         ]

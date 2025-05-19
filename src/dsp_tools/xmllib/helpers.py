@@ -648,7 +648,7 @@ _months_dict = {
 }
 
 
-def _find_date_in_string_raising(string: str) -> list[str]:
+def _find_date_in_string_raising(string: str) -> set[str]:
     """
     This function is the same as find_date_in_string(), but may raise a ValueError instead of returning an empty list.
     """
@@ -661,20 +661,23 @@ def _find_date_in_string_raising(string: str) -> list[str]:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    results: list[str] = []
+    results: set[str] = set()
 
-    if english_bc_or_ce_dates := _find_english_BC_or_CE_date(
+    if english_bc_or_ce_dates := _find_english_BC_or_CE_dates(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
     ):
-        results.extend(english_bc_or_ce_dates)
+        results.update(english_bc_or_ce_dates)
 
-    if french_bc_dates := _find_french_bc_date(
+    if french_bc_dates := _find_french_bc_dates(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
     ):
-        results.extend(french_bc_dates)
+        results.update(french_bc_dates)
 
     # template: 2021-01-01 | 2015_01_02
-    iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    if iso_dates := list(
+        regex.finditer(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    ):
+        results.update(_from_iso_date(x) for x in iso_dates)
 
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
@@ -683,62 +686,48 @@ def _find_date_in_string_raising(string: str) -> list[str]:
         rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}"
         rf"{lookahead}"
     )
-    eur_date_range = regex.search(eur_date_range_regex, string)
+    if eur_date_ranges := list(regex.finditer(eur_date_range_regex, string)):
+        results.update(_from_eur_date_range(x) for x in eur_date_ranges)
 
     # template: 1.4.2021 | 5/11/2021
     eur_date_regex = rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}{lookahead}"
-    eur_date = regex.search(
-        eur_date_regex,
-        string,
-    )
+    if eur_dates := list(regex.finditer(eur_date_regex, string)):
+        results.update(_from_eur_date(x) for x in eur_dates)
 
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     all_months = "|".join(_months_dict)
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
-    monthname_date = regex.search(monthname_date_regex, string)
+    if monthname_dates := list(regex.finditer(monthname_date_regex, string)):
+        results.update(_from_monthname_date(x) for x in monthname_dates)
 
     # template: 9 March 1908
     all_months = "|".join(_months_dict)
     monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
-    monthname_after_day = regex.search(monthname_after_day_regex, string)
+    if monthname_after_days := list(regex.finditer(monthname_after_day_regex, string)):
+        results.update(_from_monthname_after_day(x) for x in monthname_after_days)
 
     # template: 26. Januar 1993 | 26. Jan. 1993 | 26. Jan 1993
     german_monthname_date_regex = rf"{lookbehind}{day_regex}\.? ?({all_months})\.? ?{year_regex}{lookahead}"
-    german_monthname_date = regex.search(german_monthname_date_regex, string)
+    if german_monthname_dates := list(regex.finditer(german_monthname_date_regex, string)):
+        results.update(_from_german_monthname_date(x) for x in german_monthname_dates)
 
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
+    if year_ranges := list(regex.finditer(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)):
+        results.update(_from_year_range(x) for x in year_ranges)
 
     # template: 1907
-    year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
+    if year_onlies := list(regex.finditer(rf"{lookbehind}{year_regex}{lookahead}", string)):
+        results.update(f"GREGORIAN:CE:{int(x.group(0))}:CE:{int(x.group(0))}" for x in year_onlies)
 
-    res: str | None = None
-    if iso_date:
-        res = _from_iso_date(iso_date)
-    elif eur_date_range:
-        res = _from_eur_date_range(eur_date_range)
-    elif eur_date:
-        res = _from_eur_date(eur_date)
-    elif monthname_date:
-        res = _from_monthname_date(monthname_date)
-    elif monthname_after_day:
-        res = _from_monthname_after_day(monthname_after_day)
-    elif german_monthname_date:
-        res = _from_german_monthname_date(german_monthname_date)
-    elif year_range:
-        res = _from_year_range(year_range)
-    elif year_only:
-        year = int(year_only.group(0))
-        res = f"GREGORIAN:CE:{year}:CE:{year}"
-    return res
+    return results
 
 
-def _find_english_BC_or_CE_date(
+def _find_english_BC_or_CE_dates(
     string: str,
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
-) -> str | None:
+) -> set[str]:
     eraless_date_regex = r"(\d+)"
     bc_era_regex = r"(?:BC|BCE|B\.C\.|B\.C\.E\.)"
     bc_date_regex = rf"(?:{eraless_date_regex} ?{bc_era_regex})"
@@ -746,44 +735,46 @@ def _find_english_BC_or_CE_date(
     ce_date_regex = rf"(?:{eraless_date_regex} ?{ce_era_regex})"
     bc_or_ce_date_regex = rf"(?:{bc_date_regex}|{ce_date_regex})"
 
+    results: set[str | None] = set()
+
     range_regex = (
         rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex})"
         rf"{range_operator_regex}"
         rf"{bc_or_ce_date_regex}{lookahead}"
     )
-    if match := regex.search(range_regex, string):
-        return _from_english_BC_or_CE_range(
-            string=string,
-            range_operator_regex=range_operator_regex,
-            bc_era_regex=bc_era_regex,
-            ce_era_regex=ce_era_regex,
-            eraless_date_regex=eraless_date_regex,
+    if matchs := list(regex.finditer(range_regex, string)):
+        results.update(
+            _from_english_BC_or_CE_range(
+                string=x.group(0),
+                range_operator_regex=range_operator_regex,
+                bc_era_regex=bc_era_regex,
+                ce_era_regex=ce_era_regex,
+                eraless_date_regex=eraless_date_regex,
+            ) for x in matchs
         )
 
-    if match := regex.search(rf"{lookbehind}{bc_date_regex}{lookahead}", string):
-        return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"
+    if matchs := list(regex.finditer(rf"{lookbehind}{bc_date_regex}{lookahead}", string)):
+        results.update({f"GREGORIAN:BC:{x.group(1)}:BC:{x.group(1)}" for x in matchs})
 
-    if match := regex.search(rf"{lookbehind}{ce_date_regex}{lookahead}", string):
-        return f"GREGORIAN:CE:{match.group(1)}:CE:{match.group(1)}"
+    if matchs := list(regex.finditer(rf"{lookbehind}{ce_date_regex}{lookahead}", string)):
+        results.update({f"GREGORIAN:CE:{x.group(1)}:CE:{x.group(1)}" for x in matchs})
 
-    return None
+    return {x for x in results if x}
 
 
 def _from_english_BC_or_CE_range(
     string: str, range_operator_regex: str, bc_era_regex: str, ce_era_regex: str, eraless_date_regex: str
-) -> str:
+) -> str | None:
     split_result = regex.split(range_operator_regex, string)
     if len(split_result) != 2:
-        raise ValueError(
-            f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}"
-        )
+        return None
     start_raw, end_raw = split_result
     if regex.search(bc_era_regex, end_raw):
         end_era = "BC"
     elif regex.search(ce_era_regex, end_raw):
         end_era = "CE"
     else:
-        raise ValueError(f"Missing Era in date {string}")
+        return None
 
     if regex.search(bc_era_regex, start_raw):
         start_era = "BC"
@@ -793,36 +784,33 @@ def _from_english_BC_or_CE_range(
         start_era = end_era
 
     if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
-        raise ValueError(f"No start year found in date {string}")
+        return None
     if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
-        raise ValueError(f"No end year found in date {string}")
+        return None
 
     return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
 
 
-def _find_french_bc_date(
+def _find_french_bc_dates(
     string: str,
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
 ) -> str | None:
+    results: set[str | None] = set()
     french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
-    if not regex.search(french_bc_regex, string):
-        return None
 
     year_regex = r"\d{1,5}"
     year_range_regex = rf"{lookbehind}({year_regex}){range_operator_regex}({year_regex}) {french_bc_regex}{lookahead}"
-    year_range = regex.search(year_range_regex, string)
-    if year_range:
+    for year_range in list(regex.finditer(year_range_regex, string)):
         start_year = int(year_range.group(1))
         end_year = int(year_range.group(2))
         if end_year > start_year:
-            return None
-        return f"GREGORIAN:BC:{start_year}:BC:{end_year}"
+            continue
+        results.add(f"GREGORIAN:BC:{start_year}:BC:{end_year}")
 
     single_year_regex = rf"{lookbehind}({year_regex}) {french_bc_regex}{lookahead}"
-    single_year = regex.search(single_year_regex, string)
-    if single_year:
+    for single_year in list(regex.finditer(single_year_regex, string)):
         start_year = int(single_year.group(1))
         return f"GREGORIAN:BC:{start_year}:BC:{start_year}"
 

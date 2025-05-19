@@ -139,6 +139,13 @@
         </text-prop>
     </resource>
 
+    <resource label="same_comment_on_different_values" restype=":ClassWithEverything" id="same_comment_on_different_values">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" comment="comment">Text 1</text>
+            <text encoding="utf8" comment="comment">Text 2</text>
+        </text-prop>
+    </resource>
+
     <resource label="Time" restype=":ClassWithEverything" id="id_time">
         <time-prop name=":testTimeValue">
             <time>2019-10-23T13:45:12.01-14:00</time>

@@ -10,6 +10,11 @@
     "keywords": [
       "validate"
     ],
+    "enabled_licenses": [
+        "http://rdfh.ch/licenses/cc-by-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-4.0",
+        "http://rdfh.ch/licenses/unknown"
+    ],
     "lists": [
       {
         "name": "firstList",

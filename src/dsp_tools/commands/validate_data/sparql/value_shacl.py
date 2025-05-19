@@ -16,13 +16,13 @@ from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
-def construct_property_shapes(onto: Graph, api_info: ProjectDataFromApi) -> Graph:
+def construct_property_shapes(onto: Graph, info_from_api: ProjectDataFromApi) -> Graph:
     """
     Returns the sh:PropertyShape for the properties in the ontology.
 
     Args:
         onto: ontology graph
-        api_info: lists of a project
+        info_from_api: information from a project from the api, for example lists
 
     Returns:
         Graph with the property shapes
@@ -32,7 +32,7 @@ def construct_property_shapes(onto: Graph, api_info: ProjectDataFromApi) -> Grap
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
-    g += _construct_list_shapes(onto, api_info.all_lists)
+    g += _construct_list_shapes(onto, info_from_api.all_lists)
     g += _construct_seqnum_is_part_of_prop_shape(onto)
     g += _construct_value_type_shapes_to_class_shapes(onto)
     g += _construct_link_value_type_shapes_to_class_shapes(onto)

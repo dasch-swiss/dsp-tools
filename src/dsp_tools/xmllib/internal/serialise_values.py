@@ -58,6 +58,7 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
         prop_tuples = [
             (prop_name, sorted(prop_values, key=lambda x: x.value)) for (prop_name, prop_values) in prop_tuples
         ]
+        prop_tuples = sorted(prop_tuples, key=lambda x: x[0])
     serialised = []
     for prop_name, prop_values in prop_tuples:
         prop_type = type_lookup[prop_name]

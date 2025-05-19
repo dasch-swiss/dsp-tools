@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -7,6 +8,7 @@ from pathlib import Path
 from typing import Union
 from uuid import uuid4
 
+from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
@@ -28,6 +30,7 @@ from dsp_tools.xmllib.models.res import Resource
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
+load_dotenv()
 
 # ruff: noqa: D101
 
@@ -247,14 +250,21 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     filtered_resources = [x for x in resources if isinstance(x, Resource)]
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
-    lookup = {}
-    for auth in authors:
-        lookup[auth] = f"authorship_{uuid4()!s}"
+    sorted_authors = sorted(authors)
+    env_var = str(os.getenv("XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS")).lower()
+    if env_var == "true":
+        auth_nums: list[int | str] = list(range(1, len(sorted_authors) + 1))
+    else:
+        auth_nums = [str(uuid4()) for _ in range(len(sorted_authors))]
+    auth_ids = [f"authorship_{x}" for x in auth_nums]
+    lookup = dict(zip(sorted_authors, auth_ids))
     return AuthorshipLookup(lookup)
 
 
 def _serialise_authorship(authorship_lookup: dict[tuple[str, ...], str]) -> list[etree._Element]:
-    return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
+    to_serialise = [(auth, id_) for auth, id_ in authorship_lookup.items()]
+    to_serialise = sorted(to_serialise, key=lambda x: x[0])
+    return [_make_one_authorship_element(auth, id_) for auth, id_ in to_serialise]
 
 
 def _make_one_authorship_element(authors: tuple[str, ...], author_id: str) -> etree._Element:

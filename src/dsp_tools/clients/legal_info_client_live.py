@@ -63,22 +63,23 @@ class LegalInfoClientLive(LegalInfoClient):
         log_response(response)
         return response
 
-    def get_enabled_licenses(self) -> list[dict[str, Any]]:
+    def get_licenses_of_a_project(self, enabled_only: bool) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
         page_num = 1
         all_data = []
         is_last_page = False
         while not is_last_page:
-            response = self._get_one_enabled_license_page(page_num)
+            response = self._get_one_license_page(page_num, enabled_only)
             response_dict = response.json()
             all_data.extend(response_dict["data"])
             is_last_page = _is_last_page(response_dict)
         return all_data
 
-    def _get_one_enabled_license_page(self, page_num: int) -> Response:
+    def _get_one_license_page(self, page_num: int, enabled_only: bool) -> Response:
+        enabled = str(enabled_only).lower()
         url = (
             f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
-            f"legal-info/licenses?page={page_num}&page-size=25&order=Asc&showOnlyEnabled=true"
+            f"legal-info/licenses?page={page_num}&page-size=25&order=Asc&showOnlyEnabled={enabled}"
         )
         headers = {
             "Content-Type": "application/json",

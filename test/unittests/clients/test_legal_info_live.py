@@ -109,7 +109,7 @@ class TestGetEnabledLicenses:
             attribute="_get_one_enabled_license_page",
             side_effect=[first_response, second_response],
         ):
-            response = client.get_enabled_licenses()
+            response = client.get_licenses_of_a_project(True)
             assert response == [LICENSE_1, LICENSE_2]
 
     def test_get_enabled_license_page_no_license(self):
@@ -127,7 +127,7 @@ class TestGetEnabledLicenses:
             attribute="_get_one_enabled_license_page",
             side_effect=[get_mock],
         ):
-            response = client.get_enabled_licenses()
+            response = client.get_licenses_of_a_project(True)
             assert response == []
 
     @patch("dsp_tools.clients.legal_info_client_live.log_response")
@@ -144,7 +144,7 @@ class TestGetEnabledLicenses:
             mock_response = Mock(status_code=200, ok=True)
             mock_response.json.return_value = DATA_PAGE_1_OF_1
             get_mock.return_value = mock_response
-            response = client._get_one_enabled_license_page(1)
+            response = client._get_one_license_page(1)
             get_mock.assert_called_once_with(url=params.url, headers=params.headers, timeout=params.timeout)
         assert response.json() == DATA_PAGE_1_OF_1
 
@@ -156,7 +156,7 @@ class TestGetEnabledLicenses:
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
             with pytest.raises(BadCredentialsError):
-                client._get_one_enabled_license_page(1)
+                client._get_one_license_page(1)
 
     def test_unknown_status_code(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
@@ -166,7 +166,7 @@ class TestGetEnabledLicenses:
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
             with pytest.raises(BaseError):
-                client._get_one_enabled_license_page(1)
+                client._get_one_license_page(1)
 
 
 def test_is_last_page_no():

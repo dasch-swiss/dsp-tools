@@ -145,21 +145,21 @@ The following options are available:
 Output:
 
 - The result of the validation is printed out on the console.
+- If there are more than 50 validation errors, 
+  a csv called `[xml_data_file]_validation_[severity].csv` with the results is saved in the current directory.
 - There are three severity levels:
-    - `Error`: Will block an xmlupload.
+    - **Error**: Will block an xmlupload.
         - Content that is wrong for various reasons.
         - For example, invalid values, empty values, data that does not conform to the definition in the data model.
-    - `Warning`: Will not block an xmlupload.
+    - **Warning**: Will not block an xmlupload.
         - Content that will currently not cause an xmlupload to fail but may do so in the future. 
         - For example, before legal information became mandatory, missing legal information was a warning. 
           As soon as it is mandatory it will become an error.
-    - `Info`: Will not block an xmlupload.
+    - **Info**: Will not block an xmlupload.
         - Content that may cause errors during an upload. 
-        - For example, if you reference IRIs from resources that are already in the database.
-          You will get an info message.
+        - For example, if you reference IRIs from resources that are already in the database,
+          you will get an info message.
           The reason is, that if the resource does not exist, an xmlupload will fail.
-- If there are more than 50 validation errors, 
-  a csv called `[xml_data_file]_validation_errors.csv` with the results is saved in the current directory.
 
 
 The defaults are intended for local testing: 

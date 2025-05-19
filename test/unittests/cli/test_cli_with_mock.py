@@ -79,6 +79,7 @@ def test_project_get(get_project: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default(xmlupload: Mock) -> None:
+    # TODO: fix this test, assertion does not work
     file = "filename.xml"
     args = f"xmlupload {file}".split()
     creds = ServerCredentials(

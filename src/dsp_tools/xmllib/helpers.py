@@ -600,9 +600,7 @@ def find_date_in_string(string: str) -> set[str]:
         ```
     """
 
-    # sanitise input, just in case that the method was called on an empty or N/A cell
-    if already_parsed := _extract_already_parsed_date(string):
-        return {already_parsed}
+    # sanitise input, just in case that the function was called on an empty or N/A cell
     if not is_nonempty_value_internal(string):
         return set()
     return _find_date_in_string(string)
@@ -656,6 +654,9 @@ def _find_date_in_string(string: str) -> set[str]:
     range_operator_regex = r" ?- ?"
 
     results: set[str | None] = set()
+
+    if already_parsed := _extract_already_parsed_date(string):
+        results.update(already_parsed)
 
     if english_bc_or_ce_dates := _find_english_BC_or_CE_dates(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
@@ -811,10 +812,16 @@ def _find_french_bc_dates(
     return {x for x in results if x}
 
 
-def _from_iso_date(iso_date: Match[str]) -> str:
+def _from_iso_date(iso_date: Match[str]) -> str | None:
     year = int(iso_date.group(1))
     month = int(iso_date.group(2))
     day = int(iso_date.group(3))
+    max_month = 12
+    max_day = 31 if month in {1, 3, 5, 7, 8, 10, 12} else (28 if month == 2 else 30)
+    if month > max_month:
+        return None
+    if day > max_day:
+        return None
     date = datetime.date(year, month, day)
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
@@ -892,13 +899,13 @@ def _from_year_range(year_range: Match[str]) -> str | None:
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 
-def _extract_already_parsed_date(string: str) -> str | None:
+def _extract_already_parsed_date(string: str) -> set[str]:
     rgx_year = r"\d+(-\d{2}(-\d{2})?)?"
     era_with_colon = r"(CE:|BC:)"
     rgx = rf"(GREGORIAN|JULIAN|ISLAMIC):{era_with_colon}{rgx_year}:{era_with_colon}?{rgx_year}"
-    if match := regex.search(rgx, string):
-        return match.group(0)
-    return None
+    if matchs := list(regex.finditer(rgx, string)):
+        return {x.group(0) for x in matchs}
+    return set()
 
 
 def make_xsd_compatible_id(input_value: str | float | int) -> str:

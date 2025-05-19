@@ -261,7 +261,9 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
 
 
 def _serialise_authorship(authorship_lookup: dict[tuple[str, ...], str]) -> list[etree._Element]:
-    return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
+    to_serialise = [(auth, id_) for auth, id_ in authorship_lookup.items()]
+    to_serialise = sorted(to_serialise, key=lambda x: x[0])
+    return [_make_one_authorship_element(auth, id_) for auth, id_ in to_serialise]
 
 
 def _make_one_authorship_element(authors: tuple[str, ...], author_id: str) -> etree._Element:

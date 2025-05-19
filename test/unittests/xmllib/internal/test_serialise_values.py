@@ -1,4 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
+import os
+from unittest import mock
 
 import pytest
 from lxml import etree
@@ -52,20 +54,27 @@ class TestSortValue:
         assert len(result_tups) == len(expected_props)
         assert expected_props == actual_props
 
+    @mock.patch.dict(os.environ, {"XMLLIB_SORT_PROPERTIES": "true"})
     def test_with_sorting(self, mixed_values):
-        expected_tups = [
-            (":bool", [BooleanValue("false", ":bool")]),
-            (":int", [IntValue("1", ":int"), IntValue("2", ":int")]),
-            (":", []),
-            (":", []),
-            (":", []),
-            (":", []),
-        ]
         result_tups, type_lookup = _sort_and_group_values(mixed_values)
         assert type_lookup == EXPECTED_TYPE_LOOKUP
-        assert len(result_tups) == len(expected_tups)
-        for result_tups, expected_tups in zip(result_tups, expected_tups):
-            assert result_tups[0] == expected_tups[0]
+        expected_prop_order = [":bool", ":int", ":link", ":text1", ":text2"]
+        result_order = [x[0] for x in result_tups]
+        assert result_order == expected_prop_order
+        bool_val = result_tups[0][1]
+        assert len(bool_val) == 1
+        int_val = result_tups[1][1]
+        assert len(int_val) == 2
+        assert int_val[0].value == "1"
+        assert int_val[1].value == "2"
+        link_val = result_tups[2][1]
+        assert len(link_val) == 2
+        assert link_val[0].value == "a"
+        assert link_val[1].value == "b"
+        text_1 = result_tups[3][1]
+        assert len(text_1) == 1
+        text_2 = result_tups[4][1]
+        assert len(text_2) == 1
 
 
 class TestSerialiseValues:

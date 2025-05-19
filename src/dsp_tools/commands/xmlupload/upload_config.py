@@ -4,7 +4,6 @@ import dataclasses
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
-from enum import auto
 from pathlib import Path
 
 import regex
@@ -43,9 +42,9 @@ class DiagnosticsConfig:
 
 @dataclass
 class ValidationSeverity(Enum):
-    ERROR = auto()
-    WARNING = auto()
-    INFO = auto()
+    ERROR = 3
+    WARNING = 2
+    INFO = 1
 
 
 @dataclass(frozen=True)
@@ -58,7 +57,7 @@ class UploadConfig:
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
     interrupt_after: int | None = None
     skip_iiif_validation: bool = False
-    validation_severity: ValidationSeverity = ValidationSeverity.INFO
+    validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
 
     def with_server_info(
         self,

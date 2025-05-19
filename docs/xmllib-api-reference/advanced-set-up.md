@@ -2,7 +2,7 @@
 
 ## Using an `.env` File
 
-The advanced set-up options are configured through a `.env` file.
+The advanced set-up options are configured through an `.env` file.
 This file should lie in the directory where you run your code from.
 
 If you already have an `.env` file you can add the new variables to the existing file.

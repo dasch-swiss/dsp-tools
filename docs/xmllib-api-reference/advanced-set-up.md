@@ -1,12 +1,20 @@
 # Advanced Set-Up Options
 
+## Using an `.env` File
+
+The advanced set-up options are configured through a `.env` file.
+This file should lie in the directory where you run your code from.
+
+If you already have an `.env` file you can add the new variables to the existing file.
+
+Please note that if a parameter is omitted it has the same meaning as setting it to `false`
+
+
 ## Save Warnings Output to CSV
 
 User information, warnings and errors are printed out on the command line.
 To additionally save them to a CSV file, you can set that up by following the next steps:
 
-- In the directory where you run your code from, create a new file called `.env`. 
-  If this file already exists, skip this step and write in the existing file.
 - Set `XMLLIB_WARNINGS_CSV_SAVEPATH` to the path of the CSV file
 
 Example `.env` file content:
@@ -19,7 +27,9 @@ This file is set-up in append mode, meaning that if you do not delete it after o
 the new warnings will be added to the existing file. If the file already exists a row containing `*` is added. 
 
 
-## Sorting of Resources and Values in the XML
+## Configurations for the Serialised XML
+
+### Sorting of Resources and Values in the XML
 
 By default, resources and values are not sorted when creating the XML.
 You can configure sorting through the following `.env` variables.
@@ -42,3 +52,15 @@ If you only want to have either sorted, the keyword can either be omitted or set
 - The order is determined by the character number in the [Unicode chart](https://www.unicode.org/charts/)
 - This means that for example: `B` will come before `a` as capital letters have a lower number than lower case letters
 - Numbers are treated as strings, this means that for example: `01` and `1` are treated differently
+
+### Authorship Reference IDs
+
+By default, authorship IDs are generated using a UUID.
+If the references should be consistent across all runs, then this `.env` variable can be set.
+When this variable is set, the authorships are sorted alphabetically and the IDs will start at 1.
+
+Example `.env` file content:
+
+  ```env
+  XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS=true
+  ```

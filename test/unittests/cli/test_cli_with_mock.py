@@ -79,7 +79,6 @@ def test_project_get(get_project: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default(xmlupload: Mock) -> None:
-    # TODO: fix this test, assertion does not work
     file = "filename.xml"
     args = f"xmlupload {file}".split()
     creds = ServerCredentials(
@@ -93,10 +92,13 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(
-            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.INFO
-        ),
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+    # Comparing the non-literal meaning of the ValidationSeverity Enum is always successful.
+    # Therefore, including it in the above assertion has no effect.
+    # We must compare the values of the enum to ensure that it was correctly called.
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.INFO.value
 
 
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
@@ -142,10 +144,10 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(
-            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.WARNING
-        ),
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.WARNING.value
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
@@ -163,10 +165,10 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(
-            skip_iiif_validation=False, interrupt_after=None, validation_severity=ValidationSeverity.ERROR
-        ),
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.ERROR.value
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")

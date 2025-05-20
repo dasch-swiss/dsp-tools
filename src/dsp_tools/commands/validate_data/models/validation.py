@@ -52,6 +52,7 @@ class ValidationResultBaseInfo:
     focus_node_iri: SubjectObjectTypeAlias
     focus_node_type: SubjectObjectTypeAlias
     result_path: SubjectObjectTypeAlias
+    severity: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 
 
@@ -66,6 +67,7 @@ class ValidationResult:
     violation_type: ViolationType
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
+    severity: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None = None
     message: SubjectObjectTypeAlias | None = None
     input_value: SubjectObjectTypeAlias | None = None

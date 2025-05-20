@@ -1,5 +1,6 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from pathlib import Path
-from typing import Iterator
 from typing import Never
 from typing import assert_never
 from typing import cast
@@ -9,115 +10,114 @@ from rdflib import BNode
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
-from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
+from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import get_containers
+
+# ruff: noqa: ARG001 Unused function argument
+
+
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ExternalContainerPorts]:
-    with get_containers() as metadata:
-        yield metadata.ports
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
 
 
 @pytest.fixture(scope="module")
-def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
-    return ServerCredentials(
-        "root@example.com",
-        "test",
-        f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
-    )
+def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFGraphs, set[str]]:
+    file = Path("testdata/validate-data/generic/unknown_classes.xml")
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    return graphs, used_iris
 
 
-@pytest.fixture(scope="module")
-def _create_projects(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
-
-
-@pytest.fixture(scope="module")
-def api_url(container_ports: ExternalContainerPorts) -> str:
-    return f"http://0.0.0.0:{container_ports.api}"
-
-
-@pytest.fixture(scope="module")
-def shacl_validator(api_url: str) -> ShaclValidator:
-    return ShaclValidator(api_url)
+def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGraphs, set[str]]) -> None:
+    graphs, used_iris = unknown_classes_graphs
+    result = _check_for_unknown_resource_classes(graphs, used_iris)
+    assert isinstance(result, UnknownClassesInData)
+    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
+    assert result.unknown_classes == expected
 
 
 @pytest.fixture(scope="module")
 def unique_value_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def file_value_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def cardinality_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def content_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def value_type_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
     with pytest.warns(DspToolsUserInfo, match=match):
-        graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+        graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def every_violation_combination_once(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
@@ -125,7 +125,6 @@ def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) ->
 
 
 def test_reformat_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(cardinality_violation)
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -133,10 +132,14 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
         ("id_min_card", ProblemType.MIN_CARD),
         ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_info_tuples)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    result = reformat_validation_graph(cardinality_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
 
@@ -146,9 +149,6 @@ def test_content_violation(content_violation: ValidationReportGraphs) -> None:
 
 
 def test_reformat_content_violation(content_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(content_violation)
-    assert not result.unexpected_results
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     expected_info_tuples = [
         (
             "comment_on_value_empty",
@@ -196,10 +196,23 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "hasStandoffLinkTo",
             "A stand-off link must target an existing resource.",
         ),
+        (
+            "simple_text_with_newlines",
+            "onto:testSimpleText",
+            "The value must be a non-empty string without newlines.",
+        ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
     ]
+    result = reformat_validation_graph(content_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    assert not result.unexpected_results
     assert len(result.problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.prop_name == expected_info[1]
         if one_result.problem_type == ProblemType.INPUT_REGEX:
@@ -220,12 +233,6 @@ def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> N
 
 
 def test_reformat_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(value_type_violation)
-    assert not result.unexpected_results
-    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
-    filtered_problems = _filter_out_duplicate_problems(result.problems)
-    flattened_problems = [item for sublist in filtered_problems for item in sublist]
-    sorted_problems = sorted(flattened_problems, key=lambda x: x.res_id)
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -243,8 +250,15 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
         ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
     ]
-    assert len(sorted_problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    result = reformat_validation_graph(value_type_violation)
+    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert one_result.res_id == expected_info[0]
         assert one_result.expected == expected_info[1]
@@ -265,27 +279,29 @@ def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) ->
 
 class TestReformatValidationGraph:
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(unique_value_violation)
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
+            "identical_values_richtext",
             "identical_values_valueAsString",
             "identical_values_valueHas",
         ]
+        result = reformat_validation_graph(unique_value_violation)
+        sorted_problems = sort_user_problems(result)
+        assert len(sorted_problems.unique_violations) == len(expected_ids)
+        assert not sorted_problems.user_warnings
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_ids)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_id in zip(sorted_problems, expected_ids):
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(file_value_violation)
-        expected_info_tuples = [
+        expected_info_violation = [
             # each type of missing legal info (authorship, copyright, license) produces one violation
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("authorship_with_newline", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
             ("empty_copyright_holder", ProblemType.INPUT_REGEX),
             ("empty_license", ProblemType.GENERIC),
@@ -303,23 +319,37 @@ class TestReformatValidationGraph:
             ("id_video_missing", ProblemType.FILE_VALUE),
             ("id_video_unknown", ProblemType.FILE_VALUE),
             ("id_wrong_file_type", ProblemType.FILE_VALUE),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
             ("inexistent_license_iri", ProblemType.GENERIC),
+            ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
+        expected_info_warnings = [
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+        ]
+        result = reformat_validation_graph(file_value_violation)
+        sorted_problems = sort_user_problems(result)
+        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+        assert len(sorted_problems.unique_violations) == len(expected_info_violation)
+        assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+        for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -337,10 +367,14 @@ class TestReformatValidationGraph:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
+        result = reformat_validation_graph(dsp_inbuilt_violation)
+        sorted_problems = sort_user_problems(result)
+        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+        assert not sorted_problems.user_info
+        assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
@@ -393,11 +427,7 @@ def test_every_violation_combination_once(every_violation_combination_once: Vali
 
 
 def test_reformat_every_constraint_once(every_violation_combination_once: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(every_violation_combination_once)
     expected_info_tuples = [
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
-        ("bitstream_no_legal_info", ProblemType.GENERIC),
         ("empty_label", ProblemType.INPUT_REGEX),
         ("geoname_not_number", ProblemType.INPUT_REGEX),
         ("id_card_one", ProblemType.MIN_CARD),
@@ -405,9 +435,6 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("id_max_card", ProblemType.MAX_CARD),
         ("id_missing_file_value", ProblemType.FILE_VALUE),
         ("identical_values", ProblemType.DUPLICATE_VALUE),
-        ("image_no_legal_info", ProblemType.GENERIC),
-        ("image_no_legal_info", ProblemType.GENERIC),
-        ("image_no_legal_info", ProblemType.GENERIC),
         ("inexistent_license_iri", ProblemType.GENERIC),
         ("label_with_newline", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -421,12 +448,29 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
     ]
+    expected_info_warnings = [
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("bitstream_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+        ("image_no_legal_info", ProblemType.GENERIC),
+    ]
+    result = reformat_validation_graph(every_violation_combination_once)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    assert len(result.problems) == len(expected_info_tuples)
-    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
+    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
+        assert one_result.problem_type == expected_info[1]
+        assert one_result.res_id == expected_info[0]
 
 
 if __name__ == "__main__":

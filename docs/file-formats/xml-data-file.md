@@ -10,7 +10,7 @@ an output file is written (called `id2iri_mapping_[timestamp].json`)
 with the mapping from the internal IDs used inside the XML 
 to their corresponding IRIs which uniquely identify them inside DSP. 
 This file should be kept if a second data delivery is added at a later point of time 
-[see here](../incremental-xmlupload.md).
+[see here](../special-workflows/incremental-xmlupload.md).
 
 The import file must start with the standard XML header:
 
@@ -695,6 +695,20 @@ Example of a property with a public and a hidden list value:
 <list-prop list="category" name=":hasCategory">
     <list permissions="open">physics</list>
     <list>nature</list>
+</list-prop>
+```
+
+**Referencing Existing List IRIs:**
+
+It is possible to reference existing list IRIs. IRIs can be obtained through API requests or database queries.
+Please note that every time a project is created anew, new IRIs are generated.
+Therefore, this workflow is intended for projects that already exist on the production server.
+To reference the IRI in the XML, 
+the `list` attribute must remain empty, but may not be omitted.
+
+```xml
+<list-prop name=":hasCategory" list="">
+    <list>http://rdfh.ch/lists/0001/uuid</list>
 </list-prop>
 ```
 

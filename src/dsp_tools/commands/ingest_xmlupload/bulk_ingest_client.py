@@ -1,8 +1,8 @@
 import urllib.parse
+from collections.abc import Iterator
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import Iterator
 
 import regex
 from loguru import logger
@@ -94,7 +94,7 @@ class BulkIngestClient:
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
         """
         Remove the leading slash of absolute filepaths,
-        because the /project/<shortcode>/bulk-ingest/ingest route only accepts relative paths.
+        because the `/project/<shortcode>/bulk-ingest/ingest` route only accepts relative paths.
         The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
 
         Args:

@@ -1,11 +1,12 @@
 # mypy: disable-error-code="method-assign"
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from dataclasses import field
 from importlib.metadata import version
 from typing import Any
-from typing import Callable
+from typing import Literal
 from typing import cast
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -308,6 +309,42 @@ def test_renew_session() -> None:
     assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
     con._renew_session()
     assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
+
+
+@pytest.mark.parametrize(
+    ("response_content", "expected"),
+    [
+        (
+            '{"message":"Resource class <resclass> does not allow more than one value for property <prop>"}',
+            "Resource class <resclass> does not allow more than one value for property <prop>",
+        ),
+        (
+            '{"message":"One or more resources were not found:  <http://rdfh.ch/foo/bar>"}',
+            "One or more resources were not found:  <http://rdfh.ch/foo/bar>",
+        ),
+        (
+            '{"message":"Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>"}',
+            "Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>",
+        ),
+    ],
+)
+def test_extract_original_api_err_msg(response_content: str, expected: str) -> None:
+    con = ConnectionLive("api")
+    assert con._extract_original_api_err_msg(response_content) == expected
+
+
+@pytest.mark.parametrize(
+    ("api_msg", "blame"),
+    [
+        ("Resource class <resclass> does not allow more than one value for property <prop>", "client"),
+        ("One or more resources were not found:  <http://rdfh.ch/foo/bar>", "client"),
+        ("Duplicate values for property <http://0.0.0.0:3333/ontology/4124/testonto/v2#hasText>", "client"),
+        ("Text value contains invalid characters", "client"),
+    ],
+)
+def test_determine_blame(api_msg: str, blame: Literal["client", "server"]) -> None:
+    con = ConnectionLive("api")
+    assert con._determine_blame(api_msg) == blame
 
 
 if __name__ == "__main__":

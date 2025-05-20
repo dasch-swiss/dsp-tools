@@ -74,10 +74,23 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
-            error_msg = f"{error_msg}{separator}Line {error.line}: {error.message}"
-        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+            error_msg += f"{separator}Line {error.line}: {_beautify_err_msg(error.message)}"
         return error_msg
     return None
+
+
+def _beautify_err_msg(err_msg: str) -> str:
+    err_msg = err_msg.replace("{https://dasch.swiss/schema}", "")
+    new_msg_for_duplicate_res_id = (
+        "The resource ID '\\1' is not valid. IDs must be unique across the entire file. "
+        "The function make_xsd_compatible_id() assists you in creating IDs."
+    )
+    rgx_for_duplicate_res_id = (
+        r"Element '(?:resource|link|video-segment|audio-segment|region)', attribute 'id': '(.+?)' "
+        r"is not a valid value of the atomic type 'xs:ID'."
+    )
+    err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
+    return err_msg
 
 
 def _warn_user_about_tags_in_simpletext(xml: etree._Element) -> None:

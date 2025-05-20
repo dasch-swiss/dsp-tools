@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd" shortcode="4124" default-ontology="testonto">
+
+    <resource label="res_1" restype=":Thing" id="res_1">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Hello world</text>
+        </text-prop>
+    </resource>
+
+    <audio-segment label="res_1" id="res_1">
+        <isSegmentOf>res_1</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </audio-segment>
+
+    <link label="res_2" id="res_2">
+        <resptr-prop name="hasLinkTo">
+            <resptr>res_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <region label="Circle in image" id="res_2">
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "circle",
+                    "lineWidth": 5,
+                    "points": [{"x":0.5,"y":0.3}],
+                    "radius": {"x":0.1,"y":0.1}
+                }
+            </geometry>
+        </geometry-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>res_1</resptr>
+        </resptr-prop>
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+    </region>
+
+</knora>

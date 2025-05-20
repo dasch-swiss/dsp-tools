@@ -7,10 +7,10 @@ This model implements the handling of resource classes. It contains two classes 
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from enum import Enum
 from typing import Any
 from typing import Optional
-from typing import Sequence
 from typing import Union
 
 import regex

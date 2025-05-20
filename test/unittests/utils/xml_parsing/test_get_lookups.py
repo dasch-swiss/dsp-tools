@@ -10,8 +10,7 @@ def test_get_authorship_lookup():
     <knora>
         <authorship id="authorship_1">
             <author>
-            Lukas 
-            Rosenthaler </author>
+            Lukas Rosenthaler </author>
         </authorship>
         <authorship id="authorship_2">
             <author>\tNora Ammann
@@ -19,7 +18,9 @@ def test_get_authorship_lookup():
         </authorship>
         <authorship id="authorship_3">
             <author>Nora    Ammann</author>
-            <author>Johannes Nussbaum</author>
+            <author>
+                Johannes Nussbaum
+            </author>
         </authorship>
     </knora>
     """

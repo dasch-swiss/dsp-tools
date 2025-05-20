@@ -1,26 +1,27 @@
 from __future__ import annotations
 
-import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
-from dataclasses import field
 from typing import Any
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
-from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.geometry import Circle
-from dsp_tools.xmllib.models.geometry import GeometryPoint
-from dsp_tools.xmllib.models.geometry import GeometryShape
-from dsp_tools.xmllib.models.geometry import Polygon
-from dsp_tools.xmllib.models.geometry import Rectangle
-from dsp_tools.xmllib.models.geometry import Vector
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.values import LinkValue
-from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.internal.geometry import Circle
+from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
+from dsp_tools.xmllib.models.internal.geometry import GeometryShape
+from dsp_tools.xmllib.models.internal.geometry import Polygon
+from dsp_tools.xmllib.models.internal.geometry import Rectangle
+from dsp_tools.xmllib.models.internal.geometry import Vector
+from dsp_tools.xmllib.models.internal.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.internal.values import LinkValue
+from dsp_tools.xmllib.models.internal.values import Richtext
+from dsp_tools.xmllib.models.internal.values import SimpleText
+from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
@@ -33,16 +34,14 @@ LIST_SEPARATOR = "\n    - "
 class RegionResource:
     res_id: str
     label: str
-    region_of: LinkValue
+    values: list[Value]
     geometry: GeometryShape | None
-    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, field_name="isRegionOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -81,7 +80,11 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id),
+            values=[
+                LinkValue.new(
+                    value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
+                )
+            ],
             geometry=None,
             permissions=permissions,
         )
@@ -269,19 +272,14 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
-        self.comments.append(
-            Richtext(
-                value=checked_text,
+        self.values.append(
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -311,26 +309,18 @@ class RegionResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
         comnts = [
-            Richtext(
+            Richtext.new(
                 value=x,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
-            for x in texts
+            for x in vals
         ]
-        self.comments.extend(comnts)
+        self.values.extend(comnts)
         return self
 
     def add_comment_optional(
@@ -391,10 +381,10 @@ class RegionResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -403,14 +393,13 @@ class RegionResource:
 class LinkResource:
     res_id: str
     label: str
-    link_to: list[LinkValue]
-    comments: list[Richtext] = field(default_factory=list)
+    values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
@@ -444,11 +433,14 @@ class LinkResource:
             ```
         """
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
-        link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
+        link_vals: list[Value] = [
+            LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
+            for x in links_to
+        ]
         return LinkResource(
             res_id=res_id,
             label=label,
-            link_to=link_vals,
+            values=link_vals,
             permissions=permissions,
         )
 
@@ -480,19 +472,14 @@ class LinkResource:
             link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
-        checked_text = check_and_create_richtext_string(
-            value=text,
-            prop_name="hasComment",
-            newline_replacement=newline_replacement,
-            res_id=self.res_id,
-        )
-        self.comments.append(
-            Richtext(
-                value=checked_text,
+        self.values.append(
+            Richtext.new(
+                value=text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 resource_id=self.res_id,
+                newline_replacement=newline_replacement,
             )
         )
         return self
@@ -522,26 +509,8 @@ class LinkResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        texts = [
-            check_and_create_richtext_string(
-                value=x,
-                prop_name="hasComment",
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
-            )
-            for x in vals
-        ]
-        comnts = [
-            Richtext(
-                value=x,
-                prop_name="hasComment",
-                permissions=permissions,
-                comment=comment,
-                resource_id=self.res_id,
-            )
-            for x in texts
-        ]
-        self.comments.extend(comnts)
+        for v in vals:
+            self.add_comment(v, permissions, comment, newline_replacement)
         return self
 
     def add_comment_optional(
@@ -602,10 +571,10 @@ class LinkResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -614,6 +583,7 @@ class LinkResource:
 class SegmentBounds:
     segment_start: float | int | str
     segment_end: float | int | str
+    permissions: Permissions
     res_id: str
 
     def __post_init__(self) -> None:
@@ -623,40 +593,34 @@ class SegmentBounds:
         if not is_decimal(self.segment_end):
             msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
         if msg:
-            title = (
-                f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "
-                f"The following places have an unexpected type:"
+            wrng = f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            msg_info = MessageInfo(
+                f"Segment bounds must be a float or integer. The following places have an unexpected type: {wrng}",
+                self.res_id,
             )
-            wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
-            warnings.warn(DspToolsUserWarning(wrng))
+            emit_xmllib_input_warning(msg_info)
 
 
 @dataclass
 class VideoSegmentResource:
     res_id: str
     label: str
-    segment_of: str
     segment_bounds: SegmentBounds
-    title: str | None = None
-    comments: list[str] = field(default_factory=list)
-    descriptions: list[str] = field(default_factory=list)
-    keywords: list[str] = field(default_factory=list)
-    relates_to: list[str] = field(default_factory=list)
+    values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
@@ -686,20 +650,30 @@ class VideoSegmentResource:
             )
             ```
         """
+        segment_of_val = LinkValue.new(
+            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+        )
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
-            segment_of=segment_of,
-            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            values=[segment_of_val],
+            segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             permissions=permissions,
         )
 
-    def add_title(self, title: str) -> VideoSegmentResource:
+    def add_title(
+        self,
+        title: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add a title to the resource.
 
         Args:
             title: text
+            permissions: permissions of the value
+            comment: comments on the value
 
         Returns:
             The original resource, with the added title
@@ -709,17 +683,35 @@ class VideoSegmentResource:
             video_segment = video_segment.add_title("segment title")
             ```
         """
-        if self.title:
-            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
-        self.title = title
+        existing_titles = [x for x in self.values if x.prop_name == "hasTitle"]
+        if any(existing_titles):
+            _warn_value_exists(
+                old_value=existing_titles.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
+            )
+        self.values.append(
+            SimpleText.new(
+                value=title,
+                prop_name="hasTitle",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_title_optional(self, title: Any) -> VideoSegmentResource:
+    def add_title_optional(
+        self,
+        title: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: text or empty value
+            permissions: permissions of the value
+            comment: comments on the value
 
         Returns:
             The original resource, with the added title
@@ -734,20 +726,24 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(title):
-            if self.title:
-                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
-            self.title = title
+            self.add_title(title, permissions, comment)
         return self
 
     def add_comment(
         self,
         text: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add a comment to the resource
 
         Args:
             text: text
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -757,18 +753,33 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(text)
+        self.values.append(
+            Richtext.new(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
     def add_comment_multiple(
         self,
         texts: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         Add several comments to the resource
 
         Args:
             texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about these comments
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -779,18 +790,25 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        for v in vals:
+            self.add_comment(v, permissions, comment, newline_replacement)
         return self
 
     def add_comment_optional(
         self,
         text: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -805,15 +823,24 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(text)
+            self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
-    def add_description(self, description: str) -> VideoSegmentResource:
+    def add_description(
+        self,
+        description: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> VideoSegmentResource:
         """
         Add a description to the resource
 
         Args:
             description: text
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -823,15 +850,33 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description("description text")
             ```
         """
-        self.descriptions.append(description)
+        self.values.append(
+            Richtext.new(
+                value=description,
+                prop_name="hasDescription",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
-    def add_description_multiple(self, descriptions: Collection[str]) -> VideoSegmentResource:
+    def add_description_multiple(
+        self,
+        descriptions: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
 
         Args:
             descriptions: list of texts
+            permissions: optional permissions of these value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added descriptions
@@ -842,15 +887,25 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
-        self.descriptions.extend(vals)
+        for v in vals:
+            self.add_description(v, permissions, comment, newline_replacement)
         return self
 
-    def add_description_optional(self, description: Any) -> VideoSegmentResource:
+    def add_description_optional(
+        self,
+        description: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -865,15 +920,22 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.descriptions.append(description)
+            self.add_description(description, permissions, comment, newline_replacement)
         return self
 
-    def add_keyword(self, keyword: str) -> VideoSegmentResource:
+    def add_keyword(
+        self,
+        keyword: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add a keyword to the resource
 
         Args:
             keyword: text
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -883,15 +945,30 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword("keyword")
             ```
         """
-        self.keywords.append(keyword)
+        self.values.append(
+            SimpleText.new(
+                value=keyword,
+                prop_name="hasKeyword",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_keyword_multiple(self, keywords: Collection[str]) -> VideoSegmentResource:
+    def add_keyword_multiple(
+        self,
+        keywords: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add several keywords to the resource
 
         Args:
             keywords: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added keywords
@@ -902,15 +979,23 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
-        self.keywords.extend(vals)
+        for v in vals:
+            self.add_keyword(v, permissions, comment)
         return self
 
-    def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
+    def add_keyword_optional(
+        self,
+        keyword: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -925,15 +1010,22 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.keywords.append(keyword)
+            self.add_keyword(keyword, permissions, comment)
         return self
 
-    def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
+    def add_relates_to(
+        self,
+        relates_to: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add a link to a related resource
 
         Args:
             relates_to: ID of the related resource
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resource
@@ -943,15 +1035,30 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to("target_resource_id")
             ```
         """
-        self.relates_to.append(relates_to)
+        self.values.append(
+            LinkValue.new(
+                value=relates_to,
+                prop_name="relatesTo",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_relates_to_multiple(self, relates_to: Collection[str]) -> VideoSegmentResource:
+    def add_relates_to_multiple(
+        self,
+        relates_to: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         Add several links to related resources
 
         Args:
             relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -962,15 +1069,23 @@ class VideoSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
-        self.relates_to.extend(vals)
+        for v in vals:
+            self.add_relates_to(v, permissions, comment)
         return self
 
-    def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
+    def add_relates_to_optional(
+        self,
+        relates_to: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
             relates_to: ID or the related resource or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -985,7 +1100,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.relates_to.append(relates_to)
+            self.add_relates_to(relates_to, permissions, comment)
         return self
 
     def add_migration_metadata(
@@ -1014,10 +1129,10 @@ class VideoSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
@@ -1026,28 +1141,22 @@ class VideoSegmentResource:
 class AudioSegmentResource:
     res_id: str
     label: str
-    segment_of: str
     segment_bounds: SegmentBounds
-    title: str | None = None
-    comments: list[str] = field(default_factory=list)
-    descriptions: list[str] = field(default_factory=list)
-    keywords: list[str] = field(default_factory=list)
-    relates_to: list[str] = field(default_factory=list)
+    values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
         segment_of: str,
-        segment_start: float,
-        segment_end: float,
+        segment_start: float | int | str,
+        segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
@@ -1066,20 +1175,30 @@ class AudioSegmentResource:
         Returns:
             An audio segment resource
         """
+        segment_of_val = LinkValue.new(
+            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+        )
         return AudioSegmentResource(
             res_id=res_id,
             label=label,
-            segment_of=segment_of,
-            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
+            values=[segment_of_val],
             permissions=permissions,
         )
 
-    def add_title(self, title: str) -> AudioSegmentResource:
+    def add_title(
+        self,
+        title: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         Add a title to the resource.
 
         Args:
             title: text
+            permissions: permissions of the value
+            comment: comments on the value
 
         Returns:
             The original resource, with the added title
@@ -1089,17 +1208,35 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_title("segment title")
             ```
         """
-        if self.title:
-            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
-        self.title = title
+        existing_title = [x for x in self.values if x.prop_name == "hasTitle"]
+        if any(existing_title):
+            _warn_value_exists(
+                old_value=existing_title.pop(0).value, new_value=title, value_field="title", res_id=self.res_id
+            )
+        self.values.append(
+            SimpleText.new(
+                value=title,
+                prop_name="hasTitle",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_title_optional(self, title: Any) -> AudioSegmentResource:
+    def add_title_optional(
+        self,
+        title: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: text or empty value
+            permissions: permissions of the value
+            comment: comments on the value
 
         Returns:
             The original resource, with the added title
@@ -1114,17 +1251,24 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(title):
-            if self.title:
-                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
-            self.title = title
+            self.add_title(title, permissions, comment)
         return self
 
-    def add_comment(self, text: str) -> AudioSegmentResource:
+    def add_comment(
+        self,
+        text: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         Add a comment to the resource
 
         Args:
             text: text of the comment
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -1134,15 +1278,33 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(text)
+        self.values.append(
+            Richtext.new(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
-    def add_comment_multiple(self, texts: Collection[str]) -> AudioSegmentResource:
+    def add_comment_multiple(
+        self,
+        texts: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         Add several comments to the resource
 
         Args:
             texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about these comments
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -1153,15 +1315,25 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        for v in vals:
+            self.add_comment(v, permissions, comment, newline_replacement)
         return self
 
-    def add_comment_optional(self, text: Any) -> AudioSegmentResource:
+    def add_comment_optional(
+        self,
+        text: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -1176,15 +1348,24 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(text)
+            self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
-    def add_description(self, description: str) -> AudioSegmentResource:
+    def add_description(
+        self,
+        description: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         Add a description to the resource
 
         Args:
             description: text
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -1194,15 +1375,33 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description("description text")
             ```
         """
-        self.descriptions.append(description)
+        self.values.append(
+            Richtext.new(
+                value=description,
+                prop_name="hasDescription",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                newline_replacement=newline_replacement,
+            )
+        )
         return self
 
-    def add_description_multiple(self, descriptions: Collection[str]) -> AudioSegmentResource:
+    def add_description_multiple(
+        self,
+        descriptions: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
 
         Args:
             descriptions: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added descriptions
@@ -1213,15 +1412,25 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
-        self.descriptions.extend(vals)
+        for v in vals:
+            self.add_description(v, permissions, comment, newline_replacement)
         return self
 
-    def add_description_optional(self, description: Any) -> AudioSegmentResource:
+    def add_description_optional(
+        self,
+        description: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added description
@@ -1236,15 +1445,22 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.descriptions.append(description)
+            self.add_description(description, permissions, comment, newline_replacement)
         return self
 
-    def add_keyword(self, keyword: str) -> AudioSegmentResource:
+    def add_keyword(
+        self,
+        keyword: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         Add a keyword to the resource
 
         Args:
             keyword: text
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -1254,15 +1470,30 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_keyword("keyword")
             ```
         """
-        self.keywords.append(keyword)
+        self.values.append(
+            SimpleText.new(
+                value=keyword,
+                prop_name="hasKeyword",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_keyword_multiple(self, keywords: Collection[str]) -> AudioSegmentResource:
+    def add_keyword_multiple(
+        self,
+        keywords: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         Add several keywords to the resource
 
         Args:
             keywords: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added keywords
@@ -1273,15 +1504,23 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
-        self.keywords.extend(vals)
+        for v in vals:
+            self.add_keyword(v, permissions, comment)
         return self
 
-    def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
+    def add_keyword_optional(
+        self,
+        keyword: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: text or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added keyword
@@ -1296,15 +1535,22 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.keywords.append(keyword)
+            self.add_keyword(keyword, permissions, comment)
         return self
 
-    def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
+    def add_relates_to(
+        self,
+        relates_to: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         Add a link to a related resource
 
         Args:
             relates_to: ID of the related resource
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resource
@@ -1314,15 +1560,30 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to("target_resource_id")
             ```
         """
-        self.relates_to.append(relates_to)
+        self.values.append(
+            LinkValue.new(
+                value=relates_to,
+                prop_name="relatesTo",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+        )
         return self
 
-    def add_relates_to_multiple(self, relates_to: Collection[str]) -> AudioSegmentResource:
+    def add_relates_to_multiple(
+        self,
+        relates_to: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         Add several links to related resources
 
         Args:
             relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1333,15 +1594,23 @@ class AudioSegmentResource:
             ```
         """
         vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
-        self.relates_to.extend(vals)
+        for v in vals:
+            self.add_relates_to(v, permissions, comment)
         return self
 
-    def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
+    def add_relates_to_optional(
+        self,
+        relates_to: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
             relates_to: ID of the related resource or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Returns:
             The original resource, with the added related resources
@@ -1356,7 +1625,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.relates_to.append(relates_to)
+            self.add_relates_to(relates_to, permissions, comment)
         return self
 
     def add_migration_metadata(
@@ -1385,27 +1654,26 @@ class AudioSegmentResource:
             ```
         """
         if self.migration_metadata:
-            raise InputError(
-                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
-                f"no new data can be added."
+            msg_info = MessageInfo(
+                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
             )
+            raise_input_error(msg_info)
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
 
-def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
+def _check_strings(
+    *, string_to_check: str, res_id: str, prop_name: str | None = None, field_name: str | None = None
+) -> None:
     if not is_nonempty_value(string_to_check):
-        msg = (
-            f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
-            f"Field: {field_name} | Value: {string_to_check}"
-        )
-        warnings.warn(DspToolsUserWarning(msg))
+        msg_info = MessageInfo("The entered string is not valid.", res_id, prop_name, field_name)
+        emit_xmllib_input_warning(msg_info)
 
 
-def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
+def _warn_value_exists(*, old_value: Any, new_value: Any, res_id: str | None, value_field: str | None = None) -> None:
     msg = (
-        f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "
+        f"This resource already has a value in this location. "
         f"The old value '{old_value}' is being replace with '{new_value}'."
     )
-    warnings.warn(DspToolsUserWarning(msg))
+    msg_info = MessageInfo(msg, res_id, field=value_field)
+    emit_xmllib_input_warning(msg_info)

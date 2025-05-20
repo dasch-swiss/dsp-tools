@@ -4,12 +4,12 @@ from uuid import uuid4
 import pytest
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -19,11 +19,11 @@ PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
 @pytest.fixture
-def resource_1() -> IntermediaryResource:
-    link_value_to_resource_no_links = IntermediaryLink("res_no_links", "prop", None, None, str(uuid4()))
-    link_value_with_permissions_to_res_2 = IntermediaryLink("res_2", "prop", None, PERMISSION, "link_to_res_2_uuid")
-    simple_text_value = IntermediarySimpleText("Text", "prop", None, None)
-    return IntermediaryResource(
+def resource_1() -> ProcessedResource:
+    link_value_to_resource_no_links = ProcessedLink("res_no_links", "prop", None, None, str(uuid4()))
+    link_value_with_permissions_to_res_2 = ProcessedLink("res_2", "prop", None, PERMISSION, "link_to_res_2_uuid")
+    simple_text_value = ProcessedSimpleText("Text", "prop", None, None)
+    return ProcessedResource(
         res_id="res_1",
         type_iri="type",
         label="lbl",
@@ -33,8 +33,8 @@ def resource_1() -> IntermediaryResource:
 
 
 @pytest.fixture
-def resource_2() -> IntermediaryResource:
-    val = IntermediaryRichtext(
+def resource_2() -> ProcessedResource:
+    val = ProcessedRichtext(
         FormattedTextValue('Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'),
         "prop",
         None,
@@ -42,7 +42,7 @@ def resource_2() -> IntermediaryResource:
         set("res_3"),
         "standoff_link_to_res_3_uuid",
     )
-    return IntermediaryResource(
+    return ProcessedResource(
         res_id="res_2",
         type_iri="type",
         label="lbl",
@@ -52,9 +52,9 @@ def resource_2() -> IntermediaryResource:
 
 
 @pytest.fixture
-def resource_3() -> IntermediaryResource:
-    link_value_to_res_1 = IntermediaryLink("res_1", "prop", None, None, "link_to_res_1_uuid")
-    return IntermediaryResource(
+def resource_3() -> ProcessedResource:
+    link_value_to_res_1 = ProcessedLink("res_1", "prop", None, None, "link_to_res_1_uuid")
+    return ProcessedResource(
         res_id="res_3",
         type_iri="type",
         label="lbl",
@@ -64,8 +64,8 @@ def resource_3() -> IntermediaryResource:
 
 
 @pytest.fixture
-def resource_no_links() -> IntermediaryResource:
-    return IntermediaryResource(
+def resource_no_links() -> ProcessedResource:
+    return ProcessedResource(
         res_id="res_no_links",
         type_iri="type",
         label="lbl",
@@ -75,10 +75,10 @@ def resource_no_links() -> IntermediaryResource:
 
 
 def test_stash_circular_references_remove_link_value(
-    resource_1: IntermediaryResource,
-    resource_2: IntermediaryResource,
-    resource_3: IntermediaryResource,
-    resource_no_links: IntermediaryResource,
+    resource_1: ProcessedResource,
+    resource_2: ProcessedResource,
+    resource_3: ProcessedResource,
+    resource_no_links: ProcessedResource,
 ) -> None:
     copied_res_1 = deepcopy(resource_1)
     copied_res_2 = deepcopy(resource_2)
@@ -110,10 +110,10 @@ def test_stash_circular_references_remove_link_value(
 
 
 def test_stash_circular_references_remove_text_value(
-    resource_1: IntermediaryResource,
-    resource_2: IntermediaryResource,
-    resource_3: IntermediaryResource,
-    resource_no_links: IntermediaryResource,
+    resource_1: ProcessedResource,
+    resource_2: ProcessedResource,
+    resource_3: ProcessedResource,
+    resource_no_links: ProcessedResource,
 ) -> None:
     copied_res_1 = deepcopy(resource_1)
     copied_res_2 = deepcopy(resource_2)
@@ -138,14 +138,14 @@ def test_stash_circular_references_remove_text_value(
     # check that the resource values are as expected
     assert len(copied_res_2.values) == 1
     text_val = copied_res_2.values.pop(0)
-    assert isinstance(text_val, IntermediaryRichtext)
+    assert isinstance(text_val, ProcessedRichtext)
     assert text_val.value.xmlstr == "standoff_link_to_res_3_uuid"
     assert len(resource_1.values) == len(copied_res_1.values)
     assert len(resource_3.values) == len(copied_res_3.values)
 
 
 def test_stash_circular_references_no_stash(
-    resource_1: IntermediaryResource,
+    resource_1: ProcessedResource,
 ) -> None:
     resources = [deepcopy(resource_1)]
     lookup: dict[str, list[str]] = {}

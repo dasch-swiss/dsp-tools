@@ -1,13 +1,13 @@
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
-def create_info_for_graph_from_intermediary_resources(resources: list[IntermediaryResource]) -> InfoForGraph:
+def create_info_for_graph_from_processed_resources(resources: list[ProcessedResource]) -> InfoForGraph:
     """Extracts information to create the graph to analyse the circular references."""
     all_links = []
     all_stand_off = []
@@ -24,11 +24,11 @@ def create_info_for_graph_from_intermediary_resources(resources: list[Intermedia
     )
 
 
-def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValueLink], list[StandOffLink]]:
+def _process_one_resource(resource: ProcessedResource) -> tuple[list[LinkValueLink], list[StandOffLink]]:
     link_values = []
     stand_off = []
     for val in resource.values:
-        if isinstance(val, IntermediaryLink):
+        if isinstance(val, ProcessedLink):
             if is_resource_iri(val.value):
                 continue
             link_values.append(
@@ -38,7 +38,7 @@ def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValu
                     link_uuid=val.value_uuid,
                 )
             )
-        elif isinstance(val, IntermediaryRichtext):
+        elif isinstance(val, ProcessedRichtext):
             if val.resource_references:
                 only_ids = {x for x in val.resource_references if not is_resource_iri(x)}
                 if not only_ids:

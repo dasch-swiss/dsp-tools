@@ -101,22 +101,20 @@ class TestFunctions(unittest.TestCase):
             }
         )
         expected_msg = regex.escape(
-            (
-                "The Excel file 'properties.xlsx' contains the following problems:\n\n"
-                "At the following locations, mandatory values are missing:\n"
-                "    - Column 'name' | Row 9\n"
-                "    - Column 'super' | Row 2\n"
-                "    - Column 'super' | Row 4\n"
-                "    - Column 'super' | Row 9\n"
-                "    - Column 'object' | Row 5\n"
-                "    - Column 'object' | Row 9\n"
-                "    - Column 'gui_element' | Row 6\n"
-                "    - Column 'gui_element' | Row 8\n"
-                "    - Column 'gui_element' | Row 9\n"
-                "    - Column 'label' | Row 3\n"
-                "    - Column 'label' | Row 8\n"
-                "    - Column 'gui_attributes' | Row 7"
-            )
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n"
+            "At the following locations, mandatory values are missing:\n"
+            "    - Column 'name' | Row 9\n"
+            "    - Column 'super' | Row 2\n"
+            "    - Column 'super' | Row 4\n"
+            "    - Column 'super' | Row 9\n"
+            "    - Column 'object' | Row 5\n"
+            "    - Column 'object' | Row 9\n"
+            "    - Column 'gui_element' | Row 6\n"
+            "    - Column 'gui_element' | Row 8\n"
+            "    - Column 'gui_element' | Row 9\n"
+            "    - Column 'label' | Row 3\n"
+            "    - Column 'label' | Row 8\n"
+            "    - Column 'gui_attributes' | Row 7"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j._do_property_excel_compliance(original_df)

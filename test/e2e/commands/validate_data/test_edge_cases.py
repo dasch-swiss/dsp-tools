@@ -1,87 +1,75 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from pathlib import Path
-from typing import Iterator
 
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
-from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import get_containers
+
+# ruff: noqa: ARG001 Unused function argument
+
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ExternalContainerPorts]:
-    with get_containers() as metadata:
-        yield metadata.ports
-
-
-@pytest.fixture(scope="module")
-def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
-    return ServerCredentials(
-        "root@example.com",
-        "test",
-        f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
-    )
-
-
-@pytest.fixture(scope="module")
-def api_url(container_ports: ExternalContainerPorts) -> str:
-    return f"http://0.0.0.0:{container_ports.api}"
-
-
-@pytest.fixture(scope="module")
-def shacl_validator(api_url: str) -> ShaclValidator:
-    return ShaclValidator(api_url)
-
-
-@pytest.fixture(scope="module")
-def _create_projects(creds: ServerCredentials) -> None:
+def _create_projects_edge_cases(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)
     assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), creds)
     assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), creds)
 
 
 @pytest.fixture(scope="module")
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
+
+
+@pytest.fixture(scope="module")
 def special_characters_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def inheritance_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
-    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    return validate_ontology(graphs.ontos, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return validate_ontology(graphs.ontos, shacl_validator, CONFIG)
 
 
-@pytest.mark.usefixtures("_create_projects")
-def test_special_characters_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    special_characters_correct = _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    special_characters_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert special_characters_correct.conforms
 
 
@@ -90,7 +78,6 @@ def test_special_characters_violation(special_characters_violation: ValidationRe
 
 
 def test_reformat_special_characters_violation(special_characters_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(special_characters_violation)
     expected_tuples = [
         (
             "node_backslash",
@@ -128,10 +115,14 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             "other / \\ backslash",
         ),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_tuples)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for prblm, expected in zip(sorted_problems, expected_tuples):
+    result = reformat_validation_graph(special_characters_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for prblm, expected in zip(alphabetically_sorted, expected_tuples):
         if prblm.problem_type == ProblemType.GENERIC:
             assert prblm.res_id == expected[0]
             assert prblm.message == expected[1]
@@ -140,11 +131,11 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             assert prblm.res_id == expected[0]
 
 
-@pytest.mark.usefixtures("_create_projects")
-def test_inheritance_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs = _get_parsed_graphs(api_url, file)
-    inheritance_correct = _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    inheritance_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert inheritance_correct.conforms
 
 
@@ -153,17 +144,20 @@ def test_inheritance_violation(inheritance_violation: ValidationReportGraphs) ->
 
 
 def test_reformat_inheritance_violation(inheritance_violation: ValidationReportGraphs) -> None:
-    result = reformat_validation_graph(inheritance_violation)
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceUnrelated", {"onto:hasText0"}),
     ]
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_results)
-    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-    for one_result, expected in zip(sorted_problems, expected_results):
+    result = reformat_validation_graph(inheritance_violation)
+    sorted_problems = sort_user_problems(result)
+    assert len(sorted_problems.unique_violations) == len(expected_results)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]
         assert one_result.prop_name in expected[1]

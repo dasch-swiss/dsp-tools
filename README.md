@@ -163,12 +163,6 @@ Your code can be checked for style violations locally before they are committed:
 just lint
 ```
 
-In addition, there are [pre-commit hooks](#pre-commit-hooks) 
-that run Ruff and MarkdownLint locally before every commit.
-This prevents you from committing code style violations.
-Pre-commit is contained in the dependencies, 
-but before the first use, the hooks must be installed with `pre-commit install`.
-
 Depending on your IDE, there are extensions that emit warnings:
 
 
@@ -200,6 +194,16 @@ Make sure to set the docstring format to "Google notypes" in the PyCharm setting
 PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google notypes
 
 
+### mypy
+
+The just command `just mypy` uses the `dmypy` daemon,
+which is a background process that holds a cache of type information about the code.
+The advantage is that subsequent runs of `just mypy` are much faster.
+The disadvantage is that in rare cases, 
+the cache can be outdated or broken so that `dmypy` reports a wrong result.
+If `just mypy` behaves weirdly, you can restart the daemon with `dmypy restart`.
+
+
 
 ## Pre-Commit Hooks
 
@@ -212,6 +216,9 @@ If a hook fails, the commit will be aborted and the Git output will list the pro
 
 If a hook modifies a file, the commit will be aborted.
 You can then stage the changes made by the hook, and commit again. 
+
+Pre-commit is contained in the dependencies, 
+but before the first use, the hooks must be installed with `pre-commit install`.
 
 
 

@@ -137,12 +137,29 @@ dsp-tools validate-data [options] xml_data_file.xml
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
+  This is primarily intended for development use.
 
 Output:
 
 - The result of the validation is printed out on the console.
 - If there are more than 50 validation errors, 
-  a csv called `[xml_data_file]_validation_errors.csv` with the results is saved in the current directory.
+  a csv called `[xml_data_file]_validation_[severity].csv` with the results is saved in the current directory.
+- There are three severity levels:
+    - **Error**: Will block an xmlupload.
+        - Content that is wrong for various reasons.
+        - For example, invalid values, empty values, data that does not conform to the definition in the data model.
+    - **Warning**: Will not block an xmlupload.
+        - Content that will currently not cause an xmlupload to fail but may do so in the future. 
+        - For example, before legal information became mandatory, missing legal information was a warning. 
+          As soon as it is mandatory it will become an error.
+    - **Info**: Will not block an xmlupload.
+        - Content that may cause errors during an upload. 
+        - For example, if you reference IRIs from resources that are already in the database,
+          you will get an info message.
+          The reason is, that if the resource does not exist, an xmlupload will fail.
 
 
 The defaults are intended for local testing: 
@@ -180,12 +197,16 @@ The following options are available:
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
+- `--validation-severity` (optional, default: `info`): which severity level of messages 
+  will be printed out during validation. 
+  Options: `info`, `warning`, and `error` 
+  (each level of severity includes the higher levels; see [`validate-data`](#validate-data) for details).
 
 Output:
 
 - A file named `id2iri_mapping_[timestamp].json` is written to the current working directory.
   This file should be kept if a second data delivery is added at a later point of time 
-  [see here](./incremental-xmlupload.md).
+  [see here](./special-workflows/incremental-xmlupload.md).
 
 The defaults are intended for local testing: 
 
@@ -500,6 +521,10 @@ The expected Excel file format and the folder structure are documented
 
 ## `excel2xml`
 
+!!! warning
+
+    The `excel2xml` CLI command is deprecated.
+
 This command creates an XML file
 from an Excel/CSV file that is already structured according to the DSP specifications.
 This is mostly used for DaSCH internal data migration.
@@ -553,7 +578,7 @@ because normally, the resources occurring in the mapping already exist on the DS
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 
-that is documented [here](./incremental-xmlupload.md).
+that is documented [here](./special-workflows/incremental-xmlupload.md).
 
 
 
@@ -572,7 +597,9 @@ If you don't know what that means, just type `y` ("yes") and then `Enter`.
 The following options are available:
 
 - `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed, in MB (max: 100'000)
-- `--latest` (optional): 
+- `--custom-host` (optional, default: localhost):
+  set a host to an IP or a domain to run the instance on a server
+- `--latest` (optional):
   instead of the latest deployed version,
   use the latest development version (from the `main` branch)
   of the backend components (api, sipi, fuseki, ingest)

@@ -13,8 +13,9 @@ class SHACLValidationReport:
 
 
 @dataclass
-class AllProjectLists:
+class ProjectDataFromApi:
     all_lists: list[OneList]
+    enabled_licenses: EnabledLicenseIris
 
 
 @dataclass
@@ -33,3 +34,8 @@ class SHACLListInfo:
     sh_path: URIRef
     sh_message: str
     sh_in: list[str]
+
+
+@dataclass
+class EnabledLicenseIris:
+    enabled_licenses: list[str]

@@ -3,22 +3,25 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
-import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from typing import Iterable
 
 import regex
 from lxml import etree
 from regex import Match
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
-from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
+from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.licenses.other import LicenseOther
+from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -106,9 +109,9 @@ def create_footnote_element(
         The footnote as a string
     """
     if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
-        raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
+        raise_input_error(MessageInfo("Currently the only supported newline replacement is linebreak (<br/>) or None."))
     if not is_nonempty_value_internal(footnote_text):
-        raise InputError("The input value is empty.")
+        raise_input_error(MessageInfo("The input value is empty."))
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
     unescaped_text = unescape_reserved_xml_chars(footnote_text)
     return etree.Element("footnote", attrib={"content": unescaped_text})
@@ -135,12 +138,11 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
         ```
     """
     if not all([is_nonempty_value_internal(resource_id), is_nonempty_value_internal(displayed_text)]):
-        raise InputError(
-            (
-                f"The entered resource ID and displayed text may not be empty. "
-                f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
-            )
+        msg_str = (
+            f"The entered resource ID and displayed text may not be empty. "
+            f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
         )
+        raise_input_error(MessageInfo(msg_str))
     attribs = {"class": "salsah-link", "href": f"IRI:{resource_id}:IRI"}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
@@ -168,78 +170,15 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
         ```
     """
     if not all([is_nonempty_value_internal(uri), is_nonempty_value_internal(displayed_text)]):
-        raise InputError(
-            (
-                f"The entered URI and displayed text may not be empty. "
-                f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
-            )
+        msg_str = (
+            f"The entered URI and displayed text may not be empty. "
+            f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
         )
+        raise_input_error(MessageInfo(msg_str))
     attribs = {"href": uri}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
     return etree.tostring(ele, encoding="unicode")
-
-
-def create_label_to_name_list_node_mapping(
-    project_json_path: str,
-    list_name: str,
-    language_of_label: str,
-) -> dict[str, str]:
-    """
-    Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
-    which is needed for the `dsp-tools xmlupload`.
-    To create a correct XML, you need a dictionary that maps the "labels" to their correct "names".
-
-    Args:
-        project_json_path: path to a JSON project file (a.k.a. ontology)
-        list_name: name of a list in the JSON project
-        language_of_label: which language of the label to choose
-
-    Returns:
-        a dictionary of the form {label: name}
-
-    Examples:
-        ```json
-        "lists": [
-            {
-                "name": "listName",
-                "labels": {
-                    "en": "List",
-                    "de": "Liste"
-                },
-                "comments": { ... },
-                "nodes": [
-                    {
-                        "name": "n1",
-                        "labels": {
-                            "en": "Node 1",
-                            "de": "Knoten 1"
-                        }
-                    },
-                    {
-                        "name": "n2",
-                        "labels": {
-                            "en": "Node 2",
-                            "de": "Knoten 2"
-                        }
-                    }
-                ]
-            }
-        ]
-        ```
-
-        ```python
-        result = xmllib.create_label_to_name_list_node_mapping(
-            project_json_path="project.json",
-            list_name="listName",
-            language_of_label="de",
-        )
-        # result == {"Knoten 1": "n1", "knoten 1": "n1", "Knoten 2": "n2", "knoten 2": "n2"}
-        ```
-    """
-    with open(project_json_path, encoding="utf-8") as f:
-        json_file = json.load(f)
-    return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
 
 
 def _get_label_to_node_one_list(
@@ -341,15 +280,17 @@ class ListLookup:
             ```
         """
         if not (list_lookup := self._lookup.get(list_name)):
-            msg = f"Entered list name '{list_name}' was not found."
-            warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered list name '{list_name}' was not found. An empty string is returned.")
+            )
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = (
-                f"'{node_label}' was not recognised as label of the list '{list_name}'. "
-                f"This ListLookup is configured for '{self._label_language}' labels."
+            emit_xmllib_input_warning(
+                MessageInfo(
+                    f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                    f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
+                )
             )
-            warnings.warn(DspToolsUserWarning(msg))
             return ""
         return found_node
 
@@ -400,8 +341,9 @@ class ListLookup:
             ```
         """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
-            msg = f"Entered property '{prop_name}' was not found."
-            warnings.warn(DspToolsUserWarning(msg))
+            emit_xmllib_input_warning(
+                MessageInfo(f"The entered property '{prop_name}' was not found. An empty string is returned.")
+            )
             return ""
         return list_name
 
@@ -661,12 +603,11 @@ def find_date_in_string(string: str) -> str | None:
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
+    if already_parsed := _extract_already_parsed_date(string):
+        return already_parsed
     if not is_nonempty_value_internal(string):
         return None
-    try:
-        return _find_date_in_string_raising(string)
-    except ValueError:
-        return None
+    return _find_date_in_string(string)
 
 
 _months_dict = {
@@ -704,12 +645,10 @@ _months_dict = {
     "Dec": 12,
     "Dez": 12,
 }
+all_months = "|".join(_months_dict)
 
 
-def _find_date_in_string_raising(string: str) -> str | None:
-    """
-    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
-    """
+def _find_date_in_string(string: str) -> str | None:
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
@@ -749,12 +688,10 @@ def _find_date_in_string_raising(string: str) -> str | None:
     )
 
     # template: March 9, 1908 | March5,1908 | May 11, 1906
-    all_months = "|".join(_months_dict)
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
 
     # template: 9 March 1908
-    all_months = "|".join(_months_dict)
     monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
     monthname_after_day = regex.search(monthname_after_day_regex, string)
 
@@ -827,19 +764,17 @@ def _find_english_BC_or_CE_date(
 
 def _from_english_BC_or_CE_range(
     string: str, range_operator_regex: str, bc_era_regex: str, ce_era_regex: str, eraless_date_regex: str
-) -> str:
+) -> str | None:
     split_result = regex.split(range_operator_regex, string)
     if len(split_result) != 2:
-        raise ValueError(
-            f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}"
-        )
+        return None
     start_raw, end_raw = split_result
     if regex.search(bc_era_regex, end_raw):
         end_era = "BC"
     elif regex.search(ce_era_regex, end_raw):
         end_era = "CE"
     else:
-        raise ValueError(f"Missing Era in date {string}")
+        return None
 
     if regex.search(bc_era_regex, start_raw):
         start_era = "BC"
@@ -849,9 +784,9 @@ def _from_english_BC_or_CE_range(
         start_era = end_era
 
     if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
-        raise ValueError(f"No start year found in date {string}")
+        return None
     if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
-        raise ValueError(f"No end year found in date {string}")
+        return None
 
     return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
 
@@ -885,12 +820,15 @@ def _find_french_bc_date(
     return None
 
 
-def _from_iso_date(iso_date: Match[str]) -> str:
+def _from_iso_date(iso_date: Match[str]) -> str | None:
     year = int(iso_date.group(1))
     month = int(iso_date.group(2))
     day = int(iso_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
 def _expand_2_digit_year(year: int) -> int:
@@ -903,7 +841,7 @@ def _expand_2_digit_year(year: int) -> int:
         return year
 
 
-def _from_eur_date_range(eur_date_range: Match[str]) -> str:
+def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     startday = int(eur_date_range.group(1))
     startmonth = int(eur_date_range.group(2)) if eur_date_range.group(2) else int(eur_date_range.group(5))
     startyear = int(eur_date_range.group(3)) if eur_date_range.group(3) else int(eur_date_range.group(6))
@@ -912,47 +850,62 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str:
     endmonth = int(eur_date_range.group(5))
     endyear = int(eur_date_range.group(6))
     endyear = _expand_2_digit_year(endyear)
-    startdate = datetime.date(startyear, startmonth, startday)
-    enddate = datetime.date(endyear, endmonth, endday)
+    try:
+        startdate = datetime.date(startyear, startmonth, startday)
+        enddate = datetime.date(endyear, endmonth, endday)
+    except ValueError:
+        return None
     if enddate < startdate:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
 
-def _from_eur_date(eur_date: Match[str]) -> str:
+def _from_eur_date(eur_date: Match[str]) -> str | None:
     startday = int(eur_date.group(1))
     startmonth = int(eur_date.group(2))
     startyear = int(eur_date.group(3))
     startyear = _expand_2_digit_year(startyear)
-    date = datetime.date(startyear, startmonth, startday)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(startyear, startmonth, startday)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_date(monthname_date: Match[str]) -> str:
+def _from_monthname_date(monthname_date: Match[str]) -> str | None:
     day = int(monthname_date.group(2))
     month = _months_dict[monthname_date.group(1)]
     year = int(monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_after_day(monthname_after_day: Match[str]) -> str:
+def _from_monthname_after_day(monthname_after_day: Match[str]) -> str | None:
     day = int(monthname_after_day.group(1))
     month = _months_dict[monthname_after_day.group(2)]
     year = int(monthname_after_day.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_german_monthname_date(german_monthname_date: Match[str]) -> str:
+def _from_german_monthname_date(german_monthname_date: Match[str]) -> str | None:
     day = int(german_monthname_date.group(1))
     month = _months_dict[german_monthname_date.group(2)]
     year = int(german_monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_year_range(year_range: Match[str]) -> str:
+def _from_year_range(year_range: Match[str]) -> str | None:
     startyear = int(year_range.group(1))
     endyear = int(year_range.group(2))
     if endyear // 10 == 0:
@@ -962,8 +915,17 @@ def _from_year_range(year_range: Match[str]) -> str:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
     if endyear <= startyear:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
+
+
+def _extract_already_parsed_date(string: str) -> str | None:
+    rgx_year = r"\d+(-\d{2}(-\d{2})?)?"
+    era_with_colon = r"(CE:|BC:)"
+    rgx = rf"(GREGORIAN|JULIAN|ISLAMIC):{era_with_colon}{rgx_year}:{era_with_colon}?{rgx_year}"
+    if match := regex.search(rgx, string):
+        return match.group(0)
+    return None
 
 
 def make_xsd_compatible_id(input_value: str | float | int) -> str:
@@ -991,7 +953,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         ```
     """
     if not is_nonempty_value_internal(input_value):
-        raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
+        raise_input_error(MessageInfo(f"The input '{input_value}' cannot be transformed to an xsd:ID"))
     # if the start of string is neither letter nor underscore, add an underscore
     res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
     # replace all illegal characters by underscore
@@ -1060,7 +1022,9 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         ```
     """
     if not isinstance(string, str):
-        raise InputError(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+        raise_input_error(
+            MessageInfo(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+        )
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
@@ -1099,15 +1063,12 @@ def create_non_empty_list_from_string(
     """
     lst = create_list_from_string(string, separator)
     if len(lst) == 0:
-        msg = "The input for this function must result in a non-empty list. Your input"
-        details = []
-        if resource_id:
-            details.append(f"resource with the ID '{resource_id}'")
-        if prop_name:
-            details.append(f"property '{prop_name}'")
-        details_msg = "for the " + " and ".join(details) + " " if details else ""
-        msg += " " + details_msg + "results in an empty list."
-        raise InputError(msg)
+        msg_info = MessageInfo(
+            message="The input for this function must result in a non-empty list. Your input results in an empty list.",
+            resource_id=resource_id,
+            prop_name=prop_name,
+        )
+        raise_input_error(msg_info)
     return lst
 
 
@@ -1137,6 +1098,150 @@ def clean_whitespaces_from_string(string: str) -> str:
     """
     cleaned = regex.sub(r"\s+", " ", string).strip()
     if len(cleaned) == 0:
-        msg = "The entered string is empty after all redundant whitespaces were removed."
-        warnings.warn(DspToolsUserWarning(msg))
+        emit_xmllib_input_warning(
+            MessageInfo(
+                "The entered string is empty after all redundant whitespaces were removed. An empty string is returned."
+            )
+        )
     return cleaned
+
+
+def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
+    """
+    Checks if a string contains a license, and returns it.
+    Returns None if no license was found.
+    The case (upper case/lower case) is ignored.
+
+    Look out: Your string should contain no more than 1 license.
+    If it contains more, there is no guarantee which one will be returned.
+
+    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    for details.
+
+    Args:
+        string: string to check
+
+    Returns:
+        `License` object or `None`
+
+    Examples:
+        ```python
+        result = xmllib.find_license_in_string("CC BY")
+        # result == LicenseRecommended.CC.BY
+        ```
+
+        ```python
+        result = xmllib.find_license_in_string("Creative Commons Developing Nations 2.0 Generic Deed")
+        # result == None
+        ```
+
+    Currently supported license formats:
+        - "AI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "KI" -> LicenseRecommended.DSP.AI_GENERATED
+        - "IA" -> LicenseRecommended.DSP.AI_GENERATED
+        - "public domain" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "gemeinfrei" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "frei von Urheberrechten" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "urheberrechtsbefreit" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "libre de droits" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "domaine public" -> LicenseRecommended.DSP.PUBLIC_DOMAIN
+        - "unknown" -> LicenseRecommended.DSP.UNKNOWN
+        - "unbekannt" -> LicenseRecommended.DSP.UNKNOWN
+        - "inconnu" -> LicenseRecommended.DSP.UNKNOWN
+        - "CC BY" -> LicenseRecommended.CC.BY
+        - "Creative Commons BY 4.0" -> LicenseRecommended.CC.BY
+        - "CC 0 1.0" -> LicenseOther.Public.CC_0_1_0
+        - "CC PDM 1.0" -> LicenseOther.Public.CC_PDM_1_0
+        - "BORIS Standard License" -> LicenseOther.Various.BORIS_STANDARD
+        - "LICENCE OUVERTE 2.0" -> LicenseOther.Various.FRANCE_OUVERTE
+    """
+    if lic := _get_already_parsed_license(string):
+        return lic
+
+    sep = r"[-_\p{Zs}]+"  # Zs = unicode category for space separator characters
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}0({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_0_1_0
+
+    if regex.search(rf"\b(Creative{sep}Commons|CC){sep}PDM({sep}1\.0)?\b", string, flags=regex.IGNORECASE):
+        return LicenseOther.Public.CC_PDM_1_0
+
+    if match := regex.search(
+        rf"\b(CC|Creative{sep}Commons)({sep}(BY|NC|ND|SA))*({sep}[\d\.]+)?\b", string, flags=regex.IGNORECASE
+    ):
+        return _find_cc_license(match.group(0))
+
+    if regex.search(r"\b(AI|IA|KI)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.AI_GENERATED
+
+    rgx_public_domain = (
+        rf"\b(public{sep}domain|gemeinfrei|frei{sep}von{sep}Urheberrechten|urheberrechtsbefreit|"
+        rf"libre{sep}de{sep}droits|domaine{sep}public)\b"
+    )
+    if regex.search(rgx_public_domain, string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.PUBLIC_DOMAIN
+
+    if regex.search(r"\b(unknown|unbekannt|inconnu)\b", string, flags=regex.IGNORECASE):
+        return LicenseRecommended.DSP.UNKNOWN
+
+    if regex.search(
+        rf"\b(BORIS|Bern{sep}Open{sep}Repository{sep}and{sep}Information{sep}System){sep}Standard{sep}License\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.BORIS_STANDARD
+
+    if regex.search(
+        rf"\b(France{sep})?Licence{sep}ouverte({sep}2\.0)?\b",
+        string,
+        flags=regex.IGNORECASE,
+    ):
+        return LicenseOther.Various.FRANCE_OUVERTE
+
+    return None
+
+
+def _find_cc_license(string: str) -> License | None:  # noqa: PLR0911 (too many return statements)
+    string = string.lower()
+    if "by" not in string:
+        return None
+    if any((string.count("by") > 1, string.count("nd") > 1, string.count("sa") > 1, string.count("nc") > 1)):
+        return None
+    has_nc = "nc" in string
+    has_nd = "nd" in string
+    has_sa = "sa" in string
+    if not any((has_nc, has_nd, has_sa)):
+        return LicenseRecommended.CC.BY
+    if not has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_ND
+    if not has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_SA
+    if has_nc and not has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC
+    if has_nc and has_nd and not has_sa:
+        return LicenseRecommended.CC.BY_NC_ND
+    if has_nc and not has_nd and has_sa:
+        return LicenseRecommended.CC.BY_NC_SA
+    return None
+
+
+def _get_already_parsed_license(string: str) -> License | None:
+    already_parsed_dict: dict[str, License] = {
+        r"http://rdfh\.ch/licenses/cc-by-4\.0": LicenseRecommended.CC.BY,
+        r"http://rdfh\.ch/licenses/cc-by-sa-4\.0": LicenseRecommended.CC.BY_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nc-4\.0": LicenseRecommended.CC.BY_NC,
+        r"http://rdfh\.ch/licenses/cc-by-nc-sa-4\.0": LicenseRecommended.CC.BY_NC_SA,
+        r"http://rdfh\.ch/licenses/cc-by-nd-4\.0": LicenseRecommended.CC.BY_ND,
+        r"http://rdfh\.ch/licenses/cc-by-nc-nd-4\.0": LicenseRecommended.CC.BY_NC_ND,
+        r"http://rdfh\.ch/licenses/ai-generated": LicenseRecommended.DSP.AI_GENERATED,
+        r"http://rdfh\.ch/licenses/unknown": LicenseRecommended.DSP.UNKNOWN,
+        r"http://rdfh\.ch/licenses/public-domain": LicenseRecommended.DSP.PUBLIC_DOMAIN,
+        r"http://rdfh\.ch/licenses/cc-0-1.0": LicenseOther.Public.CC_0_1_0,
+        r"http://rdfh\.ch/licenses/cc-pdm-1.0": LicenseOther.Public.CC_PDM_1_0,
+        r"http://rdfh\.ch/licenses/boris": LicenseOther.Various.BORIS_STANDARD,
+        r"http://rdfh\.ch/licenses/open-licence-2.0": LicenseOther.Various.FRANCE_OUVERTE,
+    }
+    for rgx, lic in already_parsed_dict.items():
+        if regex.search(rgx, string):
+            return lic
+    return None

@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 from rdflib import RDF
 from rdflib import SH
@@ -14,9 +16,26 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_l
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
+from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+def test_construct_property_shapes(res_and_props_with_simpletext):
+    res = construct_property_shapes(res_and_props_with_simpletext, [])
+    trip_counts = {
+        ONTO.ClassWithEverything: 4,
+        ONTO.testBoolean_PropShape: 4,
+        ONTO.testSimpleText_PropShape: 5,
+        ONTO.testDecimalSimpleText_PropShape: 4,
+    }
+    for shape, num_triples in trip_counts.items():
+        created_triples = list(res.triples((shape, None, None)))
+        assert len(created_triples) == num_triples
+
+    total_triples = sum(trip_counts.values())
+    assert len(res) == total_triples
 
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:

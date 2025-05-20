@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Iterable
 from typing import Protocol
 from urllib.parse import quote_plus
 
@@ -62,7 +62,11 @@ class ListClientLive:
         """
         if not self.list_info:
             self.list_info = _get_list_info_from_server(self.con, self.project_iri)
-        return dict(_get_node_tuples(self.list_info.lists))
+        lookup = dict(_get_node_tuples(self.list_info.lists))
+        # Enable referencing list node IRIs in the XML:
+        # add a reference of the list node IRIs to themselves (with empty list names)
+        lookup.update({("", v): v for v in lookup.values()})
+        return lookup
 
 
 def _get_node_tuples(lists: list[List]) -> Iterable[tuple[tuple[str, str], str]]:

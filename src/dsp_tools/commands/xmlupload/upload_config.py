@@ -8,6 +8,8 @@ from pathlib import Path
 import regex
 from loguru import logger
 
+from dsp_tools.cli.args import ValidationSeverity
+
 
 def _transform_server_url_to_foldername(server: str) -> str:
     """
@@ -49,6 +51,7 @@ class UploadConfig:
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
     interrupt_after: int | None = None
     skip_iiif_validation: bool = False
+    validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
 
     def with_server_info(
         self,

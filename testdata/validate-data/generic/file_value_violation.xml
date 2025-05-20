@@ -7,15 +7,30 @@
        default-ontology="onto">
 
     <authorship id="authorship_1">
-        <author>Author One</author>
+        <author>
+            Author One
+        </author>
     </authorship>
     <authorship id="authorship_id_with_newline">
         <author>Author&#10;Newline</author>
     </authorship>
 
-    <!-- 26 Violations -->
+    <!--
+    To be implemented.
+    This violation should automatically be found once the API implements the enabling of licenses per project.
+    Right now it will not appear on the results, because it references an existing but not enabled license.
+    -->
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="license_not_enabled">
+        <bitstream license="http://rdfh.ch/licenses/boris"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
 
-    <!-- 3 Legal Info Violations (not implemented) -->
+    <!-- 29 Violations -->
+
+    <!-- Legal Info Violations -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -28,14 +43,6 @@
         </bitstream>
     </resource>
 
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder=""
-                   authorship-id="authorship_1"
-        >this/is/filepath/file.zip
-        </bitstream>
-    </resource>
-
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="authorship_with_newline">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="Copy"
@@ -44,7 +51,13 @@
         </bitstream>
     </resource>
 
-    <!-- Legal Info Violations -->
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder=""
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
 
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_license">
         <bitstream license=""

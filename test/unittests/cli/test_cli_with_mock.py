@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -93,6 +94,11 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+    # Comparing the non-literal meaning of the ValidationSeverity Enum is always successful.
+    # Therefore, including it in the above assertion has no effect.
+    # We must compare the values of the enum to ensure that it was correctly called.
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.INFO.value
 
 
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
@@ -124,6 +130,48 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity warning".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+    )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.WARNING.value
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity error".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+    )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.ERROR.value
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload --interrupt-after=1 {file}".split()
@@ -144,15 +192,10 @@ def test_validate_data_default(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file}".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
-
-
-@patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_dev(validate_data: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file}".split()
-    entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -160,7 +203,10 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} --save-graphs".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=True)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=True, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -168,7 +214,27 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
-    validate_data.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss", save_graphs=False)
+    creds = ServerCredentials(
+        user="root@example.com",
+        password="test",
+        server="https://api.dasch.swiss",
+        dsp_ingest_url="https://ingest.dasch.swiss",
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
+
+
+@patch("dsp_tools.cli.call_action.validate_data")
+def test_validate_data_other_creds(validate_data: Mock) -> None:
+    file = "filename.xml"
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"validate-data {file} --server={server} --user {user} --password={password}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
+    )
+    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")

@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator
+from collections.abc import Iterator
 
 import pytest
 from _pytest.logging import caplog as _caplog  # noqa: F401 (imported but unused)

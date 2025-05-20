@@ -2,17 +2,18 @@ from __future__ import annotations
 
 from rdflib import XSD
 
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
@@ -31,15 +32,15 @@ TIME_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAs
 URI_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, XSD.anyURI)
 
 RDF_LITERAL_PROP_TYPE_MAPPER = {
-    IntermediaryBoolean: BOOLEAN_PROP_TYPE_INFO,
-    IntermediaryColor: COLOR_PROP_TYPE_INFO,
-    IntermediaryDecimal: DECIMAL_PROP_TYPE_INFO,
-    IntermediaryGeometry: GEOMETRY_PROP_TYPE_INFO,
-    IntermediaryGeoname: GEONAME_PROP_TYPE_INFO,
-    IntermediaryInt: INT_PROP_TYPE_INFO,
-    IntermediarySimpleText: SIMPLE_TEXT_PROP_TYPE_INFO,
-    IntermediaryTime: TIME_PROP_TYPE_INFO,
-    IntermediaryUri: URI_PROP_TYPE_INFO,
+    ProcessedBoolean: BOOLEAN_PROP_TYPE_INFO,
+    ProcessedColor: COLOR_PROP_TYPE_INFO,
+    ProcessedDecimal: DECIMAL_PROP_TYPE_INFO,
+    ProcessedGeometry: GEOMETRY_PROP_TYPE_INFO,
+    ProcessedGeoname: GEONAME_PROP_TYPE_INFO,
+    ProcessedInt: INT_PROP_TYPE_INFO,
+    ProcessedSimpleText: SIMPLE_TEXT_PROP_TYPE_INFO,
+    ProcessedTime: TIME_PROP_TYPE_INFO,
+    ProcessedUri: URI_PROP_TYPE_INFO,
 }
 
 # file values
@@ -50,3 +51,13 @@ MOVING_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.MovingImageFileValue, KNORA_
 STILL_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.StillImageFileValue, KNORA_API.hasStillImageFileValue, XSD.string)
 TEXT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.TextFileValue, KNORA_API.hasTextFileValue, XSD.string)
 IIIF_URI_VALUE = RDFPropTypeInfo(KNORA_API.StillImageExternalFileValue, KNORA_API.hasStillImageFileValue, XSD.anyURI)
+
+
+FILE_TYPE_TO_RDF_MAPPER = {
+    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
+}

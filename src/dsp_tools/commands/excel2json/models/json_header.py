@@ -25,6 +25,7 @@ class EmptyJsonHeader(JsonHeader):
                 "longname": "",
                 "descriptions": {"en": ""},
                 "keywords": [""],
+                "enabled_licenses": [""],
             },
         }
 
@@ -57,6 +58,7 @@ class Project:
     longname: str
     descriptions: Descriptions
     keywords: Keywords
+    licenses: Licenses
     users: Users | None
 
     def to_dict(self) -> dict[str, Any]:
@@ -66,6 +68,7 @@ class Project:
             "longname": self.longname,
             "descriptions": self.descriptions.to_dict(),
             "keywords": self.keywords.to_dict(),
+            "enabled_licenses": self.licenses.to_dict(),
         }
         if self.users:
             proj_dict["users"] = self.users.to_dict()
@@ -90,6 +93,14 @@ class Keywords:
 
     def to_dict(self) -> list[str]:
         return sorted(self.keywords)
+
+
+@dataclass
+class Licenses:
+    licenses: list[str]
+
+    def to_dict(self) -> list[str]:
+        return sorted(self.licenses)
 
 
 @dataclass

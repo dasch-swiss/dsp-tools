@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 14 Violations -->
+    <!-- 15 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -76,6 +76,17 @@
         <text-prop name=":testTextarea">
             <text encoding="utf8">
 
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- SimpleText may not have newlines -->
+    <resource label="With linebreaks" restype=":ClassWithEverything" id="simple_text_with_newlines">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">
+            This may not
+
+            have newlines
             </text>
         </text-prop>
     </resource>

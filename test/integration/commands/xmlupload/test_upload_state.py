@@ -2,8 +2,8 @@ import pickle
 from pathlib import Path
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -15,7 +15,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
     config = UploadConfig(diagnostics=DiagnosticsConfig(save_location=save_location))
     upload_state = UploadState(
         pending_resources=[
-            IntermediaryResource("id", "type", "label", None, [IntermediarySimpleText("Some text", "prop", None, None)])
+            ProcessedResource("id", "type", "label", None, [ProcessedSimpleText("Some text", "prop", None, None)])
         ],
         failed_uploads=[],
         iri_resolver=IriResolver({"foo": "bar"}),

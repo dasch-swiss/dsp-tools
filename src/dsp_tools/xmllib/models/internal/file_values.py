@@ -83,13 +83,13 @@ class Metadata:
                     value=author, res_id=resource_id, expected="string", field="authorship (bistream/iiif-uri)"
                 )
             fixed_authors_list = [str(x).strip() for x in fixed_authors]
-            fixed_authors_list = sorted(fixed_authors_list)
+            fixed_authors_list = tuple(sorted(fixed_authors_list))
         else:
             fixed_authors_list = None
         return cls(
             license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=fixed_authors_list,
             permissions=permissions,
         )
 

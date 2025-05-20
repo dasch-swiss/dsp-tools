@@ -44,7 +44,7 @@ class Metadata:
         permissions: Permissions,
         resource_id: str,
     ) -> Metadata:
-        if license and not isinstance(license, License):
+        if license is not None and not isinstance(license, License):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xmllib.License",
                 value=license,
@@ -58,14 +58,14 @@ class Metadata:
                 res_id=resource_id,
                 value_field="permissions (bistream/iiif-uri)",
             )
-        if copyright_holder:
+        if copyright_holder is not None:
             check_and_warn_potentially_empty_string(
                 value=copyright_holder,
                 res_id=resource_id,
                 expected="string",
                 field="copyright_holder (bistream/iiif-uri)",
             )
-        if authorship:
+        if authorship is not None:
             if len(authorship) == 0:
                 emit_xmllib_input_type_mismatch_warning(
                     expected_type="list of authorship strings",

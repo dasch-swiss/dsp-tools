@@ -850,9 +850,9 @@ def _from_iso_date(iso_date: Match[str]) -> str | None:
     day = int(iso_date.group(3))
     try:
         date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
 
 def _expand_2_digit_year(year: int) -> int:

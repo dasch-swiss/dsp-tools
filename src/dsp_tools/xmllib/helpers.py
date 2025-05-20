@@ -660,11 +660,19 @@ def _find_date_in_string(string: str) -> set[str]:
     remaining_string = _extract_already_parsed_date(remaining_string, results)
 
     remaining_string = _find_english_BC_or_CE_dates(
-        string=remaining_string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex, results=results
+        string=remaining_string,
+        lookbehind=lookbehind,
+        lookahead=lookahead,
+        range_operator_regex=range_operator_regex,
+        results=results,
     )
 
     remaining_string = _find_french_bc_dates(
-        string=remaining_string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex, results=results
+        string=remaining_string,
+        lookbehind=lookbehind,
+        lookahead=lookahead,
+        range_operator_regex=range_operator_regex,
+        results=results,
     )
 
     # template: 2021-01-01 | 2015_01_02
@@ -760,7 +768,8 @@ def _find_english_BC_or_CE_dates(
                 bc_era_regex=bc_era_regex,
                 ce_era_regex=ce_era_regex,
                 eraless_date_regex=eraless_date_regex,
-            ) for x in matchs
+            )
+            for x in matchs
         )
         remaining_string = _remove_used_spans(remaining_string, [x.span() for x in matchs])
 

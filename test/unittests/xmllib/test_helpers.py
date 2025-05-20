@@ -116,10 +116,15 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestFindDate:
-
     def test_find_date_in_string_accept_only_dash_as_range_delimiter(self) -> None:
-        assert find_date_in_string("01.01.1900:31.12.2000") == {"GREGORIAN:CE:1900-01-01:CE:1900-01-01", "GREGORIAN:CE:2000-12-31:CE:2000-12-31"}
-        assert find_date_in_string("01.01.1900 to 31.12.2000") == {"GREGORIAN:CE:1900-01-01:CE:1900-01-01", "GREGORIAN:CE:2000-12-31:CE:2000-12-31"}
+        assert find_date_in_string("01.01.1900:31.12.2000") == {
+            "GREGORIAN:CE:1900-01-01:CE:1900-01-01",
+            "GREGORIAN:CE:2000-12-31:CE:2000-12-31",
+        }
+        assert find_date_in_string("01.01.1900 to 31.12.2000") == {
+            "GREGORIAN:CE:1900-01-01:CE:1900-01-01",
+            "GREGORIAN:CE:2000-12-31:CE:2000-12-31",
+        }
         assert find_date_in_string("1900:2000") == {"GREGORIAN:CE:1900:CE:1900", "GREGORIAN:CE:2000:CE:2000"}
         assert find_date_in_string("1900 to 2000") == {"GREGORIAN:CE:1900:CE:1900", "GREGORIAN:CE:2000:CE:2000"}
 
@@ -261,7 +266,7 @@ class TestFindDate:
             ("x 20 BCE - 50 C.E. x", {"GREGORIAN:BC:20:CE:50"}),
         ],
     )
-    def test_find_date_in_string_bc(self, string: str, expected: str) -> None:
+    def test_find_date_in_string_bc(self, string: str, expected: set[str]) -> None:
         assert find_date_in_string(string) == expected
 
     def test_find_date_in_string_french_bc(self) -> None:
@@ -317,7 +322,7 @@ class TestFindDate:
     )
     def test_find_date_in_string_already_parsed(self, already_parsed: str) -> None:
         assert find_date_in_string(f"text {already_parsed} text") == {already_parsed}
-    
+
     def test_find_date_in_string_multiple(self) -> None:
         all_inputs = {
             "01.01.1900-31.12.2000": "GREGORIAN:CE:1900-01-01:CE:2000-12-31",

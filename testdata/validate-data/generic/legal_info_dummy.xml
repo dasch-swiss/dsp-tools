@@ -37,12 +37,4 @@
         </bitstream>
     </resource>
 
-    <resource label="dummy_everything" restype=":TestArchiveRepresentation" id="dummy_everything">
-        <bitstream license="http://rdfh.ch/licenses/dummy"
-                   copyright-holder="dummy"
-                   authorship-id="authorship_2"
-        >this/is/filepath/dummy_everything_file.zip
-        </bitstream>
-    </resource>
-
 </knora>

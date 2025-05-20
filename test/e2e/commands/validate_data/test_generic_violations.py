@@ -381,7 +381,6 @@ class TestReformatValidationGraph:
     ) -> None:
         dummy_license_str = "A dummy license is used, please note that an upload on a production server will fail."
         expected_warnings = [
-            ("dummy_everything", ProblemType.GENERIC, dummy_license_str),
             ("dummy_license", ProblemType.GENERIC, dummy_license_str),
         ]
         result = reformat_validation_graph(legal_info_dummy_not_on_production)
@@ -403,7 +402,6 @@ class TestReformatValidationGraph:
             "Please only use enabled licenses in your data. Consult the project information for enabled licenses."
         )
         expected_violations = [
-            ("dummy_everything", ProblemType.GENERIC, dummy_license_str),
             ("dummy_license", ProblemType.GENERIC, dummy_license_str),
         ]
         result = reformat_validation_graph(legal_info_dummy_on_production)

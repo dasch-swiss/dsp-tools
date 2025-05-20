@@ -106,11 +106,11 @@ def _add_shape_for_dummy_legal_info(severity: str, prop: str) -> Graph:
       sh:property    [
                         a           sh:PropertyShape ;
                         sh:path     knora-api:%(prop)s ;
-                        sh:datatype xsd:string ;
                         sh:pattern  "^(?!dummy$).*" ;
+                        sh:flags    "i" ;
                         sh:severity sh:%(severity)s ;
-                        sh:message  "The comment on the value must be a non-empty string" ;
+                        sh:message  "The value for this property is a dummy value, please note that the upload will fail on a production server." ;
                      ] .
-    """ % {"severity": severity, "prop": prop}  # noqa: UP031 (printf-string-formatting)
+    """ % {"severity": severity, "prop": prop}  # noqa: UP031,E501
     g.parse(data=shape, format="turtle")
     return g

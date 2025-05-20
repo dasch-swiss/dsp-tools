@@ -379,9 +379,10 @@ class TestReformatValidationGraph:
     def test_reformat_legal_info_dummy_not_on_production(
         self, legal_info_dummy_not_on_production: ValidationReportGraphs
     ) -> None:
+        dummy_license_str = "A dummy license is used, please note that an upload on a production server will fail."
         expected_warnings = [
-            ("dummy_everything", ProblemType.GENERIC),
-            ("dummy_license", ProblemType.GENERIC),
+            ("dummy_everything", ProblemType.GENERIC, dummy_license_str),
+            ("dummy_license", ProblemType.GENERIC, dummy_license_str),
         ]
         result = reformat_validation_graph(legal_info_dummy_not_on_production)
         sorted_problems = sort_user_problems(result)
@@ -393,13 +394,15 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+            assert one_result.message == expected_info[2]
 
     def test_reformat_legal_info_dummy_on_production(
         self, legal_info_dummy_on_production: ValidationReportGraphs
     ) -> None:
+        dummy_license_str = "A dummy license is used, please note that an upload on a production server will fail."
         expected_violations = [
-            ("dummy_everything", ProblemType.GENERIC),
-            ("dummy_license", ProblemType.GENERIC),
+            ("dummy_everything", ProblemType.GENERIC, dummy_license_str),
+            ("dummy_license", ProblemType.GENERIC, dummy_license_str),
         ]
         result = reformat_validation_graph(legal_info_dummy_on_production)
         sorted_problems = sort_user_problems(result)
@@ -411,6 +414,7 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_violations):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+            assert one_result.message == expected_info[2]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         expected_info_tuples = [

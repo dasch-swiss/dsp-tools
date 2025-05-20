@@ -607,10 +607,7 @@ def find_date_in_string(string: str) -> str | None:
         return already_parsed
     if not is_nonempty_value_internal(string):
         return None
-    try:
-        return _find_date_in_string_raising(string)
-    except ValueError:
-        return None
+    return _find_date_in_string(string)
 
 
 _months_dict = {
@@ -648,12 +645,10 @@ _months_dict = {
     "Dec": 12,
     "Dez": 12,
 }
+all_months = "|".join(_months_dict)
 
 
-def _find_date_in_string_raising(string: str) -> str | None:
-    """
-    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
-    """
+def _find_date_in_string(string: str) -> str | None:
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
@@ -693,12 +688,10 @@ def _find_date_in_string_raising(string: str) -> str | None:
     )
 
     # template: March 9, 1908 | March5,1908 | May 11, 1906
-    all_months = "|".join(_months_dict)
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
 
     # template: 9 March 1908
-    all_months = "|".join(_months_dict)
     monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
     monthname_after_day = regex.search(monthname_after_day_regex, string)
 
@@ -771,19 +764,17 @@ def _find_english_BC_or_CE_date(
 
 def _from_english_BC_or_CE_range(
     string: str, range_operator_regex: str, bc_era_regex: str, ce_era_regex: str, eraless_date_regex: str
-) -> str:
+) -> str | None:
     split_result = regex.split(range_operator_regex, string)
     if len(split_result) != 2:
-        raise ValueError(
-            f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}"
-        )
+        return None
     start_raw, end_raw = split_result
     if regex.search(bc_era_regex, end_raw):
         end_era = "BC"
     elif regex.search(ce_era_regex, end_raw):
         end_era = "CE"
     else:
-        raise ValueError(f"Missing Era in date {string}")
+        return None
 
     if regex.search(bc_era_regex, start_raw):
         start_era = "BC"
@@ -793,9 +784,9 @@ def _from_english_BC_or_CE_range(
         start_era = end_era
 
     if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
-        raise ValueError(f"No start year found in date {string}")
+        return None
     if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
-        raise ValueError(f"No end year found in date {string}")
+        return None
 
     return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
 
@@ -829,12 +820,15 @@ def _find_french_bc_date(
     return None
 
 
-def _from_iso_date(iso_date: Match[str]) -> str:
+def _from_iso_date(iso_date: Match[str]) -> str | None:
     year = int(iso_date.group(1))
     month = int(iso_date.group(2))
     day = int(iso_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
 def _expand_2_digit_year(year: int) -> int:
@@ -847,7 +841,7 @@ def _expand_2_digit_year(year: int) -> int:
         return year
 
 
-def _from_eur_date_range(eur_date_range: Match[str]) -> str:
+def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     startday = int(eur_date_range.group(1))
     startmonth = int(eur_date_range.group(2)) if eur_date_range.group(2) else int(eur_date_range.group(5))
     startyear = int(eur_date_range.group(3)) if eur_date_range.group(3) else int(eur_date_range.group(6))
@@ -856,47 +850,62 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str:
     endmonth = int(eur_date_range.group(5))
     endyear = int(eur_date_range.group(6))
     endyear = _expand_2_digit_year(endyear)
-    startdate = datetime.date(startyear, startmonth, startday)
-    enddate = datetime.date(endyear, endmonth, endday)
+    try:
+        startdate = datetime.date(startyear, startmonth, startday)
+        enddate = datetime.date(endyear, endmonth, endday)
+    except ValueError:
+        return None
     if enddate < startdate:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
 
-def _from_eur_date(eur_date: Match[str]) -> str:
+def _from_eur_date(eur_date: Match[str]) -> str | None:
     startday = int(eur_date.group(1))
     startmonth = int(eur_date.group(2))
     startyear = int(eur_date.group(3))
     startyear = _expand_2_digit_year(startyear)
-    date = datetime.date(startyear, startmonth, startday)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(startyear, startmonth, startday)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_date(monthname_date: Match[str]) -> str:
+def _from_monthname_date(monthname_date: Match[str]) -> str | None:
     day = int(monthname_date.group(2))
     month = _months_dict[monthname_date.group(1)]
     year = int(monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_after_day(monthname_after_day: Match[str]) -> str:
+def _from_monthname_after_day(monthname_after_day: Match[str]) -> str | None:
     day = int(monthname_after_day.group(1))
     month = _months_dict[monthname_after_day.group(2)]
     year = int(monthname_after_day.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_german_monthname_date(german_monthname_date: Match[str]) -> str:
+def _from_german_monthname_date(german_monthname_date: Match[str]) -> str | None:
     day = int(german_monthname_date.group(1))
     month = _months_dict[german_monthname_date.group(2)]
     year = int(german_monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_year_range(year_range: Match[str]) -> str:
+def _from_year_range(year_range: Match[str]) -> str | None:
     startyear = int(year_range.group(1))
     endyear = int(year_range.group(2))
     if endyear // 10 == 0:
@@ -906,7 +915,7 @@ def _from_year_range(year_range: Match[str]) -> str:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
     if endyear <= startyear:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 

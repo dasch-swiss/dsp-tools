@@ -29,11 +29,19 @@
         </bitstream>
     </resource>
 
-    <resource label="dummy_license" restype=":TestArchiveRepresentation" id="dummy_authorship">
+    <resource label="dummy_authorship" restype=":TestArchiveRepresentation" id="dummy_authorship">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_2"
         >this/is/filepath/dummy_authorship_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="dummy_everything" restype=":TestArchiveRepresentation" id="dummy_everything">
+        <bitstream license="http://rdfh.ch/licenses/dummy"
+                   copyright-holder="dummy"
+                   authorship-id="authorship_2"
+        >this/is/filepath/dummy_everything_file.zip
         </bitstream>
     </resource>
 

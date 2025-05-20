@@ -856,7 +856,7 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     except ValueError:
         return None
     if enddate < startdate:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
 
@@ -905,7 +905,7 @@ def _from_german_monthname_date(german_monthname_date: Match[str]) -> str | None
         return None
 
 
-def _from_year_range(year_range: Match[str]) -> str:
+def _from_year_range(year_range: Match[str]) -> str | None:
     startyear = int(year_range.group(1))
     endyear = int(year_range.group(2))
     if endyear // 10 == 0:
@@ -915,7 +915,7 @@ def _from_year_range(year_range: Match[str]) -> str:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
     if endyear <= startyear:
-        raise ValueError
+        return None
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 

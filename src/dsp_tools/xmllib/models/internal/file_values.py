@@ -21,7 +21,9 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 class AuthorshipLookup:
     lookup: dict[tuple[str, ...], str]
 
-    def get_id(self, authors: tuple[str, ...]) -> str:
+    def get_id(self, authors: tuple[str, ...] | None) -> str | None:
+        if authors is None:
+            return None
         if not (found := self.lookup.get(authors)):
             emit_xmllib_input_warning(MessageInfo(f"The input authors {authors} are not defined in the look-up."))
             return " / ".join([str(x) for x in authors])

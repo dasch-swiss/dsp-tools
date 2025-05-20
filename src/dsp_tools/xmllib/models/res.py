@@ -1539,9 +1539,9 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: License,
-        copyright_holder: str,
-        authorship: list[str],
+        license: License | None = None,
+        copyright_holder: str | None = None,
+        authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1607,9 +1607,9 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: License,
-        copyright_holder: str,
-        authorship: list[str],
+        license: License | None = None,
+        copyright_holder: str | None = None,
+        authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:

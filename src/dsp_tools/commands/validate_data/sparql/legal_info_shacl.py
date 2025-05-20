@@ -80,10 +80,10 @@ def _add_warn_for_dummy_license_shape() -> Graph:
                                       $this ?fileProp ?fileVal .
                                     
                                     }
-                                  """ ;
+                                  """ 
+                     ] ;
         sh:severity sh:Warning ;
-        sh:message  "A dummy license is used, please note that an upload on a production server will fail." ;
-                     ] .
+        sh:message  "A dummy license is used, please note that an upload on a production server will fail." .
     '''
     g.parse(data=shape, format="turtle")
     return g

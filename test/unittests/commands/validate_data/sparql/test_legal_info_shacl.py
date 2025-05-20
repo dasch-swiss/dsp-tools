@@ -66,3 +66,5 @@ def test_construct_legal_info_shapes_not_on_production():
     dummy_warning = list(result.predicate_objects(API_SHAPES.DummyLicense_Shape))
     assert dummy_warning
     assert next(result.objects(API_SHAPES.DummyLicense_Shape, SH.severity)) == SH.Warning
+    expected_message = Literal("A dummy license is used, please note that an upload on a production server will fail.")
+    assert next(result.objects(API_SHAPES.DummyLicense_Shape, SH.message)) == expected_message

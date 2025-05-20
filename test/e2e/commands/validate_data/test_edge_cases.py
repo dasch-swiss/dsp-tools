@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 # ruff: noqa: ARG001 Unused function argument
 
 CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
+IS_NOT_ON_PRODUCTION_SERVER = False
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +44,7 @@ def special_characters_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -52,7 +53,7 @@ def inheritance_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -61,14 +62,14 @@ def validate_ontology_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
     return validate_ontology(graphs.ontos, shacl_validator, CONFIG)
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert special_characters_correct.conforms
 
@@ -134,7 +135,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert inheritance_correct.conforms
 

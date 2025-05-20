@@ -18,12 +18,13 @@ def construct_legal_info_shapes(license_iris: EnabledLicenseIris, is_production_
     legal_graph = Graph()
     if not is_production_server:
         # This license is "allowed" if we are not on a production server.
-        license_iris = license_iris.enabled_licenses.append("http://rdfh.ch/licenses/dummy")
+        license_iris.enabled_licenses.append("http://rdfh.ch/licenses/dummy")
         # Even though we do not prohibit it we want to warn the user.
         # This warning is not necessary when we are on a production server
         # because omitting it from the permitted values is enough.
         legal_graph += _add_warn_for_dummy_license_shape()
     legal_graph += _construct_allowed_licenses_shape(license_iris)
+    return legal_graph
 
 
 def _construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
@@ -59,4 +60,38 @@ def _construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph
 
 
 def _add_warn_for_dummy_license_shape() -> Graph:
-    pass
+    g = Graph()
+    shape = '''
+    api-shapes:UniqueValue_Shape
+      a              sh:NodeShape ;
+      sh:targetClass knora-api:Resource ;
+      sh:sparql      [
+                       a          sh:SPARQLConstraint ;
+                       sh:select  """
+            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+            PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    
+                SELECT $this ?path ?value WHERE {
+    
+                    $this ?path ?valueClass .
+    
+                    {
+                        ?prop rdfs:subPropertyOf knora-api:valueHas .
+                        ?valueClass ?prop ?value .
+                    }
+                    UNION
+                    {
+                        ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
+                    }
+                    FILTER NOT EXISTS { ?valueClass knora-api:valueHasComment ?value }
+                }
+                GROUP BY $this ?path ?value
+                HAVING (COUNT(?value) > 1)
+                        """ ;
+                       sh:severity sh:Violation ;
+                       sh:message  "A resource may not have the same property and value more than one time." ;
+                     ] .
+    '''
+    g.parse(data=shape, format="turtle")
+    return g

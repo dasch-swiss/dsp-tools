@@ -9,6 +9,7 @@ from typing import Optional
 import regex
 import requests
 import yaml
+from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
@@ -33,6 +34,7 @@ class StackConfiguration:
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
     upload_test_data: bool = False
+    custom_host: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
@@ -45,6 +47,10 @@ class StackConfiguration:
             raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
+        if self.custom_host is not None and not regex.match(
+            r"^(((\d{1,3}\.){3}\d{1,3})|((([-\w_~]+\.)*([a-z]){2,})))$", self.custom_host
+        ):
+            raise InputError("Invalid format for custom host. Please, enter an IP or a domain name.")
 
 
 class StackHandler:
@@ -112,6 +118,40 @@ class StackHandler:
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
+
+    def _set_custom_host(self) -> None:
+        """
+        To ensure the frontend can communicate with a backend on a different server, the host in the environments
+        needs to be changed.
+        By design the IRIs match the host of the database.
+
+        This is done by overriding the environment variables in the docker-compose.yml and by replacing the
+        configuration for the frontend.
+        """
+
+        if self.__stack_configuration.custom_host is not None:
+            self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
+
+            docker_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/docker-compose.override-host.j2"
+            )
+            docker_template = Template(docker_template_path.read_text(encoding="utf-8"))
+            docker_template_rendered = docker_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
+            Path(self.__docker_path_of_user / "docker-compose.override-host.yml").write_text(
+                docker_template_rendered, encoding="utf-8"
+            )
+
+            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/dsp-app-config.override-host.j2"
+            )
+            dsp_app_config_template = Template(dsp_app_config_template_path.read_text(encoding="utf-8"))
+            dsp_app_config_rendered = dsp_app_config_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
+            Path(self.__docker_path_of_user / "dsp-app-config.json").unlink()
+            Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(
+                dsp_app_config_rendered, encoding="utf-8"
+            )
+        Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
+        Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -285,6 +325,8 @@ class StackHandler:
         if self.__stack_configuration.latest_dev_version:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
+        if self.__stack_configuration.custom_host is not None:
+            compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
@@ -355,6 +397,7 @@ class StackHandler:
         if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
             raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
+        self._set_custom_host()
         self._get_sipi_docker_config_lua()
         self._start_docker_containers()
         return True

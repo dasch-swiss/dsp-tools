@@ -166,6 +166,46 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
 
 
 @pytest.fixture
+def file_value_dummy_license(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+[ a sh:ValidationResult ;
+        sh:focusNode <http://data/value_dummy_license> ;
+        sh:resultMessage "A dummy license is used, please note that an upload on a production server will fail." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
+        sh:resultSeverity sh:Warning ;
+        sh:sourceConstraint [ ] ;
+        sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#DummyLicense_Shape> ;
+        sh:value <http://data/value_dummy_license> ] .
+    """
+    data_str = f"""{PREFIXES}
+    <http://data/dummy_license> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
+    rdfs:label "dummy_license"^^xsd:string ;
+    knora-api:hasArchiveFileValue <http://data/value_dummy_license> .
+    
+    <http://data/value_dummy_license> a knora-api:ArchiveFileValue ;
+        knora-api:fileValueHasFilename "this/is/filepath/dummy_license_file.zip"^^xsd:string ;
+        knora-api:hasAuthorship "Author One"^^xsd:string ;
+        knora-api:hasCopyrightHolder "DaSCH"^^xsd:string ;
+        knora-api:hasLicense <http://rdfh.ch/licenses/dummy> .
+    """
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.SPARQLConstraintComponent,
+        focus_node_iri=DATA.value_dummy_license,
+        focus_node_type=ONTO.ArchiveFileValue,
+        result_path=KNORA_API.hasLicense,
+        severity=SH.Warning,
+    )
+    return graphs, base_info
+
+
+@pytest.fixture
 def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [ a sh:ValidationResult ;

@@ -521,6 +521,19 @@ class TestQueryFileValueViolations:
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
 
+    def test_file_value_dummy_license(self, file_value_dummy_license: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = file_value_dummy_license
+        result = _query_one_without_detail(info, graphs, Graph())
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Warning
+        assert result.property == KNORA_API.hasLicense
+        assert result.message == Literal(
+            "A dummy license is used, please note that an upload on a production server will fail."
+        )
+
 
 class TestReformatResult:
     def test_min(self, extracted_min_card: ValidationResult) -> None:

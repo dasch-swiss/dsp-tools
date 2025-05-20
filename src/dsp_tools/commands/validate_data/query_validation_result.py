@@ -214,6 +214,15 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
         case SH.SPARQLConstraintComponent:
+            if base_info.result_path == KNORA_API.hasLicense:
+                return ValidationResult(
+                    violation_type=ViolationType.GENERIC,
+                    res_iri=base_info.focus_node_iri,
+                    res_class=base_info.focus_node_type,
+                    severity=base_info.severity,
+                    property=base_info.result_path,
+                    message=msg,
+                )
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
             return ValidationResult(

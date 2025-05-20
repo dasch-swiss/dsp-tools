@@ -216,7 +216,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             case _:
                 raise InputError(
                     f"The entered validation severity '{args.validation_severity}' "
-                    f"argument is not part of the allowed values: info, warning, error."
+                    f"is not part of the allowed values: info, warning, error."
                 )
         return xmlupload(
             input_file=Path(args.xmlfile),

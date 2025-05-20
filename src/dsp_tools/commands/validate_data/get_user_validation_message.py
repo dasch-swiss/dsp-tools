@@ -147,7 +147,7 @@ def _get_referenced_iri_info(problems: list[InputProblem]) -> MessageStrings:
         "If these resources do not exist in the database or are not of the expected resource type, then "
         "the xmlupload will fail. Below you find a list of the references."
     )
-    return MessageStrings(iri_msg, LIST_SEPARATOR + LIST_SEPARATOR.join(user_info_str))
+    return MessageStrings(iri_msg, "    - " + LIST_SEPARATOR.join(user_info_str))
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

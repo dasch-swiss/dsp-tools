@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 
 
@@ -18,3 +21,11 @@ class ValidateDataConfig:
 
     xml_file: Path
     save_graph_dir: Path | None
+    severity: ValidationSeverity
+
+
+@dataclass
+class ValidationSeverity(Enum):
+    ERROR = 3
+    WARNING = 2
+    INFO = 1

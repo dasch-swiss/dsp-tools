@@ -4,6 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -28,6 +29,7 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
@@ -204,11 +206,27 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         return success
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
+        match args.validation_severity:
+            case "info":
+                severity = ValidationSeverity.INFO
+            case "warning":
+                severity = ValidationSeverity.WARNING
+            case "error":
+                severity = ValidationSeverity.ERROR
+            case _:
+                raise InputError(
+                    f"The entered validation severity '{args.validation_severity}' "
+                    f"is not part of the allowed values: info, warning, error."
+                )
         return xmlupload(
             input_file=Path(args.xmlfile),
             creds=_get_creds(args),
             imgdir=args.imgdir,
-            config=UploadConfig(interrupt_after=interrupt_after, skip_iiif_validation=args.no_iiif_uri_validation),
+            config=UploadConfig(
+                interrupt_after=interrupt_after,
+                skip_iiif_validation=args.no_iiif_uri_validation,
+                validation_severity=severity,
+            ),
         )
 
 

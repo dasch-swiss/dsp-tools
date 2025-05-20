@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -93,6 +94,11 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+    # Comparing the non-literal meaning of the ValidationSeverity Enum is always successful.
+    # Therefore, including it in the above assertion has no effect.
+    # We must compare the values of the enum to ensure that it was correctly called.
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.INFO.value
 
 
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
@@ -121,6 +127,48 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=True),
     )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity warning".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+    )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.WARNING.value
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --validation-severity error".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+    )
+    called_config = xmlupload.call_args.kwargs["config"]
+    assert called_config.validation_severity.value == ValidationSeverity.ERROR.value
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")

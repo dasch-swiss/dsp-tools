@@ -9,6 +9,7 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
@@ -49,6 +50,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
+NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
 def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
@@ -67,7 +69,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir)
+    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
@@ -77,11 +79,9 @@ def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
     shortcode: str,
-    input_filepath: Path,
+    config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    # The save directory is still relevant in case unexpected violations are found.
-    config = ValidateDataConfig(input_filepath, None)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
         parsed_resources, authorship_lookup, auth, shortcode
     )
@@ -109,8 +109,8 @@ def _validate_data(
         return False
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
-        logger.info("Validation passed.")
-        print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
+        logger.info("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
@@ -210,12 +210,15 @@ def _print_shacl_validation_violation_message(
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         print(messages.violations.message_body)
-    if messages.warnings:
+    else:
+        logger.info("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+    if messages.warnings and config.severity.value <= 2:
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         print(messages.warnings.message_body)
-    if messages.infos:
+    if messages.infos and config.severity.value == 1:
         logger.info(messages.infos.message_header, messages.infos.message_body)
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)

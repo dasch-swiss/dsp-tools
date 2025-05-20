@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
@@ -21,7 +22,7 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), None)
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
 
 
 @pytest.fixture(scope="module")

@@ -6,6 +6,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
@@ -75,7 +76,7 @@ def ingest_xmlupload(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         shortcode=shortcode,
-        input_filepath=xml_file,
+        config=ValidateDataConfig(xml_file, save_graph_dir=None, severity=config.validation_severity),
         auth=auth,
     )
     if not validation_passed:

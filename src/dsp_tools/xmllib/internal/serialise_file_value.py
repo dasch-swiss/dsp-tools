@@ -45,13 +45,13 @@ def _serialise_file_value(value: AbstractFileValue, authorship_id: str | None, t
 
 
 def _serialise_metadata(metadata: Metadata, authorship_id: str | None) -> dict[str, str]:
-    attribs = {
-        "license": str(metadata.license),
-        "copyright-holder": metadata.copyright_holder,
-        # the authorship that is contained in the metadata is the raw form, but we need its ID
-        "authorship-id": authorship_id,
-    }
-    attribs = {k: v for k, v in attribs if v}
+    attribs = {}
+    if metadata.license:
+        attribs["license"] = str(metadata.license)
+    if metadata.copyright_holder:
+        attribs["copyright-holder"] = metadata.copyright_holder
+    if authorship_id:
+        attribs["authorship-id"] = authorship_id
     if metadata.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
         attribs["permissions"] = metadata.permissions.value
     return attribs

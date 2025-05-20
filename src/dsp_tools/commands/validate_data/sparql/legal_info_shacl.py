@@ -62,36 +62,24 @@ def _construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph
 def _add_warn_for_dummy_license_shape() -> Graph:
     g = Graph()
     shape = '''
-    api-shapes:UniqueValue_Shape
+    api-shapes:DummyLicense_Shape
       a              sh:NodeShape ;
-      sh:targetClass knora-api:Resource ;
       sh:sparql      [
                        a          sh:SPARQLConstraint ;
                        sh:select  """
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-            PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
-    
-                SELECT $this ?path ?value WHERE {
-    
-                    $this ?path ?valueClass .
-    
-                    {
-                        ?prop rdfs:subPropertyOf knora-api:valueHas .
-                        ?valueClass ?prop ?value .
-                    }
-                    UNION
-                    {
-                        ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
-                    }
-                    FILTER NOT EXISTS { ?valueClass knora-api:valueHasComment ?value }
-                }
-                GROUP BY $this ?path ?value
-                HAVING (COUNT(?value) > 1)
+                            PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+                            
+                            SELECT $this WHERE {
+                                
+                              ?fileVal a knora-api:FileValue ;
+                                       knora-api:hasLicense <http://rdfh.ch/licenses/dummy> .
+                              $this ?fileProp ?fileVal .
+                            
+                            }
                         """ ;
-                       sh:severity sh:Violation ;
-                       sh:message  "A resource may not have the same property and value more than one time." ;
+                       sh:severity sh:Warning ;
+                       sh:message  "A dummy license is used, please note that an upload on a production server will fail." ;
                      ] .
-    '''
+    '''  # noqa: E501 Line too long
     g.parse(data=shape, format="turtle")
     return g

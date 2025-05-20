@@ -587,17 +587,17 @@ def find_date_in_string(string: str) -> set[str]:
     Examples:
         ```python
         result = xmllib.find_date_in_string("1849/1850")
-        # result == ["GREGORIAN:CE:1849:CE:1850"]
+        # result == {"GREGORIAN:CE:1849:CE:1850"}
         ```
 
         ```python
         result = xmllib.find_date_in_string("not a valid date")
-        # result == []
+        # result == {}
         ```
 
         ```python
         result = xmllib.find_date_in_string("first date: 2024. Second: 2025.")
-        # result == ["GREGORIAN:CE:2024:CE:2024", "GREGORIAN:CE:2025:CE:2025"]
+        # result == {"GREGORIAN:CE:2024:CE:2024", "GREGORIAN:CE:2025:CE:2025"}
         ```
     """
 

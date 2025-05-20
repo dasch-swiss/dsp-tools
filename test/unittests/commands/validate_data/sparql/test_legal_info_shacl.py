@@ -7,6 +7,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.sparql.legal_info_shacl import _construct_allowed_licenses_shape
+from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_legal_info_shapes
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
@@ -48,3 +49,20 @@ def test_construct_allowed_licenses_shape_no_license():
     expected_msg = "You are only allowed to reference enabled licenses. No licenses are enabled for this project."
     assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg)
     assert next(result.objects(prop_shape, SH.severity)) == SH.Violation
+
+
+def test_construct_legal_info_shapes_on_production():
+    result = construct_legal_info_shapes(EnabledLicenseIris(["http://rdfh.ch/1"]), True)
+    dummy_found = list(result.subjects(object=URIRef("http://rdfh.ch/licenses/dummy")))
+    assert not dummy_found
+    dummy_warning = list(result.predicate_objects(API_SHAPES.DummyLicense_Shape))
+    assert not dummy_warning
+
+
+def test_construct_legal_info_shapes_not_on_production():
+    result = construct_legal_info_shapes(EnabledLicenseIris(["http://rdfh.ch/1"]), False)
+    dummy_found = list(result.subjects(object=URIRef("http://rdfh.ch/licenses/dummy")))
+    assert dummy_found
+    dummy_warning = list(result.predicate_objects(API_SHAPES.DummyLicense_Shape))
+    assert dummy_warning
+    assert next(result.objects(API_SHAPES.DummyLicense_Shape, SH.severity)) == SH.Warning

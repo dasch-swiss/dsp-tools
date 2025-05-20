@@ -62,24 +62,28 @@ def _construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph
 def _add_warn_for_dummy_license_shape() -> Graph:
     g = Graph()
     shape = '''
+    @prefix sh:         <http://www.w3.org/ns/shacl#> .
+    @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+    @prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+    
     api-shapes:DummyLicense_Shape
-      a              sh:NodeShape ;
-      sh:sparql      [
+        a              sh:NodeShape ;
+        sh:sparql      [
                        a          sh:SPARQLConstraint ;
                        sh:select  """
-                            PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-                            
-                            SELECT $this WHERE {
-                                
-                              ?fileVal a knora-api:FileValue ;
-                                       knora-api:hasLicense <http://rdfh.ch/licenses/dummy> .
-                              $this ?fileProp ?fileVal .
-                            
-                            }
-                        """ ;
-                       sh:severity sh:Warning ;
-                       sh:message  "A dummy license is used, please note that an upload on a production server will fail." ;
+                                    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+                                    
+                                    SELECT $this WHERE {
+                                        
+                                      ?fileVal a knora-api:FileValue ;
+                                               knora-api:hasLicense <http://rdfh.ch/licenses/dummy> .
+                                      $this ?fileProp ?fileVal .
+                                    
+                                    }
+                                  """ ;
+        sh:severity sh:Warning ;
+        sh:message  "A dummy license is used, please note that an upload on a production server will fail." ;
                      ] .
-    '''  # noqa: E501 Line too long
+    '''
     g.parse(data=shape, format="turtle")
     return g

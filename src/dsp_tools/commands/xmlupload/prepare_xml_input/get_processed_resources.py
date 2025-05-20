@@ -133,18 +133,7 @@ def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups)
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
-    predefined_licenses = [
-        "http://rdfh.ch/licenses/cc-by-4.0",
-        "http://rdfh.ch/licenses/cc-by-sa-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-sa-4.0",
-        "http://rdfh.ch/licenses/cc-by-nd-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-nd-4.0",
-        "http://rdfh.ch/licenses/ai-generated",
-        "http://rdfh.ch/licenses/unknown",
-        "http://rdfh.ch/licenses/public-domain",
-    ]
-    if file_metadata.license_iri and file_metadata.license_iri not in predefined_licenses:
+    if file_metadata.license_iri and not file_metadata.license_iri.startswith("http://rdfh.ch/licenses/"):
         raise InputError(
             f"The license '{file_metadata.license_iri}' used for an image or iiif-uri is unknown. "
             f"See documentation for accepted pre-defined licenses."

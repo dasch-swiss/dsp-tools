@@ -9,6 +9,10 @@ import pytest
 from rdflib import BNode
 from rdflib import URIRef
 
+from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -26,10 +30,19 @@ from dsp_tools.error.custom_warnings import DspToolsUserInfo
 # ruff: noqa: ARG001 Unused function argument
 
 
+CONFIG = ValidateDataConfig(Path(), None)
+
+
 @pytest.fixture(scope="module")
-def unknown_classes_graphs(create_generic_project, api_url: str) -> tuple[RDFGraphs, set[str]]:
+def authentication(creds: ServerCredentials) -> AuthenticationClient:
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    return auth
+
+
+@pytest.fixture(scope="module")
+def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(api_url, file)
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
     return graphs, used_iris
 
 
@@ -43,65 +56,67 @@ def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGra
 
 @pytest.fixture(scope="module")
 def unique_value_violation(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def file_value_violation(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def cardinality_violation(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
-def content_violation(create_generic_project, api_url: str, shacl_validator: ShaclValidator) -> ValidationReportGraphs:
+def content_violation(
+    create_generic_project, authentication, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def value_type_violation(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
     with pytest.warns(DspToolsUserInfo, match=match):
-        graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+        graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def every_violation_combination_once(
-    create_generic_project, api_url: str, shacl_validator: ShaclValidator
+    create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(api_url, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
 def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
@@ -319,16 +334,16 @@ class TestReformatValidationGraph:
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
+        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
-        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]

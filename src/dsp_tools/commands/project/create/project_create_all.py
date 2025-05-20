@@ -195,6 +195,7 @@ def _create_project_on_server(
         longname=project_definition.longname,
         description=LangString(project_definition.descriptions),  # type: ignore[arg-type]
         keywords=set(project_definition.keywords) if project_definition.keywords else None,
+        enabled_licenses=set(project_definition.enabled_licenses) if project_definition.enabled_licenses else None,
         selfjoin=False,
         status=True,
     )

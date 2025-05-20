@@ -87,6 +87,7 @@ class Project(Model):
     _description: LangString
     _keywords: set[str]
     _ontologies: set[str]
+    _enabled_licenses: set[str]
     _selfjoin: bool
     _status: bool
     _logo: Optional[str]
@@ -103,6 +104,7 @@ class Project(Model):
         description: LangString = None,
         keywords: Optional[set[str]] = None,
         ontologies: Optional[set[str]] = None,
+        enabled_licenses: Optional[set[str]] = None,
         selfjoin: Optional[bool] = None,
         status: Optional[bool] = None,
         logo: Optional[str] = None,
@@ -118,6 +120,7 @@ class Project(Model):
         :param description: LangString instance containing the description [required for CREATE]
         :param keywords: Set of keywords [required for CREATE]
         :param ontologies: Set of ontologies that belong to this project [optional]
+        :param enabled_licenses: Set of enabled licenses [optional]
         :param selfjoin: Allow selfjoin [required for CREATE]
         :param status: Status of project (active if True) [required for CREATE]
         :param logo: Path to logo image file [optional] NOT YET USED
@@ -132,6 +135,7 @@ class Project(Model):
         if not isinstance(ontologies, set) and ontologies is not None:
             raise BaseError("Ontologies must be a set of strings or None!")
         self._ontologies = ontologies
+        self._enabled_licenses = enabled_licenses or set()
         self._selfjoin = selfjoin
         self._status = status
         self._logo = logo
@@ -259,6 +263,7 @@ class Project(Model):
         ontologies = set(json_obj.get("ontologies"))
         if ontologies is None:
             raise BaseError("ontologies are missing")
+        enabled_licenses = json_obj.get("enabled_licenses", set())
         selfjoin = json_obj.get("selfjoin")
         if selfjoin is None:
             raise BaseError("Selfjoin is missing")
@@ -275,6 +280,7 @@ class Project(Model):
             description=description,
             keywords=keywords,
             ontologies=ontologies,
+            enabled_licenses=enabled_licenses,
             selfjoin=selfjoin,
             status=status,
             logo=logo,
@@ -287,6 +293,7 @@ class Project(Model):
             "longname": self._longname,
             "descriptions": self._description.createDefinitionFileObj(),
             "keywords": list(self._keywords),
+            "enabled_licenses": list(self._enabled_licenses),
         }
 
     def create(self) -> Project:
@@ -315,6 +322,8 @@ class Project(Model):
         tmp["description"] = self._description.toJsonObj()
         if self._keywords is not None and len(self._keywords) > 0:
             tmp["keywords"] = self._keywords
+        if self._enabled_licenses:
+            tmp["enabled_licenses"] = list(self._enabled_licenses)
         if self._selfjoin is None:
             raise BaseError("selfjoin must be defined (True or False!")
         tmp["selfjoin"] = self._selfjoin

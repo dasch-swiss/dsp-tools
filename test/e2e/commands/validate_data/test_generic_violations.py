@@ -75,6 +75,24 @@ def file_value_violation(
 
 
 @pytest.fixture(scope="module")
+def legal_info_dummy_not_on_production(
+    create_generic_project, authentication, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/legal_info_dummy.xml")
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, IS_NOT_ON_PRODUCTION_SERVER)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
+
+
+@pytest.fixture(scope="module")
+def legal_info_dummy_on_production(
+    create_generic_project, authentication, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/legal_info_dummy.xml")
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, True)
+    return _get_validation_result(graphs, shacl_validator, CONFIG)
+
+
+@pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
@@ -274,6 +292,14 @@ def test_file_value_cardinality_violation(file_value_violation: ValidationReport
     assert not file_value_violation.conforms
 
 
+def test_legal_info_dummy_not_on_production(legal_info_dummy_not_on_production: ValidationReportGraphs) -> None:
+    assert legal_info_dummy_not_on_production.conforms
+
+
+def test_legal_info_dummy_on_production(legal_info_dummy_on_production: ValidationReportGraphs) -> None:
+    assert not legal_info_dummy_on_production.conforms
+
+
 def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) -> None:
     assert not dsp_inbuilt_violation.conforms
 
@@ -347,6 +373,44 @@ class TestReformatValidationGraph:
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+
+    def test_reformat_legal_info_dummy_not_on_production(
+        self, legal_info_dummy_not_on_production: ValidationReportGraphs
+    ) -> None:
+        expected_warnings = [
+            ("dummy_authorship", ProblemType.GENERIC),
+            ("dummy_copyright", ProblemType.GENERIC),
+            ("dummy_license", ProblemType.GENERIC),
+        ]
+        result = reformat_validation_graph(legal_info_dummy_not_on_production)
+        sorted_problems = sort_user_problems(result)
+        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+        assert not sorted_problems.unique_violations
+        assert not sorted_problems.unexpected_shacl_validation_components
+        assert not sorted_problems.user_info
+        assert len(alphabetically_sorted_warnings) == expected_warnings
+        for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_warnings):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+
+    def test_reformat_legal_info_dummy_on_production(
+        self, legal_info_dummy_on_production: ValidationReportGraphs
+    ) -> None:
+        expected_violations = [
+            ("dummy_authorship", ProblemType.GENERIC),
+            ("dummy_copyright", ProblemType.GENERIC),
+            ("dummy_license", ProblemType.GENERIC),
+        ]
+        result = reformat_validation_graph(legal_info_dummy_on_production)
+        sorted_problems = sort_user_problems(result)
+        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        assert not sorted_problems.user_warnings
+        assert not sorted_problems.unexpected_shacl_validation_components
+        assert not sorted_problems.user_info
+        assert len(alphabetically_sorted_violations) == expected_violations
+        for one_result, expected_info in zip(alphabetically_sorted_violations, expected_violations):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 

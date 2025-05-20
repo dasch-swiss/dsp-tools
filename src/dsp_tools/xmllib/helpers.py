@@ -535,12 +535,11 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def find_date_in_string(string: str) -> str | None:
+def find_date_in_string(string: str) -> set[str]:
     """
-    Checks if a string contains a date value (single date, or date range),
-    and returns the first found date as DSP-formatted string.
-    Once a date/date range has been found, subsequent dates/date ranges are ignored.
-    Returns None if no date was found.
+    Checks if a string contains date values (single dates, or date ranges),
+    and return all found dates as set of DSP-formatted strings.
+    Returns an empty set if no date was found.
     [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
@@ -583,30 +582,28 @@ def find_date_in_string(string: str) -> str | None:
         string: string to check
 
     Returns:
-        DSP-formatted date string, or None
+        (possibly empty) set of DSP-formatted date strings
 
     Examples:
         ```python
         result = xmllib.find_date_in_string("1849/1850")
-        # result == "GREGORIAN:CE:1849:CE:1850"
+        # result == {"GREGORIAN:CE:1849:CE:1850"}
         ```
 
         ```python
         result = xmllib.find_date_in_string("not a valid date")
-        # result == None
+        # result == {}
         ```
 
         ```python
-        result = xmllib.find_date_in_string("first date: 2024. Second is ignored: 2025.")
-        # result == "GREGORIAN:CE:2024:CE:2024"
+        result = xmllib.find_date_in_string("first date: 2024. Second: 2025.")
+        # result == {"GREGORIAN:CE:2024:CE:2024", "GREGORIAN:CE:2025:CE:2025"}
         ```
     """
 
-    # sanitise input, just in case that the method was called on an empty or N/A cell
-    if already_parsed := _extract_already_parsed_date(string):
-        return already_parsed
+    # sanitise input, just in case that the function was called on an empty or N/A cell
     if not is_nonempty_value_internal(string):
-        return None
+        return set()
     return _find_date_in_string(string)
 
 
@@ -648,7 +645,7 @@ _months_dict = {
 all_months = "|".join(_months_dict)
 
 
-def _find_date_in_string(string: str) -> str | None:
+def _find_date_in_string(string: str) -> set[str]:
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
@@ -658,18 +655,32 @@ def _find_date_in_string(string: str) -> str | None:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    if english_bc_or_ce_date := _find_english_BC_or_CE_date(
-        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
-    ):
-        return english_bc_or_ce_date
+    remaining_string = string
+    results: set[str | None] = set()
 
-    if french_bc_date := _find_french_bc_date(
-        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
-    ):
-        return french_bc_date
+    remaining_string = _extract_already_parsed_date(remaining_string, results)
+
+    remaining_string = _find_english_BC_or_CE_dates(
+        string=remaining_string,
+        lookbehind=lookbehind,
+        lookahead=lookahead,
+        range_operator_regex=range_operator_regex,
+        results=results,
+    )
+
+    remaining_string = _find_french_bc_dates(
+        string=remaining_string,
+        lookbehind=lookbehind,
+        lookahead=lookahead,
+        range_operator_regex=range_operator_regex,
+        results=results,
+    )
 
     # template: 2021-01-01 | 2015_01_02
-    iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    iso_dates_regex = rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}"
+    if iso_dates := list(regex.finditer(iso_dates_regex, remaining_string)):
+        results.update(_from_iso_date(x) for x in iso_dates)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in iso_dates])
 
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
@@ -678,60 +689,61 @@ def _find_date_in_string(string: str) -> str | None:
         rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}"
         rf"{lookahead}"
     )
-    eur_date_range = regex.search(eur_date_range_regex, string)
+    if eur_date_ranges := list(regex.finditer(eur_date_range_regex, remaining_string)):
+        results.update(_from_eur_date_range(x) for x in eur_date_ranges)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in eur_date_ranges])
 
     # template: 1.4.2021 | 5/11/2021
     eur_date_regex = rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}{lookahead}"
-    eur_date = regex.search(
-        eur_date_regex,
-        string,
-    )
+    if eur_dates := list(regex.finditer(eur_date_regex, remaining_string)):
+        results.update(_from_eur_date(x) for x in eur_dates)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in eur_dates])
 
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
-    monthname_date = regex.search(monthname_date_regex, string)
+    if monthname_dates := list(regex.finditer(monthname_date_regex, remaining_string)):
+        results.update(_from_monthname_date(x) for x in monthname_dates)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in monthname_dates])
 
     # template: 9 March 1908
     monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
-    monthname_after_day = regex.search(monthname_after_day_regex, string)
+    if monthname_after_days := list(regex.finditer(monthname_after_day_regex, remaining_string)):
+        results.update(_from_monthname_after_day(x) for x in monthname_after_days)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in monthname_after_days])
 
     # template: 26. Januar 1993 | 26. Jan. 1993 | 26. Jan 1993
     german_monthname_date_regex = rf"{lookbehind}{day_regex}\.? ?({all_months})\.? ?{year_regex}{lookahead}"
-    german_monthname_date = regex.search(german_monthname_date_regex, string)
+    if german_monthname_dates := list(regex.finditer(german_monthname_date_regex, remaining_string)):
+        results.update(_from_german_monthname_date(x) for x in german_monthname_dates)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in german_monthname_dates])
 
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
+    if year_ranges := list(regex.finditer(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, remaining_string)):
+        results.update(_from_year_range(x) for x in year_ranges)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in year_ranges])
 
     # template: 1907
-    year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
+    if year_onlies := list(regex.finditer(rf"{lookbehind}{year_regex}{lookahead}", remaining_string)):
+        results.update(f"GREGORIAN:CE:{int(x.group(0))}:CE:{int(x.group(0))}" for x in year_onlies)
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in year_onlies])
 
-    res: str | None = None
-    if iso_date:
-        res = _from_iso_date(iso_date)
-    elif eur_date_range:
-        res = _from_eur_date_range(eur_date_range)
-    elif eur_date:
-        res = _from_eur_date(eur_date)
-    elif monthname_date:
-        res = _from_monthname_date(monthname_date)
-    elif monthname_after_day:
-        res = _from_monthname_after_day(monthname_after_day)
-    elif german_monthname_date:
-        res = _from_german_monthname_date(german_monthname_date)
-    elif year_range:
-        res = _from_year_range(year_range)
-    elif year_only:
-        year = int(year_only.group(0))
-        res = f"GREGORIAN:CE:{year}:CE:{year}"
-    return res
+    return {x for x in results if x}
 
 
-def _find_english_BC_or_CE_date(
+def _remove_used_spans(string: str, spans: list[tuple[int, int]]) -> str:
+    """Once a regex has matched parts of the original string, remove these parts, so that they're not matched again."""
+    for start, end in reversed(spans):
+        string = string[:start] + string[end:]
+    return string
+
+
+def _find_english_BC_or_CE_dates(
     string: str,
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
-) -> str | None:
+    results: set[str | None],
+) -> str:
     eraless_date_regex = r"(\d+)"
     bc_era_regex = r"(?:BC|BCE|B\.C\.|B\.C\.E\.)"
     bc_date_regex = rf"(?:{eraless_date_regex} ?{bc_era_regex})"
@@ -739,27 +751,37 @@ def _find_english_BC_or_CE_date(
     ce_date_regex = rf"(?:{eraless_date_regex} ?{ce_era_regex})"
     bc_or_ce_date_regex = rf"(?:{bc_date_regex}|{ce_date_regex})"
 
+    remaining_string = string
+    results_new: set[str | None] = set()
+
     range_regex = (
         rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex})"
         rf"{range_operator_regex}"
         rf"{bc_or_ce_date_regex}{lookahead}"
     )
-    if match := regex.search(range_regex, string):
-        return _from_english_BC_or_CE_range(
-            string=string,
-            range_operator_regex=range_operator_regex,
-            bc_era_regex=bc_era_regex,
-            ce_era_regex=ce_era_regex,
-            eraless_date_regex=eraless_date_regex,
+    if matchs := list(regex.finditer(range_regex, remaining_string)):
+        results_new.update(
+            _from_english_BC_or_CE_range(
+                string=x.group(0),
+                range_operator_regex=range_operator_regex,
+                bc_era_regex=bc_era_regex,
+                ce_era_regex=ce_era_regex,
+                eraless_date_regex=eraless_date_regex,
+            )
+            for x in matchs
         )
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in matchs])
 
-    if match := regex.search(rf"{lookbehind}{bc_date_regex}{lookahead}", string):
-        return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"
+    if matchs := list(regex.finditer(rf"{lookbehind}{bc_date_regex}{lookahead}", remaining_string)):
+        results_new.update({f"GREGORIAN:BC:{x.group(1)}:BC:{x.group(1)}" for x in matchs})
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in matchs])
 
-    if match := regex.search(rf"{lookbehind}{ce_date_regex}{lookahead}", string):
-        return f"GREGORIAN:CE:{match.group(1)}:CE:{match.group(1)}"
+    if matchs := list(regex.finditer(rf"{lookbehind}{ce_date_regex}{lookahead}", remaining_string)):
+        results_new.update({f"GREGORIAN:CE:{x.group(1)}:CE:{x.group(1)}" for x in matchs})
+        remaining_string = _remove_used_spans(remaining_string, [x.span() for x in matchs])
 
-    return None
+    results.update({x for x in results_new if x})
+    return remaining_string
 
 
 def _from_english_BC_or_CE_range(
@@ -791,33 +813,35 @@ def _from_english_BC_or_CE_range(
     return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
 
 
-def _find_french_bc_date(
+def _find_french_bc_dates(
     string: str,
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
-) -> str | None:
+    results: set[str | None],
+) -> str:
+    remaining_string = string
+    results_new: set[str | None] = set()
     french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
-    if not regex.search(french_bc_regex, string):
-        return None
 
     year_regex = r"\d{1,5}"
     year_range_regex = rf"{lookbehind}({year_regex}){range_operator_regex}({year_regex}) {french_bc_regex}{lookahead}"
-    year_range = regex.search(year_range_regex, string)
-    if year_range:
+    for year_range in reversed(list(regex.finditer(year_range_regex, remaining_string))):
         start_year = int(year_range.group(1))
         end_year = int(year_range.group(2))
         if end_year > start_year:
-            return None
-        return f"GREGORIAN:BC:{start_year}:BC:{end_year}"
+            continue
+        results_new.add(f"GREGORIAN:BC:{start_year}:BC:{end_year}")
+        remaining_string = _remove_used_spans(remaining_string, [year_range.span()])
 
     single_year_regex = rf"{lookbehind}({year_regex}) {french_bc_regex}{lookahead}"
-    single_year = regex.search(single_year_regex, string)
-    if single_year:
+    for single_year in reversed(list(regex.finditer(single_year_regex, remaining_string))):
         start_year = int(single_year.group(1))
-        return f"GREGORIAN:BC:{start_year}:BC:{start_year}"
+        results_new.add(f"GREGORIAN:BC:{start_year}:BC:{start_year}")
+        remaining_string = _remove_used_spans(remaining_string, [single_year.span()])
 
-    return None
+    results.update({x for x in results_new if x})
+    return remaining_string
 
 
 def _from_iso_date(iso_date: Match[str]) -> str | None:
@@ -919,13 +943,15 @@ def _from_year_range(year_range: Match[str]) -> str | None:
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 
-def _extract_already_parsed_date(string: str) -> str | None:
+def _extract_already_parsed_date(string: str, results: set[str | None]) -> str:
     rgx_year = r"\d+(-\d{2}(-\d{2})?)?"
     era_with_colon = r"(CE:|BC:)"
     rgx = rf"(GREGORIAN|JULIAN|ISLAMIC):{era_with_colon}{rgx_year}:{era_with_colon}?{rgx_year}"
-    if match := regex.search(rgx, string):
-        return match.group(0)
-    return None
+    if matchs := list(regex.finditer(rgx, string)):
+        results.update({x.group(0) for x in matchs})
+        remaining_string = _remove_used_spans(string, [x.span() for x in matchs])
+        return remaining_string
+    return string
 
 
 def make_xsd_compatible_id(input_value: str | float | int) -> str:

@@ -16,6 +16,8 @@ def construct_legal_info_shapes(license_iris: EnabledLicenseIris, is_production_
         Legal info graph
     """
     legal_graph = Graph()
+    # The severity for dummy information is based on the server
+    severity = "Violation"
     if not is_production_server:
         # This license is "allowed" if we are not on a production server.
         license_iris.enabled_licenses.append("http://rdfh.ch/licenses/dummy")
@@ -23,7 +25,10 @@ def construct_legal_info_shapes(license_iris: EnabledLicenseIris, is_production_
         # This warning is not necessary when we are on a production server
         # because omitting it from the permitted values is enough.
         legal_graph += _add_warn_for_dummy_license_shape()
+        severity = "Warning"
     legal_graph += _construct_allowed_licenses_shape(license_iris)
+    legal_graph += _add_shape_for_dummy_legal_info(severity, "hasCopyrightHolder")
+    legal_graph += _add_shape_for_dummy_legal_info(severity, "hasAuthorship")
     return legal_graph
 
 
@@ -84,5 +89,28 @@ def _add_warn_for_dummy_license_shape() -> Graph:
         sh:severity sh:Warning ;
         sh:message  "A dummy license is used, please note that an upload on a production server will fail." .
     '''
+    g.parse(data=shape, format="turtle")
+    return g
+
+
+def _add_shape_for_dummy_legal_info(severity: str, prop: str) -> Graph:
+    g = Graph()
+    shape = """
+    @prefix sh:         <http://www.w3.org/ns/shacl#> .
+    @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+    @prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+
+    api-shapes:Dummy_%(prop)s
+      a              sh:NodeShape ;
+      sh:targetClass knora-api:Value ;
+      sh:property    [
+                        a           sh:PropertyShape ;
+                        sh:path     knora-api:%(prop)s ;
+                        sh:datatype xsd:string ;
+                        sh:pattern  "^(?!dummy$).*" ;
+                        sh:severity sh:%(severity)s ;
+                        sh:message  "The comment on the value must be a non-empty string" ;
+                     ] .
+    """ % {"severity": severity, "prop": prop}  # noqa: UP031 (printf-string-formatting)
     g.parse(data=shape, format="turtle")
     return g

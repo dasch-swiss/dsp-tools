@@ -642,6 +642,7 @@ _months_dict = {
     "Dec": 12,
     "Dez": 12,
 }
+all_months = "|".join(_months_dict)
 
 
 def _find_date_in_string(string: str) -> set[str]:
@@ -676,9 +677,8 @@ def _find_date_in_string(string: str) -> set[str]:
     )
 
     # template: 2021-01-01 | 2015_01_02
-    if iso_dates := list(
-        regex.finditer(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", remaining_string)
-    ):
+    iso_dates_regex = rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}"
+    if iso_dates := list(regex.finditer(iso_dates_regex, remaining_string)):
         results.update(_from_iso_date(x) for x in iso_dates)
         remaining_string = _remove_used_spans(remaining_string, [x.span() for x in iso_dates])
 
@@ -700,14 +700,12 @@ def _find_date_in_string(string: str) -> set[str]:
         remaining_string = _remove_used_spans(remaining_string, [x.span() for x in eur_dates])
 
     # template: March 9, 1908 | March5,1908 | May 11, 1906
-    all_months = "|".join(_months_dict)
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     if monthname_dates := list(regex.finditer(monthname_date_regex, remaining_string)):
         results.update(_from_monthname_date(x) for x in monthname_dates)
         remaining_string = _remove_used_spans(remaining_string, [x.span() for x in monthname_dates])
 
     # template: 9 March 1908
-    all_months = "|".join(_months_dict)
     monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
     if monthname_after_days := list(regex.finditer(monthname_after_day_regex, remaining_string)):
         results.update(_from_monthname_after_day(x) for x in monthname_after_days)
@@ -733,6 +731,7 @@ def _find_date_in_string(string: str) -> set[str]:
 
 
 def _remove_used_spans(string: str, spans: list[tuple[int, int]]) -> str:
+    """Once a regex has matched parts of the original string, remove these parts, so that they're not matched again."""
     for start, end in reversed(spans):
         string = string[:start] + string[end:]
     return string

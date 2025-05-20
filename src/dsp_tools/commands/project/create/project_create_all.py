@@ -13,14 +13,15 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
+from dsp_tools.commands.project.create.project_create_project import create_project_on_server
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
-from dsp_tools.commands.project.models.project_definition import ProjectMetadata
+from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
+from dsp_tools.commands.project.models.project_create_client import ProjectCreateClient
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
@@ -72,16 +73,15 @@ def create_project(
     project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    proj_client = ProjectCreateClient(auth)
+    list_creation_client = ListCreationClient(auth)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
     info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
     print(info_str)
     logger.info(info_str)
-    project_remote, success = _create_project_on_server(
-        project_definition=project.metadata,
-        con=con,
-    )
+    success = create_project_on_server(project.metadata, proj_client)
     if not success:
         overall_success = False
 
@@ -92,8 +92,7 @@ def create_project(
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
             lists_to_create=project.lists,
-            con=con,
-            project_remote=project_remote,
+            list_creation_client=list_creation_client,
         )
         if not success:
             overall_success = False
@@ -157,58 +156,6 @@ def create_project(
         logger.warning(msg)
 
     return overall_success
-
-
-def _create_project_on_server(
-    project_definition: ProjectMetadata,
-    con: Connection,
-) -> tuple[Project, bool]:
-    """
-    Create the project on the DSP server.
-    If it already exists: update its longname, description, and keywords.
-
-    Args:
-        project_definition: object with information about the project
-        con: connection to the DSP server
-
-    Raises:
-        InputError: if the project cannot be created on the DSP server
-
-    Returns:
-        a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
-    """
-    all_projects = Project.getAllProjects(con=con)
-    if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
-        msg = (
-            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server.\n"
-            f"No changes were made to the project metadata.\n"
-            f"Continue with the upload of lists and ontologies ..."
-        )
-        print(f"WARNING: {msg}")
-        logger.warning(msg)
-
-    success = True
-    project_local = Project(
-        con=con,
-        shortcode=project_definition.shortcode,
-        shortname=project_definition.shortname,
-        longname=project_definition.longname,
-        description=LangString(project_definition.descriptions),  # type: ignore[arg-type]
-        keywords=set(project_definition.keywords) if project_definition.keywords else None,
-        selfjoin=False,
-        status=True,
-    )
-    try:
-        project_remote = project_local.create()
-    except BaseError:
-        err_msg = (
-            f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
-        )
-        logger.exception(err_msg)
-        raise InputError(err_msg) from None
-    print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    return project_remote, success
 
 
 def _create_groups(

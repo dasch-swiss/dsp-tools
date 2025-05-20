@@ -293,7 +293,7 @@ def test_file_value_cardinality_violation(file_value_violation: ValidationReport
 
 
 def test_legal_info_dummy_not_on_production(legal_info_dummy_not_on_production: ValidationReportGraphs) -> None:
-    assert legal_info_dummy_not_on_production.conforms
+    assert not legal_info_dummy_not_on_production.conforms
 
 
 def test_legal_info_dummy_on_production(legal_info_dummy_on_production: ValidationReportGraphs) -> None:
@@ -388,7 +388,7 @@ class TestReformatValidationGraph:
         assert not sorted_problems.unique_violations
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not sorted_problems.user_info
-        assert len(alphabetically_sorted_warnings) == expected_warnings
+        assert len(alphabetically_sorted_warnings) == len(expected_warnings)
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
@@ -405,7 +405,7 @@ class TestReformatValidationGraph:
         assert not sorted_problems.user_warnings
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not sorted_problems.user_info
-        assert len(alphabetically_sorted_violations) == expected_violations
+        assert len(alphabetically_sorted_violations) == len(expected_violations)
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_violations):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]

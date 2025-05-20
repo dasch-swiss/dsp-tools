@@ -1,6 +1,11 @@
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
+def is_on_production_server(api: str) -> bool:
+    production_servers = ["https://api.rdu.dasch.swiss/", "https://api.dasch.swiss/"]
+    return api in production_servers
+
+
 def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:
     """
     Reformats any kind of IRI, if it starts with data then it treats is like a data IRI.

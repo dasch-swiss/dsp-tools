@@ -30,6 +30,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.commands.validate_data.utils import is_on_production_server
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
@@ -69,9 +70,10 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
+    is_production_server = is_on_production_server(creds.server)
     config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO)
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
+    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth, is_production_server)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -82,8 +84,9 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
+    is_production_server = is_on_production_server(auth.server)
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, auth, shortcode
+        parsed_resources, authorship_lookup, auth, shortcode, is_production_server
     )
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
@@ -124,9 +127,13 @@ def _validate_data(
     return no_problems
 
 
-def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
+def _prepare_data_for_validation_from_file(
+    filepath: Path, auth: AuthenticationClient, is_production_server: bool
+) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, auth.server)
-    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, auth, shortcode)
+    return _prepare_data_for_validation_from_parsed_resource(
+        parsed_resources, authorship_lookup, auth, shortcode, is_production_server
+    )
 
 
 def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
@@ -142,10 +149,11 @@ def _prepare_data_for_validation_from_parsed_resource(
     authorship_lookup: dict[str, list[str]],
     auth: AuthenticationClient,
     shortcode: str,
+    is_production_server: bool,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, is_production_server)
     return rdf_graphs, used_iris
 
 
@@ -300,7 +308,9 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
     onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
-def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) -> RDFGraphs:
+def _create_graphs(
+    data_rdf: Graph, shortcode: str, auth: AuthenticationClient, is_production_server: bool
+) -> RDFGraphs:
     logger.info("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
     list_client = ListClient(auth.server, shortcode)
@@ -311,8 +321,6 @@ def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) 
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    production_servers = ["https://api.rdu.dasch.swiss/", "https://api.dasch.swiss/"]
-    is_production_server = auth.server in production_servers
     shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api, is_production_server)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")

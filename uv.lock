@@ -254,6 +254,7 @@ source = { editable = "." }
 dependencies = [
     { name = "argparse" },
     { name = "dotenv" },
+    { name = "jinja2" },
     { name = "jsonpath-ng" },
     { name = "jsonschema" },
     { name = "loguru" },
@@ -310,6 +311,7 @@ dev = [
 requires-dist = [
     { name = "argparse" },
     { name = "dotenv" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "jsonpath-ng" },
     { name = "jsonschema" },
     { name = "loguru" },

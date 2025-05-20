@@ -109,7 +109,7 @@ def _validate_data(
         return False
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
-        logger.info("Validation passed.")
+        logger.info("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
     reformatted = reformat_validation_graph(report)
@@ -211,6 +211,7 @@ def _print_shacl_validation_violation_message(
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         print(messages.violations.message_body)
     else:
+        logger.info("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
     if messages.warnings and config.severity.value <= 2:
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)

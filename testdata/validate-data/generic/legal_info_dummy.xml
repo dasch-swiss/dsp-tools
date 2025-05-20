@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>    
+    <authorship id="authorship_2">
+        <author>dummy</author>
+    </authorship>
+
+    <resource label="dummy_license" restype=":TestArchiveRepresentation" id="dummy_license">
+        <bitstream license="http://rdfh.ch/licenses/dummy"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/dummy_license_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="dummy_copyright" restype=":TestArchiveRepresentation" id="dummy_copyright">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="dummy"
+                   authorship-id="authorship_1"
+        >this/is/filepath/dummy_copyright_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="dummy_license" restype=":TestArchiveRepresentation" id="dummy_authorship">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_2"
+        >this/is/filepath/dummy_authorship_file.zip
+        </bitstream>
+    </resource>
+
+</knora>

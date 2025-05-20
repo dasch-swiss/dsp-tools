@@ -380,8 +380,6 @@ class TestReformatValidationGraph:
         self, legal_info_dummy_not_on_production: ValidationReportGraphs
     ) -> None:
         expected_warnings = [
-            ("dummy_authorship", ProblemType.GENERIC),
-            ("dummy_copyright", ProblemType.GENERIC),
             ("dummy_license", ProblemType.GENERIC),
         ]
         result = reformat_validation_graph(legal_info_dummy_not_on_production)
@@ -399,8 +397,6 @@ class TestReformatValidationGraph:
         self, legal_info_dummy_on_production: ValidationReportGraphs
     ) -> None:
         expected_violations = [
-            ("dummy_authorship", ProblemType.GENERIC),
-            ("dummy_copyright", ProblemType.GENERIC),
             ("dummy_license", ProblemType.GENERIC),
         ]
         result = reformat_validation_graph(legal_info_dummy_on_production)

@@ -68,19 +68,18 @@ def _add_warn_for_dummy_license_shape() -> Graph:
     
     api-shapes:DummyLicense_Shape
         a              sh:NodeShape ;
+        sh:targetClass knora-api:FileValue ;
         sh:sparql      [
                        a          sh:SPARQLConstraint ;
                        sh:select  """
                                     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
                                     
-                                    SELECT $this WHERE {
-                                        
-                                      ?fileVal a knora-api:FileValue ;
-                                               knora-api:hasLicense <http://rdfh.ch/licenses/dummy> .
-                                      $this ?fileProp ?fileVal .
-                                    
+                                    SELECT $this ?path WHERE {
+                                      BIND( knora-api:hasLicense AS ?path )
+                                      $this ?path <http://rdfh.ch/licenses/dummy> .
+                                      
                                     }
-                                  """ 
+                                  """
                      ] ;
         sh:severity sh:Warning ;
         sh:message  "A dummy license is used, please note that an upload on a production server will fail." .

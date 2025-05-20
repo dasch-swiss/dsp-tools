@@ -24,7 +24,7 @@ from dsp_tools.utils.data_formats.shared import simplify_name
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
-from dsp_tools.xmllib.helpers import find_date_in_string as find_date_in_string  # noqa: PLC0414 (explicit re-export)
+from dsp_tools.xmllib.helpers import find_dates_in_string as find_dates_in_string  # noqa: PLC0414 (explicit re-export)
 from dsp_tools.xmllib.helpers import make_xsd_compatible_id
 from dsp_tools.xmllib.helpers import make_xsd_compatible_id_with_uuid
 from dsp_tools.xmllib.internal.input_converters import numeric_entities

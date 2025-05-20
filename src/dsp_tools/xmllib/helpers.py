@@ -535,7 +535,7 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def find_date_in_string(string: str) -> set[str]:
+def find_dates_in_string(string: str) -> set[str]:
     """
     Checks if a string contains date values (single dates, or date ranges),
     and return all found dates as set of DSP-formatted strings.
@@ -586,17 +586,17 @@ def find_date_in_string(string: str) -> set[str]:
 
     Examples:
         ```python
-        result = xmllib.find_date_in_string("1849/1850")
+        result = xmllib.find_dates_in_string("1849/1850")
         # result == {"GREGORIAN:CE:1849:CE:1850"}
         ```
 
         ```python
-        result = xmllib.find_date_in_string("not a valid date")
+        result = xmllib.find_dates_in_string("not a valid date")
         # result == {}
         ```
 
         ```python
-        result = xmllib.find_date_in_string("first date: 2024. Second: 2025.")
+        result = xmllib.find_dates_in_string("first date: 2024. Second: 2025.")
         # result == {"GREGORIAN:CE:2024:CE:2024", "GREGORIAN:CE:2025:CE:2025"}
         ```
     """
@@ -604,7 +604,7 @@ def find_date_in_string(string: str) -> set[str]:
     # sanitise input, just in case that the function was called on an empty or N/A cell
     if not is_nonempty_value_internal(string):
         return set()
-    return _find_date_in_string(string)
+    return _find_dates_in_string(string)
 
 
 _months_dict = {
@@ -645,7 +645,7 @@ _months_dict = {
 all_months = "|".join(_months_dict)
 
 
-def _find_date_in_string(string: str) -> set[str]:
+def _find_dates_in_string(string: str) -> set[str]:
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     year_regex_2_or_4_digits = r"((?:[0-2]?[0-9])?[0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"

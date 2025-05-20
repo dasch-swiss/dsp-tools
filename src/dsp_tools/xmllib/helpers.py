@@ -840,13 +840,10 @@ def _from_iso_date(iso_date: Match[str]) -> str | None:
     year = int(iso_date.group(1))
     month = int(iso_date.group(2))
     day = int(iso_date.group(3))
-    max_month = 12
-    max_day = 31 if month in {1, 3, 5, 7, 8, 10, 12} else (28 if month == 2 else 30)
-    if month > max_month:
+    try:
+        date = datetime.date(year, month, day)
+    except ValueError:
         return None
-    if day > max_day:
-        return None
-    date = datetime.date(year, month, day)
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
 
@@ -869,44 +866,59 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     endmonth = int(eur_date_range.group(5))
     endyear = int(eur_date_range.group(6))
     endyear = _expand_2_digit_year(endyear)
-    startdate = datetime.date(startyear, startmonth, startday)
-    enddate = datetime.date(endyear, endmonth, endday)
+    try:
+        startdate = datetime.date(startyear, startmonth, startday)
+        enddate = datetime.date(endyear, endmonth, endday)
+    except ValueError:
+        return None
     if enddate < startdate:
         return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
 
-def _from_eur_date(eur_date: Match[str]) -> str:
+def _from_eur_date(eur_date: Match[str]) -> str | None:
     startday = int(eur_date.group(1))
     startmonth = int(eur_date.group(2))
     startyear = int(eur_date.group(3))
     startyear = _expand_2_digit_year(startyear)
-    date = datetime.date(startyear, startmonth, startday)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(startyear, startmonth, startday)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_date(monthname_date: Match[str]) -> str:
+def _from_monthname_date(monthname_date: Match[str]) -> str | None:
     day = int(monthname_date.group(2))
     month = _months_dict[monthname_date.group(1)]
     year = int(monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_monthname_after_day(monthname_after_day: Match[str]) -> str:
+def _from_monthname_after_day(monthname_after_day: Match[str]) -> str | None:
     day = int(monthname_after_day.group(1))
     month = _months_dict[monthname_after_day.group(2)]
     year = int(monthname_after_day.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
-def _from_german_monthname_date(german_monthname_date: Match[str]) -> str:
+def _from_german_monthname_date(german_monthname_date: Match[str]) -> str | None:
     day = int(german_monthname_date.group(1))
     month = _months_dict[german_monthname_date.group(2)]
     year = int(german_monthname_date.group(3))
-    date = datetime.date(year, month, day)
-    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    try:
+        date = datetime.date(year, month, day)
+        return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+    except ValueError:
+        return None
 
 
 def _from_year_range(year_range: Match[str]) -> str | None:

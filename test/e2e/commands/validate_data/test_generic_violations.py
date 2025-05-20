@@ -399,7 +399,9 @@ class TestReformatValidationGraph:
     def test_reformat_legal_info_dummy_on_production(
         self, legal_info_dummy_on_production: ValidationReportGraphs
     ) -> None:
-        dummy_license_str = "A dummy license is used, please note that an upload on a production server will fail."
+        dummy_license_str = (
+            "Please only use enabled licenses in your data. Consult the project information for enabled licenses."
+        )
         expected_violations = [
             ("dummy_everything", ProblemType.GENERIC, dummy_license_str),
             ("dummy_license", ProblemType.GENERIC, dummy_license_str),

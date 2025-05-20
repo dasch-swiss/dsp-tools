@@ -4,7 +4,29 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 
 
-def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
+def construct_legal_info_shapes(license_iris: EnabledLicenseIris, is_production_server: bool) -> Graph:
+    """
+
+    Args:
+        license_iris: iris of the enabled licenses of a project
+        is_production_server: if the server is a production server (rdu-test or prod).
+            Dummy information is not allowed there, resulting in different shapes.
+
+    Returns:
+        Legal info graph
+    """
+    legal_graph = Graph()
+    if not is_production_server:
+        # This license is "allowed" if we are not on a production server.
+        license_iris = license_iris.enabled_licenses.append("http://rdfh.ch/licenses/dummy")
+        # Even though we do not prohibit it we want to warn the user.
+        # This warning is not necessary when we are on a production server
+        # because omitting it from the permitted values is enough.
+        legal_graph += _add_warn_for_dummy_license_shape()
+    legal_graph += _construct_allowed_licenses_shape(license_iris)
+
+
+def _construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
     """Create a constraint detailing the allowed licences."""
     formatted_iris = [f"<{x}>" for x in license_iris.enabled_licenses]
     license_str = " ".join(formatted_iris)
@@ -34,3 +56,7 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
     g = Graph()
     g.parse(data=ttl_str, format="turtle")
     return g
+
+
+def _add_warn_for_dummy_license_shape() -> Graph:
+    pass

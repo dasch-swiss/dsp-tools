@@ -311,7 +311,9 @@ def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) 
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api)
+    production_servers = ["https://api.rdu.dasch.swiss/", "https://api.dasch.swiss/"]
+    is_production_server = auth.server in production_servers
+    shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api, is_production_server)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))

@@ -4,11 +4,13 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_allowed_licenses_shape
+from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_legal_info_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 
-def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_info_from_api: ProjectDataFromApi) -> SHACLGraphs:
+def construct_shapes_graphs(
+    onto: Graph, knora_api: Graph, project_info_from_api: ProjectDataFromApi, is_production_server: bool
+) -> SHACLGraphs:
     """
     Constructs a shapes graph from a project ontology
 
@@ -16,6 +18,8 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_info_from_api
         onto: ontology as graph
         knora_api: the knora-api ontology
         project_info_from_api: information from a project from the api, for example lists
+        is_production_server: if the server is a production server (rdu-test or prod).
+                Dummy information is not allowed there, resulting in different shapes.
 
     Returns:
         shapes graph
@@ -25,7 +29,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_info_from_api
     graph_to_query = knora_subset + onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
     content = construct_property_shapes(graph_to_query, project_info_from_api.all_lists)
-    content += construct_allowed_licenses_shape(project_info_from_api.enabled_licenses)
+    content += construct_legal_info_shapes(project_info_from_api.enabled_licenses, is_production_server)
     return SHACLGraphs(cardinality=cardinality, content=content)
 
 

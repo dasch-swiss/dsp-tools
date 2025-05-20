@@ -1,6 +1,12 @@
+import json
 from dataclasses import dataclass
+from importlib.metadata import version
+from typing import Any
 
-from dsp_tools.utils.authentication_client import AuthenticationClient
+import requests
+from loguru import logger
+
+from dsp_tools.clients.authentication_client import AuthenticationClient
 
 
 @dataclass

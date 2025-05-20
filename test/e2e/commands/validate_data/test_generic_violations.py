@@ -11,6 +11,7 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
@@ -30,7 +31,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserInfo
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), None)
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
 
 
 @pytest.fixture(scope="module")

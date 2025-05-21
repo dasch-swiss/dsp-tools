@@ -398,8 +398,11 @@ def test_make_authorship_lookup() -> None:
     res3 = Resource.create_new("id2", ":Restype", "label").add_file(
         "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth2"]
     )
+    res_none = Resource.create_new("id2", ":Restype", "label").add_file(
+        "file.jpg",
+    )
     region_res = RegionResource.create_new("regionID", "label", "id1")
-    result = _make_authorship_lookup([res1, res2, res3, region_res])
+    result = _make_authorship_lookup([res1, res2, res3, region_res, res_none])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}
 
 

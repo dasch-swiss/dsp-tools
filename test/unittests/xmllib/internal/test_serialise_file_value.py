@@ -101,5 +101,21 @@ def test_serialise_file_value_iiif_with_comment(metadata_no_permissions: Metadat
     assert etree.tostring(result) == expected
 
 
+def test_serialise_file_value_iiif_without_legal_info() -> None:
+    meta = Metadata(
+        license=None,
+        copyright_holder=None,
+        authorship=None,
+        permissions=Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+    )
+    val = IIIFUri("https://example.org/image.jpg/full/1338%2C/0/default.jpg", meta, None)
+    result = serialise_file_value(val, None)
+    expected = (
+        b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+        b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
+    )
+    assert etree.tostring(result) == expected
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

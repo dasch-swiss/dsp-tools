@@ -21,7 +21,9 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 class AuthorshipLookup:
     lookup: dict[tuple[str, ...], str]
 
-    def get_id(self, authors: tuple[str, ...]) -> str:
+    def get_id(self, authors: tuple[str, ...] | None) -> str | None:
+        if authors is None:
+            return None
         if not (found := self.lookup.get(authors)):
             emit_xmllib_input_warning(MessageInfo(f"The input authors {authors} are not defined in the look-up."))
             return " / ".join([str(x) for x in authors])
@@ -30,21 +32,21 @@ class AuthorshipLookup:
 
 @dataclass
 class Metadata:
-    license: License
-    copyright_holder: str
-    authorship: tuple[str, ...]
+    license: License | None
+    copyright_holder: str | None
+    authorship: tuple[str, ...] | None
     permissions: Permissions
 
     @classmethod
     def new(
         cls,
-        license: License,
-        copyright_holder: str,
-        authorship: Collection[str],
+        license: License | None,
+        copyright_holder: str | None,
+        authorship: Collection[str] | None,
         permissions: Permissions,
         resource_id: str,
     ) -> Metadata:
-        if not isinstance(license, License):
+        if license is not None and not isinstance(license, License):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xmllib.License",
                 value=license,
@@ -58,30 +60,36 @@ class Metadata:
                 res_id=resource_id,
                 value_field="permissions (bistream/iiif-uri)",
             )
-        check_and_warn_potentially_empty_string(
-            value=copyright_holder,
-            res_id=resource_id,
-            expected="string",
-            field="copyright_holder (bistream/iiif-uri)",
-        )
-        if len(authorship) == 0:
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="list of authorship strings",
-                value="empty input",
-                res_id=resource_id,
-                value_field="authorship (bistream/iiif-uri)",
-            )
-        fixed_authors = set(check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id))
-        for author in fixed_authors:
+        if copyright_holder is not None:
             check_and_warn_potentially_empty_string(
-                value=author, res_id=resource_id, expected="string", field="authorship (bistream/iiif-uri)"
+                value=copyright_holder,
+                res_id=resource_id,
+                expected="string",
+                field="copyright_holder (bistream/iiif-uri)",
             )
-        fixed_authors_list = [str(x).strip() for x in fixed_authors]
-        fixed_authors_list = sorted(fixed_authors_list)
+        if authorship is not None:
+            if len(authorship) == 0:
+                emit_xmllib_input_type_mismatch_warning(
+                    expected_type="list of authorship strings",
+                    value="empty input",
+                    res_id=resource_id,
+                    value_field="authorship (bistream/iiif-uri)",
+                )
+            fixed_authors = set(
+                check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
+            )
+            for author in fixed_authors:
+                check_and_warn_potentially_empty_string(
+                    value=author, res_id=resource_id, expected="string", field="authorship (bistream/iiif-uri)"
+                )
+            fixed_authors_list = [str(x).strip() for x in fixed_authors]
+            authors = tuple(sorted(fixed_authors_list))
+        else:
+            authors = None
         return cls(
             license=license,
             copyright_holder=copyright_holder,
-            authorship=tuple(fixed_authors_list),
+            authorship=authors,
             permissions=permissions,
         )
 

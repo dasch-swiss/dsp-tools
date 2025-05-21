@@ -20,3 +20,4 @@ class ProjectMetadata:
     longname: str
     keywords: list[str] | None = None
     descriptions: dict[str, str] | None = None
+    enabled_licenses: list[str] | None = None

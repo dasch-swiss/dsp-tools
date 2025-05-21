@@ -19,13 +19,17 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
-def get_rdf_like_data(resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]) -> RdfLikeData:
-    rdf_like_resources = [_get_one_resource(x, authorship_lookup) for x in resources]
+def get_rdf_like_data(
+    resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], list_node_lookup: dict[str, str]
+) -> RdfLikeData:
+    rdf_like_resources = [_get_one_resource(x, authorship_lookup, list_node_lookup) for x in resources]
     return RdfLikeData(rdf_like_resources)
 
 
-def _get_one_resource(resource: ParsedResource, authorship_lookup: dict[str, list[str]]) -> RdfLikeResource:
-    values = [_get_one_value(x) for x in resource.values]
+def _get_one_resource(
+    resource: ParsedResource, authorship_lookup: dict[str, list[str]], list_node_lookup: dict[str, str]
+) -> RdfLikeResource:
+    values = [_get_one_value(x, list_node_lookup) for x in resource.values]
     if resource.file_value:
         if file_val := _get_file_value(resource.file_value, authorship_lookup):
             values.append(file_val)
@@ -62,13 +66,13 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
     return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
 
 
-def _get_one_value(value: ParsedValue) -> RdfLikeValue:
+def _get_one_value(value: ParsedValue, list_node_lookup: dict[str, str]) -> RdfLikeValue:
     user_value = value.value
     match value.value_type:
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
-            user_value = _get_list_value_str(user_value)
+            user_value = _get_list_value_str(user_value, list_node_lookup)
         case KnoraValueType.GEOM_VALUE:
             user_value = _get_geometry_value_str(user_value)
         case _:
@@ -115,9 +119,11 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
-    if not isinstance(user_value, tuple):
-        return None
+def _get_list_value_str(
+    user_value: str | tuple[str | None, str | None] | None, list_node_lookup: dict[str, str]
+) -> str:
+    if found := list_node_lookup.get(user_value):
+        return found
     return " / ".join(x for x in user_value if x is not None)
 
 

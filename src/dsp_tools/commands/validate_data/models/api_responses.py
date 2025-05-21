@@ -22,10 +22,16 @@ class ProjectDataFromApi:
 class OneList:
     list_iri: str
     list_name: str
-    nodes: list[str]
+    nodes: list[OneNode]
 
     def hlist(self) -> str:
         return f'"hlist=<{self.list_iri}>"'
+
+
+@dataclass
+class OneNode:
+    name: str
+    iri: str
 
 
 @dataclass

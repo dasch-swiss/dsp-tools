@@ -172,6 +172,14 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             ret = project_returned["project"].get(field)
             self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")
 
+        orig_licenses = set(project_original["project"]["enabled_licenses"])
+        ret_licenses = set(project_returned["project"]["enabled_licenses"])
+        self.assertSetEqual(
+            orig_licenses,
+            ret_licenses,
+            msg=f"Field enabled_licenses is not identical: original={orig_licenses}, returned={ret_licenses}",
+        )
+
         orig_keywords = sorted(project_original["project"]["keywords"])
         ret_keywords = sorted(project_returned["project"]["keywords"])
         self.assertEqual(

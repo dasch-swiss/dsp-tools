@@ -1,7 +1,18 @@
 from loguru import logger
+from rdflib import RDF
+from rdflib import SH
+from rdflib import XSD
+from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
+from rdflib.collection import Collection
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
 def construct_property_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
@@ -40,7 +51,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       ?class a sh:NodeShape ;
              sh:property ?propShapesIRI .
-    
+
     } WHERE {
 
       ?class a owl:Class ;
@@ -49,7 +60,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;          
           owl:onProperty ?propRestriction .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
@@ -91,7 +102,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-      
+
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
@@ -252,28 +263,39 @@ def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
 
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    formatted_iris = [f'"{x.iri}"' for x in one_list.nodes]
-    list_nodes = " ".join(formatted_iris)
-    msg = (
-        f"A valid node from the list '{one_list.list_name}' "
-        f"must be used with this property (input displayed in format 'listName / NodeName')."
-    )
-    ttl_str = f"""
-    @prefix sh:         <http://www.w3.org/ns/shacl#> .
-    @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
-
-    <{one_list.list_iri}>
-      a sh:NodeShape ;
-      sh:property [
-          a           sh:PropertyShape ;
-          sh:path     knora-api:listValueAsListNode ;
-          sh:in       ( {list_nodes} ) ;
-          sh:message  "{msg}" 
-                  ] ;
-      sh:severity  sh:Violation .
-    """
     g = Graph()
-    g.parse(data=ttl_str, format="turtle")
+    list_iri = URIRef(one_list.list_iri)
+    g.add((list_iri, RDF.type, SH.NodeShape))
+    g.add((list_iri, SH.severity, SH.Violation))
+    list_iris = [f'"{nd.iri}"' for nd in one_list.nodes]
+    node_prop_info = SHACLListInfo(
+        list_iri=list_iri,
+        sh_path=KNORA_API.listValueAsListNode,
+        sh_message=(
+            f"A valid node from the list '{one_list.list_name}' must be used with this property "
+            f"(input displayed in format 'listName / NodeName')."
+        ),
+        sh_in=list_iris,
+    )
+    g += _construct_one_list_property_shape_with_collection(node_prop_info)
+    return g
+
+
+def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
+    g = Graph()
+    collection_bn = BNode()
+    collection_literals: list[SubjectObjectTypeAlias] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
+    Collection(g, collection_bn, collection_literals)
+    prop_shape: list[tuple[PropertyTypeAlias, SubjectObjectTypeAlias]] = [
+        (RDF.type, SH.PropertyShape),
+        (SH.path, shacl_info.sh_path),
+        (URIRef("http://www.w3.org/ns/shacl#in"), collection_bn),
+        (SH.message, Literal(shacl_info.sh_message, datatype=XSD.string)),
+    ]
+    prop_bn: SubjectObjectTypeAlias = BNode()
+    for prop, obj in prop_shape:
+        g.add((prop_bn, prop, obj))
+    g.add((shacl_info.list_iri, SH.property, prop_bn))
     return g
 
 

@@ -7,6 +7,7 @@ from rdflib import Variable
 from rdflib.term import Node
 
 # rdflib typing
+type PropertyTypeAlias = Union[IdentifiedNode, Variable]
 type SubjectObjectTypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
 
 # Namespaces as string

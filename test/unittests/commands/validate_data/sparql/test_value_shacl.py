@@ -3,6 +3,7 @@
 import pytest
 from rdflib import RDF
 from rdflib import SH
+from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -109,7 +110,7 @@ class TestConstructListNode:
             "A valid node from the list 'list' must be used with this property "
             "(input displayed in format 'listName / NodeName')."
         )
-        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
+        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg, datatype=XSD.string)
 
     def test_three_nodes(self) -> None:
         test_list = OneList(
@@ -134,7 +135,7 @@ class TestConstructListNode:
             "A valid node from the list 'list' must be used with this property "
             "(input displayed in format 'listName / NodeName')."
         )
-        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
+        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg, datatype=XSD.string)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
-from rdflib import URIRef
 
 
 @dataclass
@@ -37,14 +36,6 @@ class OneList:
 class OneNode:
     name: str
     iri: str
-
-
-@dataclass
-class SHACLListInfo:
-    list_iri: URIRef
-    sh_path: URIRef
-    sh_message: str
-    sh_in: list[str]
 
 
 @dataclass

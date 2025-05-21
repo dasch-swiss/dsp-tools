@@ -74,7 +74,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.DECIMAL_VALUE: DECIMAL_PROP_TYPE_INFO,
     KnoraValueType.GEONAME_VALUE: GEONAME_PROP_TYPE_INFO,
     KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
-    KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, API_SHAPES.listNodeAsString, XSD.string),
+    KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, API_SHAPES.listValueAsListNode, XSD.string),
     KnoraValueType.LINK_VALUE: RDFPropTypeInfo(KNORA_API.LinkValue, API_SHAPES.linkValueHasTargetID, XSD.string),
     KnoraValueType.INT_VALUE: INT_PROP_TYPE_INFO,
     KnoraValueType.INTERVAL_VALUE: RDFPropTypeInfo(KNORA_API.IntervalValue, KNORA_API.hasSegmentBounds),

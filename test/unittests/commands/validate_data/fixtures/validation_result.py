@@ -948,7 +948,7 @@ sh:value <http://data/value_list_node_non_existent> ] .
     _:bn_list_node_non_existent a sh:ValidationResult ;
     sh:focusNode <http://data/value_list_node_non_existent> ;
     sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
-    sh:resultPath api-shapes:listNodeAsString ;
+    sh:resultPath knora-api:listValueAsListNode ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape [ ] ;
@@ -1010,7 +1010,7 @@ def report_unknown_list_name(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
 _:bn_list_name_non_existent a sh:ValidationResult ;
     sh:focusNode <http://data/value_list_name_non_existent> ;
     sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
-    sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#listNodeAsString> ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#listValueAsListNode> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape _:bn_source ;

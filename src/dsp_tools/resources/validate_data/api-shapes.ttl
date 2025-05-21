@@ -40,7 +40,7 @@ api-shapes:UniqueValue_Shape
                 }
                 UNION
                 {
-                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
+                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID ?value .
                 }
                 FILTER NOT EXISTS { ?valueClass knora-api:valueHasComment ?value }
             }

@@ -202,6 +202,14 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "The value must be a non-empty string without newlines.",
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        (
+            "wrong_list_used",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
     ]
     result = reformat_validation_graph(content_violation)
     sorted_problems = sort_user_problems(result)

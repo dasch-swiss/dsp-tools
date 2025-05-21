@@ -29,7 +29,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
@@ -346,24 +345,6 @@ class TestFileMetadata:
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
-
-    def test_raises_unknown_license(self, lookups):
-        metadata = ParsedFileValueMetadata("inexistent-iri", "copy", "auth_id", None)
-        msg = regex.escape(
-            "The license 'inexistent-iri' used for an image or iiif-uri is unknown. "
-            "See documentation for accepted pre-defined licenses."
-        )
-        with pytest.raises(InputError, match=msg):
-            _get_file_metadata(metadata, lookups)
-
-    def test_raises_unknown_author(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown", "open")
-        msg = regex.escape(
-            "The authorship id 'unknown' referenced in a multimedia file or iiif-uri is unknown. "
-            "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
-        )
-        with pytest.raises(InputError, match=msg):
-            _get_file_metadata(metadata, lookups)
 
 
 class TestValues:

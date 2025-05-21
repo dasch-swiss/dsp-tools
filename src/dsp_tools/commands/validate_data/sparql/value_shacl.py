@@ -254,25 +254,24 @@ def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     formatted_iris = [f"<{x.iri}>" for x in one_list.nodes]
     list_nodes = " ".join(formatted_iris)
-    # Turtle requires double quotes for its string literals.
-    # We do not want a multi-line message, therefore, we strip the newlines.
-    msg = f"""
-    "A valid node from the list '{one_list.list_name}' must be used with this property (input displayed in format 'listName / NodeName')."
-    """.strip()  # noqa: E501
-    ttl_str = """
+    msg = (
+        f"A valid node from the list '{one_list.list_name}' "
+        f"must be used with this property (input displayed in format 'listName / NodeName')."
+    )
+    ttl_str = f"""
     @prefix sh:         <http://www.w3.org/ns/shacl#> .
     @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
 
-    <%(list_iri)s>
+    <{one_list.list_iri}>
       a sh:NodeShape ;
       sh:property [
           a           sh:PropertyShape ;
           sh:path     knora-api:listValueAsListNode ;
-          sh:in       ( %(list_nodes)s ) ;
-          sh:message  %(msg)s ;
+          sh:in       ( {list_nodes} ) ;
+          sh:message  "{msg}" ;
           sh:severity  sh:Violation
                   ] .
-    """ % {"list_iri": one_list.list_iri, "list_nodes": list_nodes, "msg": msg}  # noqa: UP031
+    """
     g = Graph()
     g.parse(data=ttl_str, format="turtle")
     return g

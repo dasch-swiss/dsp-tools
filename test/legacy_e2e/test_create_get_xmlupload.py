@@ -179,7 +179,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             ret_licenses,
             msg=f"Field enabled_licenses is not identical: original={orig_licenses}, returned={ret_licenses}",
         )
-        
+
         orig_keywords = sorted(project_original["project"]["keywords"])
         ret_keywords = sorted(project_returned["project"]["keywords"])
         self.assertEqual(

@@ -290,7 +290,7 @@ class TestListValue:
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testListProp))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ListValue
-        assert next(val_g.objects(bn, API_SHAPES.listValueAsListNode)) == Literal("n1", datatype=XSD.string)
+        assert next(val_g.objects(bn, KNORA_API.listValueAsListNode)) == Literal("n1", datatype=XSD.string)
 
 
 class TestSimpleTextValue:

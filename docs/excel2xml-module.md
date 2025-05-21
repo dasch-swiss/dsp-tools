@@ -400,34 +400,9 @@ In contrast, `check_notna(cell)` will return the expected value for all cases in
 
 ### Calendar Date Parsing
 
-The function `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
-returns the DSP-formatted date string.
+The function `find_dates_in_string(string)` tries to find calendar dates in a string. 
+If successful, it returns the DSP-formatted date strings.
 
-Notes:
-
-- The date can be embedded in text. 
-- Only the first date found is returned.
-- By default, dates are interpreted as CE (Christian era) in the Gregorian calendar.
-- The years 0000-2999 are supported, in 4-digit form.
-- Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
-
-Supported date formats:
-
-| Input              | Output                                |
-| ------------------ | ------------------------------------- |
-| 0476_09_04         | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
-| 0476-09-04         | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
-| 30.4.2021          | GREGORIAN:CE:2021-04-30:CE:2021-04-30 |
-| 5/11/2021          | GREGORIAN:CE:2021-11-05:CE:2021-11-05 |
-| Jan 26, 1993       | GREGORIAN:CE:1993-01-26:CE:1993-01-26 |
-| 28.2.-1.12.1515    | GREGORIAN:CE:1515-02-28:CE:1515-12-01 |
-| 25.-26.2.0800      | GREGORIAN:CE:0800-02-25:CE:0800-02-26 |
-| 1.9.2022-3.1.2024  | GREGORIAN:CE:2022-09-01:CE:2024-01-03 |
-| 1848               | GREGORIAN:CE:1848:CE:1848             |
-| 1849/1850          | GREGORIAN:CE:1849:CE:1850             |
-| 1849/50            | GREGORIAN:CE:1849:CE:1850             |
-| 1845-50            | GREGORIAN:CE:1845:CE:1850             |
-| 840-850            | GREGORIAN:CE:840:CE:850               |
-| 840-1              | GREGORIAN:CE:840:CE:841               |
-| 1000-900 av. J.-C. | GREGORIAN:BC:1000:BC:900              |
-| 45 av. J.-C.       | GREGORIAN:BC:45:BC:45                 |
+This function is a redirection to [`xmllib.find_dates_in_string()`](
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_dates_in_string). 
+See there for more information.

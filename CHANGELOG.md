@@ -1,5 +1,50 @@
 # Changelog
 
+## [15.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v14.0.0...v15.0.0) (2025-05-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename find_date_in_string() to find_dates_in_string() (RDU-93) ([#1738](https://github.com/dasch-swiss/dsp-tools/issues/1738))
+* find_date_in_string() returns list[str] instead of Optional[str] (DEV-4900) ([#1733](https://github.com/dasch-swiss/dsp-tools/issues/1733))
+
+### Enhancements
+
+* find_date_in_string() returns list[str] instead of Optional[str] (DEV-4900) ([#1733](https://github.com/dasch-swiss/dsp-tools/issues/1733)) ([53c7d75](https://github.com/dasch-swiss/dsp-tools/commit/53c7d7531b6f08d5b409ba10c078182c1ab32bb2))
+* rename find_date_in_string() to find_dates_in_string() (RDU-93) ([#1738](https://github.com/dasch-swiss/dsp-tools/issues/1738)) ([05c99b1](https://github.com/dasch-swiss/dsp-tools/commit/05c99b11d2d38125971d69dee77fd7a9950675f0))
+* retrieve licenses of project and add authentication to validate-data (DEV-4906) ([#1725](https://github.com/dasch-swiss/dsp-tools/issues/1725)) ([fc17405](https://github.com/dasch-swiss/dsp-tools/commit/fc174055a9fa19dd1c15bdd31c7602895e08cca2))
+* **start-stack:** add parameter for a custom host (DEV-4907) ([#1675](https://github.com/dasch-swiss/dsp-tools/issues/1675)) ([ea3a89e](https://github.com/dasch-swiss/dsp-tools/commit/ea3a89e235b8207874a315a748928216ca713a9c))
+* **validate-data:** validate that only existing licenses are used (DEV-4862) ([#1729](https://github.com/dasch-swiss/dsp-tools/issues/1729)) ([930a92d](https://github.com/dasch-swiss/dsp-tools/commit/930a92d28505e5b3cbb8ed7bb5840cf7e6c63fa3))
+* **xmllib:** add `None` as a default for legal info (DEV-4927) ([#1737](https://github.com/dasch-swiss/dsp-tools/issues/1737)) ([57e9de5](https://github.com/dasch-swiss/dsp-tools/commit/57e9de5a212bcf52506af249dccb106ab2ccb08e))
+* **xmllib:** add new LicenseOther licenses to find_license_in_string() (DEV-4876) ([#1716](https://github.com/dasch-swiss/dsp-tools/issues/1716)) ([e7db46f](https://github.com/dasch-swiss/dsp-tools/commit/e7db46f9efc0ca31224ad1316c66344b4816302a))
+* **xmllib:** change .env variable name to save warnings file (RDU-91) ([#1723](https://github.com/dasch-swiss/dsp-tools/issues/1723)) ([4eb75e5](https://github.com/dasch-swiss/dsp-tools/commit/4eb75e52a03b1a9a1ec20e114a8c5b71f248610b))
+* **xmllib:** enable sorting of resources and values during serialisation (RDU-89) ([#1730](https://github.com/dasch-swiss/dsp-tools/issues/1730)) ([fb386b3](https://github.com/dasch-swiss/dsp-tools/commit/fb386b336db14bb31336fbfe61d1f0d7ddc90211))
+* **xmlupload:** add CLI args to configure which validation severity level should be printed out (DEV-4901) ([#1732](https://github.com/dasch-swiss/dsp-tools/issues/1732)) ([0282cdc](https://github.com/dasch-swiss/dsp-tools/commit/0282cdc95ceba7866d2c2cf53c287f45a509c105))
+* **xmlupload:** validate XML input with `validate-data` (DEV-4461) ([#1722](https://github.com/dasch-swiss/dsp-tools/issues/1722)) ([93c2345](https://github.com/dasch-swiss/dsp-tools/commit/93c2345d8be0b507d1a38e25f0e71e2ba0eb5576))
+
+
+### Bug Fixes
+
+* allow all licenses, not only the recommended ones (DEV-4903) ([#1724](https://github.com/dasch-swiss/dsp-tools/issues/1724)) ([82a3214](https://github.com/dasch-swiss/dsp-tools/commit/82a32145be65b388f72058db0dbdc52359343859))
+* **validate-data:** allow values of the same property to have identical comments (DEV-4905) ([#1727](https://github.com/dasch-swiss/dsp-tools/issues/1727)) ([f35bd93](https://github.com/dasch-swiss/dsp-tools/commit/f35bd933ad634cf6c39ac51375b6d6e6100b6ecf))
+* **validate-data:** reorganise user print messages and fix validation bool (DEV-4898) ([#1718](https://github.com/dasch-swiss/dsp-tools/issues/1718)) ([899f74b](https://github.com/dasch-swiss/dsp-tools/commit/899f74b3cd2a2c2876b146e4ef76f6300b78ec4b))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.05.02 ([#1739](https://github.com/dasch-swiss/dsp-tools/issues/1739)) ([5787d3a](https://github.com/dasch-swiss/dsp-tools/commit/5787d3a72998c62b2e0f5dd92b190760c3c334eb))
+* **valiate-data:** extract get project info from api ([#1740](https://github.com/dasch-swiss/dsp-tools/issues/1740)) ([b88e59e](https://github.com/dasch-swiss/dsp-tools/commit/b88e59ef636d56854775714028bfb0c5b97b2515))
+* **validate-data:** add validate config ([#1726](https://github.com/dasch-swiss/dsp-tools/issues/1726)) ([98ac8d6](https://github.com/dasch-swiss/dsp-tools/commit/98ac8d6f91f1110c641bb00452e167a2f4289e51))
+* **validate-data:** extract parsing of resources from validation command ([#1720](https://github.com/dasch-swiss/dsp-tools/issues/1720)) ([b591d1e](https://github.com/dasch-swiss/dsp-tools/commit/b591d1e5a5d05f87e8bb1f5c10fd432f4bdf6c5f))
+* **validate-data:** rename `AllProjectLists` to more generic name ([#1728](https://github.com/dasch-swiss/dsp-tools/issues/1728)) ([f338b26](https://github.com/dasch-swiss/dsp-tools/commit/f338b26f3fc59b41abe88be1ee5e6ad0f43fe8b9))
+* waypaver for next PR ([#1735](https://github.com/dasch-swiss/dsp-tools/issues/1735)) ([b62b1fd](https://github.com/dasch-swiss/dsp-tools/commit/b62b1fd9018038758ea057902cfb9c6dc8894246))
+* **xmlupload:** separate parsing of processing of resources ([#1721](https://github.com/dasch-swiss/dsp-tools/issues/1721)) ([54c9b08](https://github.com/dasch-swiss/dsp-tools/commit/54c9b086ccdb82eea08bc94f85fcd5297b7e1151))
+
+
+### Documentation
+
+* **validate-data:** add all the flags and add explanation (DEV-4915) ([#1731](https://github.com/dasch-swiss/dsp-tools/issues/1731)) ([ab40324](https://github.com/dasch-swiss/dsp-tools/commit/ab4032465a2f47249cb08a1f262fc4634196ad1a))
+
 ## [14.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v13.1.0...v14.0.0) (2025-05-15)
 
 

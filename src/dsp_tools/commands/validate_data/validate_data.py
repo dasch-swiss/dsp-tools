@@ -144,9 +144,17 @@ def _prepare_data_for_validation_from_parsed_resource(
     shortcode: str,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
+    proj_info = _get_project_specific_information_from_api(auth, shortcode)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info)
     return rdf_graphs, used_iris
+
+
+def _get_project_specific_information_from_api(auth: AuthenticationClient, shortcode: str) -> ProjectDataFromApi:
+    list_client = ListClient(auth.server, shortcode)
+    all_lists = list_client.get_lists()
+    enabled_licenses = _get_license_iris(shortcode, auth)
+    return ProjectDataFromApi(all_lists, enabled_licenses)
 
 
 def _make_data_graph_from_parsed_resources(
@@ -300,18 +308,16 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
     onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
-def _create_graphs(data_rdf: Graph, shortcode: str, auth: AuthenticationClient) -> RDFGraphs:
+def _create_graphs(
+    data_rdf: Graph, shortcode: str, auth: AuthenticationClient, proj_info: ProjectDataFromApi
+) -> RDFGraphs:
     logger.info("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
-    list_client = ListClient(auth.server, shortcode)
     ontologies = _get_project_ontos(onto_client)
-    all_lists = list_client.get_lists()
-    enabled_licenses = _get_license_iris(shortcode, auth)
-    project_data_from_api = ProjectDataFromApi(all_lists, enabled_licenses)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, project_data_from_api)
+    shapes = construct_shapes_graphs(ontologies, knora_api, proj_info)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))

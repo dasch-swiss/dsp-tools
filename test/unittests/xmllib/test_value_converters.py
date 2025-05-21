@@ -14,7 +14,7 @@ def test_convert_to_bool_false(val: Any) -> None:
     assert convert_to_bool(val) == False  # noqa: E712 (Avoid equality comparisons to `False`)
 
 
-@pytest.mark.parametrize("val", ["TRUE ", "  1", "1.0", "Yes", True, "ouI", "JA"])
+@pytest.mark.parametrize("val", ["TRUE ", "  1", "1.0", "Yes", True, "ouI", "JA", "sì"])
 def test_convert_to_bool_true(val: Any) -> None:
     assert convert_to_bool(val) == True  # noqa: E712 (Avoid equality comparisons to `True`)
 

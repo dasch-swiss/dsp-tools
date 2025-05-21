@@ -12,7 +12,7 @@ def convert_to_bool(value: Any) -> bool:
 
     Accepted values:
          - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `False`
-         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `True`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja`, `sì` -> `True`
 
     Args:
         value: value to transform
@@ -42,7 +42,7 @@ def convert_to_bool(value: Any) -> bool:
     str_val = str(value).lower().strip()
     if str_val in ("false", "0", "0.0", "no", "non", "nein"):
         return False
-    elif str_val in ("true", "1", "1.0", "yes", "oui", "ja"):
+    elif str_val in ("true", "1", "1.0", "yes", "oui", "ja", "sì"):
         return True
     raise_input_error(MessageInfo(f"The entered value '{value}' cannot be converted to a bool."))
 

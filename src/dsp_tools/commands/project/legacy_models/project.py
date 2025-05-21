@@ -263,7 +263,7 @@ class Project(Model):
         ontologies = set(json_obj.get("ontologies"))
         if ontologies is None:
             raise BaseError("ontologies are missing")
-        enabled_licenses = json_obj.get("enabled_licenses", set())
+        enabled_licenses = json_obj.get("enabledLicenses", set())
         selfjoin = json_obj.get("selfjoin")
         if selfjoin is None:
             raise BaseError("Selfjoin is missing")
@@ -323,7 +323,7 @@ class Project(Model):
         if self._keywords is not None and len(self._keywords) > 0:
             tmp["keywords"] = self._keywords
         if self._enabled_licenses:
-            tmp["enabled_licenses"] = list(self._enabled_licenses)
+            tmp["enabledLicenses"] = list(self._enabled_licenses)
         if self._selfjoin is None:
             raise BaseError("selfjoin must be defined (True or False!")
         tmp["selfjoin"] = self._selfjoin

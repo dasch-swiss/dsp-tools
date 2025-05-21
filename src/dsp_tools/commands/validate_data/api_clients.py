@@ -118,15 +118,14 @@ class ListClient:
         for child in nodes:
             all_nodes.append(OneNode(child["name"], child["id"]))
             if node_child := child.get("children"):
-                all_nodes.extend(self._reformat_children(node_child, all_nodes))
+                self._reformat_children(node_child, all_nodes)
         return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
 
-    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> list[OneNode]:
+    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
         for child in list_child:
             current_nodes.append(OneNode(child["name"], child["id"]))
             if grand_child := child.get("children"):
                 self._reformat_children(grand_child, current_nodes)
-        return current_nodes
 
 
 @dataclass

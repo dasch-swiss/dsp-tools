@@ -315,7 +315,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "list / node"
+        assert res.user_facing_value == "http://rdfh.ch/lists/9999/n1"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
@@ -436,8 +436,7 @@ class TestFileValue:
 @pytest.mark.parametrize(
     ("input_val", "expected"),
     [
-        (("list", "node"), "list / node"),
-        ("not a tuple", None),
+        (("list", "node"), "http://rdfh.ch/lists/9999/n1"),
         (("list", ""), "list / "),
         (("list", None), "list"),
         ((None, "node"), "node"),

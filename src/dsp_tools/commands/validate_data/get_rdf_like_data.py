@@ -1,5 +1,6 @@
 import json
 from json import JSONDecodeError
+from typing import Any
 from typing import cast
 
 import regex
@@ -120,8 +121,9 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: tuple[str | None, str | None], list_node_lookup: ListLookup) -> str:
-    if found := list_node_lookup.lists.get(user_value):
+def _get_list_value_str(user_value: Any, list_node_lookup: ListLookup) -> str:
+    in_tuple = cast(tuple, user_value)
+    if found := list_node_lookup.lists.get(in_tuple):
         return found
     return " / ".join(x for x in user_value if x is not None)
 

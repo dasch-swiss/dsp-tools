@@ -254,7 +254,7 @@ def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     formatted_iris = [f"<{x.iri}>" for x in one_list.nodes]
     list_nodes = " ".join(formatted_iris)
-    # Turtle requires double quotes for its literals.
+    # Turtle requires double quotes for its string literals.
     # We do not want a multi-line message, therefore, we strip the newlines.
     msg = f"""
     "A valid node from the list '{one_list.list_name}' must be used with this property (input displayed in format 'listName / NodeName')."

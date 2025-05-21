@@ -249,7 +249,7 @@ class XMLRoot:
 def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     filtered_resources = [x for x in resources if isinstance(x, Resource)]
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
-    authors = {x.metadata.authorship for x in file_vals}
+    authors = {x.metadata.authorship for x in file_vals if x.metadata.authorship}
     sorted_authors = sorted(authors)
     env_var = str(os.getenv("XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS")).lower()
     if env_var == "true":

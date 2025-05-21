@@ -91,6 +91,76 @@ def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_c
 
 
 class TestConstructListNode:
+    def test_node_space(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name="list",
+            nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_node_backslash(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name="list",
+            nodes=[OneNode("l2n1 \\ or", "http://rdfh.ch/lists/9999/l2n1or")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_node_double_quote(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name="list",
+            nodes=[OneNode('l2n2"', "http://rdfh.ch/lists/9999/l2n2")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_node_apostrophe(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name="list",
+            nodes=[OneNode("l2n3'", "http://rdfh.ch/lists/9999/l2n3")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_list_special(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name="secondList \\ ",
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_list_double_quote(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name='secondList " ',
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_list_single_quote(self) -> None:
+        test_list = OneList(
+            list_iri="http://rdfh.ch/lists/9999/test",
+            list_name='secondList " ',
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
     def test_one_node(self) -> None:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",

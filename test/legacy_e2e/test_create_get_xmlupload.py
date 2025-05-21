@@ -167,7 +167,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             project_original: original file
             project_returned: returned file
         """
-        for field in ["shortcode", "shortname", "longname", "descriptions"]:
+        for field in ["shortcode", "shortname", "longname", "descriptions", "enabled_licenses"]:
             orig = project_original["project"].get(field)
             ret = project_returned["project"].get(field)
             self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")

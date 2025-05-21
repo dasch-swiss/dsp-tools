@@ -249,7 +249,7 @@ wheels = [
 
 [[package]]
 name = "dsp-tools"
-version = "14.0.0"
+version = "15.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "argparse" },

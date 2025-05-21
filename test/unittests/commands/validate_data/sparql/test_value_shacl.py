@@ -8,6 +8,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
@@ -95,7 +96,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
-            nodes=["l2n1 space"],
+            nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -105,7 +106,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
-            nodes=["l2n1 \\ or"],
+            nodes=[OneNode("l2n1 \\ or", "http://rdfh.ch/lists/9999/l2n1or")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -115,7 +116,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
-            nodes=['l2n2"'],
+            nodes=[OneNode('l2n2"', "http://rdfh.ch/lists/9999/l2n2")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -125,7 +126,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
-            nodes=["l2n3'"],
+            nodes=[OneNode("l2n3'", "http://rdfh.ch/lists/9999/l2n3")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -135,7 +136,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="secondList \\ ",
-            nodes=["a"],
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -145,7 +146,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name='secondList " ',
-            nodes=["a"],
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
@@ -155,7 +156,7 @@ class TestConstructListNode:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name='secondList " ',
-            nodes=["a"],
+            nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")

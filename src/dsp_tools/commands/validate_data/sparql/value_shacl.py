@@ -267,7 +267,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
-    list_iris = [f'"{nd.iri}"' for nd in one_list.nodes]
+    list_iris = [nd.iri for nd in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
         sh_path=KNORA_API.listValueAsListNode,

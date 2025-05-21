@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
@@ -36,8 +37,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidFileTypeError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -69,7 +68,7 @@ def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferen
         try:
             result = _get_one_resource(res, lookups)
             processed.append(result)
-        except (PermissionNotExistsError, InputError, InvalidFileTypeError) as e:
+        except PermissionNotExistsError as e:
             failures.append(ResourceInputProcessingFailure(res.res_id, str(e)))
     return ResourceProcessingResult(processed, failures)
 
@@ -112,13 +111,12 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
 def _get_file_value(
     val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
 ) -> ProcessedFileValue:
-    if not val.value_type:
-        raise InvalidFileTypeError(f"The file you entered is not one of the supported file types: {val.value}")
+    file_type = cast(KnoraValueType, val.value_type)
     metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,
-        file_type=val.value_type,
+        file_type=file_type,
         metadata=metadata,
         res_id=res_id,
         res_label=res_label,
@@ -133,11 +131,6 @@ def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups)
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
-    if file_metadata.license_iri and not file_metadata.license_iri.startswith("http://rdfh.ch/licenses/"):
-        raise InputError(
-            f"The license '{file_metadata.license_iri}' used for an image or iiif-uri is unknown. "
-            f"See documentation for accepted pre-defined licenses."
-        )
     return ProcessedFileMetadata(
         license_iri=file_metadata.license_iri,
         copyright_holder=file_metadata.copyright_holder,
@@ -149,12 +142,7 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
     if not authorship_id:
         return None
-    if not (found := lookup.get(authorship_id)):
-        raise InputError(
-            f"The authorship id '{authorship_id}' referenced in a multimedia file or iiif-uri is unknown. "
-            f"Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
-        )
-    return found
+    return lookup[authorship_id]
 
 
 def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
@@ -193,8 +181,7 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
 
 def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
-    if not (list_iri := lookups.listnodes.get(tuple_val)):
-        raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
+    list_iri = lookups.listnodes[tuple_val]
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     list_val: ProcessedValue = ProcessedList(
         value=list_iri,

@@ -48,10 +48,6 @@ class PermissionNotExistsError(BaseError):
     """Class for errors that are raised when a permission does not exist."""
 
 
-class InvalidFileTypeError(BaseError):
-    """Class for errors that are raised when a file type is not supported by DSP."""
-
-
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
@@ -77,6 +73,10 @@ class BadCredentialsError(PermanentConnectionError):
 
 
 class XmlUploadError(BaseError):
+    """Represents an error raised in the context of the xmlupload."""
+
+
+class XmlInputConversionError(BaseError):
     """Represents an error raised in the context of the xmlupload."""
 
 

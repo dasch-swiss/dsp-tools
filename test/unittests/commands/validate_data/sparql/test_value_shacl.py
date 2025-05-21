@@ -90,7 +90,7 @@ def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_c
 
 
 class TestConstructListNode:
-    def test_node_space(self) -> None:
+    def test_one_node(self) -> None:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
@@ -99,8 +99,19 @@ class TestConstructListNode:
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+        nd_bn = next(result.objects(nodeshape_iri, SH.property))
+        assert next(result.objects(nd_bn, RDF.type)) == SH.PropertyShape
+        assert next(result.objects(nd_bn, SH.path)) == KNORA_API.listValueAsListNode
+        number_of_list_nodes = 1
+        assert len(list(result.objects(predicate=RDF.first))) == number_of_list_nodes
+        expected_msg = (
+            "A valid node from the list 'list' must be used with this property "
+            "(input displayed in format 'listName / NodeName')."
+        )
+        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
+        assert next(result.objects(nd_bn, SH.severity)) == SH.Violation
 
-    def test_construct_one_list_property_shape_with_collection_three(self) -> None:
+    def test_three_nodes(self) -> None:
         test_list = OneList(
             list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
@@ -111,8 +122,19 @@ class TestConstructListNode:
             ],
         )
         result = _construct_one_list_node_shape(test_list)
-        number_of_strings_in_list = 3
-        assert len(list(result.objects(predicate=RDF.first))) == number_of_strings_in_list
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+        nd_bn = next(result.objects(nodeshape_iri, SH.property))
+        assert next(result.objects(nd_bn, RDF.type)) == SH.PropertyShape
+        assert next(result.objects(nd_bn, SH.path)) == KNORA_API.listValueAsListNode
+        number_of_list_nodes = 3
+        assert len(list(result.objects(predicate=RDF.first))) == number_of_list_nodes
+        expected_msg = (
+            "A valid node from the list 'list' must be used with this property "
+            "(input displayed in format 'listName / NodeName')."
+        )
+        assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
+        assert next(result.objects(nd_bn, SH.severity)) == SH.Violation
 
 
 if __name__ == "__main__":

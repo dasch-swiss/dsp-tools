@@ -252,7 +252,7 @@ def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
 
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    formatted_iris = [f"<{x.iri}>" for x in one_list.nodes]
+    formatted_iris = [f'"{x.iri}"' for x in one_list.nodes]
     list_nodes = " ".join(formatted_iris)
     msg = (
         f"A valid node from the list '{one_list.list_name}' "

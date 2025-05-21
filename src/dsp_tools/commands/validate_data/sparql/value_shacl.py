@@ -268,9 +268,9 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
           a           sh:PropertyShape ;
           sh:path     knora-api:listValueAsListNode ;
           sh:in       ( {list_nodes} ) ;
-          sh:message  "{msg}" ;
-          sh:severity  sh:Violation
-                  ] .
+          sh:message  "{msg}" 
+                  ] ;
+      sh:severity  sh:Violation .
     """
     g = Graph()
     g.parse(data=ttl_str, format="turtle")

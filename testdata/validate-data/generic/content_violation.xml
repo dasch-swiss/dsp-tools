@@ -35,6 +35,13 @@
         </list-prop>
     </resource>
 
+    <!-- node exists but wrong list used -->
+    <resource label="List node does not exist" restype=":ClassWithEverything" id="wrong_list_used">
+        <list-prop list="secondList" name=":testListProp">
+            <list>l2n1</list>
+        </list-prop>
+    </resource>
+
     <!-- list does not exist -->
     <resource label="List name does not exist" restype=":ClassWithEverything" id="list_name_non_existent">
         <list-prop list="other" name=":testListProp">

@@ -99,6 +99,7 @@ class TestConstructListNode:
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+        assert next(result.objects(nodeshape_iri, SH.severity)) == SH.Violation
         nd_bn = next(result.objects(nodeshape_iri, SH.property))
         assert next(result.objects(nd_bn, RDF.type)) == SH.PropertyShape
         assert next(result.objects(nd_bn, SH.path)) == KNORA_API.listValueAsListNode
@@ -109,7 +110,6 @@ class TestConstructListNode:
             "(input displayed in format 'listName / NodeName')."
         )
         assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
-        assert next(result.objects(nd_bn, SH.severity)) == SH.Violation
 
     def test_three_nodes(self) -> None:
         test_list = OneList(
@@ -124,6 +124,7 @@ class TestConstructListNode:
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+        assert next(result.objects(nodeshape_iri, SH.severity)) == SH.Violation
         nd_bn = next(result.objects(nodeshape_iri, SH.property))
         assert next(result.objects(nd_bn, RDF.type)) == SH.PropertyShape
         assert next(result.objects(nd_bn, SH.path)) == KNORA_API.listValueAsListNode
@@ -134,7 +135,6 @@ class TestConstructListNode:
             "(input displayed in format 'listName / NodeName')."
         )
         assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg)
-        assert next(result.objects(nd_bn, SH.severity)) == SH.Violation
 
 
 if __name__ == "__main__":

@@ -21,6 +21,8 @@ from dsp_tools.commands.validate_data.get_user_validation_message import get_use
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
+from dsp_tools.commands.validate_data.models.api_responses import ListLookup
+from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -145,9 +147,19 @@ def _prepare_data_for_validation_from_parsed_resource(
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info = _get_project_specific_information_from_api(auth, shortcode)
-    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup)
+    list_lookup = _make_list_lookup(proj_info.all_lists)
+    data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
     rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info)
     return rdf_graphs, used_iris
+
+
+def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
+    lookup = {}
+    for li in project_lists:
+        for nd in li.nodes:
+            lookup[(li.list_name, nd.name)] = nd.iri
+            lookup[("", nd.iri)] = nd.iri
+    return ListLookup(lookup)
 
 
 def _get_project_specific_information_from_api(auth: AuthenticationClient, shortcode: str) -> ProjectDataFromApi:
@@ -158,9 +170,9 @@ def _get_project_specific_information_from_api(auth: AuthenticationClient, short
 
 
 def _make_data_graph_from_parsed_resources(
-    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]
+    parsed_resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], list_lookup: ListLookup
 ) -> Graph:
-    rdf_like_data = get_rdf_like_data(parsed_resources, authorship_lookup)
+    rdf_like_data = get_rdf_like_data(parsed_resources, authorship_lookup, list_lookup)
     rdf_data = make_data_graph(rdf_like_data)
     return rdf_data
 

@@ -10,7 +10,7 @@ from rdflib.collection import Collection
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
-from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -51,7 +51,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       ?class a sh:NodeShape ;
              sh:property ?propShapesIRI .
-    
+
     } WHERE {
 
       ?class a owl:Class ;
@@ -60,7 +60,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;          
           owl:onProperty ?propRestriction .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
@@ -102,7 +102,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-      
+
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
@@ -267,16 +267,15 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
-    nodes = [x.name for x in one_list.nodes]
-    list_name_and_node = [f"{one_list.list_name} / {x}" for x in nodes]
+    list_iris = [nd.iri for nd in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
-        sh_path=API_SHAPES.listNodeAsString,
+        sh_path=KNORA_API.listValueAsListNode,
         sh_message=(
             f"A valid node from the list '{one_list.list_name}' must be used with this property "
             f"(input displayed in format 'listName / NodeName')."
         ),
-        sh_in=list_name_and_node,
+        sh_in=list_iris,
     )
     g += _construct_one_list_property_shape_with_collection(node_prop_info)
     return g

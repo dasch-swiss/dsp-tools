@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 15 Violations -->
+    <!-- 16 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -32,6 +32,13 @@
     <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
         <list-prop list="firstList" name=":testListProp">
             <list>other</list>
+        </list-prop>
+    </resource>
+
+    <!-- node exists but wrong list used -->
+    <resource label="List from another list is used" restype=":ClassWithEverything" id="wrong_list_used">
+        <list-prop list="secondList" name=":testListProp">
+            <list>l2n1</list>
         </list-prop>
     </resource>
 

@@ -19,6 +19,11 @@ class ProjectDataFromApi:
 
 
 @dataclass
+class ListLookup:
+    lists: dict[tuple[str, str], str]
+
+
+@dataclass
 class OneList:
     list_iri: str
     list_name: str

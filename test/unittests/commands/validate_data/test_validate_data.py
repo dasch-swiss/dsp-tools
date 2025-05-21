@@ -3,12 +3,15 @@
 import pytest
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validate_data import _get_msg_str_unknown_classes_in_data
+from dsp_tools.commands.validate_data.validate_data import _make_list_lookup
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.unittests.commands.validate_data.constants import PREFIXES
 
@@ -114,6 +117,23 @@ class TestFindUnknownClasses:
         graphs = _get_rdf_graphs(Graph())
         all_user_facing_classes = _get_all_onto_classes(graphs)
         assert all_user_facing_classes == CLASSES_IN_ONTO
+
+
+def test_make_list_lookup():
+    all_lists = [
+        OneList("IRI1", "list1", [OneNode("l1n1", "IRIl1n1"), OneNode("l1n2", "IRIl1n2")]),
+        OneList("IRI2", "list2", [OneNode("l2n1", "IRIl2n1")]),
+    ]
+    result = _make_list_lookup(all_lists)
+    expected_lookup = {
+        ("", "IRIl1n1"): "IRIl1n1",
+        ("", "IRIl1n2"): "IRIl1n2",
+        ("", "IRIl2n1"): "IRIl2n1",
+        ("list1", "l1n1"): "IRIl1n1",
+        ("list1", "l1n2"): "IRIl1n2",
+        ("list2", "l2n1"): "IRIl2n1",
+    }
+    assert result.lists == expected_lookup
 
 
 if __name__ == "__main__":

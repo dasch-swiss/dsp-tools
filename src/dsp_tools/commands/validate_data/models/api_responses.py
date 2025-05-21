@@ -20,7 +20,7 @@ class ProjectDataFromApi:
 
 @dataclass
 class ListLookup:
-    lists: dict[tuple[str | None, str | None], str]
+    lists: dict[tuple[str, str], str]
 
 
 @dataclass

@@ -120,7 +120,7 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, list_node_lookup: ListLookup) -> str:
+def _get_list_value_str(user_value: tuple[str | None, str | None], list_node_lookup: ListLookup) -> str:
     if found := list_node_lookup.lists.get(user_value):
         return found
     return " / ".join(x for x in user_value if x is not None)

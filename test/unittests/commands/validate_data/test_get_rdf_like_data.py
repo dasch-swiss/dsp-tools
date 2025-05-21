@@ -8,6 +8,7 @@ from dsp_tools.commands.validate_data.get_rdf_like_data import _get_list_value_s
 from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_resource
 from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_value
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
+from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
@@ -26,6 +27,7 @@ RES_TYPE = f"{ONTO}ResourceType"
 
 
 AUTHORSHIP_LOOKUP = {"auth_id": ["Author Resolved"]}
+LIST_LOOKUP = ListLookup({("list", "node"): "http://rdfh.ch/lists/9999/n1"})
 
 
 @pytest.fixture
@@ -63,7 +65,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, {})
+        result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
         assert not result.asset_value
@@ -84,7 +86,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, {})
+        result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
         assert not result.asset_value
@@ -110,7 +112,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result_list = get_rdf_like_data([res], {})
+        result_list = get_rdf_like_data([res], {}, LIST_LOOKUP)
         assert len(result_list.resources) == 1
         result = result_list.resources.pop(0)
         assert result.res_id == "one"
@@ -133,7 +135,7 @@ class TestResource:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, AUTHORSHIP_LOOKUP)
+        result = _get_one_resource(res, AUTHORSHIP_LOOKUP, LIST_LOOKUP)
         assert len(result.values) == 1
         file_value = result.values.pop(0)
         assert isinstance(file_value, RdfLikeValue)
@@ -152,7 +154,7 @@ class TestResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, {})
+        result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
         assert not result.asset_value
@@ -170,7 +172,7 @@ class TestResource:
 class TestValues:
     def test_boolean_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -178,7 +180,7 @@ class TestValues:
 
     def test_boolean_with_comment_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, "comment")
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -190,7 +192,7 @@ class TestValues:
 
     def test_boolean_with_comment_empty_string(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, "")
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -202,7 +204,7 @@ class TestValues:
 
     def test_boolean_with_permissions_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -214,7 +216,7 @@ class TestValues:
 
     def test_boolean_none(self):
         val = ParsedValue(HAS_PROP, None, KnoraValueType.BOOLEAN_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -222,7 +224,7 @@ class TestValues:
 
     def test_color_corr(self):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "#5d1f1e"
         assert res.knora_type == KnoraValueType.COLOR_VALUE
@@ -230,7 +232,7 @@ class TestValues:
 
     def test_date_corr(self):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "CE:1849:CE:1850"
         assert res.knora_type == KnoraValueType.DATE_VALUE
@@ -238,7 +240,7 @@ class TestValues:
 
     def test_decimal_corr(self):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1.4"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
@@ -246,7 +248,7 @@ class TestValues:
 
     def test_geoname_corr(self):
         val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1111111"
         assert res.knora_type == KnoraValueType.GEONAME_VALUE
@@ -263,7 +265,7 @@ class TestValues:
                     {"x": 0.7, "y": 0.6}]
                     }"""
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", geometry, KnoraValueType.GEOM_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
         assert res.user_facing_value is not None
         assert res.knora_type == KnoraValueType.GEOM_VALUE
@@ -271,7 +273,7 @@ class TestValues:
 
     def test_geom_wrong(self):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "invalid", KnoraValueType.GEOM_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
@@ -279,7 +281,7 @@ class TestValues:
 
     def test_geom_none(self):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", None, KnoraValueType.GEOM_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
@@ -287,7 +289,7 @@ class TestValues:
 
     def test_int_corr(self):
         val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1"
         assert res.knora_type == KnoraValueType.INT_VALUE
@@ -295,7 +297,7 @@ class TestValues:
 
     def test_interval_corr(self):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.INTERVAL_VALUE
@@ -311,7 +313,7 @@ class TestValues:
 
     def test_list_corr(self):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "list / node"
         assert res.knora_type == KnoraValueType.LIST_VALUE
@@ -319,7 +321,7 @@ class TestValues:
 
     def test_list_none(self):
         val = ParsedValue(HAS_PROP, ("list", None), KnoraValueType.LIST_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "list"
         assert res.knora_type == KnoraValueType.LIST_VALUE
@@ -327,7 +329,7 @@ class TestValues:
 
     def test_link_corr(self):
         val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "other_id"
         assert res.knora_type == KnoraValueType.LINK_VALUE
@@ -335,7 +337,7 @@ class TestValues:
 
     def test_simple_text_corr(self):
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "text"
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -343,7 +345,7 @@ class TestValues:
 
     def test_simple_text_wrong(self):
         val = ParsedValue(HAS_PROP, None, KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -351,14 +353,14 @@ class TestValues:
 
     def test_richtext_corr(self):
         val = ParsedValue(HAS_PROP, "<p>Text</p>", KnoraValueType.RICHTEXT_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "<p>Text</p>"
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
         assert not res.value_metadata
 
     def test_richtext_with_standoff(self, richtext_with_standoff):
-        res = _get_one_value(richtext_with_standoff)
+        res = _get_one_value(richtext_with_standoff, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
@@ -366,7 +368,7 @@ class TestValues:
 
     def test_time_corr(self):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "2019-10-23T13:45:12.01-14:00"
         assert res.knora_type == KnoraValueType.TIME_VALUE
@@ -374,7 +376,7 @@ class TestValues:
 
     def test_uri_corr(self):
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
-        res = _get_one_value(val)
+        res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "https://dasch.swiss"
         assert res.knora_type == KnoraValueType.URI_VALUE
@@ -443,7 +445,7 @@ class TestFileValue:
     ],
 )
 def test_get_list_value_str(input_val, expected):
-    assert _get_list_value_str(input_val) == expected
+    assert _get_list_value_str(input_val, LIST_LOOKUP) == expected
 
 
 if __name__ == "__main__":

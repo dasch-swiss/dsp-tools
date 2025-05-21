@@ -158,6 +158,7 @@ def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
     for li in project_lists:
         for nd in li.nodes:
             lookup[(li.list_name, nd.name)] = nd.iri
+            lookup[("", nd.iri)] = nd.iri
     return ListLookup(lookup)
 
 

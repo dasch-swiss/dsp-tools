@@ -121,11 +121,11 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: Any, list_node_lookup: ListLookup) -> str:
+def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, list_node_lookup: ListLookup) -> str:
     in_tuple = cast(tuple[Any, Any], user_value)
     if found := list_node_lookup.lists.get(in_tuple):
         return found
-    return " / ".join(x for x in user_value if x is not None)
+    return " / ".join(x for x in in_tuple if x is not None)
 
 
 def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:

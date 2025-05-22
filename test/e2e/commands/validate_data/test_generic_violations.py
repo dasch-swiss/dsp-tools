@@ -202,8 +202,12 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "The value must be a non-empty string without newlines.",
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-        ("unknown_permissions_id", "permissions", "The permissions must be pre-defined."),
-        ("unknown_permissions_id_on_value", "onto:testTextarea", "The permissions must be pre-defined."),
+        ("unknown_permissions_id", "permissions", "You must reference one of the pre-define permissions: open"),
+        (
+            "unknown_permissions_id_on_value",
+            "onto:testTextarea",
+            "You must reference one of the pre-define permissions: open",
+        ),
         (
             "wrong_list_used",
             "onto:testListProp",

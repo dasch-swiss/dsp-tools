@@ -73,18 +73,20 @@ def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
 def _get_defined_permissions_shape(permission_ids: list[str]) -> Graph:
     g = Graph()
     permissions = " ".join([f'"{x}"' for x in permission_ids])
-    msg = f"You must reference one of the pre-define permissions, one of: {' '.join(permission_ids)}"
+    msg = f"You must reference one of the pre-define permissions: {' '.join(permission_ids)}"
     shape = f"""
      @prefix sh:         <http://www.w3.org/ns/shacl#> .
+     @prefix owl: <http://www.w3.org/2002/07/owl#> .
      @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
      @prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
      
      api-shapes:hasPermissions_Shape
-       a                  sh:NodeShape ;
-       sh:targetObjectsOf knora-api:hasPermissions ;
-       sh:in              ( {permissions} ) ;
-       sh:message         "{msg}" ;
-       sh:severity        sh:Violation .
+       a              sh:NodeShape ;
+       sh:targetClass knora-api:Value , knora-api:Resource ;
+       sh:path        knora-api:hasPermissions ;
+       sh:in          ( {permissions} ) ;
+       sh:message     "{msg}" ;
+       sh:severity    sh:Violation .
      """
     g.parse(data=shape, format="turtle")
     return g

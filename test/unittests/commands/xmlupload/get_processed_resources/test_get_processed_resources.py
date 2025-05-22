@@ -30,6 +30,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
 from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
@@ -452,6 +453,11 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+
+    def test_list_value_raises(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None)
+        with pytest.raises(XmlUploadListNodeNotFoundError):
+            _get_one_processed_value(val, lookups)
 
     def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "open", "cmt")

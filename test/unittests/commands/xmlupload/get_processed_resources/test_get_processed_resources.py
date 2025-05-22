@@ -78,7 +78,7 @@ def iiif_file_value():
 
 class TestResources:
     def test_success(self, lookups):
-        parsed_res = ParsedResource(
+        res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
@@ -87,7 +87,7 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([parsed_res], lookups)
+        result = get_processed_resources([res], lookups)
         assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):

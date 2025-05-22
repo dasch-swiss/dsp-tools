@@ -33,9 +33,9 @@ state pywork {
 }
 pywork-->processed
 state processed {
-    ResourceInputConversionFailure-->[*]: processing error raised
-    parsedres2-->Processedres: processing success
-    parsedres2-->ResourceInputConversionFailure: processing failure
+    valdata-->[*]: validation failure
+    valdata-->parsedres2: validation success
+    parsedres2-->Processedres: resolve data
 }
 pywork-->valdata
 state valdata {
@@ -127,7 +127,7 @@ state processedfile {
 processedres-->coll: return result
 processedationval-->coll: return result
 processedfile-->coll: return result
-coll-->ResourceInputConversionFailure: resolving errors
-ResourceInputConversionFailure-->[*]
+coll-->ResourceInputProcessingFailure: resolving errors
+ResourceInputProcessingFailure-->[*]
 coll-->ProcessedResource: successful processed resources
 ```

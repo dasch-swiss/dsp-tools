@@ -21,7 +21,7 @@
     <!-- referenced permission must exist -->
     <resource label="Permissions" permissions="unknown" restype=":ClassWithEverything" id="unknown_permissions_id_on_resource"/>
 
-    <resource label="No Content" restype=":ClassWithEverything" id="unknown_permissions_id_on_value">
+    <resource label="Permissions" restype=":ClassWithEverything" id="unknown_permissions_id_on_value">
         <text-prop name=":testTextarea">
             <text encoding="utf8" permissions="unknown">Text</text>
         </text-prop>

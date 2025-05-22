@@ -12,6 +12,10 @@
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
 
     <authorship id="authorship_1">
         <author>Author One</author>

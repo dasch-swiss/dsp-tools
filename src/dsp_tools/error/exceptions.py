@@ -44,10 +44,6 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
-class PermissionNotExistsError(BaseError):
-    """Class for errors that are raised when a permission does not exist."""
-
-
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
@@ -82,3 +78,15 @@ class XmlInputConversionError(BaseError):
 
 class XmlUploadInterruptedError(XmlUploadError):
     """Represents an error raised when the xmlupload was interrupted."""
+
+
+class XmlUploadPermissionsNotFoundError(BaseError):
+    """Class for errors that are raised when a permission does not exist."""
+
+
+class XmlUploadAuthorshipsNotFoundError(BaseError):
+    """Class for errors that are raised when an authorship id does not exist."""
+
+
+class XmlUploadListNodeNotFoundError(BaseError):
+    """Class for errors that are raised when a list node does not exist."""

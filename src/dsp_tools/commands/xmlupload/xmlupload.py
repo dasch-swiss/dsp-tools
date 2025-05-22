@@ -89,6 +89,7 @@ def xmlupload(
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
+        permission_ids=list(lookups.permissions.keys()),
         shortcode=shortcode,
         config=ValidateDataConfig(input_file, save_graph_dir=None, severity=config.validation_severity),
         auth=auth,

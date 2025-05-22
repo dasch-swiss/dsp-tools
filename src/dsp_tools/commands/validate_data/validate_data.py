@@ -80,6 +80,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
 def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
+    permission_ids: list[str],
     shortcode: str,
     config: ValidateDataConfig,
     auth: AuthenticationClient,

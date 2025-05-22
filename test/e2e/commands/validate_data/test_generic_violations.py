@@ -203,16 +203,6 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         (
-            "unknown_permissions_id_on_resource",
-            "permissions",
-            "You must reference one of the pre-define permissions: open",
-        ),
-        (
-            "unknown_permissions_id_on_value",
-            "onto:testTextarea",
-            "You must reference one of the pre-define permissions: open",
-        ),
-        (
             "wrong_list_used",
             "onto:testListProp",
             (
@@ -374,6 +364,9 @@ class TestReformatValidationGraph:
             ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("missing_isPartOf", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
+            ("non_existent_permissions_bitstream", ProblemType.GENERIC),
+            ("non_existent_permissions_resource", ProblemType.GENERIC),
+            ("non_existent_permissions_value", ProblemType.GENERIC),
             ("region_invalid_geometry", ProblemType.INPUT_REGEX),
             ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),

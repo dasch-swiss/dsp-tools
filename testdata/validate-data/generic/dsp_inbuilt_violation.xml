@@ -6,11 +6,18 @@
        shortcode="9999"
        default-ontology="in-built">
 
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
     <authorship id="authorship_1">
         <author>Author One</author>
     </authorship>
 
-    <!-- 15 Violations -->
+    <!-- 18 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -254,12 +261,12 @@
     <resource label="Resource with Permissions"
               restype=":TestNormalResource"
               id="non_existent_permissions_resource"
-              permissions="open"
+              permissions="unknown"
     />
 
     <link label="value with permissions" id="non_existent_permissions_value">
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="open">target_res_without_representation_1</resptr>
+            <resptr permissions="unknown">target_res_without_representation_1</resptr>
         </resptr-prop>
     </link>
 
@@ -270,20 +277,8 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-                   permissions="open"
+                   permissions="unknown"
         >this/is/filepath/file.jpg</bitstream>
-    </resource>
-
-    <resource label="IIIF with permissions"
-              restype=":TestStillImageRepresentationWithSeqnum"
-              id="non_existent_permissions_iiif"
-    >
-        <iiif-uri license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-                   permissions="open"
-        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
-        </iiif-uri>
     </resource>
 
 </knora>

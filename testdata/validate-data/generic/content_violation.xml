@@ -6,26 +6,10 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <permissions id="open">
-        <allow group="UnknownUser">V</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-
-    <!-- 18 Violations -->
+    <!-- 16 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
-
-    <!-- referenced permission must exist -->
-    <resource label="Permissions" permissions="unknown" restype=":ClassWithEverything" id="unknown_permissions_id_on_resource"/>
-
-    <resource label="Permissions" restype=":ClassWithEverything" id="unknown_permissions_id_on_value">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8" permissions="unknown">Text</text>
-        </text-prop>
-    </resource>
 
     <!-- label may not contain newlines -->
     <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>

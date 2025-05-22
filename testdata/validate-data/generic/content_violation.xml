@@ -6,10 +6,20 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 16 Violations -->
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <!-- 17 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+
+    <!-- referenced permission must exist -->
+    <resource label="Permissions" permissions="unknown" restype=":ClassWithEverything" id="unknown_permissions_id"/>
 
     <!-- label may not contain newlines -->
     <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>

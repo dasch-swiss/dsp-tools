@@ -9,7 +9,7 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.xmllib.internal.checkers import check_and_warn_about_angular_brackets
+from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
@@ -262,7 +262,7 @@ class SimpleText(Value):
             expected="string",
             prop_name=prop_name,
         )
-        check_and_warn_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
+        check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.resources
-import warnings
 from copy import deepcopy
 from pathlib import Path
 
@@ -9,7 +8,6 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
 
 separator = "\n    "
@@ -90,34 +88,3 @@ def _beautify_err_msg(err_msg: str) -> str:
     )
     err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
     return err_msg
-
-
-def _warn_user_about_tags_in_simpletext(xml: etree._Element) -> None:
-    """
-    Checks if there are angular brackets in simple text.
-    It is possible that the user mistakenly added XML tags into a simple text field.
-    But it is also possible that an angular bracket should be displayed.
-    So that the user does not insert XML tags mistakenly into simple text fields,
-    the user is warned, if there is any present.
-    """
-    xml_no_namespace = _transform_into_localnames(xml)
-    resources_with_potential_xml_tags = []
-    text_prop_path = "resource/text-prop/text"
-    for text in xml_no_namespace.findall(path=text_prop_path):
-        regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
-        etree_finds_tags = bool(list(text.iterchildren()))
-        has_tags = regex_finds_tags or etree_finds_tags
-        if text.attrib["encoding"] == "utf8" and has_tags:
-            sourceline = f"line {text.sourceline}: " if text.sourceline else " "
-            propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
-            resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
-            resources_with_potential_xml_tags.append(f"{sourceline}resource '{resname}', property '{propname}'")
-    if resources_with_potential_xml_tags:
-        err_msg = (
-            "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
-            "Please note that these will not be recognised as formatting in the text field, "
-            "but will be displayed as-is.\n"
-            f"The following resources of your XML file contain angular brackets:{list_separator}"
-            f"{list_separator.join(resources_with_potential_xml_tags)}"
-        )
-        warnings.warn(DspToolsUserInfo(err_msg))

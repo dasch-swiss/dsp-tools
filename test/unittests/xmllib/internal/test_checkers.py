@@ -9,6 +9,7 @@ import regex
 
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 
 
@@ -36,3 +37,29 @@ def test_check_and_warn_potentially_empty_string_potentially_empty(in_val, type_
     )
     with pytest.warns(XmllibInputInfo, match=expected):
         check_and_warn_potentially_empty_string(value=in_val, res_id="res", expected="input")
+
+
+@pytest.mark.parametrize(
+    "allowed_values",
+    [
+        "(&lt;2cm) (&gt;10cm)",
+        "text &lt; text/&gt;",
+        "text &lt; text&gt; &amp; text",
+        "text &lt;text text &gt; text",
+        'text &lt; text text="text"&gt; text',
+        'text &lt;text text="text" &gt; text',
+    ],
+)
+def test_check_and_inform_about_angular_brackets_good(allowed_values, recwarn: pytest.WarningsRecorder):
+    check_and_inform_about_angular_brackets(allowed_values, "id", "prp")
+    assert len(recwarn) == 0
+
+
+@pytest.mark.parametrize("in_val", ["text <tag> text", "text <p>paragraph</p> text"])
+def test_check_and_inform_about_angular_brackets_informs(in_val):
+    expected = regex.escape(
+        rf"Your input '{in_val}' contains angular brackets. "
+        r"Since this is a simpletext the brackets will be displayed as is."
+    )
+    with pytest.warns(XmllibInputInfo, match=expected):
+        check_and_inform_about_angular_brackets(in_val, "id", "prp")

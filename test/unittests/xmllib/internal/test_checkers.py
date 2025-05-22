@@ -42,12 +42,12 @@ def test_check_and_warn_potentially_empty_string_potentially_empty(in_val, type_
 @pytest.mark.parametrize(
     "allowed_values",
     [
-        "(&lt;2cm) (&gt;10cm)",
-        "text &lt; text/&gt;",
-        "text &lt; text&gt; &amp; text",
-        "text &lt;text text &gt; text",
-        'text &lt; text text="text"&gt; text',
-        'text &lt;text text="text" &gt; text',
+        "(<2cm) (>10cm)",
+        "text < text/>",
+        "text < text> & text",
+        "text <text text > text",
+        'text < text text="text"> text',
+        'text <text text="text" > text',
     ],
 )
 def test_check_and_inform_about_angular_brackets_good(allowed_values, recwarn: pytest.WarningsRecorder):

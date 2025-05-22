@@ -80,12 +80,13 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
 def validate_parsed_resources(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
+    permission_ids: list[str],
     shortcode: str,
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, auth, shortcode
+        parsed_resources, authorship_lookup, permission_ids, auth, shortcode
     )
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
@@ -127,21 +128,25 @@ def _validate_data(
 
 
 def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode, authorship_lookup = _get_info_from_xml(filepath, auth.server)
-    return _prepare_data_for_validation_from_parsed_resource(parsed_resources, authorship_lookup, auth, shortcode)
+    parsed_resources, shortcode, authorship_lookup, permission_ids = _get_info_from_xml(filepath, auth.server)
+    return _prepare_data_for_validation_from_parsed_resource(
+        parsed_resources, authorship_lookup, permission_ids, auth, shortcode
+    )
 
 
-def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]]]:
+def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]], list[str]]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
     authorship_lookup = get_authorship_lookup(root)
+    permission_ids = [perm.attrib["id"] for perm in root.findall("permissions")]
     parsed_resources = get_parsed_resources(root, api_url)
-    return parsed_resources, shortcode, authorship_lookup
+    return parsed_resources, shortcode, authorship_lookup, permission_ids
 
 
 def _prepare_data_for_validation_from_parsed_resource(
     parsed_resources: list[ParsedResource],
     authorship_lookup: dict[str, list[str]],
+    permission_ids: list[str],
     auth: AuthenticationClient,
     shortcode: str,
 ) -> tuple[RDFGraphs, set[str]]:
@@ -149,7 +154,7 @@ def _prepare_data_for_validation_from_parsed_resource(
     proj_info = _get_project_specific_information_from_api(auth, shortcode)
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
     return rdf_graphs, used_iris
 
 
@@ -321,7 +326,11 @@ def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
 
 
 def _create_graphs(
-    data_rdf: Graph, shortcode: str, auth: AuthenticationClient, proj_info: ProjectDataFromApi
+    data_rdf: Graph,
+    shortcode: str,
+    auth: AuthenticationClient,
+    proj_info: ProjectDataFromApi,
+    permission_ids: list[str],
 ) -> RDFGraphs:
     logger.info("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
@@ -329,7 +338,7 @@ def _create_graphs(
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, proj_info)
+    shapes = construct_shapes_graphs(ontologies, knora_api, proj_info, permission_ids)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))

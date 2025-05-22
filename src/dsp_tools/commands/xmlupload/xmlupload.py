@@ -27,7 +27,6 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
@@ -102,7 +101,6 @@ def xmlupload(
         validate_iiif_uris(root)
 
     processed_resources = get_processed_resources_for_upload(parsed_resources, lookups)
-    check_if_link_targets_exist(processed_resources)
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,

@@ -29,7 +29,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.error.exceptions import PermissionNotExistsError
+from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
@@ -76,7 +77,7 @@ def iiif_file_value():
 
 class TestResources:
     def test_success(self, lookups):
-        res = ParsedResource(
+        parsed_res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
@@ -85,9 +86,8 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups)
-        assert len(result.processed_resources) == 1
-        assert not result.resource_failures
+        result = get_processed_resources([parsed_res], lookups)
+        assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):
         res = ParsedResource(
@@ -99,11 +99,8 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups)
-        assert not result.processed_resources
-        assert len(result.resource_failures) == 1
-        assert result.resource_failures[0].resource_id == "id"
-        assert result.resource_failures[0].failure_msg == "Could not find permissions for value: nonExisting"
+        with pytest.raises(XmlUploadPermissionsNotFoundError):
+            get_processed_resources([res], lookups)
 
 
 class TestOneResource:
@@ -235,7 +232,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        with pytest.raises(PermissionNotExistsError, match=msg):
+        with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _get_one_resource(res, lookups)
 
     def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
@@ -304,6 +301,12 @@ class TestFileValue:
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
+
+    def test_file_value_with_unknown_authorship_id(self, lookups: XmlReferenceLookups):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unkown_auth_id", None)
+        file_val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        with pytest.raises(XmlUploadAuthorshipsNotFoundError):
+            _get_file_value(file_val, lookups, "id", "lbl")
 
     def test_iiif_uri_value(self, iiif_file_value, lookups: XmlReferenceLookups):
         result = _get_iiif_uri_value(iiif_file_value, lookups)
@@ -374,7 +377,7 @@ class TestValues:
 
     def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
-        with pytest.raises(PermissionNotExistsError):
+        with pytest.raises(XmlUploadPermissionsNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_color_value(self, lookups: XmlReferenceLookups):
@@ -534,5 +537,5 @@ class TestPermissions:
 
     def test_raises(self, lookups):
         msg = regex.escape("Could not find permissions for value: inexistent")
-        with pytest.raises(PermissionNotExistsError, match=msg):
+        with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _resolve_permission("inexistent", lookups.permissions)

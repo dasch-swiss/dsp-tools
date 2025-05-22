@@ -35,7 +35,9 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
-from dsp_tools.error.exceptions import PermissionNotExistsError
+from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
+from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -132,7 +134,9 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
     if not authorship_id:
         return None
-    return lookup[authorship_id]
+    if not (found := lookup.get(authorship_id)):
+        raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
+    return found
 
 
 def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
@@ -171,7 +175,8 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
 
 def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
-    list_iri = lookups.listnodes[tuple_val]
+    if not (list_iri := lookups.listnodes.get(tuple_val)):
+        raise XmlUploadListNodeNotFoundError(f"Could not find list IRI for value: {tuple_val}")
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     list_val: ProcessedValue = ProcessedList(
         value=list_iri,
@@ -200,6 +205,6 @@ def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, P
     """Resolve the permission into a string that can be sent to the API."""
     if permissions:
         if not (per := permissions_lookup.get(permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
+            raise XmlUploadPermissionsNotFoundError(f"Could not find permissions for value: {permissions}")
         return per
     return None

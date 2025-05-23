@@ -342,12 +342,12 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
         expected_info_info = [
-            ("duplicate_archive_1", ProblemType.FILE_VALUE),
-            ("duplicate_archive_2", ProblemType.FILE_VALUE),
-            ("duplicate_iiif_1", ProblemType.FILE_VALUE),
-            ("duplicate_iiif_2", ProblemType.FILE_VALUE),
-            ("duplicate_still_image_1", ProblemType.FILE_VALUE),
-            ("duplicate_still_image_2", ProblemType.FILE_VALUE),
+            ("duplicate_archive_1", ProblemType.GENERIC),
+            ("duplicate_archive_2", ProblemType.GENERIC),
+            ("duplicate_iiif_1", ProblemType.GENERIC),
+            ("duplicate_iiif_2", ProblemType.GENERIC),
+            ("duplicate_still_image_1", ProblemType.GENERIC),
+            ("duplicate_still_image_2", ProblemType.GENERIC),
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)

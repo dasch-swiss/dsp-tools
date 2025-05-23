@@ -386,7 +386,7 @@ def _query_general_violation_info(
     result_bn: SubjectObjectTypeAlias,
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
-    violation_type: ViolationType.GENERIC,
+    violation_type: ViolationType,
 ) -> ValidationResult:
     val = None
     if found_val := list(results_and_onto.objects(result_bn, SH.value)):

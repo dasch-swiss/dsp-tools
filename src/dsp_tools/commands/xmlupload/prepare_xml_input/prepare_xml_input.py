@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 from loguru import logger
 from lxml import etree
 
@@ -9,7 +7,6 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_processed_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -55,22 +52,6 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         logger.exception("Unable to retrieve project context from DSP server")
         raise InputError("Unable to retrieve project context from DSP server") from None
     return proj_context
-
-
-def get_processed_resources_for_upload(
-    resources: list[ParsedResource], xml_lookups: XmlReferenceLookups
-) -> list[ProcessedResource]:
-    processing_result = get_processed_resources(resources, xml_lookups)
-    if processing_result.resource_failures:
-        failures = [
-            f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in processing_result.resource_failures
-        ]
-        msg = (
-            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
-            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
-        )
-        raise InputError(msg)
-    return processing_result.processed_resources
 
 
 def get_stash_and_upload_order(

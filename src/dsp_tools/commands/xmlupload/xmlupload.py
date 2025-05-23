@@ -27,11 +27,10 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
@@ -89,6 +88,7 @@ def xmlupload(
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
+        permission_ids=list(lookups.permissions.keys()),
         shortcode=shortcode,
         config=ValidateDataConfig(input_file, save_graph_dir=None, severity=config.validation_severity),
         auth=auth,
@@ -100,8 +100,7 @@ def xmlupload(
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 
-    processed_resources = get_processed_resources_for_upload(parsed_resources, lookups)
-    check_if_link_targets_exist(processed_resources)
+    processed_resources = get_processed_resources(parsed_resources, lookups)
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,

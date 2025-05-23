@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.processed.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import XmlInputConversionError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
@@ -30,11 +30,11 @@ def assert_is_string(value: InputTypes) -> str:
         case str() as s:
             return s
         case FormattedTextValue() as xml:
-            raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
+            raise XmlInputConversionError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():
-            raise InputError(f"Expected string value, but got tuple value: {value}")
+            raise XmlInputConversionError(f"Expected string value, but got tuple value: {value}")
         case None:
-            raise InputError("Expected string value, but got None")
+            raise XmlInputConversionError("Expected string value, but got None")
         case _:
             assert_never(value)
 
@@ -44,14 +44,14 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
     match value:
         case tuple() as t:
             if not len(t) == 2:
-                raise InputError(f"Expected tuple with two elements but got {value}")
+                raise XmlInputConversionError(f"Expected tuple with two elements but got {value}")
             return t
         case FormattedTextValue() as xml:
-            raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
+            raise XmlInputConversionError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
         case str():
-            raise InputError(f"Expected tuple value, but got string value: {value}")
+            raise XmlInputConversionError(f"Expected tuple value, but got string value: {value}")
         case None:
-            raise InputError("Expected tuple value, but got None")
+            raise XmlInputConversionError("Expected tuple value, but got None")
         case _:
             assert_never(value)
 
@@ -64,7 +64,7 @@ def transform_boolean(value: InputTypes) -> bool:
         case "False" | "false" | "0" | 0 | False:
             return False
         case _:
-            raise InputError(f"Could not parse boolean value: {value}")
+            raise XmlInputConversionError(f"Could not parse boolean value: {value}")
 
 
 def transform_date(input_value: InputTypes) -> Date:
@@ -91,7 +91,7 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
     try:
         return IntervalFloats(float(val[0]), float(val[1]))
     except ValueError:
-        raise InputError(f"Could not parse interval: {val}") from None
+        raise XmlInputConversionError(f"Could not parse interval: {val}") from None
 
 
 def transform_geometry(value: InputTypes) -> str:
@@ -100,18 +100,18 @@ def transform_geometry(value: InputTypes) -> str:
     try:
         return json.dumps(json.loads(str_val))
     except JSONDecodeError:
-        raise InputError(f"Could not parse json value: {value}") from None
+        raise XmlInputConversionError(f"Could not parse json value: {value}") from None
 
 
 def transform_simpletext(value: InputTypes) -> str:
     str_val = assert_is_string(value)
     if len(str_val) == 0:
-        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
+        raise XmlInputConversionError("After removing redundant whitespaces and newlines the input string is empty.")
     return str_val
 
 
 def transform_richtext(value: InputTypes) -> FormattedTextValue:
     str_val = assert_is_string(value)
     if len(str_val) == 0:
-        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
+        raise XmlInputConversionError("After removing redundant whitespaces and newlines the input string is empty.")
     return FormattedTextValue(str_val)

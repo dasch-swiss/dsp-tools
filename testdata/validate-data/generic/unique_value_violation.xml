@@ -46,7 +46,7 @@
 
     <!--
         The value of the same property may not be identical
-        api-shapes:listNodeAsString
+        knora-api:listValueAsListNode
     -->
     <resource label="Duplicate Value: ListNode" restype=":ClassWithEverything" id="identical_values_listNode">
         <list-prop list="firstList" name=":testListProp">

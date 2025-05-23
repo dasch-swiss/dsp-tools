@@ -8,6 +8,7 @@ from rdflib import RDF
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import URIRef
+from tqdm import tqdm
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
@@ -31,19 +32,19 @@ def upload_stashed_resptr_props(
         upload_state: the current state of the upload
         con: connection to DSP
     """
-
-    print(f"{datetime.now()}: Upload the stashed resptrs...")
-    logger.info("Upload the stashed resptrs...")
+    logger.info("Upload the stashed links...")
     upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
     link_value_stash = cast(LinkValueStash, upload_state.pending_stash.link_value_stash)
-    for res_id, stash_items in link_value_stash.res_2_stash_items.copy().items():
+    progress_bar = tqdm(
+        link_value_stash.res_2_stash_items.copy().items(), desc="Upload the stashed links", dynamic_ncols=True
+    )
+    for res_id, stash_items in progress_bar:
         res_iri = upload_state.iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}'...")
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in reversed(stash_items):
             # reversed avoids any problems caused by removing from the list we loop over at the same time

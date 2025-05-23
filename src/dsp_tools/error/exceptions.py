@@ -44,14 +44,6 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
-class PermissionNotExistsError(BaseError):
-    """Class for errors that are raised when a permission does not exist."""
-
-
-class InvalidFileTypeError(BaseError):
-    """Class for errors that are raised when a file type is not supported by DSP."""
-
-
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
@@ -80,5 +72,21 @@ class XmlUploadError(BaseError):
     """Represents an error raised in the context of the xmlupload."""
 
 
+class XmlInputConversionError(BaseError):
+    """Represents an error raised in the context of the xmlupload."""
+
+
 class XmlUploadInterruptedError(XmlUploadError):
     """Represents an error raised when the xmlupload was interrupted."""
+
+
+class XmlUploadPermissionsNotFoundError(BaseError):
+    """Class for errors that are raised when a permission does not exist."""
+
+
+class XmlUploadAuthorshipsNotFoundError(BaseError):
+    """Class for errors that are raised when an authorship id does not exist."""
+
+
+class XmlUploadListNodeNotFoundError(BaseError):
+    """Class for errors that are raised when a list node does not exist."""

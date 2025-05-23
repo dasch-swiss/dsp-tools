@@ -1,10 +1,12 @@
 import json
 from json import JSONDecodeError
+from typing import Any
 from typing import cast
 
 import regex
 
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
+from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeData
@@ -19,13 +21,17 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
-def get_rdf_like_data(resources: list[ParsedResource], authorship_lookup: dict[str, list[str]]) -> RdfLikeData:
-    rdf_like_resources = [_get_one_resource(x, authorship_lookup) for x in resources]
+def get_rdf_like_data(
+    resources: list[ParsedResource], authorship_lookup: dict[str, list[str]], list_node_lookup: ListLookup
+) -> RdfLikeData:
+    rdf_like_resources = [_get_one_resource(x, authorship_lookup, list_node_lookup) for x in resources]
     return RdfLikeData(rdf_like_resources)
 
 
-def _get_one_resource(resource: ParsedResource, authorship_lookup: dict[str, list[str]]) -> RdfLikeResource:
-    values = [_get_one_value(x) for x in resource.values]
+def _get_one_resource(
+    resource: ParsedResource, authorship_lookup: dict[str, list[str]], list_node_lookup: ListLookup
+) -> RdfLikeResource:
+    values = [_get_one_value(x, list_node_lookup) for x in resource.values]
     if resource.file_value:
         if file_val := _get_file_value(resource.file_value, authorship_lookup):
             values.append(file_val)
@@ -62,13 +68,13 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
     return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
 
 
-def _get_one_value(value: ParsedValue) -> RdfLikeValue:
+def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeValue:
     user_value = value.value
     match value.value_type:
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
-            user_value = _get_list_value_str(user_value)
+            user_value = _get_list_value_str(user_value, list_node_lookup)
         case KnoraValueType.GEOM_VALUE:
             user_value = _get_geometry_value_str(user_value)
         case _:
@@ -115,10 +121,11 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
-    if not isinstance(user_value, tuple):
-        return None
-    return " / ".join(x for x in user_value if x is not None)
+def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, list_node_lookup: ListLookup) -> str:
+    in_tuple = cast(tuple[Any, Any], user_value)
+    if found := list_node_lookup.lists.get(in_tuple):
+        return found
+    return " / ".join(x for x in in_tuple if x is not None)
 
 
 def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:

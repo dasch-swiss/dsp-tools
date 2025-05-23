@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import XmlInputConversionError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
@@ -28,7 +28,7 @@ def test_assert_is_string_good():
 
 def test_assert_is_string_raises():
     expected = r"Expected string value, but got tuple value: ('1', '2')"
-    with pytest.raises(InputError, match=regex.escape(expected)):
+    with pytest.raises(XmlInputConversionError, match=regex.escape(expected)):
         assert_is_string(("1", "2"))
 
 
@@ -46,7 +46,7 @@ def test_assert_is_tuple_good():
     ],
 )
 def test_assert_is_tuple_raises(in_val, expected):
-    with pytest.raises(InputError, match=regex.escape(expected)):
+    with pytest.raises(XmlInputConversionError, match=regex.escape(expected)):
         assert_is_tuple(in_val)
 
 
@@ -69,7 +69,7 @@ def test_transform_boolean_good(in_val, expected):
 
 def test_transform_boolean_raises():
     msg = regex.escape(r"Could not parse boolean value: other")
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmlInputConversionError, match=msg):
         transform_boolean("other")
 
 
@@ -125,7 +125,7 @@ def test_transform_geometry_good():
 
 def test_transform_geometry_raises():
     msg = regex.escape(r"Could not parse json value: not valid")
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmlInputConversionError, match=msg):
         transform_geometry("not valid")
 
 
@@ -135,7 +135,7 @@ def test_transform_simpletext_good():
 
 def test_transform_simpletext_raises():
     msg = regex.escape(r"After removing redundant whitespaces and newlines the input string is empty.")
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmlInputConversionError, match=msg):
         transform_simpletext("")
 
 
@@ -148,5 +148,5 @@ def test_transform_richtext_good():
 
 def test_transform_richtext_raises():
     msg = regex.escape(r"After removing redundant whitespaces and newlines the input string is empty.")
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmlInputConversionError, match=msg):
         transform_richtext("")

@@ -202,6 +202,14 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             "The value must be a non-empty string without newlines.",
         ),
         ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        (
+            "wrong_list_used",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
     ]
     result = reformat_validation_graph(content_violation)
     sorted_problems = sort_user_problems(result)
@@ -356,6 +364,9 @@ class TestReformatValidationGraph:
             ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("missing_isPartOf", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
+            ("non_existent_permissions_bitstream", ProblemType.GENERIC),
+            ("non_existent_permissions_resource", ProblemType.GENERIC),
+            ("non_existent_permissions_value", ProblemType.GENERIC),
             ("region_invalid_geometry", ProblemType.INPUT_REGEX),
             ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),

@@ -9,7 +9,7 @@ from .helpers import create_non_empty_list_from_string as create_non_empty_list_
 from .helpers import create_standoff_link_to_resource as create_standoff_link_to_resource
 from .helpers import create_standoff_link_to_uri as create_standoff_link_to_uri
 from .helpers import escape_reserved_xml_characters as escape_reserved_xml_characters
-from .helpers import find_date_in_string as find_date_in_string
+from .helpers import find_dates_in_string as find_dates_in_string
 from .helpers import find_license_in_string as find_license_in_string
 from .helpers import get_list_nodes_from_string_via_list_name as get_list_nodes_from_string_via_list_name
 from .helpers import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property

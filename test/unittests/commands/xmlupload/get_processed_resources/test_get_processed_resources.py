@@ -29,9 +29,9 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidFileTypeError
-from dsp_tools.error.exceptions import PermissionNotExistsError
+from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
+from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
@@ -88,8 +88,7 @@ class TestResources:
             migration_metadata=None,
         )
         result = get_processed_resources([res], lookups)
-        assert len(result.processed_resources) == 1
-        assert not result.resource_failures
+        assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):
         res = ParsedResource(
@@ -101,11 +100,8 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups)
-        assert not result.processed_resources
-        assert len(result.resource_failures) == 1
-        assert result.resource_failures[0].resource_id == "id"
-        assert result.resource_failures[0].failure_msg == "Could not find permissions for value: nonExisting"
+        with pytest.raises(XmlUploadPermissionsNotFoundError):
+            get_processed_resources([res], lookups)
 
 
 class TestOneResource:
@@ -237,7 +233,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        with pytest.raises(PermissionNotExistsError, match=msg):
+        with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _get_one_resource(res, lookups)
 
     def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
@@ -297,13 +293,6 @@ class TestFileValue:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_unknown_file_type(self, lookups: XmlReferenceLookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        val = ParsedFileValue("file.unknown", None, metadata)
-        expected = regex.escape("The file you entered is not one of the supported file types: file.unknown")
-        with pytest.raises(InvalidFileTypeError, match=expected):
-            _get_file_value(val, lookups, "id", "lbl")
-
     def test_file_value_with_permissions(self, file_with_permission, lookups: XmlReferenceLookups):
         result = _get_file_value(file_with_permission, lookups, "id", "lbl")
         assert isinstance(result, ProcessedFileValue)
@@ -313,6 +302,12 @@ class TestFileValue:
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
+
+    def test_file_value_with_unknown_authorship_id(self, lookups: XmlReferenceLookups):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unkown_auth_id", None)
+        file_val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        with pytest.raises(XmlUploadAuthorshipsNotFoundError):
+            _get_file_value(file_val, lookups, "id", "lbl")
 
     def test_iiif_uri_value(self, iiif_file_value, lookups: XmlReferenceLookups):
         result = _get_iiif_uri_value(iiif_file_value, lookups)
@@ -355,24 +350,6 @@ class TestFileMetadata:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_raises_unknown_license(self, lookups):
-        metadata = ParsedFileValueMetadata("inexistent-iri", "copy", "auth_id", None)
-        msg = regex.escape(
-            "The license 'inexistent-iri' used for an image or iiif-uri is unknown. "
-            "See documentation for accepted pre-defined licenses."
-        )
-        with pytest.raises(InputError, match=msg):
-            _get_file_metadata(metadata, lookups)
-
-    def test_raises_unknown_author(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown", "open")
-        msg = regex.escape(
-            "The authorship id 'unknown' referenced in a multimedia file or iiif-uri is unknown. "
-            "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
-        )
-        with pytest.raises(InputError, match=msg):
-            _get_file_metadata(metadata, lookups)
-
 
 class TestValues:
     def test_bool_value(self, bool_value, lookups: XmlReferenceLookups):
@@ -401,7 +378,7 @@ class TestValues:
 
     def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
-        with pytest.raises(PermissionNotExistsError):
+        with pytest.raises(XmlUploadPermissionsNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_color_value(self, lookups: XmlReferenceLookups):
@@ -476,6 +453,11 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+
+    def test_list_value_raises(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None)
+        with pytest.raises(XmlUploadListNodeNotFoundError):
+            _get_one_processed_value(val, lookups)
 
     def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "open", "cmt")
@@ -561,5 +543,5 @@ class TestPermissions:
 
     def test_raises(self, lookups):
         msg = regex.escape("Could not find permissions for value: inexistent")
-        with pytest.raises(PermissionNotExistsError, match=msg):
+        with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _resolve_permission("inexistent", lookups.permissions)

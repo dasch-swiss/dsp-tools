@@ -184,22 +184,6 @@
 
     <!-- Duplicate Files -->
 
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_1">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >duplicate_file.zip
-        </bitstream>
-    </resource>
-
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_2">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >duplicate_file.zip
-        </bitstream>
-    </resource>
-
     <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_1">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
@@ -230,6 +214,36 @@
                   authorship-id="authorship_1"
         >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
+    </resource>
+
+
+    <!--
+        Per duplicate file we get one violation.
+        Meaning that if we use the same file 3 times, we get two violations per resource.
+        This needs to be filtered out
+    -->
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_3">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
     </resource>
 
 </knora>

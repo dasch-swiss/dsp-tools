@@ -248,7 +248,7 @@ def report_file_value_duplicate(onto_graph: Graph) -> tuple[Graph, ValidationRes
 @pytest.fixture
 def extracted_file_value_duplicate() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.GENERIC,
+        violation_type=ViolationType.FILE_DUPLICATE,
         res_iri=DATA.duplicate_archive_1,
         res_class=ONTO.TestArchiveRepresentation,
         property=KNORA_API.hasArchiveFileValue,

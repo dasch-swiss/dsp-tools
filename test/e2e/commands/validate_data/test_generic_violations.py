@@ -342,12 +342,13 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
         expected_info_info = [
-            ("duplicate_archive_1", ProblemType.GENERIC),
-            ("duplicate_archive_2", ProblemType.GENERIC),
-            ("duplicate_iiif_1", ProblemType.GENERIC),
-            ("duplicate_iiif_2", ProblemType.GENERIC),
-            ("duplicate_still_image_1", ProblemType.GENERIC),
-            ("duplicate_still_image_2", ProblemType.GENERIC),
+            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
+            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
@@ -482,8 +483,8 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
     ]
     expected_info = [
-        ("duplicate_still_image_1", ProblemType.GENERIC),
-        ("duplicate_still_image_2", ProblemType.GENERIC),
+        ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
+        ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
     ]
     result = reformat_validation_graph(every_violation_combination_once)
     sorted_problems = sort_user_problems(result)

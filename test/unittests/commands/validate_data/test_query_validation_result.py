@@ -527,7 +527,7 @@ class TestQueryFileValueViolations:
         graphs, info = report_file_value_duplicate
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
+        assert result.violation_type == ViolationType.FILE_DUPLICATE
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Info
@@ -713,7 +713,7 @@ class TestReformatResult:
 
     def test_extracted_file_value_duplicate(self, extracted_file_value_duplicate: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_file_value_duplicate)
-        assert result.problem_type == ProblemType.GENERIC
+        assert result.problem_type == ProblemType.FILE_DUPLICATE
         assert result.res_id == "duplicate_archive_1"
         assert result.res_type == "onto:TestArchiveRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"

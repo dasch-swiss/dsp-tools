@@ -89,6 +89,7 @@ class Severity(Enum):
 class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE = "file problem"
+    FILE_DUPLICATE = "file used several times"
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."

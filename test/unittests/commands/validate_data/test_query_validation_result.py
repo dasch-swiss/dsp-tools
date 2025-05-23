@@ -531,6 +531,7 @@ class TestQueryFileValueViolations:
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Info
+        assert result.input_value == Literal("duplicate_file.zip")
         assert result.property == KNORA_API.hasArchiveFileValue
         assert result.message == Literal("The entered filepath is used more than once in your data.")
 

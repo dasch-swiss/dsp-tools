@@ -53,6 +53,10 @@ def _separate_link_value_missing_if_reference_is_an_iri(
         if not prblm.input_value:
             no_iris_referenced.append(prblm)
         elif prblm.input_value.startswith("http://rdfh.ch/"):
+            prblm.message = (
+                "You used an absolute IRI to reference an existing resource in the DB. "
+                "If this resource does not exist or is not of the correct type, an xmlupload will fail."
+            )
             iris_referenced.append(prblm)
         else:
             no_iris_referenced.append(prblm)
@@ -119,11 +123,12 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         else:
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
         violation_header = (
-            f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found."
+            f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
+            f"Until they are resolved an xmlupload is not possible."
         )
         violation_message = MessageStrings(violation_header, violation_body)
     if sorted_problems.user_warnings:
-        if len(sorted_problems.unique_violations) > 50:
+        if len(sorted_problems.user_warnings) > 50:
             warning_body = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
         else:
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
@@ -133,25 +138,20 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         )
         warning_message = MessageStrings(warning_header, warning_body)
     if sorted_problems.user_info:
-        info_message = _get_referenced_iri_info(sorted_problems.user_info)
+        if len(sorted_problems.user_info) > 50:
+            info_body = _save_problem_info_as_csv(sorted_problems.user_info, file_path, "info")
+        else:
+            info_body = _get_problem_print_message(sorted_problems.user_info)
+        info_header = (
+            f"During the validation of the data {len(sorted_problems.user_info)} "
+            f"potential problems were found. They will not impede an xmlupload."
+        )
+        info_message = MessageStrings(info_header, info_body)
     if sorted_problems.unexpected_shacl_validation_components:
         unexpected_header = "The following unknown violation types were found!"
         unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
         unexpected_violations = MessageStrings(unexpected_header, unexpected_body)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
-
-
-def _get_referenced_iri_info(problems: list[InputProblem]) -> MessageStrings:
-    user_info_str = [
-        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
-        for x in problems
-    ]
-    iri_msg = (
-        "Your data references absolute IRIs of resources. "
-        "If these resources do not exist in the database or are not of the expected resource type, then "
-        "the xmlupload will fail. Below you find a list of the references."
-    )
-    return MessageStrings(iri_msg, "    - " + LIST_SEPARATOR.join(user_info_str))
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

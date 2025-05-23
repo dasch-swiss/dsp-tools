@@ -224,15 +224,6 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 severity=base_info.severity,
                 message=msg,
             )
-        case DASH.UniqueValueForClassConstraintComponent:
-            return ValidationResult(
-                violation_type=ViolationType.GENERIC,
-                res_iri=base_info.focus_node_iri,
-                res_class=base_info.focus_node_type,
-                severity=base_info.severity,
-                property=base_info.result_path,
-                message=msg,
-            )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
         case (
@@ -241,6 +232,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
+            | DASH.UniqueValueForClassConstraintComponent
         ):
             return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
         case _:

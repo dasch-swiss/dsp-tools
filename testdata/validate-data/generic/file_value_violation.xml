@@ -29,7 +29,7 @@
         <bitstream license="http://rdfh.ch/licenses/boris"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >license_not_enabled.zip
         </bitstream>
     </resource>
 
@@ -58,7 +58,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_unknown_id"
-        >this/is/filepath/file.zip
+        >unknown_authorship_id.zip
         </bitstream>
     </resource>
 
@@ -66,7 +66,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="Copy"
                    authorship-id="authorship_id_with_newline"
-        >this/is/filepath/file.zip
+        >authorship_with_newline.zip
         </bitstream>
     </resource>
 
@@ -74,7 +74,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder=""
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >empty_copyright_holder.zip
         </bitstream>
     </resource>
 
@@ -82,7 +82,7 @@
         <bitstream license=""
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >empty_license.zip
         </bitstream>
     </resource>
 
@@ -90,7 +90,7 @@
         <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >inexistent_license_iri.zip
         </bitstream>
     </resource>
 
@@ -98,7 +98,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="FirstLine&#10;Second Line"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >copyright_holder_with_newline.zip
         </bitstream>
     </resource>
 
@@ -108,7 +108,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >id_resource_without_representation.mp4</bitstream>
     </resource>
 
     <!-- Wrong file type -->

@@ -501,7 +501,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
     for one_result, expected in zip(alphabetically_sorted_warnings, expected_warnings):
         assert one_result.problem_type == expected[1]
         assert one_result.res_id == expected[0]
-    for one_result, expected in zip(alphabetically_sorted_info, expected_warnings):
+    for one_result, expected in zip(alphabetically_sorted_info, expected_info):
         assert one_result.problem_type == expected[1]
         assert one_result.res_id == expected[0]
 

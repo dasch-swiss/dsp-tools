@@ -24,13 +24,27 @@
         <bitstream license="http://rdfh.ch/licenses/boris"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >license_not_enabled.zip
         </bitstream>
     </resource>
 
-    <!-- 29 Violations -->
+    <!-- 35 Violations -->
 
     <!-- Legal Info Violations -->
+
+    <!-- Missing Legal Info -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <bitstream>this/is/filepath/file.jp2</bitstream>
+    </resource>
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -39,7 +53,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_unknown_id"
-        >this/is/filepath/file.zip
+        >unknown_authorship_id.zip
         </bitstream>
     </resource>
 
@@ -47,7 +61,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="Copy"
                    authorship-id="authorship_id_with_newline"
-        >this/is/filepath/file.zip
+        >authorship_with_newline.zip
         </bitstream>
     </resource>
 
@@ -55,7 +69,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder=""
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >empty_copyright_holder.zip
         </bitstream>
     </resource>
 
@@ -63,7 +77,7 @@
         <bitstream license=""
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >empty_license.zip
         </bitstream>
     </resource>
 
@@ -71,7 +85,7 @@
         <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >inexistent_license_iri.zip
         </bitstream>
     </resource>
 
@@ -79,7 +93,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="FirstLine&#10;Second Line"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >copyright_holder_with_newline.zip
         </bitstream>
     </resource>
 
@@ -89,7 +103,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >id_resource_without_representation.mp4</bitstream>
     </resource>
 
     <!-- Wrong file type -->
@@ -167,18 +181,69 @@
         >this/is/filepath/file.unknown</bitstream>
     </resource>
 
-    <!-- Missing Legal Info -->
 
-    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
-        <bitstream>this/is/filepath/file.tar</bitstream>
+    <!-- Duplicate Files -->
+
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
-        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
-        <bitstream>this/is/filepath/file.jp2</bitstream>
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_1">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_2">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+
+    <!--
+        Per duplicate file we get one violation.
+        Meaning that if we use the same file 3 times, we get two violations per resource.
+        This needs to be filtered out
+    -->
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_3">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
     </resource>
 
 </knora>

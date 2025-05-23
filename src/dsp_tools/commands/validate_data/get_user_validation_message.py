@@ -15,26 +15,30 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE, ProblemType.FILE_DUPLICATE}
 
 
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
-    violations, warnings = _separate_according_to_severity(filtered_problems)
+    violations, warnings, info = _separate_according_to_severity(filtered_problems)
+    info.extend(problems_with_iris)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
         unique_violations=violations,
         user_warnings=warnings,
-        user_info=problems_with_iris,
+        user_info=info,
         unexpected_shacl_validation_components=unique_unexpected,
     )
 
 
-def _separate_according_to_severity(problems: list[InputProblem]) -> tuple[list[InputProblem], list[InputProblem]]:
+def _separate_according_to_severity(
+    problems: list[InputProblem],
+) -> tuple[list[InputProblem], list[InputProblem], list[InputProblem]]:
     violations = [x for x in problems if x.severity == Severity.VIOLATION]
     warnings = [x for x in problems if x.severity == Severity.WARNING]
-    return violations, warnings
+    info = [x for x in problems if x.severity == Severity.INFO]
+    return violations, warnings, info
 
 
 def _separate_link_value_missing_if_reference_is_an_iri(
@@ -49,6 +53,10 @@ def _separate_link_value_missing_if_reference_is_an_iri(
         if not prblm.input_value:
             no_iris_referenced.append(prblm)
         elif prblm.input_value.startswith("http://rdfh.ch/"):
+            prblm.message = (
+                "You used an absolute IRI to reference an existing resource in the DB. "
+                "If this resource does not exist or is not of the correct type, an xmlupload will fail."
+            )
             iris_referenced.append(prblm)
         else:
             no_iris_referenced.append(prblm)
@@ -59,7 +67,8 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped = _group_problems_by_resource(problems)
     filtered = []
     for problems_per_resource in grouped.values():
-        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
+        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
+        filtered.extend(_filter_out_multiple_duplicate_file_value_problems(text_value_filtered))
     return filtered
 
 
@@ -90,6 +99,22 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
     return filtered_problems
 
 
+def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # The check for multiple usage per file creates a violation per usage.
+    # Meaning if 3 resources use the same file -> each resource gets 2 messages
+    # The user only needs to see the message once per resource, as the messages are identical
+    seen_file_duplicate = False
+    result = []
+    for prob in problems:
+        if prob.problem_type == ProblemType.FILE_DUPLICATE:
+            if not seen_file_duplicate:
+                result.append(prob)
+                seen_file_duplicate = True
+        else:
+            result.append(prob)
+    return result
+
+
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
     grouped_res = defaultdict(list)
     for prob in problems:
@@ -115,11 +140,12 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         else:
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
         violation_header = (
-            f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found."
+            f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
+            f"Until they are resolved an xmlupload is not possible."
         )
         violation_message = MessageStrings(violation_header, violation_body)
     if sorted_problems.user_warnings:
-        if len(sorted_problems.unique_violations) > 50:
+        if len(sorted_problems.user_warnings) > 50:
             warning_body = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
         else:
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
@@ -129,25 +155,20 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
         )
         warning_message = MessageStrings(warning_header, warning_body)
     if sorted_problems.user_info:
-        info_message = _get_referenced_iri_info(sorted_problems.user_info)
+        if len(sorted_problems.user_info) > 50:
+            info_body = _save_problem_info_as_csv(sorted_problems.user_info, file_path, "info")
+        else:
+            info_body = _get_problem_print_message(sorted_problems.user_info)
+        info_header = (
+            f"During the validation of the data {len(sorted_problems.user_info)} "
+            f"potential problems were found. They will not impede an xmlupload."
+        )
+        info_message = MessageStrings(info_header, info_body)
     if sorted_problems.unexpected_shacl_validation_components:
         unexpected_header = "The following unknown violation types were found!"
         unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
         unexpected_violations = MessageStrings(unexpected_header, unexpected_body)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
-
-
-def _get_referenced_iri_info(problems: list[InputProblem]) -> MessageStrings:
-    user_info_str = [
-        f"Resource ID: {x.res_id} | Property: {x.prop_name} | Referenced Database IRI: {x.input_value}"
-        for x in problems
-    ]
-    iri_msg = (
-        "Your data references absolute IRIs of resources. "
-        "If these resources do not exist in the database or are not of the expected resource type, then "
-        "the xmlupload will fail. Below you find a list of the references."
-    )
-    return MessageStrings(iri_msg, "    - " + LIST_SEPARATOR.join(user_info_str))
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

@@ -87,6 +87,7 @@ class ViolationType(Enum):
     NON_EXISTING_CARD = auto()
     FILEVALUE_PROHIBITED = auto()
     FILE_VALUE = auto()
+    FILE_DUPLICATE = auto()
 
 
 @dataclass

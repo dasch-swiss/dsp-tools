@@ -36,6 +36,7 @@ LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_AP
 SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
     SH.Violation: Severity.VIOLATION,
     SH.Warning: Severity.WARNING,
+    SH.Info: Severity.INFO,
 }
 
 
@@ -232,7 +233,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
         ):
-            return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
+            return _query_general_violation_info(
+                base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
+            )
+        case DASH.UniqueValueForClassConstraintComponent:
+            return _query_general_violation_info(
+                base_info.result_bn, base_info, results_and_onto, ViolationType.FILE_DUPLICATE
+            )
         case _:
             return UnexpectedComponent(str(component))
 
@@ -316,7 +323,9 @@ def _query_one_with_detail(
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
             if base_info.result_path in FILE_VALUE_PROPERTIES:
-                return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
+                return _query_general_violation_info(
+                    base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
+                )
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
@@ -324,7 +333,7 @@ def _query_one_with_detail(
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case SH.InConstraintComponent | DASH.SingleLineConstraintComponent:
             detail = cast(DetailBaseInfo, base_info.detail)
-            return _query_generic_violation(detail.detail_bn, base_info, results_and_onto)
+            return _query_general_violation_info(detail.detail_bn, base_info, results_and_onto, ViolationType.GENERIC)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -373,15 +382,18 @@ def _query_pattern_constraint_component_violation(
     )
 
 
-def _query_generic_violation(
-    result_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+def _query_general_violation_info(
+    result_bn: SubjectObjectTypeAlias,
+    base_info: ValidationResultBaseInfo,
+    results_and_onto: Graph,
+    violation_type: ViolationType,
 ) -> ValidationResult:
     val = None
     if found_val := list(results_and_onto.objects(result_bn, SH.value)):
         val = found_val.pop()
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
-        violation_type=ViolationType.GENERIC,
+        violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
         severity=base_info.severity,
@@ -463,10 +475,10 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_generic(result=validation_result, problem_type=problem)
         case ViolationType.GENERIC:
             prop_str = None
-            if validation_result.property in LEGAL_INFO_PROPS:
+            if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
-        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
+        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE | ViolationType.FILE_DUPLICATE as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:

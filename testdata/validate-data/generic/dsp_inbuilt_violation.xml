@@ -36,14 +36,14 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >target_empty_movie.mp4</bitstream>
     </resource>
 
     <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >target_empty_image.jpg</bitstream>
     </resource>
 
 
@@ -180,7 +180,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >missing_seqnum.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -191,7 +191,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >missing_isPartOf.jpg</bitstream>
         <integer-prop name="seqnum">
             <integer>1</integer>
         </integer-prop>
@@ -209,7 +209,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >seqnum_sub_prop_missing.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -220,7 +220,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >isPartOf_sub_prop_missing.jpg</bitstream>
         <integer-prop name=":testSeqnum">
             <integer>1</integer>
         </integer-prop>
@@ -234,7 +234,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >seqnum_isPartOf_direct_usage_negative_sequence.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -251,7 +251,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >seqnum_isPartOf_sub_prop_usage_negative_sequence.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -282,7 +282,7 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
                    permissions="unknown"
-        >this/is/filepath/file.jpg</bitstream>
+        >non_existent_permissions_bitstream.jpg</bitstream>
     </resource>
 
 </knora>

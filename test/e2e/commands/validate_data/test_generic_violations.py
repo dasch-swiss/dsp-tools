@@ -338,19 +338,32 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
+        expected_info_info = [
+            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
+            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
+            ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
+        ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+        for one_result, expected_info in zip(alphabetically_sorted_info, expected_info_info):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
@@ -396,6 +409,8 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
         (URIRef("http://data/bitstream_no_legal_info"), None),
         (URIRef("http://data/bitstream_no_legal_info"), None),
         (URIRef("http://data/bitstream_no_legal_info"), None),
+        (URIRef("http://data/duplicate_still_image_1"), None),
+        (URIRef("http://data/duplicate_still_image_2"), None),
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), None),
         (URIRef("http://data/id_card_one"), None),
@@ -435,7 +450,7 @@ def test_every_violation_combination_once(every_violation_combination_once: Vali
 
 
 def test_reformat_every_constraint_once(every_violation_combination_once: ValidationReportGraphs) -> None:
-    expected_info_tuples = [
+    expected_violations = [
         ("empty_label", ProblemType.INPUT_REGEX),
         ("geoname_not_number", ProblemType.INPUT_REGEX),
         ("id_card_one", ProblemType.MIN_CARD),
@@ -456,7 +471,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
         ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
     ]
-    expected_info_warnings = [
+    expected_warnings = [
         ("bitstream_no_legal_info", ProblemType.GENERIC),
         ("bitstream_no_legal_info", ProblemType.GENERIC),
         ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -464,21 +479,29 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
     ]
+    expected_info = [
+        ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
+        ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
+    ]
     result = reformat_validation_graph(every_violation_combination_once)
     sorted_problems = sort_user_problems(result)
-    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-    assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
-    assert not sorted_problems.user_info
+    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+    alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
+    assert len(sorted_problems.unique_violations) == len(expected_violations)
+    assert len(sorted_problems.user_warnings) == len(expected_warnings)
+    assert len(sorted_problems.user_info) == len(expected_info)
     assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
-    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_tuples):
-        assert one_result.res_id == expected_info[0]
-        assert one_result.problem_type == expected_info[1]
-    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
-    for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
-        assert one_result.problem_type == expected_info[1]
-        assert one_result.res_id == expected_info[0]
+    for one_result, expected in zip(alphabetically_sorted_violations, expected_violations):
+        assert one_result.res_id == expected[0]
+        assert one_result.problem_type == expected[1]
+    for one_result, expected in zip(alphabetically_sorted_warnings, expected_warnings):
+        assert one_result.problem_type == expected[1]
+        assert one_result.res_id == expected[0]
+    for one_result, expected in zip(alphabetically_sorted_info, expected_info):
+        assert one_result.problem_type == expected[1]
+        assert one_result.res_id == expected[0]
 
 
 if __name__ == "__main__":

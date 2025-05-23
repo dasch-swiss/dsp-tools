@@ -100,6 +100,9 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
 
 
 def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # The check for multiple usage per file creates a violation per usage.
+    # Meaning if 3 resources use the same file -> each resource gets 2 messages
+    # The user only needs to see the message once per resource, as the messages are identical
     seen_file_duplicate = False
     result = []
     for prob in problems:

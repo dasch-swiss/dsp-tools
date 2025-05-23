@@ -191,8 +191,6 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
 
 
 def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mismatch):
-    # If one file value is referenced by 3 resources you get a duplicate message per resource.
-    # Meaning 3 resources with the same file -> each resource gets 2 messages
     duplicate_message_should_stay = InputProblem(
         problem_type=ProblemType.FILE_DUPLICATE,
         res_id="file_value_duplicate",

@@ -27,21 +27,21 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >target_empty_image.jpg</bitstream>
     </resource>
 
     <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >target_empty_movie.mp4</bitstream>
     </resource>
 
     <resource label="Target Audio" restype="onto:TestAudioRepresentation" id="target_empty_audio">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp3</bitstream>
+        >target_empty_audio.mp3</bitstream>
     </resource>
 
     <!-- LinkObj -->
@@ -186,7 +186,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >seqnum_isPartOf_direct_usage.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -203,7 +203,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.jpg</bitstream>
+        >seqnum_isPartOf_sub_prop_usage.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -234,7 +234,7 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
                    permissions="open"
-        >this/is/filepath/file.jpg</bitstream>
+        >bitstream_permissions.jpg</bitstream>
     </resource>
 
     <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">

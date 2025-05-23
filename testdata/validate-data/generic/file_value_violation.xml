@@ -200,7 +200,7 @@
         </bitstream>
     </resource>
 
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_still_image_1">
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_1">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
@@ -208,7 +208,7 @@
         </bitstream>
     </resource>
 
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_still_image_2">
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_2">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"

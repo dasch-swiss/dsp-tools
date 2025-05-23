@@ -83,6 +83,7 @@ class InputProblem:
 class Severity(Enum):
     VIOLATION = auto()
     WARNING = auto()
+    INFO = auto()
 
 
 class ProblemType(StrEnum):

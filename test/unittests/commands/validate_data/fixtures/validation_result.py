@@ -210,6 +210,53 @@ def extracted_file_value_for_resource_without_representation() -> ValidationResu
 
 
 @pytest.fixture
+def report_file_value_duplicate(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+[ a sh:ValidationResult ;
+    sh:focusNode <http://data/value_duplicate_archive_1> ;
+    sh:resultMessage "The entered filepath is used more than once in your data." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#fileValueHasFilename> ;
+    sh:resultSeverity sh:Info ;
+    sh:sourceConstraintComponent <http://datashapes.org/dash#UniqueValueForClassConstraintComponent> ;
+    sh:sourceShape _:nbc536211f72c45abab34094e81552f87b26 ;
+    sh:value "duplicate_file.zip" ] .
+    """
+    data_str = f"""{PREFIXES}
+<http://data/duplicate_archive_1> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
+    rdfs:label "duplicate file"^^xsd:string ;
+    knora-api:hasArchiveFileValue <http://data/value_duplicate_archive_1> .
+    
+<http://data/value_duplicate_archive_1> a knora-api:ArchiveFileValue ;
+    knora-api:fileValueHasFilename "duplicate_file.zip"^^xsd:string .
+    """
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.UniqueValueForClassConstraintComponent,
+        focus_node_iri=DATA.duplicate_archive_1,
+        focus_node_type=ONTO.TestArchiveRepresentation,
+        result_path=KNORA_API.hasArchiveFileValue,
+        severity=SH.Info,
+    )
+    return graphs, base_info
+
+
+@pytest.fixture
+def extracted_file_value_duplicate() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.FILE_VALUE,
+        res_iri=DATA.duplicate_archive_1,
+        res_class=ONTO.TestArchiveRepresentation,
+        property=ONTO.hasArchiveFileValue,
+        severity=SH.Info,
+    )
+
+
+@pytest.fixture
 def extracted_min_card() -> ValidationResult:
     return ValidationResult(
         violation_type=ViolationType.MIN_CARD,

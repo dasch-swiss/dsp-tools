@@ -521,6 +521,19 @@ class TestQueryFileValueViolations:
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
 
+    def test_report_file_value_duplicate(
+        self, report_file_value_duplicate: tuple[Graph, ValidationResultBaseInfo]
+    ) -> None:
+        graphs, info = report_file_value_duplicate
+        result = _query_one_without_detail(info, graphs, Graph())
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.FILE_VALUE
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Info
+        assert result.property == KNORA_API.hasArchiveFileValue
+        assert result.message == Literal("The entered filepath is used more than once in your data.")
+
 
 class TestReformatResult:
     def test_min(self, extracted_min_card: ValidationResult) -> None:
@@ -696,6 +709,15 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.severity == Severity.VIOLATION
+
+    def test_extracted_file_value_duplicate(self, extracted_file_value_duplicate: ValidationResult) -> None:
+        result = _reformat_one_validation_result(extracted_file_value_duplicate)
+        assert result.problem_type == ProblemType.FILE_VALUE
+        assert result.res_id == "duplicate_archive_1"
+        assert result.res_type == "onto:TestArchiveRepresentation"
+        assert result.prop_name == "bitstream / iiif-uri"
+        assert result.severity == Severity.INFO
+        assert result.message == "The entered filepath is used more than once in your data."
 
     def test_seqnum_is_part_of(self, extracted_coexist_with: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)

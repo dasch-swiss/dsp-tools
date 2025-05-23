@@ -10,7 +10,7 @@ from dsp_tools.utils.authentication_client import AuthenticationClient
 
 
 @dataclass
-class ProjectCreateClient:
+class ProjectCreationClient:
     auth: AuthenticationClient
 
     def get_existing_shortcodes_and_shortnames(self) -> tuple[set[str], set[str]]:

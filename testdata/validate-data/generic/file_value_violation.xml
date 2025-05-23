@@ -14,6 +14,11 @@
     <authorship id="authorship_id_with_newline">
         <author>Author&#10;Newline</author>
     </authorship>
+    <authorship id="authorship_3">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorship>
 
     <!--
     To be implemented.
@@ -28,9 +33,23 @@
         </bitstream>
     </resource>
 
-    <!-- 29 Violations -->
+    <!-- 35 Violations -->
 
     <!-- Legal Info Violations -->
+
+    <!-- Missing Legal Info -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <bitstream>this/is/filepath/file.jp2</bitstream>
+    </resource>
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -112,6 +131,22 @@
         >this/is/filepath/file.unknown</bitstream>
     </resource>
 
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.zip
+        </bitstream>
+    </resource>
+
     <!-- AudioRepresentation -->
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
@@ -167,18 +202,36 @@
         >this/is/filepath/file.unknown</bitstream>
     </resource>
 
-    <!-- Missing Legal Info -->
-
-    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
-        <bitstream>this/is/filepath/file.tar</bitstream>
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_still_image_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
-        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_still_image_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
-        <bitstream>this/is/filepath/file.jp2</bitstream>
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_1">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_3"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_2">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_3"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
     </resource>
 
 </knora>

@@ -211,6 +211,14 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
         input_value="duplicate_file.zip",
         expected="The entered filepath is used more than once in your data.",
     )
+    file_duplicate_resource_other_problem_should_stay = InputProblem(
+        problem_type=ProblemType.GENERIC,
+        res_id="file_value_duplicate",
+        res_type="",
+        prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
+        expected="Some Expectation",
+    )
     should_remain = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="text_value_id",
@@ -236,15 +244,16 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
                 should_be_removed,
                 duplicate_message_should_stay,
                 duplicate_message_should_be_removed,
+                file_duplicate_resource_other_problem_should_stay,
             ],
             [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
         )
     )
-    assert len(result.unique_violations) == 3
+    assert len(result.unique_violations) == 4
     assert len(result.user_info) == 1
-    assert result.user_info[0] == "file_value_duplicate"
+    assert result.user_info[0].res_id == "file_value_duplicate"
     assert len(result.unexpected_shacl_validation_components) == 1
-    assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id"}
+    assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id", "file_value_duplicate"}
 
 
 def test_sort_user_problems_different_props():

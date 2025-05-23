@@ -67,7 +67,8 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped = _group_problems_by_resource(problems)
     filtered = []
     for problems_per_resource in grouped.values():
-        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
+        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
+        filtered.extend(_filter_out_multiple_duplicate_file_value_problems(text_value_filtered))
     return filtered
 
 
@@ -96,6 +97,19 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
         filtered_problems.extend(problem_list)
 
     return filtered_problems
+
+
+def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    multiple_message = 0
+    duplicated_removed = []
+    for prob in problems:
+        if prob.problem_type == ProblemType.FILE_DUPLICATE:
+            if multiple_message == 0:
+                duplicated_removed.append(prob)
+                multiple_message = 1
+        else:
+            duplicated_removed.append(prob)
+    return duplicated_removed
 
 
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:

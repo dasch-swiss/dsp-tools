@@ -341,19 +341,31 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
+        expected_info_info = [
+            ("duplicate_archive_1", ProblemType.FILE_VALUE),
+            ("duplicate_archive_2", ProblemType.FILE_VALUE),
+            ("duplicate_iiif_1", ProblemType.FILE_VALUE),
+            ("duplicate_iiif_2", ProblemType.FILE_VALUE),
+            ("duplicate_still_image_1", ProblemType.FILE_VALUE),
+            ("duplicate_still_image_2", ProblemType.FILE_VALUE),
+        ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
+        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
         for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+        for one_result, expected_info in zip(alphabetically_sorted_info, expected_info_info):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 

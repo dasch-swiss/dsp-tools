@@ -131,22 +131,6 @@
         >this/is/filepath/file.unknown</bitstream>
     </resource>
 
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_1">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >duplicate_file.zip
-        </bitstream>
-    </resource>
-
-    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_2">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >duplicate_file.zip
-        </bitstream>
-    </resource>
-
     <!-- AudioRepresentation -->
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
@@ -200,6 +184,25 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+
+    <!-- Duplicate Files -->
+
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.zip
+        </bitstream>
     </resource>
 
     <resource label="duplicate file" restype=":TestArchiveRepresentation" id="duplicate_still_image_1">

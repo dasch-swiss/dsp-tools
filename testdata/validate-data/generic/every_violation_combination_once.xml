@@ -15,7 +15,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >target_empty_movie.mp4</bitstream>
     </resource>
 
     <!--
@@ -217,7 +217,7 @@
         sh:detail                     -
         -->
         <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
-            <bitstream>this/is/filepath/file.mp4</bitstream>
+            <bitstream>bitstream_no_legal_info.mp4</bitstream>
         </resource>
 
         <!--

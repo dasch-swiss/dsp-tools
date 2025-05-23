@@ -117,6 +117,26 @@
         <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
 
         <!--
+        sh:sourceConstraintComponent  dash:UniqueValueForClassConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_1">
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >duplicate_file.jpg
+            </bitstream>
+        </resource>
+
+        <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_2">
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >duplicate_file.jpg
+            </bitstream>
+        </resource>
+
+        <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->

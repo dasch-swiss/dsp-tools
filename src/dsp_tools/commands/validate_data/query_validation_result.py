@@ -36,6 +36,7 @@ LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_AP
 SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
     SH.Violation: Severity.VIOLATION,
     SH.Warning: Severity.WARNING,
+    SH.Info: Severity.INFO,
 }
 
 
@@ -221,6 +222,15 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 res_iri=base_info.focus_node_iri,
                 res_class=base_info.focus_node_type,
                 severity=base_info.severity,
+                message=msg,
+            )
+        case DASH.UniqueValueForClassConstraintComponent:
+            return ValidationResult(
+                violation_type=ViolationType.GENERIC,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
+                severity=base_info.severity,
+                property=base_info.result_path,
                 message=msg,
             )
         case SH.ClassConstraintComponent:
@@ -463,7 +473,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_generic(result=validation_result, problem_type=problem)
         case ViolationType.GENERIC:
             prop_str = None
-            if validation_result.property in LEGAL_INFO_PROPS:
+            if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
         case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:

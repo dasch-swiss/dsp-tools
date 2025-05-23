@@ -248,10 +248,12 @@ def report_file_value_duplicate(onto_graph: Graph) -> tuple[Graph, ValidationRes
 @pytest.fixture
 def extracted_file_value_duplicate() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILE_VALUE,
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.duplicate_archive_1,
         res_class=ONTO.TestArchiveRepresentation,
-        property=ONTO.hasArchiveFileValue,
+        property=KNORA_API.hasArchiveFileValue,
+        input_value=Literal("duplicate_file.zip"),
+        message=Literal("The entered filepath is used more than once in your data."),
         severity=SH.Info,
     )
 

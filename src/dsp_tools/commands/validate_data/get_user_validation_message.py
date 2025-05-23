@@ -100,16 +100,16 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
 
 
 def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    multiple_message = 0
-    duplicated_removed = []
+    seen_file_duplicate = False
+    result = []
     for prob in problems:
         if prob.problem_type == ProblemType.FILE_DUPLICATE:
-            if multiple_message == 0:
-                duplicated_removed.append(prob)
-                multiple_message = 1
+            if not seen_file_duplicate:
+                result.append(prob)
+                seen_file_duplicate = True
         else:
-            duplicated_removed.append(prob)
-    return duplicated_removed
+            result.append(prob)
+    return result
 
 
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:

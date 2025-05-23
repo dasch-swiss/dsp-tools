@@ -21,20 +21,24 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
-    violations, warnings = _separate_according_to_severity(filtered_problems)
+    violations, warnings, info = _separate_according_to_severity(filtered_problems)
+    info.extend(problems_with_iris)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
         unique_violations=violations,
         user_warnings=warnings,
-        user_info=problems_with_iris,
+        user_info=info,
         unexpected_shacl_validation_components=unique_unexpected,
     )
 
 
-def _separate_according_to_severity(problems: list[InputProblem]) -> tuple[list[InputProblem], list[InputProblem]]:
+def _separate_according_to_severity(
+    problems: list[InputProblem],
+) -> tuple[list[InputProblem], list[InputProblem], list[InputProblem]]:
     violations = [x for x in problems if x.severity == Severity.VIOLATION]
     warnings = [x for x in problems if x.severity == Severity.WARNING]
-    return violations, warnings
+    info = [x for x in problems if x.severity == Severity.INFO]
+    return violations, warnings, info
 
 
 def _separate_link_value_missing_if_reference_is_an_iri(

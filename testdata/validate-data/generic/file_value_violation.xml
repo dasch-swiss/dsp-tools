@@ -14,11 +14,6 @@
     <authorship id="authorship_id_with_newline">
         <author>Author&#10;Newline</author>
     </authorship>
-    <authorship id="authorship_3">
-        <author>
-            Cavanagh, Annie
-        </author>
-    </authorship>
 
     <!--
     To be implemented.
@@ -224,16 +219,16 @@
     <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_1">
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-holder="Wellcome Collection"
-                  authorship-id="authorship_3"
-        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>
 
     <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_2">
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-holder="Wellcome Collection"
-                  authorship-id="authorship_3"
-        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>
 

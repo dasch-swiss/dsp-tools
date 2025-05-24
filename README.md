@@ -30,7 +30,7 @@ To get started quickly, without reading the details, just execute these commands
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
-- `brew install just parallel`
+- `brew install just parallel yamlfmt`
 
 The remainder of this README explains these commands in more detail.
 
@@ -153,6 +153,7 @@ We use the following linters:
 - [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)
+- [yamlfmt](https://github.com/google/yamlfmt) (configured in `.yamlfmt.yml`)
 
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.

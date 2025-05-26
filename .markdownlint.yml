@@ -43,3 +43,6 @@ MD045: false
 
 # MD046/code-block-style - Code blocks should be fenced instead of indented (incompatible with admonitions)
 MD046: false
+
+# Link text should be descriptive
+MD059: false

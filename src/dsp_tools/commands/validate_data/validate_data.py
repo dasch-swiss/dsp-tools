@@ -121,14 +121,19 @@ def _validate_data(
     return _get_validation_success(sorted_problems, config.is_on_prod_server)
 
 
-def _get_validation_success(problems: SortedProblems, is_on_prod: bool) -> bool:
-    no_problems = not any(
+def _get_validation_success(all_problems: SortedProblems, is_on_prod: bool) -> bool:
+    violations = any(
         [
-            bool(problems.unique_violations),
-            bool(problems.unexpected_shacl_validation_components),
+            bool(all_problems.unique_violations),
+            bool(all_problems.unexpected_shacl_validation_components),
         ]
     )
-    return no_problems
+    if violations:
+        return False
+    if is_on_prod:
+        if all_problems.user_warnings:
+            return False
+    return True
 
 
 def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:

@@ -118,10 +118,10 @@ def _validate_data(
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
-    return _get_validation_success(sorted_problems, config.is_on_prod_server)
+    return _get_validation_passed(sorted_problems, config.is_on_prod_server)
 
 
-def _get_validation_success(all_problems: SortedProblems, is_on_prod: bool) -> bool:
+def _get_validation_passed(all_problems: SortedProblems, is_on_prod: bool) -> bool:
     violations = any(
         [
             bool(all_problems.unique_violations),

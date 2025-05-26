@@ -59,7 +59,8 @@ def test_check_and_inform_about_angular_brackets_good(allowed_values, recwarn: p
 def test_check_and_inform_about_angular_brackets_informs(in_val):
     expected = regex.escape(
         rf"Your input '{in_val}' contains angular brackets. "
-        r"Since this is a simpletext the brackets will be displayed as is."
+        r"Since this is a simpletext, please note that these will not be recognised as formatting "
+        r"in the text field, but will be displayed as-is."
     )
     with pytest.warns(XmllibInputInfo, match=expected):
         check_and_inform_about_angular_brackets(in_val, "id", "prp")

@@ -116,7 +116,8 @@ def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop
         msg_info = MessageInfo(
             message=(
                 f"Your input '{value}' contains angular brackets. "
-                f"Since this is a simpletext the brackets will be displayed as is."
+                f"Since this is a simpletext, please note that these will not be recognised as formatting "
+                f"in the text field, but will be displayed as-is."
             ),
             resource_id=res_id,
             prop_name=prop_name,

@@ -72,6 +72,8 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+
+    is_on_prod_like_server = is_prod_like_server(creds.server)
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
@@ -81,7 +83,7 @@ def ingest_xmlupload(
             xml_file,
             save_graph_dir=None,
             severity=config.validation_severity,
-            is_on_prod_server=is_prod_like_server(creds.server),
+            is_on_prod_server=is_on_prod_like_server,
         ),
         auth=auth,
     )

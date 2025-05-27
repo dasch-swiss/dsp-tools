@@ -148,8 +148,7 @@ def _get_live_clients(
 def _enable_unknown_license_if_any_are_missing(
     legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
 ) -> None:
-    resources_with_files = [x for x in parsed_resources if x.file_value]
-    all_copyright_info = [x.file_value.metadata.license_iri for x in resources_with_files]
+    all_copyright_info = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
     if not all(all_copyright_info):
         legal_info_client.enable_unknown_license()
         msg = (

@@ -138,13 +138,14 @@ def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetada
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
+    license_iri = assert_is_string(file_metadata.license_iri)
+    copyright_holder = assert_is_string(file_metadata.copyright_holder)
+    auth_id = assert_is_string(file_metadata.authorship_id)
+    authorships = _resolve_authorship(auth_id, lookups.authorships)
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
-    authorships = None
-    if file_metadata.authorship_id:
-        authorships = _resolve_authorship(file_metadata.authorship_id, lookups.authorships)
     return ProcessedFileMetadata(
-        license_iri=file_metadata.license_iri,
-        copyright_holder=file_metadata.copyright_holder,
+        license_iri=license_iri,
+        copyright_holder=copyright_holder,
         authorships=authorships,
         permissions=permissions,
     )

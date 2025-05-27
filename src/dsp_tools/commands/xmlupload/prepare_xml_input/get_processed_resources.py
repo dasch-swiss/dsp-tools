@@ -61,21 +61,20 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 }
 
 
-def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferenceLookups) -> list[ProcessedResource]:
+def get_processed_resources(
+    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> list[ProcessedResource]:
     return [_get_one_resource(res, lookups) for res in resources]
 
 
-def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
+def _get_one_resource(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
-        if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-            iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
-        else:
-            file_val = _get_file_value(
-                val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
-            )
+        file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -88,6 +87,19 @@ def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) ->
         iiif_uri=iiif_uri,
         migration_metadata=migration_metadata,
     )
+
+
+def _resolve_file_value(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> tuple[None | ProcessedIIIFUri, None | ProcessedFileValue]:
+    file_val, iiif_uri = None, None
+    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+        iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
+    else:
+        file_val = _get_file_value(
+            val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
+        )
+    return file_val, iiif_uri
 
 
 def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:

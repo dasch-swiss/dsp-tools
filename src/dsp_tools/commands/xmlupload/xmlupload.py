@@ -47,7 +47,10 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.ansi_colors import BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -107,7 +110,11 @@ def xmlupload(
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 
-    processed_resources = get_processed_resources(parsed_resources, lookups)
+    if not is_on_prod_like_server:
+        _enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
+
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,
@@ -136,6 +143,22 @@ def _get_live_clients(
         list_client=list_client,
         legal_info_client=legal_info_client,
     )
+
+
+def _enable_unknown_license_if_any_are_missing(
+    legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
+) -> None:
+    resources_with_files = [x for x in parsed_resources if x.file_value]
+    all_copyright_info = [x.file_value.metadata.license_iri for x in resources_with_files]
+    if not all(all_copyright_info):
+        legal_info_client.enable_unknown_license()
+        msg = (
+            "So that your data could be uploaded to the test server/localhost "
+            "we needed to add dummy values to missing legal information. "
+            "The dummy license we use is 'unknown', so that we are allowed to reference it in the data, "
+            "we enabled this license for your project."
+        )
+        print(BOLD_YELLOW, msg, RESET_TO_DEFAULT)
 
 
 def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:

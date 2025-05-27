@@ -371,7 +371,7 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
 
 def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:
     legal_client = LegalInfoClientLive(auth.server, shortcode, auth)
-    license_info = legal_client.get_licenses_of_a_project(enabled_only=True)
+    license_info = legal_client.get_licenses_of_a_project()
     iris = [x["id"] for x in license_info]
     return EnabledLicenseIris(iris)
 

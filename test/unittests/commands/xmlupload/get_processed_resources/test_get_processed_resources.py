@@ -300,6 +300,20 @@ class TestFileValue:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
+    def test_resolve_file_value_none(self, lookups):
+        resource = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        assert file_res is None
+        assert iiif_res is None
+
     def test_resolve_file_value_file(self, file_with_permission, lookups):
         resource = ParsedResource(
             res_id="id",
@@ -338,6 +352,7 @@ class TestFileMetadata:
         assert not result_metadata.permissions
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships
         assert set(result_metadata.authorships) == {"author1", "author2"}
 
     def test_get_metadata_no_values(self, lookups):

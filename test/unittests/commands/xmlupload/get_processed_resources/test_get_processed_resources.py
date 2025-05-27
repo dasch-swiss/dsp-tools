@@ -328,7 +328,6 @@ class TestFileValue:
         assert iiif_res is None
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata
-        assert not result_metadata.permissions
         assert file_res.value == file_res.value
         assert file_res.file_type == file_with_permission.value_type
         assert isinstance(result_metadata.permissions, Permissions)

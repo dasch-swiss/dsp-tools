@@ -47,6 +47,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -90,7 +91,12 @@ def xmlupload(
         authorship_lookup=lookups.authorships,
         permission_ids=list(lookups.permissions.keys()),
         shortcode=shortcode,
-        config=ValidateDataConfig(input_file, save_graph_dir=None, severity=config.validation_severity),
+        config=ValidateDataConfig(
+            input_file,
+            save_graph_dir=None,
+            severity=config.validation_severity,
+            is_on_prod_server=is_prod_like_server(creds.server),
+        ),
         auth=auth,
     )
     if not validation_passed:

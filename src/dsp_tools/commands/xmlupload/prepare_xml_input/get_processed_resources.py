@@ -72,9 +72,8 @@ def _get_one_resource(
 ) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
-    file_val, iiif_uri, migration_metadata = None, None, None
-    if resource.file_value:
-        file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
+    migration_metadata = None
+    file_val, iiif_uri = _resolve_file_value(resource, lookups)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -100,13 +99,12 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
 
 
 def _resolve_file_value(
-    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
-) -> tuple[None | ProcessedIIIFUri, None | ProcessedFileValue]:
-    if is_on_prod_like_server:
-        metadata = _get_file_metadata(resource.file_value.metadata, lookups)
-    else:
-        metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
+    resource: ParsedResource, lookups: XmlReferenceLookups
+) -> tuple[None | ProcessedFileValue, None | ProcessedIIIFUri]:
     file_val, iiif_uri = None, None
+    if not resource.file_value:
+        return file_val, iiif_uri
+    metadata = _get_file_metadata(resource.file_value.metadata, lookups)
     if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
         iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
     else:

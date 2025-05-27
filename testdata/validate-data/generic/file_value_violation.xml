@@ -15,20 +15,7 @@
         <author>Author&#10;Newline</author>
     </authorship>
 
-    <!--
-    To be implemented.
-    This violation should automatically be found once the API implements the enabling of licenses per project.
-    Right now it will not appear on the results, because it references an existing but not enabled license.
-    -->
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="license_not_enabled">
-        <bitstream license="http://rdfh.ch/licenses/boris"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >license_not_enabled.zip
-        </bitstream>
-    </resource>
-
-    <!-- 35 Violations -->
+    <!-- 36 Violations -->
 
     <!-- Legal Info Violations -->
 
@@ -54,6 +41,14 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_unknown_id"
         >unknown_authorship_id.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="license_not_enabled">
+        <bitstream license="http://rdfh.ch/licenses/boris"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >license_not_enabled.zip
         </bitstream>
     </resource>
 

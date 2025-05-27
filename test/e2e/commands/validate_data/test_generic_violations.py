@@ -325,6 +325,7 @@ class TestReformatValidationGraph:
             ("id_video_unknown", ProblemType.FILE_VALUE),
             ("id_wrong_file_type", ProblemType.FILE_VALUE),
             ("inexistent_license_iri", ProblemType.GENERIC),
+            ("license_not_enabled", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
         expected_info_warnings = [

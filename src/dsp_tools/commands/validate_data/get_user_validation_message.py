@@ -151,7 +151,8 @@ def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPr
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
         warning_header = (
             f"During the validation of the data {len(sorted_problems.user_warnings)} "
-            f"problems were found. While they currently do not impede an xmlupload they may do so in the future."
+            f"problems were found. Warnings are allowed on test servers. "
+            f"Please note that an xmlupload on a prod sever will fail."
         )
         warning_message = MessageStrings(warning_header, warning_body)
     if sorted_problems.user_info:

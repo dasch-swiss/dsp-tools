@@ -111,7 +111,7 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def log_response(response: Response, include_response_content: bool = True) -> None:
+def log_response(response: Response, *, include_response_content: bool = True) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
@@ -142,7 +142,7 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
     return {k: _mask(k, v) for k, v in headers.items()}
 
 
-def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
+def log_request_failure_and_sleep(reason: str, retry_counter: int, *, exc_info: bool) -> None:
     """Log the reason for a request failure and sleep."""
     msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
     print(f"{datetime.now()}: {msg}")

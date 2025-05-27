@@ -25,7 +25,7 @@ class InternalError(BaseError):
     Class for errors that are raised if the user cannot solve the problem themselves.
     """
 
-    def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
+    def __init__(self, custom_msg: str | None = None, *, keep_default_msg: bool = True) -> None:
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
             "Please contact the dsp-tools development team with the following information:\n"

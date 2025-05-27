@@ -95,7 +95,7 @@ class RegionResource:
         point2: tuple[float, float],
         line_width: float = 2,
         color: str = "#5b24bf",
-        active: bool = True,
+        active: bool = True,  # noqa: FBT001, FBT002
     ) -> RegionResource:
         """
         Add a rectangle shape to the region.
@@ -146,7 +146,7 @@ class RegionResource:
         points: list[tuple[float, float]],
         line_width: float = 2,
         color: str = "#5b24bf",
-        active: bool = True,
+        active: bool = True,  # noqa: FBT001, FBT002
     ) -> RegionResource:
         """
         Add a polygon shape to the region.
@@ -195,7 +195,7 @@ class RegionResource:
         radius: tuple[float, float],
         line_width: float = 2,
         color: str = "#5b24bf",
-        active: bool = True,
+        active: bool = True,  # noqa: FBT001, FBT002
     ) -> RegionResource:
         """
         Add a circle shape to the region.

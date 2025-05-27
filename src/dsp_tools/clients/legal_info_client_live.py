@@ -63,7 +63,7 @@ class LegalInfoClientLive(LegalInfoClient):
         log_response(response)
         return response
 
-    def get_licenses_of_a_project(self, enabled_only: bool = True) -> list[dict[str, Any]]:
+    def get_licenses_of_a_project(self, *, enabled_only: bool = True) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
         page_num = 1
         all_data = []

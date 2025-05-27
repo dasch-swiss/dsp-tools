@@ -25,6 +25,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
@@ -92,6 +93,9 @@ def ingest_xmlupload(
 
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
+
+    if not is_on_prod_like_server:
+        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
 
     processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
 

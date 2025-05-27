@@ -18,3 +18,6 @@ class LegalInfoClient(Protocol):
 
     def get_licenses_of_a_project(self, enabled_only: bool) -> list[dict[str, Any]]:
         """Get a list of enabled licenses for the project."""
+
+    def enable_unknown_license(self) -> None:
+        """Enable the license http://rdfh.ch/licenses/unknown"""

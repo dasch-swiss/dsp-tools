@@ -5,13 +5,17 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import OneNode
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData, SortedProblems, InputProblem, \
-    ProblemType, Severity
+from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
-from dsp_tools.commands.validate_data.validate_data import _get_msg_str_unknown_classes_in_data, _get_validation_passed
+from dsp_tools.commands.validate_data.validate_data import _get_msg_str_unknown_classes_in_data
+from dsp_tools.commands.validate_data.validate_data import _get_validation_passed
 from dsp_tools.commands.validate_data.validate_data import _make_list_lookup
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.unittests.commands.validate_data.constants import PREFIXES
@@ -138,12 +142,10 @@ def test_make_list_lookup():
 
 
 class TestGetValidationPassed:
-
     def test_not_prod_problems(self):
         problems = SortedProblems([InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [], [], [])
         validation_passed = _get_validation_passed(problems, False)
         assert not validation_passed
-
 
     def test_not_prod_problems_and_unexpected(self):
         problems = SortedProblems([InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [], [], ["unex"])

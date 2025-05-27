@@ -366,17 +366,17 @@ class TestFileMetadata:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert not result_metadata.license_iri
-        assert not result_metadata.copyright_holder
-        assert not result_metadata.authorships
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert result_metadata.copyright_holder == "DUMMY"
+        assert result_metadata.authorships == ["DUMMY"]
 
     def test_get_file_metadata_for_test_environments_some_values(self, lookups):
         metadata = ParsedFileValueMetadata(None, "copy", None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert not result_metadata.license_iri
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert result_metadata.copyright_holder == "copy"
-        assert not result_metadata.authorships
+        assert result_metadata.authorships == ["DUMMY"]
 
     def test_get_file_metadata_for_test_environments_all_values(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")

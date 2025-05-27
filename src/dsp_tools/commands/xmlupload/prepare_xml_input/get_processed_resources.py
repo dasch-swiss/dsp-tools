@@ -131,17 +131,18 @@ def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetada
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
+    authorships = None
+    if file_metadata.authorship_id:
+        authorships = _resolve_authorship(file_metadata.authorship_id, lookups.authorships)
     return ProcessedFileMetadata(
         license_iri=file_metadata.license_iri,
         copyright_holder=file_metadata.copyright_holder,
-        authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),
+        authorships=authorships,
         permissions=permissions,
     )
 
 
-def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
-    if not authorship_id:
-        return None
+def _resolve_authorship(authorship_id: str, lookup: dict[str, list[str]]) -> list[str] | None:
     if not (found := lookup.get(authorship_id)):
         raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
     return found

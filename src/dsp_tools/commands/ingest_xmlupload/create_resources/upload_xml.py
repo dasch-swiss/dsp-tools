@@ -93,7 +93,7 @@ def ingest_xmlupload(
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 
-    processed_resources = get_processed_resources(parsed_resources, lookups)
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
 
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
 

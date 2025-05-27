@@ -158,7 +158,7 @@ def _get_file_metadata_for_test_environments(
 ) -> ProcessedFileMetadata:
     permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
     if not (found := lookups.authorships.get(metadata.authorship_id)):
-        authorship = "DUMMY"
+        authorship = ["DUMMY"]
     else:
         authorship = found
     copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"

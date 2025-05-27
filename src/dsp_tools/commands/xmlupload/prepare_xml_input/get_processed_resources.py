@@ -64,7 +64,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 def get_processed_resources(
     resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
 ) -> list[ProcessedResource]:
-    return [_get_one_resource(res, lookups) for res in resources]
+    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in resources]
 
 
 def _get_one_resource(
@@ -89,19 +89,6 @@ def _get_one_resource(
     )
 
 
-def _resolve_file_value(
-    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
-) -> tuple[None | ProcessedIIIFUri, None | ProcessedFileValue]:
-    file_val, iiif_uri = None, None
-    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-        iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
-    else:
-        file_val = _get_file_value(
-            val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
-        )
-    return file_val, iiif_uri
-
-
 def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
     res_iri = metadata.iri
     # ARK takes precedence over the IRI,
@@ -112,11 +99,27 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
     return MigrationMetadata(res_iri, date)
 
 
+def _resolve_file_value(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> tuple[None | ProcessedIIIFUri, None | ProcessedFileValue]:
+    if is_on_prod_like_server:
+        metadata = _get_file_metadata(resource.file_value.metadata, lookups)
+    else:
+        metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
+    file_val, iiif_uri = None, None
+    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+        iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
+    else:
+        file_val = _get_file_value(
+            val=resource.file_value, metadata=metadata, res_id=resource.res_id, res_label=resource.label
+        )
+    return file_val, iiif_uri
+
+
 def _get_file_value(
-    val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
+    val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
     file_type = cast(KnoraValueType, val.value_type)
-    metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,
@@ -127,8 +130,7 @@ def _get_file_value(
     )
 
 
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
-    metadata = _get_file_metadata(iiif_uri.metadata, lookups)
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedIIIFUri:
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 
@@ -149,6 +151,24 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
     if not (found := lookup.get(authorship_id)):
         raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
     return found
+
+
+def _get_file_metadata_for_test_environments(
+    metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
+) -> ProcessedFileMetadata:
+    permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
+    if not (found := lookups.authorships.get(metadata.authorship_id)):
+        authorship = "DUMMY"
+    else:
+        authorship = found
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    if not metadata.license_iri:
+        lic_iri = "http://rdfh.ch/licenses/unknown"
+    else:
+        lic_iri = metadata.license_iri
+    return ProcessedFileMetadata(
+        license_iri=lic_iri, copyright_holder=copy_right, authorships=authorship, permissions=permissions
+    )
 
 
 def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:

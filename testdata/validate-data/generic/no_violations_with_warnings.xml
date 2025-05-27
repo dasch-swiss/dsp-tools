@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!--
+    Missing Legal Info will produce a warning. This is allowed on a test server but not on prod
+    -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="archive_no_legal_info">
+        <bitstream>bitstream_no_legal_info.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <bitstream>image_no_legal_info.jp2</bitstream>
+    </resource>
+
+</knora>

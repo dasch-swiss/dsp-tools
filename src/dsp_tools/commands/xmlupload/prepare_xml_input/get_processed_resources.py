@@ -153,21 +153,25 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _get_file_metadata_for_test_environments(
     metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
 ) -> ProcessedFileMetadata:
-    permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
-    if not (found := lookups.authorships.get(metadata.authorship_id)):
-        authorship = ["DUMMY"]
-    else:
-        authorship = found
-    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
     if not metadata.license_iri:
         lic_iri = "http://rdfh.ch/licenses/unknown"
     else:
         lic_iri = metadata.license_iri
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    if not metadata.authorship_id:
+        authorship = ["DUMMY"]
+    else:
+        authorship = _resolve_authorship(metadata.authorship_id, lookups.authorships)
+    permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
     return ProcessedFileMetadata(
-        license_iri=lic_iri, copyright_holder=copy_right, authorships=authorship, permissions=permissions
+        license_iri=lic_iri,
+        copyright_holder=copy_right,
+        authorships=authorship,
+        permissions=permissions,
     )
 
-def _resolve_authorship(authorship_id: str, lookup: dict[str, list[str]]) -> list[str] | None:
+
+def _resolve_authorship(authorship_id: str, lookup: dict[str, list[str]]) -> list[str]:
     if not (found := lookup.get(authorship_id)):
         raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
     return found

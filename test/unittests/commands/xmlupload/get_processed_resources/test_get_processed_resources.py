@@ -22,7 +22,10 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichte
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
-from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_file_metadata, _get_file_metadata_for_test_environments
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_file_metadata
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import (
+    _get_file_metadata_for_test_environments,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_processed_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_file_value

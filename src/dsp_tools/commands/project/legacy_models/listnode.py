@@ -309,7 +309,7 @@ class ListNode(Model):
         """
         jsonobj = self._toJsonObj_create()
         if self._parent:
-            result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
+            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
             return ListNode.fromJsonObj(self._con, result["nodeinfo"])
         else:
             result = self._con.post(ListNode.ROUTE, jsonobj)

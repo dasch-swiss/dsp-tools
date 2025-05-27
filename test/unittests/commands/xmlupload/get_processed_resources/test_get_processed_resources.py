@@ -89,7 +89,7 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups, False)
+        result = get_processed_resources([res], lookups, True)
         assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):
@@ -103,7 +103,7 @@ class TestResources:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError):
-            get_processed_resources([res], lookups, False)
+            get_processed_resources([res], lookups, True)
 
 
 class TestOneResource:
@@ -117,7 +117,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -136,7 +136,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -158,7 +158,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -183,7 +183,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -210,7 +210,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -236,7 +236,7 @@ class TestOneResource:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
-            _get_one_resource(res, lookups, False)
+            _get_one_resource(res, lookups, True)
 
     def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
         res = ParsedResource(
@@ -248,7 +248,7 @@ class TestOneResource:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -258,6 +258,34 @@ class TestOneResource:
         assert isinstance(file_val, ProcessedFileValue)
         assert file_val.value == "file.jpg"
         assert file_val.metadata.permissions
+        assert not result.iiif_uri
+        assert not result.migration_metadata
+
+    def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        parsed_file = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=parsed_file,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res, lookups, False)
+        assert result.res_id == "id"
+        assert result.type_iri == RES_TYPE
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        file_val = result.file_value
+        assert isinstance(file_val, ProcessedFileValue)
+        assert file_val.value == "file.jpg"
+        assert not file_val.metadata.permissions
+        assert file_val.metadata.copyright_holder == "DUMMY"
+        assert file_val.metadata.authorships == ["DUMMY"]
+        assert file_val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert not result.iiif_uri
         assert not result.migration_metadata
 
@@ -271,7 +299,7 @@ class TestOneResource:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, True)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -293,7 +321,7 @@ class TestFileValue:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, False)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
         assert file_res is None
         assert isinstance(iiif_res, ProcessedIIIFUri)
         result_metadata = iiif_res.metadata
@@ -313,7 +341,7 @@ class TestFileValue:
             file_value=None,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, False)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
         assert file_res is None
         assert iiif_res is None
 
@@ -327,7 +355,7 @@ class TestFileValue:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, False)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
         assert iiif_res is None
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata

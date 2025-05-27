@@ -152,10 +152,9 @@ def enable_unknown_license_if_any_are_missing(
     if not all(all_copyright_info):
         legal_info_client.enable_unknown_license()
         msg = (
-            "So that your data could be uploaded to the test server/localhost "
-            "we needed to add dummy values to missing legal information. "
-            "The dummy license we use is 'unknown', so that we are allowed to reference it in the data, "
-            "we enabled this license for your project."
+            "Your files or iiif-uris in your data are missing some legal information. "
+            "To facilitate an upload on a test environment we are adding dummy information. "
+            "In order to use the license 'unknown' in place of missing licenses, we are enabling it for your project."
         )
         print(BOLD_YELLOW, msg, RESET_TO_DEFAULT)
 

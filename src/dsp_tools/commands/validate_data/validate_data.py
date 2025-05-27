@@ -42,6 +42,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_server
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -71,7 +72,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO)
+    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO, is_prod_server(creds.server))
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)

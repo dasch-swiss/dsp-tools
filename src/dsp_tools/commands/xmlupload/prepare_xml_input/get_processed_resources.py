@@ -147,14 +147,6 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
     )
 
 
-def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
-    if not authorship_id:
-        return None
-    if not (found := lookup.get(authorship_id)):
-        raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
-    return found
-
-
 def _get_file_metadata_for_test_environments(
     metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
 ) -> ProcessedFileMetadata:
@@ -171,6 +163,13 @@ def _get_file_metadata_for_test_environments(
     return ProcessedFileMetadata(
         license_iri=lic_iri, copyright_holder=copy_right, authorships=authorship, permissions=permissions
     )
+
+def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
+    if not authorship_id:
+        return None
+    if not (found := lookup.get(authorship_id)):
+        raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
+    return found
 
 
 def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:

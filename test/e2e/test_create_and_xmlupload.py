@@ -84,6 +84,23 @@ def test_project(auth_header: dict[str, str], creds: ServerCredentials, onto_iri
     _check_resclasses([elem for elem in onto if elem.get("knora-api:isResourceClass")])
 
 
+@pytest.mark.usefixtures("_create_project")
+def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCredentials) -> None:
+    response = _get_enabled_licenses(auth_header, creds)
+    all_ids = {x["id"] for x in response["data"]}
+    assert all_ids == {"http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/cc-by-nc-4.0"}
+
+
+def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:
+    url = (
+        f"{creds.server}/admin/projects/shortcode/4125/legal-info/"
+        f"licenses?page=1&page-size=25&order=Asc&showOnlyEnabled=true"
+    )
+    headers = auth_header | {"Accept": "application/json"}
+    response = requests.get(url=url, headers=headers, timeout=3).json()
+    return dict(response)
+
+
 @pytest.mark.usefixtures("_xmlupload")
 def test_xmlupload(auth_header: dict[str, str], project_iri: str, creds: ServerCredentials, onto_iri: str) -> None:
     img_resources = _get_resources(f"{onto_iri}#ImageResource", auth_header, project_iri, creds)

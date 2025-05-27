@@ -111,12 +111,15 @@ class LegalInfoClientLive(LegalInfoClient):
 
     def enable_unknown_license(self) -> None:
         escaped_license_iri = "http%3A%2F%2Frdfh.ch%2Flicenses%2Funknown"
-        url = f"{self.server}/admin/projects/shortcode/0001/legal-info/licenses/{escaped_license_iri}/enable"
+        url = (
+            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
+            f"legal-info/licenses/{escaped_license_iri}/enable"
+        )
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, headers)
+        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
         log_request(params)
         response = requests.put(
             url=params.url,

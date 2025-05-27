@@ -1,7 +1,7 @@
 import regex
 
 
-def is_prod_server(server: str) -> bool:
+def is_prod_like_server(server: str) -> bool:
     return server in ["https://api.dasch.swiss", "https://api.rdu.dasch.swiss"]
 
 

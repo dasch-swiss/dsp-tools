@@ -31,7 +31,7 @@ from dsp_tools.commands.validate_data.validate_data import _validate_data
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO)
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, False)
 
 
 @pytest.fixture(scope="module")

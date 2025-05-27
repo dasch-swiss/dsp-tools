@@ -3,7 +3,7 @@
 import pytest
 
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
-from dsp_tools.utils.data_formats.uri_util import is_prod_server
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 
 
 @pytest.mark.parametrize(
@@ -66,8 +66,8 @@ def test_is_iiif_uri_wrong(uri: str) -> None:
         ("https://app.rdu-06.dasch.swiss", False),
     ],
 )
-def test_is_prod_server(uri, result):
-    assert is_prod_server(uri) == result
+def test_is_prod_like_server(uri, result):
+    assert is_prod_like_server(uri) == result
 
 
 if __name__ == "__main__":

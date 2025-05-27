@@ -47,7 +47,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
-from dsp_tools.utils.data_formats.uri_util import is_prod_server
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -95,7 +95,7 @@ def xmlupload(
             input_file,
             save_graph_dir=None,
             severity=config.validation_severity,
-            is_on_prod_server=is_prod_server(creds.server),
+            is_on_prod_server=is_prod_like_server(creds.server),
         ),
         auth=auth,
     )

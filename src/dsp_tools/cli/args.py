@@ -22,7 +22,7 @@ class ValidateDataConfig:
     xml_file: Path
     save_graph_dir: Path | None
     severity: ValidationSeverity
-    is_on_prod_server: bool = False
+    is_on_prod_server: bool
 
 
 @dataclass

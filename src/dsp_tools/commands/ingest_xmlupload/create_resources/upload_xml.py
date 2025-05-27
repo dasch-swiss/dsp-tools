@@ -27,7 +27,7 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.data_formats.uri_util import is_prod_server
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -81,7 +81,7 @@ def ingest_xmlupload(
             xml_file,
             save_graph_dir=None,
             severity=config.validation_severity,
-            is_on_prod_server=is_prod_server(creds.server),
+            is_on_prod_server=is_prod_like_server(creds.server),
         ),
         auth=auth,
     )

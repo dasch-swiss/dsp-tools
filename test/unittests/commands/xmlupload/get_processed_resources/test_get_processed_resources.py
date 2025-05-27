@@ -27,6 +27,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_iiif_uri_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_processed_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_file_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
@@ -281,6 +282,48 @@ class TestOneResource:
 
 
 class TestFileValue:
+    def test_resolve_file_value_iiif(self, iiif_file_value, lookups):
+        resource = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=iiif_file_value,
+            migration_metadata=None,
+        )
+        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        assert file_res is None
+        assert isinstance(iiif_res, ProcessedIIIFUri)
+        result_metadata = iiif_res.metadata
+        assert not result_metadata.permissions
+        assert iiif_res.value == iiif_file_value.value
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
+
+    def test_resolve_file_value_file(self, file_with_permission, lookups):
+        resource = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=file_with_permission,
+            migration_metadata=None,
+        )
+        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        assert iiif_res is None
+        assert isinstance(file_res, ProcessedFileValue)
+        result_metadata = file_res.metadata
+        assert not result_metadata.permissions
+        assert file_res.value == file_res.value
+        assert file_res.file_type == file_with_permission.value_type
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
+
     def test_file_value(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
         val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)

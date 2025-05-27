@@ -70,12 +70,7 @@ def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) ->
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
-        if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-            iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
-        else:
-            file_val = _get_file_value(
-                val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
-            )
+        file_val, iiif_uri = _resolve_file_value(resource, lookups)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -100,11 +95,24 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
     return MigrationMetadata(res_iri, date)
 
 
+def _resolve_file_value(
+    resource: ParsedResource, lookups: XmlReferenceLookups
+) -> tuple[None | ProcessedFileValue, None | ProcessedIIIFUri]:
+    file_val, iiif_uri = None, None
+    metadata = _get_file_metadata(resource.file_value.metadata, lookups)
+    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+        iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
+    else:
+        file_val = _get_file_value(
+            val=resource.file_value, metadata=metadata, res_id=resource.res_id, res_label=resource.label
+        )
+    return file_val, iiif_uri
+
+
 def _get_file_value(
-    val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
+    val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
     file_type = cast(KnoraValueType, val.value_type)
-    metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,
@@ -115,8 +123,7 @@ def _get_file_value(
     )
 
 
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
-    metadata = _get_file_metadata(iiif_uri.metadata, lookups)
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedIIIFUri:
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 

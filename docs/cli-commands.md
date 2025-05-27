@@ -153,7 +153,7 @@ Output:
         - For example, invalid values, empty values, data that does not conform to the definition in the data model.
     - **Warning**: Will block an xmlupload on PROD and on RDU-stage
         - During RDU work on a test server the data may be incomplete. 
-          To faciliate easy testing some errors are permissible on test servers but not on a production server. 
+          To facilitate easy testing some errors are permissible on test servers but not on a production server. 
         - For example, legal information for assets is mandatory on a production server. 
           Since a project may need time to compile all the data we allow missing legal information on test servers.
     - **Info**: Will not block an xmlupload.

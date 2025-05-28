@@ -4,6 +4,7 @@ from typing import cast
 from urllib.parse import quote_plus
 
 import requests
+from loguru import logger
 from rdflib import SH
 from rdflib import Graph
 
@@ -175,6 +176,7 @@ class ShaclValidator:
         return self._parse_validation_result(response.text)
 
     def _validate_cardinality(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+        logger.debug("Validate Cardinality")
         card_files = self._prepare_cardinality_files(rdf_graphs)
         url = f"{self.api_url}/shacl/validate"
         timeout = 60
@@ -186,10 +188,12 @@ class ShaclValidator:
         return self._parse_validation_result(response.text)
 
     def _prepare_cardinality_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
+        logger.debug("Prepare files for cardinality validation.")
         shacl_graph = rdf_graphs.cardinality_shapes + rdf_graphs.ontos + rdf_graphs.knora_api
         return self._prepare_validation_files_for_request(rdf_graphs.data, shacl_graph)
 
     def _validate_content(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+        logger.debug("Validate Content")
         content_files = self._prepare_content_files(rdf_graphs)
         url = f"{self.api_url}/shacl/validate"
         timeout = 60
@@ -201,12 +205,14 @@ class ShaclValidator:
         return self._parse_validation_result(response.text)
 
     def _prepare_content_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
+        logger.debug("Prepare files for content validation.")
         shacl_graph = rdf_graphs.content_shapes + rdf_graphs.ontos + rdf_graphs.knora_api
         data_graph = rdf_graphs.data + rdf_graphs.ontos + rdf_graphs.knora_api
         return self._prepare_validation_files_for_request(data_graph, shacl_graph)
 
     @staticmethod
     def _prepare_validation_files_for_request(data_graph: Graph, shacl_graph: Graph) -> PostFiles:
+        logger.debug("Serialise files for request.")
         shacl_str = shacl_graph.serialize(format="ttl")
         shacl_file = PostFile(file_name="shacl.ttl", fileobj=shacl_str, content_type="text/turtle")
         data_str = data_graph.serialize(format="ttl")
@@ -214,6 +220,7 @@ class ShaclValidator:
         return PostFiles([shacl_file, data_file])
 
     def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:
+        logger.debug("Parse validation response from API.")
         graph = Graph()
         graph.parse(data=response_text, format="turtle")
         conforms = bool(next(graph.objects(None, SH.conforms)))

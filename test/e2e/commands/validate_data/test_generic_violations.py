@@ -25,6 +25,7 @@ from dsp_tools.commands.validate_data.query_validation_result import _extract_ba
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
@@ -139,6 +140,8 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_content_violation(content_violation: ValidationReportGraphs) -> None:
@@ -231,6 +234,8 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         else:
             nev: Never = cast(Never, one_result.problem_type)
             assert_never(nev)
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
@@ -268,6 +273,8 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         assert one_result.res_id == expected_info[0]
         assert one_result.expected == expected_info[1]
         assert one_result.prop_name == expected_info[2]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_unique_value_violation(unique_value_violation: ValidationReportGraphs) -> None:
@@ -302,6 +309,8 @@ class TestReformatValidationGraph:
         for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         expected_info_violation = [
@@ -338,6 +347,8 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         expected_info_tuples = [
@@ -370,6 +381,8 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_extract_identifiers_of_resource_results(every_violation_combination_once: ValidationReportGraphs) -> None:
@@ -474,6 +487,8 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
     for one_result, expected in zip(alphabetically_sorted_info, expected_info):
         assert one_result.problem_type == expected[1]
         assert one_result.res_id == expected[0]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 if __name__ == "__main__":

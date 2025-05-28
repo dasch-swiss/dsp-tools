@@ -10,14 +10,12 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
-from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
+from dsp_tools.commands.validate_data.validate_data import _validate_data
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, False)
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=True)
 
 
 @pytest.fixture(scope="module")
@@ -26,51 +24,41 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
     return auth
 
 
-@pytest.fixture(scope="module")
-def minimal_correct_graphs(create_generic_project, authentication: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
+@pytest.mark.usefixtures("create_generic_project")
+def test_minimal_correct(authentication) -> None:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    return _prepare_data_for_validation_from_file(file, authentication)
-
-
-def test_minimal_correct(minimal_correct_graphs: tuple[RDFGraphs, set[str]], shacl_validator: ShaclValidator) -> None:
-    graphs, _ = minimal_correct_graphs
-    minimal_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
-    assert minimal_correct.conforms
-
-
-def test_check_for_unknown_resource_classes(minimal_correct_graphs: tuple[RDFGraphs, set[str]]) -> None:
-    graphs, used_iris = minimal_correct_graphs
-    result = _check_for_unknown_resource_classes(graphs, used_iris)
-    assert not result
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    assert validation_success
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_cardinality_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
-    cardinality_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
-    assert cardinality_correct.conforms
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    assert validation_success
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_content_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
-    content_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
-    assert content_correct.conforms
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    assert validation_success
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_file_value_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
-    file_value_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
-    assert file_value_correct.conforms
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    assert validation_success
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
-    dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
-    assert dsp_inbuilt_correct.conforms
+    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    assert validation_success

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!--
+    These resources will produce a validation message of level info.
+    This is allowed on test servers and on prod.
+    -->
+
+    <!-- It is permissible to reference resources that exist in the database but not the XML. -->
+    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_in_db">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text with
+                <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">stand off</a>
+                to resource in DB.
+            </text>
+        </text-prop>
+    </resource>
+
+</knora>

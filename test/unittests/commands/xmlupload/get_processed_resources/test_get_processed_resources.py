@@ -48,6 +48,8 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
 
+IS_ON_PROD_LIKE_SERVER = True
+
 
 @pytest.fixture
 def lookups() -> XmlReferenceLookups:
@@ -89,7 +91,7 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups, True)
+        result = get_processed_resources([res], lookups, IS_ON_PROD_LIKE_SERVER)
         assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):
@@ -103,7 +105,7 @@ class TestResources:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError):
-            get_processed_resources([res], lookups, True)
+            get_processed_resources([res], lookups, IS_ON_PROD_LIKE_SERVER)
 
 
 class TestOneResource:
@@ -117,7 +119,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -136,7 +138,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -158,7 +160,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -183,7 +185,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -210,7 +212,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -236,7 +238,7 @@ class TestOneResource:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
-            _get_one_resource(res, lookups, True)
+            _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
 
     def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
         res = ParsedResource(
@@ -248,7 +250,7 @@ class TestOneResource:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -273,7 +275,7 @@ class TestOneResource:
             file_value=parsed_file,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, False)
+        result = _get_one_resource(res, lookups, is_on_prod_like_server=False)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -299,7 +301,7 @@ class TestOneResource:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups, True)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -321,7 +323,7 @@ class TestFileValue:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
         assert isinstance(iiif_res, ProcessedIIIFUri)
         result_metadata = iiif_res.metadata
@@ -341,7 +343,7 @@ class TestFileValue:
             file_value=None,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
         assert iiif_res is None
 
@@ -355,7 +357,7 @@ class TestFileValue:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, True)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert iiif_res is None
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata

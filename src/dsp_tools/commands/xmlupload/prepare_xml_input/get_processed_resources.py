@@ -154,10 +154,7 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _get_file_metadata_for_test_environments(
     metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
 ) -> ProcessedFileMetadata:
-    if not metadata.license_iri:
-        lic_iri = "http://rdfh.ch/licenses/unknown"
-    else:
-        lic_iri = metadata.license_iri
+    lic_iri = metadata.license_iri or "http://rdfh.ch/licenses/unknown"
     copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
     if not metadata.authorship_id:
         authorship = ["DUMMY"]

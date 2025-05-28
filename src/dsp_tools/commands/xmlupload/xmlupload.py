@@ -148,8 +148,8 @@ def _get_live_clients(
 def enable_unknown_license_if_any_are_missing(
     legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
 ) -> None:
-    all_copyright_info = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
-    if not all(all_copyright_info):
+    all_license_infos = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
+    if not all(all_license_infos):
         legal_info_client.enable_unknown_license()
         msg = (
             "Your files or iiif-uris in your data are missing some legal information. "

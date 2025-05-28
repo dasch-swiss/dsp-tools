@@ -23,6 +23,9 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_file_metadata
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import (
+    _get_file_metadata_for_test_environments,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_processed_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _get_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_file_value
@@ -44,6 +47,8 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
+
+IS_ON_PROD_LIKE_SERVER = True
 
 
 @pytest.fixture
@@ -86,7 +91,7 @@ class TestResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = get_processed_resources([res], lookups)
+        result = get_processed_resources([res], lookups, IS_ON_PROD_LIKE_SERVER)
         assert len(result) == 1
 
     def test_failure(self, lookups: XmlReferenceLookups):
@@ -100,7 +105,7 @@ class TestResources:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError):
-            get_processed_resources([res], lookups)
+            get_processed_resources([res], lookups, IS_ON_PROD_LIKE_SERVER)
 
 
 class TestOneResource:
@@ -114,7 +119,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -133,7 +138,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -155,7 +160,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -180,7 +185,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -207,7 +212,7 @@ class TestOneResource:
             file_value=None,
             migration_metadata=parsed_metadata,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -233,7 +238,7 @@ class TestOneResource:
             migration_metadata=None,
         )
         with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
-            _get_one_resource(res, lookups)
+            _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
 
     def test_with_file_value(self, file_with_permission, lookups: XmlReferenceLookups):
         res = ParsedResource(
@@ -245,7 +250,7 @@ class TestOneResource:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -255,6 +260,34 @@ class TestOneResource:
         assert isinstance(file_val, ProcessedFileValue)
         assert file_val.value == "file.jpg"
         assert file_val.metadata.permissions
+        assert not result.iiif_uri
+        assert not result.migration_metadata
+
+    def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        parsed_file = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=parsed_file,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res, lookups, is_on_prod_like_server=False)
+        assert result.res_id == "id"
+        assert result.type_iri == RES_TYPE
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        file_val = result.file_value
+        assert isinstance(file_val, ProcessedFileValue)
+        assert file_val.value == "file.jpg"
+        assert not file_val.metadata.permissions
+        assert file_val.metadata.copyright_holder == "DUMMY"
+        assert file_val.metadata.authorships == ["DUMMY"]
+        assert file_val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert not result.iiif_uri
         assert not result.migration_metadata
 
@@ -268,7 +301,7 @@ class TestOneResource:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        result = _get_one_resource(res, lookups)
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER)
         assert result.res_id == "id"
         assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
@@ -290,7 +323,7 @@ class TestFileValue:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
         assert isinstance(iiif_res, ProcessedIIIFUri)
         result_metadata = iiif_res.metadata
@@ -310,7 +343,7 @@ class TestFileValue:
             file_value=None,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
         assert iiif_res is None
 
@@ -324,7 +357,7 @@ class TestFileValue:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups)
+        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert iiif_res is None
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata
@@ -337,7 +370,7 @@ class TestFileValue:
 
 
 class TestFileMetadata:
-    def test_good_with_permissions(self, lookups):
+    def test_prod_good_with_permissions(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
         result_metadata = _get_file_metadata(metadata, lookups)
         assert isinstance(result_metadata.permissions, Permissions)
@@ -345,7 +378,7 @@ class TestFileMetadata:
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
 
-    def test_good_without_permissions(self, lookups):
+    def test_prod_good_without_permissions(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id2", None)
         result_metadata = _get_file_metadata(metadata, lookups)
         assert not result_metadata.permissions
@@ -354,26 +387,34 @@ class TestFileMetadata:
         assert result_metadata.authorships
         assert set(result_metadata.authorships) == {"author1", "author2"}
 
-    def test_get_metadata_no_values(self, lookups):
-        metadata = ParsedFileValueMetadata(None, None, None, None)
-        result_metadata = _get_file_metadata(metadata, lookups)
-        assert not result_metadata.permissions
-        assert not result_metadata.license_iri
-        assert not result_metadata.copyright_holder
-        assert not result_metadata.authorships
-
-    def test_get_metadata_some_legal_info_there(self, lookups):
-        metadata = ParsedFileValueMetadata(None, "copy", None, None)
-        result_metadata = _get_file_metadata(metadata, lookups)
-        assert not result_metadata.permissions
-        assert not result_metadata.license_iri
-        assert result_metadata.copyright_holder == "copy"
-        assert not result_metadata.authorships
-
-    def test_with_unknown_authorship_id(self, lookups: XmlReferenceLookups):
+    def test_prod_with_unknown_authorship_id(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unkown_auth_id", None)
         with pytest.raises(XmlUploadAuthorshipsNotFoundError):
             _get_file_metadata(metadata, lookups)
+
+    def test_get_file_metadata_for_test_environments_no_values(self, lookups):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
+        assert not result_metadata.permissions
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert result_metadata.copyright_holder == "DUMMY"
+        assert result_metadata.authorships == ["DUMMY"]
+
+    def test_get_file_metadata_for_test_environments_some_values(self, lookups):
+        metadata = ParsedFileValueMetadata(None, "copy", None, None)
+        result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
+        assert not result_metadata.permissions
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["DUMMY"]
+
+    def test_get_file_metadata_for_test_environments_all_values(self, lookups):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
 
 
 class TestValues:

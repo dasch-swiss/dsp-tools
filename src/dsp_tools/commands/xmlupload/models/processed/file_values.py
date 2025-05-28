@@ -8,9 +8,9 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 @dataclass
 class ProcessedFileMetadata:
-    license_iri: str | None
-    copyright_holder: str | None
-    authorships: list[str] | None
+    license_iri: str
+    copyright_holder: str
+    authorships: list[str]
     permissions: Permissions | None = None
 
 

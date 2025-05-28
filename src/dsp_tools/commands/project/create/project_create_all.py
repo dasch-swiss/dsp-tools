@@ -20,7 +20,7 @@ from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
-from dsp_tools.commands.project.models.project_create_client import ProjectCreationClient
+from dsp_tools.commands.project.models.project_creation_client import ProjectCreationClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input

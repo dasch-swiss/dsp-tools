@@ -2,7 +2,7 @@ from typing import Any
 
 from loguru import logger
 
-from dsp_tools.commands.project.models.project_create_client import ProjectCreationClient
+from dsp_tools.commands.project.models.project_creation_client import ProjectCreationClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.models.exceptions import UserError
 

@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
-from importlib.metadata import version
 from typing import Any
+from urllib.parse import quote_plus
 
 import requests
 from loguru import logger
@@ -13,14 +13,13 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 class ListCreationClient:
     auth: AuthenticationClient
 
-    def create_project(self, payload: dict[str, Any]) -> bool:
-        url = f"{self.auth.server}/admin/projects"
-        headers = {
-            "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
-            "Authorization": f"Bearer {self.auth.get_token()}",
-            "Content-Type": "application/json",
-        }
-        logger.debug(f"REQUEST: {json.dumps({'method': 'POST', 'url': url, 'payload': payload})}")
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+    
+    def _get_list_names_from_server(self, project_iri: str) -> list[str]:
+        iri = quote_plus(project_iri)
+        url = f"{self.auth.server}/admin/lists?projectIri={iri}"
+        logger.debug(f"REQUEST: {json.dumps({'method': 'GET', 'url': url})}")
+        response = requests.get(url, timeout=10)
         logger.debug(f"RESPONSE {response.status_code}: {response.text}")
-        return response.ok
+        lists: list[dict[str, Any]] = response.json()["lists"]
+        logger.info(f"Found {len(lists)} lists for project")
+        return [lst["name"] for lst in lists]

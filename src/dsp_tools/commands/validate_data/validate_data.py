@@ -56,7 +56,7 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors foun
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
+def validate_data(filepath: Path, creds: ServerCredentials, *, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -119,10 +119,10 @@ def _validate_data(
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
-    return _get_validation_status(sorted_problems, config.is_on_prod_server)
+    return _get_validation_status(sorted_problems, is_on_prod=config.is_on_prod_server)
 
 
-def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bool:
+def _get_validation_status(all_problems: SortedProblems, *, is_on_prod: bool) -> bool:
     violations = any(
         [
             bool(all_problems.unique_violations),

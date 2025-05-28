@@ -16,6 +16,7 @@ class ResourceCreateClient:
     def create_resource(
         self,
         graph: Graph,
+        *,
         resource_has_bitstream: bool,
     ) -> str:
         """Creates a resource on the DSP server, and returns its IRI"""

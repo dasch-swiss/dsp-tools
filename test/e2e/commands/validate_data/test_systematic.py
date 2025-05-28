@@ -31,5 +31,5 @@ def shacl_validator(api_url: str) -> ShaclValidator:
 def test_systematic(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
     creds = ServerCredentials("root@example.com", "test", api_url)
-    no_violations = validate_data(file, False, creds)
+    no_violations = validate_data(file, creds, save_graphs=False)
     assert no_violations

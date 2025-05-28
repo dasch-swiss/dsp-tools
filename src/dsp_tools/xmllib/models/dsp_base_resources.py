@@ -95,6 +95,7 @@ class RegionResource:
         point2: tuple[float, float],
         line_width: float = 2,
         color: str = "#5b24bf",
+        *,
         active: bool = True,
     ) -> RegionResource:
         """
@@ -146,6 +147,7 @@ class RegionResource:
         points: list[tuple[float, float]],
         line_width: float = 2,
         color: str = "#5b24bf",
+        *,
         active: bool = True,
     ) -> RegionResource:
         """
@@ -195,6 +197,7 @@ class RegionResource:
         radius: tuple[float, float],
         line_width: float = 2,
         color: str = "#5b24bf",
+        *,
         active: bool = True,
     ) -> RegionResource:
         """

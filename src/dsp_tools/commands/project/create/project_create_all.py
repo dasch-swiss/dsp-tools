@@ -28,6 +28,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 def create_project(
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
+    *,
     verbose: bool = False,
 ) -> bool:
     """
@@ -291,6 +292,7 @@ def _create_users(
     users_section: list[dict[str, str]],
     current_project_groups: dict[str, Group],
     current_project: Project,
+    *,
     verbose: bool,
 ) -> bool:
     """
@@ -376,6 +378,7 @@ def _get_group_iris_for_user(
     current_project: Project,
     current_project_groups: dict[str, Group],
     con: Connection,
+    *,
     verbose: bool,
 ) -> tuple[set[str], bool, bool]:
     """
@@ -466,6 +469,7 @@ def _get_projects_where_user_is_admin(
     json_user_definition: dict[str, str],
     current_project: Project,
     con: Connection,
+    *,
     verbose: bool,
 ) -> tuple[dict[str, bool], bool]:
     """

@@ -24,6 +24,7 @@ def create_ontologies(
     names_and_iris_of_list_nodes: dict[str, Any],
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
+    *,
     verbose: bool,
 ) -> bool:
     """
@@ -124,6 +125,7 @@ def _create_ontology(
     con: Connection,
     project_remote: Project,
     context: Context,
+    *,
     verbose: bool,
 ) -> Optional[Ontology]:
     """
@@ -194,6 +196,7 @@ def _add_resource_classes_to_remote_ontology(
     ontology_remote: Ontology,
     con: Connection,
     last_modification_date: DateTimeStamp,
+    *,
     verbose: bool,
 ) -> tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
     """
@@ -293,6 +296,7 @@ def _add_property_classes_to_remote_ontology(
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
+    *,
     verbose: bool,
 ) -> tuple[DateTimeStamp, bool]:
     """
@@ -423,6 +427,7 @@ def _add_cardinalities_to_resource_classes(
     remote_res_classes: dict[str, ResourceClass],
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
+    *,
     verbose: bool,
 ) -> bool:
     """

@@ -20,6 +20,7 @@ def get_project(
     project_identifier: str,
     outfile_path: str,
     creds: ServerCredentials,
+    *,
     verbose: bool = False,
 ) -> bool:
     """
@@ -50,13 +51,13 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
+    project_obj["groups"] = _get_groups(con, str(project.iri), verbose=verbose)
 
-    project_obj["users"] = _get_users(con, project, verbose)
+    project_obj["users"] = _get_users(con, project, verbose=verbose)
 
-    project_obj["lists"] = _get_lists(con, project, verbose)
+    project_obj["lists"] = _get_lists(con, project, verbose=verbose)
 
-    prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
+    prefixes, ontos = _get_ontologies(con, str(project.iri), verbose=verbose)
     project_obj["ontologies"] = ontos
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
@@ -85,7 +86,7 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         )
 
 
-def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:
+def _get_groups(con: Connection, project_iri: str, *, verbose: bool) -> list[dict[str, Any]]:
     if verbose:
         print("Getting groups...")
     groups_obj: list[dict[str, Any]] = []
@@ -97,7 +98,7 @@ def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[s
     return groups_obj
 
 
-def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[str, Any]] | None:
+def _get_users(con: Connection, project: Project, *, verbose: bool) -> list[dict[str, Any]] | None:
     if verbose:
         print("Getting users...")
     try:
@@ -121,7 +122,7 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
     return users_obj
 
 
-def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[str, Any]]:
+def _get_lists(con: Connection, project: Project, *, verbose: bool) -> list[dict[str, Any]]:
     if verbose:
         print("Getting lists...")
     list_obj: list[dict[str, Any]] = []
@@ -134,7 +135,7 @@ def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[st
     return list_obj
 
 
-def _get_ontologies(con: Connection, project_iri: str, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
+def _get_ontologies(con: Connection, project_iri: str, *, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
     if verbose:
         print("Getting ontologies...")
     ontos = []

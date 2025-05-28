@@ -176,7 +176,7 @@ def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) 
     return {col: df[col].isnull() for col in required_values_columns if df[col].isnull().any()}
 
 
-def _turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:
+def _turn_bool_array_into_index_numbers(series: pd.Series[bool], *, true_remains: bool = True) -> list[int]:
     """
     This function takes a pd.Series containing boolean values.
     By default, this method extracts the index numbers of the True values.
@@ -196,7 +196,7 @@ def _turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: b
 
 
 def get_wrong_row_numbers(
-    wrong_row_dict: dict[str, pd.Series[bool]], true_remains: bool = True
+    wrong_row_dict: dict[str, pd.Series[bool]], *, true_remains: bool = True
 ) -> dict[str, list[int]]:
     """
     From the boolean pd.Series the index numbers of the True values are extracted.
@@ -278,6 +278,7 @@ def col_must_or_not_empty_based_on_other_col(
     substring_list: list[str],
     substring_colname: str,
     check_empty_colname: str,
+    *,
     must_have_value: bool,
 ) -> pd.Series[bool] | None:
     """

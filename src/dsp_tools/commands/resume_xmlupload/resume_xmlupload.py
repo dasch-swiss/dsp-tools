@@ -23,7 +23,7 @@ from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
-def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:
+def resume_xmlupload(creds: ServerCredentials, *, skip_first_resource: bool = False) -> bool:
     """
     Resume an interrupted xmlupload.
 

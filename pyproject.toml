@@ -147,6 +147,7 @@ select = [
     "PT",    # flake8-pytest-style plugin
     "TID",   # flake8-tidy-imports plugin
     "ICN",   # flake8-import-conventions plugin, which checks for import conventions
+    "FBT",   # flake8-boolean-trap
     "PGH",   # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
     "UP",    # pyupgrade
     "D101",  # pydocstyle: undocumented-public-class
@@ -181,8 +182,16 @@ ignore = [
     "D102", # pydocstyle: undocumented-public-method
     "D101", # pydocstyle: undocumented-public-class
     "S101", # flake8-bandit: use of assert
+    "FBT003", # flake8-boolean-trap: boolean-positional-arg-in-function
 ]
 "!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
+"src/dsp_tools/commands/project/legacy_models/*" = [
+    "FBT"  # flake8-boolean-trap
+]
+"src/dsp_tools/commands/excel2xml/*" = [
+    "FBT"  # flake8-boolean-trap
+]
+
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -190,6 +199,10 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.ruff.lint.flake8-boolean-trap]
+extend-allowed-calls = ["rdflib.Literal"]
 
 
 [tool.vulture]

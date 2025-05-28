@@ -26,7 +26,7 @@ def construct_shapes_graphs(
     Returns:
         shapes graph
     """
-    logger.info("Constructing SHACL shapes from ontology.")
+    logger.debug("Constructing SHACL shapes from ontology.")
     knora_subset = _get_all_relevant_knora_subset(knora_api)
     graph_to_query = knora_subset + onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
@@ -37,7 +37,7 @@ def construct_shapes_graphs(
 
 
 def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
-    logger.info("Getting relevant knora-api subset")
+    logger.debug("Getting relevant knora-api subset")
     props = ["isLinkProperty", "isEditable", "isLinkValueProperty"]
     g = Graph()
     for p in props:

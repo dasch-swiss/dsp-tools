@@ -20,7 +20,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 def make_data_graph(data: RdfLikeData) -> Graph:
-    logger.info("Creating the RDF data graph.")
+    logger.debug("Creating the RDF data graph.")
     g = Graph()
     for r in data.resources:
         g += _make_one_resource(r)

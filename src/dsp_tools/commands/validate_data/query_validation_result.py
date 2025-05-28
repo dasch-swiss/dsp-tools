@@ -51,7 +51,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     Returns:
         All Problems
     """
-    logger.info("Reformatting validation results.")
+    logger.debug("Reformatting validation results.")
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)

@@ -61,21 +61,19 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 }
 
 
-def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferenceLookups) -> list[ProcessedResource]:
-    return [_get_one_resource(res, lookups) for res in resources]
+def get_processed_resources(
+    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> list[ProcessedResource]:
+    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in resources]
 
 
-def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
+def _get_one_resource(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
-    file_val, iiif_uri, migration_metadata = None, None, None
-    if resource.file_value:
-        if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-            iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
-        else:
-            file_val = _get_file_value(
-                val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
-            )
+    migration_metadata = None
+    file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -100,11 +98,30 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
     return MigrationMetadata(res_iri, date)
 
 
+def _resolve_file_value(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> tuple[None | ProcessedFileValue, None | ProcessedIIIFUri]:
+    file_val, iiif_uri = None, None
+    if not resource.file_value:
+        return file_val, iiif_uri
+
+    if is_on_prod_like_server:
+        metadata = _get_file_metadata(resource.file_value.metadata, lookups)
+    else:
+        metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
+    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+        iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
+    else:
+        file_val = _get_file_value(
+            val=resource.file_value, metadata=metadata, res_id=resource.res_id, res_label=resource.label
+        )
+    return file_val, iiif_uri
+
+
 def _get_file_value(
-    val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
+    val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
     file_type = cast(KnoraValueType, val.value_type)
-    metadata = _get_file_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,
@@ -115,25 +132,44 @@ def _get_file_value(
     )
 
 
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
-    metadata = _get_file_metadata(iiif_uri.metadata, lookups)
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedIIIFUri:
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
+    license_iri = assert_is_string(file_metadata.license_iri)
+    copyright_holder = assert_is_string(file_metadata.copyright_holder)
+    auth_id = assert_is_string(file_metadata.authorship_id)
+    authorships = _resolve_authorship(auth_id, lookups.authorships)
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
     return ProcessedFileMetadata(
-        license_iri=file_metadata.license_iri,
-        copyright_holder=file_metadata.copyright_holder,
-        authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),
+        license_iri=license_iri,
+        copyright_holder=copyright_holder,
+        authorships=authorships,
         permissions=permissions,
     )
 
 
-def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
-    if not authorship_id:
-        return None
+def _get_file_metadata_for_test_environments(
+    metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
+) -> ProcessedFileMetadata:
+    lic_iri = metadata.license_iri or "http://rdfh.ch/licenses/unknown"
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    if not metadata.authorship_id:
+        authorship = ["DUMMY"]
+    else:
+        authorship = _resolve_authorship(metadata.authorship_id, lookups.authorships)
+    permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
+    return ProcessedFileMetadata(
+        license_iri=lic_iri,
+        copyright_holder=copy_right,
+        authorships=authorship,
+        permissions=permissions,
+    )
+
+
+def _resolve_authorship(authorship_id: str, lookup: dict[str, list[str]]) -> list[str]:
     if not (found := lookup.get(authorship_id)):
         raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
     return found

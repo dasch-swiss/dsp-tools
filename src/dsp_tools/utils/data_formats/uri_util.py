@@ -1,6 +1,10 @@
 import regex
 
 
+def is_prod_like_server(server: str) -> bool:
+    return server in ["https://api.dasch.swiss", "https://api.rdu.dasch.swiss"]
+
+
 def is_uri(s: str) -> bool:
     """Checks if the given string is a valid URI."""
     # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]

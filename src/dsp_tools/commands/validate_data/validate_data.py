@@ -42,6 +42,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -71,7 +72,7 @@ def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO)
+    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO, is_prod_like_server(creds.server))
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
@@ -118,13 +119,21 @@ def _validate_data(
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
-    no_problems = not any(
+    return _get_validation_status(sorted_problems, config.is_on_prod_server)
+
+
+def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bool:
+    violations = any(
         [
-            bool(sorted_problems.unique_violations),
-            bool(sorted_problems.unexpected_shacl_validation_components),
+            bool(all_problems.unique_violations),
+            bool(all_problems.unexpected_shacl_validation_components),
         ]
     )
-    return no_problems
+    if violations:
+        return False
+    if is_on_prod and all_problems.user_warnings:
+        return False
+    return True
 
 
 def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
@@ -371,7 +380,7 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
 
 def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:
     legal_client = LegalInfoClientLive(auth.server, shortcode, auth)
-    license_info = legal_client.get_licenses_of_a_project(enabled_only=False)
+    license_info = legal_client.get_licenses_of_a_project()
     iris = [x["id"] for x in license_info]
     return EnabledLicenseIris(iris)
 

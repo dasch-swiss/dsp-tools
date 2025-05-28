@@ -151,10 +151,11 @@ Output:
     - **Error**: Will block an xmlupload.
         - Content that is wrong for various reasons.
         - For example, invalid values, empty values, data that does not conform to the definition in the data model.
-    - **Warning**: Will not block an xmlupload.
-        - Content that will currently not cause an xmlupload to fail but may do so in the future. 
-        - For example, before legal information became mandatory, missing legal information was a warning. 
-          As soon as it is mandatory it will become an error.
+    - **Warning**: Will block an xmlupload on PROD and on RDU-stage
+        - During RDU work on a test server the data may be incomplete. 
+          To facilitate easy testing some errors are permissible on test servers but not on a production server. 
+        - For example, legal information for assets is mandatory on a production server. 
+          Since a project may need time to compile all the data we allow missing legal information on test servers.
     - **Info**: Will not block an xmlupload.
         - Content that may cause errors during an upload. 
         - For example, if you reference IRIs from resources that are already in the database,

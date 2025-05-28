@@ -4,7 +4,6 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
@@ -61,21 +60,6 @@ def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
     )
     with pytest.raises(InputError, match=expected):
         parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
-
-
-def test_validate_xml_invalid_resource_tag_problem() -> None:
-    expected_msg = regex.escape(
-        "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
-        "Please note that these will not be recognised as formatting in the text field, "
-        "but will be displayed as-is.\n"
-        "The following resources of your XML file contain angular brackets:\n"
-        "    - line 13: resource 'the_only_resource', property ':test'\n"
-        "    - line 14: resource 'the_only_resource', property ':test'\n"
-        "    - line 15: resource 'the_only_resource', property ':test'\n"
-        "    - line 16: resource 'the_only_resource', property ':test'",
-    )
-    with pytest.warns(DspToolsUserInfo, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
 
 
 def test_validate_xml_data_duplicate_iri() -> None:

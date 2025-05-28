@@ -47,6 +47,10 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.ansi_colors import BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -85,12 +89,18 @@ def xmlupload(
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
 
+    is_on_prod_like_server = is_prod_like_server(creds.server)
     validation_passed = validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=lookups.authorships,
         permission_ids=list(lookups.permissions.keys()),
         shortcode=shortcode,
-        config=ValidateDataConfig(input_file, save_graph_dir=None, severity=config.validation_severity),
+        config=ValidateDataConfig(
+            input_file,
+            save_graph_dir=None,
+            severity=config.validation_severity,
+            is_on_prod_server=is_on_prod_like_server,
+        ),
         auth=auth,
     )
     if not validation_passed:
@@ -100,7 +110,11 @@ def xmlupload(
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 
-    processed_resources = get_processed_resources(parsed_resources, lookups)
+    if not is_on_prod_like_server:
+        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
+
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,
@@ -129,6 +143,21 @@ def _get_live_clients(
         list_client=list_client,
         legal_info_client=legal_info_client,
     )
+
+
+def enable_unknown_license_if_any_are_missing(
+    legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
+) -> None:
+    all_license_infos = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
+    if not all(all_license_infos):
+        legal_info_client.enable_unknown_license()
+        msg = (
+            "The files or iiif-uris in your data are missing some legal information. "
+            "To facilitate an upload on a test environment we are adding dummy information.\n"
+            "In order to be able to use the license 'unknown' in place of missing licenses, "
+            "we are enabling it for your project."
+        )
+        print(BOLD_YELLOW, msg, RESET_TO_DEFAULT)
 
 
 def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:

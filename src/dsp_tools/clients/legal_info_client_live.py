@@ -63,7 +63,7 @@ class LegalInfoClientLive(LegalInfoClient):
         log_response(response)
         return response
 
-    def get_licenses_of_a_project(self, enabled_only: bool) -> list[dict[str, Any]]:
+    def get_licenses_of_a_project(self, enabled_only: bool = True) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
         page_num = 1
         all_data = []
@@ -101,6 +101,37 @@ class LegalInfoClientLive(LegalInfoClient):
         elif response.status_code == HTTP_LACKING_PERMISSIONS:
             raise BadCredentialsError(
                 "Only members of a project or system administrators can request the enabled licenses of a project."
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
+
+    def enable_unknown_license(self) -> None:
+        escaped_license_iri = "http%3A%2F%2Frdfh.ch%2Flicenses%2Funknown"
+        url = (
+            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
+            f"legal-info/licenses/{escaped_license_iri}/enable"
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+        }
+        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        log_request(params)
+        response = requests.put(
+            url=params.url,
+            headers=params.headers,
+            timeout=params.timeout,
+        )
+        log_response(response)
+        if response.ok:
+            pass
+        elif response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only members of a project or system administrators can enable licenses. "
                 "Your permissions are insufficient for this action."
             )
         else:

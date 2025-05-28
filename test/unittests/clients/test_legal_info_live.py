@@ -109,7 +109,7 @@ class TestGetEnabledLicenses:
             attribute="_get_one_license_page",
             side_effect=[first_response, second_response],
         ):
-            response = client.get_licenses_of_a_project(True)
+            response = client.get_licenses_of_a_project()
             assert response == [LICENSE_1, LICENSE_2]
 
     def test_get_enabled_license_page_no_license(self):

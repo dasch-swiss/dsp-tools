@@ -101,3 +101,25 @@ def check_and_warn_if_a_string_contains_a_potentially_empty_value(
             field=field,
         )
         emit_xmllib_input_info(msg_info)
+
+
+def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop_name: str | None = None) -> None:
+    """
+    Checks if a string value contains angular brackets.
+
+    Args:
+        value: String value
+        res_id: resource id
+        prop_name: property name
+    """
+    if bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(value))):
+        msg_info = MessageInfo(
+            message=(
+                f"Your input '{value}' contains angular brackets. "
+                f"Since this is a simpletext, please note that these will not be recognised as formatting "
+                f"in the text field, but will be displayed as-is."
+            ),
+            resource_id=res_id,
+            prop_name=prop_name,
+        )
+        emit_xmllib_input_info(msg_info)

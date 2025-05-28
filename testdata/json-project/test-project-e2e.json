@@ -10,6 +10,10 @@
         "keywords": [
             "e2e-test-projec-keyword"
         ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        ],
         "ontologies": [
             {
                 "name": "e2e-testonto",

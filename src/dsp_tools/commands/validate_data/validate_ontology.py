@@ -31,7 +31,7 @@ def validate_ontology(
     Returns:
         A validation report if errors were found
     """
-    logger.info("Validating the ontology.")
+    logger.debug("Validating the ontology.")
     shacl_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")
     onto_shacl = Graph()
     onto_shacl = onto_shacl.parse(str(shacl_file))

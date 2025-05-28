@@ -191,9 +191,6 @@ ignore = [
 "src/dsp_tools/commands/excel2xml/*" = [
     "FBT"  # flake8-boolean-trap
 ]
-"src/dsp_tools/commands/excel2json/old_lists.py" = [
-    "FBT"  # flake8-boolean-trap
-]
 
 
 [tool.ruff.lint.pydocstyle]

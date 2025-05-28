@@ -23,6 +23,7 @@ from dsp_tools.utils.data_formats.shared import simplify_name
 def old_excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
+    *,
     verbose: bool = False,
 ) -> tuple[list[dict[str, Any]], bool]:
     """
@@ -64,6 +65,7 @@ def _get_values_from_excel(
     col: int,
     preval: list[str],
     list_node_names: ListNodeNames,
+    *,
     verbose: bool = False,
 ) -> tuple[int, dict[str, Any]]:
     """
@@ -125,7 +127,7 @@ def _get_values_from_excel(
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
-            currentnode = _make_new_node(cell, col, excelfiles, preval, row, list_node_names, verbose)
+            currentnode = _make_new_node(cell, col, excelfiles, preval, row, list_node_names, verbose=verbose)
             nodes.append(currentnode)
 
         # go one row down and repeat loop if there is a value
@@ -159,6 +161,7 @@ def _make_new_node(
     preval: list[str],
     row: int,
     list_node_names: ListNodeNames,
+    *,
     verbose: bool = False,
 ) -> dict[str, Any]:
     _check_if_duplicate_nodes_exist(cell, list_node_names, preval)
@@ -210,6 +213,7 @@ def _get_all_languages_of_node(excelfiles: dict[str, Worksheet], col: int, row: 
 
 def _make_json_lists_from_excel(
     excel_file_paths: list[Path],
+    *,
     verbose: bool = False,
 ) -> list[dict[str, Any]]:
     """

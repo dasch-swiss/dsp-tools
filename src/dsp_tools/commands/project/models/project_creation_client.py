@@ -1,12 +1,13 @@
-import json
 from dataclasses import dataclass
 from importlib.metadata import version
 from typing import Any
 
 import requests
-from loguru import logger
 
-from dsp_tools.utils.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
@@ -14,14 +15,14 @@ class ProjectCreationClient:
     auth: AuthenticationClient
 
     def get_existing_shortcodes_and_shortnames(self) -> tuple[set[str], set[str]]:
-        url = f"{self.auth.server}/admin/projects"
         headers = {
             "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        logger.debug(f"REQUEST: GET {url}")
-        response = requests.get(url, headers=headers, timeout=10)
-        logger.debug(f"RESPONSE {response.status_code}: {response.text}")
+        params = RequestParameters("GET", f"{self.auth.server}/admin/projects", timeout=10, headers=headers)
+        log_request(params)
+        response = requests.get(params.url, headers=params.headers, timeout=params.timeout)
+        log_response(response)
         res_json: dict[str, Any] = response.json()
         shortcodes = [x.get("shortcode") for x in res_json["projects"]]
         shortnames = [x.get("shortname") for x in res_json["projects"]]
@@ -34,7 +35,8 @@ class ProjectCreationClient:
             "Authorization": f"Bearer {self.auth.get_token()}",
             "Content-Type": "application/json",
         }
-        logger.debug(f"REQUEST: {json.dumps({'method': 'POST', 'url': url, 'payload': payload})}")
+        params = RequestParameters("POST", url, data=payload, headers=headers, timeout=10)
+        log_request(params)
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        logger.debug(f"RESPONSE {response.status_code}: {response.text}")
+        log_response(response)
         return response.ok

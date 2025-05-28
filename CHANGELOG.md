@@ -1,5 +1,37 @@
 # Changelog
 
+## [15.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.0.0...v15.1.0) (2025-05-28)
+
+
+### Enhancements
+
+* **create:** enable licenses on a per-project base (DEV-4864) ([#1744](https://github.com/dasch-swiss/dsp-tools/issues/1744)) ([27004a6](https://github.com/dasch-swiss/dsp-tools/commit/27004a6a4054e964e4fe5f663a1f7fb3c1bb1ed9))
+* migrate warning about angular brackets in simpletext from `xmplupload` to `xmllib` (DEV-4943) ([#1750](https://github.com/dasch-swiss/dsp-tools/issues/1750)) ([c48d041](https://github.com/dasch-swiss/dsp-tools/commit/c48d041d3882977d4fa56cefe85cdaa3dac5f03f))
+* **validate-data:** add more logging statements to find out slow process (DEV-4977) ([#1763](https://github.com/dasch-swiss/dsp-tools/issues/1763)) ([cad440c](https://github.com/dasch-swiss/dsp-tools/commit/cad440cdc58cae9993cfc5c3a515687dd65ae60e))
+* **validate-data:** check that only enabled licenses are referenced in the xml (DEV-4951) ([#1755](https://github.com/dasch-swiss/dsp-tools/issues/1755)) ([dd42602](https://github.com/dasch-swiss/dsp-tools/commit/dd426026c97e8c86d5d9f1ef629708808c212215))
+* **validate-data:** ensure that only defined permissions are used (DEV-4939) ([#1748](https://github.com/dasch-swiss/dsp-tools/issues/1748)) ([8009778](https://github.com/dasch-swiss/dsp-tools/commit/8009778ad508bdd7f36a340aa654feb23b94f642))
+* **validate-data:** warn if bitstreams/iiif-uri are duplicated (DEV-4665) ([#1752](https://github.com/dasch-swiss/dsp-tools/issues/1752)) ([741223c](https://github.com/dasch-swiss/dsp-tools/commit/741223c7157f72d36d01ce240e59f3dd7c3e4280))
+* **validate-data:** warnings give a validation failure if it is on a prod server (DEV-4948) ([#1754](https://github.com/dasch-swiss/dsp-tools/issues/1754)) ([a8006fb](https://github.com/dasch-swiss/dsp-tools/commit/a8006fbadcb4093a8bf5570f03efc850fdeaaf15))
+* **xmllib:** accept Italian "sì" as boolean (RDU-94) ([#1746](https://github.com/dasch-swiss/dsp-tools/issues/1746)) ([322fa00](https://github.com/dasch-swiss/dsp-tools/commit/322fa002783635dc09d06046a07c6131078c0e11))
+* **xmlupload:** add dummy legal info when none provided and not on prod server (DEV-4926) ([#1757](https://github.com/dasch-swiss/dsp-tools/issues/1757)) ([17a7fd0](https://github.com/dasch-swiss/dsp-tools/commit/17a7fd01b29226b1036caae47f508bf501c672cc))
+* **xmlupload:** show progress bar on CLI when uploading stash (DEV-4935) ([#1747](https://github.com/dasch-swiss/dsp-tools/issues/1747)) ([7fd490c](https://github.com/dasch-swiss/dsp-tools/commit/7fd490c0709d972c5eb75e5c5785da5d5b1db440))
+
+
+### Bug Fixes
+
+* remove erroneous mandatory gui attribute of `Spinbox` (DEV-4679) ([#1764](https://github.com/dasch-swiss/dsp-tools/issues/1764)) ([fecfabf](https://github.com/dasch-swiss/dsp-tools/commit/fecfabff5adb06bdd4c91573eb7f024186193e6f))
+* **validate-data:** validate with list IRIs instead of names (DEV-4470) ([#1741](https://github.com/dasch-swiss/dsp-tools/issues/1741)) ([678164f](https://github.com/dasch-swiss/dsp-tools/commit/678164f1c68320bf51e2e42353d2b57a3c681827))
+
+
+### Maintenance
+
+* describe yamlfmt installation in readme and bump markdownlint version ([#1753](https://github.com/dasch-swiss/dsp-tools/issues/1753)) ([b3a712f](https://github.com/dasch-swiss/dsp-tools/commit/b3a712f6eda78f96b7d0b9b6ead21027db34fef0))
+* **validate-data:** change list node extraction ([#1742](https://github.com/dasch-swiss/dsp-tools/issues/1742)) ([83fdd6d](https://github.com/dasch-swiss/dsp-tools/commit/83fdd6d79ad590f8e1690023182e96685ed5fb6f))
+* **xmlupload:** change processing of `ParsedFileValue` ([#1758](https://github.com/dasch-swiss/dsp-tools/issues/1758)) ([92c8abd](https://github.com/dasch-swiss/dsp-tools/commit/92c8abdc7a04f2cd0bbd4cac7851addf079f54b5))
+* **xmlupload:** remove redundant check if link targets exist (DEV-4942) ([#1751](https://github.com/dasch-swiss/dsp-tools/issues/1751)) ([e7cee5b](https://github.com/dasch-swiss/dsp-tools/commit/e7cee5b3ac071c5bb1cae361a8b46ed3d5388f66))
+* **xmlupload:** remove unnecessary conversion checks (DEV-4934) ([#1745](https://github.com/dasch-swiss/dsp-tools/issues/1745)) ([cea1509](https://github.com/dasch-swiss/dsp-tools/commit/cea1509f620032e19b3188a013024ec2dba15812))
+* **xmlupload:** remove unnecessary permissions error handling (DEV-4940) ([#1749](https://github.com/dasch-swiss/dsp-tools/issues/1749)) ([0fabaf2](https://github.com/dasch-swiss/dsp-tools/commit/0fabaf2e425ce71a19428810bc36af70d484a1b0))
+
 ## [15.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v14.0.0...v15.0.0) (2025-05-21)
 
 

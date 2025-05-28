@@ -11,12 +11,20 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.commands.project.legacy_models.project import Project
+from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_lists_on_server(
+    lists_to_create: list[dict[str, Any]],
+    list_creation_client: ListCreationClient,
+) -> tuple[dict[str, Any], bool]:
+    pass
+
+
+def create_lists_on_server_old(
     lists_to_create: list[dict[str, Any]],
     con: Connection,
     project_remote: Project,
@@ -64,7 +72,7 @@ def create_lists_on_server(
             overall_success = False
             continue
 
-        created_list, success = _create_list_node(con=con, project=project_remote, node=new_lst)
+        created_list, success = _create_list_node_old(con=con, project=project_remote, node=new_lst)
         current_project_lists.update(created_list)
         if not success:
             overall_success = False
@@ -73,7 +81,7 @@ def create_lists_on_server(
     return current_project_lists, overall_success
 
 
-def _create_list_node(
+def _create_list_node_old(
     con: Connection,
     project: Project,
     node: dict[str, Any],
@@ -120,7 +128,9 @@ def _create_list_node(
         overall_success = True
         subnode_list = []
         for subnode in node["nodes"]:
-            created_subnode, success = _create_list_node(con=con, project=project, node=subnode, parent_node=new_node)
+            created_subnode, success = _create_list_node_old(
+                con=con, project=project, node=subnode, parent_node=new_node
+            )
             subnode_list.append(created_subnode)
             if not success:
                 overall_success = False
@@ -133,7 +143,7 @@ def _create_list_node(
         return {new_node.name: {"id": new_node.iri}}, True
 
 
-def create_only_lists(
+def create_only_lists_old(
     project_file_as_path_or_parsed: Union[str, dict[str, Any]],
     creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:
@@ -191,7 +201,7 @@ def create_only_lists(
         raise InputError(err_msg) from None
 
     # create new lists
-    current_project_lists, success = create_lists_on_server(
+    current_project_lists, success = create_lists_on_server_old(
         lists_to_create=project_definition["project"]["lists"],
         con=con,
         project_remote=project_remote,

@@ -305,7 +305,6 @@ class TestReformatValidationGraph:
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         expected_info_violation = [
-            # each type of missing legal info (authorship, copyright, license) produces one violation
             ("authorship_with_newline", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
             ("empty_copyright_holder", ProblemType.INPUT_REGEX),
@@ -328,28 +327,15 @@ class TestReformatValidationGraph:
             ("license_not_enabled", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
-        expected_info_info = [
-            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
-        ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert not sorted_problems.user_warnings
-        assert len(sorted_problems.user_info) == len(expected_info_info)
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
-        for one_result, expected_info in zip(alphabetically_sorted_info, expected_info_info):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 

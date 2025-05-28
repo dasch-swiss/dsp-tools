@@ -71,6 +71,7 @@ class TestGetCorrectValidationResult:
 class TestSortedProblems:
     def test_no_violations_with_warnings_problems(self, no_violations_with_warnings):
         expected_warnings = [
+            # each type of missing legal info (authorship, copyright, license) produces one violation
             ("archive_no_legal_info", ProblemType.GENERIC),
             ("archive_no_legal_info", ProblemType.GENERIC),
             ("archive_no_legal_info", ProblemType.GENERIC),

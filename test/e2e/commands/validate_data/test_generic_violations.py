@@ -25,8 +25,8 @@ from dsp_tools.commands.validate_data.query_validation_result import _extract_ba
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
-from dsp_tools.commands.validate_data.validate_data import _validate_data
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -118,15 +118,6 @@ def every_violation_combination_once(
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
-@pytest.fixture(scope="module")
-def no_violations_with_warnings_graphs(
-    create_generic_project, authentication, shacl_validator: ShaclValidator
-) -> tuple[RDFGraphs, set[str]]:
-    file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
-    return graphs, used_iris
-
-
 def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
     assert not cardinality_violation.conforms
 
@@ -149,6 +140,8 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_content_violation(content_violation: ValidationReportGraphs) -> None:
@@ -241,6 +234,8 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
         else:
             nev: Never = cast(Never, one_result.problem_type)
             assert_never(nev)
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
@@ -278,6 +273,8 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         assert one_result.res_id == expected_info[0]
         assert one_result.expected == expected_info[1]
         assert one_result.prop_name == expected_info[2]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_unique_value_violation(unique_value_violation: ValidationReportGraphs) -> None:
@@ -312,10 +309,11 @@ class TestReformatValidationGraph:
         for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         expected_info_violation = [
-            # each type of missing legal info (authorship, copyright, license) produces one violation
             ("authorship_with_newline", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
             ("empty_copyright_holder", ProblemType.INPUT_REGEX),
@@ -338,45 +336,19 @@ class TestReformatValidationGraph:
             ("license_not_enabled", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
-        expected_info_warnings = [
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-        ]
-        expected_info_info = [
-            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
-        ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-        alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
-        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
-        assert len(sorted_problems.user_warnings) == len(expected_info_warnings)
-        assert len(sorted_problems.user_info) == len(expected_info_info)
+        assert not sorted_problems.user_warnings
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
-        for one_result, expected_info in zip(alphabetically_sorted_warnings, expected_info_warnings):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
-        for one_result, expected_info in zip(alphabetically_sorted_info, expected_info_info):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         expected_info_tuples = [
@@ -409,6 +381,8 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
+        assert not _get_validation_status(sorted_problems, is_on_prod=True)
+        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 def test_extract_identifiers_of_resource_results(every_violation_combination_once: ValidationReportGraphs) -> None:
@@ -513,20 +487,8 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
     for one_result, expected in zip(alphabetically_sorted_info, expected_info):
         assert one_result.problem_type == expected[1]
         assert one_result.res_id == expected[0]
-
-
-def test_no_violations_with_warnings_not_on_prod(no_violations_with_warnings_graphs, authentication):
-    config = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=False)
-    graphs, used_iris = no_violations_with_warnings_graphs
-    result = _validate_data(graphs=graphs, used_iris=used_iris, auth=authentication, config=config)
-    assert result is True
-
-
-def test_no_violations_with_warnings_on_prod(no_violations_with_warnings_graphs, authentication):
-    config = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=True)
-    graphs, used_iris = no_violations_with_warnings_graphs
-    result = _validate_data(graphs=graphs, used_iris=used_iris, auth=authentication, config=config)
-    assert result is False
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>
+            Author One
+        </author>
+    </authorship>
+
+    <!--
+    These resources will produce a validation message of level info.
+    This is allowed on test servers and on prod.
+    -->
+
+    <!-- It is permissible to reference resources that exist in the database but not the XML. -->
+    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_in_db">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text with
+                <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">stand off</a>
+                to resource in DB.
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- Duplicate Files -->
+
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
+    </resource>
+
+    <resource label="duplicate file" restype=":TestStillImageRepresentation" id="duplicate_still_image_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >duplicate_file.jpg
+        </bitstream>
+    </resource>
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_1">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_2">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+
+    <!--
+        Per duplicate file we get one violation.
+        Meaning that if we use the same file 3 times, we get two violations per resource.
+        This needs to be filtered out
+    -->
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_3">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+</knora>

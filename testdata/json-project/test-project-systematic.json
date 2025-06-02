@@ -351,11 +351,7 @@
                         "labels": {
                             "en": "Integer"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "max": -1.0,
-                            "min": 0.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasDecimal",

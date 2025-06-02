@@ -97,7 +97,7 @@ def _validate_data(
 ) -> bool:
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
-        logger.info(msg)
+        logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
@@ -106,14 +106,14 @@ def _validate_data(
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
-        logger.info(msg)
+        logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
-        logger.info("No validation errors found.")
+        logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
     reformatted = reformat_validation_graph(report)
@@ -245,7 +245,7 @@ def _print_shacl_validation_violation_message(
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         print(messages.violations.message_body)
     else:
-        logger.info("No validation errors found.")
+        logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
     if messages.warnings and config.severity.value <= 2:
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)
@@ -341,7 +341,7 @@ def _create_graphs(
     proj_info: ProjectDataFromApi,
     permission_ids: list[str],
 ) -> RDFGraphs:
-    logger.info("Create all graphs.")
+    logger.debug("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
     ontologies = _get_project_ontos(onto_client)
     knora_ttl = onto_client.get_knora_api()
@@ -368,7 +368,7 @@ def _create_graphs(
 
 
 def _get_project_ontos(onto_client: OntologyClient) -> Graph:
-    logger.info("Get project ontologies from server.")
+    logger.debug("Get project ontologies from server.")
     all_ontos = onto_client.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:
@@ -386,7 +386,7 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
-    logger.info("Validate with API.")
+    logger.debug("Validate with API.")
     validation_results = validator.validate(rdf_graphs)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,

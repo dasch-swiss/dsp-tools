@@ -18,7 +18,7 @@ class ListCreationClient:
     auth: AuthenticationClient
     shortcode: str
 
-    def _get_list_names_from_server(self) -> list[str]:
+    def get_list_names_and_iris_from_server(self) -> dict[str, str]:
         project_iri = quote_plus(self._get_proj_iri())
         params = RequestParameters("GET", f"{self.auth.server}/admin/lists?projectIri={project_iri}", timeout=10)
         log_request(params)
@@ -26,7 +26,7 @@ class ListCreationClient:
         log_response(response)
         lists: list[dict[str, Any]] = response.json()["lists"]
         logger.info(f"Found {len(lists)} lists for project")
-        return [lst["name"] for lst in lists]
+        return {lst["name"]: lst["id"] for lst in lists}
 
     @cache
     def _get_proj_iri(self) -> str:
@@ -35,3 +35,6 @@ class ListCreationClient:
         response = requests.get(params.url, timeout=params.timeout)
         log_response(response)
         return cast(str, response.json()["project"]["id"])
+
+    def create_list(self, lst: dict[str, Any]) -> str:
+        

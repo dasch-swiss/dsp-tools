@@ -1,3 +1,4 @@
+import warnings
 from typing import Any
 from typing import Optional
 from typing import Union
@@ -20,8 +21,22 @@ from dsp_tools.utils.json_parsing import parse_json_input
 def create_lists_on_server(
     lists_to_create: list[dict[str, Any]],
     list_creation_client: ListCreationClient,
-) -> tuple[dict[str, Any], bool]:
-    pass
+) -> tuple[dict[str, str], bool]:
+    success = True
+    existing_list_names_to_iris = list_creation_client.get_list_names_and_iris_from_server()
+    lst_name_to_iri_lookup: dict[str, str] = {}
+    for lst in lists_to_create:
+        if iri := existing_list_names_to_iris.get(lst["name"]):
+            success = False
+            lst_name_to_iri_lookup[lst["name"]] = iri
+            msg = f"List with name {lst['name']} already exists on the DSP server. Skipping."
+            logger.warning(msg)
+            warnings.warn(msg)
+            continue
+
+        iri = list_creation_client.create_list(lst)
+        lst_name_to_iri_lookup[lst["name"]] = iri
+    return lst_name_to_iri_lookup, success
 
 
 def create_lists_on_server_old(

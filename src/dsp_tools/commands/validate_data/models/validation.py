@@ -25,6 +25,15 @@ class RDFGraphs:
 
 
 @dataclass
+class RDFGraphStrings:
+    data: str
+    ontos: str
+    cardinality_shapes: str
+    content_shapes: str
+    knora_api: str
+
+
+@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph

@@ -136,7 +136,7 @@ class ShaclValidator:
 
     api_url: str
 
-    def validate(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+    def validate(self, rdf_graphs: RDFGraphStrings) -> SHACLValidationReport:
         """
         Sends a multipart/form-data request with two turtle files (data.ttl and shacl.ttl) to the given URL
         and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
@@ -153,21 +153,12 @@ class ShaclValidator:
         result_graph = Graph()
         conforms = True
 
-        logger.debug("Serialise RDF-Graphs into strings")
-        graph_strings = RDFGraphStrings(
-            data=rdf_graphs.data.serialize(format="ttl"),
-            ontos=rdf_graphs.ontos.serialize(format="ttl"),
-            cardinality_shapes=rdf_graphs.cardinality_shapes.serialize(format="ttl"),
-            content_shapes=rdf_graphs.content_shapes.serialize(format="ttl"),
-            knora_api=rdf_graphs.knora_api.serialize(format="ttl"),
-        )
-
-        card_result = self._validate_cardinality(graph_strings)
+        card_result = self._validate_cardinality(rdf_graphs)
         if not card_result.conforms:
             result_graph += card_result.validation_graph
             conforms = False
 
-        content_result = self._validate_content(graph_strings)
+        content_result = self._validate_content(rdf_graphs)
         if not content_result.conforms:
             result_graph += content_result.validation_graph
             conforms = False

@@ -15,11 +15,15 @@ class ProjectCreationClient:
     auth: AuthenticationClient
 
     def get_existing_shortcodes_and_shortnames(self) -> tuple[set[str], set[str]]:
-        headers = {
-            "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
-            "Authorization": f"Bearer {self.auth.get_token()}",
-        }
-        params = RequestParameters("GET", f"{self.auth.server}/admin/projects", timeout=10, headers=headers)
+        params = RequestParameters(
+            "GET",
+            f"{self.auth.server}/admin/projects",
+            timeout=10,
+            headers={
+                "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
+                "Authorization": f"Bearer {self.auth.get_token()}",
+            },
+        )
         log_request(params)
         response = requests.get(params.url, headers=params.headers, timeout=params.timeout)
         log_response(response)
@@ -29,14 +33,18 @@ class ProjectCreationClient:
         return {x for x in shortcodes if x}, {x for x in shortnames if x}
 
     def create_project(self, payload: dict[str, Any]) -> bool:
-        url = f"{self.auth.server}/admin/projects"
-        headers = {
-            "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
-            "Authorization": f"Bearer {self.auth.get_token()}",
-            "Content-Type": "application/json",
-        }
-        params = RequestParameters("POST", url, data=payload, headers=headers, timeout=10)
+        params = RequestParameters(
+            "POST",
+            f"{self.auth.server}/admin/projects",
+            data=payload,
+            headers={
+                "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}",
+                "Authorization": f"Bearer {self.auth.get_token()}",
+                "Content-Type": "application/json",
+            },
+            timeout=10,
+        )
         log_request(params)
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response = requests.post(params.url, headers=params.headers, json=params.data, timeout=params.timeout)
         log_response(response)
         return response.ok

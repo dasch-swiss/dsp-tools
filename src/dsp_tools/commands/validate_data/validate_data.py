@@ -56,7 +56,7 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors foun
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
+def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 

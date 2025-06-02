@@ -29,6 +29,7 @@ from dsp_tools.commands.validate_data.models.input_problems import OntologyValid
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
@@ -386,8 +387,15 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
-    logger.debug("Validate with API.")
-    validation_results = validator.validate(rdf_graphs)
+    logger.debug("Serialise RDF graphs into turtle strings")
+    graph_strings = RDFGraphStrings(
+        data=rdf_graphs.data.serialize(format="ttl"),
+        ontos=rdf_graphs.ontos.serialize(format="ttl"),
+        cardinality_shapes=rdf_graphs.cardinality_shapes.serialize(format="ttl"),
+        content_shapes=rdf_graphs.content_shapes.serialize(format="ttl"),
+        knora_api=rdf_graphs.knora_api.serialize(format="ttl"),
+    )
+    validation_results = validator.validate(graph_strings)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,

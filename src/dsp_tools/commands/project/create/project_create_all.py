@@ -74,7 +74,7 @@ def create_project(
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     proj_client = ProjectCreationClient(auth)
-    list_creation_client = ListCreationClient(auth)
+    list_creation_client = ListCreationClient(auth, project.metadata.shortcode)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
@@ -86,7 +86,6 @@ def create_project(
         overall_success = False
 
     # create the lists
-    names_and_iris_of_list_nodes: dict[str, Any] = {}
     if project.lists:
         print("Create lists...")
         logger.info("Create lists...")

@@ -72,11 +72,9 @@ def _add_metadata(file_bn: BNode, metadata: FileValueMetadata) -> Graph:
         g.add((file_bn, KNORA_API.hasLicense, URIRef(metadata.license_iri)))
 
     literal_metadata = []
-    if metadata.copyright_holder:
-        literal_metadata.append((KNORA_API.hasCopyrightHolder, metadata.copyright_holder))
-    if metadata.authorships:
-        for auth in metadata.authorships:
-            literal_metadata.append((KNORA_API.hasAuthorship, auth))
+    literal_metadata.append((KNORA_API.hasCopyrightHolder, metadata.copyright_holder))
+    for auth in metadata.authorships:
+        literal_metadata.append((KNORA_API.hasAuthorship, auth))
     if metadata.permissions:
         literal_metadata.append((KNORA_API.hasPermissions, metadata.permissions))
     for prop, literal_val in literal_metadata:

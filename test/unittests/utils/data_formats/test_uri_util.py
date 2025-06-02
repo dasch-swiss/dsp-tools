@@ -63,7 +63,10 @@ def test_is_iiif_uri_wrong(uri: str) -> None:
     [
         ("https://api.dasch.swiss", True),
         ("https://api.rdu.dasch.swiss", True),
-        ("https://app.rdu-06.dasch.swiss", False),
+        ("https://api.ls-prod-server.dasch.swiss", True),
+        ("https://api.ls-test-server.dasch.swiss", True),
+        ("https://api.stage.dasch.swiss", True),
+        ("https://api.rdu-06.dasch.swiss", False),
     ],
 )
 def test_is_prod_like_server(uri, result):

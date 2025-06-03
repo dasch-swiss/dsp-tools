@@ -527,8 +527,6 @@ A short overview how to choose the most suitable `TextValue` type for a particul
     - If your original text contains mark-up other than the DSP standard it must either be removed or converted.
 
 
-See the [xmlupload documentation](../xml-data-file.md#text-prop) for more information.
-
 *gui_elements / gui_attributes*:
 
 - `SimpleText`: one-line text entry box (for text **without** markup)

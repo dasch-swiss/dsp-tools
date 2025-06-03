@@ -92,6 +92,17 @@ def test_validate_xml_empty_label() -> None:
         parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 
 
+def test_validate_xml_invalid_characters_in_resptr() -> None:
+    expected_msg = regex.escape(
+        "The XML file cannot be uploaded due to the following validation error(s):\n"
+        "    Line 13: Element 'resptr': [facet 'pattern'] The value 'not|allowed|characters' "
+        "is not accepted by the pattern "
+        "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\\d.\\-]*)|(http://rdfh\\.ch/\\d{4}/\\S+)'."
+    )
+    with pytest.raises(InputError, match=expected_msg):
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resptr-characters.xml")
+
+
 def test_beautify_err_msg() -> None:
     _match = (
         r"Line \d+: The resource ID 'res_1' is not valid\. IDs must be unique across the entire file\. "

@@ -23,11 +23,8 @@ load_dotenv()
 def initialise_warning_file() -> None:
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         try:
-            if not Path(file_path).is_file():
-                new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
-            else:
-                new_row = ["****" for _ in range(6)]
-            with open(file_path, "a", newline="") as file:
+            new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
+            with open(file_path, "w", newline="") as file:
                 print(BOLD_GREEN, f"CLI print messages will also be saved to '{file_path}'", RESET_TO_DEFAULT)
                 writer = csv.writer(file)
                 writer.writerow(new_row)

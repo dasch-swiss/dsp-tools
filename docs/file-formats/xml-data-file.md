@@ -758,8 +758,8 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-    - `utf8`: simple text without markup
-    - `xml`: complex text with markup. It must follow the XML format as defined by the
+    - `utf8`: To be used for `SimpleText` and `Textarea` properties.
+    - `xml`: To be used for `Richtext` properties. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 - `permissions`: Permission ID 
   (optional, but if omitted, users who are lower than a `ProjectMember` 

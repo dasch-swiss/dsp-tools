@@ -508,23 +508,26 @@ There are three different `TextValue` types that can be specified in the ontolog
 namely `SimpleText`, `Textarea` and `Richtext`, the type is indicated through the `gui_element`. 
 
 A short overview how to choose the most suitable `TextValue` type for a particular property.
+
 - `SimpleText`
-  - Suitable for a one-line text entry.
-  - Specifics:
-    - May not contain line breaks (`\n`).
-    - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
+    - Suitable for a one-line text entry.
+    - Specifics:
+        - May not contain line breaks (`\n`).
+        - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Textarea`
-  - Suitable for a longer text without mark-up.
-  - Specifics:
-    - Line breaks are allowed and should be indicated through the usage of Python `\n`.
-    - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
+    - Suitable for a longer text without mark-up.
+    - Specifics:
+        - Line breaks are allowed and should be indicated through the usage of Python `\n`.
+        - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Richtext`
-  - Suitable for a longer text containing the [DSP standard mark-up](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
-  - Please note that `Richtext` generates a much larger amount of triples than the other types. 
-    To conserve space in the database, we advise to use it only if mark-up is required.
-  - Specifics:
-    - The Python `\n` will not be displayed as a line break, therefore it should be converted into a `<br/>` tag or wrapped in a paragraph `<p>`.
-    - If your original text contains mark-up other than the DSP standard it must either be removed or converted.
+    - Suitable for a longer text containing the 
+      [DSP standard mark-up](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+    - Please note that `Richtext` generates a much larger amount of triples than the other types. 
+      To conserve space in the database, we advise to use it only if mark-up is required.
+    - Specifics:
+        - The Python `\n` will not be displayed as a line break,
+          therefore it should be converted into a `<br/>` tag or wrapped in a paragraph `<p>`.
+        - If your original text contains mark-up other than the DSP standard it must either be removed or converted.
 
 
 *gui_elements / gui_attributes*:

@@ -747,6 +747,7 @@ and a hidden link to `<resource id="res_2" ...>`:
 ### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
+For details about the formatting of the text [see the ontology documentation](json-project/ontologies.md#textvalue).
 
 Attributes:
 
@@ -758,8 +759,8 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-    - `utf8`: simple text without markup
-    - `xml`: complex text with markup. It must follow the XML format as defined by the
+    - `utf8`: To be used for `SimpleText` and `Textarea` properties.
+    - `xml`: To be used for `Richtext` properties. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 - `permissions`: Permission ID 
   (optional, but if omitted, users who are lower than a `ProjectMember` 
@@ -805,6 +806,137 @@ Handling of pretty-print whitespaces and newlines:
     - newlines can be created with `<br/>`.
     - whitespaces are kept only inside `<code>` and `<pre>` tags.
 
+
+#### Examples of correct and incorrect formatting
+
+**`SimpleText`**
+
+_Correct:_
+
+```xml
+<text encoding="utf8">Single line.</text>
+```
+
+<br/>
+
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+<br/>
+
+_Incorrect:_
+
+This type of entry will result in a validation error.
+
+```xml
+<text encoding="utf8">
+      Line breaks
+      within a text
+      are not allowed.
+</text>
+```
+
+<br/>
+
+This type of entry is not allowed.
+
+```xml
+<text encoding="utf8">
+      Markup<br/>is not allowed.
+</text>
+```
+
+<br/>
+
+**`Textarea`**
+
+_Correct:_
+
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+<br/>
+
+The line breaks between the two sentences will be preserved and displayed in the APP.
+
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+      But this line break will stay.
+</text>
+```
+
+<br/>
+
+_Incorrect:_
+
+This type of entry is not allowed.
+
+```xml
+<text encoding="utf8">
+      Markup<br/> is not allowed.
+</text>
+```
+
+<br/>
+
+**`Richtext`**
+
+_Correct:_
+
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+<br/>
+
+The following text will be displayed as a single line in the APP.
+
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.
+      This newline will be replaced by a single space.
+</text>
+```
+
+<br/>
+
+This will result in a line break in the APP.
+
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.<br/>
+      Using this tag will result in a line break.
+</text>
+```
+
+<br/>
+
+_Incorrect:_
+
+This text should be converted into XML using the DSP standard mapping.
+
+```xml
+<text encoding="xml">
+      # Markdown Title
+      - This type of content
+      - Is not allowed
+</text>
+```
 
 #### Special Characters: Overview
 

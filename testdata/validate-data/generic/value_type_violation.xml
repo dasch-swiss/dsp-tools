@@ -53,9 +53,9 @@
     </resource>
 
     <resource label="This should be an int value" restype=":ClassWithEverything" id="is_link_should_be_integer">
-        <resptr-prop name=":testIntegerSpinbox">
-            <resptr>1</resptr>
-        </resptr-prop>
+        <text-prop name=":testIntegerSpinbox">
+            <text encoding="utf8">1</text>
+        </text-prop>
     </resource>
 
     <resource label="List" restype=":ClassWithEverything" id="list_wrong_value_type">

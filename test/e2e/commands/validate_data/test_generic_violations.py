@@ -251,7 +251,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
         ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
         ("is_date_should_be_simpletext", "This property requires a TextValue", "onto:testTextarea"),
-        ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
+        ("is_text_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
         ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
         ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),

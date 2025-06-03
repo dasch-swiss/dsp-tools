@@ -52,7 +52,7 @@
         </text-prop>
     </resource>
 
-    <resource label="This should be an int value" restype=":ClassWithEverything" id="is_link_should_be_integer">
+    <resource label="This should be an int value" restype=":ClassWithEverything" id="is_text_should_be_integer">
         <text-prop name=":testIntegerSpinbox">
             <text encoding="utf8">1</text>
         </text-prop>

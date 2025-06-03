@@ -968,8 +968,6 @@ Behavior of text with markup (`Richtext` + `xml`):
 |                      | `&nbsp;`               | ⛔               | invalid XML                               |
 
 
-
-
 #### Special Characters: Rules
 
 From the systematic analysis above, 

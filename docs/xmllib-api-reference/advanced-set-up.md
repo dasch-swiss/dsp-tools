@@ -27,6 +27,8 @@ Example `.env` file content:
 
 Warnings will no longer be printed out on the terminal,
 but you will get a print notification when writing the XML if any problems were encountered.
+Each run will overwrite an existing file,
+if you wish to keep old files, you will need to move or rename the previous file.
 
 
 ## Configurations for the Resulting XML File

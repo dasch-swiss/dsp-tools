@@ -811,7 +811,7 @@ Handling of pretty-print whitespaces and newlines:
 
 **`SimpleText`**
 
-*Correct:*
+_Correct:_
 
 ```xml
 <text encoding="utf8">Single line.</text>
@@ -825,7 +825,7 @@ The text will be displayed as follows in the APP: "Leading and trailing spaces w
 </text>
 ```
 
-*Incorrect:*
+_Incorrect:_
 
 This type of entry will result in a validation error.
 
@@ -841,14 +841,14 @@ This type of entry is not allowed.
 
 ```xml
 <text encoding="utf8">
-      Markup<br/> is not allowed.
+      Markup<br/>is not allowed.
 </text>
 ```
 
 
 **`Textarea`**
 
-*Correct:*
+_Correct:_
 
 The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
 
@@ -867,7 +867,7 @@ The line breaks between the two sentences will be preserved and displayed in the
 </text>
 ```
 
-*Incorrect:*
+_Incorrect:_
 
 This type of entry is not allowed.
 
@@ -880,7 +880,7 @@ This type of entry is not allowed.
 
 **`Richtext`**
 
-*Correct:*
+_Correct:_
 
 The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
 
@@ -907,7 +907,7 @@ This will result in a line break in the APP.
 </text>
 ```
 
-*Incorrect:*
+_Incorrect:_
 
 This text should be converted into XML using the DSP standard mapping.
 

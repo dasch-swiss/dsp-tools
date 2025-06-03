@@ -39,7 +39,7 @@ def initialise_warning_file() -> None:
             ) from None
 
 
-def write_to_csv_if_configured(
+def write_message_to_csv(
     file_path: str, msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity
 ) -> None:
     new_row = [
@@ -109,7 +109,7 @@ def _filter_stack_frames(file_path: str) -> bool:
 def raise_input_error(msg: MessageInfo) -> Never:
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
-        write_to_csv_if_configured(file_path, msg, function_trace, UserMessageSeverity.ERROR)
+        write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.ERROR)
     msg_str = get_user_message_string(msg, function_trace)
     raise InputError(msg_str)
 
@@ -117,7 +117,7 @@ def raise_input_error(msg: MessageInfo) -> Never:
 def emit_xmllib_input_info(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
-        write_to_csv_if_configured(file_path, msg, function_trace, UserMessageSeverity.INFO)
+        write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.INFO)
     else:
         msg_str = get_user_message_string(msg, function_trace)
         warnings.warn(XmllibInputInfo(msg_str))
@@ -126,7 +126,7 @@ def emit_xmllib_input_info(msg: MessageInfo) -> None:
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
-        write_to_csv_if_configured(file_path, msg, function_trace, UserMessageSeverity.WARNING)
+        write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.WARNING)
     else:
         msg_str = get_user_message_string(msg, function_trace)
         warnings.warn(XmllibInputWarning(msg_str))

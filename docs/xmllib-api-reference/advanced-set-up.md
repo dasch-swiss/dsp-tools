@@ -16,7 +16,8 @@ Therefore, it is best practice to add it to your `.gitignore` file if it is not 
 ## Save Warnings Output to CSV
 
 User information, warnings and errors are printed out on the command line.
-To additionally save them to a CSV file, set `XMLLIB_WARNINGS_CSV_SAVEPATH` to the path of the CSV file.
+It is possible to save them into a CSV file instead.
+To do so, set `XMLLIB_WARNINGS_CSV_SAVEPATH` to the path of the CSV file.
 
 Example `.env` file content:
 
@@ -24,8 +25,8 @@ Example `.env` file content:
   XMLLIB_WARNINGS_CSV_SAVEPATH="my_folder/my_file.csv"
   ```
 
-This file is set-up in append mode, meaning that if you do not delete it after one run, 
-the new warnings will be added to the existing file. If the file already exists a row containing `*` is added. 
+Warnings will no longer be printed out on the terminal,
+but you will get a print notification when writing the XML if any problems were encountered.
 
 
 ## Configurations for the Resulting XML File

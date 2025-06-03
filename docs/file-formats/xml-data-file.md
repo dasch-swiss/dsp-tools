@@ -767,6 +767,111 @@ The `<text>` element has the following attributes:
   have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
+Examples of the different `TextValue` types and how they should appear in the XML:
+
+#### `SimpleText`
+
+**Correct:**
+
+```xml
+<text encoding="utf8">Single line.</text>
+```
+
+The text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+**Incorrect:**
+
+This type of entry will result in a validation error.
+```xml
+<text encoding="utf8">
+      Line breaks
+      within a text
+      are not allowed.
+</text>
+```
+
+This type of entry is not allowed.
+```xml
+<text encoding="utf8">
+      Markup<br/> is not allowed.
+</text>
+```
+
+
+
+#### `Textarea`
+
+**Correct:**
+
+The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+The line breaks between the two sentences will be preserved and displayed in the APP.
+```xml
+<text encoding="utf8">
+      Leading and trailing spaces will be removed.
+      But this line breaks will stay.
+</text>
+```
+
+**Incorrect:**
+
+This type of entry is not allowed.
+```xml
+<text encoding="utf8">
+      Markup<br/> is not allowed.
+</text>
+```
+
+
+#### `Richtext`
+
+**Correct:**
+
+The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.
+</text>
+```
+
+The text will be displayed as follows in the APP: "Leading and trailing spaces will be removed.
+And this line break will be replaced by a space."
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.
+      And this line break will be replaced by a space.
+</text>
+```
+
+This will result in a line break in the APP
+```xml
+<text encoding="xml">
+      Leading and trailing spaces will be removed.<br/>Using this tag will result in a line break
+</text>
+```
+
+**Incorrect:**
+
+This text should be converted into XML using the DSP standard mapping.
+```xml
+<text encoding="xml">
+      # Markdown Title
+      - This type of content
+      - Is not allowed
+</text>
+```
+
+
 Example of a public and a hidden text:
 
 ```xml

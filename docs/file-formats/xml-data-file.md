@@ -936,22 +936,22 @@ and the third column is how DSP-APP displays the second column.
 Behavior of simple text (`SimpleText`/`Textarea` + `utf8`):
 
 | input to `excel2xml` | XML file      | DSP-APP | Remarks                                      |
-|----------------------|---------------|---------|----------------------------------------------|
+| -------------------- | ------------- | ------- | -------------------------------------------- |
 | `<`                  | `&lt;`        | &lt;    |                                              |
 | `>`                  | `&gt;`        | &gt;    |                                              |
-|                      | `<`           | ⛔       | invalid XML                                  |
+|                      | `<`           | ⛔      | invalid XML                                  |
 |                      | `>`           | &gt;    | discouraged by XML standard, but possible    |
 | `&`                  | `&amp;`       | &amp;   |                                              |
-|                      | `&`           | ⛔       | invalid XML                                  |
-| `&gt;`               | ⛔             |         | discouraged: The leading `&` will be escaped |
+|                      | `&`           | ⛔      | invalid XML                                  |
+| `&gt;`               | ⛔            |         | discouraged: The leading `&` will be escaped |
 | `<tag>`              | `&lt;tag&gt;` | `<tag>` | discouraged: Simple text is not rich text    |
-|                      | `<tag>`       | ⛔       | forbidden: Simple text is not rich text      |
+|                      | `<tag>`       | ⛔      | forbidden: Simple text is not rich text      |
 
 
 Behavior of text with markup (`Richtext` + `xml`):
 
 | input to `excel2xml` | XML file               | DSP-APP          | Remarks                                   |
-|----------------------| ---------------------- | ---------------- | ----------------------------------------- |
+| -------------------- | ---------------------- | ---------------- | ----------------------------------------- |
 | `<`                  | `&lt;`                 | `&lt;`           |                                           |
 | `>`                  | `&gt;`                 | &gt;             |                                           |
 |                      | `<`                    | ⛔               | invalid XML                               |
@@ -964,8 +964,10 @@ Behavior of text with markup (`Richtext` + `xml`):
 | `<em>text</em>`      | `<em>text</em>`        | _text_           |                                           |
 | `unclosed <tag>`     | `unclosed &lt;tag&gt;` | `unclosed <tag>` |                                           |
 |                      | `&lt;not a tag&gt;`    | `<not a tag>`    |                                           |
-| `&nbsp;`             | ` `                 | ` `        | <!-- markdownlint-disable-line MD038 -->  |
+| `&nbsp;`             | ` `                    | ` `              | <!-- markdownlint-disable-line MD038 -->  |
 |                      | `&nbsp;`               | ⛔               | invalid XML                               |
+
+
 
 
 #### Special Characters: Rules

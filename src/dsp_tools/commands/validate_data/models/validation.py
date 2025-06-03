@@ -26,11 +26,10 @@ class RDFGraphs:
 
 @dataclass
 class RDFGraphStrings:
-    data: str
-    ontos: str
+    cardinality_validation_data: str
     cardinality_shapes: str
+    content_validation_data: str
     content_shapes: str
-    knora_api: str
 
 
 @dataclass

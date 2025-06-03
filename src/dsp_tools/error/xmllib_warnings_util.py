@@ -114,15 +114,6 @@ def raise_input_error(msg: MessageInfo) -> Never:
     raise InputError(msg_str)
 
 
-def emit_xmllib_input_info(msg: MessageInfo) -> None:
-    function_trace = _get_calling_code_context()
-    if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
-        write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.INFO)
-    else:
-        msg_str = get_user_message_string(msg, function_trace)
-        warnings.warn(XmllibInputInfo(msg_str))
-
-
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
@@ -130,6 +121,15 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     else:
         msg_str = get_user_message_string(msg, function_trace)
         warnings.warn(XmllibInputWarning(msg_str))
+
+
+def emit_xmllib_input_info(msg: MessageInfo) -> None:
+    function_trace = _get_calling_code_context()
+    if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
+        write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.INFO)
+    else:
+        msg_str = get_user_message_string(msg, function_trace)
+        warnings.warn(XmllibInputInfo(msg_str))
 
 
 def emit_xmllib_input_type_mismatch_warning(

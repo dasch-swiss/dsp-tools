@@ -504,7 +504,31 @@ Example:
 
 `"object": "TextValue"`
 
-Represents a text that may contain standoff markup. 
+There are three different `TextValue` types that can be specified in the ontology,
+namely `SimpleText`, `Textarea`, `Richtext` and is indicated through the `gui_element`. 
+
+A short overview how to choose the most suitable `TextValue` type for a particular property.
+- `SimpleText`
+  - Suitable for a one-line text entry.
+  - Specifics:
+    - May not contain line breaks (`\n`).
+    - May not contain XML mark-up.
+    - May not contain HTML mark-up.
+- `Textarea`
+  - Suitable for a longer text without mark-up.
+  - Specifics:
+    - Line breaks are allowed and should be indicated through the usage of Python `\n`.
+    - May not contain XML mark-up.
+    - May not contain HTML mark-up.
+- `Richtext`
+  - Suitable for a longer text containing the [DSP standard mark-up](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+  - Please note that `Richtext` generates a much larger amount of triples than the other types. 
+    To conserve space in the database, we advise to use it only if mark-up is required.
+  - Specifics:
+    - The tag `<br/>` must be used to indicate line breaks as the Python `\n` will not be displayed as a line break.
+    - May not contain HTML mark-up.
+
+
 See the [xmlupload documentation](../xml-data-file.md#text-prop) for more information.
 
 *gui_elements / gui_attributes*:

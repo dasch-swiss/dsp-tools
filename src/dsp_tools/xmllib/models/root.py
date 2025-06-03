@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Union
 from uuid import uuid4
 
+import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
@@ -15,6 +16,8 @@ from lxml import etree
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
@@ -207,6 +210,11 @@ class XMLRoot:
                 f"but the following Schema validation error(s) occurred: {err.message}"
             )
             emit_xmllib_input_warning(MessageInfo(msg))
+        if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
+            df = pd.read_csv(file_path)
+            if len(df) > 0:
+                msg = f"{len(df)} warnings occurred, please consult '{file_path}' for details."
+                print(BOLD_RED, msg, RESET_TO_DEFAULT)
 
     def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """

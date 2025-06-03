@@ -513,22 +513,22 @@ A short overview how to choose the most suitable `TextValue` type for a particul
 - `SimpleText`
     - Suitable for a one-line text entry.
     - Specifics:
-        - May not contain line breaks (`\n`).
-        - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
+        - Must not contain line breaks (`\n`).
+        - Must not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Textarea`
     - Suitable for a longer text without mark-up.
     - Specifics:
         - Line breaks are allowed and should be indicated through the usage of the escape sequence `\n`.
-        - May not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
+        - Must not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Richtext`
     - Suitable for a longer text containing the 
       [DSP standard mark-up](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
     - Please note that `Richtext` values use much more space in the database than the other types. 
       To economize space in the database, we advise to use it only if mark-up is required.
     - Specifics:
-        - The escape sequence `\n` will not be displayed as a line break,
+        - The escape sequence `\n` will not be displayed as a line break but as a single space,
           therefore it should be converted into a `<br/>` tag or wrapped in a paragraph `<p>`.
-        - If your original text contains mark-up other than the DSP standard it must either be removed or converted.
+        - If your original text contains mark-up other than the DSP standard, it must either be removed or converted.
 
 
 *gui_elements / gui_attributes*:

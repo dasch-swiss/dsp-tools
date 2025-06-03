@@ -909,7 +909,7 @@ The following text will be displayed as a single line in the APP.
 ```xml
 <text encoding="xml">
       Leading and trailing spaces will be removed.
-      And this line break will be replaced by a space.
+      This newline will be replaced by a single space.
 </text>
 ```
 
@@ -919,7 +919,8 @@ This will result in a line break in the APP.
 
 ```xml
 <text encoding="xml">
-      Leading and trailing spaces will be removed.<br/>Using this tag will result in a line break
+      Leading and trailing spaces will be removed.<br/>
+      Using this tag will result in a line break.
 </text>
 ```
 

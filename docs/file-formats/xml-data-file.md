@@ -817,13 +817,17 @@ _Correct:_
 <text encoding="utf8">Single line.</text>
 ```
 
-The text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+<br/>
+
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
 
 ```xml
 <text encoding="utf8">
       Leading and trailing spaces will be removed.
 </text>
 ```
+
+<br/>
 
 _Incorrect:_
 
@@ -837,6 +841,8 @@ This type of entry will result in a validation error.
 </text>
 ```
 
+<br/>
+
 This type of entry is not allowed.
 
 ```xml
@@ -845,18 +851,21 @@ This type of entry is not allowed.
 </text>
 ```
 
+<br/>
 
 **`Textarea`**
 
 _Correct:_
 
-The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
 
 ```xml
 <text encoding="utf8">
       Leading and trailing spaces will be removed.
 </text>
 ```
+
+<br/>
 
 The line breaks between the two sentences will be preserved and displayed in the APP.
 
@@ -866,6 +875,8 @@ The line breaks between the two sentences will be preserved and displayed in the
       But this line break will stay.
 </text>
 ```
+
+<br/>
 
 _Incorrect:_
 
@@ -877,12 +888,13 @@ This type of entry is not allowed.
 </text>
 ```
 
+<br/>
 
 **`Richtext`**
 
 _Correct:_
 
-The text above will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
+The following text will be displayed as follows in the APP: "Leading and trailing spaces will be removed."
 
 ```xml
 <text encoding="xml">
@@ -890,7 +902,9 @@ The text above will be displayed as follows in the APP: "Leading and trailing sp
 </text>
 ```
 
-The text will be displayed as a single line in the APP.
+<br/>
+
+The following text will be displayed as a single line in the APP.
 
 ```xml
 <text encoding="xml">
@@ -899,6 +913,8 @@ The text will be displayed as a single line in the APP.
 </text>
 ```
 
+<br/>
+
 This will result in a line break in the APP.
 
 ```xml
@@ -906,6 +922,8 @@ This will result in a line break in the APP.
       Leading and trailing spaces will be removed.<br/>Using this tag will result in a line break
 </text>
 ```
+
+<br/>
 
 _Incorrect:_
 

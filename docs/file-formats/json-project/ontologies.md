@@ -523,7 +523,7 @@ A short overview how to choose the most suitable `TextValue` type for a particul
   - Please note that `Richtext` generates a much larger amount of triples than the other types. 
     To conserve space in the database, we advise to use it only if mark-up is required.
   - Specifics:
-    - The Python `\n` will not be displayed as a line break, therefore it should be converted into a `<br/` tag or wrapped in a paragraph `<p>`.
+    - The Python `\n` will not be displayed as a line break, therefore it should be converted into a `<br/>` tag or wrapped in a paragraph `<p>`.
     - If your original text contains mark-up other than the DSP standard it must either be removed or converted.
 
 

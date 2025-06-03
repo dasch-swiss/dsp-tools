@@ -505,7 +505,7 @@ Example:
 `"object": "TextValue"`
 
 There are three different `TextValue` types that can be specified in the ontology,
-namely `SimpleText`, `Textarea`, `Richtext` and is indicated through the `gui_element`. 
+namely `SimpleText`, `Textarea` and `Richtext`, the type is indicated through the `gui_element`. 
 
 A short overview how to choose the most suitable `TextValue` type for a particular property.
 - `SimpleText`

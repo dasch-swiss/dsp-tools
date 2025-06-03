@@ -212,7 +212,7 @@
     <!-- resptr_type (link to other resource) value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="xs:anyURI">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>

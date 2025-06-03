@@ -16,6 +16,7 @@ from lxml import etree
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
@@ -215,6 +216,9 @@ class XMLRoot:
             if len(df) > 0:
                 msg = f"{len(df)} warnings occurred, please consult '{file_path}' for details."
                 print(BOLD_RED, msg, RESET_TO_DEFAULT)
+            else:
+                msg = "No warnings occurred during the runtime."
+                print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
 
     def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """

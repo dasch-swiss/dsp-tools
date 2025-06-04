@@ -1,4 +1,3 @@
-import base64
 import importlib.resources
 import shutil
 import subprocess
@@ -14,11 +13,6 @@ from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.request_utils import PostFile
-from dsp_tools.utils.request_utils import PostFiles
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
 
@@ -268,17 +262,12 @@ class StackHandler:
                 logger.error(msg)
                 raise InputError(msg)
             ttl_text = ttl_response.text
-            files = PostFiles([PostFile("file.ttl", ttl_text, "text/turtle; charset: utf-8")])
-            headers = {"Authorisation": f"Basic {base64.b64encode(b'admin:test').decode('utf-8')}"}
-            post_params = RequestParameters("POST", graph_prefix + graph, timeout=30, files=files, headers=headers)
-            log_request(post_params)
             response = requests.post(
-                post_params.url,
-                files=post_params.files.to_dict(), # type: ignore[union-attr]
-                timeout=post_params.timeout,
-                headers=post_params.headers,
+                graph_prefix + graph,
+                files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
+                auth=("admin", "test"),
+                timeout=30,
             )
-            log_response(response)
             if not response.ok:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
                 raise InputError(f"Cannot start DSP-API: Error when creating graph '{graph}'")

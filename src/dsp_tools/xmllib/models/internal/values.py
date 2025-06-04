@@ -222,18 +222,22 @@ class ListValue(Value):
         comment: str | None,
         resource_id: str | None,
     ) -> ListValue:
-        if not is_nonempty_value(value):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
-            )
-        if not is_nonempty_value(list_name):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
-            )
+        if str(value).startswith("http://rdfh.ch/lists/"):
+            list_str = ""
+        else:
+            list_str = str(list_name)
+            if not is_nonempty_value(list_name):
+                emit_xmllib_input_type_mismatch_warning(
+                    expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
+                )
+            if not is_nonempty_value(value):
+                emit_xmllib_input_type_mismatch_warning(
+                    expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
+                )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(
             value=str(value),
-            list_name=str(list_name),
+            list_name=list_str,
             prop_name=prop_name,
             permissions=permissions,
             comment=fixed_comment,

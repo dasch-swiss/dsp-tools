@@ -112,7 +112,12 @@ def test_xmlupload(auth_header: dict[str, str], project_iri: str, creds: ServerC
 @pytest.mark.usefixtures("_xmlupload")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
     response = _get_copyright_holders(auth_header, creds)
-    assert set(response["data"]) == {"DaSCH", "Wellcome Collection"}
+    assert set(response["data"]) == {
+        "DaSCH",
+        "Wellcome Collection",
+        "Public Domain - Not Protected by Copyright",
+        "AI-Generated Content - Not Protected by Copyright",
+    }
 
 
 def _get_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

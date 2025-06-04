@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.resources
-import warnings
 from copy import deepcopy
 from pathlib import Path
 
@@ -11,7 +10,6 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.error.xsd_validation_error_msg import XSDValidationMessage
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
@@ -115,20 +113,20 @@ def _validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSD
     return None
 
 
-def _emit_validation_errors(validation_error: list[XSDValidationMessage], save_path: Path):
+def _emit_validation_errors(validation_error: list[XSDValidationMessage], save_path: Path) -> None:
     header_msg = f"During the XSD Schema validation the following {len(validation_error)} error(s) were found: "
     print(BACKGROUND_BOLD_RED, header_msg, RESET_TO_DEFAULT)
     if len(validation_error) > 50:
         save_path = save_path / "xsd_validation_errors.csv"
         message_dicts = [get_xsd_validation_message_dict(x) for x in validation_error]
         df = pd.DataFrame.from_records(message_dicts)
-        df.to_csv(save_path)
+        df.to_csv(save_path, index=False)
         msg = f"Due to the large numbers they are saved in the file '{save_path}'."
         print(BOLD_RED + msg, RESET_TO_DEFAULT)
     else:
         for one_msg in validation_error:
             msg_str = get_xsd_validation_message_str(one_msg)
-            warnings.warn(XmllibInputWarning(msg_str))
+            print(BOLD_RED, msg_str, RESET_TO_DEFAULT)
 
 
 def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:

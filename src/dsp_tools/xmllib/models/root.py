@@ -11,13 +11,9 @@ from uuid import uuid4
 
 import pandas as pd
 from dotenv import load_dotenv
-from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
@@ -208,16 +204,6 @@ class XMLRoot:
         )
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(xml_string)
-        try:
-            logger.disable("dsp_tools")
-            # parse_and_validate_xml_file(input_file=filepath)
-            print(f"The XML file was successfully saved to {filepath}")
-        except BaseError as err:
-            msg = (
-                f"The XML file was successfully saved to {filepath}, "
-                f"but the following Schema validation error(s) occurred: {err.message}"
-            )
-            emit_xmllib_input_warning(MessageInfo(msg))
         if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
             df = pd.read_csv(file_path)
             if len(df) > 0:

@@ -16,6 +16,7 @@ from lxml import etree
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
@@ -204,6 +205,7 @@ class XMLRoot:
         )
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(xml_string)
+            print(f"The XML file was successfully saved to {filepath}.")
         if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
             df = pd.read_csv(file_path)
             if len(df) > 0:
@@ -216,16 +218,15 @@ class XMLRoot:
     def validate_root_emit_user_message(self, root: etree._Element, filepath: Path) -> None:
         validation_error = validate_root_get_validation_messages(root)
         if validation_error:
+            header_msg = f"During the XSD Schema validation the following {len(validation_error)} error(s) were found: "
+            print(BACKGROUND_BOLD_RED, header_msg, RESET_TO_DEFAULT)
             if len(validation_error) > 50:
                 save_path = filepath.parent / "xsd_validation_errors.csv"
                 message_dicts = [get_xsd_validation_message_dict(x) for x in validation_error]
                 df = pd.DataFrame.from_records(message_dicts)
                 df.to_csv(save_path)
-                msg = (
-                    f"During the Schema validation of the XML {len(validation_error)} errors were found. "
-                    f"Due to the large numbers they are saved in the file '{save_path}'."
-                )
-                warnings.warn(XmllibInputWarning(msg))
+                msg = f"Due to the large numbers they are saved in the file '{save_path}'."
+                print(BOLD_RED + msg, RESET_TO_DEFAULT)
             else:
                 for one_msg in validation_error:
                     msg_str = get_xsd_validation_message_str(one_msg)

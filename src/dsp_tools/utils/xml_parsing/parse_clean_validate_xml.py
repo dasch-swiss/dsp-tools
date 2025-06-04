@@ -110,6 +110,6 @@ def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMess
         element = ele_found.group(1)
     if attrib_found := regex.search(r"attribute '(.*?)'", first):
         attrib = attrib_found.group(1)
-    message = regex.sub(r"\[.+\] ", "", message)
-    message = regex.sub(r"pattern ('.+')", "pattern for this value", message)
+    message = regex.sub(r"\[facet .+\] ", "", message)
+    message = regex.sub(r"pattern ('.+')", "pattern for this value", message).strip()
     return XSDValidationMessage(line_number=line_number, element=element, attribute=attrib, message=message)

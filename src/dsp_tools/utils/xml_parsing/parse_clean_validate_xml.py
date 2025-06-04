@@ -9,6 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_warnings import MessageInfo
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -57,23 +58,27 @@ def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Ele
 
 def _validate_xml_with_schema(xml: etree._Element) -> bool:
     """Requires a cleaned (no comments) XML, but with the namespaces."""
-    problem_msg = _validate_xml_against_schema(xml)
-    if problem_msg:
+    if errors := _validate_xml_against_schema(xml):
+        problem_msg = _get_validation_error_print_out(errors)
         logger.error(problem_msg)
         raise InputError(problem_msg)
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
+def _validate_xml_against_schema(data_xml: etree._Element) -> etree.XMLSchema | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     if not xmlschema.validate(data_xml):
-        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-        for error in xmlschema.error_log:
-            error_msg += f"{separator}Line {error.line}: {_beautify_err_msg(error.message)}"
-        return error_msg
+        return xmlschema
     return None
+
+
+def _get_validation_error_print_out(xmlschema: etree.XMLSchema) -> str:
+    error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+    for error in xmlschema.error_log:
+        error_msg += f"{separator}Line {error.line}: {_beautify_err_msg(error.message)}"
+    return error_msg
 
 
 def _beautify_err_msg(err_msg: str) -> str:
@@ -88,3 +93,18 @@ def _beautify_err_msg(err_msg: str) -> str:
     )
     err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
     return err_msg
+
+
+def _reformat_validation_errors(log: etree._ListErrorLog) -> list[MessageInfo]:
+    all_errors = []
+    for err in log:
+        all_errors.append(_reformat_one_validation_error_msg(err))
+    return all_errors
+
+
+def _reformat_one_validation_error_msg(err) -> MessageInfo:
+    err_str = _reformat_error_message_str(err.message)
+
+
+def _reformat_error_message_str(msg: str) -> str:
+    msg = msg.replace("{https://dasch.swiss/schema}", "")

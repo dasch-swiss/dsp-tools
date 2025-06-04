@@ -5,6 +5,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
@@ -112,6 +113,32 @@ def test_beautify_err_msg() -> None:
     )
     with pytest.raises(InputError, match=_match):
         parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
+
+
+class TestReformatErrorMessage:
+    def test_pattern(self):
+        in_msg = "Element '{https://dasch.swiss/schema}date': [facet 'pattern'] The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern '((GREGORIAN:|JULIAN:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?)|((ISLAMIC:)(\d{1,4})(-\d{1,2})?(-\d{1,2})?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)'."
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
+
+    def test_resource_id(self):
+        in_msg = "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
+
+    def test_(self):
+        in_msg = "Element 'resptr': [facet 'pattern'] The value 'http://rdfh.ch/0121/1KasDaCNS2qkENMAtKmNvw, http://rdfh.ch/0121/rR8hm4eVSpWMiwUpqrtwMA, http://rdfh.ch/0121/Tsqvvd7jQD65TepMXRk7XQ, http://rdfh.ch/0121/8yvs6lpPTP6CY6Brdnzhng, http://rdfh.ch/0121/nfDHDM1ASbG15WTBI1P9Kw, http://rdfh.ch/0121/Oq4m5oWxSSerJykHcgaYPg, http://rdfh.ch/0121/FLvmPybpRye37Ba-omvQDw, http://rdfh.ch/0121/PTkUGDB_QeakvpE--nv5eA' is not accepted by the pattern '([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)'."
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
+
+    def test_(self):
+        in_msg = ""
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
 
 
 if __name__ == "__main__":

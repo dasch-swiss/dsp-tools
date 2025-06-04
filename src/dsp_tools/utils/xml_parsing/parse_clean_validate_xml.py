@@ -58,14 +58,14 @@ def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Ele
 
 def _validate_xml_with_schema(xml: etree._Element) -> bool:
     """Requires a cleaned (no comments) XML, but with the namespaces."""
-    if errors := _validate_xml_against_schema(xml):
+    if errors := _validate_xml_tree_against_schema(xml):
         problem_msg = _get_validation_error_print_out(errors)
         logger.error(problem_msg)
         raise InputError(problem_msg)
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> etree.XMLSchema | None:
+def _validate_xml_tree_against_schema(data_xml: etree._Element) -> etree.XMLSchema | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
@@ -93,6 +93,12 @@ def _beautify_err_msg(err_msg: str) -> str:
     )
     err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
     return err_msg
+
+
+def validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSDValidationMessage] | None:
+    if errors := _validate_xml_tree_against_schema(data_xml):
+        return _reformat_validation_errors(errors.error_log)
+    return None
 
 
 def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -15,11 +16,14 @@ from lxml import etree
 
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
+from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_get_validation_messages
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
@@ -192,6 +196,9 @@ class XMLRoot:
             ```
         """
         root = self.serialise(default_permissions)
+
+        self.validate_root_emit_user_message(root, filepath)
+
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -203,7 +210,7 @@ class XMLRoot:
             f.write(xml_string)
         try:
             logger.disable("dsp_tools")
-            parse_and_validate_xml_file(input_file=filepath)
+            # parse_and_validate_xml_file(input_file=filepath)
             print(f"The XML file was successfully saved to {filepath}")
         except BaseError as err:
             msg = (
@@ -219,6 +226,24 @@ class XMLRoot:
             else:
                 msg = "No warnings occurred during the runtime."
                 print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
+
+    def validate_root_emit_user_message(self, root, filepath: Path):
+        validation_error = validate_root_get_validation_messages(root)
+        if validation_error:
+            if len(validation_error) > 50:
+                save_path = filepath.parent / "xsd_validation_errors.csv"
+                message_dicts = [get_xsd_validation_message_dict(x) for x in validation_error]
+                df = pd.DataFrame.from_records(message_dicts)
+                df.to_csv(save_path)
+                msg = (
+                    f"During the Schema validation of the XML {len(validation_error)} errors were found. "
+                    f"Due to the large numbers they are saved in the file '{save_path}'."
+                )
+                warnings.warn(XmllibInputWarning(msg))
+            else:
+                for msg in validation_error:
+                    msg_str = get_xsd_validation_message_str(msg)
+                    warnings.warn(XmllibInputWarning(msg_str))
 
     def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """

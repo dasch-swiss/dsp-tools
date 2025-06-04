@@ -117,25 +117,61 @@ def test_beautify_err_msg() -> None:
 
 class TestReformatErrorMessage:
     def test_pattern(self):
-        in_msg = "Element '{https://dasch.swiss/schema}date': [facet 'pattern'] The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern '((GREGORIAN:|JULIAN:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?)|((ISLAMIC:)(\d{1,4})(-\d{1,2})?(-\d{1,2})?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)'."
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}date': [facet 'pattern'] "
+            "The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern "
+            "'((GREGORIAN:|JULIAN:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?"
+            "(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?)|((ISLAMIC:)(\d{1,4})(-\d{1,2})?(-\d{1,2})?(:\d{1,4})"
+            "(-\d{1,2})?(-\d{1,2})?)'."
+        )
         expected = ""
         result = _reformat_error_message_str(in_msg)
         assert result == expected
 
-    def test_resource_id(self):
-        in_msg = "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
+    def test_empty_label(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] "
+            "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
+        )
         expected = ""
         result = _reformat_error_message_str(in_msg)
         assert result == expected
 
-    def test_(self):
-        in_msg = "Element 'resptr': [facet 'pattern'] The value 'http://rdfh.ch/0121/1KasDaCNS2qkENMAtKmNvw, http://rdfh.ch/0121/rR8hm4eVSpWMiwUpqrtwMA, http://rdfh.ch/0121/Tsqvvd7jQD65TepMXRk7XQ, http://rdfh.ch/0121/8yvs6lpPTP6CY6Brdnzhng, http://rdfh.ch/0121/nfDHDM1ASbG15WTBI1P9Kw, http://rdfh.ch/0121/Oq4m5oWxSSerJykHcgaYPg, http://rdfh.ch/0121/FLvmPybpRye37Ba-omvQDw, http://rdfh.ch/0121/PTkUGDB_QeakvpE--nv5eA' is not accepted by the pattern '([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)'."
+    def test_pattern_resource_id(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resptr': [facet 'pattern'] "
+            "The value 'not|allowed|characters' is not accepted by the pattern "
+            "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\\d.\\-]*)|(http://rdfh\\.ch/\\d{4}/\\S+)'."
+        )
         expected = ""
         result = _reformat_error_message_str(in_msg)
         assert result == expected
 
-    def test_(self):
-        in_msg = ""
+    def test_invalid_tag(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
+            "The attribute 'invalidtag' is not allowed."
+        )
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
+
+    def test_duplicate_iri(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource': "
+            "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] in unique identity-constraint "
+            "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
+        )
+        expected = ""
+        result = _reformat_error_message_str(in_msg)
+        assert result == expected
+
+    def test_duplicate_ark(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource': Duplicate key-sequence "
+            "['ark:/72163/4123-31ec6eab334-a.2022829'] in unique identity-constraint "
+            "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
+        )
         expected = ""
         result = _reformat_error_message_str(in_msg)
         assert result == expected

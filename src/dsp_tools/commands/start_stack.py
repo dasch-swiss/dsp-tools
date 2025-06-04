@@ -253,10 +253,13 @@ class StackHandler:
             ("test_data/project_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
         ]
         for ttl_file, graph in ttl_files:
-            ttl_response = requests.get(self.__url_prefix + ttl_file, timeout=30)
+            get_params = RequestParameters("GET", self.__url_prefix + ttl_file, timeout=30)
+            log_request(get_params)
+            ttl_response = requests.get(get_params.url, timeout=get_params.timeout)
+            log_response(ttl_response, include_response_content=False)
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
-                logger.error(f"{msg}'. response = {vars(ttl_response)}")
+                logger.error(msg)
                 raise InputError(msg)
             ttl_text = ttl_response.text
             response = requests.post(

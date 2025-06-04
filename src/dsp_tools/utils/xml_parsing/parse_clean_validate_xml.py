@@ -121,7 +121,7 @@ def _emit_validation_errors(validation_error: list[XSDValidationMessage], save_p
         message_dicts = [get_xsd_validation_message_dict(x) for x in validation_error]
         df = pd.DataFrame.from_records(message_dicts)
         df.to_csv(save_path, index=False)
-        msg = f"Due to the large numbers they are saved in the file '{save_path}'."
+        msg = f"Due to the large number of errors they are saved in the file '{save_path}'."
         print(BOLD_RED + msg, RESET_TO_DEFAULT)
     else:
         for one_msg in validation_error:

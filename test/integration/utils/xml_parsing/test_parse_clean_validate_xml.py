@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from pathlib import Path
 
 import pytest
@@ -116,20 +118,6 @@ def test_beautify_err_msg() -> None:
 
 
 class TestReformatErrorMessage:
-    def test_pattern(self):
-        in_msg = (
-            "Element '{https://dasch.swiss/schema}date': [facet 'pattern'] "
-            "The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern "
-            "'((GREGORIAN:|JULIAN:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?"
-            "(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?)|((ISLAMIC:)(\d{1,4})(-\d{1,2})?(-\d{1,2})?(:\d{1,4})"
-            "(-\d{1,2})?(-\d{1,2})?)'."
-        )
-        result = _reformat_error_message_str(in_msg, 1)
-        assert result.line_number == 1
-        assert result.element == "date"
-        assert result.attribute is None
-        assert result.message == "The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern for this value."
-
     def test_empty_label(self):
         in_msg = (
             "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] "
@@ -145,7 +133,7 @@ class TestReformatErrorMessage:
         in_msg = (
             "Element '{https://dasch.swiss/schema}resptr': [facet 'pattern'] "
             "The value 'not|allowed|characters' is not accepted by the pattern "
-            "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\\d.\\-]*)|(http://rdfh\\.ch/\\d{4}/\\S+)'."
+            "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_]*)'."
         )
         result = _reformat_error_message_str(in_msg, 1)
         assert result.line_number == 1

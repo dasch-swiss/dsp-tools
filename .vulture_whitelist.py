@@ -1,9 +1,12 @@
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
+from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.data_formats.date_util import is_full_date
 from dsp_tools.utils.data_formats.shared import check_notna
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_get_validation_messages
 
 PermissionValue.RV
 PermissionValue.V
@@ -19,3 +22,7 @@ IriResolver.non_empty()
 is_full_date("")
 
 check_notna("")
+
+validate_root_get_validation_messages()
+get_xsd_validation_message_dict()
+get_xsd_validation_message_str()

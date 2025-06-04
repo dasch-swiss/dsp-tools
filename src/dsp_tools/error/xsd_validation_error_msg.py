@@ -26,4 +26,4 @@ def get_xsd_validation_message_dict(msg: XSDValidationMessage) -> dict[str, str]
         "Attribute": msg.attribute,
         "Message": msg.message,
     }
-    return {k: v for k, v in msg_dict.items() if v}
+    return {k: str(v) for k, v in msg_dict.items() if v}

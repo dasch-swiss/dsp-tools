@@ -193,7 +193,7 @@ class XMLRoot:
         """
         root = self.serialise(default_permissions)
 
-        self.validate_root_emit_user_message(root, filepath)
+        self.validate_root_emit_user_message(root, Path(filepath))
 
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
@@ -213,7 +213,7 @@ class XMLRoot:
                 msg = "No warnings occurred during the runtime."
                 print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
 
-    def validate_root_emit_user_message(self, root, filepath: Path):
+    def validate_root_emit_user_message(self, root: etree._Element, filepath: Path) -> None:
         validation_error = validate_root_get_validation_messages(root)
         if validation_error:
             if len(validation_error) > 50:
@@ -227,8 +227,8 @@ class XMLRoot:
                 )
                 warnings.warn(XmllibInputWarning(msg))
             else:
-                for msg in validation_error:
-                    msg_str = get_xsd_validation_message_str(msg)
+                for one_msg in validation_error:
+                    msg_str = get_xsd_validation_message_str(one_msg)
                     warnings.warn(XmllibInputWarning(msg_str))
 
     def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:

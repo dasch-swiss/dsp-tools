@@ -354,7 +354,9 @@ class StackHandler:
                 log_request(params)
                 response = requests.get(params.url, timeout=params.timeout)
                 log_response(response)
-                if not response.ok:
+                if response.ok:
+                    break
+                else:
                     time.sleep(1)
                     continue
             except requests.exceptions.RequestException:

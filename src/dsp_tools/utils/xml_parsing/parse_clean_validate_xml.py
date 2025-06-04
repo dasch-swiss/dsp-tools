@@ -9,7 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xsd_validation_error_msg import XSDValidationMessage
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -95,16 +95,21 @@ def _beautify_err_msg(err_msg: str) -> str:
     return err_msg
 
 
-def _reformat_validation_errors(log: etree._ListErrorLog) -> list[MessageInfo]:
+def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:
     all_errors = []
     for err in log:
-        all_errors.append(_reformat_one_validation_error_msg(err))
+        all_errors.append(_reformat_error_message_str(err.message, err.line))
     return all_errors
 
 
-def _reformat_one_validation_error_msg(err) -> MessageInfo:
-    err_str = _reformat_error_message_str(err.message)
-
-
-def _reformat_error_message_str(msg: str) -> str:
+def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage:
+    element, attrib = None, None
     msg = msg.replace("{https://dasch.swiss/schema}", "")
+    first, message = msg.split(":", maxsplit=1)
+    if ele_found := regex.search(r"Element '(.*?)'", first):
+        element = ele_found.group(1)
+    if attrib_found := regex.search(r"attribute '(.*?)'", first):
+        attrib = attrib_found.group(1)
+    message = regex.sub(r"\[.+\] ", "", message)
+    message = regex.sub(r"pattern ('.+')", "pattern for this value", message)
+    return XSDValidationMessage(line_number=line_number, element=element, attribute=attrib, message=message)

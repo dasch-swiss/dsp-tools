@@ -124,18 +124,22 @@ class TestReformatErrorMessage:
             "(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?)|((ISLAMIC:)(\d{1,4})(-\d{1,2})?(-\d{1,2})?(:\d{1,4})"
             "(-\d{1,2})?(-\d{1,2})?)'."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "date"
+        assert result.attribute is None
+        assert result.message == "The value 'GREGORIAN:CE:nan:CE:nan' is not accepted by the pattern for this value."
 
     def test_empty_label(self):
         in_msg = (
             "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] "
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute == "label"
+        assert result.message == "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
 
     def test_pattern_resource_id(self):
         in_msg = (
@@ -143,18 +147,22 @@ class TestReformatErrorMessage:
             "The value 'not|allowed|characters' is not accepted by the pattern "
             "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\\d.\\-]*)|(http://rdfh\\.ch/\\d{4}/\\S+)'."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "resptr"
+        assert result.attribute is None
+        assert result.message == "The value 'not|allowed|characters' is not accepted by the pattern for this value."
 
     def test_invalid_tag(self):
         in_msg = (
             "Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute == "invalidtag"
+        assert result.message == "The attribute 'invalidtag' is not allowed."
 
     def test_duplicate_iri(self):
         in_msg = (
@@ -162,9 +170,14 @@ class TestReformatErrorMessage:
             "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] in unique identity-constraint "
             "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute is None
+        assert (
+            result.message == "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] "
+            "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'."
+        )
 
     def test_duplicate_ark(self):
         in_msg = (
@@ -172,9 +185,14 @@ class TestReformatErrorMessage:
             "['ark:/72163/4123-31ec6eab334-a.2022829'] in unique identity-constraint "
             "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
         )
-        expected = ""
-        result = _reformat_error_message_str(in_msg)
-        assert result == expected
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute is None
+        assert (
+            result.message == "Duplicate key-sequence ['ark:/72163/4123-31ec6eab334-a.2022829'] "
+            "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'."
+        )
 
 
 if __name__ == "__main__":

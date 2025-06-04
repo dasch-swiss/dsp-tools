@@ -323,11 +323,13 @@ class StackHandler:
         """
         compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
+            logger.debug("Running 'docker compose pull' ...")
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
+        logger.debug(f"Running '{compose_str}' ...")
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
@@ -337,14 +339,20 @@ class StackHandler:
         """
         for _ in range(6 * 60):
             try:
-                response = requests.get(f"{self.__localhost_url}:3333/health", timeout=1)
+                params = RequestParameters("GET", f"{self.__localhost_url}:3333/health", timeout=1)
+                log_request(params)
+                response = requests.get(params.url, timeout=params.timeout)
+                log_response(response)
                 if not response.ok:
                     time.sleep(1)
                     continue
             except requests.exceptions.RequestException:
+                logger.debug("RequestException while checking API status.")
                 time.sleep(1)
                 continue
-        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
+        msg = f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/"
+        logger.debug(msg)
+        print(msg)
 
     def _execute_docker_system_prune(self) -> None:
         """

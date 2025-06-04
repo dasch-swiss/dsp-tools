@@ -194,6 +194,19 @@ class TestReformatErrorMessage:
             "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'."
         )
 
+    def test_resource_id_problem(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}audio-segment', attribute 'id': "
+            "'res_1' is not a valid value of the atomic type 'xs:ID'."
+        )
+        result = _reformat_error_message_str(in_msg, 1)
+        assert result.line_number == 1
+        assert result.element == "audio-segment"
+        assert result.attribute == "id"
+        assert (
+            result.message == "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file."
+        )
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

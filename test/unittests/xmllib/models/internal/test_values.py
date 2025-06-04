@@ -131,6 +131,18 @@ class TestListValue:
             )
         assert len(caught_warnings) == 0
 
+    def test_good_with_list_iri_and_none(self) -> None:
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            ListValue.new(
+                "http://rdfh.ch/lists/0121/eDaD2IJrR3-zRF1BZnlglw",
+                None,
+                ":listProp",
+                resource_id="res_id",
+                permissions=Permissions.OPEN,
+                comment=None,
+            )
+        assert len(caught_warnings) == 0
+
     def test_warns_false_node(self) -> None:
         with pytest.warns(XmllibInputWarning):
             ListValue.new(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)

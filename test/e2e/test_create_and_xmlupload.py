@@ -186,10 +186,8 @@ def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: 
 def _analyze_img_labels(img_graph: Graph) -> None:
     labels = {str(x) for x in img_graph.objects(predicate=RDFS.label)}
     assert labels == {
-        # The following two are used to check if the FileValue was created with the correct properties and metadata.
         "Resource 1",
         "Resource 2",
-        # The following two are used to check if the permissions change (DOAP, etc.) were applied correctly.
         "ImageResource_uses_doap_should_be_preview",
         "ImageResource_overrides_doap_is_open",
     }

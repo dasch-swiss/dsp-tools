@@ -13,6 +13,9 @@ from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
 
@@ -111,6 +114,7 @@ class StackHandler:
         by an earlier run of this method.
         So, this method must always be called, at every run of start-stack.
         """
+        logger.debug("Copying resources to home directory ...")
         docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")
         for file in docker_path_of_distribution.iterdir():
             with importlib.resources.as_file(file) as f:
@@ -128,8 +132,8 @@ class StackHandler:
         This is done by overriding the environment variables in the docker-compose.yml and by replacing the
         configuration for the frontend.
         """
-
         if self.__stack_configuration.custom_host is not None:
+            logger.debug("Setting custom host...")
             self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
 
             docker_template_path = importlib.resources.files("dsp_tools").joinpath(
@@ -161,6 +165,7 @@ class StackHandler:
         Raises:
             InputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
+        logger.debug("Retrieving sipi.docker-config.lua...")
         docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
@@ -182,6 +187,7 @@ class StackHandler:
         Raises:
             InputError: if the database cannot be started
         """
+        logger.debug("Starting up the fuseki container...")
         cmd = "docker compose up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
@@ -194,10 +200,12 @@ class StackHandler:
         Wait up to 6 minutes, until the fuseki database is up and running.
         This function imitates the behaviour of the script dsp-api/webapi/scripts/wait-for-db.sh.
         """
+        logger.debug("Waiting for the fuseki container to be up and running...")
         for _ in range(6 * 60):
             try:
                 response = requests.get(f"{self.__localhost_url}:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
+                    logger.debug("Fuseki is now up and running.")
                     break
             except Exception:  # noqa: BLE001 (blind-except)
                 time.sleep(1)
@@ -211,6 +219,7 @@ class StackHandler:
         Raises:
             InputError: in case of failure
         """
+        logger.debug("Creating the 'knora-test' repository...")
         repo_template_response = requests.get(
             f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
             timeout=30,
@@ -240,6 +249,7 @@ class StackHandler:
         Raises:
             InputError: if one of the graphs cannot be created
         """
+        logger.debug("Loading data into the 'knora-test' repository...")
         graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         ttl_files = [
             ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
@@ -277,6 +287,7 @@ class StackHandler:
         Raises:
             InputError: If the user cannot be created.
         """
+        logger.debug("Creating the default admin user...")
         graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         admin_graph = "http://www.knora.org/data/admin"
         admin_user = """
@@ -323,11 +334,13 @@ class StackHandler:
         """
         compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
+            logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
+        logger.debug(f"Running '{compose_str}' ...")
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
@@ -335,16 +348,21 @@ class StackHandler:
         Wait until the API is up and running.
         This mimicks the behaviour of the script webapi/scripts/wait-for-api.sh in the DSP-API repository.
         """
+        logger.debug("Waiting for the API to start...")
         for _ in range(6 * 60):
             try:
-                response = requests.get(f"{self.__localhost_url}:3333/health", timeout=1)
-                if not response.ok:
-                    time.sleep(1)
-                    continue
-            except requests.exceptions.RequestException:
-                time.sleep(1)
-                continue
-        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
+                params = RequestParameters("GET", f"{self.__localhost_url}:3333/health", timeout=1)
+                log_request(params)
+                response = requests.get(params.url, timeout=params.timeout)
+                log_response(response)
+                if response.ok:
+                    break
+            except requests.exceptions.RequestException as e:
+                logger.debug(f"RequestException while checking API status: {e.strerror}")
+            time.sleep(1)
+        msg = f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/"
+        logger.debug(msg)
+        print(msg)
 
     def _execute_docker_system_prune(self) -> None:
         """
@@ -366,6 +384,7 @@ class StackHandler:
                     "to keep your docker clean and running smoothly. [y/n]"
                 )
         if prune_docker == "y":
+            logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)
 
     def _start_docker_containers(self) -> None:

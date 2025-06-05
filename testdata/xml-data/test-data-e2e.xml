@@ -70,7 +70,7 @@
 
     <resource label="ImageResource_uses_doap_should_be_preview"
               restype=":ImageResource"
-              id="PDFResource_uses_doap_should_be_preview">
+              id="ImageResource_uses_doap_should_be_preview">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
@@ -80,7 +80,7 @@
 
     <resource label="ImageResource_overrides_doap_is_open"
               restype=":ImageResource"
-              id="PDFResource_overrides_doap_is_open">
+              id="ImageResource_overrides_doap_is_open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"

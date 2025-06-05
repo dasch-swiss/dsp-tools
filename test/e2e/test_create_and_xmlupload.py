@@ -145,7 +145,7 @@ def _check_project(project: dict[str, Any], onto_iri: str, second_onto_iri: str)
     assert project["shortcode"] == PROJECT_SHORTCODE
     assert project["longname"] == "e2e test project"
     assert project["description"] == [{"value": "The e2e test project", "language": "en"}]
-    assert project["keywords"] == ["e2e-test-projec-keyword"]
+    assert project["keywords"] == ["e2e-test-project-keyword"]
     assert project["ontologies"] == [onto_iri, second_onto_iri]
 
 

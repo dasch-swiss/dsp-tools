@@ -165,6 +165,7 @@ class ShaclValidator:
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
     def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
+        logger.debug("Validating the ontology.")
         post_files = self._prepare_validation_files_for_request(
             onto_graph.serialize(format="ttl"), onto_shacl.serialize(format="ttl")
         )
@@ -207,7 +208,6 @@ class ShaclValidator:
 
     @staticmethod
     def _prepare_validation_files_for_request(data_str: str, shacl_str: str) -> PostFiles:
-        logger.debug("Serialise files for request.")
         shacl_file = PostFile(file_name="shacl.ttl", fileobj=shacl_str, content_type="text/turtle")
         data_file = PostFile(file_name="data.ttl", fileobj=data_str, content_type="text/turtle")
         return PostFiles([shacl_file, data_file])

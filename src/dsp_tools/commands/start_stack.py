@@ -132,8 +132,8 @@ class StackHandler:
         This is done by overriding the environment variables in the docker-compose.yml and by replacing the
         configuration for the frontend.
         """
-        logger.debug("Setting custom host, if applicable...")
         if self.__stack_configuration.custom_host is not None:
+            logger.debug("Setting custom host...")
             self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
 
             docker_template_path = importlib.resources.files("dsp_tools").joinpath(
@@ -205,6 +205,7 @@ class StackHandler:
             try:
                 response = requests.get(f"{self.__localhost_url}:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
+                    logger.debug("Fuseki is now up and running.")
                     break
             except Exception:  # noqa: BLE001 (blind-except)
                 time.sleep(1)
@@ -333,7 +334,7 @@ class StackHandler:
         """
         compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
-            logger.debug("Running 'docker compose pull' ...")
+            logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:

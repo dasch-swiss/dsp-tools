@@ -356,13 +356,9 @@ class StackHandler:
                 log_response(response)
                 if response.ok:
                     break
-                else:
-                    time.sleep(1)
-                    continue
             except requests.exceptions.RequestException as e:
                 logger.debug(f"RequestException while checking API status: {e.strerror}")
-                time.sleep(1)
-                continue
+            time.sleep(1)
         msg = f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/"
         logger.debug(msg)
         print(msg)

@@ -18,6 +18,7 @@ from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
+from dsp_tools.xmllib.value_checkers import is_valid_link_value_target_id
 
 
 @pytest.mark.parametrize(
@@ -159,6 +160,16 @@ def test_is_integer_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [1.2, "1.2", "wdasd", True, False, "1e2"])
 def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
+
+
+@pytest.mark.parametrize("val", ["_1", "abc_2", "http://rdfh.ch/4123/54SYvWF0QUW6a"])
+def test_is_valid_link_value_target_id_correct(val):
+    assert is_valid_link_value_target_id(val)
+
+
+@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed"])
+def test_is_valid_link_value_target_id_wrong(val):
+    assert not is_valid_link_value_target_id(val)
 
 
 @pytest.mark.parametrize(

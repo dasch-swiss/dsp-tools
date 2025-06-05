@@ -253,7 +253,7 @@ def is_integer(value: Any) -> bool:
             return False
 
 
-def is_valid_link_value_target_id(value: Any) -> bool:
+def is_link_value(value: Any) -> bool:
     """
     Check if a value is a valid internal ID of a resource (xsd:ID) or a valid internal DSP IRI.
     Both of these values are allowed in LinkValues.
@@ -266,22 +266,22 @@ def is_valid_link_value_target_id(value: Any) -> bool:
 
     Examples:
         ```python
-        result = xmllib.is_valid_link_value_target_id("1_must_not_start_with_number")
+        result = xmllib.is_link_value("1_must_not_start_with_number")
         # result == False
         ```
 
         ```python
-        result = xmllib.is_valid_link_value_target_id("characters|not|allowed")
+        result = xmllib.is_link_value("characters|not|allowed")
         # result == False
         ```
 
         ```python
-        result = xmllib.is_valid_link_value_target_id("resource_id_1")
+        result = xmllib.is_link_value("resource_id_1")
         # result == True
         ```
 
         ```python
-        result = xmllib.is_valid_link_value_target_id("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        result = xmllib.is_link_value("http://rdfh.ch/4123/54SYvWF0QUW6a")
         # result == True
         ```
     """

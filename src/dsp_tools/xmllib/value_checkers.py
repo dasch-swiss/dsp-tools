@@ -253,6 +253,43 @@ def is_integer(value: Any) -> bool:
             return False
 
 
+def is_valid_link_value_target_id(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID) or a valid internal DSP IRI.
+    Both of these values are allowed in LinkValues.
+
+    Args:
+        value: the target ID of a LinkValue
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_valid_link_value_target_id("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_link_value_target_id("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_link_value_target_id("resource_id_1")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_valid_link_value_target_id("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        # result == True
+        ```
+    """
+    return bool(
+        regex.search(r"([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)", str(value)),
+    )
+
+
 def is_timestamp(value: Any) -> bool:
     """
     Checks if a value is a valid timestamp.

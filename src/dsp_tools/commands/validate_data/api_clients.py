@@ -11,7 +11,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
-from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
@@ -135,13 +135,13 @@ class ShaclValidator:
 
     api_url: str
 
-    def validate(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+    def validate(self, graph_strings: RDFGraphStrings) -> SHACLValidationReport:
         """
         Sends a multipart/form-data request with two turtle files (data.ttl and shacl.ttl) to the given URL
         and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
 
         Args:
-            rdf_graphs: Graphs in RDF form that should be validated
+            graph_strings: Graphs in RDF form that should be validated
 
         Returns:
             SHACLValidationReport: A report containing the validation graph and a bool to indicate if it passed.
@@ -152,12 +152,12 @@ class ShaclValidator:
         result_graph = Graph()
         conforms = True
 
-        card_result = self._validate_cardinality(rdf_graphs)
+        card_result = self._validate_cardinality(graph_strings)
         if not card_result.conforms:
             result_graph += card_result.validation_graph
             conforms = False
 
-        content_result = self._validate_content(rdf_graphs)
+        content_result = self._validate_content(graph_strings)
         if not content_result.conforms:
             result_graph += content_result.validation_graph
             conforms = False
@@ -165,7 +165,10 @@ class ShaclValidator:
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
     def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
-        post_files = self._prepare_validation_files_for_request(onto_graph, onto_shacl)
+        logger.debug("Validating the ontology.")
+        post_files = self._prepare_validation_files_for_request(
+            onto_graph.serialize(format="ttl"), onto_shacl.serialize(format="ttl")
+        )
         url = f"{self.api_url}/shacl/validate"
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=post_files))
@@ -175,9 +178,11 @@ class ShaclValidator:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
-    def _validate_cardinality(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+    def _validate_cardinality(self, graph_strings: RDFGraphStrings) -> SHACLValidationReport:
         logger.debug("Validate Cardinality")
-        card_files = self._prepare_cardinality_files(rdf_graphs)
+        card_files = self._prepare_validation_files_for_request(
+            graph_strings.cardinality_validation_data, graph_strings.cardinality_shapes
+        )
         url = f"{self.api_url}/shacl/validate"
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=card_files))
@@ -187,14 +192,11 @@ class ShaclValidator:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
-    def _prepare_cardinality_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
-        logger.debug("Prepare files for cardinality validation.")
-        shacl_graph = rdf_graphs.cardinality_shapes + rdf_graphs.ontos + rdf_graphs.knora_api
-        return self._prepare_validation_files_for_request(rdf_graphs.data, shacl_graph)
-
-    def _validate_content(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
+    def _validate_content(self, graph_strings: RDFGraphStrings) -> SHACLValidationReport:
         logger.debug("Validate Content")
-        content_files = self._prepare_content_files(rdf_graphs)
+        content_files = self._prepare_validation_files_for_request(
+            graph_strings.content_validation_data, graph_strings.content_shapes
+        )
         url = f"{self.api_url}/shacl/validate"
         timeout = 60
         log_request(RequestParameters("POST", url, timeout, files=content_files))
@@ -204,18 +206,9 @@ class ShaclValidator:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
-    def _prepare_content_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
-        logger.debug("Prepare files for content validation.")
-        shacl_graph = rdf_graphs.content_shapes + rdf_graphs.ontos + rdf_graphs.knora_api
-        data_graph = rdf_graphs.data + rdf_graphs.ontos + rdf_graphs.knora_api
-        return self._prepare_validation_files_for_request(data_graph, shacl_graph)
-
     @staticmethod
-    def _prepare_validation_files_for_request(data_graph: Graph, shacl_graph: Graph) -> PostFiles:
-        logger.debug("Serialise files for request.")
-        shacl_str = shacl_graph.serialize(format="ttl")
+    def _prepare_validation_files_for_request(data_str: str, shacl_str: str) -> PostFiles:
         shacl_file = PostFile(file_name="shacl.ttl", fileobj=shacl_str, content_type="text/turtle")
-        data_str = data_graph.serialize(format="ttl")
         data_file = PostFile(file_name="data.ttl", fileobj=data_str, content_type="text/turtle")
         return PostFiles([shacl_file, data_file])
 

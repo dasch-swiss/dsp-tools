@@ -202,7 +202,7 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     if problem.problem_type not in PROBLEM_TYPES_IGNORE_STR_ENUM_INFO:
         msg.append(str(problem.problem_type))
     if problem.input_value:
-        msg.append(f"Your input: '{_shorten_input(problem.input_value)}'")
+        msg.append(f"Your input: '{_shorten_input(problem.input_value, problem.problem_type)}'")
     if problem.input_type:
         msg.append(f"Actual input type: '{problem.input_type}'")
     if problem.expected:
@@ -236,7 +236,7 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Resource ID": problem.res_id,
         "Resource Type": problem.res_type,
         "Property": problem.prop_name,
-        "Your Input": _shorten_input(problem.input_value),
+        "Your Input": _shorten_input(problem.input_value, problem.problem_type),
         "Input Type": problem.input_type,
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
@@ -262,7 +262,9 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
     return out_dict
 
 
-def _shorten_input(user_input: str | None) -> str | None:
+def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
+    if problem_type in [ProblemType.FILE_DUPLICATE, ProblemType.FILE_VALUE, ProblemType.FILE_VALUE_PROHIBITED]:
+        return user_input
     if not user_input:
         return None
     if len(user_input) < 41:

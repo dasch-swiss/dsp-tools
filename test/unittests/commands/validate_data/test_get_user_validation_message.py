@@ -3,6 +3,7 @@
 import pytest
 
 from dsp_tools.commands.validate_data.get_user_validation_message import _get_message_for_one_resource
+from dsp_tools.commands.validate_data.get_user_validation_message import _shorten_input
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -397,4 +398,26 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
         "onto:hasProp\n"
         "    - Linked Resource does not exist | Your input: 'link_target_id'"
     )
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("user_input", "problem_type", "expected"),
+    [
+        (
+            "this/is/a/very/very/very/long/filepath/file.csv",
+            ProblemType.FILE_VALUE,
+            "this/is/a/very/very/very/long/filepath/file.csv",
+        ),
+        (
+            "This is a very long sentence and should be shortened.",
+            ProblemType.GENERIC,
+            "This is a very long sentence and should [...]",
+        ),
+        ("So short, nothing happens", ProblemType.VALUE_TYPE_MISMATCH, "So short, nothing happens"),
+        (None, ProblemType.GENERIC, None),
+    ],
+)
+def test_shorten_input(user_input, problem_type, expected):
+    result = _shorten_input(user_input, problem_type)
     assert result == expected

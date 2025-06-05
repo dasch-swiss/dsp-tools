@@ -8,14 +8,15 @@ from pathlib import Path
 from typing import Union
 from uuid import uuid4
 
+import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_emit_user_message
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
@@ -188,6 +189,12 @@ class XMLRoot:
             ```
         """
         root = self.serialise(default_permissions)
+
+        # The logging is only configured when using the CLI entry point.
+        # If this is not disabled, then the statements will also be printed out on the terminal.
+        logger.disable("dsp_tools")
+        validate_root_emit_user_message(root, Path(filepath).parent)
+
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -197,16 +204,15 @@ class XMLRoot:
         )
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(xml_string)
-        try:
-            logger.disable("dsp_tools")
-            parse_and_validate_xml_file(input_file=filepath)
-            print(f"The XML file was successfully saved to {filepath}")
-        except BaseError as err:
-            msg = (
-                f"The XML file was successfully saved to {filepath}, "
-                f"but the following Schema validation error(s) occurred: {err.message}"
-            )
-            emit_xmllib_input_warning(MessageInfo(msg))
+            print(f"The XML file was successfully saved to {filepath}.")
+        if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
+            df = pd.read_csv(file_path)
+            if len(df) > 0:
+                msg = f"{len(df)} warnings occurred, please consult '{file_path}' for details."
+                print(BOLD_RED, msg, RESET_TO_DEFAULT)
+            else:
+                msg = "No warnings occurred during the runtime."
+                print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
 
     def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
         """

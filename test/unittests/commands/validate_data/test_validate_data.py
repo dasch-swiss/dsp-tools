@@ -144,27 +144,27 @@ def test_make_list_lookup():
 class TestGetValidationStatus:
     def test_not_prod_problems(self):
         problems = SortedProblems([InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [], [], [])
-        validation_passed = _get_validation_status(problems, False)
+        validation_passed = _get_validation_status(problems, is_on_prod=False)
         assert not validation_passed
 
     def test_not_prod_problems_and_unexpected(self):
         problems = SortedProblems([InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [], [], ["unex"])
-        validation_passed = _get_validation_status(problems, False)
+        validation_passed = _get_validation_status(problems, is_on_prod=False)
         assert not validation_passed
 
     def test_not_prod_warnings(self):
         problems = SortedProblems([], [InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [], [])
-        validation_passed = _get_validation_status(problems, False)
+        validation_passed = _get_validation_status(problems, is_on_prod=False)
         assert validation_passed
 
     def test_not_prod_info(self):
         problems = SortedProblems([], [], [InputProblem(ProblemType.GENERIC, "", "", "", Severity.VIOLATION)], [])
-        validation_passed = _get_validation_status(problems, False)
+        validation_passed = _get_validation_status(problems, is_on_prod=False)
         assert validation_passed
 
     def test_not_prod_unexpected(self):
         problems = SortedProblems([], [], [], ["unexpected"])
-        validation_passed = _get_validation_status(problems, False)
+        validation_passed = _get_validation_status(problems, is_on_prod=False)
         assert not validation_passed
 
 

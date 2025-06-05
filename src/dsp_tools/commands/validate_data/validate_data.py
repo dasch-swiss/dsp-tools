@@ -29,6 +29,7 @@ from dsp_tools.commands.validate_data.models.input_problems import OntologyValid
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
@@ -56,7 +57,7 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors foun
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, save_graphs: bool, creds: ServerCredentials) -> bool:
+def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -315,23 +316,10 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 def _get_validation_result(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
-    if config.save_graph_dir:
-        _save_graphs(config.save_graph_dir, rdf_graphs)
-    report = _validate(shacl_validator, rdf_graphs)
+    report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir)
     if config.save_graph_dir:
         report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
     return report
-
-
-def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
-    rdf_graphs.ontos.serialize(f"{save_path}_ONTO.ttl")
-    shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
-    shacl_onto.serialize(f"{save_path}_SHACL_ONTO.ttl")
-    rdf_graphs.cardinality_shapes.serialize(f"{save_path}_SHACL_CARD.ttl")
-    rdf_graphs.content_shapes.serialize(f"{save_path}_SHACL_CONTENT.ttl")
-    rdf_graphs.data.serialize(f"{save_path}_DATA.ttl")
-    onto_data = rdf_graphs.data + rdf_graphs.ontos
-    onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
 def _create_graphs(
@@ -385,9 +373,22 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
     return EnabledLicenseIris(iris)
 
 
-def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
-    logger.debug("Validate with API.")
-    validation_results = validator.validate(rdf_graphs)
+def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None) -> ValidationReportGraphs:
+    logger.debug("Serialise RDF graphs into turtle strings")
+    data_str = rdf_graphs.data.serialize(format="ttl")
+    ontos_str = rdf_graphs.ontos.serialize(format="ttl")
+    card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
+    content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
+    knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
+    graph_strings = RDFGraphStrings(
+        cardinality_validation_data=data_str,
+        cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
+        content_validation_data=data_str + ontos_str + knora_api_str,
+        content_shapes=content_shape_str + ontos_str + knora_api_str,
+    )
+    if graph_save_dir:
+        _save_graphs(graph_save_dir, graph_strings)
+    validation_results = validator.validate(graph_strings)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
@@ -395,6 +396,17 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
         onto_graph=rdf_graphs.ontos + rdf_graphs.knora_api,
         data_graph=rdf_graphs.data,
     )
+
+
+def _save_graphs(save_path: Path, graph_strings: RDFGraphStrings) -> None:
+    with open(f"{save_path}_CARDINALITY_DATA.ttl", "w") as writer:
+        writer.write(graph_strings.cardinality_validation_data)
+    with open(f"{save_path}_CARDINALITY_SHAPES.ttl", "w") as writer:
+        writer.write(graph_strings.cardinality_shapes)
+    with open(f"{save_path}_CONTENT_DATA.ttl", "w") as writer:
+        writer.write(graph_strings.content_validation_data)
+    with open(f"{save_path}_CONTENT_SHAPES.ttl", "w") as writer:
+        writer.write(graph_strings.content_shapes)
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

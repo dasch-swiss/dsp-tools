@@ -33,6 +33,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- data type for resptr tags -->
+    <xs:simpleType name="resptr_datatype">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- group type for allow..." -->
     <xs:simpleType name="group_types">
         <xs:restriction base="xs:string">
@@ -212,7 +219,7 @@
     <!-- resptr_type (link to other resource) value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="resptr_datatype">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>

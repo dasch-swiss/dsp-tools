@@ -31,7 +31,7 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, False)
+CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=False)
 
 
 @pytest.fixture(scope="module")
@@ -251,8 +251,8 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
         ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
         ("is_date_should_be_simpletext", "This property requires a TextValue", "onto:testTextarea"),
-        ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
         ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
+        ("is_text_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
         ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
         ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
         ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),

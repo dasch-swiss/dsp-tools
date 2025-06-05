@@ -25,6 +25,14 @@ class RDFGraphs:
 
 
 @dataclass
+class RDFGraphStrings:
+    cardinality_validation_data: str
+    cardinality_shapes: str
+    content_validation_data: str
+    content_shapes: str
+
+
+@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph

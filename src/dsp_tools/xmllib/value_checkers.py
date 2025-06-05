@@ -295,7 +295,7 @@ def is_valid_resource_id(value: Any) -> bool:
     Check if a value is a valid internal ID of a resource (xsd:ID).
 
     Args:
-        value: the target ID of a Resource
+        value: the ID of a Resource
 
     Returns:
         True if it is a permissible value.

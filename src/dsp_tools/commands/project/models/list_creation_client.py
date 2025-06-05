@@ -1,6 +1,6 @@
 import urllib.parse
 from dataclasses import dataclass
-from functools import cache
+from functools import cache, cached_property
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
@@ -20,7 +20,7 @@ class ListCreationClient:
     shortcode: str
 
     def get_list_names_and_iris_from_server(self) -> dict[str, str]:
-        project_iri = quote_plus(self._get_proj_iri())
+        project_iri = quote_plus(self._proj_iri)
         params = RequestParameters("GET", f"{self.auth.server}/admin/lists?projectIri={project_iri}", timeout=10)
         log_request(params)
         response = requests.get(params.url, timeout=params.timeout)
@@ -29,8 +29,8 @@ class ListCreationClient:
         logger.info(f"Found {len(lists)} lists for project")
         return {lst["name"]: lst["id"] for lst in lists}
 
-    @cache
-    def _get_proj_iri(self) -> str:
+    @cached_property
+    def _proj_iri(self) -> str:
         params = RequestParameters("GET", f"{self.auth.server}/admin/projects/shortcode/{self.shortcode}", timeout=10)
         log_request(params)
         response = requests.get(params.url, timeout=params.timeout)
@@ -42,7 +42,7 @@ class ListCreationClient:
             "name": node["name"],
             "labels": node["labels"],
             "comments": node["comments"],
-            "projectIri": self._get_proj_iri(),
+            "projectIri": self._proj_iri,
         }
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("POST", f"{self.auth.server}/admin/lists", timeout=10, data=data, headers=headers)
@@ -55,7 +55,7 @@ class ListCreationClient:
         data = {
             "name": node["name"],
             "labels": node["labels"],
-            "projectIri": self._get_proj_iri(),
+            "projectIri": self._proj_iri,
             "parentNodeIri": parent_iri,
         }
         if cmt := node.get("comments"):

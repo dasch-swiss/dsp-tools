@@ -1,3 +1,4 @@
+import urllib.parse
 from dataclasses import dataclass
 from functools import cache
 from typing import Any
@@ -36,5 +37,33 @@ class ListCreationClient:
         log_response(response)
         return cast(str, response.json()["project"]["id"])
 
-    def create_list(self, lst: dict[str, Any]) -> str:
-        
+    def create_root_node(self, node: dict[str, str]) -> str:
+        data = {
+            "name": node["name"],
+            "labels": node["labels"],
+            "comments": node["comments"],
+            "projectIri": self._get_proj_iri(),
+        }
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", f"{self.auth.server}/admin/lists", timeout=10, data=data, headers=headers)
+        log_request(params)
+        response = requests.post(params.url, json=params.data, timeout=params.timeout, headers=params.headers)
+        log_response(response)
+        return cast(str, response.json()["list"]["listinfo"]["id"])
+
+    def create_child_node(self, node: dict[str, str], parent_iri: str) -> str:
+        data = {
+            "name": node["name"],
+            "labels": node["labels"],
+            "projectIri": self._get_proj_iri(),
+            "parentNodeIri": parent_iri,
+        }
+        if cmt := node.get("comments"):
+            data["comments"] = cmt
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        url = f"{self.auth.server}/admin/lists/{urllib.parse.quote(parent_iri)}"
+        params = RequestParameters("POST", url=url, timeout=10, data=data, headers=headers)
+        log_request(params)
+        response = requests.post(params.url, json=params.data, timeout=params.timeout, headers=params.headers)
+        log_response(response)
+        return cast(str, response.json()["nodeinfo"]["id"])

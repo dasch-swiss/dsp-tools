@@ -34,9 +34,18 @@ def create_lists_on_server(
             warnings.warn(msg)
             continue
 
-        iri = list_creation_client.create_list(lst)
-        lst_name_to_iri_lookup[lst["name"]] = iri
+        lookup_update = _create_one_list_on_server(lst, list_creation_client)
+        lst_name_to_iri_lookup.update(lookup_update)
     return lst_name_to_iri_lookup, success
+
+
+def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListCreationClient) -> dict[str, str]:
+    root_iri = list_creation_client.create_root_node(lst)
+    lookup = {lst["name"]: root_iri}
+    for node in lst["nodes"]:
+        node_iri = list_creation_client.create_child_node(node, root_iri)
+        lookup[node["name"]] = node_iri
+    return lookup
 
 
 def create_lists_on_server_old(

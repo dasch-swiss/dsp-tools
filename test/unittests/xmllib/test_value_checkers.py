@@ -168,7 +168,7 @@ def test_is_valid_link_value_target_id_correct(val):
     assert is_valid_link_value_target_id(val)
 
 
-@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed"])
+@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed", ""])
 def test_is_valid_link_value_target_id_wrong(val):
     assert not is_valid_link_value_target_id(val)
 
@@ -178,7 +178,7 @@ def test_is_valid_resource_id_correct(val):
     assert is_valid_resource_id(val)
 
 
-@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed"])
+@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed", " ", " not_good"])
 def test_is_valid_resource_id_wrong(val):
     assert not is_valid_resource_id(val)
 

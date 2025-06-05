@@ -143,14 +143,14 @@ class TestReformatErrorMessage:
 
     def test_invalid_tag(self):
         in_msg = (
-            "Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
-            "The attribute 'invalidtag' is not allowed."
+            "Element '{https://dasch.swiss/schema}resource', attribute 'invalidattrib': "
+            "The attribute 'invalidattrib' is not allowed."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resource"
-        assert result.attribute == "invalidtag"
-        assert result.message == "The attribute 'invalidtag' is not allowed."
+        assert result.attribute == "invalidattrib"
+        assert result.message == "The attribute 'invalidattrib' is not allowed."
 
     def test_duplicate_iri(self):
         in_msg = (

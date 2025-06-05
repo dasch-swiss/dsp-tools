@@ -41,7 +41,7 @@ def create_lists_on_server(
 
 def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListCreationClient) -> dict[str, str]:
     root_iri = list_creation_client.create_root_node(lst)
-    lookup = {lst["name"]: root_iri}
+    lookup = {}
     for node in lst["nodes"]:
         node_iri = list_creation_client.create_child_node(node, root_iri)
         lookup[node["name"]] = node_iri

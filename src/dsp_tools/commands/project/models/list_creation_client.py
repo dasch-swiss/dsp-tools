@@ -37,11 +37,11 @@ class ListCreationClient:
         log_response(response)
         return cast(str, response.json()["project"]["id"])
 
-    def create_root_node(self, node: dict[str, str]) -> str:
+    def create_root_node(self, node: dict[str, Any]) -> str:
         data = {
             "name": node["name"],
-            "labels": node["labels"],
-            "comments": node["comments"],
+            "labels": [{"language": lang, "value": val} for lang, val in node["labels"].items()],
+            "comments": [{"language": lang, "value": val} for lang, val in node["comments"].items()],
             "projectIri": self._proj_iri,
         }
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
@@ -51,15 +51,15 @@ class ListCreationClient:
         log_response(response)
         return cast(str, response.json()["list"]["listinfo"]["id"])
 
-    def create_child_node(self, node: dict[str, str], parent_iri: str) -> str:
+    def create_child_node(self, node: dict[str, Any], parent_iri: str) -> str:
         data = {
             "name": node["name"],
-            "labels": node["labels"],
+            "labels": [{"language": lang, "value": val} for lang, val in node["labels"].items()],
             "projectIri": self._proj_iri,
             "parentNodeIri": parent_iri,
         }
         if cmt := node.get("comments"):
-            data["comments"] = cmt
+            data["comments"] = [{"language": lang, "value": val} for lang, val in cmt.items()]
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         url = f"{self.auth.server}/admin/lists/{urllib.parse.quote(parent_iri)}"
         params = RequestParameters("POST", url=url, timeout=10, data=data, headers=headers)

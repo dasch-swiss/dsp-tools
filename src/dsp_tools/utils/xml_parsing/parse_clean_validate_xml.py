@@ -101,9 +101,9 @@ def _beautify_err_msg(err_msg: str) -> str:
 
 
 def validate_root_emit_user_message(root: etree._Element, save_path: Path) -> None:
-    validation_error = _validate_root_get_validation_messages(root)
-    if validation_error:
-        _emit_validation_errors(validation_error, save_path)
+    validation_errors = _validate_root_get_validation_messages(root)
+    if validation_errors:
+        _emit_validation_errors(validation_errors, save_path)
 
 
 def _validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSDValidationMessage] | None:
@@ -112,27 +112,27 @@ def _validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSD
     return None
 
 
-def _emit_validation_errors(validation_error: list[XSDValidationMessage], save_path: Path) -> None:
-    header_msg = f"During the XSD Schema validation the following {len(validation_error)} error(s) were found: "
+def _emit_validation_errors(validation_errors: list[XSDValidationMessage], save_path: Path) -> None:
+    header_msg = f"During the XSD Schema validation the following {len(validation_errors)} error(s) were found: "
     print(BACKGROUND_BOLD_RED, header_msg, RESET_TO_DEFAULT)
-    if len(validation_error) > 50:
+    logger.error(header_msg)
+    if len(validation_errors) > 50:
         save_path = save_path / "xsd_validation_errors.csv"
-        message_dicts = [vars(x) for x in validation_error]
+        message_dicts = [vars(x) for x in validation_errors]
         df = pd.DataFrame.from_records(message_dicts)
         df.to_csv(save_path, index=False)
         msg = f"Due to the large number of errors they are saved in the file '{save_path}'."
         print(BOLD_RED + msg, RESET_TO_DEFAULT)
+        logger.error(msg)
     else:
-        for one_msg in validation_error:
+        for one_msg in validation_errors:
             msg_str = get_xsd_validation_message_str(one_msg)
             print(BOLD_RED, msg_str, RESET_TO_DEFAULT)
+            logger.error(msg_str)
 
 
 def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:
-    all_errors = []
-    for err in log:
-        all_errors.append(_reformat_error_message_str(err.message, err.line))
-    return all_errors
+    return [_reformat_error_message_str(err.message, err.line) for err in log]
 
 
 def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage:

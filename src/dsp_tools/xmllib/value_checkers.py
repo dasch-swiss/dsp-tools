@@ -285,8 +285,39 @@ def is_valid_link_value_target_id(value: Any) -> bool:
         # result == True
         ```
     """
+    if is_valid_resource_id(value):
+        return True
+    return is_dsp_iri(value)
+
+
+def is_valid_resource_id(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID).
+
+    Args:
+        value: the target ID of a Resource
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_valid_resource_id("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("resource_id_1")
+        # result == True
+        ```
+    """
     return bool(
-        regex.search(r"([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)", str(value)),
+        regex.search(r"^[a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*$", str(value)),
     )
 
 

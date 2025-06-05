@@ -178,7 +178,14 @@ def _analyze_img_resources(img_resources: str) -> None:
     )
 
     labels = {str(x) for x in g.objects(predicate=RDFS.label)}
-    assert labels == {"Resource 1", "Resource 2"}
+    assert labels == {
+        # The following two are used to check if the FileValue was created with the correct properties and metadata.
+        "Resource 1",
+        "Resource 2",
+        # The following two are used to check if the permissions changes (DOAP, etc.) were applied correctly.
+        "ImageResource_uses_doap_should_be_preview",
+        "ImageResource_overrides_doap_is_open",
+    }
 
     res_1_iri = next(g.subjects(RDFS.label, Literal("Resource 1")))
     assert next(g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions

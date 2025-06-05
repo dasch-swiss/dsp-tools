@@ -11,7 +11,6 @@ from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xsd_validation_error_msg import XSDValidationMessage
-from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_dict
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_RED
@@ -118,7 +117,7 @@ def _emit_validation_errors(validation_error: list[XSDValidationMessage], save_p
     print(BACKGROUND_BOLD_RED, header_msg, RESET_TO_DEFAULT)
     if len(validation_error) > 50:
         save_path = save_path / "xsd_validation_errors.csv"
-        message_dicts = [get_xsd_validation_message_dict(x) for x in validation_error]
+        message_dicts = [vars(x) for x in validation_error]
         df = pd.DataFrame.from_records(message_dicts)
         df.to_csv(save_path, index=False)
         msg = f"Due to the large number of errors they are saved in the file '{save_path}'."

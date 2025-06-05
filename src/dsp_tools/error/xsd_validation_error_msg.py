@@ -17,13 +17,3 @@ def get_xsd_validation_message_str(msg: XSDValidationMessage) -> str:
         msg_list.append(f"Attribute '{msg.attribute}'")
     msg_list.append(msg.message)
     return " | ".join(msg_list)
-
-
-def get_xsd_validation_message_dict(msg: XSDValidationMessage) -> dict[str, str]:
-    msg_dict = {
-        "Line Number": msg.line_number,
-        "Element": msg.element,
-        "Attribute": msg.attribute,
-        "Message": msg.message,
-    }
-    return {k: str(v) for k, v in msg_dict.items() if v}

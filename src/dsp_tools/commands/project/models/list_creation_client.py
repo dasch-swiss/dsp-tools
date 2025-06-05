@@ -61,7 +61,7 @@ class ListCreationClient:
         if cmt := node.get("comments"):
             data["comments"] = [{"language": lang, "value": val} for lang, val in cmt.items()]
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        url = f"{self.auth.server}/admin/lists/{urllib.parse.quote(parent_iri)}"
+        url = f"{self.auth.server}/admin/lists/{urllib.parse.quote_plus(parent_iri)}"
         params = RequestParameters("POST", url=url, timeout=10, data=data, headers=headers)
         log_request(params)
         response = requests.post(params.url, json=params.data, timeout=params.timeout, headers=params.headers)

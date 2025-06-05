@@ -32,20 +32,22 @@ def create_lists_on_server(
             msg = f"List with name {lst['name']} already exists on the DSP server. Skipping."
             logger.warning(msg)
             warnings.warn(msg)
-            continue
-
-        lookup_update = _create_one_list_on_server(lst, list_creation_client)
-        lst_name_to_iri_lookup.update(lookup_update)
+        else:
+            _create_one_list_on_server(lst, list_creation_client, lst_name_to_iri_lookup)
     return lst_name_to_iri_lookup, success
 
 
-def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListCreationClient) -> dict[str, str]:
+def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListCreationClient, lookup: dict[str, str]) -> None:
     root_iri = list_creation_client.create_root_node(lst)
-    lookup = {}
     for node in lst["nodes"]:
-        node_iri = list_creation_client.create_child_node(node, root_iri)
-        lookup[node["name"]] = node_iri
-    return lookup
+        _create_one_node_on_server(node, list_creation_client, lookup, root_iri)
+
+
+def _create_one_node_on_server(node: dict[str, Any], list_creation_client: ListCreationClient, lookup: dict[str, str], parent_iri: str) -> None:
+    node_iri = list_creation_client.create_child_node(node, parent_iri)
+    lookup[node["name"]] = node_iri
+    for child in node.get("nodes", []):
+        _create_one_node_on_server(child, list_creation_client, lookup, node_iri)
 
 
 def create_lists_on_server_old(

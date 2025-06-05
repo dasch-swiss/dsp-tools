@@ -114,7 +114,10 @@ def test_xmlupload(
     auth_header: dict[str, str], project_iri: str, creds: ServerCredentials, e2e_testonto_iri: str
 ) -> None:
     img_resources = _get_resources(f"{e2e_testonto_iri}#ImageResource", auth_header, project_iri, creds)
-    _analyze_img_resources(img_resources)
+    img_graph = Graph()
+    img_graph.parse(data=img_resources, format="json-ld")
+    _analyze_img_labels(img_graph)
+    _analyse_legal_info_of_img_resources(img_graph)
     pdf_resources = _get_resources(f"{e2e_testonto_iri}#PDFResource", auth_header, project_iri, creds)
     _analyze_pdf_resources(pdf_resources)
 
@@ -180,42 +183,40 @@ def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: 
     return resources
 
 
-def _analyze_img_resources(img_resources: str) -> None:
-    g = Graph()
-    g.parse(data=img_resources, format="json-ld")
-    open_permissions = Literal(
-        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
-    )
-
-    labels = {str(x) for x in g.objects(predicate=RDFS.label)}
+def _analyze_img_labels(img_graph: Graph) -> None:
+    labels = {str(x) for x in img_graph.objects(predicate=RDFS.label)}
     assert labels == {
         # The following two are used to check if the FileValue was created with the correct properties and metadata.
         "Resource 1",
         "Resource 2",
-        # The following two are used to check if the permissions changes (DOAP, etc.) were applied correctly.
+        # The following two are used to check if the permissions change (DOAP, etc.) were applied correctly.
         "ImageResource_uses_doap_should_be_preview",
         "ImageResource_overrides_doap_is_open",
     }
 
-    res_1_iri = next(g.subjects(RDFS.label, Literal("Resource 1")))
-    assert next(g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
-    file_1_iri = next(g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
-    assert next(g.objects(file_1_iri, RDF.type)) == KNORA_API.StillImageFileValue
-    assert next(g.objects(file_1_iri, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
-    assert next(g.objects(file_1_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
-    assert next(g.objects(file_1_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
 
-    res_2_iri = next(g.subjects(RDFS.label, Literal("Resource 2")))
-    file_2_iri = next(g.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
-    assert next(g.objects(file_2_iri, RDF.type)) == KNORA_API.StillImageExternalFileValue
-    assert next(g.objects(file_2_iri, KNORA_API.hasPermissions)) == open_permissions
-    assert next(g.objects(file_2_iri, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
-    assert next(g.objects(file_2_iri, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
-    assert next(g.objects(file_2_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
-    val_with_comment = next(g.subjects(KNORA_API.valueAsString, Literal("first text value")))
-    assert next(g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
-    val_with_perm = next(g.subjects(KNORA_API.valueAsString, Literal("second text value")))
-    assert next(g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
+def _analyse_legal_info_of_img_resources(img_graph: Graph) -> None:
+    open_permissions = Literal(
+        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+    )
+    res_1_iri = next(img_graph.subjects(RDFS.label, Literal("Resource 1")))
+    assert next(img_graph.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
+    file_1_iri = next(img_graph.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
+    assert next(img_graph.objects(file_1_iri, RDF.type)) == KNORA_API.StillImageFileValue
+    assert next(img_graph.objects(file_1_iri, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
+    assert next(img_graph.objects(file_1_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(img_graph.objects(file_1_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+    res_2_iri = next(img_graph.subjects(RDFS.label, Literal("Resource 2")))
+    file_2_iri = next(img_graph.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
+    assert next(img_graph.objects(file_2_iri, RDF.type)) == KNORA_API.StillImageExternalFileValue
+    assert next(img_graph.objects(file_2_iri, KNORA_API.hasPermissions)) == open_permissions
+    assert next(img_graph.objects(file_2_iri, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
+    assert next(img_graph.objects(file_2_iri, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
+    assert next(img_graph.objects(file_2_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
+    val_with_comment = next(img_graph.subjects(KNORA_API.valueAsString, Literal("first text value")))
+    assert next(img_graph.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
+    val_with_perm = next(img_graph.subjects(KNORA_API.valueAsString, Literal("second text value")))
+    assert next(img_graph.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
 
 
 def _analyze_pdf_resources(pdf_resources: str) -> None:

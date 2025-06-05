@@ -50,7 +50,73 @@
                         "super": "DocumentRepresentation",
                         "labels": {
                             "en": "PDF Resource"
+                        },
+                        "comments": {
+                            "en": "This resource has a pre-view permission."
                         }
+                    }
+                ]
+            },
+            {
+                "name": "second-onto",
+                "label": "Second test ontology",
+                "properties": [
+                    {
+                        "name": "defaultPermissionsProp",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "TextValue with default permissions (i.e. public)"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "privateProp",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "TextValue with private permissions"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "DefaultPermissionsResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with default permissions (i.e. public)"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":defaultPermissionsProp",
+                                "cardinality": "0-1",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":privateProp",
+                                "cardinality": "0-1",
+                                "gui_order": 2
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PrivatePermissionsResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with private permissions"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":privateProp",
+                                "cardinality": "0-1",
+                                "gui_order": 2
+                            }
+                        ]
                     }
                 ]
             }

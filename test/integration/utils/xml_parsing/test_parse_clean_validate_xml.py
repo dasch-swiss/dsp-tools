@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from pathlib import Path
 
 import pytest
@@ -5,6 +7,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
@@ -112,6 +115,85 @@ def test_beautify_err_msg() -> None:
     )
     with pytest.raises(InputError, match=_match):
         parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
+
+
+class TestReformatErrorMessage:
+    def test_empty_label(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] "
+            "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute == "label"
+        assert result.message == "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
+
+    def test_pattern_resource_id(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resptr': [facet 'pattern'] "
+            "The value 'not|allowed|characters' is not accepted by the pattern "
+            "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_]*)'."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "resptr"
+        assert result.attribute is None
+        assert result.message == "The value 'not|allowed|characters' is not accepted by the pattern for this value."
+
+    def test_invalid_tag(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource', attribute 'invalidattrib': "
+            "The attribute 'invalidattrib' is not allowed."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute == "invalidattrib"
+        assert result.message == "The attribute 'invalidattrib' is not allowed."
+
+    def test_duplicate_iri(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource': "
+            "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] in unique identity-constraint "
+            "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute is None
+        assert (
+            result.message == "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] "
+            "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'."
+        )
+
+    def test_duplicate_ark(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}resource': Duplicate key-sequence "
+            "['ark:/72163/4123-31ec6eab334-a.2022829'] in unique identity-constraint "
+            "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "resource"
+        assert result.attribute is None
+        assert (
+            result.message == "Duplicate key-sequence ['ark:/72163/4123-31ec6eab334-a.2022829'] "
+            "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'."
+        )
+
+    def test_resource_id_problem(self):
+        in_msg = (
+            "Element '{https://dasch.swiss/schema}audio-segment', attribute 'id': "
+            "'res_1' is not a valid value of the atomic type 'xs:ID'."
+        )
+        result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result.line_number == 1
+        assert result.element == "audio-segment"
+        assert result.attribute == "id"
+        assert (
+            result.message == "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file."
+        )
 
 
 if __name__ == "__main__":

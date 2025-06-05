@@ -10,6 +10,7 @@ from uuid import uuid4
 
 import pandas as pd
 from dotenv import load_dotenv
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
@@ -189,6 +190,9 @@ class XMLRoot:
         """
         root = self.serialise(default_permissions)
 
+        # The logging is only configured when using the CLI entry point.
+        # If this is not disabled, then the statements will also be printed out on the terminal.
+        logger.disable("dsp_tools")
         validate_root_emit_user_message(root, Path(filepath).parent)
 
         etree.indent(root, space="    ")

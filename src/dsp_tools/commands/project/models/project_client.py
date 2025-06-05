@@ -11,7 +11,7 @@ from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
-class ProjectCreationClient:
+class ProjectClient:
     auth: AuthenticationClient
 
     def get_existing_shortcodes_and_shortnames(self) -> tuple[set[str], set[str]]:

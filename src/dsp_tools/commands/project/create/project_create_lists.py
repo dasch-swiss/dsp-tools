@@ -12,7 +12,7 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
+from dsp_tools.commands.project.models.list_client import ListClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_input
@@ -20,7 +20,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 
 def create_lists_on_server(
     lists_to_create: list[dict[str, Any]],
-    list_creation_client: ListCreationClient,
+    list_creation_client: ListClient,
 ) -> tuple[dict[str, str], bool]:
     success = True
     existing_list_names_to_iris = list_creation_client.get_list_names_and_iris_from_server()
@@ -37,13 +37,15 @@ def create_lists_on_server(
     return lst_name_to_iri_lookup, success
 
 
-def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListCreationClient, lookup: dict[str, str]) -> None:
+def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListClient, lookup: dict[str, str]) -> None:
     root_iri = list_creation_client.create_root_node(lst)
     for node in lst["nodes"]:
         _create_one_node_on_server(node, list_creation_client, lookup, root_iri)
 
 
-def _create_one_node_on_server(node: dict[str, Any], list_creation_client: ListCreationClient, lookup: dict[str, str], parent_iri: str) -> None:
+def _create_one_node_on_server(
+    node: dict[str, Any], list_creation_client: ListClient, lookup: dict[str, str], parent_iri: str
+) -> None:
     node_iri = list_creation_client.create_child_node(node, parent_iri)
     lookup[node["name"]] = node_iri
     for child in node.get("nodes", []):

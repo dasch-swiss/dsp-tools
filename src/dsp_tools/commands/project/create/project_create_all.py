@@ -19,8 +19,8 @@ from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
-from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
-from dsp_tools.commands.project.models.project_creation_client import ProjectCreationClient
+from dsp_tools.commands.project.models.list_client import ListClient
+from dsp_tools.commands.project.models.project_client import ProjectClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
@@ -73,8 +73,8 @@ def create_project(
     project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    proj_client = ProjectCreationClient(auth)
-    list_creation_client = ListCreationClient(auth, project.metadata.shortcode)
+    proj_client = ProjectClient(auth)
+    list_creation_client = ListClient(auth, project.metadata.shortcode)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server

@@ -1,6 +1,6 @@
 import urllib.parse
 from dataclasses import dataclass
-from functools import cache, cached_property
+from functools import cached_property
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
@@ -15,7 +15,7 @@ from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
-class ListCreationClient:
+class ListClient:
     auth: AuthenticationClient
     shortcode: str
 

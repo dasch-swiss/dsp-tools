@@ -2,14 +2,14 @@ from typing import Any
 
 from loguru import logger
 
-from dsp_tools.commands.project.models.project_creation_client import ProjectCreationClient
+from dsp_tools.commands.project.models.project_client import ProjectClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import InputError
 
 
 def create_project_on_server(
     project_definition: ProjectMetadata,
-    proj_client: ProjectCreationClient,
+    proj_client: ProjectClient,
 ) -> bool:
     """
     Create the project on the DSP server.

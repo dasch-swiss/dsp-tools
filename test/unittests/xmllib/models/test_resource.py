@@ -36,40 +36,33 @@ class TestCreateNewResource:
             Resource.create_new("res_id", "restype", "label")
             assert len(caught_warnings) == 0
 
-    def test_empty_label(self):
+    def test_empty_resource_id(self):
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Tasdf"),
+            match=regex.escape("The input should be a valid xsd:ID, your input '' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label")
-
-    def test_empty_restype(self):
-        with pytest.warns(
-            XmllibInputWarning,
-            match=regex.escape("Tasdf"),
-        ):
-            Resource.create_new("res_id", "restype", "label")
-
-    def test_restype_no_prefix(self):
-        with pytest.warns(
-            XmllibInputWarning,
-            match=regex.escape("Tasdf"),
-        ):
-            Resource.create_new("res_id", "restype", "label")
-
-    def test_restype_invalid_characters(self):
-        with pytest.warns(
-            XmllibInputWarning,
-            match=regex.escape("Tasdf"),
-        ):
-            Resource.create_new("res_id", "restype", "label")
+            Resource.create_new("", "restype", "label")
 
     def test_invalid_resource_id(self):
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Tasdf"),
+            match=regex.escape("The input should be a valid xsd:ID, your input 'not|ok' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label")
+            Resource.create_new("not|ok", "restype", "label")
+
+    def test_empty_restype(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid resource type, your input '' does not match the type."),
+        ):
+            Resource.create_new("res_id", "", "label")
+
+    def test_empty_label(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
+        ):
+            Resource.create_new("res_id", "restype", "")
 
 
 class TestAddValues:

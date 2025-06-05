@@ -144,8 +144,8 @@ def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMess
     if attrib_found := regex.search(r"attribute '(.*?)'", first):
         attrib = attrib_found.group(1)
     if " is not a valid value of the atomic type 'xs:ID'." in message:
-        if found := regex.search(r"('.*?')", message):
-            id_ = found.group(1)
+        if found := regex.search(r"'.*?'", message):
+            id_ = found.group(0)
         else:
             id_ = ""
         message = f"The provided resource id {id_} is either not a valid xsd:ID or not unique in the file."

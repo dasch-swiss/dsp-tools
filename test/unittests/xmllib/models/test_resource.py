@@ -175,7 +175,9 @@ class TestAddValues:
     def test_add_link_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+            match=regex.escape(
+                "The input should be a valid xsd:ID or DSP resource IRI, your input '' does not match the type."
+            ),
         ):
             Resource.create_new("res_id", "restype", "label").add_link("", "")
 

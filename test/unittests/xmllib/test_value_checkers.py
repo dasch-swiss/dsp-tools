@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import warnings
 from typing import Any
 

@@ -1,3 +1,6 @@
+# mypy: disable-error-code="no-untyped-def"
+
+import warnings
 from typing import Any
 
 import pandas as pd
@@ -25,6 +28,48 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.res import Resource
+
+
+class TestCreateNewResource:
+    def test_good(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            Resource.create_new("res_id", "restype", "label")
+            assert len(caught_warnings) == 0
+
+    def test_empty_label(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("Tasdf"),
+        ):
+            Resource.create_new("res_id", "restype", "label")
+
+    def test_empty_restype(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("Tasdf"),
+        ):
+            Resource.create_new("res_id", "restype", "label")
+
+    def test_restype_no_prefix(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("Tasdf"),
+        ):
+            Resource.create_new("res_id", "restype", "label")
+
+    def test_restype_invalid_characters(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("Tasdf"),
+        ):
+            Resource.create_new("res_id", "restype", "label")
+
+    def test_invalid_resource_id(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("Tasdf"),
+        ):
+            Resource.create_new("res_id", "restype", "label")
 
 
 class TestAddValues:

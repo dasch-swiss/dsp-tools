@@ -123,7 +123,7 @@ class TestReformatErrorMessage:
             "Element '{https://dasch.swiss/schema}resource', attribute 'label': [facet 'minLength'] "
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "label"
@@ -135,7 +135,7 @@ class TestReformatErrorMessage:
             "The value 'not|allowed|characters' is not accepted by the pattern "
             "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_]*)'."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resptr"
         assert result.attribute is None
@@ -146,7 +146,7 @@ class TestReformatErrorMessage:
             "Element '{https://dasch.swiss/schema}resource', attribute 'invalidtag': "
             "The attribute 'invalidtag' is not allowed."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "invalidtag"
@@ -158,7 +158,7 @@ class TestReformatErrorMessage:
             "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] in unique identity-constraint "
             "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -173,7 +173,7 @@ class TestReformatErrorMessage:
             "['ark:/72163/4123-31ec6eab334-a.2022829'] in unique identity-constraint "
             "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -187,7 +187,7 @@ class TestReformatErrorMessage:
             "Element '{https://dasch.swiss/schema}audio-segment', attribute 'id': "
             "'res_1' is not a valid value of the atomic type 'xs:ID'."
         )
-        result = _reformat_error_message_str(in_msg, 1)
+        result = _reformat_error_message_str(in_msg, line_number=1)
         assert result.line_number == 1
         assert result.element == "audio-segment"
         assert result.attribute == "id"

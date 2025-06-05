@@ -399,13 +399,13 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs, graph_save_dir: 
 
 
 def _save_graphs(save_path: Path, graph_strings: RDFGraphStrings) -> None:
-    with open(f"{save_path}CARDINALITY_DATA.ttl", "w") as writer:
+    with open(f"{save_path}_CARDINALITY_DATA.ttl", "w") as writer:
         writer.write(graph_strings.cardinality_validation_data)
-    with open(f"{save_path}CARDINALITY_SHAPES.ttl", "w") as writer:
+    with open(f"{save_path}_CARDINALITY_SHAPES.ttl", "w") as writer:
         writer.write(graph_strings.cardinality_shapes)
-    with open(f"{save_path}CONTENT_DATA.ttl", "w") as writer:
+    with open(f"{save_path}_CONTENT_DATA.ttl", "w") as writer:
         writer.write(graph_strings.content_validation_data)
-    with open(f"{save_path}CONTENT_SHAPES.ttl", "w") as writer:
+    with open(f"{save_path}_CONTENT_SHAPES.ttl", "w") as writer:
         writer.write(graph_strings.content_shapes)
 
 

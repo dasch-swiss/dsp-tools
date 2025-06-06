@@ -263,10 +263,16 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
 
 
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
-    if problem_type in [ProblemType.FILE_DUPLICATE, ProblemType.FILE_VALUE, ProblemType.FILE_VALUE_PROHIBITED]:
+    if problem_type in [
+        ProblemType.FILE_DUPLICATE,
+        ProblemType.FILE_VALUE,
+        ProblemType.FILE_VALUE_PROHIBITED,
+        ProblemType.LINK_TARGET_TYPE_MISMATCH,
+        ProblemType.INEXISTENT_LINKED_RESOURCE,
+    ]:
         return user_input
     if not user_input:
         return None
-    if len(user_input) < 41:
+    if len(user_input) < 56:
         return user_input
-    return f"{user_input[:40]}[...]"
+    return f"{user_input[:55]}[...]"

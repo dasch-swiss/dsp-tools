@@ -8,6 +8,7 @@ from typing import Any
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.project.create.parse_project import parse_project_json
@@ -135,7 +136,7 @@ def create_project(
 
 def _create_groups(
     groups: list[dict[str, str]],
-    auth: AuthenticationClientLive,
+    auth: AuthenticationClient,
 ) -> tuple[dict[str, str], bool]:
     """
     Creates groups on a DSP server from the "groups" section of a JSON project file.

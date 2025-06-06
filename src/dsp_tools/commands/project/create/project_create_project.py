@@ -2,7 +2,7 @@ from typing import Any
 
 from loguru import logger
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.project.models.project_client import ProjectClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import InputError
@@ -10,7 +10,7 @@ from dsp_tools.error.exceptions import InputError
 
 def create_project_on_server(
     project_definition: ProjectMetadata,
-    auth: AuthenticationClientLive,
+    auth: AuthenticationClient,
 ) -> bool:
     """
     Create the project on the DSP server.

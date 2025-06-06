@@ -6,6 +6,7 @@ from typing import Union
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
@@ -20,7 +21,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 
 def create_lists_on_server(
     lists_to_create: list[dict[str, Any]],
-    auth: AuthenticationClientLive,
+    auth: AuthenticationClient,
     shortcode: str,
 ) -> tuple[dict[str, str], bool]:
     print("Create lists...")

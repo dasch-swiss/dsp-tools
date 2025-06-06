@@ -63,7 +63,7 @@ class OntologyClient:
     def _get_one_ontology(self, ontology_iri: str) -> str:
         url = ontology_iri
         headers = {"Accept": "text/turtle"}
-        timeout = 10
+        timeout = 30
         log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
         response = requests.get(url=url, headers=headers, timeout=timeout)
         log_response(response, include_response_content=False)
@@ -102,7 +102,7 @@ class ListClient:
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
-        timeout = 10
+        timeout = 30
         log_request(RequestParameters("GET", url, timeout))
         response = requests.get(url=url, timeout=timeout)
         log_response(response, include_response_content=False)
@@ -170,7 +170,7 @@ class ShaclValidator:
             onto_graph.serialize(format="ttl"), onto_shacl.serialize(format="ttl")
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 60
+        timeout = 180
         log_request(RequestParameters("POST", url, timeout, files=post_files))
         response = requests.post(url=url, files=post_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)
@@ -184,7 +184,7 @@ class ShaclValidator:
             graph_strings.cardinality_validation_data, graph_strings.cardinality_shapes
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 60
+        timeout = 180
         log_request(RequestParameters("POST", url, timeout, files=card_files))
         response = requests.post(url=url, files=card_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)
@@ -198,7 +198,7 @@ class ShaclValidator:
             graph_strings.content_validation_data, graph_strings.content_shapes
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 60
+        timeout = 180
         log_request(RequestParameters("POST", url, timeout, files=content_files))
         response = requests.post(url=url, files=content_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)

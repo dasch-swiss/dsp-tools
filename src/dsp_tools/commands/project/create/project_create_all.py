@@ -1,6 +1,7 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -18,8 +19,8 @@ from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.group_client import GroupClient
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
@@ -78,13 +79,9 @@ def create_project(
             overall_success = False
 
     # create the groups
-    current_project_groups: dict[str, Group] = {}
+    group_name_to_iri_lookup: dict[str, str] = {}
     if project.groups:
-        current_project_groups, success = _create_groups(
-            con=con,
-            groups=project.groups,
-            project=project_remote,
-        )
+        group_name_to_iri_lookup, success = _create_groups(project.groups, auth)
         if not success:
             overall_success = False
 
@@ -95,7 +92,7 @@ def create_project(
         success = _create_users(
             con=con,
             users_section=project.users,
-            current_project_groups=current_project_groups,
+            group_name_to_iri_lookup=group_name_to_iri_lookup,
             current_project=project_remote,
             verbose=verbose,
         )
@@ -137,79 +134,43 @@ def create_project(
 
 
 def _create_groups(
-    con: Connection,
     groups: list[dict[str, str]],
-    project: Project,
-) -> tuple[dict[str, Group], bool]:
+    auth: AuthenticationClientLive,
+) -> tuple[dict[str, str], bool]:
     """
-    Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
-    skipped and a warning is printed, but such a group will still be part of the returned dict.
-    Returns a tuple consisting of a dict and a bool. The dict contains the groups that have successfully been created
-    (or already exist). The bool indicates if everything went smoothly during the process. If a warning or error
-    occurred, it is False.
+    Creates groups on a DSP server from the "groups" section of a JSON project file.
+    If a group cannot be created, it is skipped and a warning is issued,
+    but such a group will still be part of the returned lookup.
+    Returns a tuple consisting of a dict and a bool. 
+    The dict contains the groups that have successfully been created (or already exist). 
+    The bool indicates if everything went smoothly during the process.
+    If a warning or error occurred, it is False.
 
     Args:
-        con: connection instance to connect to the DSP server
         groups: "groups" section of a parsed JSON project file
-        project: Project the group(s) should be added to (must exist on DSP server)
+        auth: AuthenticationClient
 
     Returns:
         A tuple consisting of a dict and the success status.
-        The dict has the form ``{group name: group object}``
+        The dict has the form ``{group name: group iri}``
         for all groups that have successfully been created (or already exist).
-        The dict is empty if no group was created.
     """
     print("Create groups...")
     logger.info("Create groups...")
-    overall_success = True
-    current_project_groups: dict[str, Group] = {}
-    try:
-        remote_groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
-    except BaseError:
-        err_msg = (
-            "Unable to check if group names are already existing on DSP server, because it is "
-            "not possible to retrieve the remote groups from the DSP server."
-        )
-        print(f"WARNING: {err_msg}")
-        logger.exception(err_msg)
-        remote_groups = []
-        overall_success = False
-
+    success = True
+    group_client = GroupClient(auth)
+    group_name_to_iri_lookup: dict[str, str] = {}
+    existing_groups = group_client.get_groups_from_server()
     for group in groups:
-        group_name = group["name"]
-
-        # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
-        if remotely_existing_group := [g for g in remote_groups if g.name == group_name]:
-            current_project_groups[group_name] = remotely_existing_group[0]
-            err_msg = f"Group name '{group_name}' already exists on the DSP server. Skipping..."
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-            overall_success = False
-            continue
-
-        # create the group
-        group_local = Group(
-            con=con,
-            name=group_name,
-            descriptions=LangString(group["descriptions"]),
-            project=project,
-            status=bool(group.get("status", True)),
-            selfjoin=bool(group.get("selfjoin", False)),
-        )
-        try:
-            group_remote: Group = group_local.create()
-        except BaseError:
-            err_msg = "Unable to create group '{group_name}'."
-            print(f"    WARNING: {err_msg}")
-            logger.exception(err_msg)
-            overall_success = False
-            continue
-
-        current_project_groups[str(group_remote.name)] = group_remote
-        print(f"    Created group '{group_name}'.")
-        logger.info(f"Created group '{group_name}'.")
-
-    return current_project_groups, overall_success
+        if iri := existing_groups.get(group["name"]):
+            success = False
+            msg = f"Group with name {group['name']} already exists on the DSP server. Skipping."
+            logger.warning(msg)
+            warnings.warn(msg)
+        else:
+            iri = group_client.create_group(group)
+        group_name_to_iri_lookup[group["name"]] = iri
+    return group_name_to_iri_lookup, success
 
 
 def _create_users(

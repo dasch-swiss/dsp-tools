@@ -672,3 +672,25 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 A DSP stack must be running before executing this command.
+
+
+
+## `update-legal`
+
+In an XML file, update legal metadata from old to new format.
+
+```bash
+dsp-tools update-legal [options] data.xml
+```
+
+The following options are available:
+
+- `--authorship_prop` (optional): property used for the authorship, e.g. `:hasAuthor`
+- `--copyright_prop` (optional): property used for the copyright, e.g. `:hasCopyright`
+- `--license_prop` (optional): property used for the license, e.g. `:hasLicense`
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The output file is written to `[original name]_updated.xml`.
+
+More details can be found [here](./special-workflows/update-legal.md).

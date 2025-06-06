@@ -1,3 +1,4 @@
+import warnings
 from typing import Any
 from typing import Optional
 from typing import Union
@@ -5,18 +6,58 @@ from typing import Union
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.commands.project.legacy_models.project import Project
+from dsp_tools.commands.project.models.list_client import ListClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_lists_on_server(
+    lists_to_create: list[dict[str, Any]],
+    auth: AuthenticationClient,
+    shortcode: str,
+) -> tuple[dict[str, str], bool]:
+    print("Create lists...")
+    logger.info("Create lists...")
+    success = True
+    list_creation_client = ListClient(auth, shortcode)
+    existing_list_names_to_iris = list_creation_client.get_list_names_and_iris_from_server()
+    lst_name_to_iri_lookup: dict[str, str] = {}
+    for lst in lists_to_create:
+        if iri := existing_list_names_to_iris.get(lst["name"]):
+            success = False
+            lst_name_to_iri_lookup[lst["name"]] = iri
+            msg = f"List with name {lst['name']} already exists on the DSP server. Skipping."
+            logger.warning(msg)
+            warnings.warn(msg)
+        else:
+            _create_one_list_on_server(lst, list_creation_client, lst_name_to_iri_lookup)
+    return lst_name_to_iri_lookup, success
+
+
+def _create_one_list_on_server(lst: dict[str, Any], list_creation_client: ListClient, lookup: dict[str, str]) -> None:
+    root_iri = list_creation_client.create_root_node(lst)
+    for node in lst["nodes"]:
+        _create_one_node_on_server(node, list_creation_client, lookup, root_iri)
+
+
+def _create_one_node_on_server(
+    node: dict[str, Any], list_creation_client: ListClient, lookup: dict[str, str], parent_iri: str
+) -> None:
+    node_iri = list_creation_client.create_child_node(node, parent_iri)
+    lookup[node["name"]] = node_iri
+    for child in node.get("nodes", []):
+        _create_one_node_on_server(child, list_creation_client, lookup, node_iri)
+
+
+def create_lists_on_server_old(
     lists_to_create: list[dict[str, Any]],
     con: Connection,
     project_remote: Project,
@@ -64,7 +105,7 @@ def create_lists_on_server(
             overall_success = False
             continue
 
-        created_list, success = _create_list_node(con=con, project=project_remote, node=new_lst)
+        created_list, success = _create_list_node_old(con=con, project=project_remote, node=new_lst)
         current_project_lists.update(created_list)
         if not success:
             overall_success = False
@@ -73,7 +114,7 @@ def create_lists_on_server(
     return current_project_lists, overall_success
 
 
-def _create_list_node(
+def _create_list_node_old(
     con: Connection,
     project: Project,
     node: dict[str, Any],
@@ -120,7 +161,9 @@ def _create_list_node(
         overall_success = True
         subnode_list = []
         for subnode in node["nodes"]:
-            created_subnode, success = _create_list_node(con=con, project=project, node=subnode, parent_node=new_node)
+            created_subnode, success = _create_list_node_old(
+                con=con, project=project, node=subnode, parent_node=new_node
+            )
             subnode_list.append(created_subnode)
             if not success:
                 overall_success = False
@@ -133,7 +176,7 @@ def _create_list_node(
         return {new_node.name: {"id": new_node.iri}}, True
 
 
-def create_only_lists(
+def create_only_lists_old(
     project_file_as_path_or_parsed: Union[str, dict[str, Any]],
     creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:
@@ -191,7 +234,7 @@ def create_only_lists(
         raise InputError(err_msg) from None
 
     # create new lists
-    current_project_lists, success = create_lists_on_server(
+    current_project_lists, success = create_lists_on_server_old(
         lists_to_create=project_definition["project"]["lists"],
         con=con,
         project_remote=project_remote,

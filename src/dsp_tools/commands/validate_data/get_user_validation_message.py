@@ -273,6 +273,8 @@ def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | N
         return user_input
     if not user_input:
         return None
-    if len(user_input) < 56:
+    if user_input.startswith("http://rdfh.ch/"):
         return user_input
-    return f"{user_input[:55]}[...]"
+    if len(user_input) < 51:
+        return user_input
+    return f"{user_input[:50]}[...]"

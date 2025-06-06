@@ -82,7 +82,7 @@ def create_project(
     # create the groups
     group_name_to_iri_lookup: dict[str, str] = {}
     if project.groups:
-        group_name_to_iri_lookup, success = _create_groups(project.groups, auth)
+        group_name_to_iri_lookup, success = _create_groups(project.groups, auth, project.metadata.shortcode)
         if not success:
             overall_success = False
 
@@ -135,15 +135,16 @@ def create_project(
 
 
 def _create_groups(
-    groups: list[dict[str, str]],
+    groups: list[dict[str, Any]],
     auth: AuthenticationClient,
+    shortcode: str,
 ) -> tuple[dict[str, str], bool]:
     """
     Creates groups on a DSP server from the "groups" section of a JSON project file.
     If a group cannot be created, it is skipped and a warning is issued,
     but such a group will still be part of the returned lookup.
-    Returns a tuple consisting of a dict and a bool. 
-    The dict contains the groups that have successfully been created (or already exist). 
+    Returns a tuple consisting of a dict and a bool.
+    The dict contains the groups that have successfully been created (or already exist).
     The bool indicates if everything went smoothly during the process.
     If a warning or error occurred, it is False.
 
@@ -159,9 +160,9 @@ def _create_groups(
     print("Create groups...")
     logger.info("Create groups...")
     success = True
-    group_client = GroupClient(auth)
+    group_client = GroupClient(auth, shortcode)
     group_name_to_iri_lookup: dict[str, str] = {}
-    existing_groups = group_client.get_groups_from_server()
+    existing_groups = group_client.get_project_groups_from_server()
     for group in groups:
         if iri := existing_groups.get(group["name"]):
             success = False

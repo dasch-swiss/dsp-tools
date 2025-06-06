@@ -1,5 +1,27 @@
 # Changelog
 
+## [15.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.1.0...v15.2.0) (2025-06-06)
+
+
+### Enhancements
+
+* reformat and write large xsd schema validation results into a file (DEV-4998) ([#1775](https://github.com/dasch-swiss/dsp-tools/issues/1775)) ([b3ada62](https://github.com/dasch-swiss/dsp-tools/commit/b3ada62bf7cad7af0c9fe718f9cbb3fd951915e3))
+* **validate-data:** don't shorten user input if it is a ListValue (DEV-5048) ([#1782](https://github.com/dasch-swiss/dsp-tools/issues/1782)) ([2bcd9d5](https://github.com/dasch-swiss/dsp-tools/commit/2bcd9d575848241c1231d69c9c9b1cf474b2180a))
+* **validate-data:** print out longer user input in validation message and don't shorten if info if it is a link (DEV-5047) ([#1781](https://github.com/dasch-swiss/dsp-tools/issues/1781)) ([a4c94ef](https://github.com/dasch-swiss/dsp-tools/commit/a4c94efbdbdfd7319c6acb3ab36fb4c3e577106f))
+* **xmllib:** validate that the resource ids are correct (DEV-4996) ([#1780](https://github.com/dasch-swiss/dsp-tools/issues/1780)) ([c0e938e](https://github.com/dasch-swiss/dsp-tools/commit/c0e938eda55c3f22399ada149684515c2563c062))
+
+
+### Bug Fixes
+
+* **validate-data:** set higher timeouts for operations that could last long (DEV-5049) ([#1783](https://github.com/dasch-swiss/dsp-tools/issues/1783)) ([03a24cd](https://github.com/dasch-swiss/dsp-tools/commit/03a24cdc56ec07ccc7455d49a74c580f1937523f))
+* **xmllib:** don't warn if the list name is empty if the node is an absolute iri (DEV-5019) ([#1774](https://github.com/dasch-swiss/dsp-tools/issues/1774)) ([b5fb167](https://github.com/dasch-swiss/dsp-tools/commit/b5fb1672ce3cd949286324b15fdb19b4a76b1d5a))
+
+
+### Maintenance
+
+* **start-stack:** add more logging ([#1777](https://github.com/dasch-swiss/dsp-tools/issues/1777)) ([4eacc50](https://github.com/dasch-swiss/dsp-tools/commit/4eacc503a5c34c9fc3e2fe8c27741f2baf57a6f9))
+* **validate-data:** remove erroneous logging statement ([#1778](https://github.com/dasch-swiss/dsp-tools/issues/1778)) ([dcc312c](https://github.com/dasch-swiss/dsp-tools/commit/dcc312c8fd0678118a2214c2385bfde0270e7d7d))
+
 ## [15.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.0.0...v15.1.0) (2025-06-04)
 
 

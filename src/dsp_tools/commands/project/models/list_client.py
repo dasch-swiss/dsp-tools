@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 from typing import cast
-from urllib.parse import quote_plus
 
 import requests
 from loguru import logger
@@ -20,8 +19,9 @@ class ListClient:
     shortcode: str
 
     def get_list_names_and_iris_from_server(self) -> dict[str, str]:
-        project_iri = quote_plus(self._proj_iri)
-        params = RequestParameters("GET", f"{self.auth.server}/admin/lists?projectIri={project_iri}", timeout=10)
+        params = RequestParameters(
+            "GET", f"{self.auth.server}/admin/lists?projectShortcode={self.shortcode}", timeout=10
+        )
         log_request(params)
         response = requests.get(params.url, timeout=params.timeout)
         log_response(response)

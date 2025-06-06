@@ -2,6 +2,7 @@ from typing import Any
 
 from loguru import logger
 
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.models.project_client import ProjectClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import InputError
@@ -9,7 +10,7 @@ from dsp_tools.error.exceptions import InputError
 
 def create_project_on_server(
     project_definition: ProjectMetadata,
-    proj_client: ProjectClient,
+    auth: AuthenticationClientLive,
 ) -> bool:
     """
     Create the project on the DSP server.
@@ -24,6 +25,7 @@ def create_project_on_server(
     info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."
     print(info_str)
     logger.info(info_str)
+    proj_client = ProjectClient(auth)
     project_designation = f"{project_definition.shortcode} {project_definition.shortname}"
     existing_shortcodes, existing_shortnames = proj_client.get_existing_shortcodes_and_shortnames()
     if project_definition.shortcode in existing_shortcodes or project_definition.shortname in existing_shortnames:

@@ -70,22 +70,16 @@ def create_project(
     logger.info("JSON project file is syntactically correct and passed validation.")
 
     project = parse_project_json(project_json)
-
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    proj_client = ProjectClient(auth)
-    list_creation_client = ListClient(auth, project.metadata.shortcode)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    if not create_project_on_server(project.metadata, proj_client):
+    if not create_project_on_server(project.metadata, auth):
         overall_success = False
 
     # create the lists
     if project.lists:
-        names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=project.lists,
-            list_creation_client=list_creation_client,
-        )
+        names_and_iris_of_list_nodes, success = create_lists_on_server(project.lists, auth, project.metadata.shortcode)
         if not success:
             overall_success = False
 

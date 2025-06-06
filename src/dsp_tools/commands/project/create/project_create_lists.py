@@ -22,6 +22,8 @@ def create_lists_on_server(
     lists_to_create: list[dict[str, Any]],
     list_creation_client: ListClient,
 ) -> tuple[dict[str, str], bool]:
+    print("Create lists...")
+    logger.info("Create lists...")
     success = True
     existing_list_names_to_iris = list_creation_client.get_list_names_and_iris_from_server()
     lst_name_to_iri_lookup: dict[str, str] = {}

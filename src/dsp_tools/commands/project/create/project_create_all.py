@@ -58,7 +58,6 @@ def create_project(
         True if everything went smoothly, False if a warning or error occurred
     """
 
-    knora_api_prefix = "knora-api:"
     overall_success = True
 
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
@@ -78,17 +77,11 @@ def create_project(
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
-    print(info_str)
-    logger.info(info_str)
-    success = create_project_on_server(project.metadata, proj_client)
-    if not success:
+    if not create_project_on_server(project.metadata, proj_client):
         overall_success = False
 
     # create the lists
     if project.lists:
-        print("Create lists...")
-        logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
             lists_to_create=project.lists,
             list_creation_client=list_creation_client,

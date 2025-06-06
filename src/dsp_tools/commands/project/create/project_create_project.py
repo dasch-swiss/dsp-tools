@@ -21,6 +21,9 @@ def create_project_on_server(
     Returns:
         success status (True if everything went smoothly, False otherwise)
     """
+    info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."
+    print(info_str)
+    logger.info(info_str)
     project_designation = f"{project_definition.shortcode} {project_definition.shortname}"
     existing_shortcodes, existing_shortnames = proj_client.get_existing_shortcodes_and_shortnames()
     if project_definition.shortcode in existing_shortcodes or project_definition.shortname in existing_shortnames:

@@ -92,8 +92,6 @@ def create_project(
     # create the groups
     current_project_groups: dict[str, Group] = {}
     if project.groups:
-        print("Create groups...")
-        logger.info("Create groups...")
         current_project_groups, success = _create_groups(
             con=con,
             groups=project.groups,
@@ -173,6 +171,8 @@ def _create_groups(
         for all groups that have successfully been created (or already exist).
         The dict is empty if no group was created.
     """
+    print("Create groups...")
+    logger.info("Create groups...")
     overall_success = True
     current_project_groups: dict[str, Group] = {}
     try:

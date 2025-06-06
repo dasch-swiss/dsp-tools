@@ -415,6 +415,11 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
             "http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m",
         ),
         (
+            " / http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m-D8Q",
+            ProblemType.VALUE_TYPE_MISMATCH,
+            " / http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m-D8Q",
+        ),
+        (
             "This is a very, very long sentence and should be shortened.",
             ProblemType.GENERIC,
             "This is a very, very long sentence and should be s[...]",

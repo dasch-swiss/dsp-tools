@@ -33,6 +33,7 @@ from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
+from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
 # ruff: noqa: D101, D102
 
@@ -98,6 +99,18 @@ class Resource:
             )
             ```
         """
+        if not is_valid_resource_id(res_id):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="xsd:ID", value=res_id, res_id=res_id, value_field="resource ID"
+            )
+        if not is_nonempty_value(restype):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
+            )
+        if not is_nonempty_value(label):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="non empty string", value=label, res_id=res_id, value_field="label"
+            )
         return Resource(
             res_id=res_id,
             restype=restype,

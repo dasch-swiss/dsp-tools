@@ -20,6 +20,7 @@ from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
+from dsp_tools.xmllib.value_checkers import is_link_value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool
@@ -196,9 +197,9 @@ class LinkValue(Value):
         comment: str | None,
         resource_id: str | None,
     ) -> LinkValue:
-        if not is_nonempty_value(value):
+        if not is_link_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)

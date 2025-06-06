@@ -405,14 +405,24 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
     ("user_input", "problem_type", "expected"),
     [
         (
-            "this/is/a/very/very/very/long/filepath/file.csv",
+            "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
             ProblemType.FILE_VALUE,
-            "this/is/a/very/very/very/long/filepath/file.csv",
+            "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
         ),
         (
-            "This is a very long sentence and should be shortened.",
+            "http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m",
             ProblemType.GENERIC,
-            "This is a very long sentence and should [...]",
+            "http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m",
+        ),
+        (
+            " / http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m-D8Q",
+            ProblemType.VALUE_TYPE_MISMATCH,
+            " / http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m-D8Q",
+        ),
+        (
+            "This is a very, very long sentence and should be shortened.",
+            ProblemType.GENERIC,
+            "This is a very, very long sentence and should be s[...]",
         ),
         ("So short, nothing happens", ProblemType.VALUE_TYPE_MISMATCH, "So short, nothing happens"),
         (None, ProblemType.GENERIC, None),

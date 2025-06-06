@@ -253,6 +253,77 @@ def is_integer(value: Any) -> bool:
             return False
 
 
+def is_link_value(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID) or a valid internal DSP IRI.
+    Both of these values are allowed in LinkValues.
+
+    Args:
+        value: the target ID of a LinkValue
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_link_value("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_link_value("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_link_value("resource_id_1")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_link_value("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        # result == True
+        ```
+    """
+    if is_valid_resource_id(value):
+        return True
+    return is_dsp_iri(value)
+
+
+def is_valid_resource_id(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID).
+
+    Args:
+        value: the ID of a Resource
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_valid_resource_id("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("resource_id_1")
+        # result == True
+        ```
+    """
+    if is_nonempty_value(value):
+        # None, etc. would not be recognised as invalid since it is converted into a string.
+        return bool(
+            regex.search(r"^[a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*$", str(value)),
+        )
+    return False
+
+
 def is_timestamp(value: Any) -> bool:
     """
     Checks if a value is a valid timestamp.

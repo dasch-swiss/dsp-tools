@@ -19,26 +19,71 @@ from dsp_tools.xmllib.models.root import _make_authorship_lookup
 from dsp_tools.xmllib.models.root import _serialise_authorship
 
 
-class TestAddResource:
-    def test_ok(self):
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            pass
-        assert len(caught_warnings) == 0
+@pytest.fixture
+def resource_1() -> Resource:
+    return Resource.create_new("id_1", ":ResType", "lbl")
 
-    def test_multiple(self):
+
+class TestAddResource:
+    def test_ok(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
         with warnings.catch_warnings(record=True) as caught_warnings:
-            pass
+            root = root.add_resource(resource_1)
         assert len(caught_warnings) == 0
+        assert len(root.resources) == 1
+        assert root._res_id_lookup == {"id_1": [":ResType"]}
+
+    def test_optional_none(self):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_optional(None)
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 0
+        assert not root._res_id_lookup
+
+    def test_optional_with_resource(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_optional(resource_1)
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 1
+        assert root._res_id_lookup == {"id_1": [":ResType"]}
+
+    def test_multiple(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        resource_2 = Resource.create_new("id_2", ":ResType2", "lbl")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_multiple([resource_1, resource_2])
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 2
+        assert root._res_id_lookup == {"id_1": [":ResType"], "id_2": [":ResType2"]}
 
     def test_multiple_empty(self):
+        root = XMLRoot.create_new("0000", "test")
         with warnings.catch_warnings(record=True) as caught_warnings:
-            pass
+            root = root.add_resource_multiple([])
         assert len(caught_warnings) == 0
+        assert len(root.resources) == 0
+        assert not root._res_id_lookup
 
-    def test_duplicate_id_warnings(self):
+    def test_duplicate_id_warnings(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        root = root.add_resource(resource_1)
+        res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
         msg = regex.escape("dsfa")
         with pytest.warns(XmllibInputWarning, match=msg):
-            pass
+            root = root.add_resource(res_duplicate_id)
+        assert len(root.resources) == 2
+        assert root._res_id_lookup == {"id_1": [":ResType", ":ResType2"]}
+
+    def test_duplicate_id_warnings_with_multiple(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
+        msg = regex.escape("dsfa")
+        with pytest.warns(XmllibInputWarning, match=msg):
+            root = root.add_resource_multiple([resource_1, res_duplicate_id])
+        assert len(root.resources) == 2
+        assert root._res_id_lookup == {"id_1": [":ResType", ":ResType2"]}
 
 
 class TestSerialise:

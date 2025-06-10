@@ -41,7 +41,7 @@ class XMLRoot:
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
-    res_id_lookup: dict[str, list[str]] = field(default_factory=dict)
+    _res_id_lookup: dict[str, list[str]] = field(default_factory=dict)
 
     @staticmethod
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
@@ -89,10 +89,10 @@ class XMLRoot:
             root = root.add_resource(resource)
             ```
         """
-        if id_exists := self.res_id_lookup.get(resource.res_id):
-            self.res_id_lookup[resource.res_id].append(resource.restype)
+        if id_exists := self._res_id_lookup.get(resource.res_id):
+            self._res_id_lookup[resource.res_id].append(resource.restype)
         else:
-            self.res_id_lookup[resource.res_id] = [resource.restype]
+            self._res_id_lookup[resource.res_id] = [resource.restype]
         self.resources.append(resource)
         return self
 

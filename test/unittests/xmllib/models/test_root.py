@@ -1,7 +1,11 @@
 # mypy: disable-error-code="no-untyped-def,comparison-overlap"
+import warnings
 
+import pytest
+import regex
 from lxml import etree
 
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
@@ -13,6 +17,28 @@ from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
 from dsp_tools.xmllib.models.root import _serialise_authorship
+
+
+class TestAddResource:
+    def test_ok(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            pass
+        assert len(caught_warnings) == 0
+
+    def test_multiple(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            pass
+        assert len(caught_warnings) == 0
+
+    def test_multiple_empty(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            pass
+        assert len(caught_warnings) == 0
+
+    def test_duplicate_id_warnings(self):
+        msg = regex.escape("dsfa")
+        with pytest.warns(XmllibInputWarning, match=msg):
+            pass
 
 
 class TestSerialise:

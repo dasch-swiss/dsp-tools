@@ -41,6 +41,7 @@ class XMLRoot:
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
+    res_id_lookup: dict[str, list[str]] = field(default_factory=dict)
 
     @staticmethod
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:

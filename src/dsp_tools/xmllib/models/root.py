@@ -89,10 +89,14 @@ class XMLRoot:
             root = root.add_resource(resource)
             ```
         """
-        if id_exists := self._res_id_lookup.get(resource.res_id):
-            self._res_id_lookup[resource.res_id].append(resource.restype)
+        if isinstance(resource, Resource):
+            res_type = resource.restype
         else:
-            self._res_id_lookup[resource.res_id] = [resource.restype]
+            res_type = resource.__class__.__name__
+        if id_exists := self._res_id_lookup.get(resource.res_id):
+            self._res_id_lookup[resource.res_id].append(res_type)
+        else:
+            self._res_id_lookup[resource.res_id] = [res_type]
         self.resources.append(resource)
         return self
 

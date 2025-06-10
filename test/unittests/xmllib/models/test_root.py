@@ -69,7 +69,7 @@ class TestAddResource:
     def test_duplicate_id_warnings(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
         root = root.add_resource(resource_1)
-        res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
+        res_duplicate_id = VideoSegmentResource.create_new("id_1", "lbl", "segment_of", 1, 2)
         msg = regex.escape("dsfa")
         with pytest.warns(XmllibInputWarning, match=msg):
             root = root.add_resource(res_duplicate_id)

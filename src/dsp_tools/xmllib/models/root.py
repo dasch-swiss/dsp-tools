@@ -89,6 +89,9 @@ class XMLRoot:
             root = root.add_resource(resource)
             ```
         """
+        if id_exists := self.res_id_lookup.get(resource.res_id):
+            pass
+
         self.resources.append(resource)
         return self
 

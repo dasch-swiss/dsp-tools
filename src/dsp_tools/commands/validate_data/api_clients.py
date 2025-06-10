@@ -39,9 +39,10 @@ class OntologyClient:
     def get_ontologies(self) -> tuple[list[str], list[str]]:
         """
         Returns a list of project ontologies as a string in turtle format.
+        And a list of the ontology IRIs
 
         Returns:
-            list of ontologies
+            list of ontologies and IRIs
         """
         ontology_iris = self._get_ontology_iris()
         ontologies = [self._get_one_ontology(x) for x in ontology_iris]

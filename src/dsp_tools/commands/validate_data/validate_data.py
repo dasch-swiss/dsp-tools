@@ -370,7 +370,7 @@ def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
     g.bind("dash", "http://datashapes.org/dash#")
     g.bind("salsah-gui", "http://api.knora.org/ontology/salsah-gui/v2#")
     for iri in project_ontos:
-        g.bind(get_one_prefix(iri), iri)
+        g.bind(get_one_prefix(iri), f"{iri}#")
     return g
 
 

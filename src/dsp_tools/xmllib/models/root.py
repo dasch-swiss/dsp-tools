@@ -90,8 +90,9 @@ class XMLRoot:
             ```
         """
         if id_exists := self.res_id_lookup.get(resource.res_id):
-            pass
-
+            self.res_id_lookup[resource.res_id].append(resource.restype)
+        else:
+            self.res_id_lookup[resource.res_id] = [resource.restype]
         self.resources.append(resource)
         return self
 

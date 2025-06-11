@@ -294,7 +294,7 @@ class TestReformatDate:
 
     def test_raises_invalid_invalid_date_order(self):
         date = "11.2000-12.2000"
-        msg = "The configuration option of the date format provided 'some string' to reformat the date is invalid."
+        msg = "The provided date format 'some string' to reformat the date is invalid."
         with pytest.raises(InputError, match=regex.escape(msg)):
             reformat_date(date, date_precision_separator=".", date_range_separator="-", date_format="some string")  # type:ignore[arg-type]
 

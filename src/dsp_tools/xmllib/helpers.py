@@ -735,7 +735,7 @@ def _reformat_single_date(  # noqa: PLR0911 Too many return statements
             emit_xmllib_input_warning(msg_info)
             return single_date
     msg_info = MessageInfo(
-        f"The configuration option of the date format provided '{date_format}' to reformat the date is invalid.",
+        f"The provided date format '{date_format}' to reformat the date is invalid.",
         resource_id=resource_id,
     )
     raise_input_error(msg_info)

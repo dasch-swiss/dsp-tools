@@ -131,6 +131,7 @@ class TestReformatDate:
             ("1.11.2000", "GREGORIAN:CE:2000-11-1:CE:2000-11-1"),
             ("11.2000", "GREGORIAN:CE:2000-11:CE:2000-11"),
             ("2000", "GREGORIAN:CE:2000:CE:2000"),
+            (2000, "GREGORIAN:CE:2000:CE:2000"),
         ],
     )
     def test_default_values_with_precision_dd_mm_yyyy(self, date, expected):

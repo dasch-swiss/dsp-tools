@@ -555,11 +555,12 @@ def reformat_date(
         return ""
     if is_date_internal(date):
         return date
+    date = str(date)
     all_dates = []
     if range_separator:
         date_split = date.split()
         for single_date in date_split:
-            all_dates.append(_reformat_single_date(single_date, precision_separator, date_order))
+            all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order))
     if era:
         all_dates = [f"{era.value}:{x}" for x in all_dates]
     if len(all_dates) == 1:
@@ -567,17 +568,27 @@ def reformat_date(
     reformatted_str = ":".join(all_dates)
     if calendar:
         reformatted_str = f"{calendar.value}:{reformatted_str}"
-    if not is_date_internal(reformatted_str):
-        invalid_date_info = MessageInfo(
-            f"The date provided: '{date}' does not conform to the expected format, the original value is returned."
-        )
-        emit_xmllib_input_warning(invalid_date_info)
-        return date
-    return reformatted_str
+    if is_date_internal(reformatted_str):
+        return reformatted_str
+    invalid_date_info = MessageInfo(
+        f"The date provided: '{date}' does not conform to the expected format, the original value is returned."
+    )
+    emit_xmllib_input_warning(invalid_date_info)
+    return date
 
 
-def _reformat_single_date(date: str, precision_separator: str | None, date_order: DateOrder) -> str:
-    pass
+def _reformat_single_date(single_date: str, precision_separator: str | None, date_order: DateOrder) -> str:
+    if not precision_separator:
+        return single_date
+    date_split = [x.strip() for x in single_date.split(precision_separator)]
+    if date_order == DateOrder.YYYY_MM_DD:
+        return "-".join(date_split)
+    if date_order == DateOrder.DD_MM_YYY:
+        return "-".join(reversed(date_split))
+    msg_info = MessageInfo(
+        f"The configuration option of the date order provided '{date_order}' to reformat date is invalid."
+    )
+    raise_input_error(msg_info)
 
 
 def find_dates_in_string(string: str) -> set[str]:

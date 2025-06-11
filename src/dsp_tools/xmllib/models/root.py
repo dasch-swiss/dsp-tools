@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.error.xmllib_warnings import MessageInfo
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
@@ -41,6 +43,7 @@ class XMLRoot:
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
+    _res_id_to_type_lookup: dict[str, list[str]] = field(default_factory=dict)
 
     @staticmethod
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
@@ -79,6 +82,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot, with the added resource
 
+        Warning:
+            If the ID of the new resource is already used.
+
         Examples:
             ```python
             resource = xmllib.Resource.create_new(
@@ -88,6 +94,25 @@ class XMLRoot:
             root = root.add_resource(resource)
             ```
         """
+        if isinstance(resource, Resource):
+            res_type = resource.restype
+        else:
+            res_type = resource.__class__.__name__
+        if types_used := self._res_id_to_type_lookup.get(resource.res_id):
+            existing_types = [f"'{x}'" for x in types_used]
+            msg = (
+                f"The ID for this resource of type '{res_type}' "
+                f"is already used by resource(s) of the following type(s): {', '.join(existing_types)}."
+            )
+            info_msg = MessageInfo(
+                message=msg,
+                resource_id=resource.res_id,
+                field="Resource ID",
+            )
+            emit_xmllib_input_warning(info_msg)
+            self._res_id_to_type_lookup[resource.res_id].append(res_type)
+        else:
+            self._res_id_to_type_lookup[resource.res_id] = [res_type]
         self.resources.append(resource)
         return self
 
@@ -107,6 +132,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot, with the added resource
 
+        Warning:
+            If the ID of the new resource is already used.
+
         Examples:
             ```python
             resource_1 = xmllib.Resource.create_new(
@@ -119,7 +147,8 @@ class XMLRoot:
             root = root.add_resource_multiple([resource_1, resource_2])
             ```
         """
-        self.resources.extend(resources)
+        for res in resources:
+            self.add_resource(res)
         return self
 
     def add_resource_optional(self, resource: AnyResource | None) -> XMLRoot:
@@ -137,6 +166,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot, with the added value if it was not empty. Else the unchanged original XMLRoot.
 
+        Warning:
+            If the ID of the new resource is already used.
+
         Examples:
             ```python
             resource = xmllib.Resource.create_new(
@@ -151,7 +183,7 @@ class XMLRoot:
             ```
         """
         if resource:
-            self.resources.append(resource)
+            self.add_resource(resource)
         return self
 
     def write_file(self, filepath: str | Path, default_permissions: Permissions | None = None) -> None:

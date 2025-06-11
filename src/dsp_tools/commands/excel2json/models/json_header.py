@@ -130,6 +130,9 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        } | self.isProjectAdmin.to_dict()
+        }
+        if self.isProjectAdmin:
+            usr_dict["projects"] = [":admin"]
+        else:
+            usr_dict["projects"] = [":member", ":admin"]
         return usr_dict
-

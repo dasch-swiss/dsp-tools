@@ -159,6 +159,18 @@ class TestReformatDate:
     @pytest.mark.parametrize(
         ("date", "expected"),
         [
+            ("11.1.2000", "GREGORIAN:CE:2000-11-1:CE:2000-11-1"),
+            ("11.2000", "GREGORIAN:CE:2000-11:CE:2000-11"),
+            ("2000", "GREGORIAN:CE:2000:CE:2000"),
+        ],
+    )
+    def test_default_values_with_precision_mm_dd_yyyy(self, date, expected):
+        result = reformat_date(date, date_order=DateOrder.MM_DD_YYYY, precision_separator=".", range_separator=None)
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("date", "expected"),
+        [
             ("1.11.2000-05.4.2001", "GREGORIAN:CE:2000-11-1:CE:2001-4-05"),
             ("11.2000-2001", "GREGORIAN:CE:2000-11:CE:2001"),
             ("2000-4.2001", "GREGORIAN:CE:2000:CE:2001-4"),

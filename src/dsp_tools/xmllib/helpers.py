@@ -695,7 +695,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     else:
         date_split = [date]
     for single_date in date_split:
-        all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order))
+        all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order, resource_id))
     if era:
         all_dates = [f"{era.value}:{x}" for x in all_dates]
     if len(all_dates) == 1:
@@ -709,7 +709,9 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     return date
 
 
-def _reformat_single_date(single_date: str, precision_separator: str | None, date_order: DateOrder) -> str:
+def _reformat_single_date(  # noqa: PLR0911 Too many return statements
+    single_date: str, precision_separator: str | None, date_order: DateOrder, resource_id: str | None
+) -> str:
     if precision_separator is None:
         return single_date
     date_split = [x.strip() for x in single_date.split(precision_separator)]
@@ -717,8 +719,24 @@ def _reformat_single_date(single_date: str, precision_separator: str | None, dat
         return "-".join(date_split)
     if date_order == DateOrder.DD_MM_YYYY:
         return "-".join(reversed(date_split))
+    if date_order == DateOrder.MM_DD_YYYY:
+        if len(date_split) == 3:
+            month, day, year = date_split
+            return f"{year}-{month}-{day}"
+        if len(date_split) == 2:
+            return "-".join(reversed(date_split))
+        if len(date_split) == 1:
+            return date_split.pop()
+        else:
+            msg_info = MessageInfo(
+                f"The provided input of a single date '{single_date}' could not be reformatted correctly.",
+                resource_id=resource_id,
+            )
+            emit_xmllib_input_warning(msg_info)
+            return single_date
     msg_info = MessageInfo(
-        f"The configuration option of the date order provided '{date_order}' to reformat date is invalid."
+        f"The configuration option of the date order provided '{date_order}' to reformat date is invalid.",
+        resource_id=resource_id,
     )
     raise_input_error(msg_info)
 

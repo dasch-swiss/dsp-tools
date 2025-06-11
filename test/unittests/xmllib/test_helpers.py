@@ -195,8 +195,11 @@ class TestReformatDate:
         )
         assert result == expected
 
-    def test_is_dsp_date(self):
-        date = "GREGORIAN:BCE:2000-11-1:BCE:2001-4-05"
+    @pytest.mark.parametrize(
+        "date",
+        ["GREGORIAN:BCE:2000-11-1:BCE:2001-4-05", "ISLAMIC:2000-11-1:2001-4-05"],
+    )
+    def test_is_dsp_date(self, date):
         result = reformat_date(date, precision_separator=":", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert result == date
 
@@ -224,6 +227,12 @@ class TestReformatDate:
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert result == date
+
+    def test_warns_empty(self):
+        msg = r"''"
+        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
+            result = reformat_date("", precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
+        assert result == ""
 
     def test_warns_islamic_with_era(self):
         date = "2000.11.1"

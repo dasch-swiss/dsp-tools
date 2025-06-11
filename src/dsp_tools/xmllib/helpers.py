@@ -554,7 +554,7 @@ def reformat_date(
         )
         emit_xmllib_input_warning(msg_info)
         return ""
-    if is_date_internal(date):
+    if regex.search(r"(GREGORIAN|JULIAN|ISLAMIC)", date):
         return date
     if precision_separator and range_separator:
         if precision_separator == range_separator:

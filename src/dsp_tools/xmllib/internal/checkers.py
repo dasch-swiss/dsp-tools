@@ -36,7 +36,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
 
 def is_date_internal(value: Any) -> bool:
     """
-    Checks if a value is a date value.
+    Is it a valid dsp-date.
 
     Args:
         value: value to check

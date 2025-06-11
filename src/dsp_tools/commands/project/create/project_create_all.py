@@ -324,7 +324,7 @@ def _create_users(
             overall_success = False
             continue
         # add user to the group(s)
-        group_iris, sysadmin, success = _get_group_iris_for_user(
+        group_iris, success = _get_group_iris_for_user(
             json_user_definition=json_user_definition,
             current_project=current_project,
             current_project_groups=current_project_groups,
@@ -354,7 +354,6 @@ def _create_users(
             password=json_user_definition["password"],
             status=bool(json_user_definition.get("status", True)),
             lang=json_user_definition.get("lang", "en"),
-            sysadmin=sysadmin,
             in_projects=project_info,
             in_groups=group_iris,
         )
@@ -377,7 +376,7 @@ def _get_group_iris_for_user(
     current_project_groups: dict[str, Group],
     con: Connection,
     verbose: bool,
-) -> tuple[set[str], bool, bool]:
+) -> tuple[set[str], bool]:
     """
     Retrieve the IRIs of the groups that the user belongs to.
 
@@ -391,7 +390,6 @@ def _get_group_iris_for_user(
 
     Returns:
         a tuple consisting of the group IRIs,
-        the system admin status (True if the user is sysadmin, False otherwise),
         and the success status (True if everything went well)
 
     Raises:
@@ -400,7 +398,6 @@ def _get_group_iris_for_user(
     success = True
     username = json_user_definition["username"]
     group_iris: set[str] = set()
-    sysadmin = False
     remote_groups: list[Group] = []
     for full_group_name in json_user_definition.get("groups", []):
         # full_group_name has the form '[project_shortname]:group_name'
@@ -452,7 +449,7 @@ def _get_group_iris_for_user(
             print(f"    Added user '{username}' to group '{full_group_name}'.")
         logger.info(f"Added user '{username}' to group '{full_group_name}'.")
 
-    return group_iris, sysadmin, success
+    return group_iris, success
 
 
 def _get_projects_where_user_is_admin(

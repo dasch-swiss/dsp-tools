@@ -60,9 +60,6 @@ class User(Model):
     status : bool
         Status of the user, If active, is set to True, otherwise false [read/write]
 
-    sysadmin : bool
-        True, if user is system administrator [read/write]
-
     in_groups : set[str]
         Set of group IRI's the user is member of [readonly].
 

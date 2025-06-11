@@ -53,3 +53,21 @@ class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()
+
+
+class DateOrder(Enum):
+    YYYY_MM_DD = auto()
+    DD_MM_YYY = auto()
+
+
+class Calendar(Enum):
+    GREGORIAN = "GREGORIAN"
+    JULIAN = "JULIAN"
+    ISLAMIC = "ISLAMIC"
+
+
+class Era(Enum):
+    COMMON_ERA = "CE"
+    BEFORE_COMMON_ERA = "BCE"
+    ANNO_DOMINI = "AD"
+    BEFORE_CHRIST = "BC"

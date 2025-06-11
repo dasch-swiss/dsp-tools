@@ -223,35 +223,41 @@ class TestReformatDate:
         ],
     )
     def test_warns(self, date):
-        msg = rf"'{date}'"
+        msg = rf"The date provided: '{date}' does not conform to the expected format, the original value is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert result == date
 
     def test_warns_empty(self):
-        msg = r"''"
+        msg = r"The value provided to reformat the date is empty. An empty string is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date("", precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert result == ""
 
     def test_warns_islamic_with_era(self):
         date = "2000.11.1"
-        msg = rf"'{date}'"
+        msg = rf"The date provided: '{date}' does not conform to the expected format, the original value is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
-            result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.YYYY_MM_DD)
+            result = reformat_date(
+                date,
+                precision_separator=".",
+                range_separator="-",
+                date_order=DateOrder.YYYY_MM_DD,
+                calendar=Calendar.ISLAMIC,
+            )
         assert result == date
 
     def test_raises_invalid_precision_and_range_is_the_same(self):
         date = "11.2000.12.2000"
-        msg = "sdfasfd"
+        msg = "The precision separator and range separator provided are identical '.'. This is not allowed."
         with pytest.raises(InputError, match=regex.escape(msg)):
             reformat_date(date, precision_separator=".", range_separator=".", date_order=DateOrder.DD_MM_YYY)
 
     def test_raises_invalid_invalid_date_order(self):
         date = "11.2000-12.2000"
-        msg = "sdfasfd"
+        msg = "The configuration option of the date order provided 'some string' to reformat date is invalid."
         with pytest.raises(InputError, match=regex.escape(msg)):
-            reformat_date(date, precision_separator=".", range_separator=".", date_order="DD_MM_YYYY")
+            reformat_date(date, precision_separator=".", range_separator="-", date_order="some string")
 
 
 class TestFindDate:

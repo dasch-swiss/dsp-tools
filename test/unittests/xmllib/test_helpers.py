@@ -220,6 +220,7 @@ class TestReformatDate:
             "11.2000.1",  # invalid date
             "2000.11.1",  # wrong order
             "1.11.200-1.12.200-1.1.300",  # too many dates
+            "JULIAN-00.1.",  # contains a calendar but is an invalid dsp date
         ],
     )
     def test_warns(self, date):

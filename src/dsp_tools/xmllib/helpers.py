@@ -566,10 +566,12 @@ def reformat_date(
             raise_input_error(msg_info)
     date = str(date)
     all_dates = []
-    if range_separator:
-        date_split = date.split()
-        for single_date in date_split:
-            all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order))
+    if not range_separator:
+        date_split = [date]
+    else:
+        date_split = [found for x in date.split() if (found := x.strip())]
+    for single_date in date_split:
+        all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order))
     if era:
         all_dates = [f"{era.value}:{x}" for x in all_dates]
     if len(all_dates) == 1:

@@ -156,6 +156,7 @@ class TestReformatDate:
             ("1.11.2000-05.4.2001", "GREGORIAN:CE:2000-11-1:CE:2001-4-05"),
             ("11.2000-2001", "GREGORIAN:CE:2000-11:CE:2001"),
             ("2000-4.2001", "GREGORIAN:CE:2000:CE:2001-4"),
+            ("2000-", "GREGORIAN:CE:2000:CE:2000"),
         ],
     )
     def test_default_values_with_range(self, date, expected):

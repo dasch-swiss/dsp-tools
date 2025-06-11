@@ -43,7 +43,7 @@ class XMLRoot:
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
-    _res_id_lookup: dict[str, list[str]] = field(default_factory=dict)
+    _res_id_to_type_lookup: dict[str, list[str]] = field(default_factory=dict)
 
     @staticmethod
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
@@ -98,7 +98,7 @@ class XMLRoot:
             res_type = resource.restype
         else:
             res_type = resource.__class__.__name__
-        if types_used := self._res_id_lookup.get(resource.res_id):
+        if types_used := self._res_id_to_type_lookup.get(resource.res_id):
             existing_types = [f"'{x}'" for x in types_used]
             msg = (
                 f"The ID for this resource of type '{res_type}' "
@@ -110,9 +110,9 @@ class XMLRoot:
                 field="Resource ID",
             )
             emit_xmllib_input_warning(info_msg)
-            self._res_id_lookup[resource.res_id].append(res_type)
+            self._res_id_to_type_lookup[resource.res_id].append(res_type)
         else:
-            self._res_id_lookup[resource.res_id] = [res_type]
+            self._res_id_to_type_lookup[resource.res_id] = [res_type]
         self.resources.append(resource)
         return self
 

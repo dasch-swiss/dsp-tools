@@ -31,7 +31,7 @@ class TestAddResource:
             root = root.add_resource(resource_1)
         assert len(caught_warnings) == 0
         assert len(root.resources) == 1
-        assert root._res_id_lookup == {"id_1": [":ResType"]}
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"]}
 
     def test_optional_none(self):
         root = XMLRoot.create_new("0000", "test")
@@ -39,7 +39,7 @@ class TestAddResource:
             root = root.add_resource_optional(None)
         assert len(caught_warnings) == 0
         assert len(root.resources) == 0
-        assert not root._res_id_lookup
+        assert not root._res_id_to_type_lookup
 
     def test_optional_with_resource(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
@@ -47,7 +47,7 @@ class TestAddResource:
             root = root.add_resource_optional(resource_1)
         assert len(caught_warnings) == 0
         assert len(root.resources) == 1
-        assert root._res_id_lookup == {"id_1": [":ResType"]}
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"]}
 
     def test_multiple(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
@@ -56,7 +56,7 @@ class TestAddResource:
             root = root.add_resource_multiple([resource_1, resource_2])
         assert len(caught_warnings) == 0
         assert len(root.resources) == 2
-        assert root._res_id_lookup == {"id_1": [":ResType"], "id_2": [":ResType2"]}
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"], "id_2": [":ResType2"]}
 
     def test_multiple_empty(self):
         root = XMLRoot.create_new("0000", "test")
@@ -64,7 +64,7 @@ class TestAddResource:
             root = root.add_resource_multiple([])
         assert len(caught_warnings) == 0
         assert len(root.resources) == 0
-        assert not root._res_id_lookup
+        assert not root._res_id_to_type_lookup
 
     def test_duplicate_id_warnings(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
@@ -77,7 +77,7 @@ class TestAddResource:
         with pytest.warns(XmllibInputWarning, match=msg):
             root = root.add_resource(res_duplicate_id)
         assert len(root.resources) == 2
-        assert root._res_id_lookup == {"id_1": [":ResType", "VideoSegmentResource"]}
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType", "VideoSegmentResource"]}
 
     def test_duplicate_id_warnings_with_multiple(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
@@ -89,7 +89,7 @@ class TestAddResource:
         with pytest.warns(XmllibInputWarning, match=msg):
             root = root.add_resource_multiple([resource_1, res_duplicate_id])
         assert len(root.resources) == 2
-        assert root._res_id_lookup == {"id_1": [":ResType", ":ResType2"]}
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType", ":ResType2"]}
 
 
 class TestSerialise:

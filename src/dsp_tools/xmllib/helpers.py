@@ -551,10 +551,10 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     """
     Reformats a date string into the DSP format.
 
-    - If the input cannot be reformatted according to the configuration or the reformatting result
+    - If the input cannot be reformatted according to the configuration, or if the result
       is not a valid DSP date, a warning is emitted and the original input is returned.
     - If the input is empty, a warning is emitted and an empty string is returned.
-    - If the input is already a correctly formatted DSP-date the original is returned.
+    - If the input is already a correctly formatted DSP-date, the original is returned.
 
     Args:
         date: date string to be reformatted
@@ -581,7 +581,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # with the default configuration, starting with the year
+        # with the default configuration, but starting with the year
         result = xmllib.reformat_date(
             date="2000.11.1",
             precision_separator=".",
@@ -603,7 +603,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # eras are not allowed in the islamic calendar
+        # eras are not allowed in the islamic calendar, so the default "CE" must be overridden
         result = xmllib.reformat_date(
             date="1.11.2000",
             precision_separator=".",
@@ -663,12 +663,12 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     """
     if not is_nonempty_value_internal(date):
         msg_info = MessageInfo(
-            "The value provided to reformat the date is empty. An empty string is returned.", resource_id=resource_id
+            "The date to be reformatted is empty. An empty string is returned.", resource_id=resource_id
         )
         emit_xmllib_input_warning(msg_info)
         return ""
     invalid_date_info = MessageInfo(
-        f"The date provided: '{date}' does not conform to the expected format, the original value is returned.",
+        f"The provided date '{date}' does not conform to the expected format. The original value is returned.",
         resource_id=resource_id,
     )
     date = str(date).strip()
@@ -684,7 +684,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     if precision_separator and range_separator:
         if precision_separator == range_separator:
             msg_info = MessageInfo(
-                f"The precision separator and range separator provided are identical '{precision_separator}'. "
+                f"The precision separator and range separator provided are identical: '{precision_separator}'. "
                 f"This is not allowed.",
                 resource_id=resource_id,
             )

@@ -560,9 +560,9 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         date: date string to be reformatted
         date_precision_separator: the separation between the day, month and year
         date_range_separator: the separation between two dates
-        date_format: the format of the date, `xmllib.DateOrder.DD_MM_YYYY` or `xmllib.DateOrder.YYYY_MM_DD`
-        calendar: the calendar of the date
-        era: the era of the date
+        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DateFormat)
+        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.Calendar)
+        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.Era)
         resource_id: the ID of the associated resource, this is to improve the error message
 
     Returns:

@@ -403,21 +403,14 @@ def _get_group_iris_for_user(
     sysadmin = False
     remote_groups: list[Group] = []
     for full_group_name in json_user_definition.get("groups", []):
-        # full_group_name has the form '[project_shortname]:group_name' or 'SystemAdmin'
+        # full_group_name has the form '[project_shortname]:group_name'
         inexisting_group_msg = (
             f"User {username} cannot be added to group {full_group_name}, because such a group doesn't exist."
         )
-        if ":" not in full_group_name and full_group_name != "SystemAdmin":
+        if ":" not in full_group_name:
             print(f"    WARNING: {inexisting_group_msg}")
             logger.warning(inexisting_group_msg)
             success = False
-            continue
-
-        if full_group_name == "SystemAdmin":
-            sysadmin = True
-            if verbose:
-                print(f"    Added user '{username}' to group 'SystemAdmin'.")
-            logger.info(f"Added user '{username}' to group 'SystemAdmin'.")
             continue
 
         # all other cases (":" in full_group_name)

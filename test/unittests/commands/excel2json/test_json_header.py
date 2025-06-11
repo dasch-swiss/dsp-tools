@@ -399,7 +399,7 @@ class TestCheckOneUser:
         assert len(result) == 1
         problem = result[0]
         assert isinstance(problem, InvalidExcelContentProblem)
-        assert problem.expected_content == "One of: projectadmin, systemadmin, projectmember"
+        assert problem.expected_content == "One of: projectadmin, projectmember"
         assert problem.actual_content == "other"
         assert problem.excel_position.column == "role"
         assert problem.excel_position.row == 2

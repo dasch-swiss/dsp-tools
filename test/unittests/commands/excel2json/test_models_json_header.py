@@ -43,8 +43,8 @@ def user_admin() -> User:
 
 
 @pytest.fixture
-def users(user_sys_admin: User, user_member: User, user_admin: User) -> Users:
-    return Users([user_sys_admin, user_member, user_admin])
+def users(user_member: User, user_admin: User) -> Users:
+    return Users([user_member, user_admin])
 
 
 @pytest.fixture
@@ -85,17 +85,6 @@ def test_filled_json_header_with_users_without_prefix(
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
             "users": [
-                {
-                    "username": "sys_admin",
-                    "email": "sys_admin@email.ch",
-                    "givenName": "given name1",
-                    "familyName": "family name1",
-                    "password": "PW1",
-                    "lang": "en",
-                    "status": True,
-                    "groups": ["SystemAdmin"],
-                    "projects": [":admin", ":member"],
-                },
                 {
                     "username": "member",
                     "email": "member@email.ch",

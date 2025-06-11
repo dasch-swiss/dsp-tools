@@ -118,7 +118,7 @@ def users_good() -> pd.DataFrame:
             "familyname": ["Liddell", "Wonderland", "Rabbit"],
             "password": ["alice4322", "alice7652", "alice8711"],
             "lang": ["en", "de", "fr"],
-            "role": ["systemadmin", "projectadmin", "projectmember"],
+            "role": ["projectadmin", "projectadmin", "projectmember"],
         }
     )
 
@@ -132,7 +132,7 @@ def users_missing_col() -> pd.DataFrame:
             "givenname": ["Alice Pleasance"],
             "familyname": ["Liddell"],
             "lang": ["fr"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -147,7 +147,7 @@ def users_missing_val() -> pd.DataFrame:
             "familyname": ["Liddell"],
             "password": ["alice7652"],
             "lang": ["fr"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -162,7 +162,7 @@ def users_wrong_lang() -> pd.DataFrame:
             "familyname": ["Liddell"],
             "password": ["alice7652"],
             "lang": ["other"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -177,7 +177,7 @@ def user_good() -> pd.Series[str]:
             "familyname": "Liddell",
             "password": "alice7652",
             "lang": "en",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 
@@ -192,7 +192,7 @@ def user_wrong_lang() -> pd.Series[str]:
             "familyname": "Liddell",
             "password": "alice7652",
             "lang": "other",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 
@@ -207,7 +207,7 @@ def user_wrong_email() -> pd.Series[str]:
             "familyname": "Liddell",
             "password": "alice7652",
             "lang": "fr",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 

@@ -550,6 +550,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
 ) -> str:
     """
     Reformats a date string into the DSP format.
+
     - If the input cannot be reformatted according to the configuration or the reformatting result
       is not a valid DSP date, a warning is emitted and the original input is returned.
     - If the input is empty, a warning is emitted and an empty string is returned.

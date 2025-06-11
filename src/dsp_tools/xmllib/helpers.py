@@ -573,9 +573,9 @@ def reformat_date(
         # default configuration, starting with the day
         result = xmllib.reformat_date(
             date="1.11.2000",
-            precision_separator=".",
-            range_separator=None,
-            date_order=xmllib.DateOrder.DD_MM_YYY
+            date_precision_separator=".",
+            date_range_separator=None,
+            date_format=xmllib.DateFormat.DD_MM_YYY
         )
         # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
         ```
@@ -584,9 +584,9 @@ def reformat_date(
         # default configuration, but starting with the year
         result = xmllib.reformat_date(
             date="2000.11.1",
-            precision_separator=".",
-            range_separator=None,
-            date_order=xmllib.DateOrder.YYYY_MM_DD,
+            date_precision_separator=".",
+            date_range_separator=None,
+            date_format=xmllib.DateFormat.YYYY_MM_DD,
         )
         # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
         ```
@@ -595,9 +595,9 @@ def reformat_date(
         # with a date range
         result = xmllib.reformat_date(
             date="1.11.2000-2001",
-            precision_separator=".",
-            range_separator="-",
-            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
         )
         # result == "GREGORIAN:CE:2000-11-1:CE:2001"
         ```
@@ -606,9 +606,9 @@ def reformat_date(
         # islamic calendar, where eras are not allowed
         result = xmllib.reformat_date(
             date="1.11.2000",
-            precision_separator=".",
-            range_separator=None,
-            date_order=xmllib.DateOrder.DD_MM_YYY,
+            date_precision_separator=".",
+            date_range_separator=None,
+            date_format=xmllib.DateFormat.DD_MM_YYY,
             calendar=xmllib.Calendar.ISLAMIC,
             era=None
         )
@@ -619,9 +619,9 @@ def reformat_date(
         # with a different era
         result = xmllib.reformat_date(
             date="1.11.2000",
-            precision_separator=".",
-            range_separator="-",
-            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
             era=xmllib.Era.AD
         )
         # result == "GREGORIAN:AD:2000-11-1:AD:2000-11-1"
@@ -631,9 +631,9 @@ def reformat_date(
         # reformatted date, no precision in the date string is required
         result = xmllib.reformat_date(
             date="2000",
-            precision_separator=".",
-            range_separator="-",
-            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
         )
         # result == "GREGORIAN:CE:2000:CE:2000"
         ```
@@ -642,9 +642,9 @@ def reformat_date(
         # already correctly formatted date
         result = xmllib.reformat_date(
             date="GREGORIAN:CE:2000:CE:2000",
-            precision_separator=".",
-            range_separator="-",
-            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
         )
         # result == "GREGORIAN:CE:2000:CE:2000"
         ```
@@ -653,9 +653,9 @@ def reformat_date(
         # invalid input: a warning is emitted and the original input is returned
         result = xmllib.reformat_date(
             date="not-a-date",
-            precision_separator=".",
-            range_separator="-",
-            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
         )
         # WARNING is emitted
         # result == "not-a-date"
@@ -708,11 +708,11 @@ def reformat_date(
 
 
 def _reformat_single_date(  # noqa: PLR0911 Too many return statements
-    single_date: str, precision_separator: str | None, date_format: DateFormat, resource_id: str | None
+    single_date: str, date_precision_separator: str | None, date_format: DateFormat, resource_id: str | None
 ) -> str:
-    if precision_separator is None:
+    if date_precision_separator is None:
         return single_date
-    date_split = [found for x in single_date.split(precision_separator) if (found := x.strip())]
+    date_split = [found for x in single_date.split(date_precision_separator) if (found := x.strip())]
     if date_format == DateFormat.YYYY_MM_DD:
         return "-".join(date_split)
     if date_format == DateFormat.DD_MM_YYYY:

@@ -82,6 +82,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot, with the added resource
 
+        Warning:
+            If the ID of the new resource is already used.
+
         Examples:
             ```python
             resource = xmllib.Resource.create_new(
@@ -129,6 +132,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot, with the added resource
 
+        Warning:
+            If the ID of the new resource is already used.
+
         Examples:
             ```python
             resource_1 = xmllib.Resource.create_new(
@@ -159,6 +165,9 @@ class XMLRoot:
 
         Returns:
             The original XMLRoot, with the added value if it was not empty. Else the unchanged original XMLRoot.
+
+        Warning:
+            If the ID of the new resource is already used.
 
         Examples:
             ```python

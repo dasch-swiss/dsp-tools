@@ -554,7 +554,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
     - If the input cannot be reformatted according to the configuration, or if the result
       is not a valid DSP date, a warning is emitted and the original input is returned.
     - If the input is empty, a warning is emitted and an empty string is returned.
-    - If the input is already a correctly formatted DSP-date, the original is returned.
+    - If the input is already a correctly formatted DSP-date, the original input is returned.
 
     Args:
         date: date string to be reformatted
@@ -603,7 +603,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # eras are not allowed in the islamic calendar, so the default "CE" must be overridden
+        # islamic calendar, where eras are not allowed
         result = xmllib.reformat_date(
             date="1.11.2000",
             precision_separator=".",
@@ -628,7 +628,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # reformatted date, no precisions in the date string is required
+        # reformatted date, no precision in the date string is required
         result = xmllib.reformat_date(
             date="2000",
             precision_separator=".",
@@ -735,7 +735,7 @@ def _reformat_single_date(  # noqa: PLR0911 Too many return statements
             emit_xmllib_input_warning(msg_info)
             return single_date
     msg_info = MessageInfo(
-        f"The configuration option of the date order provided '{date_order}' to reformat date is invalid.",
+        f"The configuration option of the date format provided '{date_order}' to reformat the date is invalid.",
         resource_id=resource_id,
     )
     raise_input_error(msg_info)

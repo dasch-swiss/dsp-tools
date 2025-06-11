@@ -57,7 +57,7 @@ class NewlineReplacement(Enum):
 
 class DateOrder(Enum):
     YYYY_MM_DD = auto()
-    DD_MM_YYY = auto()
+    DD_MM_YYYY = auto()
 
 
 class Calendar(Enum):

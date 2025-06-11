@@ -540,7 +540,7 @@ def escape_reserved_xml_characters(text: str) -> str:
 
 
 def reformat_date(
-    date: str,
+    date: str | int,
     precision_separator: str | None,
     range_separator: str | None,
     date_order: DateOrder,
@@ -548,17 +548,116 @@ def reformat_date(
     era: Era | None = Era.CE,
     resource_id: str | None = None,
 ) -> str:
+    """
+    Reformats a date string into the DSP format.
+    If the input cannot be reformatted according to the configuration or the reformatting result
+    is not a valid DSP date, a warning is emitted and the original input is returned.
+
+    Args:
+        date: date string to be reformatted
+        precision_separator: the separation between the day, month and year
+        range_separator: the separation between two dates
+        date_order: the order of the date, YYYY-MM-DD or DD-MM-YYYY
+        calendar: the calendar of the date
+        era: the era of the date
+        resource_id: the ID of the associated resource, this is to improve the error message
+
+    Returns:
+        A reformatted date or the original input if the reformatted result is not a valid DSP date
+
+    Examples:
+        ```python
+        # with the default configuration, starting with the day
+        result = xmllib.reformat_date(
+            date="1.11.2000",
+            precision_separator=".",
+            range_separator=None,
+            date_order=xmllib.DateOrder.DD_MM_YYY
+        )
+        # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
+        ```
+
+        ```python
+        # with the default configuration, starting with the year
+        result = xmllib.reformat_date(
+            date="2000.11.1",
+            precision_separator=".",
+            range_separator=None,
+            date_order=xmllib.DateOrder.YYYY_MM_DD,
+        )
+        # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
+        ```
+
+        ```python
+        # with a date range
+        result = xmllib.reformat_date(
+            date="1.11.2000-05.4.2001",
+            precision_separator=".",
+            range_separator="-",
+            date_order=xmllib.DateOrder.DD_MM_YYYY,
+        )
+        # result == "GREGORIAN:CE:2000-11-1:CE:2001-4-05"
+        ```
+
+        ```python
+        # eras are not allowed in the islamic calendar
+        result = xmllib.reformat_date(
+            date="1.11.2000",
+            precision_separator=".",
+            range_separator=None,
+            date_order=xmllib.DateOrder.DD_MM_YYY,
+            calendar=xmllib.Calendar.ISLAMIC,
+            era=None
+        )
+        # result == "ISLAMIC:2000-11-1:2000-11-1"
+        ```
+
+        ```python
+        # with a different era
+        result = xmllib.reformat_date(
+            date="1.11.2000",
+            precision_separator=".",
+            range_separator="-",
+            date_order=xmllib.DateOrder.DD_MM_YYYY,
+            era=xmllib.Era.AD
+        )
+        # result == "GREGORIAN:AD:2000-11-1:AD:2000-11-1"
+        ```
+
+        ```python
+        # the date is reformatted even the precisions are not in the actual date string
+        result = xmllib.reformat_date(
+            date="2000",
+            precision_separator=".",
+            range_separator="-",
+            date_order=xmllib.DateOrder.DD_MM_YYYY,
+        )
+        # result == "GREGORIAN:CE:2000:CE:2000"
+        ```
+
+        ```python
+        # in case of invalid input a warning is emitted and the original input is returned
+        result = xmllib.reformat_date(
+            date="not-a-date",
+            precision_separator=".",
+            range_separator="-",
+            date_order=xmllib.DateOrder.DD_MM_YYYY,
+        )
+        # WARNING is emitted
+        # result == "not-a-date"
+        ```
+    """
     if not is_nonempty_value_internal(date):
         msg_info = MessageInfo(
             "The value provided to reformat the date is empty. An empty string is returned.", resource_id=resource_id
         )
         emit_xmllib_input_warning(msg_info)
         return ""
-    date = str(date)
+    date = str(date).strip()
     # Here we want to check if the input is already a reformatted date. In that case, we would expect a calendar.
     # The function that checks if an input is a valid date does not require a calendar,
     # so unformatted input for example, '2000' may be accepted as a valid date.
-    if regex.search(r"(GREGORIAN|JULIAN|ISLAMIC)", date):
+    if regex.search(r"^(GREGORIAN|JULIAN|ISLAMIC)", date):
         return date
     if precision_separator and range_separator:
         if precision_separator == range_separator:
@@ -598,7 +697,7 @@ def _reformat_single_date(single_date: str, precision_separator: str | None, dat
     date_split = [x.strip() for x in single_date.split(precision_separator)]
     if date_order == DateOrder.YYYY_MM_DD:
         return "-".join(date_split)
-    if date_order == DateOrder.DD_MM_YYY:
+    if date_order == DateOrder.DD_MM_YYYY:
         return "-".join(reversed(date_split))
     msg_info = MessageInfo(
         f"The configuration option of the date order provided '{date_order}' to reformat date is invalid."

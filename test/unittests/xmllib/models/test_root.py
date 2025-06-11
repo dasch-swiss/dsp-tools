@@ -71,7 +71,7 @@ class TestAddResource:
         root = root.add_resource(resource_1)
         res_duplicate_id = VideoSegmentResource.create_new("id_1", "lbl", "segment_of", 1, 2)
         msg = regex.escape(
-            "The ID for this resource of type 'VideoSegmentResource' "
+            "Resource ID 'id_1' | Field 'Resource ID' | The ID for this resource of type 'VideoSegmentResource' "
             "is already used by resource(s) of the following type(s): ':ResType'."
         )
         with pytest.warns(XmllibInputWarning, match=msg):
@@ -83,7 +83,7 @@ class TestAddResource:
         root = XMLRoot.create_new("0000", "test")
         res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
         msg = regex.escape(
-            "The ID for this resource of type ':ResType2' "
+            "Resource ID 'id_1' | Field 'Resource ID' | The ID for this resource of type ':ResType2' "
             "is already used by resource(s) of the following type(s): ':ResType'."
         )
         with pytest.warns(XmllibInputWarning, match=msg):

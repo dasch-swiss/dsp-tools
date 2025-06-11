@@ -18,6 +18,9 @@ from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
+from dsp_tools.xmllib.models.config_options import Calendar
+from dsp_tools.xmllib.models.config_options import DateOrder
+from dsp_tools.xmllib.models.config_options import Era
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
@@ -533,6 +536,23 @@ def escape_reserved_xml_characters(text: str) -> str:
     text = regex.sub(illegal_gt, "&gt;", text)
     text = regex.sub(illegal_amp, "&amp;", text)
     return text
+
+
+def reformat_date(
+    date: str,
+    date_order: DateOrder,
+    precision_separator: str | None,
+    range_separator: str | None,
+    calendar: Calendar = Calendar.GREGORIAN,
+    era: Era = Era.CE,
+) -> str:
+    if not is_nonempty_value_internal(date):
+        msg_info = MessageInfo(
+            "The value provided to reformat the date is empty. An empty string is returned.",
+        )
+        emit_xmllib_input_warning(msg_info)
+        return ""
+    return ""
 
 
 def find_dates_in_string(string: str) -> set[str]:

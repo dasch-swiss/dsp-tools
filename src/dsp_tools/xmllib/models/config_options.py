@@ -67,7 +67,7 @@ class Calendar(Enum):
 
 
 class Era(Enum):
-    COMMON_ERA = "CE"
-    BEFORE_COMMON_ERA = "BCE"
-    ANNO_DOMINI = "AD"
-    BEFORE_CHRIST = "BC"
+    CE = "CE"
+    BCE = "BCE"
+    AD = "AD"
+    BC = "BC"

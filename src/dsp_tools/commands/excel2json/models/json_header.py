@@ -132,7 +132,7 @@ class User:
             "status": True,
         }
         if self.isProjectAdmin:
-            usr_dict["projects"] = [":admin"]
+            usr_dict["projects"] = [":admin", ":member"]
         else:
-            usr_dict["projects"] = [":member", ":admin"]
+            usr_dict["projects"] = [":member"]
         return usr_dict

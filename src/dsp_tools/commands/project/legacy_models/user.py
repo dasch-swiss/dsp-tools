@@ -368,6 +368,8 @@ class User(Model):
             raise BaseError("'language' is mandatory!")
         tmp["lang"] = self._lang.value
         tmp["status"] = True if self._status is None else self._status
+        # the API expects the key "systemAdmin" to be present. DSP-TOOLS doesn't support creating SystemAdmins any more.
+        tmp["systemAdmin"] = False
         return tmp
 
     def read(self) -> User:

@@ -135,7 +135,7 @@ class TestReformatDate:
         ],
     )
     def test_default_values_with_precision_dd_mm_yyyy(self, date, expected):
-        result = reformat_date(date, precision_separator=None, range_separator=None, date_order=DateOrder.DD_MM_YYY)
+        result = reformat_date(date, precision_separator=".", range_separator=None, date_order=DateOrder.DD_MM_YYY)
         assert result == expected
 
     @pytest.mark.parametrize(

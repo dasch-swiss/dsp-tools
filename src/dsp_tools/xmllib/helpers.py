@@ -554,6 +554,7 @@ def reformat_date(
         )
         emit_xmllib_input_warning(msg_info)
         return ""
+    date = str(date)
     if regex.search(r"(GREGORIAN|JULIAN|ISLAMIC)", date):
         return date
     if precision_separator and range_separator:
@@ -564,7 +565,6 @@ def reformat_date(
                 resource_id=resource_id,
             )
             raise_input_error(msg_info)
-    date = str(date)
     all_dates = []
     if range_separator:
         date_split = [found for x in date.split(range_separator) if (found := x.strip())]

@@ -25,6 +25,7 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -540,9 +541,9 @@ def escape_reserved_xml_characters(text: str) -> str:
 
 def reformat_date(
     date: str,
-    date_order: DateOrder,
     precision_separator: str | None,
     range_separator: str | None,
+    date_order: DateOrder,
     calendar: Calendar = Calendar.GREGORIAN,
     era: Era = Era.CE,
 ) -> str:
@@ -552,6 +553,8 @@ def reformat_date(
         )
         emit_xmllib_input_warning(msg_info)
         return ""
+    if is_date(date):
+        return date
     return ""
 
 

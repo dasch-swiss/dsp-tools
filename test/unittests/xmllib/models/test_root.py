@@ -70,16 +70,22 @@ class TestAddResource:
         root = XMLRoot.create_new("0000", "test")
         root = root.add_resource(resource_1)
         res_duplicate_id = VideoSegmentResource.create_new("id_1", "lbl", "segment_of", 1, 2)
-        msg = regex.escape("dsfa")
+        msg = regex.escape(
+            "The ID for this resource of type 'VideoSegmentResource' "
+            "is already used by resource(s) of the following type(s): ':ResType'."
+        )
         with pytest.warns(XmllibInputWarning, match=msg):
             root = root.add_resource(res_duplicate_id)
         assert len(root.resources) == 2
-        assert root._res_id_lookup == {"id_1": [":ResType", ":ResType2"]}
+        assert root._res_id_lookup == {"id_1": [":ResType", "VideoSegmentResource"]}
 
     def test_duplicate_id_warnings_with_multiple(self, resource_1):
         root = XMLRoot.create_new("0000", "test")
         res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
-        msg = regex.escape("dsfa")
+        msg = regex.escape(
+            "The ID for this resource of type ':ResType2' "
+            "is already used by resource(s) of the following type(s): ':ResType'."
+        )
         with pytest.warns(XmllibInputWarning, match=msg):
             root = root.add_resource_multiple([resource_1, res_duplicate_id])
         assert len(root.resources) == 2

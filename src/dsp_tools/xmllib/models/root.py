@@ -95,11 +95,11 @@ class XMLRoot:
             res_type = resource.restype
         else:
             res_type = resource.__class__.__name__
-        if id_exists := self._res_id_lookup.get(resource.res_id):
-            self._res_id_lookup[resource.res_id].append(res_type)
+        if types_used := self._res_id_lookup.get(resource.res_id):
+            existing_types = [f"'{x}'" for x in types_used]
             msg = (
                 f"The ID for this resource of type '{res_type}' "
-                f"is already used by resource(s) of the following type(s): {', '.join(id_exists)}."
+                f"is already used by resource(s) of the following type(s): {', '.join(existing_types)}."
             )
             info_msg = MessageInfo(
                 message=msg,
@@ -107,6 +107,7 @@ class XMLRoot:
                 field="Resource ID",
             )
             emit_xmllib_input_warning(info_msg)
+            self._res_id_lookup[resource.res_id].append(res_type)
         else:
             self._res_id_lookup[resource.res_id] = [res_type]
         self.resources.append(resource)

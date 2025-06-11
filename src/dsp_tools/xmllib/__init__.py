@@ -17,7 +17,7 @@ from .helpers import make_xsd_compatible_id as make_xsd_compatible_id
 from .helpers import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
 from .helpers import reformat_date as reformat_date
 from .models.config_options import Calendar as Calendar
-from .models.config_options import DateOrder as DateOrder
+from .models.config_options import DateFormat as DateFormat
 from .models.config_options import Era as Era
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.config_options import Permissions as Permissions

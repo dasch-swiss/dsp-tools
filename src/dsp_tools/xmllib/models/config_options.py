@@ -55,9 +55,9 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-class DateOrder(Enum):
+class DateFormat(Enum):
     """
-    Date order options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date) function.
+    Date format options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date) function.
 
     - `YYYY_MM_DD`
     - `DD_MM_YYYY`

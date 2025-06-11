@@ -20,7 +20,7 @@ from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import Calendar
-from dsp_tools.xmllib.models.config_options import DateOrder
+from dsp_tools.xmllib.models.config_options import DateFormat
 from dsp_tools.xmllib.models.config_options import Era
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
@@ -541,9 +541,9 @@ def escape_reserved_xml_characters(text: str) -> str:
 
 def reformat_date(  # noqa: PLR0912 (too many branches)
     date: str | int,
-    precision_separator: str | None,
-    range_separator: str | None,
-    date_order: DateOrder,
+    date_precision_separator: str | None,
+    date_range_separator: str | None,
+    date_format: DateFormat,
     calendar: Calendar = Calendar.GREGORIAN,
     era: Era | None = Era.CE,
     resource_id: str | None = None,
@@ -558,9 +558,9 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
 
     Args:
         date: date string to be reformatted
-        precision_separator: the separation between the day, month and year
-        range_separator: the separation between two dates
-        date_order: the order of the date, `xmllib.DateOrder.DD_MM_YYYY` or `xmllib.DateOrder.YYYY_MM_DD`
+        date_precision_separator: the separation between the day, month and year
+        date_range_separator: the separation between two dates
+        date_format: the format of the date, `xmllib.DateOrder.DD_MM_YYYY` or `xmllib.DateOrder.YYYY_MM_DD`
         calendar: the calendar of the date
         era: the era of the date
         resource_id: the ID of the associated resource, this is to improve the error message
@@ -681,21 +681,21 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         else:
             emit_xmllib_input_warning(invalid_date_info)
             return date
-    if precision_separator and range_separator:
-        if precision_separator == range_separator:
+    if date_precision_separator and date_range_separator:
+        if date_precision_separator == date_range_separator:
             msg_info = MessageInfo(
-                f"The precision separator and range separator provided are identical: '{precision_separator}'. "
+                f"The precision separator and range separator provided are identical: '{date_precision_separator}'. "
                 f"This is not allowed.",
                 resource_id=resource_id,
             )
             raise_input_error(msg_info)
     all_dates = []
-    if range_separator is not None:
-        date_split = [found for x in date.split(range_separator) if (found := x.strip())]
+    if date_range_separator is not None:
+        date_split = [found for x in date.split(date_range_separator) if (found := x.strip())]
     else:
         date_split = [date]
     for single_date in date_split:
-        all_dates.append(_reformat_single_date(single_date.strip(), precision_separator, date_order, resource_id))
+        all_dates.append(_reformat_single_date(single_date.strip(), date_precision_separator, date_format, resource_id))
     if era:
         all_dates = [f"{era.value}:{x}" for x in all_dates]
     if len(all_dates) == 1:
@@ -710,16 +710,16 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
 
 
 def _reformat_single_date(  # noqa: PLR0911 Too many return statements
-    single_date: str, precision_separator: str | None, date_order: DateOrder, resource_id: str | None
+    single_date: str, precision_separator: str | None, date_format: DateFormat, resource_id: str | None
 ) -> str:
     if precision_separator is None:
         return single_date
     date_split = [x.strip() for x in single_date.split(precision_separator)]
-    if date_order == DateOrder.YYYY_MM_DD:
+    if date_format == DateFormat.YYYY_MM_DD:
         return "-".join(date_split)
-    if date_order == DateOrder.DD_MM_YYYY:
+    if date_format == DateFormat.DD_MM_YYYY:
         return "-".join(reversed(date_split))
-    if date_order == DateOrder.MM_DD_YYYY:
+    if date_format == DateFormat.MM_DD_YYYY:
         if len(date_split) == 3:
             month, day, year = date_split
             return f"{year}-{month}-{day}"
@@ -735,7 +735,7 @@ def _reformat_single_date(  # noqa: PLR0911 Too many return statements
             emit_xmllib_input_warning(msg_info)
             return single_date
     msg_info = MessageInfo(
-        f"The configuration option of the date format provided '{date_order}' to reformat the date is invalid.",
+        f"The configuration option of the date format provided '{date_format}' to reformat the date is invalid.",
         resource_id=resource_id,
     )
     raise_input_error(msg_info)

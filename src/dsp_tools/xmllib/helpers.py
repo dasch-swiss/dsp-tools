@@ -667,11 +667,11 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         )
         emit_xmllib_input_warning(msg_info)
         return ""
+    date = str(date).strip()
     invalid_date_info = MessageInfo(
         f"The provided date '{date}' does not conform to the expected format. The original value is returned.",
         resource_id=resource_id,
     )
-    date = str(date).strip()
     # Here we want to check if the input is already a reformatted date. In that case, we would expect a calendar.
     # The function that checks if an input is a valid date does not require a calendar,
     # so unformatted input for example, '2000' may be accepted as a valid date.

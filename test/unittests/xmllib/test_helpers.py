@@ -175,7 +175,7 @@ class TestReformatDate:
             date,
             date_order=DateOrder.DD_MM_YYY,
             precision_separator=".",
-            range_separator=None,
+            range_separator="-",
             calendar=calendar,
             era=era,
         )
@@ -191,7 +191,7 @@ class TestReformatDate:
     )
     def test_non_default_era(self, date, era, expected):
         result = reformat_date(
-            date, date_order=DateOrder.DD_MM_YYY, precision_separator=".", range_separator=None, era=era
+            date, date_order=DateOrder.DD_MM_YYY, precision_separator=".", range_separator="-", era=era
         )
         assert result == expected
 

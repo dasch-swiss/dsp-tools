@@ -555,6 +555,9 @@ def reformat_date(
         emit_xmllib_input_warning(msg_info)
         return ""
     date = str(date)
+    # Here we want to check if the input is already a reformatted date. In that case, we would expect a calendar.
+    # The function that checks if an input is a valid date does not require a calendar,
+    # so unformatted input for example, '2000' may be accepted as a valid date.
     if regex.search(r"(GREGORIAN|JULIAN|ISLAMIC)", date):
         return date
     if precision_separator and range_separator:

@@ -144,7 +144,7 @@ class TestReformatDate:
 
     def test_default_values_with_precision_blank_space(self):
         result = reformat_date(
-            "11 2000", date_precision_separator=" ", date_range_separator=None, date_format=DateFormat.DD_MM_YYYY
+            "11  2000", date_precision_separator=" ", date_range_separator=None, date_format=DateFormat.DD_MM_YYYY
         )
         assert result == "GREGORIAN:CE:2000-11:CE:2000-11"
 
@@ -194,7 +194,7 @@ class TestReformatDate:
     @pytest.mark.parametrize(
         ("date", "calendar", "era", "expected"),
         [
-            ("1.11.2000-05.4.2001", Calendar.JULIAN, Era.AD, "JULIAN:AD:2000-11-1:AD:2001-4-05"),
+            ("1.11.2000 - 05.4.2001", Calendar.JULIAN, Era.AD, "JULIAN:AD:2000-11-1:AD:2001-4-05"),
             ("11.2000-2001", Calendar.ISLAMIC, None, "ISLAMIC:2000-11:2001"),
         ],
     )
@@ -214,7 +214,7 @@ class TestReformatDate:
         [
             ("1.11.2000-05.4.2001", Era.BCE, "GREGORIAN:BCE:2000-11-1:BCE:2001-4-05"),
             ("11.2000-2001", Era.AD, "GREGORIAN:AD:2000-11:AD:2001"),
-            ("2000-4.2001", Era.BC, "GREGORIAN:BC:2000:BC:2001-4"),
+            (" 2000- 4.2001 ", Era.BC, "GREGORIAN:BC:2000:BC:2001-4"),
         ],
     )
     def test_non_default_era(self, date, era, expected):

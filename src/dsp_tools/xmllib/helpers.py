@@ -539,7 +539,7 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def reformat_date(  # noqa: PLR0912 (too many branches)
+def reformat_date(
     date: str | int,
     date_precision_separator: str | None,
     date_range_separator: str | None,
@@ -689,13 +689,11 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
                 resource_id=resource_id,
             )
             raise_input_error(msg_info)
-    all_dates = []
     if date_range_separator is not None:
         date_split = [found for x in date.split(date_range_separator) if (found := x.strip())]
     else:
-        date_split = [date]
-    for single_date in date_split:
-        all_dates.append(_reformat_single_date(single_date.strip(), date_precision_separator, date_format, resource_id))
+        date_split = [date.strip()]
+    all_dates = [_reformat_single_date(x, date_precision_separator, date_format, resource_id) for x in date_split]
     if era:
         all_dates = [f"{era.value}:{x}" for x in all_dates]
     if len(all_dates) == 1:
@@ -714,7 +712,7 @@ def _reformat_single_date(  # noqa: PLR0911 Too many return statements
 ) -> str:
     if precision_separator is None:
         return single_date
-    date_split = [x.strip() for x in single_date.split(precision_separator)]
+    date_split = [found for x in single_date.split(precision_separator) if (found := x.strip())]
     if date_format == DateFormat.YYYY_MM_DD:
         return "-".join(date_split)
     if date_format == DateFormat.DD_MM_YYYY:

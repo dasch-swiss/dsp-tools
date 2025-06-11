@@ -331,7 +331,7 @@ def _create_graphs(
 ) -> RDFGraphs:
     logger.debug("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
-    ontologies = _get_project_ontos(onto_client)
+    ontologies, onto_iris = _get_project_ontos(onto_client)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
@@ -346,6 +346,11 @@ def _create_graphs(
     api_card_shapes.parse(str(api_card_path))
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + api_card_shapes
+    data_rdf = _bind_prefixes_to_graph(data_rdf, onto_iris)
+    ontologies = _bind_prefixes_to_graph(ontologies, onto_iris)
+    card_shapes = _bind_prefixes_to_graph(card_shapes, onto_iris)
+    content_shapes = _bind_prefixes_to_graph(content_shapes, onto_iris)
+    knora_api = _bind_prefixes_to_graph(knora_api, onto_iris)
     return RDFGraphs(
         data=data_rdf,
         ontos=ontologies,
@@ -355,15 +360,29 @@ def _create_graphs(
     )
 
 
-def _get_project_ontos(onto_client: OntologyClient) -> Graph:
+def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
+    def get_one_prefix(ontology_iri: str) -> str:
+        iri_split = ontology_iri.split("/")
+        return iri_split[-2]
+
+    g.bind("knora-api", "http://api.knora.org/ontology/knora-api/v2#")
+    g.bind("api-shapes", "http://api.knora.org/ontology/knora-api/shapes/v2#")
+    g.bind("dash", "http://datashapes.org/dash#")
+    g.bind("salsah-gui", "http://api.knora.org/ontology/salsah-gui/v2#")
+    for iri in project_ontos:
+        g.bind(get_one_prefix(iri), f"{iri}#")
+    return g
+
+
+def _get_project_ontos(onto_client: OntologyClient) -> tuple[Graph, list[str]]:
     logger.debug("Get project ontologies from server.")
-    all_ontos = onto_client.get_ontologies()
+    all_ontos, onto_iris = onto_client.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:
         og = Graph()
         og.parse(data=onto, format="ttl")
         onto_g += og
-    return onto_g
+    return onto_g, onto_iris
 
 
 def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:

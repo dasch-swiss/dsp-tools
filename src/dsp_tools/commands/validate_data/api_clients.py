@@ -36,15 +36,17 @@ class OntologyClient:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text
 
-    def get_ontologies(self) -> list[str]:
+    def get_ontologies(self) -> tuple[list[str], list[str]]:
         """
         Returns a list of project ontologies as a string in turtle format.
+        And a list of the ontology IRIs
 
         Returns:
-            list of ontologies
+            list of ontologies and IRIs
         """
         ontology_iris = self._get_ontology_iris()
-        return [self._get_one_ontology(x) for x in ontology_iris]
+        ontologies = [self._get_one_ontology(x) for x in ontology_iris]
+        return ontologies, ontology_iris
 
     def _get_ontology_iris(self) -> list[str]:
         url = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"

@@ -1,5 +1,6 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
 import datetime
+import warnings
 
 import pandas as pd
 import pytest
@@ -7,6 +8,10 @@ import regex
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib import Calendar
+from dsp_tools.xmllib import DateFormat
+from dsp_tools.xmllib import Era
+from dsp_tools.xmllib import reformat_date
 from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
@@ -113,6 +118,185 @@ def test_create_standoff_link_to_uri_empty() -> None:
 def test_create_standoff_link_to_uri_text_empty() -> None:
     with pytest.raises(InputError):
         create_standoff_link_to_uri("https://uri.ch", "")
+
+
+class TestReformatDate:
+    def test_default_values_no_precision(self):
+        result = reformat_date(
+            "2000", date_precision_separator=None, date_range_separator=None, date_format=DateFormat.DD_MM_YYYY
+        )
+        assert result == "GREGORIAN:CE:2000:CE:2000"
+
+    @pytest.mark.parametrize(
+        ("date", "expected"),
+        [
+            ("1.11.2000", "GREGORIAN:CE:2000-11-1:CE:2000-11-1"),
+            ("11.2000", "GREGORIAN:CE:2000-11:CE:2000-11"),
+            ("2000", "GREGORIAN:CE:2000:CE:2000"),
+            (2000, "GREGORIAN:CE:2000:CE:2000"),
+        ],
+    )
+    def test_default_values_with_precision_dd_mm_yyyy(self, date, expected):
+        result = reformat_date(
+            date, date_precision_separator=".", date_range_separator=None, date_format=DateFormat.DD_MM_YYYY
+        )
+        assert result == expected
+
+    def test_default_values_with_precision_blank_space(self):
+        result = reformat_date(
+            "11  2000", date_precision_separator=" ", date_range_separator=None, date_format=DateFormat.DD_MM_YYYY
+        )
+        assert result == "GREGORIAN:CE:2000-11:CE:2000-11"
+
+    @pytest.mark.parametrize(
+        ("date", "expected"),
+        [
+            ("2000.11.1", "GREGORIAN:CE:2000-11-1:CE:2000-11-1"),
+            ("2000.11", "GREGORIAN:CE:2000-11:CE:2000-11"),
+            ("2000", "GREGORIAN:CE:2000:CE:2000"),
+        ],
+    )
+    def test_default_values_with_precision_yyyy_mm_dd(self, date, expected):
+        result = reformat_date(
+            date, date_format=DateFormat.YYYY_MM_DD, date_precision_separator=".", date_range_separator=None
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("date", "expected"),
+        [
+            ("11.1.2000", "GREGORIAN:CE:2000-11-1:CE:2000-11-1"),
+            ("11.2000", "GREGORIAN:CE:2000-11:CE:2000-11"),
+            ("2000", "GREGORIAN:CE:2000:CE:2000"),
+        ],
+    )
+    def test_default_values_with_precision_mm_dd_yyyy(self, date, expected):
+        result = reformat_date(
+            date, date_format=DateFormat.MM_DD_YYYY, date_precision_separator=".", date_range_separator=None
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("date", "expected"),
+        [
+            ("1.11.2000-05.4.2001", "GREGORIAN:CE:2000-11-1:CE:2001-4-05"),
+            ("11.2000-2001", "GREGORIAN:CE:2000-11:CE:2001"),
+            ("2000-4.2001", "GREGORIAN:CE:2000:CE:2001-4"),
+            ("2000-", "GREGORIAN:CE:2000:CE:2000"),
+        ],
+    )
+    def test_default_values_with_range(self, date, expected):
+        result = reformat_date(
+            date, date_precision_separator=".", date_range_separator="-", date_format=DateFormat.DD_MM_YYYY
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("date", "calendar", "era", "expected"),
+        [
+            ("1.11.2000 - 05.4.2001", Calendar.JULIAN, Era.AD, "JULIAN:AD:2000-11-1:AD:2001-4-05"),
+            ("11.2000-2001", Calendar.ISLAMIC, None, "ISLAMIC:2000-11:2001"),
+        ],
+    )
+    def test_non_default_calendar(self, date, calendar, era, expected):
+        result = reformat_date(
+            date,
+            date_format=DateFormat.DD_MM_YYYY,
+            date_precision_separator=".",
+            date_range_separator="-",
+            calendar=calendar,
+            era=era,
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("date", "era", "expected"),
+        [
+            ("1.11.2000-05.4.2001", Era.BCE, "GREGORIAN:BCE:2000-11-1:BCE:2001-4-05"),
+            ("11.2000-2001", Era.AD, "GREGORIAN:AD:2000-11:AD:2001"),
+            (" 2000- 4.2001 ", Era.BC, "GREGORIAN:BC:2000:BC:2001-4"),
+        ],
+    )
+    def test_non_default_era(self, date, era, expected):
+        result = reformat_date(
+            date, date_format=DateFormat.DD_MM_YYYY, date_precision_separator=".", date_range_separator="-", era=era
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "date",
+        ["GREGORIAN:BCE:2000-11-1:BCE:2001-4-05", "ISLAMIC:2000-11-1:2001-4-05"],
+    )
+    def test_is_dsp_date(self, date):
+        result = reformat_date(
+            date, date_precision_separator=":", date_range_separator="-", date_format=DateFormat.DD_MM_YYYY
+        )
+        assert result == date
+
+    @pytest.mark.parametrize(
+        "date",
+        ["GREGORIAN:BCE:2000-11-1:BCE:2001-4-05", "2000", "20", "1.40", "1.4.200-06.7.300"],
+    )
+    def test_no_warnings(self, date):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            reformat_date(
+                date, date_precision_separator=".", date_range_separator="-", date_format=DateFormat.DD_MM_YYYY
+            )
+        assert len(caught_warnings) == 0
+
+    @pytest.mark.parametrize(
+        "date",
+        [
+            "11.2000.12.2000",  # too many numbers
+            "not-a-date",  # contains letters
+            "11.2000.1",  # invalid date
+            "2000.11.1",  # wrong order
+            "1.11.200-1.12.200-1.1.300",  # too many dates
+            "JULIAN-00.1.",  # contains a calendar but is an invalid dsp date
+        ],
+    )
+    def test_warns(self, date):
+        msg = rf"The provided date '{date}' does not conform to the expected format, the original value is returned."
+        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
+            result = reformat_date(
+                date, date_precision_separator=".", date_range_separator="-", date_format=DateFormat.DD_MM_YYYY
+            )
+        assert result == date
+
+    def test_warns_empty(self):
+        msg = r"The date to be reformatted is empty. An empty string is returned."
+        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
+            result = reformat_date(
+                "", date_precision_separator=".", date_range_separator="-", date_format=DateFormat.DD_MM_YYYY
+            )
+        assert result == ""
+
+    def test_warns_islamic_with_era(self):
+        date = "2000.11.1"
+        msg = rf"The provided date '{date}' does not conform to the expected format, the original value is returned."
+        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
+            result = reformat_date(
+                date,
+                date_precision_separator=".",
+                date_range_separator="-",
+                date_format=DateFormat.YYYY_MM_DD,
+                calendar=Calendar.ISLAMIC,
+            )
+        assert result == date
+
+    def test_raises_invalid_precision_and_range_is_the_same(self):
+        date = "11.2000.12.2000"
+        msg = "The precision separator and range separator provided are identical: '.'. This is not allowed."
+        with pytest.raises(InputError, match=regex.escape(msg)):
+            reformat_date(
+                date, date_precision_separator=".", date_range_separator=".", date_format=DateFormat.DD_MM_YYYY
+            )
+
+    def test_raises_invalid_invalid_date_order(self):
+        date = "11.2000-12.2000"
+        msg = "The provided date format 'some string' to reformat the date is invalid."
+        with pytest.raises(InputError, match=regex.escape(msg)):
+            reformat_date(date, date_precision_separator=".", date_range_separator="-", date_format="some string")  # type:ignore[arg-type]
 
 
 class TestFindDate:

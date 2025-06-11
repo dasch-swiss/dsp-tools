@@ -34,6 +34,34 @@ def is_nonempty_value_internal(value: Any) -> bool:
     return False
 
 
+def is_date_internal(value: Any) -> bool:
+    """
+    Is it a valid dsp-date.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it conforms
+    """
+    calendar_optional = r"(?:(GREGORIAN|JULIAN|ISLAMIC):)?"
+    first_era_optional = r"(?:(CE|BCE|BC|AD):)?"
+    second_area_optional = r"(?::(CE|BCE|BC|AD))?"
+    date = r"\d{1,4}(?:-\d{1,2}){0,2}"
+    date_mandatory = rf"({date})"
+    date_optional = rf"(:{date})?"
+    full_date_pattern = (
+        rf"^{calendar_optional}{first_era_optional}{date_mandatory}{second_area_optional}{date_optional}$"
+    )
+    found = regex.search(full_date_pattern, str(value))
+    if not found:
+        return False
+    if found.group(1) == "ISLAMIC" and (found.group(2) or found.group(4)):
+        # eras are not supported yet for the islamic calendar
+        return False
+    return True
+
+
 def check_and_warn_potentially_empty_string(
     *, value: Any, res_id: str | None, expected: str, prop_name: str | None = None, field: str | None = None
 ) -> None:

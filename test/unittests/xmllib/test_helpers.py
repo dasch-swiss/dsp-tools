@@ -162,15 +162,20 @@ class TestReformatDate:
         assert result == expected
 
     @pytest.mark.parametrize(
-        ("date", "calendar", "expected"),
+        ("date", "calendar", "era", "expected"),
         [
-            ("1.11.2000-05.4.2001", Calendar.JULIAN, "JULIAN:CE:2000-11-1:CE:2001-4-05"),
-            ("11.2000-2001", Calendar.ISLAMIC, "ISLAMIC:CE:2000-11:CE:2001"),
+            ("1.11.2000-05.4.2001", Calendar.JULIAN, Era.AD, "JULIAN:AD:2000-11-1:AD:2001-4-05"),
+            ("11.2000-2001", Calendar.ISLAMIC, None, "ISLAMIC:2000-11:2001"),
         ],
     )
-    def test_non_default_calendar(self, date, calendar, expected):
+    def test_non_default_calendar(self, date, calendar, era, expected):
         result = reformat_date(
-            date, date_order=DateOrder.DD_MM_YYY, precision_separator=".", range_separator=None, calendar=calendar
+            date,
+            date_order=DateOrder.DD_MM_YYY,
+            precision_separator=".",
+            range_separator=None,
+            calendar=calendar,
+            era=era,
         )
         assert result == expected
 
@@ -222,6 +227,13 @@ class TestReformatDate:
         msg = rf"'{date}'"
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
+        assert result == date
+
+    def test_warns_islamic_with_era(self):
+        date = "2000.11.1"
+        msg = rf"'{date}'"
+        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
+            result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.YYYY_MM_DD)
         assert result == date
 
 

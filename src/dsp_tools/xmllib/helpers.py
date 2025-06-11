@@ -15,6 +15,7 @@ from regex import Match
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
@@ -25,7 +26,6 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
-from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -545,7 +545,7 @@ def reformat_date(
     range_separator: str | None,
     date_order: DateOrder,
     calendar: Calendar = Calendar.GREGORIAN,
-    era: Era = Era.CE,
+    era: Era | None = Era.CE,
 ) -> str:
     if not is_nonempty_value_internal(date):
         msg_info = MessageInfo(
@@ -553,7 +553,7 @@ def reformat_date(
         )
         emit_xmllib_input_warning(msg_info)
         return ""
-    if is_date(date):
+    if is_date_internal(date):
         return date
     return ""
 

@@ -669,7 +669,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         return ""
     date = str(date).strip()
     invalid_date_info = MessageInfo(
-        f"The provided date '{date}' does not conform to the expected format. The original value is returned.",
+        f"The provided date '{date}' does not conform to the expected format, the original value is returned.",
         resource_id=resource_id,
     )
     # Here we want to check if the input is already a reformatted date. In that case, we would expect a calendar.

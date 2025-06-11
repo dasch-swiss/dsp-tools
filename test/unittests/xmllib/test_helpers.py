@@ -230,20 +230,20 @@ class TestReformatDate:
         ],
     )
     def test_warns(self, date):
-        msg = rf"The date provided: '{date}' does not conform to the expected format, the original value is returned."
+        msg = rf"The provided date '{date}' does not conform to the expected format, the original value is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYYY)
         assert result == date
 
     def test_warns_empty(self):
-        msg = r"The value provided to reformat the date is empty. An empty string is returned."
+        msg = r"The date to be reformatted is empty. An empty string is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date("", precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYYY)
         assert result == ""
 
     def test_warns_islamic_with_era(self):
         date = "2000.11.1"
-        msg = rf"The date provided: '{date}' does not conform to the expected format, the original value is returned."
+        msg = rf"The provided date '{date}' does not conform to the expected format, the original value is returned."
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(
                 date,
@@ -256,7 +256,7 @@ class TestReformatDate:
 
     def test_raises_invalid_precision_and_range_is_the_same(self):
         date = "11.2000.12.2000"
-        msg = "The precision separator and range separator provided are identical '.'. This is not allowed."
+        msg = "The precision separator and range separator provided are identical: '.'. This is not allowed."
         with pytest.raises(InputError, match=regex.escape(msg)):
             reformat_date(date, precision_separator=".", range_separator=".", date_order=DateOrder.DD_MM_YYYY)
 

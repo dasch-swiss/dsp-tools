@@ -1,7 +1,11 @@
 # mypy: disable-error-code="no-untyped-def,comparison-overlap"
+import warnings
 
+import pytest
+import regex
 from lxml import etree
 
+from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
@@ -13,6 +17,79 @@ from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
 from dsp_tools.xmllib.models.root import _serialise_authorship
+
+
+@pytest.fixture
+def resource_1() -> Resource:
+    return Resource.create_new("id_1", ":ResType", "lbl")
+
+
+class TestAddResource:
+    def test_ok(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource(resource_1)
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 1
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"]}
+
+    def test_optional_none(self):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_optional(None)
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 0
+        assert not root._res_id_to_type_lookup
+
+    def test_optional_with_resource(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_optional(resource_1)
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 1
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"]}
+
+    def test_multiple(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        resource_2 = Resource.create_new("id_2", ":ResType2", "lbl")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_multiple([resource_1, resource_2])
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 2
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType"], "id_2": [":ResType2"]}
+
+    def test_multiple_empty(self):
+        root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            root = root.add_resource_multiple([])
+        assert len(caught_warnings) == 0
+        assert len(root.resources) == 0
+        assert not root._res_id_to_type_lookup
+
+    def test_duplicate_id_warnings(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        root = root.add_resource(resource_1)
+        res_duplicate_id = VideoSegmentResource.create_new("id_1", "lbl", "segment_of", 1, 2)
+        msg = regex.escape(
+            "Resource ID 'id_1' | Field 'Resource ID' | The ID for this resource of type 'VideoSegmentResource' "
+            "is already used by resource(s) of the following type(s): ':ResType'."
+        )
+        with pytest.warns(XmllibInputWarning, match=msg):
+            root = root.add_resource(res_duplicate_id)
+        assert len(root.resources) == 2
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType", "VideoSegmentResource"]}
+
+    def test_duplicate_id_warnings_with_multiple(self, resource_1):
+        root = XMLRoot.create_new("0000", "test")
+        res_duplicate_id = Resource.create_new("id_1", ":ResType2", "lbl")
+        msg = regex.escape(
+            "Resource ID 'id_1' | Field 'Resource ID' | The ID for this resource of type ':ResType2' "
+            "is already used by resource(s) of the following type(s): ':ResType'."
+        )
+        with pytest.warns(XmllibInputWarning, match=msg):
+            root = root.add_resource_multiple([resource_1, res_duplicate_id])
+        assert len(root.resources) == 2
+        assert root._res_id_to_type_lookup == {"id_1": [":ResType", ":ResType2"]}
 
 
 class TestSerialise:

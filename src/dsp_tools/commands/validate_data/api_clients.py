@@ -172,7 +172,7 @@ class ShaclValidator:
             onto_graph.serialize(format="ttl"), onto_shacl.serialize(format="ttl")
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 360
+        timeout = 600
         log_request(RequestParameters("POST", url, timeout, files=post_files))
         response = requests.post(url=url, files=post_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)
@@ -186,7 +186,7 @@ class ShaclValidator:
             graph_strings.cardinality_validation_data, graph_strings.cardinality_shapes
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 360
+        timeout = 600
         log_request(RequestParameters("POST", url, timeout, files=card_files))
         response = requests.post(url=url, files=card_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)
@@ -200,7 +200,7 @@ class ShaclValidator:
             graph_strings.content_validation_data, graph_strings.content_shapes
         )
         url = f"{self.api_url}/shacl/validate"
-        timeout = 360
+        timeout = 600
         log_request(RequestParameters("POST", url, timeout, files=content_files))
         response = requests.post(url=url, files=content_files.to_dict(), timeout=timeout)
         log_response(response, include_response_content=False)

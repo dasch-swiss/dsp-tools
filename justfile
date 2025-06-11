@@ -28,6 +28,7 @@ lint: uv-sync
     just markdownlint
     just darglint
     just mypy
+    just vulture
     uv run scripts/markdown_link_validator.py
 
 

@@ -24,7 +24,6 @@ from dsp_tools.commands.excel2json.models.json_header import Licenses
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
-from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
@@ -220,10 +219,10 @@ def _check_email(email: str, row_num: int) -> InvalidExcelContentProblem | None:
 
 
 def _check_role(value: str, row_num: int) -> InvalidExcelContentProblem | None:
-    possible_roles = ["projectadmin", "systemadmin", "projectmember"]
+    possible_roles = ["projectadmin", "projectmember"]
     if value.lower() not in possible_roles:
         return InvalidExcelContentProblem(
-            expected_content="One of: projectadmin, systemadmin, projectmember",
+            expected_content="One of: projectadmin, projectmember",
             actual_content=value,
             excel_position=PositionInExcel(column="role", row=row_num),
         )
@@ -297,7 +296,7 @@ def _extract_users(df: pd.DataFrame) -> Users:
 
 
 def _extract_one_user(row: pd.Series[str]) -> User:
-    user_role = _get_role(row["role"])
+    isProjectAdmin = row["role"].lower() == "projectadmin"
     return User(
         username=row["username"],
         email=row["email"],
@@ -305,15 +304,5 @@ def _extract_one_user(row: pd.Series[str]) -> User:
         familyName=row["familyname"],
         password=row["password"],
         lang=row["lang"],
-        role=user_role,
+        isProjectAdmin=isProjectAdmin,
     )
-
-
-def _get_role(value: str) -> UserRole:
-    match value.lower():
-        case "projectadmin":
-            return UserRole(project_admin=True)
-        case "systemadmin":
-            return UserRole(sys_admin=True)
-        case _:
-            return UserRole()

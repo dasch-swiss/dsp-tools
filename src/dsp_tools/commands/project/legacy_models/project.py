@@ -92,8 +92,6 @@ class Project(Model):
     _status: bool
     _logo: Optional[str]
 
-    SYSTEM_PROJECT: str = "http://www.knora.org/ontology/knora-admin#SystemProject"
-
     def __init__(
         self,
         con: Connection,

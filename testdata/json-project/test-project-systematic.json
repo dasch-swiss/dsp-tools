@@ -96,17 +96,6 @@
                 "lang": "de",
                 "projects": [
                     ":admin"
-                ]
-            },
-            {
-                "username": "testerSystemAdmin",
-                "email": "tester.systemadmin@test.org",
-                "givenName": "Tester",
-                "familyName": "System Admin",
-                "password": "test0815",
-                "lang": "rm",
-                "groups": [
-                    "SystemAdmin"
                 ],
                 "status": true
             },
@@ -117,9 +106,6 @@
                 "familyName": "User",
                 "password": "test0815",
                 "lang": "en",
-                "groups": [
-                    "SystemAdmin"
-                ],
                 "projects": [
                     ":admin"
                 ],
@@ -131,7 +117,7 @@
                 "givenName": "member-admin",
                 "familyName": "member-admin",
                 "password": "test0815",
-                "lang": "en",
+                "lang": "rm",
                 "projects": [
                     ":member",
                     ":admin"

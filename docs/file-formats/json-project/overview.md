@@ -254,7 +254,6 @@ This object contains user definitions. A user has the following elements:
 - `groups` (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
     - `other_project_shortname:groupname`
     - `:groupname` (for groups defined in the current JSON project file)
-    - `SystemAdmin` (the most powerful group, built-in into DSP)
 - `projects` (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
   `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
@@ -276,8 +275,7 @@ Example:
       "password": "biz1234",
       "lang": "en",
       "groups": [
-        ":biz-editors",
-        "SystemAdmin"
+        ":biz-editors"
       ],
       "projects": [
         ":admin",

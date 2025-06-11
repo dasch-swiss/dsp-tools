@@ -67,9 +67,6 @@
         "password": "alice8711",
         "lang": "fr",
         "status": true,
-        "groups": [
-          "SystemAdmin"
-        ],
         "projects": [
           ":admin",
           ":member"

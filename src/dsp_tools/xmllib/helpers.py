@@ -546,10 +546,11 @@ def reformat_date(
     date_order: DateOrder,
     calendar: Calendar = Calendar.GREGORIAN,
     era: Era | None = Era.CE,
+    resource_id: str | None = None,
 ) -> str:
     if not is_nonempty_value_internal(date):
         msg_info = MessageInfo(
-            "The value provided to reformat the date is empty. An empty string is returned.",
+            "The value provided to reformat the date is empty. An empty string is returned.", resource_id=resource_id
         )
         emit_xmllib_input_warning(msg_info)
         return ""
@@ -558,7 +559,9 @@ def reformat_date(
     if precision_separator and range_separator:
         if precision_separator == range_separator:
             msg_info = MessageInfo(
-                f"The precision separator and range separator provided are identical '{precision_separator}'. This is not allowed."
+                f"The precision separator and range separator provided are identical '{precision_separator}'. "
+                f"This is not allowed.",
+                resource_id=resource_id,
             )
             raise_input_error(msg_info)
     date = str(date)
@@ -577,7 +580,8 @@ def reformat_date(
     if is_date_internal(reformatted_str):
         return reformatted_str
     invalid_date_info = MessageInfo(
-        f"The date provided: '{date}' does not conform to the expected format, the original value is returned."
+        f"The date provided: '{date}' does not conform to the expected format, the original value is returned.",
+        resource_id=resource_id,
     )
     emit_xmllib_input_warning(invalid_date_info)
     return date

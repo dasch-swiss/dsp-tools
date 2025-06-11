@@ -208,13 +208,6 @@ class TestReformatDate:
             reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert len(caught_warnings) == 0
 
-    def test_invalid_precision_and_range_is_the_same(self):
-        date = "11.2000.12.2000"
-        msg = "sdfasfd"
-        with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
-            result = reformat_date(date, precision_separator=".", range_separator=".", date_order=DateOrder.DD_MM_YYY)
-        assert result == date
-
     @pytest.mark.parametrize(
         "date",
         [
@@ -237,6 +230,18 @@ class TestReformatDate:
         with pytest.warns(XmllibInputWarning, match=regex.escape(msg)):
             result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.YYYY_MM_DD)
         assert result == date
+
+    def test_raises_invalid_precision_and_range_is_the_same(self):
+        date = "11.2000.12.2000"
+        msg = "sdfasfd"
+        with pytest.raises(InputError, match=regex.escape(msg)):
+            reformat_date(date, precision_separator=".", range_separator=".", date_order=DateOrder.DD_MM_YYY)
+
+    def test_raises_invalid_invalid_date_order(self):
+        date = "11.2000-12.2000"
+        msg = "sdfasfd"
+        with pytest.raises(InputError, match=regex.escape(msg)):
+            reformat_date(date, precision_separator=".", range_separator=".", date_order="DD_MM_YYYY")
 
 
 class TestFindDate:

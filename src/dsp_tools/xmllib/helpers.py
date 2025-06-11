@@ -555,6 +555,12 @@ def reformat_date(
         return ""
     if is_date_internal(date):
         return date
+    if precision_separator and range_separator:
+        if precision_separator == range_separator:
+            msg_info = MessageInfo(
+                f"The precision separator and range separator provided are identical '{precision_separator}'. This is not allowed."
+            )
+            raise_input_error(msg_info)
     date = str(date)
     all_dates = []
     if range_separator:

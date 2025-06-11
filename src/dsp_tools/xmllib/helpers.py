@@ -570,7 +570,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
 
     Examples:
         ```python
-        # with the default configuration, starting with the day
+        # default configuration, starting with the day
         result = xmllib.reformat_date(
             date="1.11.2000",
             precision_separator=".",
@@ -581,7 +581,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # with the default configuration, but starting with the year
+        # default configuration, but starting with the year
         result = xmllib.reformat_date(
             date="2000.11.1",
             precision_separator=".",
@@ -628,7 +628,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # the date is reformatted even the precisions are not in the actual date string
+        # reformatted date, no precisions in the date string is required
         result = xmllib.reformat_date(
             date="2000",
             precision_separator=".",
@@ -639,7 +639,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # if an already formatted date is entered, the original is returned
+        # already correctly formatted date
         result = xmllib.reformat_date(
             date="GREGORIAN:CE:2000:CE:2000",
             precision_separator=".",
@@ -650,7 +650,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
         ```
 
         ```python
-        # in case of invalid input, a warning is emitted and the original input is returned
+        # invalid input: a warning is emitted and the original input is returned
         result = xmllib.reformat_date(
             date="not-a-date",
             precision_separator=".",

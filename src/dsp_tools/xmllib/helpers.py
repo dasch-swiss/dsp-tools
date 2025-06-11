@@ -539,7 +539,7 @@ def escape_reserved_xml_characters(text: str) -> str:
     return text
 
 
-def reformat_date(
+def reformat_date(  # noqa: PLR0912 (too many branches)
     date: str | int,
     precision_separator: str | None,
     range_separator: str | None,
@@ -550,14 +550,16 @@ def reformat_date(
 ) -> str:
     """
     Reformats a date string into the DSP format.
-    If the input cannot be reformatted according to the configuration or the reformatting result
-    is not a valid DSP date, a warning is emitted and the original input is returned.
+    - If the input cannot be reformatted according to the configuration or the reformatting result
+      is not a valid DSP date, a warning is emitted and the original input is returned.
+    - If the input is empty, a warning is emitted and an empty string is returned.
+    - If the input is already a correctly formatted DSP-date the original is returned.
 
     Args:
         date: date string to be reformatted
         precision_separator: the separation between the day, month and year
         range_separator: the separation between two dates
-        date_order: the order of the date, YYYY-MM-DD or DD-MM-YYYY
+        date_order: the order of the date, `xmllib.DateOrder.DD_MM_YYYY` or `xmllib.DateOrder.YYYY_MM_DD`
         calendar: the calendar of the date
         era: the era of the date
         resource_id: the ID of the associated resource, this is to improve the error message
@@ -591,12 +593,12 @@ def reformat_date(
         ```python
         # with a date range
         result = xmllib.reformat_date(
-            date="1.11.2000-05.4.2001",
+            date="1.11.2000-2001",
             precision_separator=".",
             range_separator="-",
             date_order=xmllib.DateOrder.DD_MM_YYYY,
         )
-        # result == "GREGORIAN:CE:2000-11-1:CE:2001-4-05"
+        # result == "GREGORIAN:CE:2000-11-1:CE:2001"
         ```
 
         ```python
@@ -636,7 +638,18 @@ def reformat_date(
         ```
 
         ```python
-        # in case of invalid input a warning is emitted and the original input is returned
+        # if an already formatted date is entered, the original is returned
+        result = xmllib.reformat_date(
+            date="GREGORIAN:CE:2000:CE:2000",
+            precision_separator=".",
+            range_separator="-",
+            date_order=xmllib.DateOrder.DD_MM_YYYY,
+        )
+        # result == "GREGORIAN:CE:2000:CE:2000"
+        ```
+
+        ```python
+        # in case of invalid input, a warning is emitted and the original input is returned
         result = xmllib.reformat_date(
             date="not-a-date",
             precision_separator=".",
@@ -653,12 +666,20 @@ def reformat_date(
         )
         emit_xmllib_input_warning(msg_info)
         return ""
+    invalid_date_info = MessageInfo(
+        f"The date provided: '{date}' does not conform to the expected format, the original value is returned.",
+        resource_id=resource_id,
+    )
     date = str(date).strip()
     # Here we want to check if the input is already a reformatted date. In that case, we would expect a calendar.
     # The function that checks if an input is a valid date does not require a calendar,
     # so unformatted input for example, '2000' may be accepted as a valid date.
-    if regex.search(r"^(GREGORIAN|JULIAN|ISLAMIC)", date):
-        return date
+    if regex.search(r"(GREGORIAN|JULIAN|ISLAMIC)", date):
+        if is_date_internal(date):
+            return date
+        else:
+            emit_xmllib_input_warning(invalid_date_info)
+            return date
     if precision_separator and range_separator:
         if precision_separator == range_separator:
             msg_info = MessageInfo(
@@ -683,10 +704,6 @@ def reformat_date(
         reformatted_str = f"{calendar.value}:{reformatted_str}"
     if is_date_internal(reformatted_str):
         return reformatted_str
-    invalid_date_info = MessageInfo(
-        f"The date provided: '{date}' does not conform to the expected format, the original value is returned.",
-        resource_id=resource_id,
-    )
     emit_xmllib_input_warning(invalid_date_info)
     return date
 

@@ -195,7 +195,7 @@ class TestReformatDate:
 
     def test_is_dsp_date(self):
         date = "GREGORIAN:BCE:2000-11-1:BCE:2001-4-05"
-        result = reformat_date(date, precision_separator=".", range_separator="-", date_order=DateOrder.DD_MM_YYY)
+        result = reformat_date(date, precision_separator=":", range_separator="-", date_order=DateOrder.DD_MM_YYY)
         assert result == date
 
     @pytest.mark.parametrize(
@@ -221,6 +221,7 @@ class TestReformatDate:
             "not-a-date",  # contains letters
             "11.2000.1",  # invalid date
             "2000.11.1",  # wrong order
+            "1.11.200-1.12.200-1.1.300",  # too many dates
         ],
     )
     def test_warns(self, date):

@@ -555,7 +555,29 @@ def reformat_date(
         return ""
     if is_date_internal(date):
         return date
-    return ""
+    all_dates = []
+    if range_separator:
+        date_split = date.split()
+        for single_date in date_split:
+            all_dates.append(_reformat_single_date(single_date, precision_separator, date_order))
+    if era:
+        all_dates = [f"{era.value}:{x}" for x in all_dates]
+    if len(all_dates) == 1:
+        all_dates.append(all_dates[0])
+    reformatted_str = ":".join(all_dates)
+    if calendar:
+        reformatted_str = f"{calendar.value}:{reformatted_str}"
+    if not is_date_internal(reformatted_str):
+        invalid_date_info = MessageInfo(
+            f"The date provided: '{date}' does not conform to the expected format, the original value is returned."
+        )
+        emit_xmllib_input_warning(invalid_date_info)
+        return date
+    return reformatted_str
+
+
+def _reformat_single_date(date: str, precision_separator: str | None, date_order: DateOrder) -> str:
+    pass
 
 
 def find_dates_in_string(string: str) -> set[str]:

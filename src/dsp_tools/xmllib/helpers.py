@@ -690,7 +690,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
             )
             raise_input_error(msg_info)
     all_dates = []
-    if range_separator:
+    if range_separator is not None:
         date_split = [found for x in date.split(range_separator) if (found := x.strip())]
     else:
         date_split = [date]
@@ -710,7 +710,7 @@ def reformat_date(  # noqa: PLR0912 (too many branches)
 
 
 def _reformat_single_date(single_date: str, precision_separator: str | None, date_order: DateOrder) -> str:
-    if not precision_separator:
+    if precision_separator is None:
         return single_date
     date_split = [x.strip() for x in single_date.split(precision_separator)]
     if date_order == DateOrder.YYYY_MM_DD:

@@ -21,6 +21,8 @@ from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidInputError
+from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
@@ -309,21 +311,10 @@ def _create_users(
         True if all users could be created without any problems. False if a warning/error occurred.
     """
     overall_success = True
+    all_users = User.getAllUsers(con)
     for json_user_definition in users_section:
         username = json_user_definition["username"]
 
-        # skip the user if he already exists
-        all_users = User.getAllUsers(con)
-        if json_user_definition["email"] in [user.email for user in all_users]:
-            err_msg = (
-                f"User '{username}' already exists on the DSP server.\n"
-                f"Please manually add this user to the project in DSP-APP."
-            )
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-            overall_success = False
-            continue
-        # add user to the group(s)
         group_iris, success = _get_group_iris_for_user(
             json_user_definition=json_user_definition,
             current_project=current_project,
@@ -334,7 +325,6 @@ def _create_users(
         if not success:
             overall_success = False
 
-        # add user to the project(s)
         project_info, success = _get_projects_where_user_is_admin(
             json_user_definition=json_user_definition,
             current_project=current_project,
@@ -343,6 +333,10 @@ def _create_users(
         )
         if not success:
             overall_success = False
+
+        if existing_user := next((user for user in all_users if user.username == username), None):
+            _add_user_to_groups_and_project(existing_user, project_info, group_iris, con, current_project)
+            continue
 
         # create the user
         user_local = User(
@@ -359,15 +353,52 @@ def _create_users(
         )
         try:
             user_local.create()
+            print(f"    Created user '{username}'.")
+            logger.info(f"Created user '{username}'.")
         except BaseError:
             print(f"    WARNING: Unable to create user '{username}'.")
             logger.exception(f"Unable to create user '{username}'.")
             overall_success = False
-            continue
-        print(f"    Created user '{username}'.")
-        logger.info(f"Created user '{username}'.")
 
     return overall_success
+
+
+def _add_user_to_groups_and_project(
+    user: User,
+    project_info: dict[str, bool],
+    group_iris: set[str],
+    con: Connection,
+    current_project: Project,
+) -> None:
+    is_admin = project_info[str(current_project.iri)]
+    if is_admin:
+        url = f"/admin/users/iri/{user.iri}/project-admin-memberships/{current_project.iri}"
+    else:
+        url = f"/admin/users/iri/{user.iri}/project-memberships/{current_project.iri}"
+    try:
+        con.post(url)
+        print(f"    Added existing user '{user.username}' to project.")
+        logger.info(f"Added existing user '{user.username}' to project.")
+    except (PermanentConnectionError, InvalidInputError):
+        err_msg = (
+            f"Existing user '{user.username}' could not be added to project.\n"
+            f"Please manually add this user to the project in DSP-APP."
+        )
+        print(f"    WARNING: {err_msg}")
+        logger.warning(err_msg)
+
+    for group_iri in group_iris:
+        try:
+            con.post(f"/admin/users/iri/{user.iri}/group-memberships/{group_iri}")
+            print(f"    Added existing user '{user.username}' to group {group_iri}.")
+            logger.info(f"Added existing user '{user.username}' to group {group_iri}.")
+        except (PermanentConnectionError, InvalidInputError):
+            err_msg = (
+                f"Existing user '{user.username}' could not be added to group {group_iri}.\n"
+                f"Please manually add this user to the group in DSP-APP."
+            )
+            print(f"    WARNING: {err_msg}")
+            logger.warning(err_msg)
 
 
 def _get_group_iris_for_user(

@@ -39,10 +39,6 @@ class RegionResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-
     @staticmethod
     def create_new(
         res_id: str,
@@ -77,6 +73,8 @@ class RegionResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
         return RegionResource(
             res_id=res_id,
             label=label,
@@ -397,10 +395,6 @@ class LinkResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-
     @staticmethod
     def create_new(
         res_id: str,
@@ -432,6 +426,8 @@ class LinkResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals: list[Value] = [
             LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
@@ -610,10 +606,6 @@ class VideoSegmentResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-
     @staticmethod
     def create_new(
         res_id: str,
@@ -650,6 +642,8 @@ class VideoSegmentResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )
@@ -1146,10 +1140,6 @@ class AudioSegmentResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-
     @staticmethod
     def create_new(
         res_id: str,
@@ -1175,6 +1165,8 @@ class AudioSegmentResource:
         Returns:
             An audio segment resource
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )

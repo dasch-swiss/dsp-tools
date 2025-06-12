@@ -35,7 +35,10 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 
 
 def ingest_xmlupload(
-    xml_file: Path, creds: ServerCredentials, interrupt_after: int | None = None, skip_validation: bool = False
+    xml_file: Path,
+    creds: ServerCredentials,
+    interrupt_after: int | None = None,
+    skip_validation: bool = False,
 ) -> bool:
     """
     This function reads an XML file

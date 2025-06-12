@@ -120,7 +120,7 @@ def xmlupload(
         if not validation_passed:
             return False
     else:
-        logger.debug(f"SHACL validation was skipped.")
+        logger.debug("SHACL validation was skipped.")
 
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:

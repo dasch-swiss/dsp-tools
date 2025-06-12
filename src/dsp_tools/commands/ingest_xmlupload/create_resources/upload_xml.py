@@ -78,6 +78,7 @@ def ingest_xmlupload(
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     validation_should_be_skipped = skip_validation
+    is_on_prod_like_server = is_prod_like_server(creds.server)
     if is_on_prod_like_server and config.skip_validation:
         msg = (
             "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
@@ -96,7 +97,7 @@ def ingest_xmlupload(
             permission_ids=list(lookups.permissions.keys()),
             shortcode=shortcode,
             config=ValidateDataConfig(
-                input_file,
+                xml_file,
                 save_graph_dir=None,
                 severity=config.validation_severity,
                 is_on_prod_server=is_on_prod_like_server,
@@ -106,7 +107,7 @@ def ingest_xmlupload(
         if not validation_passed:
             return False
     else:
-        logger.debug(f"SHACL validation was skipped.")
+        logger.debug("SHACL validation was skipped.")
 
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)

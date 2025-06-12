@@ -268,6 +268,7 @@ def _add_ingest_xmlupload(
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xml_file", help="path to XML file containing the data")
+    subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
 
 
 def _add_xmlupload(
@@ -289,6 +290,7 @@ def _add_xmlupload(
     subparser.add_argument(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
+    subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")

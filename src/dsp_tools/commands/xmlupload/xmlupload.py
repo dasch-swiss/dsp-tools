@@ -47,6 +47,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
@@ -90,21 +91,36 @@ def xmlupload(
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
 
     is_on_prod_like_server = is_prod_like_server(creds.server)
-    validation_passed = validate_parsed_resources(
-        parsed_resources=parsed_resources,
-        authorship_lookup=lookups.authorships,
-        permission_ids=list(lookups.permissions.keys()),
-        shortcode=shortcode,
-        config=ValidateDataConfig(
-            input_file,
-            save_graph_dir=None,
-            severity=config.validation_severity,
-            is_on_prod_server=is_on_prod_like_server,
-        ),
-        auth=auth,
-    )
-    if not validation_passed:
-        return False
+    validation_should_be_skipped = config.skip_validation
+    if is_on_prod_like_server and config.skip_validation:
+        msg = (
+            "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
+            "This means that the upload may fail due to undetected errors. "
+            "Do you wish to skip the validation (yes/no)? "
+        )
+        resp = ""
+        while resp not in ["yes", "no"]:
+            resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+        if str(resp) == "no":
+            validation_should_be_skipped = False
+    if not validation_should_be_skipped:
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=lookups.authorships,
+            permission_ids=list(lookups.permissions.keys()),
+            shortcode=shortcode,
+            config=ValidateDataConfig(
+                input_file,
+                save_graph_dir=None,
+                severity=config.validation_severity,
+                is_on_prod_server=is_on_prod_like_server,
+            ),
+            auth=auth,
+        )
+        if not validation_passed:
+            return False
+    else:
+        logger.debug("SHACL validation was skipped.")
 
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:

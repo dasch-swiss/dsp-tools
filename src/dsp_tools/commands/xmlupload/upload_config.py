@@ -51,6 +51,7 @@ class UploadConfig:
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
     interrupt_after: int | None = None
     skip_iiif_validation: bool = False
+    skip_validation: bool = False
     validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
 
     def with_server_info(

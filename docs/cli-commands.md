@@ -198,6 +198,7 @@ The following options are available:
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
+- `--skip-validation` (optional): skip the SHACL schema validation
 - `--validation-severity` (optional, default: `info`): which severity level of messages 
   will be printed out during validation. 
   Options: `info`, `warning`, and `error` 
@@ -378,6 +379,7 @@ The following options are available:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
+- `--skip-validation` (optional): skip the SHACL schema validation
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 

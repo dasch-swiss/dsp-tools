@@ -28,6 +28,8 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
@@ -36,6 +38,7 @@ def ingest_xmlupload(
     xml_file: Path,
     creds: ServerCredentials,
     interrupt_after: int | None = None,
+    skip_validation: bool = False,
 ) -> bool:
     """
     This function reads an XML file
@@ -49,6 +52,7 @@ def ingest_xmlupload(
         xml_file: path to XML file containing the resources
         creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
+        skip_validation: skip the SHACL validation
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -73,23 +77,37 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-
+    validation_should_be_skipped = skip_validation
     is_on_prod_like_server = is_prod_like_server(creds.server)
-    validation_passed = validate_parsed_resources(
-        parsed_resources=parsed_resources,
-        authorship_lookup=lookups.authorships,
-        permission_ids=list(lookups.permissions.keys()),
-        shortcode=shortcode,
-        config=ValidateDataConfig(
-            xml_file,
-            save_graph_dir=None,
-            severity=config.validation_severity,
-            is_on_prod_server=is_on_prod_like_server,
-        ),
-        auth=auth,
-    )
-    if not validation_passed:
-        return False
+    if is_on_prod_like_server and config.skip_validation:
+        msg = (
+            "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
+            "This means that the upload may fail due to undetected errors. "
+            "Do you wish to skip the validation (yes/no)? "
+        )
+        resp = ""
+        while resp not in ["yes", "no"]:
+            resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+        if str(resp) == "no":
+            validation_should_be_skipped = False
+    if not validation_should_be_skipped:
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=lookups.authorships,
+            permission_ids=list(lookups.permissions.keys()),
+            shortcode=shortcode,
+            config=ValidateDataConfig(
+                xml_file,
+                save_graph_dir=None,
+                severity=config.validation_severity,
+                is_on_prod_server=is_on_prod_like_server,
+            ),
+            auth=auth,
+        )
+        if not validation_passed:
+            return False
+    else:
+        logger.debug("SHACL validation was skipped.")
 
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)

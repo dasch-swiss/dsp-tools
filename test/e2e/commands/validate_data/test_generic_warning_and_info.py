@@ -121,6 +121,33 @@ class TestSortedProblems:
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
+    def test_no_violations_with_info_ignore_duplicate_files_warning(self, authentication, shacl_validator):
+        file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=True,
+            is_on_prod_server=False,
+        )
+        graphs, used_iris = _prepare_data_for_validation_from_file(
+            file, authentication, config.ignore_duplicate_files_warning
+        )
+        report = _get_validation_result(graphs, shacl_validator, config)
+        reformatted = reformat_validation_graph(report)
+        no_violations_with_info = sort_user_problems(reformatted)
+        all_expected_info = [
+            ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ]
+        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)
+        assert not no_violations_with_info.unique_violations
+        assert not no_violations_with_info.user_warnings
+        assert len(no_violations_with_info.user_info) == len(all_expected_info)
+        assert not no_violations_with_info.unexpected_shacl_validation_components
+        for one_result, expected_info in zip(sorted_info, all_expected_info):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

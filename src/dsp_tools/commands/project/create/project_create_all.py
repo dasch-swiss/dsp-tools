@@ -180,14 +180,15 @@ def _create_project_on_server(
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
     all_projects = Project.getAllProjects(con=con)
-    if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
+    if remote_project := next((x for x in all_projects if project_definition.shortcode == x.shortcode), None):
         msg = (
-            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server.\n"
-            f"No changes were made to the project metadata.\n"
+            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server. "
+            f"No changes were made to the project metadata. "
             f"Continue with the upload of lists and ontologies ..."
         )
         print(f"WARNING: {msg}")
         logger.warning(msg)
+        return remote_project, False
 
     success = True
     project_local = Project(

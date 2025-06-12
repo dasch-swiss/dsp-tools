@@ -95,7 +95,7 @@ def xmlupload(
     if is_on_prod_like_server and config.skip_validation:
         msg = (
             "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
-            "This means that the upload may fail due to errors that could be detected. "
+            "This means that the upload may fail due to undetected errors. "
             "Do you wish to skip the validation (yes/no)? "
         )
         resp = ""

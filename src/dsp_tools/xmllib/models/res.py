@@ -9,7 +9,6 @@ from typing import Any
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
-from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -49,17 +48,6 @@ class Resource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     file_value: AbstractFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
-
-    def __post_init__(self) -> None:
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        if not is_nonempty_value(str(self.res_id)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.res_id, res_id=self.res_id, value_field="resource ID"
-            )
-        if not is_nonempty_value(str(self.restype)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.restype, res_id=self.res_id, value_field="resource type"
-            )
 
     @staticmethod
     def create_new(

@@ -130,6 +130,26 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_skip_validation(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    no_validation = "--skip-validation"
+    args = f"xmlupload {no_validation} {file}".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=True),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file} --validation-severity warning".split()

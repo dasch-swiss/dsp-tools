@@ -22,6 +22,7 @@ class ValidateDataConfig:
     xml_file: Path
     save_graph_dir: Path | None
     severity: ValidationSeverity
+    ignore_duplicate_image_warning: bool
     is_on_prod_server: bool
 
 

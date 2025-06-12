@@ -57,14 +57,17 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors foun
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -> bool:
+def validate_data(
+    filepath: Path, creds: ServerCredentials, ignore_duplicate_image_warning: bool, save_graphs: bool
+) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
-        save_graphs: if this flag is set, all the graphs will be saved in a folder
         creds: server credentials for authentication
+        ignore_duplicate_image_warning: ignore the shape that checks for duplicate images
+        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -73,7 +76,13 @@ def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO, is_prod_like_server(creds.server))
+    config = ValidateDataConfig(
+        xml_file=filepath,
+        save_graph_dir=graph_save_dir,
+        severity=ValidationSeverity.INFO,
+        ignore_duplicate_image_warning=ignore_duplicate_image_warning,
+        is_on_prod_server=is_prod_like_server(creds.server),
+    )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
     return _validate_data(graphs, used_iris, auth, config)
@@ -96,6 +105,7 @@ def validate_parsed_resources(
 def _validate_data(
     graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
 ) -> bool:
+    logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)

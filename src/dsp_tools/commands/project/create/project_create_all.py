@@ -370,6 +370,12 @@ def _add_user_to_groups_and_project(
     con: Connection,
     current_project: Project,
 ) -> None:
+    if str(current_project.iri) not in project_info:
+        if group_iris:
+            err_msg = "Existing user cannot be added to groups, because they are not a member of this project."
+            print(f"    WARNING: {err_msg}")
+            logger.warning(err_msg)
+        return
     is_admin = project_info[str(current_project.iri)]
     if is_admin:
         url = f"/admin/users/iri/{user.iri}/project-admin-memberships/{current_project.iri}"

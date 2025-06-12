@@ -297,7 +297,7 @@ def _add_xmlupload(
     subparser.add_argument(
         "--ignore-duplicate-files-warning",
         action="store_true",
-        help="don't check if duplicate files are in the XML file",
+        help="don't check if multimedia files are referenced more than once",
     )
     subparser.add_argument(
         "--validation-severity",
@@ -321,7 +321,7 @@ def _add_validate_data(
     subparser.add_argument(
         "--ignore-duplicate-files-warning",
         action="store_true",
-        help="don't check if duplicate files are in the XML file",
+        help="don't check if multimedia files are referenced more than once",
     )
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"

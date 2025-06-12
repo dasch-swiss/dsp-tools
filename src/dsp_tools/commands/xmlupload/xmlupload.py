@@ -104,6 +104,18 @@ def xmlupload(
         if str(resp) == "no":
             validation_should_be_skipped = False
     if not validation_should_be_skipped:
+        ignore_duplicates = config.ignore_duplicate_files_warning
+        if is_on_prod_like_server and ignore_duplicates:
+            msg = (
+                "You set the flag '--ignore-duplicate-files-warning'. "
+                "This means that duplicate multimedia files will not be detected. "
+                "Are you sure you want to exclude this from the validation? (yes/no)"
+            )
+            resp = ""
+            while resp not in ["yes", "no"]:
+                resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+            if str(resp) == "no":
+                ignore_duplicates = False
         validation_passed = validate_parsed_resources(
             parsed_resources=parsed_resources,
             authorship_lookup=lookups.authorships,
@@ -113,6 +125,7 @@ def xmlupload(
                 input_file,
                 save_graph_dir=None,
                 severity=config.validation_severity,
+                ignore_duplicate_files_warning=ignore_duplicates,
                 is_on_prod_server=is_on_prod_like_server,
             ),
             auth=auth,

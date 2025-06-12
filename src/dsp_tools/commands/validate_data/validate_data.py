@@ -57,14 +57,17 @@ VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors foun
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -> bool:
+def validate_data(
+    filepath: Path, creds: ServerCredentials, ignore_duplicate_files_warning: bool, save_graphs: bool
+) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
-        save_graphs: if this flag is set, all the graphs will be saved in a folder
         creds: server credentials for authentication
+        ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
+        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -73,9 +76,15 @@ def validate_data(filepath: Path, creds: ServerCredentials, save_graphs: bool) -
     graph_save_dir = None
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
-    config = ValidateDataConfig(filepath, graph_save_dir, ValidationSeverity.INFO, is_prod_like_server(creds.server))
+    config = ValidateDataConfig(
+        xml_file=filepath,
+        save_graph_dir=graph_save_dir,
+        severity=ValidationSeverity.INFO,
+        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
+        is_on_prod_server=is_prod_like_server(creds.server),
+    )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
+    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth, config.ignore_duplicate_files_warning)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -88,7 +97,12 @@ def validate_parsed_resources(
     auth: AuthenticationClient,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, permission_ids, auth, shortcode
+        parsed_resources=parsed_resources,
+        authorship_lookup=authorship_lookup,
+        permission_ids=permission_ids,
+        auth=auth,
+        shortcode=shortcode,
+        ignore_duplicate_files_warning=config.ignore_duplicate_files_warning,
     )
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
@@ -96,6 +110,7 @@ def validate_parsed_resources(
 def _validate_data(
     graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
 ) -> bool:
+    logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)
@@ -137,10 +152,17 @@ def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bo
     return True
 
 
-def _prepare_data_for_validation_from_file(filepath: Path, auth: AuthenticationClient) -> tuple[RDFGraphs, set[str]]:
+def _prepare_data_for_validation_from_file(
+    filepath: Path, auth: AuthenticationClient, ignore_duplicate_files_warning: bool
+) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup, permission_ids = _get_info_from_xml(filepath, auth.server)
     return _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, permission_ids, auth, shortcode
+        parsed_resources=parsed_resources,
+        authorship_lookup=authorship_lookup,
+        permission_ids=permission_ids,
+        auth=auth,
+        shortcode=shortcode,
+        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
     )
 
 
@@ -159,12 +181,13 @@ def _prepare_data_for_validation_from_parsed_resource(
     permission_ids: list[str],
     auth: AuthenticationClient,
     shortcode: str,
+    ignore_duplicate_files_warning: bool,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info = _get_project_specific_information_from_api(auth, shortcode)
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids, ignore_duplicate_files_warning)
     return rdf_graphs, used_iris
 
 
@@ -328,6 +351,7 @@ def _create_graphs(
     auth: AuthenticationClient,
     proj_info: ProjectDataFromApi,
     permission_ids: list[str],
+    ignore_duplicate_files_warning: bool,
 ) -> RDFGraphs:
     logger.debug("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
@@ -339,6 +363,13 @@ def _create_graphs(
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
+    if not ignore_duplicate_files_warning:
+        duplicate_shapes_path = importlib.resources.files("dsp_tools").joinpath(
+            "resources/validate_data/duplicate-file-shape.ttl"
+        )
+        duplicate_shapes = Graph()
+        duplicate_shapes.parse(str(duplicate_shapes_path))
+        api_shapes += duplicate_shapes
     api_card_shapes = Graph()
     api_card_path = importlib.resources.files("dsp_tools").joinpath(
         "resources/validate_data/api-shapes-resource-cardinalities.ttl"

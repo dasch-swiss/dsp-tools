@@ -58,7 +58,7 @@ NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation err
 
 
 def validate_data(
-    filepath: Path, creds: ServerCredentials, ignore_duplicate_image_warning: bool, save_graphs: bool
+    filepath: Path, creds: ServerCredentials, ignore_duplicate_files_warning: bool, save_graphs: bool
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -66,7 +66,7 @@ def validate_data(
     Args:
         filepath: path to the xml data file
         creds: server credentials for authentication
-        ignore_duplicate_image_warning: ignore the shape that checks for duplicate images
+        ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
         save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
@@ -80,7 +80,7 @@ def validate_data(
         xml_file=filepath,
         save_graph_dir=graph_save_dir,
         severity=ValidationSeverity.INFO,
-        ignore_duplicate_image_warning=ignore_duplicate_image_warning,
+        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
         is_on_prod_server=is_prod_like_server(creds.server),
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)

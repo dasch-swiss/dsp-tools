@@ -295,9 +295,9 @@ def _add_xmlupload(
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")
     subparser.add_argument(
-        "--ignore-duplicate-image-warning",
+        "--ignore-duplicate-files-warning",
         action="store_true",
-        help="don't check if duplicate images are in the XML file",
+        help="don't check if duplicate files are in the XML file",
     )
     subparser.add_argument(
         "--validation-severity",
@@ -319,9 +319,9 @@ def _add_validate_data(
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument(
-        "--ignore-duplicate-image-warning",
+        "--ignore-duplicate-files-warning",
         action="store_true",
-        help="don't check if duplicate images are in the XML file",
+        help="don't check if duplicate files are in the XML file",
     )
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"

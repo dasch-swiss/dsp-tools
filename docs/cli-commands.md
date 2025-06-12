@@ -139,6 +139,7 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `--ignore-duplicate-files-warning` (optional): don't check if files are used more than once
 - `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
   This is primarily intended for development use.
 
@@ -199,6 +200,7 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
 - `--skip-validation` (optional): skip the SHACL schema validation
+- `--ignore-duplicate-files-warning` (optional): don't check if files are used more than once
 - `--validation-severity` (optional, default: `info`): which severity level of messages 
   will be printed out during validation. 
   Options: `info`, `warning`, and `error` 

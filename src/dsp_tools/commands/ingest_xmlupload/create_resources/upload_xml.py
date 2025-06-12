@@ -100,7 +100,7 @@ def ingest_xmlupload(
                 xml_file,
                 save_graph_dir=None,
                 severity=config.validation_severity,
-                ignore_duplicate_image_warning=True,
+                ignore_duplicate_files_warning=True,
                 is_on_prod_server=is_on_prod_like_server,
             ),
             auth=auth,

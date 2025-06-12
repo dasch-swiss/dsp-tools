@@ -228,7 +228,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 interrupt_after=interrupt_after,
                 skip_iiif_validation=args.no_iiif_uri_validation,
                 skip_validation=args.skip_validation,
-                ignore_duplicate_image_warning=args.ignore_duplicate_image_warning,
+                ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
                 validation_severity=severity,
             ),
         )
@@ -239,7 +239,7 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
         filepath=Path(args.xmlfile),
         creds=_get_creds(args),
         save_graphs=args.save_graphs,
-        ignore_duplicate_image_warning=args.ignore_duplicate_image_warning,
+        ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
     )
 
 

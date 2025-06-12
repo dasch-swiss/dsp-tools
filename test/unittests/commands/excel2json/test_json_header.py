@@ -35,7 +35,6 @@ from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
-from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
@@ -400,7 +399,7 @@ class TestCheckOneUser:
         assert len(result) == 1
         problem = result[0]
         assert isinstance(problem, InvalidExcelContentProblem)
-        assert problem.expected_content == "One of: projectadmin, systemadmin, projectmember"
+        assert problem.expected_content == "One of: projectadmin, projectmember"
         assert problem.actual_content == "other"
         assert problem.excel_position.column == "role"
         assert problem.excel_position.row == 2
@@ -541,20 +540,6 @@ class TestUsers:
         assert isinstance(result, Users)
         assert len(result.users) == 3
 
-    def test_systemadmin(self, users_good: pd.DataFrame) -> None:
-        str_row = cast("pd.Series[str]", users_good.loc[0, :])
-        result = _extract_one_user(str_row)
-        assert isinstance(result, User)
-        assert result.username == "Alice"
-        assert result.email == "alice@dasch.swiss"
-        assert result.givenName == "Alice Pleasance"
-        assert result.familyName == "Liddell"
-        assert result.password == "alice4322"
-        assert result.lang == "en"
-        assert isinstance(result.role, UserRole)
-        assert result.role.sys_admin
-        assert not result.role.project_admin
-
     def test_projectadmin(self, users_good: pd.DataFrame) -> None:
         str_row = cast("pd.Series[str]", users_good.loc[1, :])
         result = _extract_one_user(str_row)
@@ -565,9 +550,7 @@ class TestUsers:
         assert result.familyName == "Wonderland"
         assert result.password == "alice7652"
         assert result.lang == "de"
-        assert isinstance(result.role, UserRole)
-        assert result.role.project_admin
-        assert not result.role.sys_admin
+        assert result.isProjectAdmin
 
     def test_projectmember(self, users_good: pd.DataFrame) -> None:
         str_row = cast("pd.Series[str]", users_good.loc[2, :])
@@ -579,9 +562,7 @@ class TestUsers:
         assert result.familyName == "Rabbit"
         assert result.password == "alice8711"
         assert result.lang == "fr"
-        assert isinstance(result.role, UserRole)
-        assert not result.role.project_admin
-        assert not result.role.sys_admin
+        assert not result.isProjectAdmin
 
 
 if __name__ == "__main__":

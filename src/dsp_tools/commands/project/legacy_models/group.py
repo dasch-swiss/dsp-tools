@@ -68,7 +68,6 @@ class Group(Model):
 
     PROJECT_MEMBER_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectMember"
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
-    PROJECT_SYSTEMADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#SystemAdmin"
     ROUTE: str = "/admin/groups"
     ROUTE_SLASH: str = ROUTE + "/"
 

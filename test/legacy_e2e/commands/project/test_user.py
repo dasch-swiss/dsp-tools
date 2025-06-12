@@ -41,7 +41,6 @@ class TestUser(unittest.TestCase):
             password="BeepBeep1",
             lang=Languages.EN,
             status=True,
-            sysadmin=True,
             in_projects={iri_project_0001: True},
             in_groups={iri_group_thing_searcher},
         ).create()
@@ -51,7 +50,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.familyName, "Coyote1")
         self.assertTrue(user.status)
         self.assertEqual(user.lang, Languages.EN)
-        self.assertTrue(user.sysadmin)
         self.assertEqual(user.in_projects, {iri_project_0001: True})
         self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 
@@ -63,7 +61,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.givenName, "Normal")
         self.assertEqual(user.lang, Languages.DE)
         self.assertTrue(user.status)
-        self.assertFalse(user.sysadmin)
         self.assertEqual(user.in_projects, {})
 
     def test_user_create_and_read_by_email(self) -> None:
@@ -76,7 +73,6 @@ class TestUser(unittest.TestCase):
             password="BeepBeep2",
             lang=Languages.EN,
             status=True,
-            sysadmin=True,
             in_projects={iri_project_0001: True},
             in_groups={iri_group_thing_searcher},
         ).create()
@@ -86,7 +82,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.givenName, "Wile E.2")
         self.assertEqual(user.lang, Languages.EN)
         self.assertTrue(user.status)
-        self.assertTrue(user.sysadmin)
         self.assertEqual(user.in_projects, {iri_project_0001: True})
         self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 

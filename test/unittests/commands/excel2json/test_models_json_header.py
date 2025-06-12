@@ -7,7 +7,6 @@ from dsp_tools.commands.excel2json.models.json_header import Licenses
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
-from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 
 SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
@@ -34,23 +33,18 @@ def licenses() -> Licenses:
 
 
 @pytest.fixture
-def user_sys_admin() -> User:
-    return User("sys_admin", "sys_admin@email.ch", "given name1", "family name1", "PW1", "en", UserRole(sys_admin=True))
-
-
-@pytest.fixture
 def user_member() -> User:
-    return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", UserRole())
+    return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", isProjectAdmin=False)
 
 
 @pytest.fixture
 def user_admin() -> User:
-    return User("admin", "admin@email.ch", "given name3", "family name3", "PW3", "de", UserRole(project_admin=True))
+    return User("admin", "admin@email.ch", "given name3", "family name3", "PW3", "de", isProjectAdmin=True)
 
 
 @pytest.fixture
-def users(user_sys_admin: User, user_member: User, user_admin: User) -> Users:
-    return Users([user_sys_admin, user_member, user_admin])
+def users(user_member: User, user_admin: User) -> Users:
+    return Users([user_member, user_admin])
 
 
 @pytest.fixture
@@ -91,17 +85,6 @@ def test_filled_json_header_with_users_without_prefix(
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
             "users": [
-                {
-                    "username": "sys_admin",
-                    "email": "sys_admin@email.ch",
-                    "givenName": "given name1",
-                    "familyName": "family name1",
-                    "password": "PW1",
-                    "lang": "en",
-                    "status": True,
-                    "groups": ["SystemAdmin"],
-                    "projects": [":admin", ":member"],
-                },
                 {
                     "username": "member",
                     "email": "member@email.ch",

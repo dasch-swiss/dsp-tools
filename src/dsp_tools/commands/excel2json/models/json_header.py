@@ -119,7 +119,7 @@ class User:
     familyName: str
     password: str
     lang: str
-    role: UserRole
+    isProjectAdmin: bool
 
     def to_dict(self) -> dict[str, Any]:
         usr_dict = {
@@ -130,19 +130,9 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        } | self.role.to_dict()
-        return usr_dict
-
-
-@dataclass
-class UserRole:
-    project_admin: bool = False
-    sys_admin: bool = False
-
-    def to_dict(self) -> dict[str, list[str]]:
-        if self.sys_admin:
-            return {"groups": ["SystemAdmin"], "projects": [":admin", ":member"]}
-        elif self.project_admin:
-            return {"projects": [":admin", ":member"]}
+        }
+        if self.isProjectAdmin:
+            usr_dict["projects"] = [":admin", ":member"]
         else:
-            return {"projects": [":member"]}
+            usr_dict["projects"] = [":member"]
+        return usr_dict

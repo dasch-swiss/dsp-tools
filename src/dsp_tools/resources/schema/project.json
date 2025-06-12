@@ -112,7 +112,7 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$"
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([-\\w .]+)$"
         },
         "projectdef": {
             "type": "string",

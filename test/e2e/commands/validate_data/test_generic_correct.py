@@ -15,7 +15,13 @@ from dsp_tools.commands.validate_data.validate_data import _validate_data
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=True)
+CONFIG = ValidateDataConfig(
+    xml_file=Path(),
+    save_graph_dir=None,
+    severity=ValidationSeverity.INFO,
+    ignore_duplicate_files_warning=False,
+    is_on_prod_server=True,
+)
 
 
 @pytest.fixture(scope="module")

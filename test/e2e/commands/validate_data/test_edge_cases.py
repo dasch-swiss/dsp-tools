@@ -22,7 +22,13 @@ from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 # ruff: noqa: ARG001 Unused function argument
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, False)
+CONFIG = ValidateDataConfig(
+    xml_file=Path(),
+    save_graph_dir=None,
+    severity=ValidationSeverity.INFO,
+    ignore_duplicate_files_warning=False,
+    is_on_prod_server=False,
+)
 
 
 @pytest.fixture(scope="module")

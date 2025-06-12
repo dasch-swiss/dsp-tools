@@ -14,7 +14,7 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
         msg_str = (
             '"Please only use enabled licenses in your data. Consult the project information for enabled licenses."'
         )
-    logger.debug("Constructing allowed licesnses shapes.")
+    logger.debug("Constructing allowed licenses shapes.")
     ttl_str = """
     @prefix sh:         <http://www.w3.org/ns/shacl#> .
     @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .

@@ -137,6 +137,8 @@ class TestSortedProblems:
         reformatted = reformat_validation_graph(report)
         no_violations_with_info = sort_user_problems(reformatted)
         all_expected_info = [
+            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
             ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ]
         sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)

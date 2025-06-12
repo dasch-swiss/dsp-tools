@@ -145,7 +145,7 @@ def test_xmlupload_skip_validation(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=True),
+        config=UploadConfig(skip_validation=True),
     )
 
 
@@ -356,7 +356,24 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None)
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False
+    )
+
+
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock) -> None:
+    xml_file = Path("filename.xml")
+    skip_validation = "--skip-validation"
+    args = f"ingest-xmlupload {skip_validation} {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=True)
 
 
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
@@ -370,7 +387,7 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=1)
+    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=1, skip_validation=False)
 
 
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
@@ -387,7 +404,9 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
         password=password,
         dsp_ingest_url=server.replace("api", "ingest"),
     )
-    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None)
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.excel2json")

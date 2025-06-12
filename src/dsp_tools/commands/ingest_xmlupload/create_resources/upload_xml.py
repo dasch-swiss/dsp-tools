@@ -33,9 +33,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 
 
 def ingest_xmlupload(
-    xml_file: Path,
-    creds: ServerCredentials,
-    interrupt_after: int | None = None,
+    xml_file: Path, creds: ServerCredentials, interrupt_after: int | None = None, skip_validation: bool = False
 ) -> bool:
     """
     This function reads an XML file
@@ -49,6 +47,7 @@ def ingest_xmlupload(
         xml_file: path to XML file containing the resources
         creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
+        skip_validation: skip the SHACL validation
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be

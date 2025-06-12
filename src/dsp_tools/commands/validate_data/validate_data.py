@@ -84,7 +84,7 @@ def validate_data(
         is_on_prod_server=is_prod_like_server(creds.server),
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth)
+    graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth, config.ignore_duplicate_files_warning)
     return _validate_data(graphs, used_iris, auth, config)
 
 
@@ -97,7 +97,12 @@ def validate_parsed_resources(
     auth: AuthenticationClient,
 ) -> bool:
     rdf_graphs, used_iris = _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, permission_ids, auth, shortcode
+        parsed_resources=parsed_resources,
+        authorship_lookup=authorship_lookup,
+        permission_ids=permission_ids,
+        auth=auth,
+        shortcode=shortcode,
+        ignore_duplicate_files_warning=config.ignore_duplicate_files_warning,
     )
     return _validate_data(rdf_graphs, used_iris, auth, config)
 
@@ -152,7 +157,12 @@ def _prepare_data_for_validation_from_file(
 ) -> tuple[RDFGraphs, set[str]]:
     parsed_resources, shortcode, authorship_lookup, permission_ids = _get_info_from_xml(filepath, auth.server)
     return _prepare_data_for_validation_from_parsed_resource(
-        parsed_resources, authorship_lookup, permission_ids, auth, shortcode, ignore_duplicate_files_warning
+        parsed_resources=parsed_resources,
+        authorship_lookup=authorship_lookup,
+        permission_ids=permission_ids,
+        auth=auth,
+        shortcode=shortcode,
+        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
     )
 
 

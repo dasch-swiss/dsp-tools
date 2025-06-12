@@ -150,6 +150,26 @@ def test_xmlupload_skip_validation(xmlupload: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    ignore_duplicate_files = "--ignore-duplicate-files-warning"
+    args = f"xmlupload {ignore_duplicate_files} {file}".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(ignore_duplicate_files_warning=True),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file} --validation-severity warning".split()
@@ -215,7 +235,23 @@ def test_validate_data_default(validate_data: Mock) -> None:
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
-    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
+    validate_data.assert_called_once_with(
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+    )
+
+
+@patch("dsp_tools.cli.call_action.validate_data")
+def test_validate_data_ignore_duplicate_files(validate_data: Mock) -> None:
+    file = "filename.xml"
+    ignore_duplicate_files = "--ignore-duplicate-files-warning"
+    args = f"validate-data {ignore_duplicate_files} {file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=True
+    )
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -226,7 +262,9 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
-    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=True, creds=creds)
+    validate_data.assert_called_once_with(
+        filepath=Path(file), save_graphs=True, creds=creds, ignore_duplicate_files=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -240,7 +278,9 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
         server="https://api.dasch.swiss",
         dsp_ingest_url="https://ingest.dasch.swiss",
     )
-    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
+    validate_data.assert_called_once_with(
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.validate_data")
@@ -254,7 +294,9 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
     creds = ServerCredentials(
         user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
     )
-    validate_data.assert_called_once_with(filepath=Path(file), save_graphs=False, creds=creds)
+    validate_data.assert_called_once_with(
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")

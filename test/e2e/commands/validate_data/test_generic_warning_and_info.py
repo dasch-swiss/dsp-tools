@@ -41,7 +41,9 @@ def no_violations_with_warnings(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
@@ -50,7 +52,9 @@ def no_violations_with_warnings(
 @pytest.fixture(scope="module")
 def no_violations_with_info(create_generic_project, authentication, shacl_validator: ShaclValidator) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)

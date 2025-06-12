@@ -33,7 +33,9 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.mark.usefixtures("create_generic_project")
 def test_minimal_correct(authentication) -> None:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
     assert validation_success
 
@@ -41,7 +43,9 @@ def test_minimal_correct(authentication) -> None:
 @pytest.mark.usefixtures("create_generic_project")
 def test_cardinality_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
     assert validation_success
 
@@ -49,7 +53,9 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclValidator) ->
 @pytest.mark.usefixtures("create_generic_project")
 def test_content_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
     assert validation_success
 
@@ -57,7 +63,9 @@ def test_content_correct(authentication, shacl_validator: ShaclValidator) -> Non
 @pytest.mark.usefixtures("create_generic_project")
 def test_file_value_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
     assert validation_success
 
@@ -65,6 +73,8 @@ def test_file_value_correct(authentication, shacl_validator: ShaclValidator) -> 
 @pytest.mark.usefixtures("create_generic_project")
 def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
     assert validation_success

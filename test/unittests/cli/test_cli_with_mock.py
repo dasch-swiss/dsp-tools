@@ -236,7 +236,7 @@ def test_validate_data_default(validate_data: Mock) -> None:
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files_warning=False
     )
 
 
@@ -250,7 +250,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock) -> None:
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=True
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files_warning=True
     )
 
 
@@ -263,7 +263,7 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file), save_graphs=True, creds=creds, ignore_duplicate_files=False
+        filepath=Path(file), save_graphs=True, creds=creds, ignore_duplicate_files_warning=False
     )
 
 
@@ -279,7 +279,7 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
         dsp_ingest_url="https://ingest.dasch.swiss",
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files_warning=False
     )
 
 
@@ -295,7 +295,7 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
         user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files=False
+        filepath=Path(file), save_graphs=False, creds=creds, ignore_duplicate_files_warning=False
     )
 
 

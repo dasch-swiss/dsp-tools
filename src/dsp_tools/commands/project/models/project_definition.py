@@ -9,8 +9,8 @@ class ProjectDefinition:
     metadata: ProjectMetadata
     ontologies: list[dict[str, Any]]
     lists: list[dict[str, Any]] | None
-    groups: list[dict[str, str]] | None
-    users: list[dict[str, str]] | None
+    groups: list[dict[str, Any]] | None
+    users: list[dict[str, Any]] | None
 
 
 @dataclass

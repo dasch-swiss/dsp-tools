@@ -1,27 +1,27 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
+import warnings
 from pathlib import Path
 from typing import Any
 
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
+from dsp_tools.commands.project.create.project_create_project import create_project_on_server
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
-from dsp_tools.commands.project.models.project_definition import ProjectMetadata
+from dsp_tools.commands.project.models.group_client import GroupClient
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
@@ -57,11 +57,8 @@ def create_project(
         True if everything went smoothly, False if a warning or error occurred
     """
 
-    knora_api_prefix = "knora-api:"
     overall_success = True
-
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-
     context = Context(project_json.get("prefixes", {}))
 
     # validate against JSON schema
@@ -70,44 +67,22 @@ def create_project(
     logger.info("JSON project file is syntactically correct and passed validation.")
 
     project = parse_project_json(project_json)
-
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
-    print(info_str)
-    logger.info(info_str)
-    project_remote, success = _create_project_on_server(
-        project_definition=project.metadata,
-        con=con,
-    )
-    if not success:
+    if not create_project_on_server(project.metadata, auth):
         overall_success = False
 
     # create the lists
-    names_and_iris_of_list_nodes: dict[str, Any] = {}
     if project.lists:
-        print("Create lists...")
-        logger.info("Create lists...")
-        names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=project.lists,
-            con=con,
-            project_remote=project_remote,
-        )
+        names_and_iris_of_list_nodes, success = create_lists_on_server(project.lists, auth, project.metadata.shortcode)
         if not success:
             overall_success = False
 
     # create the groups
-    current_project_groups: dict[str, Group] = {}
+    group_name_to_iri_lookup: dict[str, str] = {}
     if project.groups:
-        print("Create groups...")
-        logger.info("Create groups...")
-        current_project_groups, success = _create_groups(
-            con=con,
-            groups=project.groups,
-            project=project_remote,
-        )
+        group_name_to_iri_lookup, success = _create_groups(project.groups, auth, project.metadata.shortcode)
         if not success:
             overall_success = False
 
@@ -118,7 +93,7 @@ def create_project(
         success = _create_users(
             con=con,
             users_section=project.users,
-            current_project_groups=current_project_groups,
+            group_name_to_iri_lookup=group_name_to_iri_lookup,
             current_project=project_remote,
             verbose=verbose,
         )
@@ -159,131 +134,45 @@ def create_project(
     return overall_success
 
 
-def _create_project_on_server(
-    project_definition: ProjectMetadata,
-    con: Connection,
-) -> tuple[Project, bool]:
-    """
-    Create the project on the DSP server.
-    If it already exists: update its longname, description, and keywords.
-
-    Args:
-        project_definition: object with information about the project
-        con: connection to the DSP server
-
-    Raises:
-        InputError: if the project cannot be created on the DSP server
-
-    Returns:
-        a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
-    """
-    all_projects = Project.getAllProjects(con=con)
-    if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
-        msg = (
-            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server.\n"
-            f"No changes were made to the project metadata.\n"
-            f"Continue with the upload of lists and ontologies ..."
-        )
-        print(f"WARNING: {msg}")
-        logger.warning(msg)
-
-    success = True
-    project_local = Project(
-        con=con,
-        shortcode=project_definition.shortcode,
-        shortname=project_definition.shortname,
-        longname=project_definition.longname,
-        description=LangString(project_definition.descriptions),  # type: ignore[arg-type]
-        keywords=set(project_definition.keywords) if project_definition.keywords else None,
-        enabled_licenses=set(project_definition.enabled_licenses) if project_definition.enabled_licenses else None,
-        selfjoin=False,
-        status=True,
-    )
-    try:
-        project_remote = project_local.create()
-    except BaseError:
-        err_msg = (
-            f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
-        )
-        logger.exception(err_msg)
-        raise InputError(err_msg) from None
-    print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    return project_remote, success
-
-
 def _create_groups(
-    con: Connection,
-    groups: list[dict[str, str]],
-    project: Project,
-) -> tuple[dict[str, Group], bool]:
+    groups: list[dict[str, Any]],
+    auth: AuthenticationClient,
+    shortcode: str,
+) -> tuple[dict[str, str], bool]:
     """
-    Creates groups on a DSP server from the "groups" section of a JSON project file. If a group cannot be created, it is
-    skipped and a warning is printed, but such a group will still be part of the returned dict.
-    Returns a tuple consisting of a dict and a bool. The dict contains the groups that have successfully been created
-    (or already exist). The bool indicates if everything went smoothly during the process. If a warning or error
-    occurred, it is False.
+    Creates groups on a DSP server from the "groups" section of a JSON project file.
+    If a group cannot be created, it is skipped and a warning is issued,
+    but such a group will still be part of the returned lookup.
+    Returns a tuple consisting of a dict and a bool.
+    The dict contains the groups that have successfully been created (or already exist).
+    The bool indicates if everything went smoothly during the process.
+    If a warning or error occurred, it is False.
 
     Args:
-        con: connection instance to connect to the DSP server
         groups: "groups" section of a parsed JSON project file
-        project: Project the group(s) should be added to (must exist on DSP server)
+        auth: AuthenticationClient
 
     Returns:
         A tuple consisting of a dict and the success status.
-        The dict has the form ``{group name: group object}``
+        The dict has the form ``{group name: group iri}``
         for all groups that have successfully been created (or already exist).
-        The dict is empty if no group was created.
     """
-    overall_success = True
-    current_project_groups: dict[str, Group] = {}
-    try:
-        remote_groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
-    except BaseError:
-        err_msg = (
-            "Unable to check if group names are already existing on DSP server, because it is "
-            "not possible to retrieve the remote groups from the DSP server."
-        )
-        print(f"WARNING: {err_msg}")
-        logger.exception(err_msg)
-        remote_groups = []
-        overall_success = False
-
+    print("Create groups...")
+    logger.info("Create groups...")
+    success = True
+    group_client = GroupClient(auth, shortcode)
+    group_name_to_iri_lookup: dict[str, str] = {}
+    existing_groups = group_client.get_project_groups_from_server()
     for group in groups:
-        group_name = group["name"]
-
-        # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
-        if remotely_existing_group := [g for g in remote_groups if g.name == group_name]:
-            current_project_groups[group_name] = remotely_existing_group[0]
-            err_msg = f"Group name '{group_name}' already exists on the DSP server. Skipping..."
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-            overall_success = False
-            continue
-
-        # create the group
-        group_local = Group(
-            con=con,
-            name=group_name,
-            descriptions=LangString(group["descriptions"]),
-            project=project,
-            status=bool(group.get("status", True)),
-            selfjoin=bool(group.get("selfjoin", False)),
-        )
-        try:
-            group_remote: Group = group_local.create()
-        except BaseError:
-            err_msg = "Unable to create group '{group_name}'."
-            print(f"    WARNING: {err_msg}")
-            logger.exception(err_msg)
-            overall_success = False
-            continue
-
-        current_project_groups[str(group_remote.name)] = group_remote
-        print(f"    Created group '{group_name}'.")
-        logger.info(f"Created group '{group_name}'.")
-
-    return current_project_groups, overall_success
+        if iri := existing_groups.get(group["name"]):
+            success = False
+            msg = f"Group with name {group['name']} already exists on the DSP server. Skipping."
+            logger.warning(msg)
+            warnings.warn(msg)
+        else:
+            iri = group_client.create_group(group)
+        group_name_to_iri_lookup[group["name"]] = iri
+    return group_name_to_iri_lookup, success
 
 
 def _create_users(

@@ -115,7 +115,8 @@ The system follows this general flow for XML processing:
 - Line length limit is 120 characters
 - Use `uv add package` to add dependencies (or `uv add --dev package` for dev dependencies)
 - All markdown files must comply with markdownlint rules specified in `.markdownlint.yml`
+    - URLs must be wrapped in angle brackets `<url>` or formatted as proper links `[text](url)` (MD034)
 - Always use descriptive variable names
-- **Pull request reviews**: Only request reviews from team members of https://github.com/dasch-swiss
+- **Pull request reviews**: Only request reviews from team members of <https://github.com/dasch-swiss>
     - Usual reviewers: BalduinLandolt, Nora-Olivia-Ammann, Notheturtle, seakayone, jnussbaum
     - Ivan (subotic) is also a team member but only rarely asked for reviews

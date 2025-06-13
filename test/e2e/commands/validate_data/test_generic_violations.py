@@ -31,7 +31,13 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=False)
+CONFIG = ValidateDataConfig(
+    xml_file=Path(),
+    save_graph_dir=None,
+    severity=ValidationSeverity.INFO,
+    ignore_duplicate_files_warning=False,
+    is_on_prod_server=False,
+)
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +49,9 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.fixture(scope="module")
 def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     return graphs, used_iris
 
 
@@ -60,7 +68,7 @@ def unique_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -69,7 +77,7 @@ def file_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -78,7 +86,7 @@ def dsp_inbuilt_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -87,7 +95,7 @@ def cardinality_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -96,7 +104,7 @@ def content_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -105,7 +113,7 @@ def value_type_violation(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -114,7 +122,7 @@ def every_violation_combination_once(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 

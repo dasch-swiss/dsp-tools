@@ -116,3 +116,4 @@ The system follows this general flow for XML processing:
 - Use `uv add package` to add dependencies (or `uv add --dev package` for dev dependencies)
 - All markdown files must comply with markdownlint rules specified in `.markdownlint.yml`
 - Always use descriptive variable names
+- **Pull request reviews**: Only request reviews from team members of https://github.com/dasch-swiss

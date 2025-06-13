@@ -57,17 +57,17 @@ Each subdirectory implements a specific CLI command:
 - **excel2json/**: Convert Excel files to JSON project definitions
 - **excel2xml/**: Convert Excel files to XML data files
 - **project/**: Create and retrieve (get) DSP projects from JSON definitions
-- **xmlupload/**: Upload XML data files to DSP server
-- **ingest_xmlupload/**: Bulk ingest workflow for large datasets
+- **xmlupload/**: Upload resources defined in XML data files to DSP server
+- **ingest_xmlupload/**: Workflow for uploading resources if the referenced multimedia files are too big for the "xmlupload" command
 - **validate_data/**: Validate XML data against project ontologies using SHACL
 - **resume_xmlupload/**: Resume interrupted XML uploads
 
-#### XMLLib Module (`src/dsp_tools/xmllib/`)
+#### xmllib Module (`src/dsp_tools/xmllib/`)
 
 Public API library for programmatic creation of XML files:
 
 - **models/**: Resource and value models for XML generation
-- **helpers.py**: Utility functions for XML manipulation
+- **helpers.py**: Utility functions for creating XML files
 - **value_checkers.py**: Validation functions for different value types
 - **value_converters.py**: Conversion utilities for values
 
@@ -89,7 +89,7 @@ The system follows this general flow for XML processing:
 
 - **Command Pattern**: CLI commands are implemented as separate modules with consistent interfaces
 - **Pipeline Pattern**: XML processing follows a multi-stage pipeline with clear transformations
-- **Model-Based**: Heavy use of Pydantic/dataclass models for type safety
+- **Model-Based**: Heavy use of dataclass models for type safety
 - **Client Abstraction**: Separate client classes for different API endpoints
 
 ### Testing Strategy
@@ -113,3 +113,5 @@ The system follows this general flow for XML processing:
 - Documentation follows Google-style docstrings
 - Line length limit is 120 characters
 - Use `uv add package` to add dependencies (or `uv add --dev package` for dev dependencies)
+- All markdown files must comply with markdownlint rules specified in `.markdownlint.yml`
+- Always use descriptive variable names

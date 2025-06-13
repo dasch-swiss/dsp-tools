@@ -389,7 +389,7 @@ class User(Model):
         return User._make_fromJsonObj(self._con, result["user"])
 
     @staticmethod
-    def getAllUsers(con: Connection) -> list[Any]:
+    def getAllUsers(con: Connection) -> list[User]:
         """
         Get a list of all users (static method)
 

@@ -3,6 +3,7 @@ of the project, the creation of groups, users, lists, resource classes, properti
 
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote_plus
 
 from loguru import logger
 
@@ -378,10 +379,12 @@ def _add_user_to_groups_and_project(
             logger.warning(err_msg)
         return
     is_admin = project_info[str(current_project.iri)]
+    user_iri_quoted = quote_plus(str(user.iri))
+    project_iri_quoted = quote_plus(str(current_project.iri))
     if is_admin:
-        url = f"/admin/users/iri/{user.iri}/project-admin-memberships/{current_project.iri}"
+        url = f"/admin/users/iri/{user_iri_quoted}/project-admin-memberships/{project_iri_quoted}"
     else:
-        url = f"/admin/users/iri/{user.iri}/project-memberships/{current_project.iri}"
+        url = f"/admin/users/iri/{user_iri_quoted}/project-memberships/{project_iri_quoted}"
     try:
         con.post(url)
         print(f"    Added existing user '{user.username}' to project.")
@@ -396,7 +399,7 @@ def _add_user_to_groups_and_project(
 
     for group_iri in group_iris:
         try:
-            con.post(f"/admin/users/iri/{user.iri}/group-memberships/{group_iri}")
+            con.post(f"/admin/users/iri/{user_iri_quoted}/group-memberships/{quote_plus(group_iri)}")
             print(f"    Added existing user '{user.username}' to group {group_iri}.")
             logger.info(f"Added existing user '{user.username}' to group {group_iri}.")
         except (PermanentConnectionError, InvalidInputError):

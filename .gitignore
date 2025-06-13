@@ -51,6 +51,7 @@ venv.bak/
 .dmypy.json
 .idea
 .vscode
+.claude/
 
 # generated files
 out.json

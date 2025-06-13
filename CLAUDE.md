@@ -58,7 +58,8 @@ Each subdirectory implements a specific CLI command:
 - **excel2xml/**: Convert Excel files to XML data files
 - **project/**: Create and retrieve (get) DSP projects from JSON definitions
 - **xmlupload/**: Upload resources defined in XML data files to DSP server
-- **ingest_xmlupload/**: Workflow for uploading resources if the referenced multimedia files are too big for the "xmlupload" command
+- **ingest_xmlupload/**: Workflow for uploading resources if the referenced multimedia files are too big for the
+  "xmlupload" command
 - **validate_data/**: Validate XML data against project ontologies using SHACL
 - **resume_xmlupload/**: Resume interrupted XML uploads
 

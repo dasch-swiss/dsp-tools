@@ -381,21 +381,19 @@ def _add_user_to_groups_and_project(
     is_admin = project_info[str(current_project.iri)]
     user_iri_quoted = quote_plus(str(user.iri))
     project_iri_quoted = quote_plus(str(current_project.iri))
-    if is_admin:
-        url = f"/admin/users/iri/{user_iri_quoted}/project-admin-memberships/{project_iri_quoted}"
-    else:
-        url = f"/admin/users/iri/{user_iri_quoted}/project-memberships/{project_iri_quoted}"
     try:
-        con.post(url)
+        con.post(f"/admin/users/iri/{user_iri_quoted}/project-memberships/{project_iri_quoted}")
+        if is_admin:
+            con.post(f"/admin/users/iri/{user_iri_quoted}/project-admin-memberships/{project_iri_quoted}")
         print(f"    Added existing user '{user.username}' to project.")
         logger.info(f"Added existing user '{user.username}' to project.")
     except (PermanentConnectionError, InvalidInputError):
         err_msg = (
-            f"Existing user '{user.username}' could not be added to project.\n"
+            f"Existing user '{user.username}' could not be added to project. "
             f"Please manually add this user to the project in DSP-APP."
         )
         print(f"    WARNING: {err_msg}")
-        logger.warning(err_msg)
+        logger.exception(err_msg)
 
     for group_iri in group_iris:
         try:

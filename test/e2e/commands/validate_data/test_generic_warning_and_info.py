@@ -21,7 +21,13 @@ from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_val
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(Path(), None, ValidationSeverity.INFO, is_on_prod_server=False)
+CONFIG = ValidateDataConfig(
+    xml_file=Path(),
+    save_graph_dir=None,
+    severity=ValidationSeverity.INFO,
+    ignore_duplicate_files_warning=False,
+    is_on_prod_server=False,
+)
 
 
 @pytest.fixture(scope="module")
@@ -35,7 +41,9 @@ def no_violations_with_warnings(
     create_generic_project, authentication, shacl_validator: ShaclValidator
 ) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
@@ -44,7 +52,9 @@ def no_violations_with_warnings(
 @pytest.fixture(scope="module")
 def no_violations_with_info(create_generic_project, authentication, shacl_validator: ShaclValidator) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(file, authentication)
+    graphs, used_iris = _prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
@@ -101,6 +111,35 @@ class TestSortedProblems:
             ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
             ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
             ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
+        ]
+        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)
+        assert not no_violations_with_info.unique_violations
+        assert not no_violations_with_info.user_warnings
+        assert len(no_violations_with_info.user_info) == len(all_expected_info)
+        assert not no_violations_with_info.unexpected_shacl_validation_components
+        for one_result, expected_info in zip(sorted_info, all_expected_info):
+            assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+
+    def test_no_violations_with_info_ignore_duplicate_files_warning(self, authentication, shacl_validator):
+        file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=True,
+            is_on_prod_server=False,
+        )
+        graphs, used_iris = _prepare_data_for_validation_from_file(
+            file, authentication, config.ignore_duplicate_files_warning
+        )
+        report = _get_validation_result(graphs, shacl_validator, config)
+        reformatted = reformat_validation_graph(report)
+        no_violations_with_info = sort_user_problems(reformatted)
+        all_expected_info = [
+            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
+            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
+            ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ]
         sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)
         assert not no_violations_with_info.unique_violations

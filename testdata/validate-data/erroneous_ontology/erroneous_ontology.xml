@@ -28,7 +28,7 @@
     <resource label="Image with sequence" restype=":ImageWithKnoraProp_ErroneousCards"
               id="knora_seqnum_is_part_of_multiple">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
-         <resptr-prop name=":testIsPartOf">
+        <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
         <integer-prop name="seqnum">
@@ -63,7 +63,7 @@
     <resource label="Image with sequence" restype=":ImageWithSubProp_ErroneousCards"
               id="seqnum_isPartOf_sub_prop_usage_and_erroneous_card">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
-         <resptr-prop name=":testIsPartOf">
+        <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
         <integer-prop name=":testSeqnum">

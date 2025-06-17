@@ -1,3 +1,4 @@
+import contextlib
 import importlib.resources
 import shutil
 import subprocess
@@ -349,7 +350,7 @@ class StackHandler:
         This mimicks the behaviour of the script webapi/scripts/wait-for-api.sh in the DSP-API repository.
         """
         logger.debug("Waiting for the API to start...")
-        for _ in range(6 * 60):
+        for num_secs in range(6 * 60):
             try:
                 params = RequestParameters("GET", f"{self.__localhost_url}:3333/health", timeout=1)
                 log_request(params)
@@ -358,7 +359,14 @@ class StackHandler:
                 if response.ok:
                     break
             except requests.exceptions.RequestException as e:
-                logger.debug(f"RequestException while checking API status: {e.strerror}")
+                logger.debug(f"RequestException while checking API status: {e}")
+            if num_secs > 30 and num_secs % 10 == 0:
+                # There is probably an issue, so we need more logs
+                with contextlib.suppress():
+                    docker_ps_output = subprocess.run(
+                        "docker ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True
+                    ).stdout
+                    logger.debug(f"docker ps -a output:\n{docker_ps_output.decode("utf-8")}")
             time.sleep(1)
         msg = f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/"
         logger.debug(msg)

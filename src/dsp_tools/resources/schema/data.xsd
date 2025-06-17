@@ -36,7 +36,7 @@
     <!-- data type for resptr tags -->
     <xs:simpleType name="resptr_datatype">
         <xs:restriction base="xs:string">
-            <xs:pattern value="([a-zA-Zàâäéêèëìïöòôüùûçñß_][a-zA-Zàâäéêèëìïöòôüùûçñß_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)"/>
+            <xs:pattern value="([a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_][a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_\d.\-]*)|(http://rdfh\.ch/\d{4}/\S+)"/>
         </xs:restriction>
     </xs:simpleType>
 

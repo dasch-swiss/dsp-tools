@@ -531,6 +531,7 @@
         </bitstream>
         <resptr-prop name="isPartOf">
             <resptr permissions="open">compound_thing_0</resptr>
+            <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name="seqnum">
             <integer permissions="open">2</integer>
@@ -545,6 +546,7 @@
             testdata/bitstreams/test.jpg
         </bitstream>
         <resptr-prop name=":partOf">
+            <resptr permissions="open">compound_thing_0</resptr>
             <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name=":hasPagenum">

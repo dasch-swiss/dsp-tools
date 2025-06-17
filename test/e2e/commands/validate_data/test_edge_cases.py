@@ -172,23 +172,19 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidationReportG
 def test_validate_ontology_violation(validate_ontology_violation: ValidationReportGraphs | None) -> None:
     assert isinstance(validate_ontology_violation, OntologyValidationProblem)
     erroneous_cards_msg = {
-        "isPartOf must either have cardinality 1 or 0-1.",
         "seqnum must either have cardinality 1 or 0-1.",
     }
     missing_is_part_of = {"A class with a cardinality for seqnum also requires a cardinality for isPartOf."}
     missing_seqnum = {"A class with a cardinality for isPartOf also requires a cardinality for seqnum."}
-    mixed_cards = {"The cardinalities for seqnum and isPartOf must be identical within one resource class."}
     expected_results = [
         ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithKnoraProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithKnoraProp_MissingSeqnum", missing_seqnum),
-        ("error:ImageWithKnoraProp_MixedValidCards", mixed_cards),
         ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
-        ("error:ImageWithSubProp_MixedValidCards", mixed_cards),
     ]
     sorted_problems = sorted(validate_ontology_violation.problems, key=lambda x: x.res_iri)
     assert len(validate_ontology_violation.problems) == len(expected_results)

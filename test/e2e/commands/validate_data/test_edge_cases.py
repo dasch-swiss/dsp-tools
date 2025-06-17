@@ -178,10 +178,8 @@ def test_validate_ontology_violation(validate_ontology_violation: ValidationRepo
     missing_seqnum = {"A class with a cardinality for isPartOf also requires a cardinality for seqnum."}
     expected_results = [
         ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
-        ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithKnoraProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithKnoraProp_MissingSeqnum", missing_seqnum),
-        ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
         ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),

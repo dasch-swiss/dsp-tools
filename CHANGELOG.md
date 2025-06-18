@@ -1,5 +1,46 @@
 # Changelog
 
+## [16.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.1.0...v16.0.0) (2025-06-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **create:** disallow creation of SystemAdmin (DEV-5009) ([#1787](https://github.com/dasch-swiss/dsp-tools/issues/1787))
+
+### Enhancements
+
+* allow that images are part of multiple compound objects (DEV-5070) ([#1796](https://github.com/dasch-swiss/dsp-tools/issues/1796)) ([70e6371](https://github.com/dasch-swiss/dsp-tools/commit/70e6371c04f3f1f08df228cd5fcbaec838e43dec))
+* **create:** disallow creation of SystemAdmin (DEV-5009) ([#1787](https://github.com/dasch-swiss/dsp-tools/issues/1787)) ([08dac08](https://github.com/dasch-swiss/dsp-tools/commit/08dac08703b983d86d6f446fe07352842d4958b5))
+* **create:** link existing users to project (DEV-5052) ([#1793](https://github.com/dasch-swiss/dsp-tools/issues/1793)) ([4ff19ae](https://github.com/dasch-swiss/dsp-tools/commit/4ff19ae06c05a0c584d450900f7ff6e7bc43f272))
+* reformat and write large xsd schema validation results into a file (DEV-4998) ([#1775](https://github.com/dasch-swiss/dsp-tools/issues/1775)) ([b3ada62](https://github.com/dasch-swiss/dsp-tools/commit/b3ada62bf7cad7af0c9fe718f9cbb3fd951915e3))
+* **validate-data:** add flag to ignore duplicate image warnings (DEV-5060) ([#1791](https://github.com/dasch-swiss/dsp-tools/issues/1791)) ([2d8a701](https://github.com/dasch-swiss/dsp-tools/commit/2d8a7013e3010e054a7a25bf2bdc6247c2f3e7ad))
+* **validate-data:** don't shorten user input if it is a ListValue (DEV-5048) ([#1782](https://github.com/dasch-swiss/dsp-tools/issues/1782)) ([2bcd9d5](https://github.com/dasch-swiss/dsp-tools/commit/2bcd9d575848241c1231d69c9c9b1cf474b2180a))
+* **validate-data:** print out longer user input in validation message and don't shorten if info if it is a link (DEV-5047) ([#1781](https://github.com/dasch-swiss/dsp-tools/issues/1781)) ([a4c94ef](https://github.com/dasch-swiss/dsp-tools/commit/a4c94efbdbdfd7319c6acb3ab36fb4c3e577106f))
+* **xmllib:** add function to reformat dates from a known format (DEV-5054) ([#1786](https://github.com/dasch-swiss/dsp-tools/issues/1786)) ([3e6e596](https://github.com/dasch-swiss/dsp-tools/commit/3e6e5960664f22cab0bebf323e02eb79c3534dbb))
+* **xmllib:** check if the Resource ID is already used when adding a new one to the `XmlRoot` (DEV-4997) ([#1785](https://github.com/dasch-swiss/dsp-tools/issues/1785)) ([748cc18](https://github.com/dasch-swiss/dsp-tools/commit/748cc183e4c43db1c792c81ed3046bef71050d74))
+* **xmllib:** validate that the resource ids are correct (DEV-4996) ([#1780](https://github.com/dasch-swiss/dsp-tools/issues/1780)) ([c0e938e](https://github.com/dasch-swiss/dsp-tools/commit/c0e938eda55c3f22399ada149684515c2563c062))
+* **xmlupload:** add flag to skip SHACL validation (DEV-5058) ([#1790](https://github.com/dasch-swiss/dsp-tools/issues/1790)) ([a24cb0e](https://github.com/dasch-swiss/dsp-tools/commit/a24cb0e2901cfc9c756164050dcab55220465183))
+
+
+### Bug Fixes
+
+* **validate-data:** prevent the same prefix to be used for different IRIs in the serialisation (DEV-5053) ([#1784](https://github.com/dasch-swiss/dsp-tools/issues/1784)) ([f21688a](https://github.com/dasch-swiss/dsp-tools/commit/f21688a6bcd7f386da409ee933ac399be8f9cec8))
+* **validate-data:** set higher timeouts for operations that could last long - 360s (DEV-5049) ([#1788](https://github.com/dasch-swiss/dsp-tools/issues/1788)) ([65edb79](https://github.com/dasch-swiss/dsp-tools/commit/65edb79a2d6c2801be8b030543cb12c2409572f6))
+* **validate-data:** set higher timeouts for operations that could last long (DEV-5049) ([#1783](https://github.com/dasch-swiss/dsp-tools/issues/1783)) ([03a24cd](https://github.com/dasch-swiss/dsp-tools/commit/03a24cdc56ec07ccc7455d49a74c580f1937523f))
+* **xmllib:** don't warn if the list name is empty if the node is an absolute iri (DEV-5019) ([#1774](https://github.com/dasch-swiss/dsp-tools/issues/1774)) ([b5fb167](https://github.com/dasch-swiss/dsp-tools/commit/b5fb1672ce3cd949286324b15fdb19b4a76b1d5a))
+* **xmllib:** remove duplicate warnings for empty input when creating a new `Resource` (DEV-5057) ([#1789](https://github.com/dasch-swiss/dsp-tools/issues/1789)) ([57e0431](https://github.com/dasch-swiss/dsp-tools/commit/57e0431a460152700534508dceff62b7dae2dd65))
+* **xmlupload:** allow more special characters ([#1794](https://github.com/dasch-swiss/dsp-tools/issues/1794)) ([f245f80](https://github.com/dasch-swiss/dsp-tools/commit/f245f8029fe19a925572e2067c2616df31271772))
+
+
+### Maintenance
+
+* add CLAUDE.md to fine-tune Claude Code instances ([#1792](https://github.com/dasch-swiss/dsp-tools/issues/1792)) ([cc4f9c7](https://github.com/dasch-swiss/dsp-tools/commit/cc4f9c72a13c8de404e407759a580c5a1b70f61d))
+* bump start-stack to 2025.06.02 ([#1795](https://github.com/dasch-swiss/dsp-tools/issues/1795)) ([41b21d9](https://github.com/dasch-swiss/dsp-tools/commit/41b21d994cffacd94a5e7988ec83bc646ad4ecfe))
+* **start-stack:** add more logging ([#1777](https://github.com/dasch-swiss/dsp-tools/issues/1777)) ([4eacc50](https://github.com/dasch-swiss/dsp-tools/commit/4eacc503a5c34c9fc3e2fe8c27741f2baf57a6f9))
+* **start-stack:** add more logging (DEV-5071) ([#1797](https://github.com/dasch-swiss/dsp-tools/issues/1797)) ([19c2092](https://github.com/dasch-swiss/dsp-tools/commit/19c20926a60b0b013993c3f51e6f73b78fee9614))
+* **start-stack:** capture and log API logs in case of failure (DEV-5071) ([#1798](https://github.com/dasch-swiss/dsp-tools/issues/1798)) ([36dff9f](https://github.com/dasch-swiss/dsp-tools/commit/36dff9f902c3a54d5d56d035c69e3a0124e89b29))
+* **validate-data:** remove erroneous logging statement ([#1778](https://github.com/dasch-swiss/dsp-tools/issues/1778)) ([dcc312c](https://github.com/dasch-swiss/dsp-tools/commit/dcc312c8fd0678118a2214c2385bfde0270e7d7d))
+
 ## [15.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.0.0...v15.1.0) (2025-06-04)
 
 

@@ -60,12 +60,12 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
 
 
 @pytest.fixture
-def ingest_client_mock():  # type: ignore[no-untyped-def]
+def ingest_client_mock():
     return Mock(spec_set=AssetClient)
 
 
 @pytest.fixture
-def legal_info_client_mock():  # type: ignore[no-untyped-def]
+def legal_info_client_mock():
     return Mock(spec_set=LegalInfoClient)
 
 
@@ -542,7 +542,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_cl
     resp_404 = Response()
     resp_404.status_code = 404
     post_responses = [resp_404]
-    con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
+    con.session.request = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     ingest_client = DspIngestClientLive("", AuthenticationClientMockBase(), "1234", ".")
 

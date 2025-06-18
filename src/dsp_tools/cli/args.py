@@ -26,7 +26,7 @@ class ValidateDataConfig:
     is_on_prod_server: bool
 
 
-@dataclass  # noqa: RUF049
+@dataclass
 class ValidationSeverity(Enum):
     ERROR = 3
     WARNING = 2

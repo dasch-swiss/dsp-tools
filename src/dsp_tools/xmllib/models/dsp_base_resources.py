@@ -25,8 +25,6 @@ from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
-# ruff: noqa: D101, D102
-
 LIST_SEPARATOR = "\n    - "
 
 

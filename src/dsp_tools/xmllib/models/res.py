@@ -34,8 +34,6 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
-# ruff: noqa: D101, D102
-
 LIST_SEPARATOR = "\n    - "
 
 

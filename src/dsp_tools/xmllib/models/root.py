@@ -35,9 +35,6 @@ type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentRes
 
 load_dotenv()
 
-# ruff: noqa: D101
-
-
 @dataclass
 class XMLRoot:
     shortcode: str

@@ -161,9 +161,9 @@ ignore = [
     "S105",   # flake8-bandit: hardcoded password
     "S106",   # flake8-bandit: hardcoded password
     "S603",   # flake8-bandit: subprocess-without-shell-equals-true
-    "S320",   # flake8-bandit: xml parsing vulnerable to XML attacks
     "UP007",  # forbid use of typing.Union and typing.Optional
     "UP015",  # Unnecessary mode="r" argument in open()
+    "UP045",  # Forced use of "|" instead of typing.Optional and typing.Union
 ]
 
 

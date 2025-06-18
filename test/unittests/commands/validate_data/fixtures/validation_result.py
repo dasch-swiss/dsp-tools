@@ -1,5 +1,3 @@
-from functools import cache
-
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
@@ -19,8 +17,7 @@ from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
-@cache
-@pytest.fixture
+@pytest.fixture(scope="module")
 def onto_graph() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/onto.ttl")

@@ -5,6 +5,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import subprocess
 import sys
+from collections.abc import Sequence
 from importlib.metadata import version
 
 import regex
@@ -32,7 +33,7 @@ def main() -> None:
     run(sys.argv[1:])
 
 
-def run(args: list[str]) -> None:
+def run(args: Sequence[str]) -> None:
     """
     Main function of the CLI.
 
@@ -124,7 +125,7 @@ def _check_version() -> None:
 
 
 def _parse_arguments(
-    user_args: list[str],
+    user_args: Sequence[str],
     parser: argparse.ArgumentParser,
 ) -> argparse.Namespace:
     """

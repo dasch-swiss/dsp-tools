@@ -1,7 +1,5 @@
 from typing import Protocol
 
-# ruff: noqa: D102 (missing docstring in public method)
-
 
 class AuthenticationClient(Protocol):
     """

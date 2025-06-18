@@ -3,8 +3,6 @@ from typing import Protocol
 
 from dsp_tools.utils.request_utils import PostFiles
 
-# ruff: noqa: D102 (missing docstring in public method)
-
 
 class Connection(Protocol):
     """

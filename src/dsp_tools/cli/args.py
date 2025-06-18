@@ -26,7 +26,7 @@ class ValidateDataConfig:
     is_on_prod_server: bool
 
 
-@dataclass
+@dataclass  # noqa: RUF049  An enum class should not be decorated with `@dataclass`  # Fix this later
 class ValidationSeverity(Enum):
     ERROR = 3
     WARNING = 2

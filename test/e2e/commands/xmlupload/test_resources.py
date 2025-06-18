@@ -13,8 +13,6 @@ from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
-# ruff: noqa: ARG001 Unused function argument
-
 OPEN_PERMISSIONS = Literal(
     "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
 )

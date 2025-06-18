@@ -25,7 +25,6 @@ from dsp_tools.utils.request_utils import PostFiles
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 # ruff: noqa: ARG002 (unused-method-argument)
-# ruff: noqa: D102 (undocumented-public-method)
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
 

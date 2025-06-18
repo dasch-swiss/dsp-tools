@@ -73,23 +73,23 @@ class TestCreateAllCardinalities:
         )
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert isinstance(res, list)
-            res = sorted(res, key=lambda x: x.propname)
-            one = res[0]
-            assert isinstance(one, ResourceCardinality)
-            assert one.propname == ":1"
-            assert one.cardinality == "1-n"
-            assert one.gui_order == 1
-            two = res[1]
-            assert isinstance(two, ResourceCardinality)
-            assert two.propname == ":2"
-            assert two.cardinality == "1"
-            assert two.gui_order == 2
-            three = res[2]
-            assert isinstance(three, ResourceCardinality)
-            assert three.propname == ":3"
-            assert three.cardinality == "0-n"
-            assert three.gui_order == 3
+        assert isinstance(res, list)
+        res = sorted(res, key=lambda x: x.propname)
+        one = res[0]
+        assert isinstance(one, ResourceCardinality)
+        assert one.propname == ":1"
+        assert one.cardinality == "1-n"
+        assert one.gui_order == 1
+        two = res[1]
+        assert isinstance(two, ResourceCardinality)
+        assert two.propname == ":2"
+        assert two.cardinality == "1"
+        assert two.gui_order == 2
+        three = res[2]
+        assert isinstance(three, ResourceCardinality)
+        assert three.propname == ":3"
+        assert three.cardinality == "0-n"
+        assert three.gui_order == 3
 
     def test_error(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": [1, 2, "a"]})
@@ -102,23 +102,23 @@ class TestCreateAllCardinalities:
         )
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert isinstance(res, list)
-            res = sorted(res, key=lambda x: x.propname)
-            one = res[0]
-            assert isinstance(one, ResourceCardinality)
-            assert one.propname == ":1"
-            assert one.cardinality == "1-n"
-            assert one.gui_order == 1
-            two = res[1]
-            assert isinstance(two, ResourceCardinality)
-            assert two.propname == ":2"
-            assert two.cardinality == "1"
-            assert two.gui_order == 2
-            three = res[2]
-            assert isinstance(three, ResourceCardinality)
-            assert three.propname == ":3"
-            assert three.cardinality == "0-n"
-            assert three.gui_order == 3
+        assert isinstance(res, list)
+        res = sorted(res, key=lambda x: x.propname)
+        one = res[0]
+        assert isinstance(one, ResourceCardinality)
+        assert one.propname == ":1"
+        assert one.cardinality == "1-n"
+        assert one.gui_order == 1
+        two = res[1]
+        assert isinstance(two, ResourceCardinality)
+        assert two.propname == ":2"
+        assert two.cardinality == "1"
+        assert two.gui_order == 2
+        three = res[2]
+        assert isinstance(three, ResourceCardinality)
+        assert three.propname == ":3"
+        assert three.cardinality == "0-n"
+        assert three.gui_order == 3
 
     def test_good(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": ["1", "2", "3"]})

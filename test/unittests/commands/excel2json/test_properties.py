@@ -31,7 +31,7 @@ class TestFunctions(unittest.TestCase):
                 "label_rm": [1, 2, 3],
             }
         )
-        with pytest.warns(UserWarning, match="column titles, which is deprecated"):
+        with pytest.warns(UserWarning, match="column titles, which is deprecated"):  # noqa: PT031 (too many statements inside pytest.warns() block)
             returned_df = e2j._rename_deprecated_lang_cols(df=original_df)
             assert_frame_equal(expected_df, returned_df)
             returned_df = e2j._rename_deprecated_lang_cols(df=expected_df)

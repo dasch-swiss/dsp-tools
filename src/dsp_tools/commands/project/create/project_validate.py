@@ -409,7 +409,7 @@ def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[st
     for start, cards in dependencies.items():
         for edge, targets in cards.items():
             for target in targets:
-                graph.add_edge(start, target, edge)
+                graph.add_edge(start, target, edge)  # type: ignore[no-untyped-call]
     return graph
 
 

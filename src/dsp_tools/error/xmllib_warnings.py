@@ -8,7 +8,6 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 
 
-@dataclass
 class UserMessageSeverity(StrEnum):
     INFO = "INFO"
     WARNING = "WARNING"

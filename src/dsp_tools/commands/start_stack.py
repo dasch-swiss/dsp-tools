@@ -365,7 +365,7 @@ class StackHandler:
                 with contextlib.suppress():
                     docker_ps_output = subprocess.run(
                         "docker ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True
-                    ).stdout.decode('utf-8')
+                    ).stdout.decode("utf-8")
                     docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
                     logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
                     docker_logs_output = subprocess.run(
@@ -373,7 +373,7 @@ class StackHandler:
                         cwd=self.__docker_path_of_user,
                         check=True,
                         capture_output=True,
-                    ).stdout.decode('utf-8')
+                    ).stdout.decode("utf-8")
                     docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
                     logger.debug(f"Logs of DSP-API container:\n\t{docker_logs_output}")
             time.sleep(1)

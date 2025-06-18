@@ -759,7 +759,7 @@
                             {
                                 "propname": "isPartOf",
                                 "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1-n"
                             },
                             {
                                 "propname": "seqnum",
@@ -781,7 +781,7 @@
                             {
                                 "propname": ":partOf",
                                 "gui_order": 1,
-                                "cardinality": "1"
+                                "cardinality": "1-n"
                             },
                             {
                                 "propname": ":hasPagenum",

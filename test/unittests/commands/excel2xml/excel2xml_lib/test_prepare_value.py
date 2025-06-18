@@ -8,7 +8,6 @@ import pytest
 from dsp_tools import excel2xml
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
-# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestPrepareValue(unittest.TestCase):

@@ -441,14 +441,22 @@
 
     <resource label="Imagething-special-characters"
               restype=":ImageThing"
-              id="image_thing_10"
+              id="image_thing_special_characters_àáâäèéêëìíîïòóôöùúûü"
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
-            testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()[]{}+=!&lt;&gt;| 漢が글ርبيةб中.png
+            testdata/bitstreams/test with special chars àáâä èéêë ìíîï òóôö ùúûü çñß 0123456789 _-'()[]{}+=!&lt;&gt;| 漢が글ርبيةб中.png
         </bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name contains special chars</text>
         </text-prop>
+    </resource>
+
+    <resource label="Test Link to special characters"
+              restype=":TestThing"
+              id="test_link_to_special_chars">
+        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <boolean-prop name=":hasBoolean"><boolean>true</boolean></boolean-prop>
+        <resptr-prop name=":hasResource"><resptr>image_thing_special_characters_àáâäèéêëìíîïòóôöùúûü</resptr></resptr-prop>
     </resource>
 
     <region label="Polygon in image"
@@ -523,6 +531,7 @@
         </bitstream>
         <resptr-prop name="isPartOf">
             <resptr permissions="open">compound_thing_0</resptr>
+            <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name="seqnum">
             <integer permissions="open">2</integer>
@@ -537,6 +546,7 @@
             testdata/bitstreams/test.jpg
         </bitstream>
         <resptr-prop name=":partOf">
+            <resptr permissions="open">compound_thing_0</resptr>
             <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name=":hasPagenum">

@@ -6,12 +6,6 @@
        shortcode="9991"
        default-ontology="error">
 
-    <!--
-        The API erroneously allows 0-n cardinalities for seqnum/isPartOf.
-        Therefore, we cannot rely on the ontology to get it correct.
-        We have to treat it as a special case.
-    -->
-
     <!-- 6 Violations -->
 
     <!-- Target Resources for Links -->
@@ -23,15 +17,19 @@
     <resource label="Resource without Representation" restype=":TargetResource"
               id="target_res_without_representation_2"/>
 
+    <!--
+        The API erroneously allows 0-n cardinalities for seqnum.
+        Therefore, we cannot rely on the ontology to get it correct.
+        We have to treat it as a special case.
+    -->
 
-    <!-- usage of knora-api seqnum/isPartOf: multiple usage -->
+    <!-- usage of knora-api seqnum: multiple usage -->
 
     <resource label="Image with sequence" restype=":ImageWithKnoraProp_ErroneousCards"
               id="knora_seqnum_is_part_of_multiple">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
-            <resptr>target_res_without_representation_2</resptr>
         </resptr-prop>
         <integer-prop name="seqnum">
             <integer>1</integer>
@@ -60,14 +58,13 @@
     </resource>
 
 
-    <!-- sub-property usage of knora-api seqnum/isPartOf: multiple usage -->
+    <!-- sub-property usage of knora-api seqnum: multiple usage -->
 
     <resource label="Image with sequence" restype=":ImageWithSubProp_ErroneousCards"
               id="seqnum_isPartOf_sub_prop_usage_and_erroneous_card">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
-            <resptr>target_res_without_representation_2</resptr>
         </resptr-prop>
         <integer-prop name=":testSeqnum">
             <integer>1</integer>

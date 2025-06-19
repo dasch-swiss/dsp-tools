@@ -12,6 +12,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
+from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -138,6 +139,11 @@ def create_project(
         project_remote=project_remote,
         verbose=verbose,
     )
+    if not success:
+        overall_success = False
+    
+    # create the default permissions (DOAPs)
+    success = create_default_permissions(con, project.metadata.project_default_permissions, str(project_remote.iri))
     if not success:
         overall_success = False
 

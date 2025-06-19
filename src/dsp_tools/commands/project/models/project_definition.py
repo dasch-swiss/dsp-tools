@@ -21,3 +21,4 @@ class ProjectMetadata:
     keywords: list[str] | None = None
     descriptions: dict[str, str] | None = None
     enabled_licenses: list[str] | None = None
+    project_default_permissions: str = "public"

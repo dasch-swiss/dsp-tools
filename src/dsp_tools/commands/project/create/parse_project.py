@@ -27,6 +27,7 @@ def parse_project_json(
         keywords=project_json["project"].get("keywords"),
         descriptions=project_json["project"].get("descriptions"),
         enabled_licenses=project_json["project"].get("enabled_licenses"),
+        project_default_permissions=project_json["project"].get("project_default_permissions", "public"),
     )
     all_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
     all_ontos = _parse_all_ontos(project_json, all_lists)

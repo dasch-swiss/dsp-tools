@@ -46,7 +46,7 @@ A complete project definition looks like this:
     "enabled_licenses": [
         ...
     ],
-    "project-default-permissions": ...,
+    "project_default_permissions": ...,
     "groups": [
       ...
     ],
@@ -119,7 +119,7 @@ The `project` object contains the basic metadata about the project. The followin
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
-- project-default-permissions
+- project_default_permissions
 - groups
 - users
 - lists
@@ -200,11 +200,11 @@ All the licenses listed here will be enabled. Licenses can be disabled by omitti
 See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license).
 
 
-### `project-default-permissions`
+### `project_default_permissions`
 
 (optional)
 
-`"project-default-permissions": "public|private"`
+`"project_default_permissions": "public|private"`
 
 Defines the permissions that will be applied to new resources/values.
 

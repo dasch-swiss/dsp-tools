@@ -1115,6 +1115,10 @@
                 "shortname": {
                     "$ref": "#/definitions/ncname"
                 },
+                "project-default-permissions": {
+                    "type": "string",
+                    "enum": ["public", "private"]
+                },
                 "longname": {
                     "type": "string"
                 },

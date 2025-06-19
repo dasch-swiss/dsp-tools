@@ -29,7 +29,7 @@ from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
-def create_project(
+def create_project(  # noqa: PLR0915 (too many statements)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
     verbose: bool = False,
@@ -141,7 +141,7 @@ def create_project(
     )
     if not success:
         overall_success = False
-    
+
     # create the default permissions (DOAPs)
     success = create_default_permissions(con, project.metadata.project_default_permissions, str(project_remote.iri))
     if not success:

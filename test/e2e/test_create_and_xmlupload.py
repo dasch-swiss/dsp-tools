@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 import requests
+from pytest_unordered import unordered
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import Graph
@@ -24,6 +25,7 @@ E2E_TESTONTO_PREFIX = "e2e-testonto"
 SECOND_ONTO_PREFIX = "second-onto"
 PROPS_IN_ONTO_JSON = 1
 RESCLASSES_IN_ONTO_JSON = 2
+USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
 
 @pytest.fixture(scope="module")
@@ -97,6 +99,26 @@ def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCred
     response = _get_enabled_licenses(auth_header, creds)
     all_ids = {x["id"] for x in response["data"]}
     assert all_ids == {"http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/cc-by-nc-4.0"}
+
+
+@pytest.mark.usefixtures("_create_project")
+def test_default_permissions(creds: ServerCredentials, project_iri: str, auth_header: dict[str, str]) -> None:
+    response = requests.get(f"{creds.server}/admin/permissions/doap/{project_iri}", headers=auth_header, timeout=3)
+    doaps = response.json()["default_object_access_permissions"]
+    assert len(doaps) == 1  # As soon as per-class DOAPs are supported, there will be more
+
+    # The first DOAP is the public one
+    assert doaps[0]["forGroup"] == f"{USER_IRI_PREFIX}ProjectMember"
+    expected_permissions = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": None},
+    ]
+    assert unordered(doaps[0]["hasPermissions"]) == expected_permissions
+
+    # For each class/property which defines their own permissions, there will be a separate DOAP
+    pass  # noqa: PIE790
 
 
 def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

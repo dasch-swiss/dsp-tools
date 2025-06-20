@@ -46,6 +46,7 @@ A complete project definition looks like this:
     "enabled_licenses": [
         ...
     ],
+    "project_default_permissions": ...,
     "groups": [
       ...
     ],
@@ -118,9 +119,10 @@ The `project` object contains the basic metadata about the project. The followin
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
-- lists
+- project_default_permissions
 - groups
 - users
+- lists
 
 
 
@@ -196,6 +198,26 @@ For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
 All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
 See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license).
+
+
+### `project_default_permissions`
+
+(optional)
+
+`"project_default_permissions": "public|private"`
+
+Defines the permissions that will be applied to new resources/values.
+
+- `public`: All users can view resources/values.
+- `private`: Only ProjectMembers/ProjectAdmins can view resources/values.
+
+If this field is omitted, it is assumed that `public` permissions should be applied.
+
+!!! info
+
+    When creating a new resource/value via xmlupload,
+    it is possible to overrule this default with `<resource permissions="something-else">`.
+
 
 ### `groups`
 

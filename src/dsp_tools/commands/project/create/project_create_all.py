@@ -12,6 +12,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
+from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -19,6 +20,7 @@ from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -28,7 +30,7 @@ from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
-def create_project(
+def create_project(  # noqa: PLR0915 (too many statements)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
     verbose: bool = False,
@@ -138,6 +140,12 @@ def create_project(
         project_remote=project_remote,
         verbose=verbose,
     )
+    if not success:
+        overall_success = False
+
+    # create the default permissions (DOAPs)
+    perm_client = PermissionsClient(auth, str(project_remote.iri))
+    success = create_default_permissions(perm_client, project.metadata.project_default_permissions)
     if not success:
         overall_success = False
 

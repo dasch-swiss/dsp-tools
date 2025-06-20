@@ -18,6 +18,7 @@ class ProjectMetadata:
     shortcode: str
     shortname: str
     longname: str
-    keywords: list[str] | None = None
-    descriptions: dict[str, str] | None = None
-    enabled_licenses: list[str] | None = None
+    keywords: list[str] | None
+    descriptions: dict[str, str] | None
+    enabled_licenses: list[str] | None
+    project_default_permissions: str

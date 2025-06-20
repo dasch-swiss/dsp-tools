@@ -42,7 +42,9 @@
             ]
         },
         "super_resource": {
-            "type": ["string"],
+            "type": [
+                "string"
+            ],
             "oneOf": [
                 {
                     "$ref": "#/definitions/baseresource"
@@ -77,7 +79,7 @@
                 "seqnum"
             ]
         },
-        "basevalue":  {
+        "basevalue": {
             "type": "string",
             "enum": [
                 "BooleanValue",
@@ -1115,6 +1117,13 @@
                 "shortname": {
                     "$ref": "#/definitions/ncname"
                 },
+                "project_default_permissions": {
+                    "type": "string",
+                    "enum": [
+                        "public",
+                        "private"
+                    ]
+                },
                 "longname": {
                     "type": "string"
                 },
@@ -1168,7 +1177,12 @@
                                 }
                             }
                         },
-                        "required": ["name", "labels", "comments", "nodes"],
+                        "required": [
+                            "name",
+                            "labels",
+                            "comments",
+                            "nodes"
+                        ],
                         "additionalProperties": false
                     }
                 },

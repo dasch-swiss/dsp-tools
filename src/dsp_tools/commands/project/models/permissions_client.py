@@ -20,9 +20,9 @@ class PermissionsClient:
     def get_project_doaps(self) -> list[dict[str, Any]]:
         params = RequestParameters(
             "GET",
-            f"/admin/permissions/doap/{quote_plus(self.proj_iri)}",
+            f"{self.auth.server}/admin/permissions/doap/{quote_plus(self.proj_iri)}",
             timeout=10,
-            headers={"Accept": "application/json"},
+            headers={"Accept": "application/json", "Authorization": f"Bearer {self.auth.get_token()}"},
         )
         log_request(params)
         try:
@@ -31,13 +31,13 @@ class PermissionsClient:
         except RequestException:
             logger.exception("Error while retrieving existing DOAPs")
             return []
-        res: list[dict[str, Any]] = response.json()["defaultObjectAccessPermissions"]
+        res: list[dict[str, Any]] = response.json()["default_object_access_permissions"]
         return res
 
     def delete_doap(self, doap_iri: str) -> bool:
         params = RequestParameters(
             "DELETE",
-            f"/admin/permissions/{quote_plus(doap_iri)}",
+            f"{self.auth.server}/admin/permissions/{quote_plus(doap_iri)}",
             timeout=10,
             headers={"Authorization": f"Bearer {self.auth.get_token()}"},
         )
@@ -53,7 +53,7 @@ class PermissionsClient:
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
         params = RequestParameters(
             "POST",
-            "/admin/permissions/doap",
+            f"{self.auth.server}/admin/permissions/doap",
             timeout=10,
             headers={"Authorization": f"Bearer {self.auth.get_token()}"},
             data=payload,

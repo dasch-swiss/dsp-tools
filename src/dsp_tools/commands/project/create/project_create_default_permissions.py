@@ -6,6 +6,8 @@ USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
 
 def create_default_permissions(perm_client: PermissionsClient, project_default_permissions: str) -> bool:
+    logger.info("Set default permissions...")
+    print("Set default permissions...")
     if not _delete_existing_doaps(perm_client):
         print("WARNING: Cannot delete the existing default permissions")
         logger.warning("Cannot delete the existing default permissions")
@@ -14,7 +16,8 @@ def create_default_permissions(perm_client: PermissionsClient, project_default_p
         print("WARNING: Cannot create default permissions")
         logger.warning("Cannot create default permissions")
         return False
-    print("Created default permissions for project")
+    logger.info("Default permissions have been set")
+    print("Default permissions have been set")
     return True
 
 

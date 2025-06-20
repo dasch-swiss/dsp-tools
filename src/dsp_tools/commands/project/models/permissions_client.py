@@ -49,3 +49,20 @@ class PermissionsClient:
             logger.exception("Error while deleting DOAP")
             return False
         return True
+
+    def create_new_doap(self, payload: dict[str, Any]) -> bool:
+        params = RequestParameters(
+            "POST",
+            "/admin/permissions/doap",
+            timeout=10,
+            headers={"Authorization": f"Bearer {self.auth.get_token()}"},
+            data=payload,
+        )
+        log_request(params)
+        try:
+            response = requests.post(params.url, timeout=params.timeout, headers=params.headers, json=params.data)
+            log_response(response)
+        except RequestException:
+            logger.exception("Error while creating new DOAP")
+            return False
+        return True

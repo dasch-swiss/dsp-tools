@@ -1,7 +1,6 @@
 from loguru import logger
 
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
-from dsp_tools.error.exceptions import BaseError
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
@@ -40,12 +39,7 @@ def _create_new_doap(perm_client: PermissionsClient, project_default_permissions
         perm.append({"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": None})
     payload = {
         "forGroup": f"{USER_IRI_PREFIX}ProjectMember",
-        "forProject": proj_iri,
+        "forProject": perm_client.proj_iri,
         "hasPermissions": perm,
     }
-    try:
-        perm_client.post("/admin/permissions/doap", payload)
-    except BaseError:
-        logger.exception("Error while creating new DOAP")
-        return False
-    return True
+    return perm_client.create_new_doap(payload)

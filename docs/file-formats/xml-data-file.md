@@ -161,24 +161,35 @@ the bitstreams don't inherit the permissions from their resource:
   <allow group="ProjectMember">D</allow>
   <allow group="ProjectAdmin">CR</allow>
 </permissions>
+<permissions id="private">
+  <allow group="ProjectMember">D</allow>
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
 <resource ...>
-    <bitstream permissions="public">images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="public">images/tree.jpg</bitstream>
+    <!-- Logged-in non-project member: full resolution -->
 </resource>
 <resource ...>
-    <bitstream permissions="limited_view">images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="limited_view">images/tree.jpg</bitstream>
+    <!-- Logged-in non-project member: blurred -->
 </resource>
 <resource ...>
-    <bitstream>images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="private">images/tree.jpg</bitstream>
+    <!-- Logged-in non-project member: Cannot see the image -->
+</resource>
+<resource ...>
+    <bitstream>images/tree.jpg</bitstream>
+    <!-- Logged-in non-project member: full resolution (due to defaults set in JSON) -->
 </resource>
 ```
 
 So if you upload this data, and then log in as `KnownUser`, i.e. a logged-in user who is not member of the project, 
 you will see the following:
 
-- With `permissions="public"`, you have `V` rights on the image: Normal view.
-- With `permissions="limited_view"`, you have `RV` rights on the image: Blurred image.
-- With a blank `<bitstream>` tag, you have no rights on the image: No view possible. 
-  Only users from `ProjectMember` upwards are able to look at the image.
+- `permissions="public"`: `V` rights: Normal view.
+- `permissions="limited_view"`: `RV` rights: Blurred image.
+- `permissions="private"`: no rights: No view possible.
+- `(blank)`: The default from the JSON project file apply: `V` rights: Normal view. 
 
 
 ## Defining the authorships

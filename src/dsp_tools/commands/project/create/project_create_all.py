@@ -20,6 +20,7 @@ from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -143,7 +144,8 @@ def create_project(  # noqa: PLR0915 (too many statements)
         overall_success = False
 
     # create the default permissions (DOAPs)
-    success = create_default_permissions(con, project.metadata.project_default_permissions, str(project_remote.iri))
+    perm_client = PermissionsClient()
+    success = create_default_permissions(perm_client, project.metadata.project_default_permissions, str(project_remote.iri))
     if not success:
         overall_success = False
 

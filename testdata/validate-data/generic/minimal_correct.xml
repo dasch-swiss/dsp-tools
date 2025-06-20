@@ -6,19 +6,19 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <permissions id="open">
+    <permissions id="public">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <permissions id="restricted-view">
+    <permissions id="limited_view">
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">RV</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <permissions id="restricted">
+    <permissions id="private">
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
@@ -36,10 +36,10 @@
     <resource label="resource_no_values" restype=":ClassWithEverything" id="resource_no_values"/>
 
     <resource
-            label="resource_no_values_open_permissions"
+            label="resource_no_values_private_permissions"
             restype=":ClassWithEverything"
-            id="resource_no_values_open_permissions"
-            permissions="open"
+            id="resource_no_values_private_permissions"
+            permissions="private"
     />
 
     <resource label="bool_true" restype=":ClassWithEverything" id="bool_true">
@@ -48,9 +48,9 @@
         </boolean-prop>
     </resource>
 
-    <resource label="bool_1_open_permissions_on_value" restype=":ClassWithEverything" id="bool_1_open_permissions_on_value">
+    <resource label="bool_1_private_permissions_on_value" restype=":ClassWithEverything" id="bool_1_private_permissions_on_value">
         <boolean-prop name=":testBoolean">
-            <boolean permissions="open">1</boolean>
+            <boolean permissions="private">1</boolean>
         </boolean-prop>
     </resource>
 
@@ -159,7 +159,7 @@
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-holder="Wellcome Collection"
                   authorship-id="authorship_2"
-                  permissions="open"
+                  permissions="private"
         >
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
@@ -211,7 +211,7 @@
 
     <region label="region" id="region">
         <color-prop name="hasColor">
-            <color permissions="restricted">#5d1f1e</color>
+            <color permissions="private">#5d1f1e</color>
         </color-prop>
         <resptr-prop name="isRegionOf">
             <resptr>image</resptr>

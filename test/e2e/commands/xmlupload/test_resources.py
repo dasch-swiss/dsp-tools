@@ -13,10 +13,10 @@ from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
-OPEN_PERMISSIONS = Literal(
+PUBLIC_PERMISSIONS = Literal(
     "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
 )
-DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
+PRIVATE_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
 NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES = 9
 
@@ -64,12 +64,12 @@ class TestResources:
     def test_resource_no_permissions_specified(self, cls_with_everything_graph):
         res_iri = util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert actual_permissions == DOAP_PERMISSIONS
+        assert actual_permissions == PUBLIC_PERMISSIONS
 
-    def test_resource_with_open_permissions(self, cls_with_everything_graph):
-        res_iri = util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values_open_permissions")
+    def test_resource_with_private_permissions(self, cls_with_everything_graph):
+        res_iri = util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values_private_permissions")
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
-        assert actual_permissions == OPEN_PERMISSIONS
+        assert actual_permissions == PRIVATE_PERMISSIONS
 
     @pytest.mark.usefixtures("_xmlupload_minimal_correct")
     def test_second_onto_class(self, second_onto_iri, onto_iri, auth_header, project_iri, creds):
@@ -95,7 +95,7 @@ class TestResources:
         assert len(image_triples) == NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 1
         image_val = next(g.objects(image, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(image_val, RDF.type)) == KNORA_API.StillImageFileValue
-        assert next(g.objects(image_val, KNORA_API.hasPermissions)) == DOAP_PERMISSIONS
+        assert next(g.objects(image_val, KNORA_API.hasPermissions)) == PUBLIC_PERMISSIONS
         assert next(g.objects(image_val, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
         assert next(g.objects(image_val, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
         assert next(g.objects(image_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
@@ -105,7 +105,7 @@ class TestResources:
         assert len(iiif_uri_triples) == NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + 1
         iiif_uri_val = next(g.objects(iiif_uri, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(iiif_uri_val, RDF.type)) == KNORA_API.StillImageExternalFileValue
-        assert next(g.objects(iiif_uri_val, KNORA_API.hasPermissions)) == OPEN_PERMISSIONS
+        assert next(g.objects(iiif_uri_val, KNORA_API.hasPermissions)) == PRIVATE_PERMISSIONS
         assert next(g.objects(iiif_uri_val, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
         assert next(g.objects(iiif_uri_val, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
         assert next(g.objects(iiif_uri_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")

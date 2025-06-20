@@ -19,10 +19,10 @@ from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
 BASE_NUMBER_OF_TRIPLES_PER_VALUE = 9
-OPEN_PERMISSIONS = Literal(
+PUBLIC_PERMISSIONS = Literal(
     "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
 )
-DOAP_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
+PRIVATE_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember")
 
 RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
@@ -75,15 +75,15 @@ class TestSharedTriples:
         prop_iri = URIRef(f"{onto_iri}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "bool_true", prop_iri)
         permissions = next(g_minimal.objects(val_iri, KNORA_API.hasPermissions))
-        assert permissions == DOAP_PERMISSIONS
+        assert permissions == PUBLIC_PERMISSIONS
 
     def test_open_permissions(self, g_minimal, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(
-            g_minimal, "bool_1_open_permissions_on_value", prop_iri
+            g_minimal, "bool_1_private_permissions_on_value", prop_iri
         )
         permissions = next(g_minimal.objects(val_iri, KNORA_API.hasPermissions))
-        assert permissions == OPEN_PERMISSIONS
+        assert permissions == PRIVATE_PERMISSIONS
 
     def test_comment_on_value(self, g_minimal, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testBoolean")

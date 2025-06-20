@@ -7,7 +7,7 @@
        default-ontology="in-built">
 
 
-    <permissions id="open">
+    <permissions id="public">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="ProjectMember">D</allow>
@@ -217,12 +217,12 @@
     <resource label="Resource with Permissions"
               restype=":TestNormalResource"
               id="resource_permissions"
-              permissions="open"
+              permissions="public"
     />
 
     <link label="value with permissions" id="value_with_permissions">
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="open">target_empty_1</resptr>
+            <resptr permissions="public">target_empty_1</resptr>
         </resptr-prop>
     </link>
 
@@ -233,7 +233,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-                   permissions="open"
+                   permissions="public"
         >bitstream_permissions.jpg</bitstream>
     </resource>
 
@@ -241,7 +241,7 @@
         <iiif-uri license="http://rdfh.ch/licenses/unknown"
                   copyright-holder="DaSCH"
                   authorship-id="authorship_1"
-                  permissions="open"
+                  permissions="public"
         >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>

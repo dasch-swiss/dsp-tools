@@ -199,7 +199,7 @@ class TestSegment:
         values = _parse_segment_values(resource_audio_segment, "Audio")
         expected = [
             (f"{KNORA_API_STR}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
-            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "open", None),
+            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None),
             (f"{KNORA_API_STR}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
             (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
             (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
@@ -219,7 +219,7 @@ class TestParseValues:
     def test_boolean_value_with_metadata(self):
         xml_val = etree.fromstring("""
         <boolean-prop name=":hasProp">
-            <boolean permissions="open" comment="Comment on Value">true</boolean>
+            <boolean permissions="public" comment="Comment on Value">true</boolean>
         </boolean-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -228,7 +228,7 @@ class TestParseValues:
         assert val.prop_name == HAS_PROP
         assert val.value == "true"
         assert val.value_type == KnoraValueType.BOOLEAN_VALUE
-        assert val.permissions_id == "open"
+        assert val.permissions_id == "public"
         assert val.comment == "Comment on Value"
 
     def test_color_value(self):
@@ -580,7 +580,7 @@ class TestParseFileValues:
 
     def test_bitstream_with_permissions_and_whitespaces(self):
         xml_val = etree.fromstring("""
-        <bitstream permissions="open">
+        <bitstream permissions="public">
             this/is/filepath/file.z
         </bitstream>
         """)
@@ -590,7 +590,7 @@ class TestParseFileValues:
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
-        assert val.metadata.permissions_id == "open"
+        assert val.metadata.permissions_id == "public"
 
     def test_bitstream_with_legal_info_and_whitespaces(self):
         xml_val = etree.fromstring("""
@@ -688,7 +688,7 @@ def test_get_one_absolute_iri(local_name, expected):
             "Cavanagh, Annie",
         ),
         ('<text encoding="utf8">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
-        ('<hasKeyword permissions="open">Keyword&#10;</hasKeyword>', "Keyword"),
+        ('<hasKeyword permissions="public">Keyword&#10;</hasKeyword>', "Keyword"),
         (
             """<text>
     Text line 1

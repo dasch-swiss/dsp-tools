@@ -103,17 +103,19 @@ def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCred
 
 @pytest.mark.usefixtures("_create_project")
 def test_default_permissions(creds: ServerCredentials, project_iri: str, auth_header: dict[str, str]) -> None:
-    response = requests.get(f"{creds.server}/admin/permissions/doap/{project_iri}", headers=auth_header, timeout=3)
+    response = requests.get(
+        f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
+    )
     doaps = response.json()["default_object_access_permissions"]
     assert len(doaps) == 1  # As soon as per-class DOAPs are supported, there will be more
 
     # The first DOAP is the public one
     assert doaps[0]["forGroup"] == f"{USER_IRI_PREFIX}ProjectMember"
     expected_permissions = [
-        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
-        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
-        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": None},
-        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
     ]
     assert unordered(doaps[0]["hasPermissions"]) == expected_permissions
 

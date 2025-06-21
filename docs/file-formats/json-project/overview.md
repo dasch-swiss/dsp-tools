@@ -217,6 +217,7 @@ If this field is omitted, it is assumed that `public` permissions should be appl
 
     When creating a new resource/value via xmlupload,
     it is possible to overrule this default with `<resource permissions="something-else">`.
+    See [here](../xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
 
 
 ### `groups`

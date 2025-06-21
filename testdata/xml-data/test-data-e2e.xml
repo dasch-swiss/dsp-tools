@@ -78,9 +78,9 @@
         </bitstream>
     </resource>
 
-    <resource label="ImageResource_overrides_doap_is_public"
+    <resource label="ImageResource_overrides_doap_is_open"
               restype=":ImageResource"
-              id="ImageResource_overrides_doap_is_public">
+              id="ImageResource_overrides_doap_is_open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"

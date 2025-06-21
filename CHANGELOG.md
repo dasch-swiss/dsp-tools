@@ -1,5 +1,22 @@
 # Changelog
 
+## [16.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.0.0...v16.1.0) (2025-06-21)
+
+
+### Enhancements
+
+* **create:** set project default permissions in JSON (DEV-5035, DEV-5037) ([#1801](https://github.com/dasch-swiss/dsp-tools/issues/1801)) ([16fc473](https://github.com/dasch-swiss/dsp-tools/commit/16fc4738a5d97415fe7d8ca26397266b1dd80e0d))
+
+
+### Maintenance
+
+* bump dependencies ([#1799](https://github.com/dasch-swiss/dsp-tools/issues/1799)) ([bb99e6d](https://github.com/dasch-swiss/dsp-tools/commit/bb99e6d785d7596540a72b722db639fa515d8a93))
+
+
+### Documentation
+
+* **xmlupload:** reflect the new project default permissions (DEV-5078) ([#1803](https://github.com/dasch-swiss/dsp-tools/issues/1803)) ([0bb0037](https://github.com/dasch-swiss/dsp-tools/commit/0bb00373fd09b0e6d7195ddea415c30792a797fc))
+
 ## [16.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v15.1.0...v16.0.0) (2025-06-18)
 
 

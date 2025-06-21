@@ -25,20 +25,20 @@ class PropertyElement:
 
         >>> excel2xml.make_text_prop(":testproperty", "first text")
                 <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="open">
+                    <text encoding="utf8" permissions="public">
                         first text
                     </text>
                 </text-prop>
-        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="restricted", encoding="xml"))
+        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="private", encoding="xml"))
                 <text-prop name=":testproperty">
-                    <text encoding="xml" permissions="restricted">
+                    <text encoding="xml" permissions="private">
                         first text
                     </text>
                 </text-prop>
     """
 
     value: Union[str, int, float, bool]
-    permissions: str = "open"
+    permissions: str = "public"
     comment: Optional[str] = None
     encoding: Optional[str] = None
 

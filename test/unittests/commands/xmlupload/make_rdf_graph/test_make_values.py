@@ -43,7 +43,7 @@ PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
 
 
-OPEN_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
+DUMMY_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
 def absolute_iri(prop: str) -> str:
@@ -61,7 +61,7 @@ def lookups() -> IRILookups:
 class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
+        prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, DUMMY_PERMISSION)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.isTrueOrFalse))
@@ -196,7 +196,7 @@ class TestMakeOneValueGraphSuccess:
             FormattedTextValue("Text"),
             absolute_iri("hasRichtext"),
             None,
-            OPEN_PERMISSION,
+            DUMMY_PERMISSION,
             resource_references=set(),
             value_uuid=str(uuid4()),
         )

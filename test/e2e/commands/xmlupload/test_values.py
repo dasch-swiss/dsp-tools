@@ -77,7 +77,7 @@ class TestSharedTriples:
         permissions = next(g_minimal.objects(val_iri, KNORA_API.hasPermissions))
         assert permissions == PUBLIC_PERMISSIONS
 
-    def test_open_permissions(self, g_minimal, onto_iri):
+    def test_private_permissions(self, g_minimal, onto_iri):
         prop_iri = URIRef(f"{onto_iri}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(
             g_minimal, "bool_1_private_permissions_on_value", prop_iri

@@ -1805,7 +1805,7 @@ def create_json_excel_list_mapping(
             excel_values_new.extend([x.strip() for x in val.split(sep) if x.strip()])
 
     # read the list of the JSON project (works also for nested lists)
-    with public(path_to_json, encoding="utf-8") as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = []
     for elem in json_file["project"]["lists"]:
@@ -1875,7 +1875,7 @@ def create_json_list_mapping(
     Returns:
         a dictionary of the form {label: name}
     """
-    with public(path_to_json, encoding="utf-8") as f:
+    with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
     json_subset = [x for x in json_file["project"]["lists"] if x["name"] == list_name]
     # json_subset is a list containing one item, namely the json object containing the entire json-list
@@ -1940,7 +1940,7 @@ def write_xml(
         pretty_print=True,
         doctype='<?xml version="1.0" encoding="UTF-8"?>',
     )
-    with public(filepath, "w", encoding="utf-8") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
         parse_and_validate_xml_file(input_file=filepath)

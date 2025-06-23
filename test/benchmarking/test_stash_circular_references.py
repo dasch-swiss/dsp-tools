@@ -15,7 +15,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references.xml"))
     parsed_resources = get_parsed_resources(test_root, "https://namespace.ch/")
-    permissions_lookup = {"open": Permissions()}
+    permissions_lookup = {"public": Permissions()}
     xml_lookups = XmlReferenceLookups(permissions_lookup, {}, authorships={})
     processed_resources = get_processed_resources(parsed_resources, xml_lookups, is_on_prod_like_server=False)
     _, stash = get_stash_and_upload_order(processed_resources)

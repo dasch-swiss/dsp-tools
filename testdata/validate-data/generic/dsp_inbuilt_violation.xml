@@ -6,13 +6,13 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <permissions id="open">
+    <permissions id="public">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <permissions id="restricted">
+    <permissions id="private">
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>

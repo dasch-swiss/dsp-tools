@@ -94,8 +94,8 @@ def make_root(
 
 def append_permissions(root_element: etree._Element) -> etree._Element:
     """
-    After having created a root element, call this function to append the standard permission definitions "open",
-    "restricted-view", and "restricted" to it. These definitions are a good basis to
+    After having created a root element, call this function to append the standard permission definitions "public",
+    "limited_view", and "private" to it. These definitions are a good basis to
     start with, but remember that they can be adapted, and that other permissions can be defined instead of these.
 
     Args:
@@ -116,24 +116,24 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     # lxml.builder.E is a more sophisticated element factory than etree.Element.
     # E.tag is equivalent to E("tag") and results in <tag>
 
-    _open = PERMISSIONS(id="open")
-    _open.append(ALLOW("V", group="UnknownUser"))
-    _open.append(ALLOW("V", group="KnownUser"))
-    _open.append(ALLOW("D", group="ProjectMember"))
-    _open.append(ALLOW("CR", group="ProjectAdmin"))
-    root_element.append(_open)
+    _public = PERMISSIONS(id="public")
+    _public.append(ALLOW("V", group="UnknownUser"))
+    _public.append(ALLOW("V", group="KnownUser"))
+    _public.append(ALLOW("D", group="ProjectMember"))
+    _public.append(ALLOW("CR", group="ProjectAdmin"))
+    root_element.append(_public)
 
-    _restricted_view = PERMISSIONS(id="restricted-view")
-    _restricted_view.append(ALLOW("RV", group="UnknownUser"))
-    _restricted_view.append(ALLOW("RV", group="KnownUser"))
-    _restricted_view.append(ALLOW("D", group="ProjectMember"))
-    _restricted_view.append(ALLOW("CR", group="ProjectAdmin"))
-    root_element.append(_restricted_view)
+    _private_view = PERMISSIONS(id="limited_view")
+    _private_view.append(ALLOW("RV", group="UnknownUser"))
+    _private_view.append(ALLOW("RV", group="KnownUser"))
+    _private_view.append(ALLOW("D", group="ProjectMember"))
+    _private_view.append(ALLOW("CR", group="ProjectAdmin"))
+    root_element.append(_private_view)
 
-    _restricted = PERMISSIONS(id="restricted")
-    _restricted.append(ALLOW("D", group="ProjectMember"))
-    _restricted.append(ALLOW("CR", group="ProjectAdmin"))
-    root_element.append(_restricted)
+    _private = PERMISSIONS(id="private")
+    _private.append(ALLOW("D", group="ProjectMember"))
+    _private.append(ALLOW("CR", group="ProjectAdmin"))
+    root_element.append(_private)
 
     return root_element
 
@@ -142,7 +142,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
     label: str,
     restype: str,
     id: str,
-    permissions: str = "open",
+    permissions: str = "public",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
     creation_date: Optional[str] = None,
@@ -197,7 +197,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
 
 def make_bitstream_prop(
     path: Union[str, os.PathLike[Any]],
-    permissions: str = "open",
+    permissions: str = "public",
     check: bool = False,
     calling_resource: str = "",
 ) -> etree._Element:
@@ -241,7 +241,7 @@ def make_bitstream_prop(
 
 def make_iiif_uri_prop(
     iiif_uri: str,
-    permissions: str = "open",
+    permissions: str = "public",
     calling_resource: str = "",
 ) -> etree._Element:
     """
@@ -323,7 +323,7 @@ def make_boolean_prop(
      - true: (True, "true", "True", "1", 1, "yes", "Yes")
      - false: (False, "false", "False", "0", 0, "no", "No")
 
-    Unless provided as PropertyElement, the permissions of the value default to "open".
+    Unless provided as PropertyElement, the permissions of the value default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -339,11 +339,11 @@ def make_boolean_prop(
     Examples:
         >>> excel2xml.make_boolean_prop(":testproperty", "no")
                 <boolean-prop name=":testproperty">
-                    <boolean permissions="open">false</boolean>
+                    <boolean permissions="public">false</boolean>
                 </boolean-prop>
-        >>> excel2xml.make_boolean_prop(":testproperty", excel2xml.PropertyElement("1", permissions="restricted", comment="example"))
+        >>> excel2xml.make_boolean_prop(":testproperty", excel2xml.PropertyElement("1", permissions="private", comment="example"))
                 <boolean-prop name=":testproperty">
-                    <boolean permissions="restricted" comment="example">true</boolean>
+                    <boolean permissions="private" comment="example">true</boolean>
                 </boolean-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean-prop
@@ -386,7 +386,7 @@ def make_color_prop(
 ) -> etree._Element:
     """
     Make a `<color-prop>` from one or more colors. The color(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the permissions default to "open".
+    string inside. If provided as string, the permissions default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -402,16 +402,16 @@ def make_color_prop(
     Examples:
         >>> excel2xml.make_color_prop(":testproperty", "#00ff66")
                 <color-prop name=":testproperty">
-                    <color permissions="open">#00ff66</color>
+                    <color permissions="public">#00ff66</color>
                 </color-prop>
-        >>> excel2xml.make_color_prop(":testproperty", excel2xml.PropertyElement("#00ff66", permissions="restricted", comment="example"))
+        >>> excel2xml.make_color_prop(":testproperty", excel2xml.PropertyElement("#00ff66", permissions="private", comment="example"))
                 <color-prop name=":testproperty">
-                    <color permissions="restricted" comment="example">#00ff66</color>
+                    <color permissions="private" comment="example">#00ff66</color>
                 </color-prop>
         >>> excel2xml.make_color_prop(":testproperty", ["#00ff66", "#000000"])
                 <color-prop name=":testproperty">
-                    <color permissions="open">#00ff66</color>
-                    <color permissions="open">#000000</color>
+                    <color permissions="public">#00ff66</color>
+                    <color permissions="public">#000000</color>
                 </color-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color-prop
@@ -457,7 +457,7 @@ def make_date_prop(
 ) -> etree._Element:
     """
     Make a `<date-prop>` from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
-    with a string inside. If provided as string, the permissions default to "open".
+    with a string inside. If provided as string, the permissions default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -473,20 +473,20 @@ def make_date_prop(
     Examples:
         >>> excel2xml.make_date_prop(":testproperty", "GREGORIAN:CE:2014-01-31")
                 <date-prop name=":testproperty">
-                    <date permissions="open">GREGORIAN:CE:2014-01-31</date>
+                    <date permissions="public">GREGORIAN:CE:2014-01-31</date>
                 </date-prop>
-        >>> excel2xml.make_date_prop(":testproperty", excel2xml.PropertyElement("GREGORIAN:CE:2014-01-31", permissions="restricted", comment="example"))
+        >>> excel2xml.make_date_prop(":testproperty", excel2xml.PropertyElement("GREGORIAN:CE:2014-01-31", permissions="private", comment="example"))
                 <date-prop name=":testproperty">
-                    <date permissions="restricted" comment="example">
+                    <date permissions="private" comment="example">
                         GREGORIAN:CE:2014-01-31
                     </date>
                 </date-prop>
         >>> excel2xml.make_date_prop(":testproperty", ["GREGORIAN:CE:1930-09-02:CE:1930-09-03", "GREGORIAN:CE:1930-09-02:CE:1930-09-03"])
                 <date-prop name=":testproperty">
-                    <date permissions="open">
+                    <date permissions="public">
                         GREGORIAN:CE:1930-09-02:CE:1930-09-03
                     </date>
-                    <date permissions="open">
+                    <date permissions="public">
                         GREGORIAN:CE:1930-09-02:CE:1930-09-03
                     </date>
                 </date-prop>
@@ -535,7 +535,7 @@ def make_decimal_prop(
     """
     Make a `<decimal-prop>` from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
     PropertyElement with a string/float inside. If provided as string/float, the permissions default to
-    "open".
+    "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -551,16 +551,16 @@ def make_decimal_prop(
     Examples:
         >>> excel2xml.make_decimal_prop(":testproperty", "3.14159")
                 <decimal-prop name=":testproperty">
-                    <decimal permissions="open">3.14159</decimal>
+                    <decimal permissions="public">3.14159</decimal>
                 </decimal-prop>
-        >>> excel2xml.make_decimal_prop(":testproperty", excel2xml.PropertyElement("3.14159", permissions="restricted", comment="example"))
+        >>> excel2xml.make_decimal_prop(":testproperty", excel2xml.PropertyElement("3.14159", permissions="private", comment="example"))
                 <decimal-prop name=":testproperty">
-                    <decimal permissions="restricted" comment="example">3.14159</decimal>
+                    <decimal permissions="private" comment="example">3.14159</decimal>
                 </decimal-prop>
         >>> excel2xml.make_decimal_prop(":testproperty", ["3.14159", "2.718"])
                 <decimal-prop name=":testproperty">
-                    <decimal permissions="open">3.14159</decimal>
-                    <decimal permissions="open">2.718</decimal>
+                    <decimal permissions="public">3.14159</decimal>
+                    <decimal permissions="public">2.718</decimal>
                 </decimal-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal-prop
@@ -608,7 +608,7 @@ def make_geometry_prop(
 ) -> etree._Element:
     """
     Make a `<geometry-prop>` from one or more areas of an image. The area(s) can be provided as JSON-string or as
-    PropertyElement with the JSON-string inside. If provided as string, the permissions default to "open".
+    PropertyElement with the JSON-string inside. If provided as string, the permissions default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -624,16 +624,16 @@ def make_geometry_prop(
     Examples:
         >>> excel2xml.make_geometry_prop(":testproperty", json_string)
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="open">{JSON}</geometry>
+                    <geometry permissions="public">{JSON}</geometry>
                 </geometry-prop>
-        >>> excel2xml.make_geometry_prop(":testproperty", excel2xml.PropertyElement(json_string, permissions="restricted", comment="example"))
+        >>> excel2xml.make_geometry_prop(":testproperty", excel2xml.PropertyElement(json_string, permissions="private", comment="example"))
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="restricted" comment="example">{JSON}</geometry>
+                    <geometry permissions="private" comment="example">{JSON}</geometry>
                 </geometry-prop>
         >>> excel2xml.make_geometry_prop(":testproperty", [json_string1, json_string2])
                 <geometry-prop name=":testproperty">
-                    <geometry permissions="open">{JSON}</geometry>
-                    <geometry permissions="open">{JSON}</geometry>
+                    <geometry permissions="public">{JSON}</geometry>
+                    <geometry permissions="public">{JSON}</geometry>
                 </geometry-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry-prop
@@ -693,7 +693,7 @@ def make_geoname_prop(
     """
     Make a `<geoname-prop>` from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
-    "open".
+    "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -709,16 +709,16 @@ def make_geoname_prop(
     Examples:
         >>> excel2xml.make_geoname_prop(":testproperty", "2761369")
                 <geoname-prop name=":testproperty">
-                    <geoname permissions="open">2761369</geoname>
+                    <geoname permissions="public">2761369</geoname>
                 </geoname-prop>
-        >>> excel2xml.make_geoname_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="restricted", comment="example"))
+        >>> excel2xml.make_geoname_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="private", comment="example"))
                 <geoname-prop name=":testproperty">
-                    <geoname permissions="restricted" comment="example">2761369</geoname>
+                    <geoname permissions="private" comment="example">2761369</geoname>
                 </geoname-prop>
         >>> excel2xml.make_geoname_prop(":testproperty", ["2761369", "1010101"])
                 <geoname-prop name=":testproperty">
-                    <geoname permissions="open">2761369</geoname>
-                    <geoname permissions="open">1010101</geoname>
+                    <geoname permissions="public">2761369</geoname>
+                    <geoname permissions="public">1010101</geoname>
                 </geoname-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname-prop
@@ -765,7 +765,7 @@ def make_integer_prop(
     """
     Make a `<integer-prop>` from one or more integers. The integers can be provided as string, integer, or as
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
-    "open".
+    "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -781,16 +781,16 @@ def make_integer_prop(
     Examples:
         >>> excel2xml.make_integer_prop(":testproperty", "2761369")
                 <integer-prop name=":testproperty">
-                    <integer permissions="open">2761369</integer>
+                    <integer permissions="public">2761369</integer>
                 </integer-prop>
-        >>> excel2xml.make_integer_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="restricted", comment="example"))
+        >>> excel2xml.make_integer_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="private", comment="example"))
                 <integer-prop name=":testproperty">
-                    <integer permissions="restricted" comment="example">2761369</integer>
+                    <integer permissions="private" comment="example">2761369</integer>
                 </integer-prop>
         >>> excel2xml.make_integer_prop(":testproperty", ["2761369", "1010101"])
                 <integer-prop name=":testproperty">
-                    <integer permissions="open">2761369</integer>
-                    <integer permissions="open">1010101</integer>
+                    <integer permissions="public">2761369</integer>
+                    <integer permissions="public">1010101</integer>
                 </integer-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer-prop
@@ -839,7 +839,7 @@ def make_list_prop(
 ) -> etree._Element:
     """
     Make a `<list-prop>` from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permissions default to "open".
+    PropertyElement with a string inside. If provided as string, the permissions default to "public".
 
     Args:
         list_name: the name of the list as defined in the onto
@@ -856,16 +856,16 @@ def make_list_prop(
     Examples:
         >>> excel2xml.make_list_prop("mylist", ":testproperty", "first_node")
                 <list-prop list="mylist" name=":testproperty">
-                    <list permissions="open">first_node</list>
+                    <list permissions="public">first_node</list>
                 </list-prop>
-        >>> excel2xml.make_list_prop("mylist", ":testproperty", excel2xml.PropertyElement("first_node", permissions="restricted", comment="example"))
+        >>> excel2xml.make_list_prop("mylist", ":testproperty", excel2xml.PropertyElement("first_node", permissions="private", comment="example"))
                 <list-prop list="mylist" name=":testproperty">
-                    <list permissions="restricted" comment="example">first_node</list>
+                    <list permissions="private" comment="example">first_node</list>
                 </list-prop>
         >>> excel2xml.make_list_prop("mylist", ":testproperty", ["first_node", "second_node"])
                 <list-prop list="mylist" name=":testproperty">
-                    <list permissions="open">first_node</list>
-                    <list permissions="open">second_node</list>
+                    <list permissions="public">first_node</list>
+                    <list permissions="public">second_node</list>
                 </list-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list-prop
@@ -912,7 +912,7 @@ def make_resptr_prop(
 ) -> etree._Element:
     """
     Make a `<resptr-prop>` from one or more IDs of other resources. The ID(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permissions default to "open".
+    PropertyElement with a string inside. If provided as string, the permissions default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -928,16 +928,16 @@ def make_resptr_prop(
     Examples:
         >>> excel2xml.make_resptr_prop(":testproperty", "resource_1")
                 <resptr-prop name=":testproperty">
-                    <resptr permissions="open">resource_1</resptr>
+                    <resptr permissions="public">resource_1</resptr>
                 </resptr-prop>
-        >>> excel2xml.make_resptr_prop(":testproperty", excel2xml.PropertyElement("resource_1", permissions="restricted", comment="example"))
+        >>> excel2xml.make_resptr_prop(":testproperty", excel2xml.PropertyElement("resource_1", permissions="private", comment="example"))
                 <resptr-prop name=":testproperty">
-                    <resptr permissions="restricted" comment="example">resource_1</resptr>
+                    <resptr permissions="private" comment="example">resource_1</resptr>
                 </resptr-prop>
         >>> excel2xml.make_resptr_prop(":testproperty", ["resource_1", "resource_2"])
                 <resptr-prop name=":testproperty">
-                    <resptr permissions="open">resource_1</resptr>
-                    <resptr permissions="open">resource_2</resptr>
+                    <resptr permissions="public">resource_1</resptr>
+                    <resptr permissions="public">resource_2</resptr>
                 </resptr-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
@@ -983,7 +983,7 @@ def make_text_prop(
 ) -> etree._Element:
     """
     Make a `<text-prop>` from one or more strings. The string(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the encoding defaults to utf8, and the permissions to "open".
+    string inside. If provided as string, the encoding defaults to utf8, and the permissions to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -1001,16 +1001,16 @@ def make_text_prop(
     Examples:
         >>> excel2xml.make_text_prop(":testproperty", "first text")
                 <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="open">first text</text>
+                    <text encoding="utf8" permissions="public">first text</text>
                 </text-prop>
-        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="restricted", encoding="xml"))
+        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="private", encoding="xml"))
                 <text-prop name=":testproperty">
-                    <text encoding="xml" permissions="restricted">first text</text>
+                    <text encoding="xml" permissions="private">first text</text>
                 </text-prop>
         >>> excel2xml.make_text_prop(":testproperty", ["first text", "second text"])
                 <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="open">first text</text>
-                    <text encoding="utf8" permissions="open">second text</text>
+                    <text encoding="utf8" permissions="public">first text</text>
+                    <text encoding="utf8" permissions="public">second text</text>
                 </text-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text-prop
@@ -1136,7 +1136,7 @@ def make_time_prop(
     """
     Make a `<time-prop>` from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
     provided as string or as PropertyElement with a string inside. If provided as string, the permissions default to
-    "open".
+    "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -1152,22 +1152,22 @@ def make_time_prop(
     Examples:
         >>> excel2xml.make_time_prop(":testproperty", "2009-10-10T12:00:00-05:00")
                 <time-prop name=":testproperty">
-                    <time permissions="open">
+                    <time permissions="public">
                         2009-10-10T12:00:00-05:00
                     </time>
                 </time-prop>
-        >>> excel2xml.make_time_prop(":testproperty", excel2xml.PropertyElement("2009-10-10T12:00:00-05:00", permissions="restricted", comment="example"))
+        >>> excel2xml.make_time_prop(":testproperty", excel2xml.PropertyElement("2009-10-10T12:00:00-05:00", permissions="private", comment="example"))
                 <time-prop name=":testproperty">
-                    <time permissions="restricted" comment="example">
+                    <time permissions="private" comment="example">
                         2009-10-10T12:00:00-05:00
                     </time>
                 </time-prop>
         >>> excel2xml.make_time_prop(":testproperty", ["2009-10-10T12:00:00-05:00", "1901-01-01T01:00:00-00:00"])
                 <time-prop name=":testproperty">
-                    <time permissions="open">
+                    <time permissions="public">
                         2009-10-10T12:00:00-05:00
                     </time>
-                    <time permissions="open">
+                    <time permissions="public">
                         1901-01-01T01:00:00-00:002
                     </time>
                 </time-prop>
@@ -1216,7 +1216,7 @@ def make_uri_prop(
 ) -> etree._Element:
     """
     Make an `<uri-prop>` from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
-    inside. If provided as string, the permissions default to "open".
+    inside. If provided as string, the permissions default to "public".
 
     Args:
         name: the name of this property as defined in the onto
@@ -1232,16 +1232,16 @@ def make_uri_prop(
     Examples:
         >>> excel2xml.make_uri_prop(":testproperty", "www.test.com")
                 <uri-prop name=":testproperty">
-                    <uri permissions="open">www.test.com</uri>
+                    <uri permissions="public">www.test.com</uri>
                 </uri-prop>
-        >>> excel2xml.make_uri_prop(":testproperty", excel2xml.PropertyElement("www.test.com", permissions="restricted", comment="example"))
+        >>> excel2xml.make_uri_prop(":testproperty", excel2xml.PropertyElement("www.test.com", permissions="private", comment="example"))
                 <uri-prop name=":testproperty">
-                    <uri permissions="restricted" comment="example">www.test.com</uri>
+                    <uri permissions="private" comment="example">www.test.com</uri>
                 </uri-prop>
         >>> excel2xml.make_uri_prop(":testproperty", ["www.1.com", "www.2.com"])
                 <uri-prop name=":testproperty">
-                    <uri permissions="open">www.1.com</uri>
-                    <uri permissions="open">www.2.com</uri>
+                    <uri permissions="public">www.1.com</uri>
+                    <uri permissions="public">www.2.com</uri>
                 </uri-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri-prop
@@ -1283,7 +1283,7 @@ def make_uri_prop(
 def make_region(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,
-    permissions: str = "open",
+    permissions: str = "public",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
     creation_date: Optional[str] = None,
@@ -1340,7 +1340,7 @@ def make_region(  # noqa: D417 (undocumented-param)
 def make_link(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,
-    permissions: str = "open",
+    permissions: str = "public",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
     creation_date: Optional[str] = None,
@@ -1395,7 +1395,7 @@ def make_link(  # noqa: D417 (undocumented-param)
 def make_audio_segment(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,
-    permissions: str = "open",
+    permissions: str = "public",
 ) -> etree._Element:
     """
     Creates an empty `<audio-segment>` element, with the attributes as specified by the arguments.
@@ -1427,7 +1427,7 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
 def make_video_segment(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,
-    permissions: str = "open",
+    permissions: str = "public",
 ) -> etree._Element:
     """
     Creates an empty `<video-segment>` element, with the attributes as specified by the arguments.
@@ -1457,14 +1457,14 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
 
 
 def make_isSegmentOf_prop(
-    target_id: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    target_id: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<isSegmentOf>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         target_id: ID of target video/audio resource
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1494,14 +1494,14 @@ def make_isSegmentOf_prop(
 
 
 def make_relatesTo_prop(
-    target_id: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    target_id: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<relatesTo>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         target_id: ID of the related resource
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1534,7 +1534,7 @@ def make_relatesTo_prop(
 def make_hasSegmentBounds_prop(
     segment_start: int | float,
     segment_end: int | float,
-    permissions: str = "open",
+    permissions: str = "public",
     comment: str | None = None,
     calling_resource: str = "",
 ) -> etree._Element:
@@ -1544,7 +1544,7 @@ def make_hasSegmentBounds_prop(
     Args:
         segment_start: start, in seconds, counted from the beginning of the audio/video
         segment_end: end, in seconds, counted from the beginning of the audio/video
-        permissions: Defaults to "open".
+        permissions: Defaults to "public".
         comment: Optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1591,14 +1591,14 @@ def make_hasSegmentBounds_prop(
 
 
 def make_hasTitle_prop(
-    title: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    title: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<hasTitle>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         title: the title of the segment
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1628,14 +1628,14 @@ def make_hasTitle_prop(
 
 
 def make_hasKeyword_prop(
-    keyword: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    keyword: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<hasKeyword>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         keyword: a keyword of the segment
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1666,14 +1666,14 @@ def make_hasKeyword_prop(
 
 
 def make_hasComment_prop(
-    comment_text: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    comment_text: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<hasComment>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         comment_text: a text with some background info about the segment. Can be formatted with tags.
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1704,14 +1704,14 @@ def make_hasComment_prop(
 
 
 def make_hasDescription_prop(
-    description: str, permissions: str = "open", comment: str | None = None, calling_resource: str = ""
+    description: str, permissions: str = "public", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
     Make a `<hasDescription>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         description: a text with some background info about the segment. Can be formatted with tags.
-        permissions: defaults to "open".
+        permissions: defaults to "public".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 

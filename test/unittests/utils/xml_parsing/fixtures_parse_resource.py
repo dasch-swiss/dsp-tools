@@ -23,7 +23,7 @@ def root_with_2_resources() -> etree._Element:
         
         <link label="a link object" id="link_obj">
             <resptr-prop name="hasLinkTo">
-                <resptr permissions="open">the_only_resource</resptr>
+                <resptr permissions="public">the_only_resource</resptr>
             </resptr-prop>
         </link>
     </knora>
@@ -42,7 +42,7 @@ def resource_empty_with_permission() -> etree._Element:
         label="lbl" 
         restype=":Class" 
         id="resource_empty_permissions"
-        permissions="open"
+        permissions="public"
     >
     </resource>
     """)
@@ -122,7 +122,7 @@ def resource_link() -> etree._Element:
     return etree.fromstring("""
     <link label="lbl" id="resource_link">
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="open"> target</resptr>
+            <resptr permissions="public"> target</resptr>
         </resptr-prop>
     </link>
     """)
@@ -149,7 +149,7 @@ def resource_audio_segment() -> etree._Element:
     return etree.fromstring("""
     <audio-segment label="lbl" id="resource_audio_segment">
         <isSegmentOf>target</isSegmentOf>
-        <hasSegmentBounds permissions="open" segment_start="0.1" segment_end="0.234"/>
+        <hasSegmentBounds permissions="public" segment_start="0.1" segment_end="0.234"/>
         <hasTitle comment="Cmt"> Title</hasTitle>
         <hasComment><p>Comment</p></hasComment>
         <hasDescription> <p>Description 1</p></hasDescription>

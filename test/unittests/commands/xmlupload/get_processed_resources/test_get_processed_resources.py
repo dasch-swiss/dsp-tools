@@ -54,7 +54,7 @@ IS_ON_PROD_LIKE_SERVER = True
 @pytest.fixture
 def lookups() -> XmlReferenceLookups:
     return XmlReferenceLookups(
-        permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
+        permissions={"public": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
         listnodes={
             ("list", "node"): "http://rdfh.ch/9999/node",
             ("", "http://rdfh.ch/9999/node"): "http://rdfh.ch/9999/node",
@@ -65,7 +65,7 @@ def lookups() -> XmlReferenceLookups:
 
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
-    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
     return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
 
 
@@ -133,7 +133,7 @@ class TestOneResource:
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
-            permissions_id="open",
+            permissions_id="public",
             values=[],
             file_value=None,
             migration_metadata=None,
@@ -371,7 +371,7 @@ class TestFileValue:
 
 class TestFileMetadata:
     def test_prod_good_with_permissions(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
         result_metadata = _get_file_metadata(metadata, lookups)
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
@@ -409,7 +409,7 @@ class TestFileMetadata:
         assert result_metadata.authorships == ["DUMMY"]
 
     def test_get_file_metadata_for_test_environments_all_values(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
@@ -435,7 +435,7 @@ class TestValues:
         assert result.comment == "comment"
 
     def test_bool_value_with_permissions(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None)
         result = _get_one_processed_value(val, lookups)
         assert result.value == True  # noqa:E712 (Avoid equality comparisons)
         assert result.prop_iri == HAS_PROP
@@ -512,7 +512,7 @@ class TestValues:
         assert not result.comment
 
     def test_list_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
@@ -526,7 +526,7 @@ class TestValues:
             _get_one_processed_value(val, lookups)
 
     def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "open", "cmt")
+        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "public", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
@@ -545,7 +545,7 @@ class TestValues:
 
     def test_richtext_value(self, lookups: XmlReferenceLookups):
         text_str = "<text>this is text</text>"
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -556,7 +556,7 @@ class TestValues:
 
     def test_richtext_value_with_standoff(self, lookups: XmlReferenceLookups):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -566,7 +566,7 @@ class TestValues:
         assert result.resource_references == {"link"}
 
     def test_link_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "open", "cmt")
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt")
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedLink)
         assert result.value == "other_id"
@@ -595,7 +595,7 @@ class TestValues:
 
 class TestPermissions:
     def test_good(self, lookups):
-        result = _resolve_permission("open", lookups.permissions)
+        result = _resolve_permission("public", lookups.permissions)
         assert isinstance(result, Permissions)
         assert str(result) == "CR knora-admin:ProjectAdmin"
 

@@ -32,7 +32,7 @@ LIST_LOOKUP = ListLookup({("list", "node"): "http://rdfh.ch/lists/9999/n1"})
 
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
-    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
     return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
 
 
@@ -81,7 +81,7 @@ class TestResource:
             res_id="one",
             res_type=RES_TYPE,
             label="lbl",
-            permissions_id="open",
+            permissions_id="public",
             values=[],
             file_value=None,
             migration_metadata=None,
@@ -93,7 +93,7 @@ class TestResource:
         lbl, rdf_type, perm = _get_label_and_type(result)
         assert len(perm) == 1
         permission = perm.pop(0)
-        assert permission.object_value == "open"
+        assert permission.object_value == "public"
         assert permission.object_type == TripleObjectType.STRING
         assert permission.property_type == TriplePropertyType.KNORA_PERMISSIONS
         assert lbl.object_value == "lbl"
@@ -203,7 +203,7 @@ class TestValues:
         assert metadata.object_type == TripleObjectType.STRING
 
     def test_boolean_with_permissions_corr(self):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
@@ -211,7 +211,7 @@ class TestValues:
         assert len(res.value_metadata) == 1
         metadata = res.value_metadata.pop(0)
         assert metadata.property_type == TriplePropertyType.KNORA_PERMISSIONS
-        assert metadata.object_value == "open"
+        assert metadata.object_value == "public"
         assert metadata.object_type == TripleObjectType.STRING
 
     def test_boolean_none(self):

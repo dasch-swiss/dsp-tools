@@ -18,6 +18,10 @@
             Cavanagh, Annie
         </author>
     </authorship>
+    <authorship id="authorship_4">
+        <author>Johannes Nussbaum</author>
+        <author>Perplexity.ai</author>
+    </authorship>
 
     <!-- ArchiveRepresentation -->
 
@@ -266,16 +270,16 @@
     </resource>
 
     <resource label="TestTextRepresentation htm" restype=":TestTextRepresentation" id="id_text_htm">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
+        <bitstream license="http://rdfh.ch/licenses/ai-generated"
+                   copyright-holder="AI-Generated Content - Not Protected by Copyright"
+                   authorship-id="authorship_4"
         >this/is/filepath/file.htm</bitstream>
     </resource>
 
     <resource label="TestTextRepresentation html" restype=":TestTextRepresentation" id="id_text_html">
-        <bitstream license="http://rdfh.ch/licenses/unknown"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
+        <bitstream license="http://rdfh.ch/licenses/ai-generated"
+                   copyright-holder="AI-Generated Content - Not Protected by Copyright"
+                   authorship-id="authorship_4"
         >this/is/filepath/file.html</bitstream>
     </resource>
 

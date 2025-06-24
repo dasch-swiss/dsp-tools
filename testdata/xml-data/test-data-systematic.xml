@@ -48,7 +48,8 @@
         <author>Johannes Nussbaum</author>
     </authorship>
     <authorship id="authorship_6">
-        <author>AI-Generated Content - Not Protected by Copyright</author>
+        <author>Johannes Nussbaum</author>
+        <author>Perplexity.ai</author>
     </authorship>
 
     <resource label="TestthingWithArk1"
@@ -768,7 +769,11 @@
               restype=":TextThing"
               id="text_thing_9"
               permissions="public">
-        <bitstream license="http://rdfh.ch/licenses/ai-generated" copyright-holder="DaSCH" authorship-id="authorship_6">
+        <bitstream 
+            license="http://rdfh.ch/licenses/ai-generated"
+            copyright-holder="AI-Generated Content - Not Protected by Copyright"
+            authorship-id="authorship_6"
+        >
             testdata/bitstreams/test.htm
         </bitstream>
         <text-prop name=":hasSimpleText">
@@ -780,7 +785,7 @@
               restype=":TextThing"
               id="text_thing_10"
               permissions="public">
-        <bitstream license="http://rdfh.ch/licenses/ai-generated" copyright-holder="DaSCH" authorship-id="authorship_6">
+        <bitstream license="http://rdfh.ch/licenses/ai-generated" copyright-holder="AI-Generated Content - Not Protected by Copyright" authorship-id="authorship_6">
             testdata/bitstreams/test.html
         </bitstream>
         <text-prop name=":hasSimpleText">

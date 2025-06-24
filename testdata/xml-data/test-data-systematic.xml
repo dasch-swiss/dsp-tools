@@ -653,6 +653,18 @@
         </text-prop>
     </resource>
 
+    <resource label="Documentthing-epub"
+              restype=":DocumentThing"
+              id="document_thing_8"
+              permissions="public">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            testdata/bitstreams/test.epub
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is a Documentthing as EPUB</text>
+        </text-prop>
+    </resource>
+
     <resource label="Textthing-csv"
               restype=":TextThing"
               id="text_thing_1"
@@ -746,6 +758,30 @@
         </bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="public" encoding="utf8">This is a Textthing as JSON</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-htm"
+              restype=":TextThing"
+              id="text_thing_9"
+              permissions="public">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            testdata/bitstreams/test.htm
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is a Textthing as HTM</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Textthing-html"
+              restype=":TextThing"
+              id="text_thing_10"
+              permissions="public">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            testdata/bitstreams/test.html
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is a Textthing as HTML</text>
         </text-prop>
     </resource>
 

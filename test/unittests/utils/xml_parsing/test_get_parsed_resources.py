@@ -622,7 +622,8 @@ class TestFileTypeInfo:
         assert _get_file_value_type(file_name) == KnoraValueType.AUDIO_FILE
 
     @pytest.mark.parametrize(
-        "file_name", ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx"]
+        "file_name",
+        ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx", "test.epub"],
     )
     def test_document(self, file_name: str):
         assert _get_file_value_type(file_name) == KnoraValueType.DOCUMENT_FILE
@@ -638,7 +639,18 @@ class TestFileTypeInfo:
 
     @pytest.mark.parametrize(
         "file_name",
-        ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
+        [
+            "path/test.odd",
+            "test.rng",
+            "test.txt",
+            "test.htm",
+            "test.html",
+            "test.xml",
+            "test.xsd",
+            "test.xsl",
+            "test.csv",
+            "test.json",
+        ],
     )
     def test_text(self, file_name: str):
         assert _get_file_value_type(file_name) == KnoraValueType.TEXT_FILE

@@ -315,14 +315,14 @@ def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noq
             return KnoraValueType.ARCHIVE_FILE
         case "mp3" | "wav":
             return KnoraValueType.AUDIO_FILE
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx" | "epub":
             return KnoraValueType.DOCUMENT_FILE
         case "mp4":
             return KnoraValueType.MOVING_IMAGE_FILE
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             return KnoraValueType.STILL_IMAGE_FILE
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+        case "odd" | "rng" | "txt" | "xml" | "htm" | "html" | "xsd" | "xsl" | "csv" | "json":
             return KnoraValueType.TEXT_FILE
         case _:
             return None

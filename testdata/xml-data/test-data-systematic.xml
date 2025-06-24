@@ -47,6 +47,9 @@
         <author>Nora Ammann</author>
         <author>Johannes Nussbaum</author>
     </authorship>
+    <authorship id="authorship_6">
+        <author>AI-Generated Content - Not Protected by Copyright</author>
+    </authorship>
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"
@@ -765,7 +768,7 @@
               restype=":TextThing"
               id="text_thing_9"
               permissions="public">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+        <bitstream license="http://rdfh.ch/licenses/ai-generated" copyright-holder="DaSCH" authorship-id="authorship_6">
             testdata/bitstreams/test.htm
         </bitstream>
         <text-prop name=":hasSimpleText">
@@ -777,7 +780,7 @@
               restype=":TextThing"
               id="text_thing_10"
               permissions="public">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+        <bitstream license="http://rdfh.ch/licenses/ai-generated" copyright-holder="DaSCH" authorship-id="authorship_6">
             testdata/bitstreams/test.html
         </bitstream>
         <text-prop name=":hasSimpleText">

@@ -9,6 +9,9 @@ services:
       - db
     ports:
       - "3333:3333"
+    volumes:
+      # temporary workaround for https://linear.app/dasch/issue/DEV-5085/new-file-types-missing-in-api-config
+      - ./application-DEV-5085.conf:/application-DEV-5085.conf
     environment:
       - TZ=Europe/Zurich
       - KNORA_AKKA_LOGLEVEL=DEBUG
@@ -25,6 +28,9 @@ services:
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
       - ALLOW_ERASE_PROJECTS=true
       - DSP_API_LOG_LEVEL=INFO
+
+      # temporary workaround for https://linear.app/dasch/issue/DEV-5085/new-file-types-missing-in-api-config
+      - DSP_API_CONF_FILE=/application-DEV-5085.conf
 
   sipi:
     # on the verge of every deployment, take the same tag as DSP-API

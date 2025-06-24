@@ -31,6 +31,8 @@ services:
 
       # temporary workaround for https://linear.app/dasch/issue/DEV-5085/new-file-types-missing-in-api-config
       - DSP_API_CONF_FILE=/application-DEV-5085.conf
+    # temporary workaround for https://linear.app/dasch/issue/DEV-5085/new-file-types-missing-in-api-config
+    command: ["-Dconfig.file=/application-DEV-5085.conf", "-Dpekko.log-config-on-start=on"]
 
   sipi:
     # on the verge of every deployment, take the same tag as DSP-API

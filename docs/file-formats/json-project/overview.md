@@ -211,7 +211,7 @@ Defines the permissions that will be applied to new resources/values.
 - `public`: All users can view resources/values.
 - `private`: Only ProjectMembers/ProjectAdmins can view resources/values.
 
-If this field is omitted, it is assumed that `public` permissions should be applied.
+This field is mandatory and must be explicitly specified.
 
 !!! info
 

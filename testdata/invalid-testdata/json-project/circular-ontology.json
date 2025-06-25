@@ -11,6 +11,7 @@
             "test",
             "testing"
         ],
+        "project_default_permissions": "public",
         "ontologies": [
             {
                 "name": "circular-onto",

@@ -16,6 +16,7 @@
         "http://rdfh.ch/licenses/unknown",
         "http://rdfh.ch/licenses/ai-generated"
     ],
+    "project_default_permissions": "public",
     "lists": [
       {
         "name": "firstList",

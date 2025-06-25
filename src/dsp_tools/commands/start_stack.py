@@ -446,4 +446,5 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         subprocess.run("docker compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
+        shutil.rmtree(self.__docker_path_of_user / "sipi")
         return True

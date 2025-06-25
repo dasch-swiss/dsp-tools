@@ -114,12 +114,12 @@ The `project` object contains the basic metadata about the project. The followin
 - longname
 - descriptions
 - keywords
+- project_default_permissions
 - enabled_licenses
 - ontologies
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
-- project_default_permissions
 - groups
 - users
 - lists
@@ -202,7 +202,7 @@ See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/
 
 ### `project_default_permissions`
 
-(optional)
+(required)
 
 `"project_default_permissions": "public|private"`
 
@@ -210,8 +210,6 @@ Defines the permissions that will be applied to new resources/values.
 
 - `public`: All users can view resources/values.
 - `private`: Only ProjectMembers/ProjectAdmins can view resources/values.
-
-This field is mandatory and must be explicitly specified.
 
 !!! info
 

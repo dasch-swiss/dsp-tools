@@ -281,6 +281,18 @@ class TestCheckProject:
         assert location.column == "shortcode"
         assert location.row == 2
 
+    def test_invalid_permissions(self, project_invalid_permissions: pd.DataFrame) -> None:
+        result = _check_project_sheet(project_invalid_permissions)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "project"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "One of: public, private"
+        assert problem.actual_content == "invalid"
+        assert problem.excel_position.column == "project_default_permissions"
+        assert problem.excel_position.row == 2
+
 
 class TestCheckDescription:
     def test_good(self, description_good: pd.DataFrame) -> None:

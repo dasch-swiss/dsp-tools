@@ -10,6 +10,7 @@
         "keywords": [
             "e2e-test-projec-keyword"
         ],
+        "project_default_permissions": "public",
         "ontologies": [
             {
                 "name": "e2e-ingest-onto",

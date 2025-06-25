@@ -10,6 +10,7 @@
         "keywords": [
             "minimal"
         ],
+        "project_default_permissions": "public",
         "ontologies": [
             {
                 "name": "invalid-super-property-onto",

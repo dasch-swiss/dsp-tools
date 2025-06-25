@@ -1199,7 +1199,8 @@
                 "shortname",
                 "descriptions",
                 "ontologies",
-                "keywords"
+                "keywords",
+                "project_default_permissions"
             ],
             "additionalProperties": false
         }

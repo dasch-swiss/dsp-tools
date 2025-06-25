@@ -10,6 +10,7 @@
     "keywords": [
       "validate"
     ],
+    "project_default_permissions": "public",
     "ontologies": [
       {
         "name": "error",

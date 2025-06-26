@@ -36,26 +36,26 @@ def licenses_good() -> pd.DataFrame:
 @pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
     return pd.DataFrame(
-        {"shortcode": [11], "shortname": ["name"], "longname": ["long"], "project_default_permissions": ["public"]}
+        {"shortcode": [11], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
     )
 
 
 @pytest.fixture
 def project_good_no_zero() -> pd.DataFrame:
     return pd.DataFrame(
-        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "project_default_permissions": ["public"]}
+        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
     )
 
 
 @pytest.fixture
 def project_missing_col() -> pd.DataFrame:
-    return pd.DataFrame({"shortname": ["name"], "longname": ["long"], "project_default_permissions": ["public"]})
+    return pd.DataFrame({"shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]})
 
 
 @pytest.fixture
 def project_missing_val() -> pd.DataFrame:
     return pd.DataFrame(
-        {"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"], "project_default_permissions": ["public"]}
+        {"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
     )
 
 
@@ -66,7 +66,7 @@ def project_too_many_rows() -> pd.DataFrame:
             "shortcode": [11, 0],
             "shortname": ["name", pd.NA],
             "longname": ["long", "other"],
-            "project_default_permissions": ["public", "other"],
+            "default_permissions": ["public", "other"],
         }
     )
 
@@ -74,7 +74,7 @@ def project_too_many_rows() -> pd.DataFrame:
 @pytest.fixture
 def project_invalid_permissions() -> pd.DataFrame:
     return pd.DataFrame(
-        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "project_default_permissions": ["invalid"]}
+        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "default_permissions": ["invalid"]}
     )
 
 

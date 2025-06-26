@@ -21,4 +21,4 @@ class ProjectMetadata:
     keywords: list[str] | None
     descriptions: dict[str, str] | None
     enabled_licenses: list[str] | None
-    project_default_permissions: str
+    default_permissions: str

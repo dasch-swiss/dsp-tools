@@ -290,7 +290,7 @@ class TestCheckProject:
         assert isinstance(problem, InvalidExcelContentProblem)
         assert problem.expected_content == "One of: public, private"
         assert problem.actual_content == "invalid"
-        assert problem.excel_position.column == "project_default_permissions"
+        assert problem.excel_position.column == "default_permissions"
         assert problem.excel_position.row == 2
 
 

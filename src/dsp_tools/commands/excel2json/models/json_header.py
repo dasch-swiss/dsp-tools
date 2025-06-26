@@ -60,7 +60,7 @@ class Project:
     keywords: Keywords
     licenses: Licenses
     users: Users | None
-    project_default_permissions: str
+    default_permissions: str
 
     def to_dict(self) -> dict[str, Any]:
         proj_dict: dict[str, Any] = {
@@ -70,7 +70,7 @@ class Project:
             "descriptions": self.descriptions.to_dict(),
             "keywords": self.keywords.to_dict(),
             "enabled_licenses": self.licenses.to_dict(),
-            "project_default_permissions": self.project_default_permissions,
+            "default_permissions": self.default_permissions,
         }
         if self.users:
             proj_dict["users"] = self.users.to_dict()

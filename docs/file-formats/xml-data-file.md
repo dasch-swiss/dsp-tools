@@ -89,7 +89,7 @@ The `<permissions>` element defines a _permission ID_ that can subsequently be u
 
 It is optional to define permission IDs in the XML. 
 If not defined, the project's default permissions are applied, 
-as defined in the [JSON project file](./json-project/overview.md#project_default_permissions). 
+as defined in the [JSON project file](./json-project/overview.md#default_permissions). 
 
 If the resources/values in your XML should have permissions 
 that are different from the project's defaults,

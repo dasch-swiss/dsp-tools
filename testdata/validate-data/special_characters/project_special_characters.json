@@ -10,7 +10,7 @@
     "keywords": [
       "validate"
     ],
-    "project_default_permissions": "public",
+    "default_permissions": "public",
     "lists": [
       {
         "name": "list \\ ' space",

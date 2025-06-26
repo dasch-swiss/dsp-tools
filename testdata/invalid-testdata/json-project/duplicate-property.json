@@ -10,7 +10,7 @@
         "keywords": [
             "minimal"
         ],
-        "project_default_permissions": "public",
+        "default_permissions": "public",
         "ontologies": [
             {
                 "name": "testonto",

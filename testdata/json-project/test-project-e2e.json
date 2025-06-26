@@ -14,7 +14,7 @@
             "http://rdfh.ch/licenses/cc-by-4.0",
             "http://rdfh.ch/licenses/cc-by-nc-4.0"
         ],
-        "project_default_permissions": "public",
+        "default_permissions": "public",
         "ontologies": [
             {
                 "name": "e2e-testonto",

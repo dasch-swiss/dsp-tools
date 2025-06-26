@@ -84,7 +84,7 @@ def test_filled_json_header_with_users_without_prefix(
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
-            "project_default_permissions": "public",
+            "default_permissions": "public",
             "users": [
                 {
                     "username": "member",
@@ -124,7 +124,7 @@ def test_filled_json_header_with_users_with_prefix(filled_json_header_with_users
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
-            "project_default_permissions": "public",
+            "default_permissions": "public",
         },
     }
     res = filled_json_header_with_users_with_prefix.to_dict()
@@ -142,7 +142,7 @@ def test_filled_json_header_no_license(project_no_licenses: Project) -> None:
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": [],
-            "project_default_permissions": "public",
+            "default_permissions": "public",
         },
     }
     res = header.to_dict()

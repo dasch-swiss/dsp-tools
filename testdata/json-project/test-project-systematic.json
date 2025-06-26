@@ -23,7 +23,7 @@
             "http://rdfh.ch/licenses/cc-by-nc-4.0",
             "http://rdfh.ch/licenses/ai-generated"
         ],
-        "project_default_permissions": "public",
+        "default_permissions": "public",
         "groups": [
             {
                 "name": "testgroupEditors",

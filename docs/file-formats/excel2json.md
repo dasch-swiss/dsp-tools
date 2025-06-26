@@ -96,7 +96,7 @@ The sheets should be filled as follows:
     - Both columns (prefixes and URI) are mandatory.
     - At least one prefix has to be declared
 - **Project**
-    - All columns are mandatory: shortcode, shortname, longname, project_default_permissions.
+    - All columns are mandatory: shortcode, shortname, longname, default_permissions.
     - Only one row may be filled.
 - **Description**
     - The langauge options are: en, de, fr, it, rm

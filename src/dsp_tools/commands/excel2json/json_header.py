@@ -132,7 +132,7 @@ def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
 
 def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
     problems: list[Problem] = []
-    cols = {"shortcode", "shortname", "longname", "project_default_permissions"}
+    cols = {"shortcode", "shortname", "longname", "default_permissions"}
     if missing_cols := check_contains_required_columns(df, cols):
         problems.append(missing_cols)
     if len(df) > 1:
@@ -141,12 +141,12 @@ def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
         return ExcelSheetProblem("project", problems)
     if missing_values := find_missing_required_values(df, list(cols)):
         return ExcelSheetProblem("project", [MissingValuesProblem(missing_values)])
-    perm_value = str(df.loc[0, "project_default_permissions"]).strip().lower()
+    perm_value = str(df.loc[0, "default_permissions"]).strip().lower()
     if perm_value not in ["public", "private"]:
         prob = InvalidExcelContentProblem(
             expected_content="One of: public, private",
             actual_content=perm_value,
-            excel_position=PositionInExcel(column="project_default_permissions", row=2),
+            excel_position=PositionInExcel(column="default_permissions", row=2),
         )
         return ExcelSheetProblem("project", [prob])
     return None
@@ -262,7 +262,7 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
         if len(user_df) > 0:
             all_users = _extract_users(user_df)
     shortcode = str(project_df.loc[0, "shortcode"]).zfill(4)
-    project_default_permissions = str(project_df.loc[0, "project_default_permissions"]).strip().lower()
+    default_permissions = str(project_df.loc[0, "default_permissions"]).strip().lower()
     return Project(
         shortcode=shortcode,
         shortname=str(project_df.loc[0, "shortname"]),
@@ -271,7 +271,7 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
         keywords=extracted_keywords,
         licenses=extracted_licenses,
         users=all_users,
-        project_default_permissions=project_default_permissions,
+        default_permissions=default_permissions,
     )
 
 

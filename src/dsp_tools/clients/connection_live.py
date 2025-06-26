@@ -166,7 +166,8 @@ class ConnectionLive(Connection):
             the return value of action
         """
         action = partial(self.session.request, **params.as_kwargs())
-        for retry_counter in range(7):
+        num_of_retries = 10  # xmlupload must handle > 10 min fuseki downtime due to compaction, see DEV-5089
+        for retry_counter in range(num_of_retries):
             try:
                 log_request(params, dict(self.session.headers))
                 response = action()

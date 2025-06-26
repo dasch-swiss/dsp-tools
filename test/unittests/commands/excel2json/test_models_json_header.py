@@ -49,17 +49,17 @@ def users(user_member: User, user_admin: User) -> Users:
 
 @pytest.fixture
 def project_with_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses, users: Users) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, users)
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, users, "public")
 
 
 @pytest.fixture
 def project_no_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, None)
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, None, "public")
 
 
 @pytest.fixture
 def project_no_licenses(descriptions: Descriptions, keywords: Keywords) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, Licenses([]), None)
+    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, Licenses([]), None, "public")
 
 
 @pytest.fixture
@@ -84,6 +84,7 @@ def test_filled_json_header_with_users_without_prefix(
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
+            "project_default_permissions": "public",
             "users": [
                 {
                     "username": "member",
@@ -123,6 +124,7 @@ def test_filled_json_header_with_users_with_prefix(filled_json_header_with_users
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
+            "project_default_permissions": "public",
         },
     }
     res = filled_json_header_with_users_with_prefix.to_dict()
@@ -140,6 +142,7 @@ def test_filled_json_header_no_license(project_no_licenses: Project) -> None:
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": [],
+            "project_default_permissions": "public",
         },
     }
     res = header.to_dict()

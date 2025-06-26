@@ -33,6 +33,7 @@
         "http://rdfh.ch/licenses/cc-by-4.0",
         "http://rdfh.ch/licenses/public-domain"
     ],
+    "project_default_permissions": "public",
     "users": [
       {
         "username": "Alice",

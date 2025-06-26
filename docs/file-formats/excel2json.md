@@ -96,7 +96,7 @@ The sheets should be filled as follows:
     - Both columns (prefixes and URI) are mandatory.
     - At least one prefix has to be declared
 - **Project**
-    - All columns: shortcode, shortname, longname are mandatory.
+    - All columns are mandatory: shortcode, shortname, longname, project_default_permissions.
     - Only one row may be filled.
 - **Description**
     - The langauge options are: en, de, fr, it, rm
@@ -110,7 +110,7 @@ The sheets should be filled as follows:
     - [See the JSON project definition documentation for details.](./json-project/overview.md#enabled_licenses)
 - **Users (Optional)** 
     - This sheet may be omitted or left empty.
-    - For each user, all the columns: username, email, givenName, familyName, password, lang and role are mandatory.
+    - For each user, all columns are mandatory: username, email, givenName, familyName, password, lang, role.
     - The lang has to be one of: en, de, fr, it or rm
     - The role has to be projectadmin or projectmember.
 

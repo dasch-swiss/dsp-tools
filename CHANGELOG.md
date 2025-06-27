@@ -1,5 +1,21 @@
 # Changelog
 
+## [16.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.1.0...v16.2.0) (2025-06-27)
+
+
+### Enhancements
+
+* **create:** rename "project_default_permissions" to "default_permissions" (DEV-5091) ([#1811](https://github.com/dasch-swiss/dsp-tools/issues/1811)) ([32e4b2d](https://github.com/dasch-swiss/dsp-tools/commit/32e4b2d54dd2cd68dae53b853df9063aaef8d85d))
+* **excel2json:** set project default permissions in Excel (DEV-5036) ([#1808](https://github.com/dasch-swiss/dsp-tools/issues/1808)) ([ffcdf8e](https://github.com/dasch-swiss/dsp-tools/commit/ffcdf8e1847d5d2be087aa58b50e2df7d9f1b14f))
+* remove default for project_default_permissions (DEV-5087) ([#1806](https://github.com/dasch-swiss/dsp-tools/issues/1806)) ([576b147](https://github.com/dasch-swiss/dsp-tools/commit/576b1472c39e35cdbf4c088692ad6fe9f9213e16))
+
+
+### Bug Fixes
+
+* **start-stack:** prevent sipi data from filling up storage (DEV-5065) ([#1810](https://github.com/dasch-swiss/dsp-tools/issues/1810)) ([5bc0e80](https://github.com/dasch-swiss/dsp-tools/commit/5bc0e80dfa76c6315f22b33f272c9a08924e4896))
+* **xmlupload:** add more retries to account for 45 min and more fuseki compaction (DEV-5094) ([#1812](https://github.com/dasch-swiss/dsp-tools/issues/1812)) ([d716e08](https://github.com/dasch-swiss/dsp-tools/commit/d716e085fb44a87918eb095c59ae29cfef84f351))
+* **xmlupload:** retry during ca. 15min (DEV-5089) ([#1809](https://github.com/dasch-swiss/dsp-tools/issues/1809)) ([0dd91a2](https://github.com/dasch-swiss/dsp-tools/commit/0dd91a23edc42580fc5fd8acc20911e38acd0f19))
+
 ## [16.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.0.0...v16.1.0) (2025-06-24)
 
 

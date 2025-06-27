@@ -143,14 +143,39 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
 
 
 def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
-    """Log the reason for a request failure and sleep."""
-    msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
+    """
+    Log the reason for a request failure and sleep.
+    
+    =============  ================  =============================
+    retry_counter  seconds to sleep  cumulative waiting time (min)
+    =============  ================  =============================
+    0              1                 0
+    1              2                 0
+    2              4                 0
+    3              8                 0
+    4              16                0
+    5              32                1
+    6              64                2
+    7              128               4
+    8              256               9
+    9              300               14
+    10             300               19
+    11             300               24
+    12             300               29
+    15             300               44
+    18             300               59
+    24             300               89
+    30             300               119
+    =============  ================  =============================
+    """
+    sleep_time = min(2**retry_counter, 300)
+    msg = f"{reason}: Try reconnecting to DSP server, next attempt in {sleep_time} seconds..."
     print(f"{datetime.now()}: {msg}")
     if exc_info:
         logger.exception(f"{msg} ({retry_counter=:})")
     else:
         logger.error(f"{msg} ({retry_counter=:})")
-    time.sleep(2**retry_counter)
+    time.sleep(sleep_time)
 
 
 def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:

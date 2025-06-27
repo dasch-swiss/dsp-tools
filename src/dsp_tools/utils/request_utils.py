@@ -145,7 +145,7 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
 def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
     """
     Log the reason for a request failure and sleep.
-    
+
     =============  ================  =============================
     retry_counter  seconds to sleep  cumulative waiting time (min)
     =============  ================  =============================

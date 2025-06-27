@@ -147,11 +147,10 @@ class ConnectionLive(Connection):
 
     def _try_network_action(self, params: RequestParameters) -> Response:
         """
-        Try 7 times to execute an HTTP request.
+        Try several times to execute an HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
         or if the response indicates that there is a non-permanent server-side problem,
         this function waits and retries the HTTP request.
-        The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
 
         Args:
             params: keyword arguments for the HTTP request

@@ -132,8 +132,9 @@ if is_color("#FF0000"):
 
 - `PROJECT_SPECIFIC_PERMISSIONS`: Use project defaults
 - `OPEN`: Publicly accessible
-- `RESTRICTED`: Limited access
-- `RESTRICTED_VIEW`: View-only access
+- `RESTRICTED`: Only visible for project members
+- `RESTRICTED_VIEW`: Only applicable for images: Publicly accessible,
+  but users who are not project members see the image in lower resolution or with a watermark
 
 ### Date Formatting
 
@@ -143,15 +144,15 @@ if is_color("#FF0000"):
 
 ### Calendar Systems
 
-- `Calendar.GREGORIAN`: Standard calendar
-- `Calendar.JULIAN`: Historical dates
+- `Calendar.GREGORIAN`: Modern standard calendar
+- `Calendar.JULIAN`: Julian calender, only used for historical dates
 - `Calendar.ISLAMIC`: Islamic calendar
 
 ### Text Processing
 
-- `NewlineReplacement.PARAGRAPH`: Convert to `<p>` tags
-- `NewlineReplacement.LINEBREAK`: Convert to `<br>` tags
-- `NewlineReplacement.NONE`: Preserve as-is
+- `NewlineReplacement.PARAGRAPH`: Convert linebreaks to `<p>` tags
+- `NewlineReplacement.LINEBREAK`: Convert linebreaks to `<br>` tags
+- `NewlineReplacement.NONE`: Preserve linebreaks as-is
 
 ## Rich Text and Standoff Markup
 
@@ -174,6 +175,7 @@ resource.add_richtext(prop_name=":hasDescription", value=f"See {link_text} for d
 # Create footnote
 footnote = create_footnote_string("This is a footnote")
 footnote_element = create_footnote_element("Footnote text")
+resource.add_richtext(prop_name=":hasDescription", value=f"Rich text with a footnote: {footnote}")
 ```
 
 ## Error Handling
@@ -188,7 +190,7 @@ footnote_element = create_footnote_element("Footnote text")
 
 ```python
 # Input validation errors
-raise_input_error("Invalid date format: {date}")
+raise_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1", prop_name=":hasDate"))
 
 # Warning for non-fatal issues
 emit_xmllib_input_warning("Non-standard boolean value converted")

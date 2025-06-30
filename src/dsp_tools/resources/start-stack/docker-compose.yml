@@ -41,7 +41,7 @@ services:
       - "1024:1024"
     volumes:
       - ./tmp:/tmp
-      - .:/sipi/config
+      - ./sipi.docker-config.lua:/sipi/config/sipi.docker-config.lua
       - ./sipi/images:/sipi/images
     environment:
       - TZ=Europe/Zurich

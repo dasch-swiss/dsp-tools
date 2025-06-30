@@ -52,6 +52,7 @@ venv.bak/
 .idea
 .vscode
 .claude/
+.zed
 
 # generated files
 out.json

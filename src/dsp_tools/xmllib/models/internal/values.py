@@ -23,7 +23,7 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
-from dsp_tools.xmllib.value_converters import convert_to_bool
+from dsp_tools.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -51,7 +51,7 @@ class BooleanValue(Value):
         resource_id: str | None,
     ) -> BooleanValue:
         try:
-            val = str(convert_to_bool(value)).lower()
+            val = str(convert_to_bool_string(value)).lower()
         except InputError:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name

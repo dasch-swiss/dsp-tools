@@ -575,7 +575,7 @@ def reformat_date(
             date="1.11.2000",
             date_precision_separator=".",
             date_range_separator=None,
-            date_format=xmllib.DateFormat.DD_MM_YYY
+            date_format=xmllib.DateFormat.DD_MM_YYYY
         )
         # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
         ```
@@ -608,7 +608,7 @@ def reformat_date(
             date="1.11.2000",
             date_precision_separator=".",
             date_range_separator=None,
-            date_format=xmllib.DateFormat.DD_MM_YYY,
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
             calendar=xmllib.Calendar.ISLAMIC,
             era=None
         )

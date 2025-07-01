@@ -2,6 +2,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## What is DSP-TOOLS?
+
+DSP-TOOLS is a CLI tool for interacting with the DaSCH Service Platform (DSP) API.
+A DSP server is a remote server or a local machine
+where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on.
+DSP-API is a backend with a database.
+
+The two main tasks that DSP-TOOLS serves for are:
+
+- **Create a project with its data model(s), described in a JSON file, on a DSP server**
+  In order to archive your data on the DaSCH Service Platform,
+  you need a data model that describes your data.
+  The data model is defined in a JSON project definition file.
+  The project (incl. its data model) must be created on the DSP server.
+  If the DSP server is aware of the data model for your project,
+  conforming data can be uploaded into the DSP repository.
+- **Upload data, described in an XML file, to a DSP server that has a project with a matching data model**
+  Sometimes, data is added in large quantities.
+  Therefore, DSP-TOOLS allows you to perform bulk imports of your data.
+  In order to do so, the data has to be described in an XML file.
+  DSP-TOOLS is able to read the XML file
+  and upload all data to the DSP server.
+
 ## Development Commands
 
 ### Environment Setup
@@ -38,9 +61,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Clean artifacts**: `just clean`
 
 ## Architecture Overview
-
-DSP-TOOLS is a CLI tool for interacting with the DaSCH Service Platform (DSP) API.
-The codebase is organized into several key modules:
 
 ### Core Components
 
@@ -97,7 +117,7 @@ The system follows this general flow for XML processing:
 
 - **Unit tests**: Test individual functions and classes in isolation
 - **Integration tests**: Test file I/O and cross-module interactions
-- **E2E tests**: Test full workflows with testcontainers running DSP stack
+- **E2E tests**: Test full workflows with testcontainers running DSP stack (database, backend, fontend)
 - **Benchmarking tests**: Performance testing for critical algorithms
 
 ### Configuration

@@ -40,7 +40,7 @@ It provides a type-safe, validated approach to generating XML data that conforms
 
 ### Data Flow
 
-```
+```text
 Raw Data → Validation → Resource Creation → XML Serialization
     ↓           ↓              ↓               ↓
 Converters → Checkers → Models/Values → XML Output
@@ -182,39 +182,37 @@ resource.add_richtext(prop_name=":hasDescription", value=f"Rich text with a foot
 
 ### Warning System
 
-- **Input Warnings**: Non-fatal data issues with context
+- **Input Warnings**: Non-fatal data issues with input data
 - **Type Mismatches**: Automatic conversion with notification
 - **Validation Failures**: Clear error messages with resource context
 
 ### Error Types
 
 ```python
-# Input validation errors
-raise_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1", prop_name=":hasDate"))
-
 # Warning for non-fatal issues
 emit_xmllib_input_warning("Non-standard boolean value converted")
+
+# Type mismatch warning
+if not is_color(val):
+    emit_xmllib_input_type_mismatch_warning(expected_type="color", value=val, res_id=resource_id, prop_name=prop_name)
+
+# Input validation errors
+raise_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1", prop_name=":hasDate"))
 ```
 
 ## Testing Approach
 
-### Unit Tests
+### Unit Tests (`test/unittests/xmllib`)
 
 - Individual function validation
 - Type checking verification
 - Data conversion accuracy
 
-### Integration Tests
+### Integration Tests (`test/integration/xmllib`)
 
 - Multi-resource XML generation
 - Cross-module compatibility
 - File I/O operations
-
-### E2E Tests
-
-- Complete workflow validation
-- XML schema compliance
-- DSP server compatibility
 
 ## Common Patterns
 
@@ -223,7 +221,7 @@ emit_xmllib_input_warning("Non-standard boolean value converted")
 1. **Validate Input**: Use checker functions
 2. **Convert Data**: Apply converters if needed
 3. **Create Resource**: Instantiate with validated data
-4. **Add Values**: Use typed add methods
+4. **Add Values**: Use typed `add_xyz()` methods
 5. **Serialize**: Generate XML output
 
 ### Batch Processing
@@ -250,12 +248,15 @@ for data_row in dataset:
 ```python
 # Work with controlled vocabularies
 lookup = ListLookup(project_lists)
-list_nodes = get_list_nodes_from_string_via_list_name(
-    "colors",
-    "red,blue,green",
-    lookup
+string_with_list_labels = "Label 1; Label 2"
+nodes = get_list_nodes_from_string_via_list_name(
+    string_with_list_labels="Label 1; Label 2",
+    label_separator=";",
+    list_name="list1",
+    list_lookup=list_lookup,
 )
-resource.add_list(prop_name=":hasColor", value=list_nodes)
+assert nodes == ["node1", "node2"]
+resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=list_nodes)
 ```
 
 ## Important Guidelines
@@ -265,18 +266,6 @@ resource.add_list(prop_name=":hasColor", value=list_nodes)
 - Always use type hints in new code
 - Leverage dataclass models for structured data
 - Use validation functions before creating values
-
-### XML Compliance
-
-- IDs must be XSD-compatible (use `make_xsd_compatible_id()`)
-- Reserved XML characters must be escaped
-- Namespaces must be properly declared
-
-### Performance
-
-- Use batch operations for large datasets
-- Validate data early to catch errors quickly
-- Consider memory usage with large XML files
 
 ### Maintainability
 
@@ -302,6 +291,7 @@ resource.add_list(prop_name=":hasColor", value=list_nodes)
 ## Migration Notes
 
 When updating xmllib:
+
 - Maintain backward compatibility in public API
 - Add deprecation warnings before removing features
 - Update type hints for new Python versions

@@ -193,7 +193,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?msg ;
+                                sh:message   ?msg 
                             ] ;
             sh:severity    sh:Violation .
 

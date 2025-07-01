@@ -35,7 +35,7 @@ class TestCheckTripleNumbersOnto:
             knora-api:isResourceClass true .
         """
         onto_g = Graph()
-        onto_g.parse(onto)
+        onto_g.parse(data=onto)
         result = _construct_resource_nodeshape(onto_g)
         test_cls = ONTO.TestClass
         assert next(result.objects(test_cls, RDF.type)) == SH.NodeShape
@@ -46,8 +46,8 @@ class TestCheckTripleNumbersOnto:
         label_shape = next(result.subjects(SH.path, RDFS.label))
         assert next(result.subjects(SH.property, label_shape)) == test_cls
         assert next(result.objects(label_shape, RDF.type)) == SH.PropertyShape
-        assert next(result.objects(label_shape, SH.minCount)) == 1
-        assert next(result.objects(label_shape, SH.maxCount)) == 1
+        assert next(result.objects(label_shape, SH.minCount)) == Literal(1)
+        assert next(result.objects(label_shape, SH.maxCount)) == Literal(1)
         assert next(result.objects(label_shape, SH.severity)) == SH.Violation
         assert next(result.objects(label_shape, SH.message)) == Literal("A label is required")
         standoff_shapes = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))

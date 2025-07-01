@@ -356,19 +356,16 @@ def get_list_nodes_from_string_via_list_name(
     string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
 ) -> list[str]:
     """
-    Takes a string containing list labels, the separator by which they can be split,
-    a property name and the list lookup.
-    Resolves the labels and returns the list name to be referenced in the XML file and a list of node names.
-    If the string is empty, it returns an empty list.
+    Resolves list labels to node names.
 
     Args:
-        string_with_list_labels: the string containing the labels
+        string_with_list_labels: the string containing list labels
         label_separator: separator in the string that contains the labels
         list_name: name of the list
         list_lookup: `ListLookup` of the project
 
     Returns:
-        The name of the list and a list of node names.
+        A list of node names. If the string is empty, it returns an empty list.
 
     Examples:
         ```python
@@ -575,7 +572,7 @@ def reformat_date(
             date="1.11.2000",
             date_precision_separator=".",
             date_range_separator=None,
-            date_format=xmllib.DateFormat.DD_MM_YYY
+            date_format=xmllib.DateFormat.DD_MM_YYYY
         )
         # result == "GREGORIAN:CE:2000-11-1:CE:2000-11-1"
         ```
@@ -608,7 +605,7 @@ def reformat_date(
             date="1.11.2000",
             date_precision_separator=".",
             date_range_separator=None,
-            date_format=xmllib.DateFormat.DD_MM_YYY,
+            date_format=xmllib.DateFormat.DD_MM_YYYY,
             calendar=xmllib.Calendar.ISLAMIC,
             era=None
         )

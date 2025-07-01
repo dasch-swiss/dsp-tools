@@ -28,7 +28,7 @@ class TestCheckTripleNumbersOnto:
         triples_cls_nodeshape = 13 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
 
-    def test_one_nodeshape(self):
+    def test_one_nodeshape(self) -> None:
         onto = f"""{PREFIXES}
         onto:TestClass a owl:Class ;
             knora-api:canBeInstantiated true ;

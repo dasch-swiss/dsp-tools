@@ -5,7 +5,7 @@ from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
-def convert_to_bool(value: Any) -> bool:
+def convert_to_bool_string(value: Any) -> bool:
     """
     Turns a value into a bool string, suitable for an XML.
     It is case-insensitive, meaning that the words can also be capitalised.

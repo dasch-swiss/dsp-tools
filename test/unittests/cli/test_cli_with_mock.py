@@ -92,10 +92,12 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+        config=UploadConfig(
+            skip_iiif_validation=False,
+            interrupt_after=None,
+            validation_severity=ValidationSeverity.INFO,
+        ),
     )
-    called_config = xmlupload.call_args.kwargs["config"]
-    assert called_config.validation_severity == ValidationSeverity.INFO
 
 
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
@@ -181,10 +183,12 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+        config=UploadConfig(
+            skip_iiif_validation=False,
+            interrupt_after=None,
+            validation_severity=ValidationSeverity.WARNING,
+        ),
     )
-    called_config = xmlupload.call_args.kwargs["config"]
-    assert called_config.validation_severity == ValidationSeverity.WARNING
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
@@ -202,10 +206,12 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+        config=UploadConfig(
+            skip_iiif_validation=False,
+            interrupt_after=None,
+            validation_severity=ValidationSeverity.ERROR,
+        ),
     )
-    called_config = xmlupload.call_args.kwargs["config"]
-    assert called_config.validation_severity == ValidationSeverity.ERROR
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")

@@ -27,27 +27,18 @@ All functionalities of DSP-TOOLS revolve around these two basic tasks.
 
 DSP-TOOLS provides the following functionalities:
 
-- `dsp-tools create`
-  creates the project with its data model(s) on a DSP server from a JSON file.
-- `dsp-tools get`
-  reads a project with its data model(s) from
-  a DSP server and writes it into a JSON file.
-- `dsp-tools validate-data`
-  validates an XML data file according to the ontology previously uploaded on the server.
-- `dsp-tools xmlupload`
-  uploads data from an XML file (bulk data import)
-  and writes the mapping from internal IDs to IRIs into a local file.
+- `dsp-tools create` creates the project with its data model(s) on a DSP server from a JSON file.
+- `dsp-tools get` reads a project with its data model(s) from a DSP server and writes it into a JSON file.
+- `dsp-tools validate-data` validates an XML data file according to the ontology previously uploaded on the server.
+- `dsp-tools xmlupload` uploads data from an XML file onto a DSP server, incl. multimedia assets referenced in the XML.
 - New workflow for `xmlupload`:
-    - `dsp-tools upload-files`
-      uploads all files that are referenced in an XML file to a DSP server.
-    - `dsp-tools ingest-files`
-      kicks off the ingest process, and retrieves the mapping CSV when it is finished.
+    - `dsp-tools upload-files` uploads all multimedia assets that are referenced in an XML file to a DSP server.
+    - `dsp-tools ingest-files` kicks off the ingest process on the DSP server,
+      and retrieves the mapping CSV when it is finished.
     - `dsp-tools ingest-xmlupload`
-      creates the resources contained in the XML file, using the mapping CSV
-- `dsp-tools resume-xmlupload`
-  resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
-- `dsp-tools excel2json`
-  creates an entire JSON project file from a folder with Excel files in it.
+      creates the resources contained in the XML file on the DSP server, using the mapping CSV.
+- `dsp-tools resume-xmlupload` resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
+- `dsp-tools excel2json` creates an entire JSON project file from a folder with Excel files in it.
     - `dsp-tools excel2lists`
       creates the "lists" section of a JSON project file from one or several Excel files.
       The resulting section can be integrated into a JSON project file
@@ -64,24 +55,16 @@ DSP-TOOLS provides the following functionalities:
   does the same as the newer `excel2json` command, but the Excel format for the `lists` section is different.
     - `dsp-tools old-excel2lists`
       does the same as the newer `excel2lists` command, but the Excel format is different.
-- `dsp-tools excel2xml`
-  transforms a data source to XML
-  if it is already structured according to the DSP specifications.
-- The module `excel2xml`
-  provides helper methods that can be used in a Python script
+- `dsp-tools excel2xml` transforms a data source to XML if it is already structured according to the DSP specifications.
+- The module `excel2xml` provides helper methods that can be used in a Python script
   to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
-- The `xmllib` library
-  provides helper functions that can be used in a Python script
+- The `xmllib` library provides helper functions that can be used in a Python script
   to convert data from a tabular format into XML.
-- `dsp-tools id2iri`
-  takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
+- `dsp-tools id2iri` takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
   The mapping has to be provided with a JSON file.
-- `dsp-tools start-stack / stop-stack`
-  assist you in running a DSP stack on your local machine.
-- `dsp-tools template`
-  creates a template repository with a minimal JSON and XML file.
-- `dsp-tools rosetta`
-  clones the most up to date rosetta repository,
+- `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
+- `dsp-tools template` creates a template repository with a minimal JSON and XML file.
+- `dsp-tools rosetta` clones the most up to date rosetta repository,
   creates the data model and uploads the data.
 
 
@@ -97,7 +80,7 @@ DSP-TOOLS provides the following functionalities:
 
 - **Run all linters**: `just lint`
 - **Format code**: `just format`
-- **Type checking**: `just mypy` (uses dmypy daemon for faster runs)
+- **Type checking**: `just mypy`
 - **Check for dead code**: `just vulture`
 - **Check specific linters**:
     - `just ruff-check` (Python linting)
@@ -183,12 +166,10 @@ The system follows this general flow for XML processing:
 - Always run `just lint` before committing to ensure code quality
 - Use `dmypy restart` if mypy behaves unexpectedly
 - The project uses strict type checking - all new code must have proper type annotations
-- Documentation follows Google-style docstrings
+- Docstrings follow Google-style docstrings
 - Line length limit is 120 characters
 - Use `uv add package` to add dependencies (or `uv add --dev package` for dev dependencies)
 - All markdown files must comply with markdownlint rules specified in `.markdownlint.yml`
-    - URLs must be wrapped in angle brackets `<url>` or formatted as proper links `[text](url)` (MD034)
 - Always use descriptive variable names
-- **Pull request reviews**: Only request reviews from team members of <https://github.com/dasch-swiss>
-    - Usual reviewers: BalduinLandolt, Nora-Olivia-Ammann, Notheturtle, seakayone, jnussbaum
-    - Ivan (subotic) is also a team member but only rarely asked for reviews
+- Pull request reviews: Only request reviews from one of the following GitHub users:
+  BalduinLandolt, Nora-Olivia-Ammann, Notheturtle, seakayone, jnussbaum

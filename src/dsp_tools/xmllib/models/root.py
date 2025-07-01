@@ -30,6 +30,8 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.internal.serialise_permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
+import warnings
+from src.dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
@@ -255,6 +257,9 @@ class XMLRoot:
         Returns:
             The `XMLRoot` serialised as XML
         """
+        contains_old_permissions = self.find_deprecated_permissions()
+        if contains_old_permissions:
+            warnings.warn(DspToolsFutureWarning("msg"))
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)

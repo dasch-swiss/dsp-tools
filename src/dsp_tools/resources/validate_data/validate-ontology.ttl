@@ -30,7 +30,7 @@ api-shapes:FindMissingMaxCardinality_Seqnum_OntologyShape
                         }
                     }
                     """ ;
-                   sh:message "seqnum must either have cardinality 1 or 0-1." ;
+                   sh:message "seqnum must either have cardinality 1 or 0-1."
                  ] ;
   sh:severity    sh:Violation .
 
@@ -62,7 +62,7 @@ api-shapes:FindMissingSeqnum_OntologyShape
                         }
                     }
                     """ ;
-                   sh:message "A class with a cardinality for isPartOf also requires a cardinality for seqnum." ;
+                   sh:message "A class with a cardinality for isPartOf also requires a cardinality for seqnum."
                  ] ;
   sh:severity    sh:Violation .
 
@@ -94,6 +94,6 @@ api-shapes:FindMissingIsPartOf_OntologyShape
                         }
                     }
                     """ ;
-                   sh:message "A class with a cardinality for seqnum also requires a cardinality for isPartOf." ;
+                   sh:message "A class with a cardinality for seqnum also requires a cardinality for isPartOf."
                  ] ;
   sh:severity    sh:Violation .

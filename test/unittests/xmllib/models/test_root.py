@@ -438,7 +438,7 @@ class TestSerialiseOverwriteDefaultPermissions:
 
 
 class TestSerialiseDeprecatedPermissions:
-    def test_no_old_permissions(self) -> None:
+    def test_only_new_permissions(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
         spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS
         publ = Permissions.PUBLIC
@@ -466,6 +466,31 @@ class TestSerialiseDeprecatedPermissions:
         serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
         assert unordered(serialised_permission_header_ids) == ["public", "private", "limited_view"]
 
+    def test_old_and_new_permissions(self) -> None:
+        pass
+
+    def test_only_old_permissions(self) -> None:
+        xml_root = XMLRoot.create_new("0000", "test")
+        _open = Permissions.OPEN
+        _rstr = Permissions.RESTRICTED
+        _view = Permissions.RESTRICTED_VIEW
+        with warnings.catch_warnings(record=True) as catched_warnings:
+            resources = [
+                Resource.create_new("r3", ":typ", "lbl", _open).add_bool(":prp", True, _open),
+                Resource.create_new("r4", ":typ", "lbl", _rstr).add_bool(":prp", True, _rstr),
+                Resource.create_new("r5", ":typ", "lbl", _view).add_bool(":prp", True, _view),
+                RegionResource.create_new("r7", "lbl", "tg", _open).add_circle((1, 1), (1, 1)).add_comment("c", _open),
+                LinkResource.create_new("r9", "lbl", ["tg"], _rstr).add_comment("c", _rstr),
+                AudioSegmentResource.create_new("r11", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+                VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+            ]
+            xml_root.add_resource_multiple(resources)
+            xml = xml_root.serialise()
+        assert len(catched_warnings) == 1
+        msg = catched_warnings[0].message.args[0]
+        assert "Your data contains old permissions. Please migrate to the new ones" in msg
+        serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
+        assert unordered(serialised_permission_header_ids) == ["open", "restricted", "restricted-view"]
 
 def test_root_add_resources() -> None:
     xml_root = XMLRoot.create_new("0000", "test")

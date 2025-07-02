@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import warnings
 from enum import Enum
 from enum import auto
-
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 
 class Permissions(Enum):
@@ -42,6 +39,7 @@ class Permissions(Enum):
     OPEN = "open"
     RESTRICTED = "restricted"
     RESTRICTED_VIEW = "restricted-view"
+
 
 class NewlineReplacement(Enum):
     """

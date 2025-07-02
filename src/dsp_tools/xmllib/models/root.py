@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -30,7 +31,6 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.internal.serialise_permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
-import warnings
 from src.dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]

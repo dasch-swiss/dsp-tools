@@ -40,14 +40,14 @@ class XMLPermissions:
             new_perms = [
                 self._serialise_one_permission_element("public", PUBLIC),
                 self._serialise_one_permission_element("private", PRIVATE),
-                self._serialise_one_permission_element("limited_view", LIMITED_VIEW)
+                self._serialise_one_permission_element("limited_view", LIMITED_VIEW),
             ]
             res.extend(new_perms)
         if contains_old_permissions:
             old_perms = [
                 self._serialise_one_permission_element("open", PUBLIC),
                 self._serialise_one_permission_element("restricted", PRIVATE),
-                self._serialise_one_permission_element("restricted-view", LIMITED_VIEW)
+                self._serialise_one_permission_element("restricted-view", LIMITED_VIEW),
             ]
             res.extend(old_perms)
         return res

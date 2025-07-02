@@ -461,8 +461,7 @@ class TestSerialiseDeprecatedPermissions:
                 VideoSegmentResource.create_new("r12", "lbl", "tg", 1, 2).add_comment("c"),
                 VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, lmtd).add_comment("c", lmtd),
             ]
-            xml_root.add_resource_multiple(resources)
-            xml = xml_root.serialise()
+            xml = xml_root.add_resource_multiple(resources).serialise()
         assert len(catched_warnings) == 0
         serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
         assert unordered(serialised_permission_header_ids) == ["public", "private", "limited_view"]
@@ -472,24 +471,14 @@ class TestSerialiseDeprecatedPermissions:
         _publ = Permissions.PUBLIC
         _open = Permissions.OPEN
         with warnings.catch_warnings(record=True) as catched_warnings:
-            resources = [
-                Resource.create_new("r3", ":typ", "lbl", _publ).add_bool(":prp", True, _publ),
-                Resource.create_new("r4", ":typ", "lbl", _open).add_bool(":prp", True, _open),
-            ]
-            xml_root.add_resource_multiple(resources)
+            xml_root.add_resource(Resource.create_new("r1", ":typ", "lbl", _publ).add_bool(":prp", True, _open))
             xml = xml_root.serialise()
         assert len(catched_warnings) == 1
         msg = str(catched_warnings[0].message)
         assert "Your data contains old permissions. Please migrate to the new ones" in msg
         serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
-        assert unordered(serialised_permission_header_ids) == [
-            "public",
-            "private",
-            "limited_view",
-            "open",
-            "restricted",
-            "restricted-view",
-        ]
+        expected = ["public", "private", "limited_view", "open", "restricted", "restricted-view"]
+        assert unordered(serialised_permission_header_ids) == expected
 
     def test_only_old_permissions(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
@@ -497,18 +486,17 @@ class TestSerialiseDeprecatedPermissions:
         _rstr = Permissions.RESTRICTED
         _view = Permissions.RESTRICTED_VIEW
         resources: list[AnyResource] = [
-            Resource.create_new("r3", ":typ", "lbl", _open).add_bool(":prp", True, _open),
-            Resource.create_new("r4", ":typ", "lbl", _rstr).add_bool(":prp", True, _rstr),
-            Resource.create_new("r5", ":typ", "lbl", _view).add_bool(":prp", True, _view),
-            RegionResource.create_new("r7", "lbl", "tg", _open).add_circle((1, 1), (1, 1)).add_comment("c", _open),
-            LinkResource.create_new("r9", "lbl", ["tg"], _rstr).add_comment("c", _rstr),
-            AudioSegmentResource.create_new("r11", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
-            VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+            Resource.create_new("r1", ":typ", "lbl", _open).add_bool(":prp", True, _open),
+            Resource.create_new("r2", ":typ", "lbl", _rstr).add_bool(":prp", True, _rstr),
+            Resource.create_new("r3", ":typ", "lbl", _view).add_bool(":prp", True, _view),
+            RegionResource.create_new("r4", "lbl", "tg", _open).add_circle((1, 1), (1, 1)).add_comment("c", _open),
+            LinkResource.create_new("r5", "lbl", ["tg"], _rstr).add_comment("c", _rstr),
+            AudioSegmentResource.create_new("r6", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+            VideoSegmentResource.create_new("r7", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
         ]
         for res in resources:
             with warnings.catch_warnings(record=True) as catched_warnings:
-                xml_root.add_resource(res)
-                xml = xml_root.serialise()
+                xml = xml_root.add_resource(res).serialise()
             assert len(catched_warnings) == 1
             msg = str(catched_warnings[0].message)
             assert "Your data contains old permissions. Please migrate to the new ones" in msg

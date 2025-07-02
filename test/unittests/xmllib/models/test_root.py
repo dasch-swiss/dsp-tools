@@ -4,6 +4,7 @@ import warnings
 import pytest
 import regex
 from lxml import etree
+from pytest_unordered import unordered
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
@@ -434,6 +435,31 @@ class TestSerialiseOverwriteDefaultPermissions:
         bounds = next(resource.iter(tag=f"{DASCH_SCHEMA}hasSegmentBounds"))
         assert not bounds.text
         assert bounds.attrib == {"segment_start": "1", "segment_end": "2", "permissions": "private"}
+
+
+class TestSerialiseDeprecatedPermissions:
+    def test_no_old_permissions(self) -> None:
+        with warnings.catch_warnings(record=True) as catched_warnings:
+            xml_root = XMLRoot.create_new("0000", "test")
+            resources = [
+                Resource.create_new("r1", ":typ", "lbl").add_bool(":prp", True),
+                Resource.create_new("r2", ":typ", "lbl", Permissions.PROJECT_SPECIFIC_PERMISSIONS).add_bool(
+                    ":prp", True, Permissions.PROJECT_SPECIFIC_PERMISSIONS
+                ),
+                Resource.create_new("r3", ":typ", "lbl", Permissions.PUBLIC).add_bool(":prp", True, Permissions.PUBLIC),
+                Resource.create_new("r4", ":typ", "lbl", Permissions.PRIVATE).add_bool(
+                    ":prp", True, Permissions.PRIVATE
+                ),
+                Resource.create_new("r5", ":typ", "lbl", Permissions.LIMITED_VIEW).add_bool(
+                    ":prp", True, Permissions.LIMITED_VIEW
+                ),
+                RegionResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
+            ]
+            xml_root.add_resource_multiple(resources)
+            xml = xml_root.serialise()
+        assert len(catched_warnings) == 0
+        serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
+        assert unordered(serialised_permission_header_ids) == ["public", "private", "limited_view"]
 
 
 def test_root_add_resources() -> None:

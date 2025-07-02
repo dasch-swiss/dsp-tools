@@ -284,12 +284,12 @@ class XMLRoot:
         for res in self.resources:
             if self._is_old(res.permissions):
                 contains_old_permissions = True
-            else:
+            elif self._is_new(res.permissions):
                 contains_new_permissions = True
             for val in res.values:
                 if self._is_old(val.permissions):
                     contains_old_permissions = True
-                else:
+                elif self._is_new(res.permissions):
                     contains_new_permissions = True
             if contains_old_permissions and contains_new_permissions:
                 # no need to continue, the end result won't change any more
@@ -298,6 +298,9 @@ class XMLRoot:
 
     def _is_old(self, perm: Permissions) -> bool:
         return perm in [Permissions.OPEN, Permissions.RESTRICTED_VIEW, Permissions.RESTRICTED]
+
+    def _is_new(self, perm: Permissions) -> bool:
+        return perm in [Permissions.PUBLIC, Permissions.LIMITED_VIEW, Permissions.PRIVATE]
 
     def _make_root(self) -> etree._Element:
         schema_url = (

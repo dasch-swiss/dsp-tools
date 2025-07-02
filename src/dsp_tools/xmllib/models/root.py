@@ -257,12 +257,8 @@ class XMLRoot:
         Returns:
             The `XMLRoot` serialised as XML
         """
-        contains_old_permissions, contains_new_permissions = self._find_permission_types()
-        if contains_old_permissions:
-            warnings.warn(DspToolsFutureWarning("msg"))
         root = self._make_root()
-        permissions = XMLPermissions().serialise(contains_old_permissions, contains_new_permissions)
-        root.extend(permissions)
+        root.extend(self._get_permissions())
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
@@ -270,11 +266,34 @@ class XMLRoot:
         root.extend(serialised_resources)
         return root
 
+    def _get_permissions(self) -> list[etree._Element]:
+        contains_old_permissions, contains_new_permissions = self._find_permission_types()
+        if contains_old_permissions:
+            msg = (
+                "Your data contains old permissions. Please migrate to the new ones:\n"
+                " - Permissions.OPEN            -> use Permissions.PUBLIC instead\n"
+                " - Permissions.RESTRICTED      -> use Permissions.PRIVATE instead\n"
+                " - Permissions.RESTRICTED_VIEW -> use Permissions.LIMITED_VIEW instead\n"
+            )
+            warnings.warn(msg, category=DspToolsFutureWarning)
+        return XMLPermissions().serialise(contains_old_permissions, contains_new_permissions)
+
     def _find_permission_types(self) -> tuple[bool, bool]:
         contains_old_permissions = False
         contains_new_permissions = False
         for res in self.resources:
-            self._is_old(res.permissions)
+            if self._is_old(res.permissions):
+                contains_old_permissions = True
+            else:
+                contains_new_permissions = True
+            for val in res.values:
+                if self._is_old(val.permissions):
+                    contains_old_permissions = True
+                else:
+                    contains_new_permissions = True
+            if contains_old_permissions and contains_new_permissions:
+                # no need to continue, the end result won't change any more
+                return True, True
         return contains_old_permissions, contains_new_permissions
 
     def _is_old(self, perm: Permissions) -> bool:

@@ -127,7 +127,7 @@ class TestSerialise:
                 "region",
                 "lbl",
                 "region_of_val",
-                Permissions.RESTRICTED,
+                Permissions.PRIVATE,
             ).add_rectangle((0.1, 0.1), (0.2, 0.2))
         )
         serialised = xml_root.serialise()
@@ -170,7 +170,7 @@ class TestSerialise:
                 "link_id",
                 "lbl",
                 ["link1", "link2"],
-            ).add_comment("cmnt", Permissions.RESTRICTED)
+            ).add_comment("cmnt", Permissions.PRIVATE)
         )
         serialised = xml_root.serialise()
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
@@ -246,7 +246,7 @@ class TestSerialise:
                 "segment_of",
                 1,
                 2,
-                permissions=Permissions.RESTRICTED,
+                permissions=Permissions.PRIVATE,
             )
         )
         serialised = xml_root.serialise()
@@ -299,7 +299,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 "region",
                 "lbl",
                 "region_of_val",
-                Permissions.RESTRICTED,
+                Permissions.PRIVATE,
             ).add_rectangle((0.1, 0.1), (0.2, 0.2))
         )
         serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
@@ -342,7 +342,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 "link_id",
                 "lbl",
                 ["link1", "link2"],
-            ).add_comment("cmnt", Permissions.RESTRICTED)
+            ).add_comment("cmnt", Permissions.PRIVATE)
         )
         serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
@@ -418,7 +418,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 "segment_of",
                 1,
                 2,
-                permissions=Permissions.RESTRICTED,
+                permissions=Permissions.PRIVATE,
             )
         )
         serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)

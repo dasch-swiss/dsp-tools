@@ -81,7 +81,7 @@ class Resource:
                 res_id="ID",
                 restype=":ResourceType",
                 label="label",
-                permissions=xmllib.Permissions.RESTRICTED,
+                permissions=xmllib.Permissions.PRIVATE,
             )
             ```
         """
@@ -1581,7 +1581,7 @@ class Resource:
                 license=xmllib.LicenseRecommended.CC.BY_NC_ND,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
-                permissions=xmllib.Permissions.RESTRICTED_VIEW,
+                permissions=xmllib.Permissions.LIMITED_VIEW,
             )
             ```
         """

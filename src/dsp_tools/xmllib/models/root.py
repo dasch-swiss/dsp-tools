@@ -205,7 +205,7 @@ class XMLRoot:
              At that time this parameter will be deprecated.
 
              **This will not influence individually assigned permissions, for example
-             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.PUBLIC`.**
+             `Permissions.PRIVATE` will stay private even if your default is set to `Permissions.PUBLIC`.**
 
         Warning:
             if the XML is not valid according to the schema

@@ -441,19 +441,20 @@ class TestSerialiseDeprecatedPermissions:
     def test_no_old_permissions(self) -> None:
         with warnings.catch_warnings(record=True) as catched_warnings:
             xml_root = XMLRoot.create_new("0000", "test")
+            spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+            publ = Permissions.PUBLIC
+            priv = Permissions.PRIVATE
+            lmtd = Permissions.LIMITED_VIEW
             resources = [
                 Resource.create_new("r1", ":typ", "lbl").add_bool(":prp", True),
-                Resource.create_new("r2", ":typ", "lbl", Permissions.PROJECT_SPECIFIC_PERMISSIONS).add_bool(
-                    ":prp", True, Permissions.PROJECT_SPECIFIC_PERMISSIONS
-                ),
-                Resource.create_new("r3", ":typ", "lbl", Permissions.PUBLIC).add_bool(":prp", True, Permissions.PUBLIC),
-                Resource.create_new("r4", ":typ", "lbl", Permissions.PRIVATE).add_bool(
-                    ":prp", True, Permissions.PRIVATE
-                ),
-                Resource.create_new("r5", ":typ", "lbl", Permissions.LIMITED_VIEW).add_bool(
-                    ":prp", True, Permissions.LIMITED_VIEW
-                ),
+                Resource.create_new("r2", ":typ", "lbl", spec).add_bool(":prp", True, spec),
+                Resource.create_new("r3", ":typ", "lbl", publ).add_bool(":prp", True, publ),
+                Resource.create_new("r4", ":typ", "lbl", priv).add_bool(":prp", True, priv),
+                Resource.create_new("r5", ":typ", "lbl", lmtd).add_bool(":prp", True, lmtd),
                 RegionResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
+                LinkResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
+                AudioSegmentResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
+                VideoSegmentResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
             ]
             xml_root.add_resource_multiple(resources)
             xml = xml_root.serialise()

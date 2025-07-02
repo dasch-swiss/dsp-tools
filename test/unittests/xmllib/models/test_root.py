@@ -14,6 +14,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
@@ -445,7 +446,7 @@ class TestSerialiseDeprecatedPermissions:
         priv = Permissions.PRIVATE
         lmtd = Permissions.LIMITED_VIEW
         with warnings.catch_warnings(record=True) as catched_warnings:
-            resources = [
+            resources: list[AnyResource] = [
                 Resource.create_new("r1", ":typ", "lbl").add_bool(":prp", True),
                 Resource.create_new("r2", ":typ", "lbl", spec).add_bool(":prp", True, spec),
                 Resource.create_new("r3", ":typ", "lbl", publ).add_bool(":prp", True, publ),
@@ -474,23 +475,25 @@ class TestSerialiseDeprecatedPermissions:
         _open = Permissions.OPEN
         _rstr = Permissions.RESTRICTED
         _view = Permissions.RESTRICTED_VIEW
-        with warnings.catch_warnings(record=True) as catched_warnings:
-            resources = [
-                Resource.create_new("r3", ":typ", "lbl", _open).add_bool(":prp", True, _open),
-                Resource.create_new("r4", ":typ", "lbl", _rstr).add_bool(":prp", True, _rstr),
-                Resource.create_new("r5", ":typ", "lbl", _view).add_bool(":prp", True, _view),
-                RegionResource.create_new("r7", "lbl", "tg", _open).add_circle((1, 1), (1, 1)).add_comment("c", _open),
-                LinkResource.create_new("r9", "lbl", ["tg"], _rstr).add_comment("c", _rstr),
-                AudioSegmentResource.create_new("r11", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
-                VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
-            ]
-            xml_root.add_resource_multiple(resources)
-            xml = xml_root.serialise()
-        assert len(catched_warnings) == 1
-        msg = catched_warnings[0].message.args[0]
-        assert "Your data contains old permissions. Please migrate to the new ones" in msg
-        serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
-        assert unordered(serialised_permission_header_ids) == ["open", "restricted", "restricted-view"]
+        resources: list[AnyResource] = [
+            Resource.create_new("r3", ":typ", "lbl", _open).add_bool(":prp", True, _open),
+            Resource.create_new("r4", ":typ", "lbl", _rstr).add_bool(":prp", True, _rstr),
+            Resource.create_new("r5", ":typ", "lbl", _view).add_bool(":prp", True, _view),
+            RegionResource.create_new("r7", "lbl", "tg", _open).add_circle((1, 1), (1, 1)).add_comment("c", _open),
+            LinkResource.create_new("r9", "lbl", ["tg"], _rstr).add_comment("c", _rstr),
+            AudioSegmentResource.create_new("r11", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+            VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, _view).add_comment("c", _view),
+        ]
+        for res in resources:
+            with warnings.catch_warnings(record=True) as catched_warnings:
+                xml_root.add_resource(res)
+                xml = xml_root.serialise()
+            assert len(catched_warnings) == 1
+            msg = catched_warnings[0].message.args[0]
+            assert "Your data contains old permissions. Please migrate to the new ones" in msg
+            serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
+            assert unordered(serialised_permission_header_ids) == ["open", "restricted", "restricted-view"]
+
 
 def test_root_add_resources() -> None:
     xml_root = XMLRoot.create_new("0000", "test")

@@ -8,13 +8,13 @@ from pytest_unordered import unordered
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
-from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
@@ -468,7 +468,28 @@ class TestSerialiseDeprecatedPermissions:
         assert unordered(serialised_permission_header_ids) == ["public", "private", "limited_view"]
 
     def test_old_and_new_permissions(self) -> None:
-        pass
+        xml_root = XMLRoot.create_new("0000", "test")
+        _publ = Permissions.PUBLIC
+        _open = Permissions.OPEN
+        with warnings.catch_warnings(record=True) as catched_warnings:
+            resources = [
+                Resource.create_new("r3", ":typ", "lbl", _publ).add_bool(":prp", True, _publ),
+                Resource.create_new("r4", ":typ", "lbl", _open).add_bool(":prp", True, _open),
+            ]
+            xml_root.add_resource_multiple(resources)
+            xml = xml_root.serialise()
+        assert len(catched_warnings) == 1
+        msg = str(catched_warnings[0].message)
+        assert "Your data contains old permissions. Please migrate to the new ones" in msg
+        serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
+        assert unordered(serialised_permission_header_ids) == [
+            "public",
+            "private",
+            "limited_view",
+            "open",
+            "restricted",
+            "restricted-view",
+        ]
 
     def test_only_old_permissions(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
@@ -489,7 +510,7 @@ class TestSerialiseDeprecatedPermissions:
                 xml_root.add_resource(res)
                 xml = xml_root.serialise()
             assert len(catched_warnings) == 1
-            msg = catched_warnings[0].message.args[0]
+            msg = str(catched_warnings[0].message)
             assert "Your data contains old permissions. Please migrate to the new ones" in msg
             serialised_permission_header_ids = [x.attrib["id"] for x in xml if str(x.tag).endswith("permissions")]
             assert unordered(serialised_permission_header_ids) == ["open", "restricted", "restricted-view"]

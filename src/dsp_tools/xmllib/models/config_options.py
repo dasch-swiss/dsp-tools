@@ -15,7 +15,7 @@ class Permissions(Enum):
       but images are blurred/watermarked for non-project members
 
     Deprecated terms:
-    
+
     - `OPEN`: use `PUBLIC` instead
     - `RESTRICTED`: use `PRIVATE` instead
     - `RESTRICTED_VIEW`: use `LIMITED_VIEW` instead

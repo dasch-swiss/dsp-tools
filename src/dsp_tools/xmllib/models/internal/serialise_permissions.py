@@ -35,20 +35,20 @@ LIMITED_VIEW = {
 
 class XMLPermissions:
     def serialise(self, contains_old_permissions: bool, contains_new_permissions: bool = True) -> list[etree._Element]:
+        new_perms = [
+            self._serialise_one_permission_element("public", PUBLIC),
+            self._serialise_one_permission_element("private", PRIVATE),
+            self._serialise_one_permission_element("limited_view", LIMITED_VIEW),
+        ]
+        old_perms = [
+            self._serialise_one_permission_element("open", PUBLIC),
+            self._serialise_one_permission_element("restricted", PRIVATE),
+            self._serialise_one_permission_element("restricted-view", LIMITED_VIEW),
+        ]
         res = []
         if contains_new_permissions:
-            new_perms = [
-                self._serialise_one_permission_element("public", PUBLIC),
-                self._serialise_one_permission_element("private", PRIVATE),
-                self._serialise_one_permission_element("limited_view", LIMITED_VIEW),
-            ]
             res.extend(new_perms)
         if contains_old_permissions:
-            old_perms = [
-                self._serialise_one_permission_element("open", PUBLIC),
-                self._serialise_one_permission_element("restricted", PRIVATE),
-                self._serialise_one_permission_element("restricted-view", LIMITED_VIEW),
-            ]
             res.extend(old_perms)
         return res
 

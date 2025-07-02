@@ -205,7 +205,7 @@ class XMLRoot:
              At that time this parameter will be deprecated.
 
              **This will not influence individually assigned permissions, for example
-             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.OPEN`.**
+             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.PUBLIC`.**
 
         Warning:
             if the XML is not valid according to the schema
@@ -217,7 +217,7 @@ class XMLRoot:
 
             ```python
             # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
-            root.write_file("xml_file_name.xml", Permissions.OPEN)
+            root.write_file("xml_file_name.xml", Permissions.PUBLIC)
             ```
         """
         root = self.serialise(default_permissions)

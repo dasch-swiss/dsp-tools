@@ -38,7 +38,7 @@ class TestResource:
         assert serialised == expected
 
     def test_permissions(self) -> None:
-        res = Resource.create_new("id", ":Type", "lbl", permissions=Permissions.OPEN)
+        res = Resource.create_new("id", ":Type", "lbl", permissions=Permissions.PUBLIC)
         serialised = etree.tostring(_serialise_one_resource(res, AUTHOR_LOOKUP))
         expected = (
             b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

@@ -274,7 +274,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 "lbl",
             ).add_bool(":boolProp", True, comment="cmnt")
         )
-        serialised = xml_root.serialise(default_permissions=Permissions.OPEN)
+        serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
         assert len(found) == 1
         resource = found[0]
@@ -302,7 +302,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 Permissions.RESTRICTED,
             ).add_rectangle((0.1, 0.1), (0.2, 0.2))
         )
-        serialised = xml_root.serialise(default_permissions=Permissions.OPEN)
+        serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}region"))
         assert len(found) == 1
         resource = found[0]
@@ -344,7 +344,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 ["link1", "link2"],
             ).add_comment("cmnt", Permissions.RESTRICTED)
         )
-        serialised = xml_root.serialise(default_permissions=Permissions.OPEN)
+        serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}link"))
         assert len(found) == 1
         resource = found[0]
@@ -380,7 +380,7 @@ class TestSerialiseOverwriteDefaultPermissions:
             .add_keyword("keywrd")
             .add_relates_to("relates_to")
         )
-        serialised = xml_root.serialise(default_permissions=Permissions.OPEN)
+        serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}audio-segment"))
         assert len(found) == 1
         resource = found[0]
@@ -421,7 +421,7 @@ class TestSerialiseOverwriteDefaultPermissions:
                 permissions=Permissions.RESTRICTED,
             )
         )
-        serialised = xml_root.serialise(default_permissions=Permissions.OPEN)
+        serialised = xml_root.serialise(default_permissions=Permissions.PUBLIC)
         found = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}video-segment"))
         assert len(found) == 1
         resource = found[0]

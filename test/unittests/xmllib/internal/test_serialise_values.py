@@ -80,7 +80,7 @@ class TestSortValue:
 class TestSerialiseValues:
     def test_boolean(self):
         v: list[Value] = [
-            BooleanValue.new("0", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN, comment=None)
+            BooleanValue.new("0", ":booleanProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None)
         ]
         result = serialise_values(v)
         assert len(result) == 1
@@ -95,7 +95,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_color(self):
-        v: list[Value] = [ColorValue("#000000", ":colorProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [ColorValue("#000000", ":colorProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -109,7 +109,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_date(self):
-        v: list[Value] = [DateValue("2023-01-01", ":dateProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [DateValue("2023-01-01", ":dateProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -123,7 +123,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_decimal(self):
-        v: list[Value] = [DecimalValue("3.14", ":decimalProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [DecimalValue("3.14", ":decimalProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -137,7 +137,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_geoname(self):
-        v: list[Value] = [GeonameValue("99", ":geonameProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [GeonameValue("99", ":geonameProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -151,7 +151,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_int(self):
-        v: list[Value] = [IntValue("42", ":intProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [IntValue("42", ":intProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -165,7 +165,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_link(self):
-        v: list[Value] = [LinkValue("res_link", ":linkProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [LinkValue("res_link", ":linkProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -179,7 +179,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_list(self):
-        v: list[Value] = [ListValue("item1", "listName", ":listProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [ListValue("item1", "listName", ":listProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -216,7 +216,7 @@ class TestSerialiseValues:
         assert res_str == expected_xml
 
     def test_simpletext(self):
-        v: list[Value] = [SimpleText("Hello World", ":simpleTextProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [SimpleText("Hello World", ":simpleTextProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -243,7 +243,7 @@ class TestSerialiseValues:
         assert res_str == expected_xml
 
     def test_time(self):
-        v: list[Value] = [TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -257,7 +257,7 @@ class TestSerialiseValues:
         assert res_str == expected
 
     def test_uri(self):
-        v: list[Value] = [UriValue("https://example.com", ":uriProp", permissions=Permissions.OPEN)]
+        v: list[Value] = [UriValue("https://example.com", ":uriProp", permissions=Permissions.PUBLIC)]
         result = serialise_values(v)
         assert len(result) == 1
         expected = (
@@ -337,7 +337,7 @@ class TestSerialiseValues:
 
     def test_several_values_same_property(self):
         v: list[Value] = [
-            LinkValue("open_permission", ":linkProp", permissions=Permissions.OPEN),
+            LinkValue("open_permission", ":linkProp", permissions=Permissions.PUBLIC),
             LinkValue("default_permission", ":linkProp"),
         ]
         result = serialise_values(v)

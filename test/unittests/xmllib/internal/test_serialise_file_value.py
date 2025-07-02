@@ -35,7 +35,7 @@ def test_serialise_metadata_with_permissions() -> None:
         license=LicenseRecommended.DSP.UNKNOWN,
         copyright_holder="copyright",
         authorship=tuple(["auth"]),
-        permissions=Permissions.OPEN,
+        permissions=Permissions.PUBLIC,
     )
     expected = {
         "license": "http://rdfh.ch/licenses/unknown",

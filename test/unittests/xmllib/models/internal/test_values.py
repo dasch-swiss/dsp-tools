@@ -25,7 +25,9 @@ from dsp_tools.xmllib.models.internal.values import UriValue
 class TestBooleanValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            BooleanValue.new("False", ":booleanProp", permissions=Permissions.PUBLIC, resource_id="res_id", comment=None)
+            BooleanValue.new(
+                "False", ":booleanProp", permissions=Permissions.PUBLIC, resource_id="res_id", comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_good_comment_is_nan(self) -> None:
@@ -42,7 +44,9 @@ class TestBooleanValue:
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            BooleanValue.new("other", ":booleanProp", permissions=Permissions.PUBLIC, resource_id="res_id", comment=None)
+            BooleanValue.new(
+                "other", ":booleanProp", permissions=Permissions.PUBLIC, resource_id="res_id", comment=None
+            )
 
     def test_warns_potentially_empty_comment(self) -> None:
         with pytest.warns(XmllibInputInfo):
@@ -72,7 +76,9 @@ class TestDateValue:
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            DateValue.new("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None)
+            DateValue.new(
+                "invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None
+            )
 
 
 class TestDecimalValue:
@@ -91,7 +97,9 @@ class TestDecimalValue:
 class TestGeonameValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            GeonameValue.new("00099", ":geonameProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None)
+            GeonameValue.new(
+                "00099", ":geonameProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None
+            )
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
@@ -156,7 +164,11 @@ class TestRichtext:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
             Richtext.new(
-                "<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None
+                "<p>Hello World</p>",
+                ":richtextProp",
+                resource_id="res_id",
+                permissions=Permissions.PUBLIC,
+                comment=None,
             )
         assert len(caught_warnings) == 0
 
@@ -203,7 +215,9 @@ class TestTimeValue:
 
     def test_warns(self) -> None:
         with pytest.warns(XmllibInputWarning):
-            TimeValue.new("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None)
+            TimeValue.new(
+                "invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None
+            )
 
 
 class TestUriValue:

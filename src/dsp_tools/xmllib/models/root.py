@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
@@ -31,7 +32,6 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.internal.serialise_permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
-from src.dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 

@@ -439,22 +439,26 @@ class TestSerialiseOverwriteDefaultPermissions:
 
 class TestSerialiseDeprecatedPermissions:
     def test_no_old_permissions(self) -> None:
+        xml_root = XMLRoot.create_new("0000", "test")
+        spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        publ = Permissions.PUBLIC
+        priv = Permissions.PRIVATE
+        lmtd = Permissions.LIMITED_VIEW
         with warnings.catch_warnings(record=True) as catched_warnings:
-            xml_root = XMLRoot.create_new("0000", "test")
-            spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            publ = Permissions.PUBLIC
-            priv = Permissions.PRIVATE
-            lmtd = Permissions.LIMITED_VIEW
             resources = [
                 Resource.create_new("r1", ":typ", "lbl").add_bool(":prp", True),
                 Resource.create_new("r2", ":typ", "lbl", spec).add_bool(":prp", True, spec),
                 Resource.create_new("r3", ":typ", "lbl", publ).add_bool(":prp", True, publ),
                 Resource.create_new("r4", ":typ", "lbl", priv).add_bool(":prp", True, priv),
                 Resource.create_new("r5", ":typ", "lbl", lmtd).add_bool(":prp", True, lmtd),
-                RegionResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
-                LinkResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
-                AudioSegmentResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
-                VideoSegmentResource.create_new("r6", "lbl", "target").add_circle((1, 1), (1, 1)),
+                RegionResource.create_new("r6", "lbl", "tg").add_circle((1, 1), (1, 1)).add_comment("c"),
+                RegionResource.create_new("r7", "lbl", "tg", spec).add_circle((1, 1), (1, 1)).add_comment("c", spec),
+                LinkResource.create_new("r8", "lbl", ["tg"]).add_comment("c"),
+                LinkResource.create_new("r9", "lbl", ["tg"], publ).add_comment("c", publ),
+                AudioSegmentResource.create_new("r10", "lbl", "tg", 1, 2).add_comment("c"),
+                AudioSegmentResource.create_new("r11", "lbl", "tg", 1, 2, priv).add_comment("c", priv),
+                VideoSegmentResource.create_new("r12", "lbl", "tg", 1, 2).add_comment("c"),
+                VideoSegmentResource.create_new("r13", "lbl", "tg", 1, 2, lmtd).add_comment("c", lmtd),
             ]
             xml_root.add_resource_multiple(resources)
             xml = xml_root.serialise()

@@ -41,7 +41,7 @@ def test_serialise_metadata_with_permissions() -> None:
         "license": "http://rdfh.ch/licenses/unknown",
         "copyright-holder": "copyright",
         "authorship-id": "authorship_2",
-        "permissions": "open",
+        "permissions": "public",
     }
     result = _serialise_metadata(meta, "authorship_2")
     assert result == expected

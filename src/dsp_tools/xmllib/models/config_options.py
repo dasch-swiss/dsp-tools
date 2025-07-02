@@ -34,8 +34,6 @@ class Permissions(Enum):
     """
 
     PROJECT_SPECIFIC_PERMISSIONS = ""
-
-    # New terminology
     PUBLIC = "public"
     PRIVATE = "private"
     LIMITED_VIEW = "limited_view"
@@ -44,24 +42,6 @@ class Permissions(Enum):
     OPEN = "open"
     RESTRICTED = "restricted"
     RESTRICTED_VIEW = "restricted-view"
-
-    def __getattribute__(cls, name: str) -> "Permissions":
-        """Override to emit deprecation warnings when old terms are accessed."""
-        # Issue deprecation warnings for old terminology
-        if name in {"OPEN", "RESTRICTED", "RESTRICTED_VIEW"}:
-            replacement_map = {
-                "OPEN": "PUBLIC",
-                "RESTRICTED": "PRIVATE",
-                "RESTRICTED_VIEW": "LIMITED_VIEW"
-            }
-            warnings.warn(
-                f"Permissions.{name} is deprecated. Use Permissions.{replacement_map[name]} instead.",
-                DspToolsFutureWarning,
-                stacklevel=2
-            )
-
-        return super().__getattribute__(name)
-
 
 class NewlineReplacement(Enum):
     """

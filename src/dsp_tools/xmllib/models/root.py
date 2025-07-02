@@ -257,11 +257,11 @@ class XMLRoot:
         Returns:
             The `XMLRoot` serialised as XML
         """
-        contains_old_permissions = self.find_deprecated_permissions()
+        contains_old_permissions, contains_new_permissions = self._find_permission_types()
         if contains_old_permissions:
             warnings.warn(DspToolsFutureWarning("msg"))
         root = self._make_root()
-        permissions = XMLPermissions().serialise()
+        permissions = XMLPermissions().serialise(contains_old_permissions, contains_new_permissions)
         root.extend(permissions)
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
@@ -269,6 +269,16 @@ class XMLRoot:
         serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
         root.extend(serialised_resources)
         return root
+
+    def _find_permission_types(self) -> tuple[bool, bool]:
+        contains_old_permissions = False
+        contains_new_permissions = False
+        for res in self.resources:
+            self._is_old(res.permissions)
+        return contains_old_permissions, contains_new_permissions
+
+    def _is_old(self, perm: Permissions) -> bool:
+        return perm in [Permissions.OPEN, Permissions.RESTRICTED_VIEW, Permissions.RESTRICTED]
 
     def _make_root(self) -> etree._Element:
         schema_url = (

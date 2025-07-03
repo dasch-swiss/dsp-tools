@@ -193,7 +193,7 @@ class XMLRoot:
         Args:
             filepath: where to save the file
             default_permissions: This parameter is deprecated and has no effect.
-              Default permissions can be set in the JSON project file.
+                Default permissions can be set in the JSON project file.
 
         Warning:
             if the XML is not valid according to the schema

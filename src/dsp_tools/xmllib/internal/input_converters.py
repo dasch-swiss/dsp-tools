@@ -21,7 +21,7 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
             value=comment,
             res_id=res_id,
             prop_name=prop_name,
-            value_field="comment on value",
+            field="comment on value",
         )
         return str(comment)
     return None
@@ -39,7 +39,7 @@ def check_and_fix_is_non_empty_string(
             value=value,
             res_id=res_id,
             prop_name=prop_name,
-            value_field=value_field,
+            field=value_field,
         )
         return str(value)
     else:

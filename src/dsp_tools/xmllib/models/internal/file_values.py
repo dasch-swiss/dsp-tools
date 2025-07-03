@@ -124,7 +124,7 @@ class FileValue(AbstractFileValue):
             check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                value_field="comment on bitstream",
+                field="comment on bitstream",
             )
         else:
             fixed_comment = None
@@ -150,7 +150,7 @@ class IIIFUri(AbstractFileValue):
             check_and_warn_if_a_string_contains_a_potentially_empty_value(
                 value=comment,
                 res_id=resource_id,
-                value_field="comment on iiif-uri",
+                field="comment on iiif-uri",
             )
         else:
             fixed_comment = None

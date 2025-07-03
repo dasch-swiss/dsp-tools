@@ -93,12 +93,12 @@ def check_and_warn_potentially_empty_string(
         emit_xmllib_input_warning(msg_info)
     else:
         check_and_warn_if_a_string_contains_a_potentially_empty_value(
-            value=value, res_id=res_id, prop_name=prop_name, value_field=field
+            value=value, res_id=res_id, prop_name=prop_name, field=field
         )
 
 
 def check_and_warn_if_a_string_contains_a_potentially_empty_value(
-    *, value: Any, res_id: str | None, prop_name: str | None = None, value_field: str | None = None
+    *, value: Any, res_id: str | None, prop_name: str | None = None, field: str | None = None
 ) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
@@ -109,7 +109,7 @@ def check_and_warn_if_a_string_contains_a_potentially_empty_value(
         value: user input
         res_id: Resource ID
         prop_name: property name if used to check a property
-        value_field: if used to check a non-property field, for example a comment on a value
+        field: if used to check a non-property field, for example a comment on a value
 
     Warnings:
         XmllibInputInfo: if it is a string containing a string value
@@ -126,7 +126,7 @@ def check_and_warn_if_a_string_contains_a_potentially_empty_value(
             message=msg,
             resource_id=res_id,
             prop_name=prop_name,
-            field=value_field,
+            field=field,
         )
         emit_xmllib_input_info(msg_info)
 

@@ -93,8 +93,9 @@ def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -
     project_doaps = perm_client.get_project_doaps()
     result = _parse_default_permissions(project_doaps)
     if result == "unknown":
-        return "beautiful explanation for customers"
+        return "beautiful explanation for customers" # TODO
     return result
+    # TODO: why did the e2e tests not fail?
 
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)

@@ -195,17 +195,7 @@ class XMLRoot:
             default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Attention:
-            If the parameter `default_permission` is not filled
-             and no permissions were assigned to values and resources,
-             the default permissions (DOAP) on DSP will be applied.
-             If the default permissions (DOAP) are not changed via DSP-API,
-             only project members and admins have view permissions.
-             In the near future,
-             custom DOAPs will be able to be set in the project JSON file (ongoing DSP-TOOLS project).
-             At that time this parameter will be deprecated.
-
-             **This will not influence individually assigned permissions, for example
-             `Permissions.PRIVATE` will stay private even if your default is set to `Permissions.PUBLIC`.**
+            Parameter `default_permissions` is deprecated as the default permissions can be set on project level.
 
         Warning:
             if the XML is not valid according to the schema
@@ -213,11 +203,6 @@ class XMLRoot:
         Examples:
             ```python
             root.write_file("xml_file_name.xml")
-            ```
-
-            ```python
-            # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
-            root.write_file("xml_file_name.xml", Permissions.PUBLIC)
             ```
         """
 

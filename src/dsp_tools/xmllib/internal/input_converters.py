@@ -31,10 +31,9 @@ def check_and_fix_is_non_empty_string(
     value: Any, res_id: str | None = None, prop_name: str | None = None, value_field: str | None = None
 ) -> str:
     """
-    The input of comments may also be pd.NA or such.
-    In our models we only want a string
-    because the content of the string is not fixed a str(pd.NA) will result in a valid input.
-    We want to prevent that so that the XML validation will also reflect the input.
+    Emits warnings if the string is or looks empty.
+    Converts a non-empty input into a string.
+    Returns an empty string if the input is empty (eg. pd.NA, None, etc.).
 
     Args:
         value: input to check

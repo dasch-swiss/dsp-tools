@@ -454,7 +454,7 @@ class TestSerialiseDeprecatedPermissions:
         res_attributes = [perm for x in xml if (perm := x.attrib.get("permissions"))]
         expected = ["public", "private", "limited_view", "open", "restricted", "restricted-view"]
         assert res_attributes == expected
-    
+
     def test_only_new_permissions(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
         spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS

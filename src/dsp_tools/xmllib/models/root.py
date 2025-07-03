@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
@@ -203,7 +205,7 @@ class XMLRoot:
              At that time this parameter will be deprecated.
 
              **This will not influence individually assigned permissions, for example
-             `Permissions.RESTRICTED` will stay restricted even if your default is set to `Permissions.OPEN`.**
+             `Permissions.PRIVATE` will stay private even if your default is set to `Permissions.PUBLIC`.**
 
         Warning:
             if the XML is not valid according to the schema
@@ -215,7 +217,7 @@ class XMLRoot:
 
             ```python
             # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
-            root.write_file("xml_file_name.xml", Permissions.OPEN)
+            root.write_file("xml_file_name.xml", Permissions.PUBLIC)
             ```
         """
         root = self.serialise(default_permissions)
@@ -256,14 +258,49 @@ class XMLRoot:
             The `XMLRoot` serialised as XML
         """
         root = self._make_root()
-        permissions = XMLPermissions().serialise()
-        root.extend(permissions)
+        root.extend(self._get_permissions())
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
         serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
         root.extend(serialised_resources)
         return root
+
+    def _get_permissions(self) -> list[etree._Element]:
+        contains_old_permissions, contains_new_permissions = self._find_permission_types()
+        if contains_old_permissions:
+            msg = (
+                "Your data contains old permissions. Please migrate to the new ones:\n"
+                " - Permissions.OPEN            -> use Permissions.PUBLIC instead\n"
+                " - Permissions.RESTRICTED      -> use Permissions.PRIVATE instead\n"
+                " - Permissions.RESTRICTED_VIEW -> use Permissions.LIMITED_VIEW instead\n"
+            )
+            warnings.warn(msg, category=DspToolsFutureWarning)
+        return XMLPermissions().serialise(contains_old_permissions, contains_new_permissions)
+
+    def _find_permission_types(self) -> tuple[bool, bool]:
+        contains_old_permissions = False
+        contains_new_permissions = False
+        for res in self.resources:
+            if self._is_old(res.permissions):
+                contains_old_permissions = True
+            elif self._is_new(res.permissions):
+                contains_new_permissions = True
+            for val in res.values:
+                if self._is_old(val.permissions):
+                    contains_old_permissions = True
+                elif self._is_new(res.permissions):
+                    contains_new_permissions = True
+            if contains_old_permissions and contains_new_permissions:
+                # no need to continue, the end result won't change any more
+                return True, True
+        return contains_old_permissions, contains_new_permissions
+
+    def _is_old(self, perm: Permissions) -> bool:
+        return perm in [Permissions.OPEN, Permissions.RESTRICTED_VIEW, Permissions.RESTRICTED]
+
+    def _is_new(self, perm: Permissions) -> bool:
+        return perm in [Permissions.PUBLIC, Permissions.LIMITED_VIEW, Permissions.PRIVATE]
 
     def _make_root(self) -> etree._Element:
         schema_url = (

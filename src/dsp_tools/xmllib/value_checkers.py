@@ -370,7 +370,7 @@ def is_dsp_iri(value: Any) -> bool:
         # result == False
         ```
     """
-    return bool(regex.search(r"^http://rdfh\.ch/\d{4}/", str(value)))
+    return bool(regex.search(r"^http://rdfh\.ch/[\dA-F]{4}/", str(value)))
 
 
 def is_dsp_ark(value: Any) -> bool:

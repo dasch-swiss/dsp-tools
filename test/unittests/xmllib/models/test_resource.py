@@ -60,9 +60,12 @@ class TestCreateNewResource:
     def test_empty_label(self):
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
         ):
-            Resource.create_new("res_id", "restype", "")
+            res = Resource.create_new("res_id", "restype", pd.NA)  # type: ignore[arg-type]
+        assert res.label == ""
 
 
 class TestAddValues:
@@ -305,14 +308,16 @@ class TestAddValues:
     def test_add_richtext_warns_empty_string(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '' is empty. Please enter a valid string."),
+            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext("prop", "")
 
     def test_add_richtext_warns_pd_na(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '<NA>' is empty. Please enter a valid string."),
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
 

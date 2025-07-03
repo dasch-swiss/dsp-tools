@@ -192,7 +192,8 @@ class XMLRoot:
 
         Args:
             filepath: where to save the file
-            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
+            default_permissions: This parameter is deprecated and has no effect.
+              Default permissions can be set in the JSON project file.
 
         Attention:
             Parameter `default_permissions` is deprecated as the default permissions can be set on project level.

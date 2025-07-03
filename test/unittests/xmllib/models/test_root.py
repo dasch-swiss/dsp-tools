@@ -439,6 +439,22 @@ class TestSerialiseOverwriteDefaultPermissions:
 
 
 class TestSerialiseDeprecatedPermissions:
+    def test_resource_attributes(self) -> None:
+        xml_root = XMLRoot.create_new("0000", "test")
+        with warnings.catch_warnings(record=True):
+            resources = [
+                Resource.create_new("r1", ":typ", "lbl", Permissions.PUBLIC),
+                Resource.create_new("r2", ":typ", "lbl", Permissions.PRIVATE),
+                Resource.create_new("r3", ":typ", "lbl", Permissions.LIMITED_VIEW),
+                Resource.create_new("r4", ":typ", "lbl", Permissions.OPEN),
+                Resource.create_new("r5", ":typ", "lbl", Permissions.RESTRICTED),
+                Resource.create_new("r6", ":typ", "lbl", Permissions.RESTRICTED_VIEW),
+            ]
+            xml = xml_root.add_resource_multiple(resources).serialise()
+        res_attributes = [perm for x in xml if (perm := x.attrib.get("permissions"))]
+        expected = ["public", "private", "limited_view", "open", "restricted", "restricted-view"]
+        assert res_attributes == expected
+    
     def test_only_new_permissions(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
         spec = Permissions.PROJECT_SPECIFIC_PERMISSIONS

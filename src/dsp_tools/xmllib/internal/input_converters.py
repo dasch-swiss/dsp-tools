@@ -7,6 +7,7 @@ import regex
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
@@ -20,14 +21,14 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
             value=comment,
             res_id=res_id,
             prop_name=prop_name,
-            field="comment on value",
+            value_field="comment on value",
         )
         return str(comment)
     return None
 
 
 def check_and_fix_is_non_empty_string(
-    value: Any, res_id: str | None, prop_name: str | None = None, field: str | None = None
+    value: Any, res_id: str | None = None, prop_name: str | None = None, value_field: str | None = None
 ) -> str:
     """The input of comments may also be pd.NA or such.
     In our models we only want a string
@@ -38,10 +39,18 @@ def check_and_fix_is_non_empty_string(
             value=value,
             res_id=res_id,
             prop_name=prop_name,
-            field=field,
+            value_field=value_field,
         )
         return str(value)
-    return ""
+    else:
+        emit_xmllib_input_type_mismatch_warning(
+            expected_type="non empty string",
+            value=value,
+            res_id=res_id,
+            prop_name=prop_name,
+            value_field=value_field,
+        )
+        return ""
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

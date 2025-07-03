@@ -72,7 +72,7 @@ class RegionResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         return RegionResource(
             res_id=res_id,
             label=lbl,
@@ -426,7 +426,7 @@ class LinkResource:
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
 
-        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals: list[Value] = [
             LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
@@ -643,7 +643,7 @@ class VideoSegmentResource:
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
 
-        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )
@@ -1166,7 +1166,7 @@ class AudioSegmentResource:
             An audio segment resource
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )

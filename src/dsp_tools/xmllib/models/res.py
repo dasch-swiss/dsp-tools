@@ -94,7 +94,7 @@ class Resource:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
             )
-        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
 
         return Resource(
             res_id=res_id,

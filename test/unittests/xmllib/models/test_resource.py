@@ -62,7 +62,8 @@ class TestCreateNewResource:
             XmllibInputWarning,
             match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "")
+            res = Resource.create_new("res_id", "restype", pd.NA)  # type: ignore[arg-type]
+        assert res.label == ""
 
 
 class TestAddValues:

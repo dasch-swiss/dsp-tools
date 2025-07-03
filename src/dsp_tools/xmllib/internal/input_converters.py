@@ -27,7 +27,7 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
 
 
 def check_and_fix_is_non_empty_string(
-    value: Any, res_id: str, prop_name: str | None = None, field: str | None = None
+    value: Any, res_id: str | None, prop_name: str | None = None, field: str | None = None
 ) -> str:
     """The input of comments may also be pd.NA or such.
     In our models we only want a string

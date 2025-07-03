@@ -12,6 +12,7 @@ from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -267,9 +268,10 @@ class SimpleText(Value):
             expected="string",
             prop_name=prop_name,
         )
+        converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
         check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
 @dataclass
@@ -289,9 +291,8 @@ class Richtext(Value):
         resource_id: str | None,
         newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
     ) -> Richtext:
-        check_and_warn_potentially_empty_string(value=value, res_id=resource_id, expected="string", prop_name=prop_name)
-        converted_val = replace_newlines_with_tags(str(value), newline_replacement)
-
+        converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
+        converted_val = replace_newlines_with_tags(converted_val, newline_replacement)
         result = parse_richtext_as_xml(converted_val)
         if isinstance(result, MessageInfo):
             raise_input_error(result)

@@ -26,6 +26,24 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
     return None
 
 
+def check_and_fix_is_non_empty_string(
+    value: Any, res_id: str, prop_name: str | None = None, field: str | None = None
+) -> str:
+    """The input of comments may also be pd.NA or such.
+    In our models we only want a string
+    because the content of the string is not fixed a str(pd.NA) will result in a valid input.
+    We want to prevent that so that the XML validation will also reflect the input."""
+    if is_nonempty_value_internal(value):
+        check_and_warn_if_a_string_contains_a_potentially_empty_value(
+            value=value,
+            res_id=res_id,
+            prop_name=prop_name,
+            field=field,
+        )
+        return str(value)
+    return ""
+
+
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
     """
     To allow varied input but ensure consistent typing internally, collections are converted.

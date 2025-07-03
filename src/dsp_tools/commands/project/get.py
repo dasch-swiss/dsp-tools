@@ -2,7 +2,6 @@ import json
 import warnings
 from typing import Any
 
-import jsonpath_ng.ext
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
@@ -52,9 +51,7 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    perm_client = PermissionsClient(auth, str(project.iri))
-    project_doaps = perm_client.get_project_doaps()
-    project_obj["default_permissions"] = _get_default_permissions(project_doaps)
+    project_obj["default_permissions"] = _get_default_permissions(auth, str(project.iri))
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
@@ -91,7 +88,16 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         )
 
 
-def _get_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
+def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -> str:
+    perm_client = PermissionsClient(auth, project_iri)
+    project_doaps = perm_client.get_project_doaps()
+    result = _parse_default_permissions(project_doaps)
+    if result == "unknown":
+        return "beautiful explanation for customers"
+    return result
+
+
+def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)
     if [x for x in project_doaps if x["forGroup"].endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
         return "unknown"  # legacy DOAPs
     proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
@@ -104,7 +110,7 @@ def _get_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     proj_mem_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectMember")]
     knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
     unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
-    if not(len(proj_adm_perms) == len(proj_mem_perms) == 1):
+    if not (len(proj_adm_perms) == len(proj_mem_perms) == 1):
         return "unknown"
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 1:
         return "public"

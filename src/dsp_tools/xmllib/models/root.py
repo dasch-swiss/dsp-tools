@@ -220,7 +220,16 @@ class XMLRoot:
             root.write_file("xml_file_name.xml", Permissions.PUBLIC)
             ```
         """
-        root = self.serialise(default_permissions)
+
+        if default_permissions:
+            msg = (
+                "You added a default permission, this functionality is deprecated "
+                "as project wide default permissions are set in the json. "
+                "This parameter will be removed soon."
+            )
+            warnings.warn(DspToolsFutureWarning(msg))
+
+        root = self.serialise()
 
         # The logging is only configured when using the CLI entry point.
         # If this is not disabled, then the statements will also be printed out on the terminal.
@@ -246,13 +255,10 @@ class XMLRoot:
                 msg = "No warnings occurred during the runtime."
                 print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
 
-    def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
+    def serialise(self) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.
-
-        Args:
-            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             The `XMLRoot` serialised as XML
@@ -262,7 +268,7 @@ class XMLRoot:
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
-        serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
+        serialised_resources = serialise_resources(self.resources, author_lookup)
         root.extend(serialised_resources)
         return root
 

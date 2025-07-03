@@ -28,16 +28,13 @@ from dsp_tools.xmllib.models.res import Resource
 load_dotenv()
 
 
-def serialise_resources(
-    resources: list[AnyResource], authorship_lookup: AuthorshipLookup, default_permissions: Permissions | None
-) -> list[etree._Element]:
+def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
     """
     Serialise all the resources
 
     Args:
         resources: list of resources
         authorship_lookup: lookup to map the authors to the corresponding IDs
-        default_permissions: default permissions to overwrite the `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
     Returns:
         serialised resources
@@ -45,27 +42,20 @@ def serialise_resources(
     env_var = str(os.getenv("XMLLIB_SORT_RESOURCES")).lower()
     if env_var == "true":
         resources = sorted(resources, key=lambda x: x.res_id)
-    return [_serialise_one_resource(x, authorship_lookup, default_permissions) for x in resources]
+    return [_serialise_one_resource(x, authorship_lookup) for x in resources]
 
 
-def _serialise_one_resource(
-    res: AnyResource, authorship_lookup: AuthorshipLookup, default_permissions: Permissions | None = None
-) -> etree._Element:
+def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:
     match res:
         case Resource():
-            _resolve_permissions_of_generic_resource(res, default_permissions)
             return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
-            _resolve_permissions_of_resource_and_generic_values(res, default_permissions)
             return _serialise_region(res)
         case LinkResource():
-            _resolve_permissions_of_resource_and_generic_values(res, default_permissions)
             return _serialise_link(res)
         case AudioSegmentResource():
-            _resolve_permissions_of_segment_resource(res, default_permissions)
             return _serialise_segment(res, "audio-segment")
         case VideoSegmentResource():
-            _resolve_permissions_of_segment_resource(res, default_permissions)
             return _serialise_segment(res, "video-segment")
         case _:
             raise_input_error(
@@ -76,40 +66,6 @@ def _serialise_one_resource(
                     f"The input type is {res.__class__.__name__}"
                 )
             )
-
-
-def _resolve_default_permission(permission: Permissions, default_permission: Permissions) -> Permissions:
-    if permission == Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-        return default_permission
-    return permission
-
-
-def _resolve_permissions_of_resource_and_generic_values(
-    resource: AnyResource, default_permissions: Permissions | None
-) -> None:
-    if default_permissions:
-        resource.permissions = _resolve_default_permission(resource.permissions, default_permissions)
-        for v in resource.values:
-            v.permissions = _resolve_default_permission(v.permissions, default_permissions)
-
-
-def _resolve_permissions_of_generic_resource(resource: Resource, default_permissions: Permissions | None) -> None:
-    _resolve_permissions_of_resource_and_generic_values(resource, default_permissions)
-    if default_permissions:
-        if resource.file_value:
-            resource.file_value.metadata.permissions = _resolve_default_permission(
-                resource.file_value.metadata.permissions, default_permissions
-            )
-
-
-def _resolve_permissions_of_segment_resource(
-    segment: AudioSegmentResource | VideoSegmentResource, default_permissions: Permissions | None
-) -> None:
-    _resolve_permissions_of_resource_and_generic_values(segment, default_permissions)
-    if default_permissions:
-        segment.segment_bounds.permissions = _resolve_default_permission(
-            segment.segment_bounds.permissions, default_permissions
-        )
 
 
 def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:

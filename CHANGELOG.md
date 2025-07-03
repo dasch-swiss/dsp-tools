@@ -1,5 +1,34 @@
 # Changelog
 
+## [16.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.1.0...v16.2.0) (2025-07-02)
+
+
+### Enhancements
+
+* **create:** rename "project_default_permissions" to "default_permissions" (DEV-5091) ([#1811](https://github.com/dasch-swiss/dsp-tools/issues/1811)) ([32e4b2d](https://github.com/dasch-swiss/dsp-tools/commit/32e4b2d54dd2cd68dae53b853df9063aaef8d85d))
+* **excel2json:** set project default permissions in Excel (DEV-5036) ([#1808](https://github.com/dasch-swiss/dsp-tools/issues/1808)) ([ffcdf8e](https://github.com/dasch-swiss/dsp-tools/commit/ffcdf8e1847d5d2be087aa58b50e2df7d9f1b14f))
+* remove default for project_default_permissions (DEV-5087) ([#1806](https://github.com/dasch-swiss/dsp-tools/issues/1806)) ([576b147](https://github.com/dasch-swiss/dsp-tools/commit/576b1472c39e35cdbf4c088692ad6fe9f9213e16))
+
+
+### Bug Fixes
+
+* remove dataclass decorator from enum class (DEV-5073) ([#1818](https://github.com/dasch-swiss/dsp-tools/issues/1818)) ([1768840](https://github.com/dasch-swiss/dsp-tools/commit/176884037a7300972bad443bcf184e47a2a202ad))
+* **start-stack:** prevent sipi data from filling up storage (DEV-5065) ([#1810](https://github.com/dasch-swiss/dsp-tools/issues/1810)) ([5bc0e80](https://github.com/dasch-swiss/dsp-tools/commit/5bc0e80dfa76c6315f22b33f272c9a08924e4896))
+* **validate-data:** allow stand-off links for resources (DEV-5101) ([#1816](https://github.com/dasch-swiss/dsp-tools/issues/1816)) ([6ad6f0e](https://github.com/dasch-swiss/dsp-tools/commit/6ad6f0ecef7f003bdf11c3a51e229307f7395a1e))
+* **xmlupload:** add more retries to account for 45 min and more fuseki compaction (DEV-5094) ([#1812](https://github.com/dasch-swiss/dsp-tools/issues/1812)) ([d716e08](https://github.com/dasch-swiss/dsp-tools/commit/d716e085fb44a87918eb095c59ae29cfef84f351))
+* **xmlupload:** retry during ca. 15min (DEV-5089) ([#1809](https://github.com/dasch-swiss/dsp-tools/issues/1809)) ([0dd91a2](https://github.com/dasch-swiss/dsp-tools/commit/0dd91a23edc42580fc5fd8acc20911e38acd0f19))
+
+
+### Maintenance
+
+* bump start-stack to 2025.07.01 and remove api-config workaround (DEV-5106) ([#1817](https://github.com/dasch-swiss/dsp-tools/issues/1817)) ([a508526](https://github.com/dasch-swiss/dsp-tools/commit/a50852688098dc43d7e98d59798cdf7cf8c532fe))
+* **start-stack:** subpar bind mount in docker-compose.yml (DEV-5096) ([#1813](https://github.com/dasch-swiss/dsp-tools/issues/1813)) ([bb030ac](https://github.com/dasch-swiss/dsp-tools/commit/bb030acf9bb69b6de064f83fb72a5b83c433b30c))
+
+
+### Documentation
+
+* **xmllib:** fix some mistakes in documentation of helpers and converters ([#1814](https://github.com/dasch-swiss/dsp-tools/issues/1814)) ([8093557](https://github.com/dasch-swiss/dsp-tools/commit/8093557cf189abe0e2bdfc802aa32cd0345fe807))
+
 ## [16.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.0.0...v16.1.0) (2025-06-24)
 
 

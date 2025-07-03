@@ -30,10 +30,21 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
 def check_and_fix_is_non_empty_string(
     value: Any, res_id: str | None = None, prop_name: str | None = None, value_field: str | None = None
 ) -> str:
-    """The input of comments may also be pd.NA or such.
+    """
+    The input of comments may also be pd.NA or such.
     In our models we only want a string
     because the content of the string is not fixed a str(pd.NA) will result in a valid input.
-    We want to prevent that so that the XML validation will also reflect the input."""
+    We want to prevent that so that the XML validation will also reflect the input.
+
+    Args:
+        value: input to check
+        res_id: resource ID
+        prop_name: property name
+        value_field: field if it is not a property
+
+    Returns:
+        The value as string, if it is empty an empty string.
+    """
     if is_nonempty_value_internal(value):
         check_and_warn_if_a_string_contains_a_potentially_empty_value(
             value=value,

@@ -206,8 +206,8 @@ class XMLRoot:
 
         if default_permissions:
             msg = (
-                "You added a default permission, this functionality is deprecated "
-                "as project wide default permissions are set in the json. "
+                "You added a default permission. This has no effect. This functionality is deprecated, "
+                "because project wide default permissions are set in the JSON project file. "
                 "This parameter will be removed soon."
             )
             warnings.warn(DspToolsFutureWarning(msg))

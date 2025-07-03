@@ -195,9 +195,6 @@ class XMLRoot:
             default_permissions: This parameter is deprecated and has no effect.
               Default permissions can be set in the JSON project file.
 
-        Attention:
-            Parameter `default_permissions` is deprecated as the default permissions can be set on project level.
-
         Warning:
             if the XML is not valid according to the schema
 

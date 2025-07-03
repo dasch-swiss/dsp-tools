@@ -152,7 +152,7 @@ The system follows this general flow for XML processing:
 
 - **Unit tests**: Test individual functions and classes in isolation
 - **Integration tests**: Test file I/O and cross-module interactions
-- **E2E tests**: Test full workflows with testcontainers running DSP stack
+- **E2E tests**: Test full workflows with testcontainers running DSP stack (database, backend, fontend)
 - **Benchmarking tests**: Performance testing for critical algorithms
 
 ### Configuration

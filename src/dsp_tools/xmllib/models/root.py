@@ -192,20 +192,8 @@ class XMLRoot:
 
         Args:
             filepath: where to save the file
-            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
-
-        Attention:
-            If the parameter `default_permission` is not filled
-             and no permissions were assigned to values and resources,
-             the default permissions (DOAP) on DSP will be applied.
-             If the default permissions (DOAP) are not changed via DSP-API,
-             only project members and admins have view permissions.
-             In the near future,
-             custom DOAPs will be able to be set in the project JSON file (ongoing DSP-TOOLS project).
-             At that time this parameter will be deprecated.
-
-             **This will not influence individually assigned permissions, for example
-             `Permissions.PRIVATE` will stay private even if your default is set to `Permissions.PUBLIC`.**
+            default_permissions: This parameter is deprecated and has no effect.
+                Default permissions can be set in the JSON project file.
 
         Warning:
             if the XML is not valid according to the schema
@@ -214,13 +202,17 @@ class XMLRoot:
             ```python
             root.write_file("xml_file_name.xml")
             ```
-
-            ```python
-            # To overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
-            root.write_file("xml_file_name.xml", Permissions.PUBLIC)
-            ```
         """
-        root = self.serialise(default_permissions)
+
+        if default_permissions:
+            msg = (
+                "You added a default permission. This has no effect. This functionality is deprecated, "
+                "because project wide default permissions are set in the JSON project file. "
+                "This parameter will be removed soon."
+            )
+            warnings.warn(DspToolsFutureWarning(msg))
+
+        root = self.serialise()
 
         # The logging is only configured when using the CLI entry point.
         # If this is not disabled, then the statements will also be printed out on the terminal.
@@ -246,13 +238,10 @@ class XMLRoot:
                 msg = "No warnings occurred during the runtime."
                 print(BOLD_GREEN, msg, RESET_TO_DEFAULT)
 
-    def serialise(self, default_permissions: Permissions | None = None) -> etree._Element:
+    def serialise(self) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
         If you wish to create a file, we recommend using the `write_file` method instead.
-
-        Args:
-            default_permissions: permissions to overwrite `Permissions.PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             The `XMLRoot` serialised as XML
@@ -262,7 +251,7 @@ class XMLRoot:
         author_lookup = _make_authorship_lookup(self.resources)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
-        serialised_resources = serialise_resources(self.resources, author_lookup, default_permissions)
+        serialised_resources = serialise_resources(self.resources, author_lookup)
         root.extend(serialised_resources)
         return root
 

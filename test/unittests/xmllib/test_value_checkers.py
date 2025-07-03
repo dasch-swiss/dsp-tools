@@ -218,7 +218,9 @@ def test_is_timestamp_wrong(val: Any) -> None:
     assert not is_timestamp(val)
 
 
-@pytest.mark.parametrize("val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
+@pytest.mark.parametrize(
+    "val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", "http://rdfh.ch/4A23/DiAmYQzQSzC7cdTo6OJMYA"]
+)
 def test_is_dsp_iri_correct(val: Any) -> None:
     assert is_dsp_iri(val)
 

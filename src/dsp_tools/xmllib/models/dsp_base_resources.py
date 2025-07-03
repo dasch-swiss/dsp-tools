@@ -7,8 +7,8 @@ from typing import Any
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
-from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.geometry import Circle
@@ -72,10 +72,10 @@ class RegionResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         return RegionResource(
             res_id=res_id,
-            label=label,
+            label=lbl,
             values=[
                 LinkValue.new(
                     value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
@@ -425,7 +425,8 @@ class LinkResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
+
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals: list[Value] = [
             LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
@@ -433,7 +434,7 @@ class LinkResource:
         ]
         return LinkResource(
             res_id=res_id,
-            label=label,
+            label=lbl,
             values=link_vals,
             permissions=permissions,
         )
@@ -641,13 +642,14 @@ class VideoSegmentResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
+
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )
         return VideoSegmentResource(
             res_id=res_id,
-            label=label,
+            label=lbl,
             values=[segment_of_val],
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             permissions=permissions,
@@ -1164,13 +1166,13 @@ class AudioSegmentResource:
             An audio segment resource
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        check_and_warn_potentially_empty_string(value=label, res_id=res_id, expected="string", field="label")
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
         )
         return AudioSegmentResource(
             res_id=res_id,
-            label=label,
+            label=lbl,
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             values=[segment_of_val],
             permissions=permissions,

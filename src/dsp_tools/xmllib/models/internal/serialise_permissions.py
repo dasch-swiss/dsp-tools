@@ -13,34 +13,44 @@ class PermissionTypes(Enum):
     CR = "CR"
 
 
+PUBLIC = {
+    "UnknownUser": PermissionTypes.V,
+    "KnownUser": PermissionTypes.V,
+    "ProjectMember": PermissionTypes.D,
+    "ProjectAdmin": PermissionTypes.CR,
+}
+
+PRIVATE = {
+    "ProjectMember": PermissionTypes.D,
+    "ProjectAdmin": PermissionTypes.CR,
+}
+
+LIMITED_VIEW = {
+    "UnknownUser": PermissionTypes.RV,
+    "KnownUser": PermissionTypes.RV,
+    "ProjectMember": PermissionTypes.D,
+    "ProjectAdmin": PermissionTypes.CR,
+}
+
+
 class XMLPermissions:
-    def serialise(self) -> list[etree._Element]:
-        return [self._serialise_open(), self._serialise_restricted(), self._serialise_restricted_view()]
-
-    def _serialise_open(self) -> etree._Element:
-        permissions = {
-            "UnknownUser": PermissionTypes.V,
-            "KnownUser": PermissionTypes.V,
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
-        }
-        return self._serialise_one_permission_element("open", permissions)
-
-    def _serialise_restricted(self) -> etree._Element:
-        permissions = {
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
-        }
-        return self._serialise_one_permission_element("restricted", permissions)
-
-    def _serialise_restricted_view(self) -> etree._Element:
-        permissions = {
-            "UnknownUser": PermissionTypes.RV,
-            "KnownUser": PermissionTypes.RV,
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
-        }
-        return self._serialise_one_permission_element("restricted-view", permissions)
+    def serialise(self, contains_old_permissions: bool, contains_new_permissions: bool = True) -> list[etree._Element]:
+        new_perms = [
+            self._serialise_one_permission_element("public", PUBLIC),
+            self._serialise_one_permission_element("private", PRIVATE),
+            self._serialise_one_permission_element("limited_view", LIMITED_VIEW),
+        ]
+        old_perms = [
+            self._serialise_one_permission_element("open", PUBLIC),
+            self._serialise_one_permission_element("restricted", PRIVATE),
+            self._serialise_one_permission_element("restricted-view", LIMITED_VIEW),
+        ]
+        res = []
+        if contains_new_permissions:
+            res.extend(new_perms)
+        if contains_old_permissions:
+            res.extend(old_perms)
+        return res
 
     def _serialise_one_permission_element(
         self, permission_name: str, groups: dict[str, PermissionTypes]

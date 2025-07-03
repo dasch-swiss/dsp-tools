@@ -1,5 +1,6 @@
 import pytest
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
@@ -13,8 +14,11 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
+from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 class TestCheckTripleNumbersOnto:
@@ -23,6 +27,32 @@ class TestCheckTripleNumbersOnto:
         number_of_resource_classes = 12
         triples_cls_nodeshape = 13 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
+
+    def test_one_nodeshape(self) -> None:
+        onto = f"""{PREFIXES}
+        onto:TestClass a owl:Class ;
+            knora-api:canBeInstantiated true ;
+            knora-api:isResourceClass true .
+        """
+        onto_g = Graph()
+        onto_g.parse(data=onto)
+        result = _construct_resource_nodeshape(onto_g)
+        test_cls = ONTO.TestClass
+        assert next(result.objects(test_cls, RDF.type)) == SH.NodeShape
+        assert next(result.objects(test_cls, DASH.closedByTypes)) == Literal(True)
+        properties = list(result.objects(test_cls, SH.property))
+        assert len(properties) == 3
+        assert next(result.subjects(SH.property, API_SHAPES.hasPermissions_Cardinality)) == test_cls
+        label_shape = next(result.subjects(SH.path, RDFS.label))
+        assert next(result.subjects(SH.property, label_shape)) == test_cls
+        assert next(result.objects(label_shape, RDF.type)) == SH.PropertyShape
+        assert next(result.objects(label_shape, SH.minCount)) == Literal(1)
+        assert next(result.objects(label_shape, SH.maxCount)) == Literal(1)
+        assert next(result.objects(label_shape, SH.severity)) == SH.Violation
+        assert next(result.objects(label_shape, SH.message)) == Literal("A label is required")
+        standoff_shapes = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))
+        assert next(result.subjects(SH.property, standoff_shapes)) == test_cls
+        assert next(result.objects(standoff_shapes, RDF.type)) == SH.PropertyShape
 
     def test_cardinality_1(self, onto_for_cardinality: Graph) -> None:
         result = _construct_1_cardinality(onto_for_cardinality)

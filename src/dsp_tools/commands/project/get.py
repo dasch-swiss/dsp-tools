@@ -53,7 +53,8 @@ def get_project(
     project_obj = project.createDefinitionFileObj()
 
     perm_client = PermissionsClient(auth, str(project.iri))
-    project_obj["default_permissions"] = _get_default_permissions(perm_client)
+    project_doaps = perm_client.get_project_doaps()
+    project_obj["default_permissions"] = _get_default_permissions(project_doaps)
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
@@ -90,20 +91,26 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         )
 
 
-def _get_default_permissions(perm_client: PermissionsClient) -> str:
-    project_doaps = perm_client.get_project_doaps()
+def _get_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     if [x for x in project_doaps if x["forGroup"].endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
         return "unknown"  # legacy DOAPs
     proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
         return "unknown"
-    doap = proj_member_doaps[0]
-    if len(doap["hasPermissions"]) not in [2, 4]:
+    perms = proj_member_doaps[0]["hasPermissions"]
+    if len(perms) not in [2, 4]:
         return "unknown"
-    jsonpath_ng.ext.parse(
-        f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
-    ).find(project_definition)
-    return default_permissions
+    proj_adm_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectAdmin")]
+    proj_mem_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectMember")]
+    knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
+    unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
+    if not(len(proj_adm_perms) == len(proj_mem_perms) == 1):
+        return "unknown"
+    if len(knwn_usr_perms) == len(unkn_usr_perms) == 1:
+        return "public"
+    if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
+        return "private"
+    return "unknown"
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

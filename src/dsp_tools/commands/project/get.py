@@ -2,6 +2,7 @@ import json
 import warnings
 from typing import Any
 
+import jsonpath_ng.ext
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
@@ -13,6 +14,7 @@ from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.error.exceptions import BaseError
 
 
@@ -50,6 +52,9 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
+    perm_client = PermissionsClient(auth, str(project.iri))
+    project_obj["default_permissions"] = _get_default_permissions(perm_client)
+
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
     project_obj["users"] = _get_users(con, project, verbose)
@@ -83,6 +88,22 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         raise BaseError(
             f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
         )
+
+
+def _get_default_permissions(perm_client: PermissionsClient) -> str:
+    project_doaps = perm_client.get_project_doaps()
+    if [x for x in project_doaps if x["forGroup"].endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
+        return "unknown"  # legacy DOAPs
+    proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
+    if len(proj_member_doaps) != 1:
+        return "unknown"
+    doap = proj_member_doaps[0]
+    if len(doap["hasPermissions"]) not in [2, 4]:
+        return "unknown"
+    jsonpath_ng.ext.parse(
+        f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
+    ).find(project_definition)
+    return default_permissions
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

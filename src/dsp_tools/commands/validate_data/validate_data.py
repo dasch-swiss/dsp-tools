@@ -16,6 +16,7 @@ from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
@@ -32,6 +33,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclDockerValidator
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
@@ -74,6 +76,8 @@ def validate_data(
         Warnings and user info do not impede an xmlupload.
     """
     graph_save_dir = None
+    TURTLE_FILE_PATH.mkdir(exist_ok=True)
+
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
     config = ValidateDataConfig(
@@ -118,6 +122,9 @@ def _validate_data(
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
+    validator = ShaclDockerValidator(TURTLE_FILE_PATH)
+    validator.start_container()
+
     shacl_validator = ShaclValidator(auth.server)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
@@ -126,8 +133,10 @@ def _validate_data(
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
+        validator.stop_container()
         return False
     report = _get_validation_result(graphs, shacl_validator, config)
+    validator.stop_container()
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)

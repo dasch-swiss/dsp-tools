@@ -1,4 +1,6 @@
-import importlib.resources
+from importlib.resources import as_file
+from importlib.resources import files
+from pathlib import Path
 
 from rdflib import RDF
 from rdflib import SH
@@ -6,8 +8,10 @@ from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -30,7 +34,15 @@ def validate_ontology(
     Returns:
         A validation report if errors were found
     """
-    shacl_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")
+    with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
+        shacl_file = Path(shacl_file_path)
+    data_file = TURTLE_FILE_PATH / "ontologies.ttl"
+    onto_graph.serialize(data_file)
+    result_path = TURTLE_FILE_PATH / "ontology_validation_result.ttl"
+    paths = ValidationFilePaths(data_file=data_file, shacl_file=shacl_file, report_file=result_path)
+    # TODO: validate with docker
+
+    # TODO: write validation analysis functionality (parsing file, etc.)
     onto_shacl = Graph()
     onto_shacl = onto_shacl.parse(str(shacl_file))
     validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)

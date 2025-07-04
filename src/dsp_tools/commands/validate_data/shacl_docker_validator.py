@@ -14,64 +14,6 @@ class ShaclDockerValidator:
     file_directory: Path
     container_id: str | None = None
 
-    def start_container(self) -> None:
-        """
-        Start the Docker container for SHACL validation.
-
-        Returns:
-            True if container started successfully, False otherwise.
-        """
-        try:
-            if not self._image_exists():
-                if not self._pull_image():
-                    raise InternalError("Image could not be pulled.")
-            logger.debug("Starting SHACL validation container")
-            result = subprocess.run(
-                f"docker run -d -v {self.file_directory.absolute()}:/data "
-                f"--name shacl-validator {DOCKER_IMAGE} tail -f /dev/null".split(),
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            self.container_id = result.stdout.strip()
-            logger.debug(f"Container started with ID: {self.container_id}")
-        except subprocess.CalledProcessError as e:
-            raise InternalError(f"Failed to start container: {e.stderr}")
-
-    def _image_exists(self) -> bool:
-        """Check if the Docker image exists locally."""
-        try:
-            subprocess.run(
-                f"docker image inspect {DOCKER_IMAGE}".split(),
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            return True
-        except subprocess.CalledProcessError:
-            return False
-
-    def _pull_image(self) -> bool:
-        """
-        Pull the SHACL CLI Docker image if it doesn't exist.
-
-        Returns:
-            True if image was pulled successfully or already exists, False otherwise.
-        """
-        try:
-            logger.debug(f"Pulling Docker image: {DOCKER_IMAGE}")
-            subprocess.run(
-                f"docker pull {DOCKER_IMAGE}",
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            logger.debug("Docker image pulled successfully")
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to pull Docker image: {e.stderr}")
-            return False
-
     def validate(self, shacl_file: Path, data_file: Path, report_file: Path) -> None:
         """
         Run SHACL validation on the provided files.
@@ -132,13 +74,62 @@ class ShaclDockerValidator:
                 report_file=config["report_file"],
             )
 
-    def stop_container(self) -> None:
-        """
-        Stop and remove the Docker container.
+    def __enter__(self):
+        """Context manager entry - start the container automatically."""
+        if not self._start_container():
+            raise RuntimeError("Failed to start SHACL validation container")
+        return self
 
-        Returns:
-            True if container was stopped successfully, False otherwise.
-        """
+    def _start_container(self) -> None:
+        try:
+            if not self._local_image_exists():
+                if not self._pull_image():
+                    raise InternalError("Image could not be pulled.")
+            logger.debug("Starting SHACL validation container")
+            result = subprocess.run(
+                f"docker run -d -v {self.file_directory.absolute()}:/data "
+                f"--name shacl-validator {DOCKER_IMAGE} tail -f /dev/null".split(),
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            self.container_id = result.stdout.strip()
+            logger.debug(f"Container started with ID: {self.container_id}")
+        except subprocess.CalledProcessError as e:
+            raise InternalError(f"Failed to start container: {e.stderr}")
+
+    def _local_image_exists(self) -> bool:
+        try:
+            subprocess.run(
+                f"docker image inspect {DOCKER_IMAGE}".split(),
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+    def _pull_image(self) -> bool:
+        try:
+            logger.debug(f"Pulling Docker image: {DOCKER_IMAGE}")
+            subprocess.run(
+                f"docker pull {DOCKER_IMAGE}",
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            logger.debug("Docker image pulled successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to pull Docker image: {e.stderr}")
+            return False
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - stop the container automatically."""
+        self._stop_container()
+
+    def _stop_container(self) -> None:
         if not self.container_id:
             logger.warning("No container to stop")
         try:
@@ -159,13 +150,3 @@ class ShaclDockerValidator:
             self.container_id = None
         except subprocess.CalledProcessError as e:
             raise InternalError(f"Failed to stop container: {e.stderr}")
-
-    def __enter__(self):
-        """Context manager entry - start the container."""
-        if not self.start_container():
-            raise RuntimeError("Failed to start SHACL validation container")
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit - stop the container."""
-        self.stop_container()

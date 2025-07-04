@@ -27,8 +27,13 @@ class ShaclDockerValidator:
             True if image was pulled successfully or already exists, False otherwise.
         """
         try:
-            logger.debug(f"Pulling Docker image: {self.DOCKER_IMAGE}")
-            result = subprocess.run(["docker", "pull", self.DOCKER_IMAGE], capture_output=True, text=True, check=True)
+            logger.debug(f"Pulling Docker image: {DOCKER_IMAGE}")
+            subprocess.run(
+                f"docker pull {DOCKER_IMAGE}",
+                capture_output=True,
+                text=True,
+                check=True,
+            )
             logger.debug("Docker image pulled successfully")
             return True
         except subprocess.CalledProcessError as e:
@@ -50,19 +55,8 @@ class ShaclDockerValidator:
 
             logger.debug("Starting SHACL validation container")
             result = subprocess.run(
-                [
-                    "docker",
-                    "run",
-                    "-d",
-                    "-v",
-                    f"{self.file_directory.absolute()}:/data",
-                    "--name",
-                    "shacl-validator",
-                    self.DOCKER_IMAGE,
-                    "tail",
-                    "-f",
-                    "/dev/null",  # Keep container running
-                ],
+                f"docker run -d -v {self.file_directory.absolute()}:/data "
+                f"--name shacl-validator {DOCKER_IMAGE} tail -f /dev/null".split(),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -109,18 +103,8 @@ class ShaclDockerValidator:
             logger.debug(f"Running SHACL validation: {shacl_file.name} -> {data_file.name}")
 
             result = subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    self.container_id,
-                    "validate",
-                    "--shacl",
-                    shacl_path,
-                    "--data",
-                    data_path,
-                    "--report",
-                    report_path,
-                ],
+                f"docker exec {self.container_id} validate "
+                f"--shacl {shacl_path} --data {data_path} --report {report_path}",
                 capture_output=True,
                 text=True,
                 check=True,
@@ -174,10 +158,18 @@ class ShaclDockerValidator:
 
         try:
             logger.debug(f"Stopping container: {self.container_id}")
-            subprocess.run(["docker", "stop", self.container_id], capture_output=True, text=True, check=True)
-
-            subprocess.run(["docker", "rm", self.container_id], capture_output=True, text=True, check=True)
-
+            subprocess.run(
+                f"docker stop {self.container_id}".split(),
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            subprocess.run(
+                f"docker rm {self.container_id}".split(),
+                capture_output=True,
+                text=True,
+                check=True,
+            )
             logger.debug("Container stopped and removed")
             self.container_id = None
             return True
@@ -189,8 +181,11 @@ class ShaclDockerValidator:
     def _image_exists(self) -> bool:
         """Check if the Docker image exists locally."""
         try:
-            result = subprocess.run(
-                ["docker", "image", "inspect", DOCKER_IMAGE], capture_output=True, text=True, check=True
+            subprocess.run(
+                f"docker image inspect {DOCKER_IMAGE}".split(),
+                capture_output=True,
+                text=True,
+                check=True,
             )
             return True
         except subprocess.CalledProcessError:

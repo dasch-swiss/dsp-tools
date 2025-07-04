@@ -1128,18 +1128,10 @@
                     "type": "object",
                     "properties": {
                         "private": {
-                            "oneOf": [
-                                {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": ["all"]
-                                }
-                            ]
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "limited_view": {
                             "oneOf": [
@@ -1236,7 +1228,28 @@
                 "keywords",
                 "default_permissions"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "default_permissions": {
+                                "const": "private"
+                            }
+                        },
+                        "required": [
+                            "default_permissions"
+                        ]
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "default_permissions_overrule"
+                            ]
+                        }
+                    }
+                }
+            ]
         }
     },
     "required": [

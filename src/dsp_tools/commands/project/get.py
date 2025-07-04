@@ -99,7 +99,7 @@ def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)
     """If the DOAPs exactly match our definition of public/private, return public/private. Otherwise, return unknown."""
-    if [x for x in project_doaps if x["forGroup"].endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
+    if [x for x in project_doaps if x.get("forGroup", "").endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
         return "unknown"
     proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:

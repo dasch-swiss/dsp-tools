@@ -24,15 +24,6 @@
             "http://rdfh.ch/licenses/ai-generated"
         ],
         "default_permissions": "public",
-        "default_permissions_overrule": {
-            "private": [
-                ":PrivateThing",
-                "testonto:hasPrivateText"
-            ],
-            "limited_view": [
-                "testontoPermissions:ImageThingPermissions"
-            ]
-        },
         "groups": [
             {
                 "name": "testgroupEditors",
@@ -290,17 +281,6 @@
                             "en": "hasTextArea"
                         },
                         "gui_element": "Textarea"
-                    },
-                    {
-                        "name": "hasPrivateText",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasPrivateText"
-                        },
-                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasUri",
@@ -598,11 +578,6 @@
                                 "propname": ":hasMovingImageRepresentation",
                                 "cardinality": "0-n",
                                 "gui_order": 16
-                            },
-                            {
-                                "propname": ":hasPrivateText",
-                                "cardinality": "0-n",
-                                "gui_order": 17
                             }
                         ]
                     },
@@ -649,19 +624,6 @@
                             {
                                 "propname": ":hasTestThing",
                                 "gui_order": 1,
-                                "cardinality": "0-n"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "PrivateThing",
-                        "super": "Resource",
-                        "labels": {
-                            "en": "PrivateThing"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
                                 "cardinality": "0-n"
                             }
                         ]

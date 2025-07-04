@@ -46,7 +46,12 @@ A complete project definition looks like this:
     "enabled_licenses": [
         ...
     ],
-    "default_permissions": ...,
+    "default_permissions": "public|private",
+    "default_permissions_overrule": {  // "private" can NOT be overruled
+        "private": [...],
+        "limited_view": "all" | [...],
+        // "public" can never appear here
+    }
     "groups": [
       ...
     ],
@@ -120,6 +125,7 @@ The `project` object contains the basic metadata about the project. The followin
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
+- default_permissions_overrule
 - groups
 - users
 - lists
@@ -216,6 +222,26 @@ Defines the permissions that will be applied to new resources/values.
     When creating a new resource/value via xmlupload,
     it is possible to overrule this default with `<resource permissions="something-else">`.
     See [here](../xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
+
+
+### `default_permissions_overrule`
+
+(optional)
+
+```json
+"default_permissions": "public|private",
+"default_permissions_overrule": {  // "private" can NOT be overruled
+    "private": [
+        "my-onto:PrivateResource",
+        "my-onto:privateProp"
+    ],
+    "limited_view": "all" | [
+      "my-onto:Image",  // only StillImageRepresentations can appear here
+    ],
+    // "public" can never appear here
+}
+```
+
 
 
 ### `groups`

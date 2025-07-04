@@ -98,8 +98,9 @@ def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -
 
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)
+    """If the DOAPs exactly match our definition of public/private, return public/private. Otherwise, return unknown."""
     if [x for x in project_doaps if x["forGroup"].endswith(("SystemAdmin", "ProjectAdmin", "Creator", "nownUser"))]:
-        return "unknown"  # legacy DOAPs
+        return "unknown"
     proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
         return "unknown"
@@ -112,11 +113,15 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # n
     unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
     if not (len(proj_adm_perms) == len(proj_mem_perms) == 1):
         return "unknown"
-    if len(knwn_usr_perms) == len(unkn_usr_perms) == 1:
-        return "public"
+    if proj_adm_perms[0]["name"] != "CR" or proj_mem_perms[0]["name"] != "D":
+        return "unknown"
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
         return "private"
-    return "unknown"
+    if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
+        return "unknown"
+    if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
+        return "unknown"
+    return "public"
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

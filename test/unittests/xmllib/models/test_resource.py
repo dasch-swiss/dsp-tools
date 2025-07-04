@@ -277,7 +277,7 @@ class TestAddValues:
     def test_add_simple_text_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '' is empty. Please enter a valid string."),
+            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_simpletext("", "")
 

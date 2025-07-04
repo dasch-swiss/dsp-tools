@@ -46,7 +46,11 @@ A complete project definition looks like this:
     "enabled_licenses": [
         ...
     ],
-    "default_permissions": ...,
+    "default_permissions": "public|private",
+    "default_permissions_overrule": {
+        "private": [...],
+        "limited_view": "all" | [...],
+    }
     "groups": [
       ...
     ],
@@ -120,6 +124,7 @@ The `project` object contains the basic metadata about the project. The followin
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
+- default_permissions_overrule (only if default_permissions = public)
 - groups
 - users
 - lists
@@ -216,6 +221,33 @@ Defines the permissions that will be applied to new resources/values.
     When creating a new resource/value via xmlupload,
     it is possible to overrule this default with `<resource permissions="something-else">`.
     See [here](../xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
+
+
+### `default_permissions_overrule`
+
+(optional)
+
+If the `default_permissions` are `public`,
+you can define exceptions, by marking certain classes or properties as `private` or `limited_view`:
+
+- `private`: classes and/or properties that will only be visible for ProjectAdmins and ProjectMembers
+- `limited_view`: image classes which will be blurred/watermarked for users outside of your project.
+  `all` means all image classes.
+
+```json
+"default_permissions": "public|private",
+"default_permissions_overrule": {  // only "public" can be overruled
+    "private": [
+        "my-onto:PrivateResource",
+        "my-onto:privateProp"
+    ],
+    "limited_view": "all" | [  // "all" means all subclasses of StillImageRepresentation
+      "my-onto:Image1",
+      "my-onto:Image2",  // only subclasses of StillImageRepresentation can appear here
+    ],
+}
+```
+
 
 
 ### `groups`

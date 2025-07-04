@@ -15,6 +15,15 @@
             "http://rdfh.ch/licenses/cc-by-nc-4.0"
         ],
         "default_permissions": "public",
+        "default_permissions_overrule": {
+            "private": [
+                "second-onto:PrivatePermissionsResource",
+                "second-onto:privateProp"
+            ],
+            "limited_view": [
+                "e2e-testonto:ImageResource"
+            ]
+        },
         "ontologies": [
             {
                 "name": "e2e-testonto",
@@ -95,13 +104,11 @@
                         "cardinalities": [
                             {
                                 "propname": ":defaultPermissionsProp",
-                                "cardinality": "0-1",
-                                "gui_order": 1
+                                "cardinality": "0-1"
                             },
                             {
                                 "propname": ":privateProp",
-                                "cardinality": "0-1",
-                                "gui_order": 2
+                                "cardinality": "0-1"
                             }
                         ]
                     },
@@ -112,11 +119,14 @@
                             "en": "Resource with private permissions"
                         },
                         "cardinalities": [
-                            {
-                                "propname": ":privateProp",
-                                "cardinality": "0-1",
-                                "gui_order": 2
-                            }
+                          {
+                              "propname": ":defaultPermissionsProp",
+                              "cardinality": "0-1"
+                          },
+                          {
+                              "propname": ":privateProp",
+                              "cardinality": "0-1"
+                          }
                         ]
                     }
                 ]

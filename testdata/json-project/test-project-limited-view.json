@@ -1,0 +1,74 @@
+{
+  "$schema": "../../src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "4124",
+    "shortname": "limited-view-tp",
+    "longname": "limited view project",
+    "descriptions": {
+      "en": "A project to test limited view"
+    },
+    "keywords": ["limited-view"],
+    "default_permissions": "public",
+    "default_permissions_overrule": {
+      "limited_view": "all"
+    },
+    "ontologies": [
+      {
+        "name": "testonto",
+        "label": "Test ontology",
+        "properties": [
+          {
+            "name": "hasText",
+            "super": ["hasValue"],
+            "object": "TextValue",
+            "labels": {
+              "en": "Text"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "Image1",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "Image1"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "cardinality": "0-n"
+              }
+            ]
+          },
+          {
+            "name": "Image2",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "Image2"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "cardinality": "0-n"
+              }
+            ]
+          },
+          {
+            "name": "NormalThing",
+            "super": "Resource",
+            "labels": {
+              "en": "NormalThing"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText",
+                "cardinality": "0-n"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

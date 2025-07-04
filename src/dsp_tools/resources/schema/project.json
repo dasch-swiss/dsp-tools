@@ -1130,7 +1130,7 @@
                         "private": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/prefixedname"
                             }
                         },
                         "limited_view": {
@@ -1138,7 +1138,7 @@
                                 {
                                     "type": "array",
                                     "items": {
-                                        "type": "string"
+                                        "$ref": "#/definitions/prefixedname"
                                     }
                                 },
                                 {

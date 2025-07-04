@@ -53,3 +53,10 @@ def test_parse_default_permissions_previous_standard(public_perms: dict[str, Any
     public_perms_admin = public_perms.copy()
     public_perms_admin["forGroup"] = f"{USER_IRI_PREFIX}ProjectAdmin"
     assert _parse_default_permissions([public_perms_admin, public_perms]) == "unknown"
+
+
+def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) -> None:
+    public_perms["hasPermissions"].append(
+        {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}
+    )
+    assert _parse_default_permissions([public_perms]) == "unknown"

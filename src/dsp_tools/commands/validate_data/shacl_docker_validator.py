@@ -4,6 +4,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.error.exceptions import InternalError
 
 DOCKER_IMAGE = "daschswiss/shacl-cli:latest"
@@ -83,30 +84,19 @@ class ShaclDockerValidator:
         except subprocess.CalledProcessError as e:
             raise InternalError(f"Failed to stop container: {e.stderr}")
 
-    def validate(self, shacl_file: Path, data_file: Path, report_file: Path) -> None:
-        """
-        Run SHACL validation on the provided files.
-
-        Args:
-            shacl_file: Path to the SHACL shapes file
-            data_file: Path to the RDF data file
-            report_file: Path where validation report should be saved
-
-        Returns:
-            True if validation completed successfully, False otherwise.
-        """
+    def validate(self, file_paths: ValidationFilePaths) -> None:
         if not self.container_id:
             raise InternalError("Container not started. Call start_container() first.")
         try:
-            if not shacl_file.exists():
-                raise InternalError(f"SHACL file not found: {shacl_file}")
-            if not data_file.exists():
-                raise InternalError(f"Data file not found: {data_file}")
+            if not file_paths.shacl_file.exists():
+                raise InternalError(f"SHACL file not found: {file_paths.shacl_file}")
+            if not file_paths.data_file.exists():
+                raise InternalError(f"Data file not found: {file_paths.data_file}")
 
             # Get relative paths within the container
-            shacl_path = f"/data/{shacl_file.name}"
-            data_path = f"/data/{data_file.name}"
-            report_path = f"/data/{report_file.name}"
+            shacl_path = f"/data/{file_paths.shacl_file.name}"
+            data_path = f"/data/{file_paths.data_file.name}"
+            report_path = f"/data/{file_paths.report_file.name}"
 
             d_cmd = (
                 f"docker exec {self.container_id} validate "
@@ -119,7 +109,7 @@ class ShaclDockerValidator:
                 text=True,
                 check=True,
             )
-            logger.debug(f"Validation completed. Report saved to: {report_file}")
+            logger.debug(f"Validation completed. Report saved to: {file_paths.report_file}")
             if result.stdout:
                 logger.debug(f"Validation output: {result.stdout}")
         except subprocess.CalledProcessError as e:

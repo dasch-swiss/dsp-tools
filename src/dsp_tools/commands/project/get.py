@@ -93,7 +93,11 @@ def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -
     project_doaps = perm_client.get_project_doaps()
     result = _parse_default_permissions(project_doaps)
     if result == "unknown":
-        return "Please find the DOAPs in the logging file, and find out if they are public or private."
+        return (
+            "We cannot determine if this project is public or private. "
+            "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
+            "and help you deciding if the original intent was rather public or rather private."
+        )
     return result
 
 

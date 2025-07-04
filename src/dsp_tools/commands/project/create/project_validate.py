@@ -76,7 +76,7 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
                 "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
                 "Private permissions cannot be overruled."
             ) from None
-        
+
         raise BaseError(
             f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
             f"The error occurred at {err.json_path}:\n{err.instance}"

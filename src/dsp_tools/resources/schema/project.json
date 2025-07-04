@@ -1124,6 +1124,40 @@
                         "private"
                     ]
                 },
+                "default_permissions_overrule": {
+                    "type": "object",
+                    "properties": {
+                        "private": {
+                            "oneOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                {
+                                    "type": "string",
+                                    "enum": ["all"]
+                                }
+                            ]
+                        },
+                        "limited_view": {
+                            "oneOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                {
+                                    "type": "string",
+                                    "enum": ["all"]
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
+                },
                 "longname": {
                     "type": "string"
                 },

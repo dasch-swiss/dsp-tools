@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
+from pathlib import Path
 
 from rdflib import Graph
 
@@ -30,6 +31,14 @@ class RDFGraphStrings:
     cardinality_shapes: str
     content_validation_data: str
     content_shapes: str
+
+
+@dataclass
+class ValidationInfo:
+    validation_type: str
+    data_filepath: Path
+    shacl_filepath: Path
+    result_filepath: Path
 
 
 @dataclass

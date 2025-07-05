@@ -52,7 +52,7 @@ class ShaclDockerValidator:
         try:
             logger.debug(f"Pulling Docker image: {DOCKER_IMAGE}")
             subprocess.run(
-                f"docker pull {DOCKER_IMAGE}",
+                f"docker pull {DOCKER_IMAGE}".split(),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -98,13 +98,17 @@ class ShaclDockerValidator:
             data_path = f"/data/{file_paths.data_file.name}"
             report_path = f"/data/{file_paths.report_file.name}"
 
-            d_cmd = (
-                f"docker exec {self.container_id} validate "
-                f"--shacl {shacl_path} --data {data_path} --report {report_path}"
-            )
+            d_cmd = [
+                "docker",
+                "exec",
+                self.container_id,
+                "sh",
+                "-c",
+                f"validate --shacl {shacl_path} --data {data_path} --report {report_path}",
+            ]
             logger.debug(f"Running SHACL validation: {d_cmd}")
             result = subprocess.run(
-                d_cmd.split(),
+                d_cmd,
                 capture_output=True,
                 text=True,
                 check=True,

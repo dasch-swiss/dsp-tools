@@ -1,3 +1,4 @@
+import shutil
 from importlib.resources import as_file
 from importlib.resources import files
 from pathlib import Path
@@ -8,11 +9,13 @@ from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_VALIDATION_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
+from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclDockerValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -20,7 +23,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclValidator, config: ValidateDataConfig
+    onto_graph: Graph, shacl_validator: ShaclValidator, docker_val: ShaclDockerValidator, config: ValidateDataConfig
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -37,10 +40,14 @@ def validate_ontology(
     """
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
+        shutil.copy(shacl_file, ONTOLOGIES_SHACL_TTL)
     onto_graph.serialize(ONTOLOGIES_TTL)
-    paths = ValidationFilePaths(data_file=ONTOLOGIES_TTL, shacl_file=shacl_file, report_file=ONTOLOGIES_VALIDATION_TTL)
-    # TODO: validate with docker
-
+    paths = ValidationFilePaths(
+        data_file=ONTOLOGIES_TTL,
+        shacl_file=ONTOLOGIES_SHACL_TTL,
+        report_file=ONTOLOGIES_VALIDATION_TTL,
+    )
+    docker_val.validate(paths)
     # TODO: write validation analysis functionality (parsing file, etc.)
     onto_shacl = Graph()
     onto_shacl = onto_shacl.parse(str(shacl_file))

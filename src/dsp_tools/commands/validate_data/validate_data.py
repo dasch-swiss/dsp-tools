@@ -126,7 +126,7 @@ def _validate_data(
     validator.start_container()
 
     shacl_validator = ShaclValidator(auth.server)
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.error(msg)

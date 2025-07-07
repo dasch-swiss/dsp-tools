@@ -275,8 +275,9 @@ def test_remove_duplicate_file_message():
     )
     result = sort_user_problems(AllProblems([file_missing_result, file_closed_constraint], []))
     assert len(result.unique_violations) == 1
+    assert len(result.user_warnings) == 0
     assert len(result.user_info) == 0
-    returned_info = result.user_info.pop(0)
+    returned_info = result.unique_violations.pop(0)
     assert returned_info.problem_type == ProblemType.FILE_VALUE_MISSING
     assert returned_info.res_id == "wrong_file_type"
     assert returned_info.res_type == "onto:TestMovingImageRepresentation"
@@ -284,6 +285,41 @@ def test_remove_duplicate_file_message():
     assert returned_info.severity == Severity.VIOLATION
     assert returned_info.expected == "This resource requires a file with one of the following extensions: 'mp4'"
     assert returned_info.input_value == "file.mp4"
+
+
+def test_remove_duplicate_file_message_only_prohibited():
+    file_closed_constraint = InputProblem(
+        problem_type=ProblemType.FILE_VALUE_PROHIBITED,
+        res_id="wrong_file_type",
+        res_type="onto:TestMovingImageRepresentation",
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
+        expected="Property knora-api:hasMovingImageFileValue is not among those permitted for any of the types",
+        input_value="file.mp4",
+    )
+    result = sort_user_problems(AllProblems([file_closed_constraint], []))
+    assert len(result.unique_violations) == 1
+    assert len(result.user_warnings) == 0
+    assert len(result.user_info) == 0
+    returned_info = result.unique_violations.pop(0)
+    assert returned_info.problem_type == ProblemType.FILE_VALUE_PROHIBITED
+
+
+def test_remove_duplicate_file_message_only_missing():
+    file_missing_result = InputProblem(
+        problem_type=ProblemType.FILE_VALUE_MISSING,
+        res_id="wrong_file_type",
+        res_type="onto:TestMovingImageRepresentation",
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
+        expected="This resource requires a file with one of the following extensions: 'mp4'",
+    )
+    result = sort_user_problems(AllProblems([file_missing_result], []))
+    assert len(result.unique_violations) == 1
+    assert len(result.user_warnings) == 0
+    assert len(result.user_info) == 0
+    returned_info = result.unique_violations.pop(0)
+    assert returned_info.problem_type == ProblemType.FILE_VALUE_MISSING
 
 
 def test_sort_user_problems_different_props():

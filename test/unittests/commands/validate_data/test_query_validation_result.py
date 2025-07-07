@@ -502,16 +502,9 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
-    def test_file_value_cardinality_to_ignore(self, report_file_value_wrong_image_type_closed_constraint) -> None:
-        graphs, info = report_file_value_wrong_image_type_closed_constraint
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert result is None
-
-    def test_file_value_for_resource_without_representation(
-        self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
-    ) -> None:
-        graphs, info = file_value_for_resource_without_representation
-        result = _query_one_without_detail(info, graphs, Graph())
+    def test_file_value_for_resource_without_representation(self, report_file_closed_constraint) -> None:
+        graphs, info = report_file_closed_constraint
+        result = _query_one_without_detail(info, graphs, graphs)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri
@@ -700,9 +693,9 @@ class TestReformatResult:
         assert result.input_value == "with newline"
 
     def test_file_value_for_resource_without_representation(
-        self, extracted_file_value_for_resource_without_representation: ValidationResult
+        self, extracted_file_closed_constraint: ValidationResult
     ) -> None:
-        result = _reformat_one_validation_result(extracted_file_value_for_resource_without_representation)
+        result = _reformat_one_validation_result(extracted_file_closed_constraint)
         assert result.problem_type == ProblemType.FILE_VALUE_PROHIBITED
         assert result.res_id == "id_resource_without_representation"
         assert result.res_type == "onto:ClassWithEverything"

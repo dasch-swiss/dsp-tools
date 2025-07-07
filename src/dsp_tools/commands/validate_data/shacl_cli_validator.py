@@ -55,8 +55,12 @@ class ShaclCliValidator:
         )
         if result.stdout:
             logger.debug(f"Validation output: {result.stdout}")
+        if result.stderr:
+            logger.error(f"Validation output error: {result.stderr}")
 
     def _parse_validation_result(self, filepath: Path) -> SHACLValidationReport:
+        if not filepath.exists():
+            raise InternalError(f"SHACL file not found: {filepath}")
         logger.debug(f"Parse validation response: {filepath}.")
         graph = Graph()
         graph.parse(filepath)

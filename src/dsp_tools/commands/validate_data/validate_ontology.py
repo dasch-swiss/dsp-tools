@@ -8,9 +8,9 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
-from dsp_tools.commands.validate_data.constants import ONTOLOGIES_VALIDATION_TTL
 from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -46,7 +46,7 @@ def validate_ontology(
         directory=TURTLE_FILE_PATH,
         data_file=ONTOLOGIES_TTL,
         shacl_file=ONTOLOGIES_SHACL_TTL,
-        report_file=ONTOLOGIES_VALIDATION_TTL,
+        report_file=ONTOLOGIES_REPORT_TTL,
     )
     validation_result = shacl_validator.validate(paths)
     if validation_result.conforms:

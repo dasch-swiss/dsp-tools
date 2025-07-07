@@ -1124,6 +1124,32 @@
                         "private"
                     ]
                 },
+                "default_permissions_overrule": {
+                    "type": "object",
+                    "properties": {
+                        "private": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/prefixedname"
+                            }
+                        },
+                        "limited_view": {
+                            "oneOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/prefixedname"
+                                    }
+                                },
+                                {
+                                    "type": "string",
+                                    "enum": ["all"]
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
+                },
                 "longname": {
                     "type": "string"
                 },
@@ -1202,7 +1228,25 @@
                 "keywords",
                 "default_permissions"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "default_permissions": {
+                                "const": "private"
+                            }
+                        }
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "default_permissions_overrule"
+                            ]
+                        }
+                    }
+                }
+            ]
         }
     },
     "required": [

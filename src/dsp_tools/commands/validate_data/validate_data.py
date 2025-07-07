@@ -122,10 +122,8 @@ def _validate_data(
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    validator = ShaclCliValidator(TURTLE_FILE_PATH)
-
-    shacl_validator = ShaclValidator(auth.server)
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, validator, config)
+    cli_validator = ShaclCliValidator(TURTLE_FILE_PATH)
+    onto_validation_result = validate_ontology(graphs.ontos, cli_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.error(msg)
@@ -133,6 +131,7 @@ def _validate_data(
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
+    shacl_validator = ShaclValidator(auth.server)
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
         logger.debug("No validation errors found.")

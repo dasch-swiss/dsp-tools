@@ -11,7 +11,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationFilePat
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ValidationCliError
 
-DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.2"
+DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.5"
 
 
 @dataclass

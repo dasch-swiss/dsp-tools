@@ -503,8 +503,8 @@ class TestQueryFileValueViolations:
         assert result.expected == Literal("Cardinality 1")
 
     def test_file_value_for_resource_without_representation(self, report_file_closed_constraint) -> None:
-        graphs, info = report_file_closed_constraint
-        result = _query_one_without_detail(info, graphs, graphs)
+        result_g, data_g, info = report_file_closed_constraint
+        result = _query_one_without_detail(info, result_g, data_g)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri

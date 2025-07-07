@@ -130,7 +130,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [ a sh:ValidationResult ;
     sh:focusNode <http://data/id_resource_without_representation> ;
@@ -149,11 +149,12 @@ def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, ValidationR
     <http://data/fileBn> a knora-api:MovingImageFileValue ;
         knora-api:fileValueHasFilename "file.mp4"^^xsd:string .
     """
-    graphs = Graph()
-    graphs.parse(data=validation_str, format="ttl")
-    graphs.parse(data=data_str, format="ttl")
-    graphs += onto_graph
-    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    result_g = Graph()
+    result_g.parse(data=validation_str, format="ttl")
+    data_g = Graph()
+    data_g.parse(data=data_str, format="ttl")
+    result_g += onto_graph
+    val_bn = next(result_g.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
@@ -162,7 +163,7 @@ def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, ValidationR
         result_path=KNORA_API.hasMovingImageFileValue,
         severity=SH.Violation,
     )
-    return graphs, base_info
+    return result_g, data_g, base_info
 
 
 @pytest.fixture

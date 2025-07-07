@@ -213,7 +213,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 expected=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return _query_for_non_existent_cardinality_violation(base_info, data)
+            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
@@ -278,12 +278,12 @@ def _query_class_constraint_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(
-    base_info: ValidationResultBaseInfo, data: Graph
+    base_info: ValidationResultBaseInfo, result_onto: Graph, data: Graph
 ) -> ValidationResult | None:
     input_val = None
     if base_info.result_path in FILE_VALUE_PROPERTIES:
         violation_type = ViolationType.FILE_VALUE_PROHIBITED
-        if value_bn_found := list(data.objects(base_info.result_bn, SH.value)):
+        if value_bn_found := list(result_onto.objects(base_info.result_bn, SH.value)):
             value_bn = value_bn_found.pop(0)
             if file_path := list(data.objects(value_bn, KNORA_API.fileValueHasFilename)):
                 input_val = file_path.pop(0)

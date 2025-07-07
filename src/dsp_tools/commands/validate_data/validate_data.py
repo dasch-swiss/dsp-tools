@@ -33,7 +33,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
-from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclDockerValidator
+from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
@@ -122,7 +122,7 @@ def _validate_data(
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    validator = ShaclDockerValidator(TURTLE_FILE_PATH)
+    validator = ShaclCliValidator(TURTLE_FILE_PATH)
 
     shacl_validator = ShaclValidator(auth.server)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, validator, config)

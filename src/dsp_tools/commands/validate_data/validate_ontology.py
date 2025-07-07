@@ -8,14 +8,13 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
-from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_VALIDATION_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
-from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclDockerValidator
+from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -23,7 +22,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclValidator, docker_val: ShaclDockerValidator, config: ValidateDataConfig
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -32,7 +31,7 @@ def validate_ontology(
 
     Args:
         onto_graph: the graph of the project ontologies
-        shacl_validator: connection to the API for the validation
+        shacl_validator: SHACL CLI validator
         config: The configuration where to save the information to
 
     Returns:
@@ -47,11 +46,7 @@ def validate_ontology(
         shacl_file=ONTOLOGIES_SHACL_TTL,
         report_file=ONTOLOGIES_VALIDATION_TTL,
     )
-    docker_val.validate(paths)
-    # TODO: write validation analysis functionality (parsing file, etc.)
-    onto_shacl = Graph()
-    onto_shacl = onto_shacl.parse(str(shacl_file))
-    validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)
+    validation_result = shacl_validator.validate(paths)
     if validation_result.conforms:
         return None
     if config.save_graph_dir:

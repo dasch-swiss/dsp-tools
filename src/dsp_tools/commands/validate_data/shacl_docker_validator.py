@@ -14,7 +14,7 @@ DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.2"
 
 
 @dataclass
-class ShaclDockerValidator:
+class ShaclCliValidator:
     file_directory: Path
 
     def validate(self, file_paths: ValidationFilePaths) -> SHACLValidationReport:

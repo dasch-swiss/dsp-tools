@@ -13,8 +13,8 @@ to ensure data conforms to ontological constraints before upload.
 ### Core Entry Points
 
 - **validate_data.py**: Main validation orchestrator with two public functions:
-  - `validate_data()`: Validates XML files from filesystem
-  - `validate_parsed_resources()`: Validates pre-parsed resources (used by the CLI commands `xmlupload` and `ingest-xmlupload`)
+    - `validate_data()`: Validates XML files from filesystem
+    - `validate_parsed_resources()`: Validates pre-parsed resources (used by the CLI commands `xmlupload` and `ingest-xmlupload`)
 
 ### API Clients (`api_clients.py`)
 
@@ -45,7 +45,7 @@ to ensure data conforms to ontological constraints before upload.
 
 ### Validation Flow
 
-```
+```text
 XML file → ParsedResource → RDF-like data → RDF Graph
                                               ↓
 Project ontology → SHACL shapes ← ← ← ← ← ← ← ← 
@@ -58,9 +58,9 @@ Project ontology → SHACL shapes ← ← ← ← ← ← ← ←
 ### Four-Stage Validation
 
 1. **Unknown Classes**: Ensure that no classes are used in the data that are not defined in the ontology. 
-   If unknown classes are found, the validation process ends with an error.
+   If unknown classes are found, the validation process ends with an error message to the user.
 2. **Ontology Validation**: Validate that the ontology itself is correct.
-   If errors are found, the validation process ends with an error.
+   If errors are found, the validation process ends with an error message to the user.
 3. **Cardinality Validation**: Checks min/max cardinality constraints
 4. **Content Validation**: Validates actual values, types, and patterns
 
@@ -79,6 +79,7 @@ Project ontology → SHACL shapes ← ← ← ← ← ← ← ←
 ### Problem Categorization
 
 Validation results are categorized into:
+
 - **Violations**: Critical errors that prevent xmlupload
 - **Warnings**: Issues that block upload on production servers
 - **Info**: Potential problems that don't block upload

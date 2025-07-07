@@ -27,7 +27,7 @@ def generic_problem() -> InputProblem:
 @pytest.fixture
 def file_value() -> InputProblem:
     return InputProblem(
-        problem_type=ProblemType.FILE_VALUE,
+        problem_type=ProblemType.FILE_VALUE_MISSING,
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
@@ -406,7 +406,7 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
     [
         (
             "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
-            ProblemType.FILE_VALUE,
+            ProblemType.FILE_VALUE_MISSING,
             "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
         ),
         (

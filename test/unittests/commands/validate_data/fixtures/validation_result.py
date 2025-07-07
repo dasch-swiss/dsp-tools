@@ -130,7 +130,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+def report_file_value_wrong_image_type_closed_constraint(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [   a sh:ValidationResult ;
     sh:focusNode <http://data/id_wrong_file_type> ;
@@ -145,6 +145,9 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
     <http://data/id_wrong_file_type> a onto:TestStillImageRepresentation ;
         rdfs:label "TestStillImageRepresentation File mp4"^^xsd:string ;
         knora-api:hasMovingImageFileValue <http://data/fileValueBn> .
+        
+    <http://data/fileValueBn> a knora-api:MovingImageFileValue ;
+        knora-api:fileValueHasFilename "wrong_file_type.mp4"^^xsd:string .
     """
     graphs = Graph()
     graphs.parse(data=validation_str, format="ttl")
@@ -160,6 +163,18 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
         severity=SH.Violation,
     )
     return graphs, base_info
+
+
+@pytest.fixture
+def extracted_file_value_wrong_image_type_closed_constraint() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.FILE_VALUE_PROHIBITED,
+        res_iri=DATA.id_wrong_file_type,
+        res_class=ONTO.TestStillImageRepresentation,
+        property=ONTO.hasMovingImageFileValue,
+        severity=SH.Violation,
+        input_value=Literal("wrong_file_type.mp4"),
+    )
 
 
 @pytest.fixture
@@ -198,7 +213,7 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
 @pytest.fixture
 def extracted_file_value_for_resource_without_representation() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILEVALUE_PROHIBITED,
+        violation_type=ViolationType.FILE_VALUE_PROHIBITED,
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,

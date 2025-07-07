@@ -502,10 +502,8 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
-    def test_file_value_cardinality_to_ignore(
-        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
-    ) -> None:
-        graphs, info = file_value_cardinality_to_ignore
+    def test_file_value_cardinality_to_ignore(self, report_file_value_wrong_image_type_closed_constraint) -> None:
+        graphs, info = report_file_value_wrong_image_type_closed_constraint
         result = _query_one_without_detail(info, graphs, Graph())
         assert result is None
 
@@ -515,7 +513,7 @@ class TestQueryFileValueViolations:
         graphs, info = file_value_for_resource_without_representation
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
@@ -673,7 +671,7 @@ class TestReformatResult:
 
     def test_missing_file_value(self, extracted_missing_file_value: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
-        assert result.problem_type == ProblemType.FILE_VALUE
+        assert result.problem_type == ProblemType.FILE_VALUE_MISSING
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream"

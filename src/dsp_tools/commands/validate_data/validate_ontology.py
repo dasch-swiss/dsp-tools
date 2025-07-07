@@ -1,13 +1,21 @@
-import importlib.resources
+import shutil
+from importlib.resources import as_file
+from importlib.resources import files
+from pathlib import Path
 
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
-from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
+from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
+from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -15,7 +23,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclValidator, config: ValidateDataConfig
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -24,16 +32,23 @@ def validate_ontology(
 
     Args:
         onto_graph: the graph of the project ontologies
-        shacl_validator: connection to the API for the validation
+        shacl_validator: SHACL CLI validator
         config: The configuration where to save the information to
 
     Returns:
         A validation report if errors were found
     """
-    shacl_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")
-    onto_shacl = Graph()
-    onto_shacl = onto_shacl.parse(str(shacl_file))
-    validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)
+    with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
+        shacl_file = Path(shacl_file_path)
+        shutil.copy(shacl_file, TURTLE_FILE_PATH / ONTOLOGIES_SHACL_TTL)
+    onto_graph.serialize(TURTLE_FILE_PATH / ONTOLOGIES_TTL)
+    paths = ValidationFilePaths(
+        directory=TURTLE_FILE_PATH,
+        data_file=ONTOLOGIES_TTL,
+        shacl_file=ONTOLOGIES_SHACL_TTL,
+        report_file=ONTOLOGIES_REPORT_TTL,
+    )
+    validation_result = shacl_validator.validate(paths)
     if validation_result.conforms:
         return None
     if config.save_graph_dir:

@@ -49,6 +49,6 @@ class ShaclCliValidator:
     def _parse_validation_result(self, filepath: Path) -> SHACLValidationReport:
         logger.debug(f"Parse validation response: {filepath}.")
         graph = Graph()
-        graph.parse(data=str(filepath))
+        graph.parse(filepath)
         conforms = bool(next(graph.objects(None, SH.conforms)))
         return SHACLValidationReport(conforms=conforms, validation_graph=graph)

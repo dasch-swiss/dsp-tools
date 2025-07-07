@@ -255,6 +255,37 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
     assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id", "file_value_duplicate"}
 
 
+def test_remove_duplicate_file_message():
+    file_missing_result = InputProblem(
+        problem_type=ProblemType.FILE_VALUE_MISSING,
+        res_id="wrong_file_type",
+        res_type="onto:TestMovingImageRepresentation",
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
+        expected="This resource requires a file with one of the following extensions: 'mp4'",
+    )
+    file_closed_constraint = InputProblem(
+        problem_type=ProblemType.FILE_VALUE_PROHIBITED,
+        res_id="wrong_file_type",
+        res_type="onto:TestMovingImageRepresentation",
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.VIOLATION,
+        expected="Property knora-api:hasMovingImageFileValue is not among those permitted for any of the types",
+        input_value="file.mp4",
+    )
+    result = sort_user_problems(AllProblems([file_missing_result, file_closed_constraint], []))
+    assert len(result.unique_violations) == 1
+    assert len(result.user_info) == 0
+    returned_info = result.user_info.pop(0)
+    assert returned_info.problem_type == ProblemType.FILE_VALUE_MISSING
+    assert returned_info.res_id == "wrong_file_type"
+    assert returned_info.res_type == "onto:TestMovingImageRepresentation"
+    assert returned_info.prop_name == "bitstream / iiif-uri"
+    assert returned_info.severity == Severity.VIOLATION
+    assert returned_info.expected == "This resource requires a file with one of the following extensions: 'mp4'"
+    assert returned_info.input_value == "file.mp4"
+
+
 def test_sort_user_problems_different_props():
     one = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,

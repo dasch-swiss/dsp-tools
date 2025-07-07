@@ -114,6 +114,29 @@ def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProbl
             result.append(prob)
     return result
 
+def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    idx_prohibited = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None)
+
+    match idx_missing, idx_prohibited:
+        case None, None:
+            return problems
+        case int(), None:
+            return problems
+        case None, int():
+            return problems
+        case _:
+            missing_file = pro
+
+    # If both are found, remove FILE_VALUE_MISSING (keep only PROHIBITED)
+    if idx_missing is not None and idx_prohibited is not None:
+        return [x for i, x in enumerate(problems) if i != idx_missing]
+    return problems
+
+    file_problems = [x for x in problems if x.problem_type == ProblemType.FILE_VALUE_MISSING or x.problem_type == ProblemType.FILE_VALUE_PROHIBITED]
+    if not len(file_problems) == 2:
+        return problems
+    # get index of both problems, put them in a variable and then
 
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
     grouped_res = defaultdict(list)

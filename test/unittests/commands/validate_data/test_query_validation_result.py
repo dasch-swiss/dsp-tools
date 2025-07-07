@@ -511,6 +511,7 @@ class TestQueryFileValueViolations:
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
+        assert result.input_value == Literal("file.mp4", datatype=XSD.string)
 
     def test_report_file_value_duplicate(
         self, report_file_value_duplicate: tuple[Graph, ValidationResultBaseInfo]

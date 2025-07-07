@@ -118,29 +118,21 @@ def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProbl
 
 
 def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
-    idx_prohibited = next(
-        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
-    )
-    match idx_missing, idx_prohibited:
-        case None, None:
-            return problems
-        case int(), None:
-            return problems
-        case None, int():
-            return problems
-        case _:
-            missing_file = problems[idx_missing]
-            prohibited_file = problems[idx_prohibited]
-            missing_file.input_value = prohibited_file.input_value
-            other_problems = [
-                x
-                for x in problems
-                if x.problem_type != ProblemType.FILE_VALUE_MISSING
-                and x.problem_type != ProblemType.FILE_VALUE_PROHIBITED
-            ]
-            other_problems.append(missing_file)
-            return other_problems
+    problem_indices = {
+        problem.problem_type: i
+        for i, problem in enumerate(problems)
+        if problem.problem_type in {ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_VALUE_PROHIBITED}
+    }
+
+    idx_missing = problem_indices.get(ProblemType.FILE_VALUE_MISSING)
+    idx_prohibited = problem_indices.get(ProblemType.FILE_VALUE_PROHIBITED)
+    if idx_missing is None or idx_prohibited is None:
+        return problems
+
+    missing_problem = problems[idx_missing]
+    prohibited_problem = problems[idx_prohibited]
+    missing_problem.input_value = prohibited_problem.input_value
+    return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
 
 
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:

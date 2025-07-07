@@ -280,16 +280,17 @@ def _query_class_constraint_without_detail(
 def _query_for_non_existent_cardinality_violation(
     base_info: ValidationResultBaseInfo, data: Graph
 ) -> ValidationResult | None:
+    input_val = None
     if base_info.result_path in FILE_VALUE_PROPERTIES:
         violation_type = ViolationType.FILE_VALUE_PROHIBITED
-        value_bn = next(data.objects(base_info.result_bn, SH.value))
-        if file_path := list(data.objects(value_bn, KNORA_API.fileValueHasFilename)):
-            input_val = file_path.pop(0)
-        else:
-            input_val = next(data.objects(value_bn, KNORA_API.stillImageFileValueHasExternalUrl))
+        if value_bn_found := list(data.objects(base_info.result_bn, SH.value)):
+            value_bn = value_bn_found.pop(0)
+            if file_path := list(data.objects(value_bn, KNORA_API.fileValueHasFilename)):
+                input_val = file_path.pop(0)
+            elif iiif_uri := list(data.objects(value_bn, KNORA_API.stillImageFileValueHasExternalUrl)):
+                input_val = iiif_uri.pop(0)
     else:
         violation_type = ViolationType.NON_EXISTING_CARD
-        input_val = None
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,

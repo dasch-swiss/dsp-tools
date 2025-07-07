@@ -9,6 +9,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import ValidationCliError
 
 DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.2"
 
@@ -18,7 +19,16 @@ class ShaclCliValidator:
     file_directory: Path
 
     def validate(self, file_paths: ValidationFilePaths) -> SHACLValidationReport:
-        self._run_validate_cli(file_paths)
+        try:
+            self._run_validate_cli(file_paths)
+        except subprocess.CalledProcessError as e:
+            logger.error(e)
+            msg = (
+                "Data validation requires Docker. Is your Docker Desktop Application open? "
+                "If it is, please contact the DSP-TOOLS development team with your log file."
+            )
+            logger.error(msg)
+            raise ValidationCliError(msg) from None
         return self._parse_validation_result(file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:

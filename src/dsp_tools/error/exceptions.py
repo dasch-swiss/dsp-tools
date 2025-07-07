@@ -56,6 +56,10 @@ class InvalidInputError(BaseError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
+class ValidationCliError(BaseError):
+    """This error is raised when the validate data docker command has problems"""
+
+
 class InvalidFileNameError(InvalidInputError):
     """This error is raised if INGEST rejects a file due to its name."""
 

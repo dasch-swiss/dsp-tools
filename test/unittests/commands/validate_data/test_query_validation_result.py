@@ -701,6 +701,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.severity == Severity.VIOLATION
+        assert result.input_value == "file.mp4"
 
     def test_extracted_file_value_duplicate(self, extracted_file_value_duplicate: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_file_value_duplicate)

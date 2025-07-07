@@ -11,6 +11,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_VALIDATION_TTL
+from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -39,9 +40,10 @@ def validate_ontology(
     """
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
-        shutil.copy(shacl_file, ONTOLOGIES_SHACL_TTL)
-    onto_graph.serialize(ONTOLOGIES_TTL)
+        shutil.copy(shacl_file, TURTLE_FILE_PATH / ONTOLOGIES_SHACL_TTL)
+    onto_graph.serialize(TURTLE_FILE_PATH / ONTOLOGIES_TTL)
     paths = ValidationFilePaths(
+        directory=TURTLE_FILE_PATH,
         data_file=ONTOLOGIES_TTL,
         shacl_file=ONTOLOGIES_SHACL_TTL,
         report_file=ONTOLOGIES_VALIDATION_TTL,

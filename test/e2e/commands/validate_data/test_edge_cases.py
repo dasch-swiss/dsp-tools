@@ -11,7 +11,6 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -68,7 +67,7 @@ def validate_ontology_violation(
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    shacl_validator = ShaclCliValidator(TURTLE_FILE_PATH)
+    shacl_validator = ShaclCliValidator()
     return validate_ontology(graphs.ontos, shacl_validator, CONFIG)
 
 

@@ -16,8 +16,6 @@ DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.5"
 
 @dataclass
 class ShaclCliValidator:
-    file_directory: Path
-
     def validate(self, file_paths: ValidationFilePaths) -> SHACLValidationReport:
         try:
             self._run_validate_cli(file_paths)
@@ -29,21 +27,21 @@ class ShaclCliValidator:
             )
             logger.error(msg)
             raise ValidationCliError(msg) from None
-        return self._parse_validation_result(file_paths.report_file)
+        return self._parse_validation_result(file_paths.directory / file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:
-        if not file_paths.shacl_file.exists():
+        if not (file_paths.directory / file_paths.shacl_file).exists():
             raise InternalError(f"SHACL file not found: {file_paths.shacl_file}")
-        if not file_paths.data_file.exists():
+        if not (file_paths.directory / file_paths.data_file).exists():
             raise InternalError(f"Data file not found: {file_paths.data_file}")
 
         # Get relative paths within the container
-        shacl_path = f"/data/{file_paths.shacl_file.name}"
-        data_path = f"/data/{file_paths.data_file.name}"
-        report_path = f"/data/{file_paths.report_file.name}"
+        shacl_path = f"/data/{file_paths.shacl_file}"
+        data_path = f"/data/{file_paths.data_file}"
+        report_path = f"/data/{file_paths.report_file}"
 
         d_cmd = (
-            f"docker run --rm -v {self.file_directory.absolute()}:/data {DOCKER_IMAGE} "
+            f"docker run --rm -v {file_paths.directory.absolute()}:/data {DOCKER_IMAGE} "
             f"validate --shacl {shacl_path} --data {data_path} --report {report_path}"
         )
         logger.debug(f"Running SHACL validation: {d_cmd}")

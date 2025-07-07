@@ -8,9 +8,9 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 # paths for the validation files used by the docker container
 TURTLE_FILE_PATH = (Path.home() / ".dsp-tools" / "validate-data").absolute()
 
-ONTOLOGIES_TTL = TURTLE_FILE_PATH / "ONTOLOGIES.ttl"
-ONTOLOGIES_SHACL_TTL = TURTLE_FILE_PATH / "ONTOLOGIES_SHACL.ttl"
-ONTOLOGIES_VALIDATION_TTL = TURTLE_FILE_PATH / "ONTOLOGIES_VALIDATION.ttl"
+ONTOLOGIES_TTL = "ONTOLOGIES.ttl"
+ONTOLOGIES_SHACL_TTL = "ONTOLOGIES_SHACL.ttl"
+ONTOLOGIES_VALIDATION_TTL = "ONTOLOGIES_VALIDATION.ttl"
 
 
 ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)

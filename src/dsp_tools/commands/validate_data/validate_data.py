@@ -122,7 +122,7 @@ def _validate_data(
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    cli_validator = ShaclCliValidator(TURTLE_FILE_PATH)
+    cli_validator = ShaclCliValidator()
     onto_validation_result = validate_ontology(graphs.ontos, cli_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)

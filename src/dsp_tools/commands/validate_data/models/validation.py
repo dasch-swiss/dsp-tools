@@ -35,9 +35,10 @@ class RDFGraphStrings:
 
 @dataclass
 class ValidationFilePaths:
-    data_file: Path
-    shacl_file: Path
-    report_file: Path
+    directory: Path
+    data_file: str
+    shacl_file: str
+    report_file: str
 
 
 @dataclass

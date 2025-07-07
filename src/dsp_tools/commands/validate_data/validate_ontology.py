@@ -14,7 +14,7 @@ from dsp_tools.commands.validate_data.constants import ONTOLOGIES_VALIDATION_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
-from dsp_tools.commands.validate_data.shacl_docker_validator import ShaclCliValidator
+from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 

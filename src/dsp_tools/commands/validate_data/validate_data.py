@@ -123,7 +123,6 @@ def _validate_data(
         # if unknown classes are found, we cannot validate all the data in the file
         return False
     validator = ShaclDockerValidator(TURTLE_FILE_PATH)
-    validator.start_container()
 
     shacl_validator = ShaclValidator(auth.server)
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, validator, config)
@@ -133,10 +132,8 @@ def _validate_data(
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
-        validator.stop_container()
         return False
     report = _get_validation_result(graphs, shacl_validator, config)
-    validator.stop_container()
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)

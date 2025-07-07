@@ -76,7 +76,6 @@ def validate_data(
         Warnings and user info do not impede an xmlupload.
     """
     graph_save_dir = None
-    TURTLE_FILE_PATH.mkdir(exist_ok=True)
 
     if save_graphs:
         graph_save_dir = _get_graph_save_dir(filepath)
@@ -114,6 +113,7 @@ def validate_parsed_resources(
 def _validate_data(
     graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
 ) -> bool:
+    TURTLE_FILE_PATH.mkdir(exist_ok=True)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)

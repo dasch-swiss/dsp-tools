@@ -1,5 +1,4 @@
 import subprocess
-from dataclasses import dataclass
 from pathlib import Path
 
 from loguru import logger
@@ -14,7 +13,6 @@ from dsp_tools.error.exceptions import ValidationCliError
 DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.5"
 
 
-@dataclass
 class ShaclCliValidator:
     def validate(self, file_paths: ValidationFilePaths) -> SHACLValidationReport:
         try:

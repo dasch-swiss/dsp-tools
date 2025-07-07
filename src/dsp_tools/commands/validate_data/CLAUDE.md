@@ -47,7 +47,7 @@ to ensure data conforms to ontological constraints before upload.
 
 ### Ontology Independent SHACL Shapes
 
-`src/dsp_tools/resources/validate_data` contains RDF turtle files with SHACL shapes that apply to all ontologies.
+`src/dsp_tools/resources/validate_data/` contains RDF turtle files with SHACL shapes that apply to all ontologies.
 
 ### Validation Flow
 

@@ -55,11 +55,14 @@ Project ontology → SHACL shapes ← ← ← ← ← ← ← ←
 
 ## Architecture Patterns
 
-### Three-Stage Validation
+### Four-Stage Validation
 
-1. **Ontology Validation**: Validate that the ontology itself is correct
-2. **Cardinality Validation**: Checks min/max cardinality constraints
-3. **Content Validation**: Validates actual values, types, and patterns
+1. **Unknown Classes**: Ensure that no classes are used in the data that are not defined in the ontology. 
+   If unknown classes are found, the validation process ends with an error.
+2. **Ontology Validation**: Validate that the ontology itself is correct.
+   If errors are found, the validation process ends with an error.
+3. **Cardinality Validation**: Checks min/max cardinality constraints
+4. **Content Validation**: Validates actual values, types, and patterns
 
 ### Client-Server Architecture
 

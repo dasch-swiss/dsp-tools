@@ -38,10 +38,16 @@ to ensure data conforms to ontological constraints before upload.
 
 ### SPARQL Queries (`sparql/`)
 
+`sparql/` contains the shapes that are ontology specific and are generated during runtime. 
+
 - **construct_shacl.py**: Main SHACL shape construction coordinator
 - **cardinality_shacl.py**: Generates cardinality constraint shapes
 - **value_shacl.py**: Generates value content validation shapes
 - **legal_info_shacl.py**: Generates license validation shapes
+
+### Ontology Independent SHACL Shapes
+
+`src/dsp_tools/resources/validate_data` contains RDF turtle files with SHACL shapes that apply to all ontologies.
 
 ### Validation Flow
 

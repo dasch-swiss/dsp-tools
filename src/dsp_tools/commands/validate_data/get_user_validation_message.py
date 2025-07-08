@@ -123,17 +123,12 @@ def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem])
     # This creates a min cardinality (because the audio file is missing)
     # and a closed constraint violation (because it is not permissible to add an image)
     # However, we only want to give one message to the user
-    problem_indices = {
-        problem.problem_type: i
-        for i, problem in enumerate(problems)
-        if problem.problem_type in {ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_VALUE_PROHIBITED}
-    }
-
-    idx_missing = problem_indices.get(ProblemType.FILE_VALUE_MISSING)
-    idx_prohibited = problem_indices.get(ProblemType.FILE_VALUE_PROHIBITED)
+    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    idx_prohibited = next(
+        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
+    )
     if idx_missing is None or idx_prohibited is None:
         return problems
-
     missing_problem = problems[idx_missing]
     prohibited_problem = problems[idx_prohibited]
     # The result of the closed constraint violation, contains the input value,

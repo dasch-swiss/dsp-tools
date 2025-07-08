@@ -36,7 +36,7 @@ def test_minimal_correct(authentication) -> None:
     graphs, used_iris = _prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    validation_success = _validate_data(graphs, used_iris, CONFIG)
     assert validation_success
 
 
@@ -46,7 +46,7 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator)
     graphs, used_iris = _prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    validation_success = _validate_data(graphs, used_iris, CONFIG)
     assert validation_success
 
 
@@ -56,7 +56,7 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
     graphs, used_iris = _prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    validation_success = _validate_data(graphs, used_iris, CONFIG)
     assert validation_success
 
 
@@ -66,7 +66,7 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
     graphs, used_iris = _prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    validation_success = _validate_data(graphs, used_iris, CONFIG)
     assert validation_success
 
 
@@ -76,5 +76,5 @@ def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator)
     graphs, used_iris = _prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, authentication, CONFIG)
+    validation_success = _validate_data(graphs, used_iris, CONFIG)
     assert validation_success

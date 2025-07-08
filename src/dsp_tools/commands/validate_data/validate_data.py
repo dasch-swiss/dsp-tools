@@ -94,7 +94,7 @@ def validate_data(
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth, config.ignore_duplicate_files_warning)
-    return _validate_data(graphs, used_iris, auth, config)
+    return _validate_data(graphs, used_iris, config)
 
 
 def validate_parsed_resources(
@@ -113,12 +113,10 @@ def validate_parsed_resources(
         shortcode=shortcode,
         ignore_duplicate_files_warning=config.ignore_duplicate_files_warning,
     )
-    return _validate_data(rdf_graphs, used_iris, auth, config)
+    return _validate_data(rdf_graphs, used_iris, config)
 
 
-def _validate_data(
-    graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
-) -> bool:
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
     TURTLE_FILE_PATH.mkdir(exist_ok=True)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
@@ -436,7 +434,7 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
 def _validate(
     validator: ShaclCliValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None
 ) -> ValidationReportGraphs:
-    _create_and_write_graphs(graph_save_dir, rdf_graphs)
+    _create_and_write_graphs(rdf_graphs, graph_save_dir)
 
     results_graph = Graph()
     conforms = True
@@ -472,7 +470,7 @@ def _validate(
     )
 
 
-def _create_and_write_graphs(graph_save_dir, rdf_graphs):
+def _create_and_write_graphs(rdf_graphs: RDFGraphs, graph_save_dir: Path | None) -> None:
     logger.debug("Serialise RDF graphs into turtle strings")
     data_str = rdf_graphs.data.serialize(format="ttl")
     ontos_str = rdf_graphs.ontos.serialize(format="ttl")

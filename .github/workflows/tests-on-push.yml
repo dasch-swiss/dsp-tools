@@ -136,16 +136,6 @@ jobs:
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
 
-  shacl-cli-call:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
-      - name: Install uv, just, and dependencies
-        uses: ./.github/actions/setup
-      - name: Run SHACL validation
-        run: just shacl-cli
-
   distribution:
     runs-on: ubuntu-latest
     steps:

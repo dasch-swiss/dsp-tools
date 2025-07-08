@@ -118,6 +118,11 @@ def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProbl
 
 
 def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality (because the audio file is missing)
+    # and a closed constraint violation (because it is not permissible to add an image)
+    # However, we only want to give one message to the user
     problem_indices = {
         problem.problem_type: i
         for i, problem in enumerate(problems)
@@ -131,6 +136,8 @@ def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem])
 
     missing_problem = problems[idx_missing]
     prohibited_problem = problems[idx_prohibited]
+    # The result of the closed constraint violation, contains the input value,
+    # while the message of the other shape is better, we want to include the actual input value.
     missing_problem.input_value = prohibited_problem.input_value
     return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
 

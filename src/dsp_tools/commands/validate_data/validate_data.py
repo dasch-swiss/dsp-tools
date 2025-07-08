@@ -446,8 +446,8 @@ def _validate(
         report_file=CARDINALITY_REPORT_TTL,
     )
     card_result = validator.validate(card_files)
-    results_graph += card_result.validation_graph
     if not card_result.conforms:
+        results_graph += card_result.validation_graph
         conforms = False
 
     content_files = ValidationFilePaths(
@@ -457,8 +457,8 @@ def _validate(
         report_file=CONTENT_REPORT_TTL,
     )
     content_result = validator.validate(content_files)
-    results_graph += content_result.validation_graph
     if not content_result.conforms:
+        results_graph += content_result.validation_graph
         conforms = False
 
     return ValidationReportGraphs(

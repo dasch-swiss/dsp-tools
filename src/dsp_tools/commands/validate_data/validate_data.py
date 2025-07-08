@@ -118,6 +118,7 @@ def validate_parsed_resources(
 
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
+    TURTLE_FILE_PATH.mkdir(exist_ok=True)
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)
@@ -484,7 +485,6 @@ def _create_and_write_graphs(rdf_graphs: RDFGraphs, graph_save_dir: Path | None)
             content_shapes=content_shape_str + ontos_str + knora_api_str,
         )
         _save_graphs(graph_save_dir, graph_strings)
-    TURTLE_FILE_PATH.mkdir(exist_ok=True)
     turtle_paths_and_graphs = [
         (TURTLE_FILE_PATH / CARDINALITY_DATA_TTL, data_str),
         (TURTLE_FILE_PATH / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),

@@ -19,6 +19,7 @@ class ShaclCliValidator:
             self._run_validate_cli(file_paths)
         except subprocess.CalledProcessError as e:
             logger.error(e)
+            self._log_docker_debug_info()
             msg = (
                 "Data validation requires Docker. Is your Docker Desktop Application open? "
                 "If it is, please contact the DSP-TOOLS development team with your log file."
@@ -53,6 +54,32 @@ class ShaclCliValidator:
             logger.debug(f"Validation output: {result.stdout}")
         if result.stderr:
             logger.error(f"Validation output error: {result.stderr}")
+
+    def _log_docker_debug_info(self) -> None:
+        try:
+            docker_ps_output = subprocess.run(
+                ["docker", "ps", "-a"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+            
+            docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
+            logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
+            
+            # Try to get logs from any running SHACL containers
+            docker_logs_output = subprocess.run(
+                ["docker", "logs", f"{DOCKER_IMAGE}"],
+                capture_output=True,
+                text=True,
+            ).stdout
+            
+            if docker_logs_output:
+                docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
+                logger.debug(f"Logs of SHACL container:\n\t{docker_logs_output}")
+                
+        except subprocess.CalledProcessError:
+            logger.debug("Could not retrieve Docker debugging information")
 
     def _parse_validation_result(self, filepath: Path) -> SHACLValidationReport:
         if not filepath.exists():

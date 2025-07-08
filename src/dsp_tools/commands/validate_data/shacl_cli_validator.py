@@ -58,26 +58,27 @@ class ShaclCliValidator:
     def _log_docker_debug_info(self) -> None:
         try:
             docker_ps_output = subprocess.run(
-                ["docker", "ps", "-a"],
+                "docker ps -a".split(),
                 capture_output=True,
                 text=True,
                 check=True,
             ).stdout
-            
+
             docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
             logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
-            
+
             # Try to get logs from any running SHACL containers
             docker_logs_output = subprocess.run(
-                ["docker", "logs", f"{DOCKER_IMAGE}"],
+                f"docker logs {DOCKER_IMAGE}".split(),
+                check=False,
                 capture_output=True,
                 text=True,
             ).stdout
-            
+
             if docker_logs_output:
                 docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
                 logger.debug(f"Logs of SHACL container:\n\t{docker_logs_output}")
-                
+
         except subprocess.CalledProcessError:
             logger.debug("Could not retrieve Docker debugging information")
 

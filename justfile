@@ -135,3 +135,10 @@ clean:
     -rm -rf ./testdata/e2e/images/
     -rm -rf ./site
     -rm -f ./mapping-????.csv
+
+
+[no-exit-message]
+shacl-cli:
+    docker run --rm -v $PWD/testdata/e2e/shacl_cli:/data daschswiss/shacl-cli:v0.0.5 validate --shacl /data/shacl.ttl --data /data/data.ttl --report /data/report.ttl
+    echo "SHACL Validation Report:"
+    cat testdata/e2e/shacl_cli/report.ttl

@@ -139,6 +139,6 @@ clean:
 
 [no-exit-message]
 shacl-cli:
-    docker run --rm -v $PWD/testdata/e2e/shacl_cli:/data daschswiss/shacl-cli:v0.0.5 validate --shacl /data/shacl.ttl --data /data/data.ttl --report /data/report.ttl
+    docker run --rm -v $PWD/testdata/validate-data/shacl_cli:/data daschswiss/shacl-cli:v0.0.5 validate --shacl /data/shacl.ttl --data /data/data.ttl --report /data/report.ttl
     echo "SHACL Validation Report:"
-    cat testdata/e2e/shacl_cli/report.ttl
+    cat testdata/validate-data/shacl_cli/report.ttl

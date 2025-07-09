@@ -115,23 +115,12 @@ jobs:
         run: just e2e-tests
 
   validate-data-e2e-tests:
-    if: ${{ always() }}
-    needs: [e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: docker info
-        run: docker info
-      - name: Check if the required directory exists
-        run: |
-          if [ -d "/home/runner/.dsp-tools/validate-data" ]; then
-            echo "Directory exists"
-          else
-            echo "Directory does not exist"
-          fi
       - name: validate-data-e2e-tests
         run: just e2e-tests-validate-data
       - name: make logging file available
@@ -143,8 +132,6 @@ jobs:
           compression-level: 0
 
   legacy-e2e-tests:
-    if: ${{ always() }}
-    needs: [validate-data-e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

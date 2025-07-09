@@ -122,7 +122,7 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: docker info
-        run:  docker info
+        run: docker info
       - name: Check if directory exists
         run: |
           if [ -d "/home/runner/.dsp-tools/validate-data" ]; then

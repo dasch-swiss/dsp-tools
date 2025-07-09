@@ -9,14 +9,14 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.get_user_message.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
-from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
-from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -41,7 +41,7 @@ def no_violations_with_warnings(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(
+    graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
@@ -54,7 +54,7 @@ def no_violations_with_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> SortedProblems:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(
+    graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     report = _get_validation_result(graphs, shacl_validator, CONFIG)
@@ -132,7 +132,7 @@ class TestSortedProblems:
             ignore_duplicate_files_warning=True,
             is_on_prod_server=False,
         )
-        graphs, used_iris = _prepare_data_for_validation_from_file(
+        graphs, used_iris = prepare_data_for_validation_from_file(
             file, authentication, config.ignore_duplicate_files_warning
         )
         report = _get_validation_result(graphs, shacl_validator, config)

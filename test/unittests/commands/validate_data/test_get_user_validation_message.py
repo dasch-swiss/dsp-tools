@@ -2,9 +2,9 @@
 
 import pytest
 
-from dsp_tools.commands.validate_data.get_user_validation_message import _get_message_for_one_resource
-from dsp_tools.commands.validate_data.get_user_validation_message import _shorten_input
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import _get_message_for_one_resource
+from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import _shorten_input
+from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType

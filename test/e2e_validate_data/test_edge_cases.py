@@ -10,14 +10,14 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.get_user_message.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
-from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 
 CONFIG = ValidateDataConfig(
@@ -47,7 +47,7 @@ def special_characters_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -56,7 +56,7 @@ def inheritance_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return _get_validation_result(graphs, shacl_validator, CONFIG)
 
 
@@ -65,7 +65,7 @@ def validate_ontology_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     shacl_validator = ShaclCliValidator()
     return validate_ontology(graphs.ontos, shacl_validator, CONFIG)
 
@@ -73,7 +73,7 @@ def validate_ontology_violation(
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert special_characters_correct.conforms
 
@@ -139,7 +139,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
     assert inheritance_correct.conforms
 

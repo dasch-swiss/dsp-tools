@@ -7,16 +7,16 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_rdflib_object
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_resource
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_value
-from dsp_tools.commands.validate_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_rdflib_object
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_resource
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_value
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API

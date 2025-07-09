@@ -14,19 +14,21 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
-from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _extract_base_info_of_resource_results,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
-from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
-from dsp_tools.commands.validate_data.validate_data import _prepare_data_for_validation_from_file
+from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -49,7 +51,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.fixture(scope="module")
 def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, used_iris = _prepare_data_for_validation_from_file(
+    graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     return graphs, used_iris
@@ -57,7 +59,7 @@ def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFG
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGraphs, set[str]]) -> None:
     graphs, used_iris = unknown_classes_graphs
-    result = _check_for_unknown_resource_classes(graphs, used_iris)
+    result = check_for_unknown_resource_classes(graphs, used_iris)
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert result.unknown_classes == expected
@@ -68,8 +70,8 @@ def unique_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -77,8 +79,8 @@ def file_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -86,8 +88,8 @@ def dsp_inbuilt_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -95,8 +97,8 @@ def cardinality_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -104,8 +106,8 @@ def content_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -113,8 +115,8 @@ def value_type_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -122,8 +124,8 @@ def every_violation_combination_once(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_result(graphs, shacl_validator, CONFIG)
+    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    return _get_validation_report(graphs, shacl_validator, CONFIG)
 
 
 def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:

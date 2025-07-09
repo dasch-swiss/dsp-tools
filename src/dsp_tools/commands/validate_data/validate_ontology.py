@@ -6,6 +6,8 @@ from pathlib import Path
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_DATA_TTL
@@ -13,12 +15,46 @@ from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 LIST_SEPARATOR = "\n    - "
+
+
+def check_for_unknown_resource_classes(
+    rdf_graphs: RDFGraphs, used_resource_iris: set[str]
+) -> UnknownClassesInData | None:
+    """
+    Checks if any classes are referenced in the data that are not in the ontology.
+
+    Args:
+        rdf_graphs: Data graphs
+        used_resource_iris: resource IRIs in use
+
+    Returns:
+        Unknown classes if any
+    """
+    res_cls = _get_all_onto_classes(rdf_graphs)
+    if extra_cls := used_resource_iris - res_cls:
+        unknown_classes = {reformat_onto_iri(x) for x in extra_cls}
+        defined_classes = {reformat_onto_iri(x) for x in res_cls}
+        return UnknownClassesInData(unknown_classes=unknown_classes, defined_classes=defined_classes)
+    return None
+
+
+def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
+    ontos = rdf_graphs.ontos + rdf_graphs.knora_api
+    is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
+    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
+    is_usable = URIRef(KNORA_API_STR + "canBeInstantiated")
+    usable_resource_classes = set(ontos.subjects(is_usable, Literal(True)))
+    user_facing = usable_resource_classes.intersection(resource_classes)
+    return {str(x) for x in user_facing}
 
 
 def validate_ontology(

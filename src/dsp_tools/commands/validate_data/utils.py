@@ -5,14 +5,14 @@ from tempfile import TemporaryDirectory
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
-def get_temp_directory() -> TemporaryDirectory:
+def get_temp_directory() -> TemporaryDirectory[str]:
     ttl_dir = (Path.home() / ".dsp-tools" / "validate-data").absolute()
     ttl_dir.mkdir(exist_ok=True)
     t_dir = TemporaryDirectory(dir=ttl_dir)
     return t_dir
 
 
-def clean_up_temp_directory(temp_dir: TemporaryDirectory, save_graphs: Path | None) -> None:
+def clean_up_temp_directory(temp_dir: TemporaryDirectory[str], save_graphs: Path | None) -> None:
     if save_graphs:
         src_root = Path(temp_dir.name)
         save_graphs.mkdir(parents=True, exist_ok=True)

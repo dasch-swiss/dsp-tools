@@ -94,7 +94,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
-
   benchmarking:
     runs-on: ubuntu-latest
     steps:
@@ -114,6 +113,25 @@ jobs:
         uses: ./.github/actions/setup
       - name: e2e-tests
         run: just e2e-tests
+
+  validate-data-e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: docker info
+        run:  docker info
+      - name: Check if directory exists
+        run: |
+          if [ -d "/home/runner/.dsp-tools/validate-data" ]; then
+            echo "Directory exists"
+          else
+            echo "Directory does not exist"
+          fi
+      - name: validate-data-e2e-tests
+        run: just e2e-tests-validate-data
 
   legacy-e2e-tests:
     runs-on: ubuntu-latest

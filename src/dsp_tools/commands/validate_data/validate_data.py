@@ -119,42 +119,46 @@ def validate_parsed_resources(
 
 
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
-    TURTLE_FILE_PATH.mkdir(exist_ok=True)
-    temp_dir = TemporaryDirectory(dir=TURTLE_FILE_PATH)
-    turtle_dir = Path(temp_dir.name)
+    temp_dir = _create_directory()
+    file_dir = Path(temp_dir.name)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
-        _clean_up(temp_dir, config.save_graph_dir)
+        _clean_up_directory(temp_dir, config.save_graph_dir)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
     shacl_validator = ShaclCliValidator()
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config, turtle_dir=turtle_dir)
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, file_dir, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
-        _clean_up(temp_dir, config.save_graph_dir)
+        _clean_up_directory(temp_dir, config.save_graph_dir)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_result(graphs, shacl_validator, config, turtle_dir=turtle_dir)
+    report = _get_validation_result(graphs, shacl_validator, file_dir, config)
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
-        _clean_up(temp_dir, config.save_graph_dir)
+        _clean_up_directory(temp_dir, config.save_graph_dir)
         return True
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
-    _clean_up(temp_dir, config.save_graph_dir)
+    _clean_up_directory(temp_dir, config.save_graph_dir)
     return _get_validation_status(sorted_problems, config.is_on_prod_server)
 
 
-def _clean_up(temp_dir: TemporaryDirectory, save_graphs: Path | None) -> None:
+def _create_directory() -> TemporaryDirectory:
+    TURTLE_FILE_PATH.mkdir(exist_ok=True)
+    return TemporaryDirectory(dir=TURTLE_FILE_PATH)
+
+
+def _clean_up_directory(temp_dir: TemporaryDirectory, save_graphs: Path | None) -> None:
     if save_graphs:
         shutil.copytree(temp_dir.name, save_graphs)
     temp_dir.cleanup()
@@ -359,9 +363,9 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, config: ValidateDataConfig, turtle_dir: Path
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, turtle_dir: Path, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
-    report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir, turtle_dir)
+    report = _validate(shacl_validator, rdf_graphs, turtle_dir, config.save_graph_dir)
     if config.save_graph_dir:
         report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
     return report
@@ -446,15 +450,15 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
 
 
 def _validate(
-    validator: ShaclCliValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None, turtle_dir: Path
+    validator: ShaclCliValidator, rdf_graphs: RDFGraphs, file_dir: Path, graph_save_dir: Path | None
 ) -> ValidationReportGraphs:
-    _create_and_write_graphs(rdf_graphs, graph_save_dir, turtle_dir)
+    _create_and_write_graphs(rdf_graphs, graph_save_dir, file_dir)
 
     results_graph = Graph()
     conforms = True
 
     card_files = ValidationFilePaths(
-        directory=turtle_dir,
+        directory=file_dir,
         data_file=CARDINALITY_DATA_TTL,
         shacl_file=CARDINALITY_SHACL_TTL,
         report_file=CARDINALITY_REPORT_TTL,
@@ -465,7 +469,7 @@ def _validate(
         conforms = False
 
     content_files = ValidationFilePaths(
-        directory=turtle_dir,
+        directory=file_dir,
         data_file=CONTENT_DATA_TTL,
         shacl_file=CONTENT_SHACL_TTL,
         report_file=CONTENT_REPORT_TTL,
@@ -491,14 +495,14 @@ def _create_and_write_graphs(rdf_graphs: RDFGraphs, graph_save_dir: Path | None,
     card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
     content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
     knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
-    # if graph_save_dir:
-    #     graph_strings = RDFGraphStrings(
-    #         cardinality_validation_data=data_str,
-    #         cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
-    #         content_validation_data=data_str + ontos_str + knora_api_str,
-    #         content_shapes=content_shape_str + ontos_str + knora_api_str,
-    #     )
-    #     _save_graphs(graph_save_dir, graph_strings)
+    if graph_save_dir:
+        graph_strings = RDFGraphStrings(
+            cardinality_validation_data=data_str,
+            cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
+            content_validation_data=data_str + ontos_str + knora_api_str,
+            content_shapes=content_shape_str + ontos_str + knora_api_str,
+        )
+        _save_graphs(graph_save_dir, graph_strings)
     turtle_paths_and_graphs = [
         (turtle_dir / CARDINALITY_DATA_TTL, data_str),
         (turtle_dir / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),

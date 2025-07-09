@@ -10,7 +10,6 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -45,7 +44,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 
 @pytest.fixture(scope="module")
 def special_characters_violation(
-    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
@@ -54,7 +53,7 @@ def special_characters_violation(
 
 @pytest.fixture(scope="module")
 def inheritance_violation(
-    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclValidator
+    _create_projects_edge_cases, authentication: AuthenticationClient, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
@@ -72,7 +71,7 @@ def validate_ontology_violation(
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
-def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
+def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, CONFIG)
@@ -138,7 +137,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
-def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclValidator) -> None:
+def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs, _ = _prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, CONFIG)

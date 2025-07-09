@@ -15,7 +15,12 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
-from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import CARDINALITY_DATA_TTL
+from dsp_tools.commands.validate_data.constants import CARDINALITY_REPORT_TTL
+from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
+from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
+from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
+from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
@@ -31,6 +36,7 @@ from dsp_tools.commands.validate_data.models.input_problems import SortedProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
+from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
@@ -88,7 +94,7 @@ def validate_data(
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     graphs, used_iris = _prepare_data_for_validation_from_file(filepath, auth, config.ignore_duplicate_files_warning)
-    return _validate_data(graphs, used_iris, auth, config)
+    return _validate_data(graphs, used_iris, config)
 
 
 def validate_parsed_resources(
@@ -107,12 +113,10 @@ def validate_parsed_resources(
         shortcode=shortcode,
         ignore_duplicate_files_warning=config.ignore_duplicate_files_warning,
     )
-    return _validate_data(rdf_graphs, used_iris, auth, config)
+    return _validate_data(rdf_graphs, used_iris, config)
 
 
-def _validate_data(
-    graphs: RDFGraphs, used_iris: set[str], auth: AuthenticationClient, config: ValidateDataConfig
-) -> bool:
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
     TURTLE_FILE_PATH.mkdir(exist_ok=True)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
@@ -122,8 +126,8 @@ def _validate_data(
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    cli_validator = ShaclCliValidator()
-    onto_validation_result = validate_ontology(graphs.ontos, cli_validator, config)
+    shacl_validator = ShaclCliValidator()
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.error(msg)
@@ -131,7 +135,6 @@ def _validate_data(
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    shacl_validator = ShaclValidator(auth.server)
     report = _get_validation_result(graphs, shacl_validator, config)
     if report.conforms:
         logger.debug("No validation errors found.")
@@ -342,7 +345,7 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, config: ValidateDataConfig
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
     report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir)
     if config.save_graph_dir:
@@ -428,29 +431,69 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
     return EnabledLicenseIris(iris)
 
 
-def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None) -> ValidationReportGraphs:
+def _validate(
+    validator: ShaclCliValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None
+) -> ValidationReportGraphs:
+    _create_and_write_graphs(rdf_graphs, graph_save_dir)
+
+    results_graph = Graph()
+    conforms = True
+
+    card_files = ValidationFilePaths(
+        directory=TURTLE_FILE_PATH,
+        data_file=CARDINALITY_DATA_TTL,
+        shacl_file=CARDINALITY_SHACL_TTL,
+        report_file=CARDINALITY_REPORT_TTL,
+    )
+    card_result = validator.validate(card_files)
+    if not card_result.conforms:
+        results_graph += card_result.validation_graph
+        conforms = False
+
+    content_files = ValidationFilePaths(
+        directory=TURTLE_FILE_PATH,
+        data_file=CONTENT_DATA_TTL,
+        shacl_file=CONTENT_SHACL_TTL,
+        report_file=CONTENT_REPORT_TTL,
+    )
+    content_result = validator.validate(content_files)
+    if not content_result.conforms:
+        results_graph += content_result.validation_graph
+        conforms = False
+
+    return ValidationReportGraphs(
+        conforms=conforms,
+        validation_graph=results_graph,
+        shacl_graph=rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
+        onto_graph=rdf_graphs.ontos + rdf_graphs.knora_api,
+        data_graph=rdf_graphs.data,
+    )
+
+
+def _create_and_write_graphs(rdf_graphs: RDFGraphs, graph_save_dir: Path | None) -> None:
     logger.debug("Serialise RDF graphs into turtle strings")
     data_str = rdf_graphs.data.serialize(format="ttl")
     ontos_str = rdf_graphs.ontos.serialize(format="ttl")
     card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
     content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
     knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
-    graph_strings = RDFGraphStrings(
-        cardinality_validation_data=data_str,
-        cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
-        content_validation_data=data_str + ontos_str + knora_api_str,
-        content_shapes=content_shape_str + ontos_str + knora_api_str,
-    )
     if graph_save_dir:
+        graph_strings = RDFGraphStrings(
+            cardinality_validation_data=data_str,
+            cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
+            content_validation_data=data_str + ontos_str + knora_api_str,
+            content_shapes=content_shape_str + ontos_str + knora_api_str,
+        )
         _save_graphs(graph_save_dir, graph_strings)
-    validation_results = validator.validate(graph_strings)
-    return ValidationReportGraphs(
-        conforms=validation_results.conforms,
-        validation_graph=validation_results.validation_graph,
-        shacl_graph=rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
-        onto_graph=rdf_graphs.ontos + rdf_graphs.knora_api,
-        data_graph=rdf_graphs.data,
-    )
+    turtle_paths_and_graphs = [
+        (TURTLE_FILE_PATH / CARDINALITY_DATA_TTL, data_str),
+        (TURTLE_FILE_PATH / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),
+        (TURTLE_FILE_PATH / CONTENT_DATA_TTL, data_str + ontos_str + knora_api_str),
+        (TURTLE_FILE_PATH / CONTENT_SHACL_TTL, content_shape_str + ontos_str + knora_api_str),
+    ]
+    for f_path, content in turtle_paths_and_graphs:
+        with open(f_path, "w") as writer:
+            writer.write(content)
 
 
 def _save_graphs(save_path: Path, graph_strings: RDFGraphStrings) -> None:

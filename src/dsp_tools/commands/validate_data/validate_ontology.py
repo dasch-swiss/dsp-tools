@@ -8,9 +8,9 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.commands.validate_data.constants import ONTOLOGIES_DATA_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
-from dsp_tools.commands.validate_data.constants import ONTOLOGIES_TTL
 from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -41,10 +41,10 @@ def validate_ontology(
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
         shutil.copy(shacl_file, TURTLE_FILE_PATH / ONTOLOGIES_SHACL_TTL)
-    onto_graph.serialize(TURTLE_FILE_PATH / ONTOLOGIES_TTL)
+    onto_graph.serialize(TURTLE_FILE_PATH / ONTOLOGIES_DATA_TTL)
     paths = ValidationFilePaths(
         directory=TURTLE_FILE_PATH,
-        data_file=ONTOLOGIES_TTL,
+        data_file=ONTOLOGIES_DATA_TTL,
         shacl_file=ONTOLOGIES_SHACL_TTL,
         report_file=ONTOLOGIES_REPORT_TTL,
     )

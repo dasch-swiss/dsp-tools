@@ -13,10 +13,10 @@ from dsp_tools.commands.validate_data.models.input_problems import UnknownClasse
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import _make_list_lookup
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
-from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validate_data import _get_msg_str_unknown_classes_in_data
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
+from dsp_tools.commands.validate_data.validate_ontology import _get_all_onto_classes
+from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from test.unittests.commands.validate_data.constants import PREFIXES
 
@@ -64,7 +64,7 @@ class TestFindUnknownClasses:
         g = Graph()
         g.parse(data=ttl, format="turtle")
         graphs = _get_rdf_graphs(g)
-        result = _check_for_unknown_resource_classes(graphs, CLASSES_IN_ONTO)
+        result = check_for_unknown_resource_classes(graphs, CLASSES_IN_ONTO)
         assert not result
 
     def test_check_for_unknown_resource_classes_data_wrong(self):
@@ -79,7 +79,7 @@ class TestFindUnknownClasses:
         g.parse(data=ttl, format="turtle")
         graphs = _get_rdf_graphs(g)
         used_iris = {f"{ONTO_STR}NonExistent"}
-        result = _check_for_unknown_resource_classes(graphs, used_iris)
+        result = check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"onto:NonExistent"}
         assert result.defined_classes == PREFIXED_IN_ONTO
@@ -106,7 +106,7 @@ class TestFindUnknownClasses:
         g.parse(data=ttl, format="turtle")
         graphs = _get_rdf_graphs(g)
         used_iris = {f"{NON_EXISTING_ONTO}One"}
-        result = _check_for_unknown_resource_classes(graphs, used_iris)
+        result = check_for_unknown_resource_classes(graphs, used_iris)
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"non-existent:One"}
         assert result.defined_classes == PREFIXED_IN_ONTO

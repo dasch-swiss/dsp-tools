@@ -26,9 +26,9 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 )
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
+from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 
 # ruff: noqa: ARG001 Unused function argument
 
@@ -59,7 +59,7 @@ def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFG
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: tuple[RDFGraphs, set[str]]) -> None:
     graphs, used_iris = unknown_classes_graphs
-    result = _check_for_unknown_resource_classes(graphs, used_iris)
+    result = check_for_unknown_resource_classes(graphs, used_iris)
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert result.unknown_classes == expected

@@ -3,8 +3,6 @@ from pathlib import Path
 
 from loguru import logger
 from rdflib import Graph
-from rdflib import Literal
-from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
@@ -32,7 +30,7 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
@@ -43,7 +41,6 @@ from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n    - "
@@ -107,7 +104,7 @@ def validate_parsed_resources(
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
     TURTLE_FILE_PATH.mkdir(exist_ok=True)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
-    if unknown_classes := _check_for_unknown_resource_classes(graphs, used_iris):
+    if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -132,20 +129,6 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
     return _get_validation_status(sorted_problems, config.is_on_prod_server)
-
-
-def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bool:
-    violations = any(
-        [
-            bool(all_problems.unique_violations),
-            bool(all_problems.unexpected_shacl_validation_components),
-        ]
-    )
-    if violations:
-        return False
-    if is_on_prod and all_problems.user_warnings:
-        return False
-    return True
 
 
 def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
@@ -190,83 +173,6 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
         f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
         f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
     )
-
-
-def _print_shacl_validation_violation_message(
-    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
-) -> None:
-    messages = get_user_message(sorted_problems, config.xml_file)
-    if messages.violations:
-        logger.error(messages.violations.message_header, messages.violations.message_body)
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
-        print(messages.violations.message_body)
-    else:
-        logger.debug("No validation errors found.")
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
-    if messages.warnings and config.severity.value <= 2:
-        logger.warning(messages.warnings.message_header, messages.warnings.message_body)
-        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
-        print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
-        print(messages.warnings.message_body)
-    if messages.infos and config.severity.value == 1:
-        logger.info(messages.infos.message_header, messages.infos.message_body)
-        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
-        print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
-        print(messages.infos.message_body)
-    if messages.unexpected_violations:
-        logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
-        print(
-            BACKGROUND_BOLD_RED,
-            "\n    Unknown violations found!   ",
-            RESET_TO_DEFAULT,
-        )
-        if config.save_graph_dir:
-            print(
-                BOLD_RED,
-                messages.unexpected_violations.message_header,
-                "Consult the saved graphs for details.",
-                RESET_TO_DEFAULT,
-            )
-            print(messages.unexpected_violations.message_body)
-        else:
-            _save_unexpected_results_and_inform_user(report, config.xml_file)
-
-
-def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
-    timestamp = f"{datetime.now()!s}_"
-    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
-    report.validation_graph.serialize(save_path)
-    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
-    report.shacl_graph.serialize(shacl_p)
-    data_p = filepath.parent / f"{timestamp}_data.ttl"
-    report.data_graph.serialize(data_p)
-    msg = (
-        f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
-        f"in the directory '{filepath.parent}'."
-    )
-    print(BOLD_RED + msg + RESET_TO_DEFAULT)
-
-
-def _check_for_unknown_resource_classes(
-    rdf_graphs: RDFGraphs, used_resource_iris: set[str]
-) -> UnknownClassesInData | None:
-    res_cls = _get_all_onto_classes(rdf_graphs)
-    if extra_cls := used_resource_iris - res_cls:
-        unknown_classes = {reformat_onto_iri(x) for x in extra_cls}
-        defined_classes = {reformat_onto_iri(x) for x in res_cls}
-        return UnknownClassesInData(unknown_classes=unknown_classes, defined_classes=defined_classes)
-    return None
-
-
-def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
-    ontos = rdf_graphs.ontos + rdf_graphs.knora_api
-    is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
-    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    is_usable = URIRef(KNORA_API_STR + "canBeInstantiated")
-    usable_resource_classes = set(ontos.subjects(is_usable, Literal(True)))
-    user_facing = usable_resource_classes.intersection(resource_classes)
-    return {str(x) for x in user_facing}
 
 
 def _get_validation_result(
@@ -361,3 +267,73 @@ def _get_graph_save_dir(filepath: Path) -> Path:
     save_file_template = new_directory / filepath.stem
     print(BOLD_CYAN + f"\n   Saving graphs to {save_file_template}   " + RESET_TO_DEFAULT)
     return save_file_template
+
+
+def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bool:
+    violations = any(
+        [
+            bool(all_problems.unique_violations),
+            bool(all_problems.unexpected_shacl_validation_components),
+        ]
+    )
+    if violations:
+        return False
+    if is_on_prod and all_problems.user_warnings:
+        return False
+    return True
+
+
+def _print_shacl_validation_violation_message(
+    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
+) -> None:
+    messages = get_user_message(sorted_problems, config.xml_file)
+    if messages.violations:
+        logger.error(messages.violations.message_header, messages.violations.message_body)
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
+        print(messages.violations.message_body)
+    else:
+        logger.debug("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+    if messages.warnings and config.severity.value <= 2:
+        logger.warning(messages.warnings.message_header, messages.warnings.message_body)
+        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
+        print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
+        print(messages.warnings.message_body)
+    if messages.infos and config.severity.value == 1:
+        logger.info(messages.infos.message_header, messages.infos.message_body)
+        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
+        print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
+        print(messages.infos.message_body)
+    if messages.unexpected_violations:
+        logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
+        print(
+            BACKGROUND_BOLD_RED,
+            "\n    Unknown violations found!   ",
+            RESET_TO_DEFAULT,
+        )
+        if config.save_graph_dir:
+            print(
+                BOLD_RED,
+                messages.unexpected_violations.message_header,
+                "Consult the saved graphs for details.",
+                RESET_TO_DEFAULT,
+            )
+            print(messages.unexpected_violations.message_body)
+        else:
+            _save_unexpected_results_and_inform_user(report, config.xml_file)
+
+
+def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
+    timestamp = f"{datetime.now()!s}_"
+    save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
+    report.validation_graph.serialize(save_path)
+    shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
+    report.shacl_graph.serialize(shacl_p)
+    data_p = filepath.parent / f"{timestamp}_data.ttl"
+    report.data_graph.serialize(data_p)
+    msg = (
+        f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
+        f"in the directory '{filepath.parent}'."
+    )
+    print(BOLD_RED + msg + RESET_TO_DEFAULT)

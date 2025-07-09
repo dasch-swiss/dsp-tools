@@ -123,7 +123,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: docker info
         run: docker info
-      - name: Check if directory exists
+      - name: Check if the required directory exists
         run: |
           if [ -d "/home/runner/.dsp-tools/validate-data" ]; then
             echo "Directory exists"
@@ -132,6 +132,13 @@ jobs:
           fi
       - name: validate-data-e2e-tests
         run: just e2e-tests-validate-data
+      - name: make logging file available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logging.log
+          path: /home/runner/.dsp-tools/logging.log
+          compression-level: 0
 
   legacy-e2e-tests:
     runs-on: ubuntu-latest

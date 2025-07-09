@@ -1,4 +1,21 @@
+import shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+
+
+def get_temp_directory() -> TemporaryDirectory:
+    TURTLE_FILE_PATH.mkdir(exist_ok=True)
+    t_dir = TemporaryDirectory(dir=TURTLE_FILE_PATH)
+    return t_dir
+
+
+def clean_up_temp_directory(temp_dir: TemporaryDirectory, save_graphs: Path | None) -> None:
+    if save_graphs:
+        shutil.copytree(temp_dir.name, save_graphs)
+    temp_dir.cleanup()
 
 
 def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:

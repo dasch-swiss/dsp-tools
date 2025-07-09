@@ -19,6 +19,8 @@ from dsp_tools.commands.validate_data.models.input_problems import UnknownClasse
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
+from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
+from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
@@ -58,7 +60,7 @@ def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclCliValidator, file_dir: Path, config: ValidateDataConfig
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -68,27 +70,27 @@ def validate_ontology(
     Args:
         onto_graph: the graph of the project ontologies
         shacl_validator: SHACL CLI validator
-        file_dir: directory for the turtle files
         config: The configuration where to save the information to
 
     Returns:
         A validation report if errors were found
     """
+    tmp_dir = get_temp_directory()
+    tmp_path = Path(tmp_dir.name)
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
-        shutil.copy(shacl_file, file_dir / ONTOLOGIES_SHACL_TTL)
-    onto_graph.serialize(file_dir / ONTOLOGIES_DATA_TTL)
+        shutil.copy(shacl_file, tmp_path / ONTOLOGIES_SHACL_TTL)
+    onto_graph.serialize(tmp_path / ONTOLOGIES_DATA_TTL)
     paths = ValidationFilePaths(
-        directory=file_dir,
+        directory=tmp_path,
         data_file=ONTOLOGIES_DATA_TTL,
         shacl_file=ONTOLOGIES_SHACL_TTL,
         report_file=ONTOLOGIES_REPORT_TTL,
     )
     validation_result = shacl_validator.validate(paths)
+    clean_up_temp_directory(tmp_dir, config.save_graph_dir)
     if validation_result.conforms:
         return None
-    if config.save_graph_dir:
-        validation_result.validation_graph.serialize(f"{config.save_graph_dir}_ONTO_VIOLATIONS.ttl")
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))
 
 

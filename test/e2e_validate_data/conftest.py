@@ -5,6 +5,7 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -23,6 +24,16 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
         f"http://0.0.0.0:{container_ports.api}",
         f"http://0.0.0.0:{container_ports.ingest}",
     )
+
+
+@pytest.fixture(scope="module")
+def api_url(container_ports: ExternalContainerPorts) -> str:
+    return f"http://0.0.0.0:{container_ports.api}"
+
+
+@pytest.fixture(scope="module")
+def shacl_validator(api_url: str) -> ShaclValidator:
+    return ShaclValidator(api_url)
 
 
 @pytest.fixture(scope="module")

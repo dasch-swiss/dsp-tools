@@ -175,16 +175,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _get_validation_report(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
-) -> ValidationReportGraphs:
-    report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir)
-    if config.save_graph_dir:
-        report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
-    return report
-
-
-def _validate(
-    validator: ShaclCliValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, graph_save_dir: Path | None = None
 ) -> ValidationReportGraphs:
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
@@ -199,7 +190,7 @@ def _validate(
         shacl_file=CARDINALITY_SHACL_TTL,
         report_file=CARDINALITY_REPORT_TTL,
     )
-    card_result = validator.validate(card_files)
+    card_result = shacl_validator.validate(card_files)
     if not card_result.conforms:
         results_graph += card_result.validation_graph
         conforms = False
@@ -210,7 +201,7 @@ def _validate(
         shacl_file=CONTENT_SHACL_TTL,
         report_file=CONTENT_REPORT_TTL,
     )
-    content_result = validator.validate(content_files)
+    content_result = shacl_validator.validate(content_files)
     if not content_result.conforms:
         results_graph += content_result.validation_graph
         conforms = False

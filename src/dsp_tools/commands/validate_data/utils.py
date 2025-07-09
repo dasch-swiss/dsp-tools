@@ -12,17 +12,14 @@ def get_temp_directory() -> TemporaryDirectory[str]:
     return t_dir
 
 
-def clean_up_temp_directory(temp_dir: TemporaryDirectory[str], save_graphs: Path | None) -> None:
-    if save_graphs:
-        src_root = Path(temp_dir.name)
-        save_graphs.mkdir(parents=True, exist_ok=True)
-
-        for src_path in src_root.rglob("*"):
-            if src_path.is_file():
-                dest_path = save_graphs / src_path.relative_to(src_root)
-                dest_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src_path, dest_path)
-
+def clean_up_temp_directory(temp_dir: TemporaryDirectory[str], save_graphs_dir: Path | None) -> None:
+    if save_graphs_dir:
+        tmp_folder = Path(temp_dir.name)
+        save_graphs_dir.mkdir(parents=True, exist_ok=True)
+        for tmp_filepath in tmp_folder.glob("*"):
+            if tmp_filepath.is_file():
+                dest_filepath = save_graphs_dir / tmp_filepath.relative_to(tmp_folder)
+                shutil.copy2(tmp_filepath, dest_filepath)
     temp_dir.cleanup()
 
 

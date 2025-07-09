@@ -15,7 +15,6 @@ from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
-from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -195,7 +194,7 @@ def _validate(
     conforms = True
 
     card_files = ValidationFilePaths(
-        directory=TURTLE_FILE_PATH,
+        directory=tmp_path,
         data_file=CARDINALITY_DATA_TTL,
         shacl_file=CARDINALITY_SHACL_TTL,
         report_file=CARDINALITY_REPORT_TTL,
@@ -206,7 +205,7 @@ def _validate(
         conforms = False
 
     content_files = ValidationFilePaths(
-        directory=TURTLE_FILE_PATH,
+        directory=tmp_path,
         data_file=CONTENT_DATA_TTL,
         shacl_file=CONTENT_SHACL_TTL,
         report_file=CONTENT_REPORT_TTL,

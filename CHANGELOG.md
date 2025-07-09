@@ -1,5 +1,34 @@
 # Changelog
 
+## [16.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.2.0...v16.3.0) (2025-07-09)
+
+
+### Enhancements
+
+* **get:** retrieve default permissions (DEV-5076) ([#1825](https://github.com/dasch-swiss/dsp-tools/issues/1825)) ([4414149](https://github.com/dasch-swiss/dsp-tools/commit/4414149357270c73ba5129e17ccd7cf9e2b7d084))
+* **validate-data:** run validation locally with a docker container (DEV-5062) ([#1827](https://github.com/dasch-swiss/dsp-tools/issues/1827)) ([343bfda](https://github.com/dasch-swiss/dsp-tools/commit/343bfda799a33633fb7894d82a6db6d9c62152b5))
+* **xmllib:** prevent conversion of null values into strings (DEV-5117) ([#1822](https://github.com/dasch-swiss/dsp-tools/issues/1822)) ([877af93](https://github.com/dasch-swiss/dsp-tools/commit/877af93879e38b316aa53d97af3b09b03062c06d))
+* **xmllib:** remove functionality to set default permissions on `write_file` (DEV-5105) ([#1823](https://github.com/dasch-swiss/dsp-tools/issues/1823)) ([c44fb5c](https://github.com/dasch-swiss/dsp-tools/commit/c44fb5ccdb96a62e598407789c5be05da86cbe8d))
+* **xmllib:** rename permissions open/restricted/restricted view to public/private/limited_view (DEV-5079) ([#1820](https://github.com/dasch-swiss/dsp-tools/issues/1820)) ([569e2bf](https://github.com/dasch-swiss/dsp-tools/commit/569e2bff84eb89728df0558ce3150ba7688b3ac2))
+
+
+### Bug Fixes
+
+* allow hexadecimal letters in resource iri check (DEV-5118) ([#1824](https://github.com/dasch-swiss/dsp-tools/issues/1824)) ([2f90826](https://github.com/dasch-swiss/dsp-tools/commit/2f9082673e2351f3a0fd7a5d5c63c919bedbe956))
+* **xmllib:** remove duplicate warning if an empty value is added in Simpletext (DEV-5121) ([#1826](https://github.com/dasch-swiss/dsp-tools/issues/1826)) ([78c2618](https://github.com/dasch-swiss/dsp-tools/commit/78c2618aa966e7d1a198056570d26f6cac420258))
+
+
+### Maintenance
+
+* bump start-stack to 2025.07.02 ([#1833](https://github.com/dasch-swiss/dsp-tools/issues/1833)) ([b86ad3a](https://github.com/dasch-swiss/dsp-tools/commit/b86ad3a046ee0d9a914f45416030af6c7a886807))
+* update CLAUDE.md ([#1819](https://github.com/dasch-swiss/dsp-tools/issues/1819)) ([23b1cf8](https://github.com/dasch-swiss/dsp-tools/commit/23b1cf8161678d15f3926aa9ce696cebc7283297))
+* **xmllib:** add CLAUDE.md file for xmllib (DEV-5097) ([#1815](https://github.com/dasch-swiss/dsp-tools/issues/1815)) ([58eadeb](https://github.com/dasch-swiss/dsp-tools/commit/58eadebbc05e740d9513b28f1d7a7f4cd2ab456c))
+
+
+### Documentation
+
+* **create:** add `default_permissions_overrule` to test data, docs, and JSON schema (DEV-5031) ([#1828](https://github.com/dasch-swiss/dsp-tools/issues/1828)) ([ebfaf60](https://github.com/dasch-swiss/dsp-tools/commit/ebfaf609bd3313ea051846ea8c49f7cb5a9e2350))
+
 ## [16.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.1.0...v16.2.0) (2025-07-02)
 
 

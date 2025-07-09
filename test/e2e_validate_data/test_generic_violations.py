@@ -14,17 +14,17 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import sort_user_problems
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import (
-    _extract_base_info_of_resource_results,
-)
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _extract_base_info_of_resource_results,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result

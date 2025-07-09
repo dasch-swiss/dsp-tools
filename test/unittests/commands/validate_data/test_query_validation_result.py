@@ -8,17 +8,6 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import (
-    _extract_base_info_of_resource_results,
-)
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _get_all_main_result_bns
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _get_resource_iri_and_type
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _query_all_results
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _query_one_with_detail
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _query_one_without_detail
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _reformat_one_validation_result
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import _separate_result_types
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -28,6 +17,21 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _extract_base_info_of_resource_results,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _get_all_main_result_bns
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _get_resource_iri_and_type,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_all_results
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_one_with_detail
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_one_without_detail
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _reformat_one_validation_result,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _separate_result_types
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO

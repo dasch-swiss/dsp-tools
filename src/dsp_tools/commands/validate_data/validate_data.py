@@ -18,9 +18,6 @@ from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
-from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import get_user_message
-from dsp_tools.commands.validate_data.get_user_message.get_user_validation_message import sort_user_problems
-from dsp_tools.commands.validate_data.get_user_message.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -31,6 +28,9 @@ from dsp_tools.commands.validate_data.models.validation import ValidationFilePat
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_parsed_resource
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import get_user_message
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology

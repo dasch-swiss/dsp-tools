@@ -11,7 +11,6 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_DATA_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
-from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -23,7 +22,7 @@ LIST_SEPARATOR = "\n    - "
 
 
 def validate_ontology(
-    onto_graph: Graph, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, config: ValidateDataConfig, turtle_dir: Path
 ) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
@@ -40,10 +39,10 @@ def validate_ontology(
     """
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
-        shutil.copy(shacl_file, TURTLE_FILE_PATH / ONTOLOGIES_SHACL_TTL)
-    onto_graph.serialize(TURTLE_FILE_PATH / ONTOLOGIES_DATA_TTL)
+        shutil.copy(shacl_file, turtle_dir / ONTOLOGIES_SHACL_TTL)
+    onto_graph.serialize(turtle_dir / ONTOLOGIES_DATA_TTL)
     paths = ValidationFilePaths(
-        directory=TURTLE_FILE_PATH,
+        directory=turtle_dir,
         data_file=ONTOLOGIES_DATA_TTL,
         shacl_file=ONTOLOGIES_SHACL_TTL,
         report_file=ONTOLOGIES_REPORT_TTL,

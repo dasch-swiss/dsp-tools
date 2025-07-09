@@ -120,7 +120,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_result(graphs, shacl_validator, config)
+    report = _get_validation_report(graphs, shacl_validator, config)
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -175,7 +175,7 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
     )
 
 
-def _get_validation_result(
+def _get_validation_report(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
 ) -> ValidationReportGraphs:
     report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir)

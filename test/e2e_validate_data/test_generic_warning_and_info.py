@@ -15,7 +15,7 @@ from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_d
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 
 # ruff: noqa: ARG001 Unused function argument
@@ -44,7 +44,7 @@ def no_violations_with_warnings(
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    report = _get_validation_result(graphs, shacl_validator, CONFIG)
+    report = _get_validation_report(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
 
@@ -57,7 +57,7 @@ def no_violations_with_info(
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    report = _get_validation_result(graphs, shacl_validator, CONFIG)
+    report = _get_validation_report(graphs, shacl_validator, CONFIG)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
 
@@ -135,7 +135,7 @@ class TestSortedProblems:
         graphs, used_iris = prepare_data_for_validation_from_file(
             file, authentication, config.ignore_duplicate_files_warning
         )
-        report = _get_validation_result(graphs, shacl_validator, config)
+        report = _get_validation_report(graphs, shacl_validator, config)
         reformatted = reformat_validation_graph(report)
         no_violations_with_info = sort_user_problems(reformatted)
         all_expected_info = [

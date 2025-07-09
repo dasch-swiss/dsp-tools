@@ -130,40 +130,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
-    validation_str = f"""{PREFIXES}
-[   a sh:ValidationResult ;
-    sh:focusNode <http://data/id_wrong_file_type> ;
-    sh:resultMessage "Property knora-api:hasMovingImageFileValue is not among those permitted for any of the types" ;
-    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent <http://datashapes.org/dash#ClosedByTypesConstraintComponent> ;
-    sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
-    sh:value <http://data/fileValueBn> ] .
-    """
-    data_str = f"""{PREFIXES}
-    <http://data/id_wrong_file_type> a onto:TestStillImageRepresentation ;
-        rdfs:label "TestStillImageRepresentation File mp4"^^xsd:string ;
-        knora-api:hasMovingImageFileValue <http://data/fileValueBn> .
-    """
-    graphs = Graph()
-    graphs.parse(data=validation_str, format="ttl")
-    graphs.parse(data=data_str, format="ttl")
-    graphs += onto_graph
-    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
-    base_info = ValidationResultBaseInfo(
-        result_bn=val_bn,
-        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        focus_node_iri=DATA.id_wrong_file_type,
-        focus_node_type=ONTO.TestStillImageRepresentation,
-        result_path=KNORA_API.hasMovingImageFileValue,
-        severity=SH.Violation,
-    )
-    return graphs, base_info
-
-
-@pytest.fixture
-def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [ a sh:ValidationResult ;
     sh:focusNode <http://data/id_resource_without_representation> ;
@@ -178,12 +145,16 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
     <http://data/id_resource_without_representation> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> ;
         rdfs:label "Resource Without Representation"^^xsd:string ;
         knora-api:hasMovingImageFileValue <http://data/fileBn> .
+        
+    <http://data/fileBn> a knora-api:MovingImageFileValue ;
+        knora-api:fileValueHasFilename "file.mp4"^^xsd:string .
     """
-    graphs = Graph()
-    graphs.parse(data=validation_str, format="ttl")
-    graphs.parse(data=data_str, format="ttl")
-    graphs += onto_graph
-    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    result_g = Graph()
+    result_g.parse(data=validation_str, format="ttl")
+    data_g = Graph()
+    data_g.parse(data=data_str, format="ttl")
+    result_g += onto_graph
+    val_bn = next(result_g.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
@@ -192,17 +163,18 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
         result_path=KNORA_API.hasMovingImageFileValue,
         severity=SH.Violation,
     )
-    return graphs, base_info
+    return result_g, data_g, base_info
 
 
 @pytest.fixture
-def extracted_file_value_for_resource_without_representation() -> ValidationResult:
+def extracted_file_closed_constraint() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILEVALUE_PROHIBITED,
+        violation_type=ViolationType.FILE_VALUE_PROHIBITED,
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,
         severity=SH.Violation,
+        input_value=Literal("file.mp4"),
     )
 
 

@@ -88,12 +88,12 @@ class Severity(Enum):
 
 class ProblemType(StrEnum):
     GENERIC = "generic"
-    FILE_VALUE = "file problem"
+    FILE_VALUE_MISSING = "file problem"
     FILE_DUPLICATE = "file used several times"
+    FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."
-    FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     VALUE_TYPE_MISMATCH = "Value Type Mismatch"
     INPUT_REGEX = "Wrong Format of Input"
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"

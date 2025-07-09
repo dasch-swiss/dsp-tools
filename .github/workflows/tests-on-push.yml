@@ -115,6 +115,8 @@ jobs:
         run: just e2e-tests
 
   validate-data-e2e-tests:
+    if: ${{ always() }}
+    needs: [e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -141,6 +143,8 @@ jobs:
           compression-level: 0
 
   legacy-e2e-tests:
+    if: ${{ always() }}
+    needs: [validate-data-e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

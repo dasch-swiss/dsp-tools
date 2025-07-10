@@ -106,9 +106,11 @@ def validate_parsed_resources(
     ignore_duplicate_files = config.ignore_duplicate_files_warning
     if not config.ignore_duplicate_files_warning:
         duplicate_check = check_for_duplicate_files(parsed_resources, config)
-        if not duplicate_check.should_continue:
+        if duplicate_check.user_msg:
             logger.error(duplicate_check.user_msg)
+            print(f"{BACKGROUND_BOLD_RED}   Duplicate Filepaths Found!    {RESET_TO_DEFAULT}")
             print(f"{BOLD_RED}{duplicate_check.user_msg}{RESET_TO_DEFAULT}")
+        if not duplicate_check.should_continue:
             return False
         ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
 

@@ -68,7 +68,7 @@ class TestCheckForDuplicateFiles:
             "1 file(s) were used multiple times in your data. "
             "Due to the large number of duplicates they cannot be included in the schema validation.\n"
             "Since you are on a test environment, the validation or xmlupload will continue "
-            "without the duplicate check. Please note that this is not allowed on a production server. "
+            "without the duplicate check. Please note that this is not allowed on a production server.\n"
             "The following filepaths are used more than once, result displayed as: "
             f"file count - 'file path'\n{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
         )
@@ -82,6 +82,7 @@ class TestCheckForDuplicateFiles:
             "1 file(s) were used multiple times in your data. Due to the large number of "
             "duplicates they cannot be included in the schema validation.\n"
             "Since you are on a production server, the validation or xmlupload cannot continue. "
+            "If you wish to upload duplicate images, use the designated flag to ignore them.\n"
             "The following filepaths are used more than once, result displayed as: file count - 'file path'\n"
             f"{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
         )

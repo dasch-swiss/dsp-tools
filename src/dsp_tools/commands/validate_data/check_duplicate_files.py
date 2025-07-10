@@ -59,15 +59,18 @@ def _get_duplicate_msg(count_dict: dict[str, int], is_on_prod: bool) -> str:
         f"Due to the large number of duplicates they cannot be included in the schema validation.\n"
     )
     if is_on_prod:
-        msg += "Since you are on a production server, the validation or xmlupload cannot continue. "
+        msg += (
+            "Since you are on a production server, the validation or xmlupload cannot continue. "
+            "If you wish to upload duplicate images, use the designated flag to ignore them."
+        )
     else:
         msg += (
             "Since you are on a test environment, "
             "the validation or xmlupload will continue without the duplicate check. "
-            "Please note that this is not allowed on a production server. "
+            "Please note that this is not allowed on a production server."
         )
     msg += (
-        f"The following filepaths are used more than once, "
+        f"\nThe following filepaths are used more than once, "
         f"result displayed as: file count - 'file path'\n{' | '.join(file_paths)}"
     )
     return msg

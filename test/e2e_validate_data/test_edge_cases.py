@@ -48,7 +48,7 @@ def special_characters_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_report(graphs, shacl_validator, CONFIG)
+    return _get_validation_report(graphs, shacl_validator)
 
 
 @pytest.fixture(scope="module")
@@ -57,7 +57,7 @@ def inheritance_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return _get_validation_report(graphs, shacl_validator, CONFIG)
+    return _get_validation_report(graphs, shacl_validator)
 
 
 @pytest.fixture(scope="module")
@@ -74,7 +74,7 @@ def validate_ontology_violation(
 def test_special_characters_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    special_characters_correct = _get_validation_report(graphs, shacl_validator, CONFIG)
+    special_characters_correct = _get_validation_report(graphs, shacl_validator)
     assert special_characters_correct.conforms
 
 
@@ -140,7 +140,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 def test_inheritance_correct(authentication: AuthenticationClient, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    inheritance_correct = _get_validation_report(graphs, shacl_validator, CONFIG)
+    inheritance_correct = _get_validation_report(graphs, shacl_validator)
     assert inheritance_correct.conforms
 
 

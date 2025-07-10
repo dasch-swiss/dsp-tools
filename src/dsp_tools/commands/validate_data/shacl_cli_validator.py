@@ -8,7 +8,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.error.exceptions import ValidationCliError
+from dsp_tools.error.exceptions import ShaclValidationCliError
 
 DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.5"
 
@@ -24,7 +24,7 @@ class ShaclCliValidator:
                 "If it is, please contact the DSP-TOOLS development team with your log file."
             )
             logger.error(msg)
-            raise ValidationCliError(msg) from None
+            raise ShaclValidationCliError(msg) from None
         return self._parse_validation_result(file_paths.directory / file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:

@@ -1,12 +1,9 @@
-from pathlib import Path
-
 from rdflib import XSD
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
 # paths for the validation files used by the docker container
-TURTLE_FILE_PATH = (Path.home() / ".dsp-tools" / "validate-data").absolute()
 
 ONTOLOGIES_DATA_TTL = "ONTOLOGIES_DATA.ttl"
 ONTOLOGIES_SHACL_TTL = "ONTOLOGIES_SHACL.ttl"

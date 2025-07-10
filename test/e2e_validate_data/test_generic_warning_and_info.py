@@ -44,7 +44,7 @@ def no_violations_with_warnings(
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    report = _get_validation_report(graphs, shacl_validator, CONFIG)
+    report = _get_validation_report(graphs, shacl_validator)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
 
@@ -57,7 +57,7 @@ def no_violations_with_info(
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    report = _get_validation_report(graphs, shacl_validator, CONFIG)
+    report = _get_validation_report(graphs, shacl_validator)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
 
@@ -135,7 +135,7 @@ class TestSortedProblems:
         graphs, used_iris = prepare_data_for_validation_from_file(
             file, authentication, config.ignore_duplicate_files_warning
         )
-        report = _get_validation_report(graphs, shacl_validator, config)
+        report = _get_validation_report(graphs, shacl_validator)
         reformatted = reformat_validation_graph(report)
         no_violations_with_info = sort_user_problems(reformatted)
         all_expected_info = [

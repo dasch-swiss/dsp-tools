@@ -56,8 +56,12 @@ class InvalidInputError(BaseError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
-class ValidationCliError(BaseError):
+class ShaclValidationCliError(BaseError):
     """This error is raised when the validate data docker command has problems"""
+
+
+class ShaclValidationError(BaseError):
+    """This error is raised when an unexpected error occurs during the validation"""
 
 
 class InvalidFileNameError(InvalidInputError):

@@ -15,13 +15,11 @@ from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
-from dsp_tools.commands.validate_data.constants import TURTLE_FILE_PATH
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.models.validation import RDFGraphStrings
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
@@ -30,8 +28,11 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
+from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
+from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
@@ -102,7 +103,6 @@ def validate_parsed_resources(
 
 
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
-    TURTLE_FILE_PATH.mkdir(exist_ok=True)
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
@@ -120,7 +120,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_report(graphs, shacl_validator, config)
+    report = _get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -176,44 +176,53 @@ def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidati
 
 
 def _get_validation_report(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, config: ValidateDataConfig
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, graph_save_dir: Path | None = None
 ) -> ValidationReportGraphs:
-    report = _validate(shacl_validator, rdf_graphs, config.save_graph_dir)
-    if config.save_graph_dir:
-        report.validation_graph.serialize(f"{config.save_graph_dir}_VALIDATION_REPORT.ttl")
-    return report
+    tmp_dir = get_temp_directory()
+    tmp_path = Path(tmp_dir.name)
+    dir_to_save_graphs = graph_save_dir
+    try:
+        result = _call_shacl_cli(rdf_graphs, shacl_validator, tmp_path)
+        return result
+    except Exception as e:  # noqa: BLE001
+        logger.exception(e)
+        dir_to_save_graphs = tmp_path.parent / "validation-graphs"
+        msg = (
+            f"An error occurred during the data validation. "
+            f"Please contact the dsp-tools development team "
+            f"with your log files and the files in the directory: {dir_to_save_graphs}"
+        )
+        raise ShaclValidationError(msg) from None
+    finally:
+        clean_up_temp_directory(tmp_dir, dir_to_save_graphs)
 
 
-def _validate(
-    validator: ShaclCliValidator, rdf_graphs: RDFGraphs, graph_save_dir: Path | None
+def _call_shacl_cli(
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> ValidationReportGraphs:
-    _create_and_write_graphs(rdf_graphs, graph_save_dir)
-
+    _create_and_write_graphs(rdf_graphs, tmp_path)
     results_graph = Graph()
     conforms = True
-
     card_files = ValidationFilePaths(
-        directory=TURTLE_FILE_PATH,
+        directory=tmp_path,
         data_file=CARDINALITY_DATA_TTL,
         shacl_file=CARDINALITY_SHACL_TTL,
         report_file=CARDINALITY_REPORT_TTL,
     )
-    card_result = validator.validate(card_files)
+    card_result = shacl_validator.validate(card_files)
     if not card_result.conforms:
         results_graph += card_result.validation_graph
         conforms = False
-
     content_files = ValidationFilePaths(
-        directory=TURTLE_FILE_PATH,
+        directory=tmp_path,
         data_file=CONTENT_DATA_TTL,
         shacl_file=CONTENT_SHACL_TTL,
         report_file=CONTENT_REPORT_TTL,
     )
-    content_result = validator.validate(content_files)
+    content_result = shacl_validator.validate(content_files)
     if not content_result.conforms:
         results_graph += content_result.validation_graph
         conforms = False
-
     return ValidationReportGraphs(
         conforms=conforms,
         validation_graph=results_graph,
@@ -223,41 +232,22 @@ def _validate(
     )
 
 
-def _create_and_write_graphs(rdf_graphs: RDFGraphs, graph_save_dir: Path | None) -> None:
+def _create_and_write_graphs(rdf_graphs: RDFGraphs, tmp_path: Path) -> None:
     logger.debug("Serialise RDF graphs into turtle strings")
     data_str = rdf_graphs.data.serialize(format="ttl")
     ontos_str = rdf_graphs.ontos.serialize(format="ttl")
     card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
     content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
     knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
-    if graph_save_dir:
-        graph_strings = RDFGraphStrings(
-            cardinality_validation_data=data_str,
-            cardinality_shapes=card_shape_str + ontos_str + knora_api_str,
-            content_validation_data=data_str + ontos_str + knora_api_str,
-            content_shapes=content_shape_str + ontos_str + knora_api_str,
-        )
-        _save_graphs(graph_save_dir, graph_strings)
     turtle_paths_and_graphs = [
-        (TURTLE_FILE_PATH / CARDINALITY_DATA_TTL, data_str),
-        (TURTLE_FILE_PATH / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),
-        (TURTLE_FILE_PATH / CONTENT_DATA_TTL, data_str + ontos_str + knora_api_str),
-        (TURTLE_FILE_PATH / CONTENT_SHACL_TTL, content_shape_str + ontos_str + knora_api_str),
+        (tmp_path / CARDINALITY_DATA_TTL, data_str),
+        (tmp_path / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),
+        (tmp_path / CONTENT_DATA_TTL, data_str + ontos_str + knora_api_str),
+        (tmp_path / CONTENT_SHACL_TTL, content_shape_str + ontos_str + knora_api_str),
     ]
     for f_path, content in turtle_paths_and_graphs:
         with open(f_path, "w") as writer:
             writer.write(content)
-
-
-def _save_graphs(save_path: Path, graph_strings: RDFGraphStrings) -> None:
-    with open(f"{save_path}_CARDINALITY_DATA.ttl", "w") as writer:
-        writer.write(graph_strings.cardinality_validation_data)
-    with open(f"{save_path}_CARDINALITY_SHAPES.ttl", "w") as writer:
-        writer.write(graph_strings.cardinality_shapes)
-    with open(f"{save_path}_CONTENT_DATA.ttl", "w") as writer:
-        writer.write(graph_strings.content_validation_data)
-    with open(f"{save_path}_CONTENT_SHAPES.ttl", "w") as writer:
-        writer.write(graph_strings.content_shapes)
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

@@ -26,14 +26,6 @@ class RDFGraphs:
 
 
 @dataclass
-class RDFGraphStrings:
-    cardinality_validation_data: str
-    cardinality_shapes: str
-    content_validation_data: str
-    content_shapes: str
-
-
-@dataclass
 class ValidationFilePaths:
     directory: Path
     data_file: str

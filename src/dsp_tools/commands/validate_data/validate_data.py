@@ -108,7 +108,7 @@ def validate_parsed_resources(
         duplicate_check = check_for_duplicate_files(parsed_resources, config)
         if not duplicate_check.should_continue:
             logger.error(duplicate_check.user_msg)
-            print(BOLD_RED + duplicate_check.user_msg + RESET_TO_DEFAULT)
+            print(f"{BOLD_RED}{duplicate_check.user_msg}{RESET_TO_DEFAULT}")
             return False
         ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
 

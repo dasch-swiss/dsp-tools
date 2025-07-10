@@ -1,5 +1,3 @@
-
-
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.models.validation import DuplicateFileResult
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource

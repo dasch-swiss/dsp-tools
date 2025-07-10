@@ -68,7 +68,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -89,7 +88,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
-        assert not result.asset_value
         lbl, rdf_type, perm = _get_label_and_type(result)
         assert len(perm) == 1
         permission = perm.pop(0)
@@ -117,7 +115,6 @@ class TestResource:
         result = result_list.resources.pop(0)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -157,7 +154,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING

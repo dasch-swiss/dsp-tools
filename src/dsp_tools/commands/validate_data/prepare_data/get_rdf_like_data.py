@@ -48,7 +48,6 @@ def _get_one_resource(
         res_id=resource.res_id,
         property_objects=metadata,
         values=values,
-        asset_value=None,
         migration_metadata=MigrationMetadata(),
     )
 

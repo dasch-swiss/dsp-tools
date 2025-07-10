@@ -79,18 +79,21 @@ def validate_ontology(
     """
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
+    save_graph_dir = config.save_graph_dir
     try:
         result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_path)
-        clean_up_temp_directory(tmp_dir, config.save_graph_dir)
         return result
     except Exception as e:  # noqa: BLE001
-        logger.error(e)
+        logger.exception(e)
+        save_graph_dir = tmp_path.parent / "validation-graphs"
         msg = (
             f"An error occurred during the ontology validation. "
             f"Please contact the dsp-tools development team "
-            f"with your log files and the files in the directory: {tmp_dir.name}"
+            f"with your log files and the files in the directory: {save_graph_dir}"
         )
         raise ShaclValidationError(msg) from None
+    finally:
+        clean_up_temp_directory(tmp_dir, save_graph_dir)
 
 
 def _get_ontology_validation_result(

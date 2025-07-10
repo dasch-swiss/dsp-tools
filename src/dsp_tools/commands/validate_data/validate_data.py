@@ -201,7 +201,6 @@ def _call_shacl_cli(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> ValidationReportGraphs:
     _create_and_write_graphs(rdf_graphs, tmp_path)
-    raise IndexError()
     results_graph = Graph()
     conforms = True
     card_files = ValidationFilePaths(

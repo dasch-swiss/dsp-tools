@@ -37,7 +37,7 @@ class ValidationFilePaths:
 class DuplicateFileResult:
     user_msg: str | None
     should_continue: bool
-    ignore_duplicate_file_shapes: bool
+    duplicate_files_must_be_ignored: bool
 
 
 @dataclass

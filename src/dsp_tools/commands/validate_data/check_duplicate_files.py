@@ -18,7 +18,20 @@ def check_for_duplicate_files(
     Returns:
         Results for the user and decisions how the program should continue
     """
+    count_dict = _get_filepath_with_more_than_one_usage(parsed_resources)
 
 
-def _get_filepath_count_dict(parsed_resources: list[ParsedResource]) -> dict[str, int]:
+def _get_filepath_with_more_than_one_usage(parsed_resources: list[ParsedResource]) -> dict[str, int]:
     pass
+
+
+def _determine_if_the_validation_should_continue(
+    is_on_prod_like_server: bool, duplicate_files_must_be_ignored: bool
+) -> bool:
+    if not duplicate_files_must_be_ignored:
+        return True
+    # Too many duplicate files are present
+    if is_on_prod_like_server:
+        return False
+    # On a test environment we will ignore them but continue
+    return True

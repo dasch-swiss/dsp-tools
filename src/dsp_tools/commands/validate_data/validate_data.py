@@ -110,7 +110,7 @@ def validate_parsed_resources(
             logger.error(duplicate_check.user_msg)
             print(BOLD_RED + duplicate_check.user_msg + RESET_TO_DEFAULT)
             return False
-        ignore_duplicate_files = duplicate_check.ignore_duplicate_file_shapes
+        ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
 
     rdf_graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,

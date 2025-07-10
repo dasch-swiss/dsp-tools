@@ -51,7 +51,7 @@ def too_many_duplicate_files(file_value_1):
     return [
         ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
         for i in range(TOO_MAY_DUPLICATES_NUMBER)
-    ]
+    ] + [ParsedResource(f"no_file_{i}", ":type", "lbl", None, [], None, None) for i in range(10)]
 
 
 @pytest.fixture

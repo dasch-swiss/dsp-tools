@@ -11,11 +11,13 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
+from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
+from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from test.e2e_validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
@@ -60,6 +62,93 @@ def no_violations_with_info(
     report = _get_validation_report(graphs, shacl_validator)
     reformatted = reformat_validation_graph(report)
     return sort_user_problems(reformatted)
+
+
+@pytest.fixture(scope="module")
+def parsed_resources_100_duplicate_images(create_generic_project, authentication):
+    file = Path("testdata/validate-data/generic/100_duplicate_images.xml")
+    parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
+        file, authentication.server
+    )
+    return parsed_resources, authorship_lookup, permission_ids, shortcode
+
+
+class TestGetDuplicateFileValidationResult:
+    def test_ignore_files_on_test_env(self, parsed_resources_100_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=True,
+            is_on_prod_server=False,
+        )
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=authorship_lookup,
+            permission_ids=permission_ids,
+            shortcode=shortcode,
+            config=config,
+            auth=authentication,
+        )
+        assert validation_passed
+
+    def test_do_not_ignore_files_on_test_env(self, parsed_resources_100_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=False,
+            is_on_prod_server=False,
+        )
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=authorship_lookup,
+            permission_ids=permission_ids,
+            shortcode=shortcode,
+            config=config,
+            auth=authentication,
+        )
+        assert validation_passed
+
+    def test_ignore_files_on_prod_env(self, parsed_resources_100_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=True,
+            is_on_prod_server=True,
+        )
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=authorship_lookup,
+            permission_ids=permission_ids,
+            shortcode=shortcode,
+            config=config,
+            auth=authentication,
+        )
+        assert validation_passed
+
+    def test_do_not_ignore_files_on_prod_env(self, parsed_resources_100_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=False,
+            is_on_prod_server=True,
+        )
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=authorship_lookup,
+            permission_ids=permission_ids,
+            shortcode=shortcode,
+            config=config,
+            auth=authentication,
+        )
+        assert not validation_passed
 
 
 class TestGetCorrectValidationResult:

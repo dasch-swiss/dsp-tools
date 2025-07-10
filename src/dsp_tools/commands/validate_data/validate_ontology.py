@@ -2,7 +2,9 @@ import shutil
 from importlib.resources import as_file
 from importlib.resources import files
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -22,6 +24,7 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -76,6 +79,23 @@ def validate_ontology(
         A validation report if errors were found
     """
     tmp_dir = get_temp_directory()
+    try:
+        result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_dir)
+        clean_up_temp_directory(tmp_dir, config.save_graph_dir)
+        return result
+    except Exception as e:  # noqa: BLE001
+        logger.error(e)
+        msg = (
+            f"An error occurred during the ontology validation. "
+            f"Please contact the dsp-tools development team "
+            f"with your log files and the files in the directory: {tmp_dir.name}"
+        )
+        raise ShaclValidationError(msg) from None
+
+
+def _get_ontology_validation_result(
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, tmp_dir: TemporaryDirectory[str]
+) -> OntologyValidationProblem | None:
     tmp_path = Path(tmp_dir.name)
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
@@ -88,7 +108,6 @@ def validate_ontology(
         report_file=ONTOLOGIES_REPORT_TTL,
     )
     validation_result = shacl_validator.validate(paths)
-    clean_up_temp_directory(tmp_dir, config.save_graph_dir)
     if validation_result.conforms:
         return None
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))

@@ -13,12 +13,12 @@ from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from test.e2e_validate_data.util import prepare_data_for_validation_from_file
 
 CONFIG = ValidateDataConfig(
     xml_file=Path(),

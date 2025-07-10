@@ -22,7 +22,7 @@ from dsp_tools.commands.validate_data.models.input_problems import UnknownClasse
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
+from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_parsed_resource
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
@@ -79,8 +79,19 @@ def validate_data(
         is_on_prod_server=is_prod_like_server(creds.server),
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    graphs, used_iris = prepare_data_for_validation_from_file(filepath, auth, config.ignore_duplicate_files_warning)
-    return _validate_data(graphs, used_iris, config)
+
+    parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
+        file=filepath,
+        api_url=auth.server,
+    )
+    return validate_parsed_resources(
+        parsed_resources=parsed_resources,
+        authorship_lookup=authorship_lookup,
+        permission_ids=permission_ids,
+        shortcode=shortcode,
+        config=config,
+        auth=auth,
+    )
 
 
 def validate_parsed_resources(

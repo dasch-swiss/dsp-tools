@@ -19,7 +19,6 @@ from dsp_tools.commands.validate_data.models.input_problems import UnknownClasse
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_file
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
     _extract_base_info_of_resource_results,
@@ -29,6 +28,7 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
+from test.e2e_validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
 

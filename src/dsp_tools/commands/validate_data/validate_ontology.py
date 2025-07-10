@@ -2,7 +2,6 @@ import shutil
 from importlib.resources import as_file
 from importlib.resources import files
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 from loguru import logger
 from rdflib import RDF
@@ -79,8 +78,9 @@ def validate_ontology(
         A validation report if errors were found
     """
     tmp_dir = get_temp_directory()
+    tmp_path = Path(tmp_dir.name)
     try:
-        result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_dir)
+        result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_path)
         clean_up_temp_directory(tmp_dir, config.save_graph_dir)
         return result
     except Exception as e:  # noqa: BLE001
@@ -94,9 +94,8 @@ def validate_ontology(
 
 
 def _get_ontology_validation_result(
-    onto_graph: Graph, shacl_validator: ShaclCliValidator, tmp_dir: TemporaryDirectory[str]
+    onto_graph: Graph, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> OntologyValidationProblem | None:
-    tmp_path = Path(tmp_dir.name)
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
         shutil.copy(shacl_file, tmp_path / ONTOLOGIES_SHACL_TTL)

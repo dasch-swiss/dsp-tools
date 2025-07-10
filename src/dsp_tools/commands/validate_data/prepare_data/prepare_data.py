@@ -22,21 +22,9 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
-def prepare_data_for_validation_from_file(
-    filepath: Path, auth: AuthenticationClient, ignore_duplicate_files_warning: bool
-) -> tuple[RDFGraphs, set[str]]:
-    parsed_resources, shortcode, authorship_lookup, permission_ids = _get_info_from_xml(filepath, auth.server)
-    return prepare_data_for_validation_from_parsed_resource(
-        parsed_resources=parsed_resources,
-        authorship_lookup=authorship_lookup,
-        permission_ids=permission_ids,
-        auth=auth,
-        shortcode=shortcode,
-        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
-    )
-
-
-def _get_info_from_xml(file: Path, api_url: str) -> tuple[list[ParsedResource], str, dict[str, list[str]], list[str]]:
+def get_info_and_parsed_resources_from_file(
+    file: Path, api_url: str
+) -> tuple[list[ParsedResource], str, dict[str, list[str]], list[str]]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
     authorship_lookup = get_authorship_lookup(root)

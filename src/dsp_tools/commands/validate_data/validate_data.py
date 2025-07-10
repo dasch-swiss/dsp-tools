@@ -32,6 +32,7 @@ from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
@@ -179,11 +180,26 @@ def _get_validation_report(
 ) -> ValidationReportGraphs:
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
-    _create_and_write_graphs(rdf_graphs, tmp_path)
+    try:
+        result = _call_shacl_cli(rdf_graphs, shacl_validator, tmp_path)
+        clean_up_temp_directory(tmp_dir, graph_save_dir)
+        return result
+    except Exception as e:  # noqa: BLE001
+        logger.error(e)
+        msg = (
+            f"An error occurred during the data validation. "
+            f"Please contact the dsp-tools development team "
+            f"with your log files and the files in the directory: {tmp_dir.name}"
+        )
+        raise ShaclValidationError(msg) from None
 
+
+def _call_shacl_cli(
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
+) -> ValidationReportGraphs:
+    _create_and_write_graphs(rdf_graphs, tmp_path)
     results_graph = Graph()
     conforms = True
-
     card_files = ValidationFilePaths(
         directory=tmp_path,
         data_file=CARDINALITY_DATA_TTL,
@@ -194,7 +210,6 @@ def _get_validation_report(
     if not card_result.conforms:
         results_graph += card_result.validation_graph
         conforms = False
-
     content_files = ValidationFilePaths(
         directory=tmp_path,
         data_file=CONTENT_DATA_TTL,
@@ -205,8 +220,6 @@ def _get_validation_report(
     if not content_result.conforms:
         results_graph += content_result.validation_graph
         conforms = False
-
-    clean_up_temp_directory(tmp_dir, graph_save_dir)
     return ValidationReportGraphs(
         conforms=conforms,
         validation_graph=results_graph,

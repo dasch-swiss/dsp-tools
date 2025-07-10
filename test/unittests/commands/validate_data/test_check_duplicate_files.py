@@ -4,6 +4,7 @@ import pytest
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.validate_data.check_duplicate_files import _get_filepath_count_dict
 from dsp_tools.commands.validate_data.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -26,24 +27,32 @@ PROD_ENV_CONFIG = ValidateDataConfig(
     is_on_prod_server=True,
 )
 
-
-@pytest.fixture
-def parsed_file_value():
-    return ParsedFileValue("file_path.jpg", None, ParsedFileValueMetadata(None, None, None, None))
+FILEPATH_1 = "file_path_1.jpg"
+FILEPATH_2 = "file_path_2.jpg"
 
 
 @pytest.fixture
-def too_many_duplicate_files(parsed_file_value):
+def file_value_1():
+    return ParsedFileValue(FILEPATH_1, None, ParsedFileValueMetadata(None, None, None, None))
+
+
+@pytest.fixture
+def file_value_2():
+    return ParsedFileValue(FILEPATH_2, None, ParsedFileValueMetadata(None, None, None, None))
+
+
+@pytest.fixture
+def too_many_duplicate_files(file_value_1):
     return [
-        ParsedResource(f"id_{i}", ":type", "lbl", None, [], parsed_file_value, None)
+        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
         for i in range(MAXIMUM_DUPLICATE_FILE_PATHS + 1)
     ]
 
 
 @pytest.fixture
-def ok_amount_of_duplicate_files(parsed_file_value):
+def ok_amount_of_duplicate_files(file_value_1):
     return [
-        ParsedResource(f"id_{i}", ":type", "lbl", None, [], parsed_file_value, None)
+        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
         for i in range(MAXIMUM_DUPLICATE_FILE_PATHS - 1)
     ]
 
@@ -74,3 +83,16 @@ class TestCheckForDuplicateFiles:
         assert result.user_msg is None
         assert result.should_continue
         assert not result.ignore_duplicate_file_shapes
+
+
+def test_get_filepath_count_dict(file_value_1, file_value_2):
+    file_1_number = 10
+    file_2_number = 2
+    resources = [ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None) for i in range(file_1_number)]
+    resources.extend(
+        [ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_2, None) for i in range(file_2_number)]
+    )
+    result = _get_filepath_count_dict(resources)
+    assert set(result.keys()) == {FILEPATH_1, FILEPATH_2}
+    assert result[FILEPATH_1] == file_1_number
+    assert result[FILEPATH_2] == file_2_number

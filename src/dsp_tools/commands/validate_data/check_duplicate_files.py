@@ -1,4 +1,7 @@
+from collections import defaultdict
+
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
 from dsp_tools.commands.validate_data.models.validation import DuplicateFileResult
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
@@ -19,19 +22,52 @@ def check_for_duplicate_files(
         Results for the user and decisions how the program should continue
     """
     count_dict = _get_filepath_with_more_than_one_usage(parsed_resources)
+    duplicate_files_must_be_ignored = _determine_if_duplicate_files_must_be_ignored(count_dict)
+    if not duplicate_files_must_be_ignored:
+        return DuplicateFileResult(
+            user_msg=None,
+            duplicate_files_must_be_ignored=False,
+            should_continue=True,
+        )
+    msg = _get_duplicate_msg(count_dict, config.is_on_prod_server)
+    should_continue = True
+    if config.is_on_prod_server:
+        should_continue = False
+    return DuplicateFileResult(
+        user_msg=msg,
+        duplicate_files_must_be_ignored=True,
+        should_continue=should_continue,
+    )
 
 
 def _get_filepath_with_more_than_one_usage(parsed_resources: list[ParsedResource]) -> dict[str, int]:
-    pass
+    count_dict = defaultdict(int)
+    for res in parsed_resources:
+        if res.file_value:
+            count_dict[res.file_value.value] += 1
+    return {f_path: count for f_path, count in count_dict.items() if count > 1}
 
 
-def _determine_if_the_validation_should_continue(
-    is_on_prod_like_server: bool, duplicate_files_must_be_ignored: bool
-) -> bool:
-    if not duplicate_files_must_be_ignored:
-        return True
-    # Too many duplicate files are present
-    if is_on_prod_like_server:
-        return False
-    # On a test environment we will ignore them but continue
-    return True
+def _determine_if_duplicate_files_must_be_ignored(path_count: dict[str, int]) -> bool:
+    return any([cnt > MAXIMUM_DUPLICATE_FILE_PATHS for cnt in path_count.values()])
+
+
+def _get_duplicate_msg(count_dict: dict[str, int], is_on_prod: bool) -> str:
+    file_paths = sorted([f"{count} - '{path}'" for path, count in count_dict.items()])
+    msg = (
+        f"{len(count_dict)} files were used multiple times in your data. "
+        f"Due to the large number of duplicates they cannot be included in the schema validation.\n"
+    )
+    if is_on_prod:
+        msg += "Since you are on a production server, the validation or xmlupload cannot continue."
+    else:
+        msg += (
+            "Since you are on a test environment, "
+            "the validation or xmlupload will continue without the duplicate check."
+            "Please note that this is not allowed on a production server."
+        )
+    msg += (
+        f"The following filepaths are used more than once, "
+        f"result displayed as: file count - 'file path'\n{' | '.join(file_paths)}"
+    )
+    return msg

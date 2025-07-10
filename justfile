@@ -108,14 +108,15 @@ integration-tests *FLAGS:
 e2e-tests *FLAGS:
     # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
     # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
-    # for parallelisation: -n=auto --dist=loadfile
-    uv run pytest test/e2e/ {{FLAGS}}
+    uv run pytest -n=auto --dist=loadfile test/e2e/ {{FLAGS}}
 
 
 # Run the end-to-end tests for the validate-data command (with testcontainers)
 [no-exit-message]
 e2e-tests-validate-data *FLAGS:
-    uv run pytest test/e2e_validate_data/ {{FLAGS}}
+    # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
+    # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
+    uv run pytest -n=auto --dist=loadfile test/e2e_validate_data/ {{FLAGS}}
 
 
 # Run the legacy end-to-end tests (needs a running stack)

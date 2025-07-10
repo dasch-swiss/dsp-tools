@@ -180,24 +180,28 @@ def _get_validation_report(
 ) -> ValidationReportGraphs:
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
+    dir_to_save_graphs = graph_save_dir
     try:
         result = _call_shacl_cli(rdf_graphs, shacl_validator, tmp_path)
-        clean_up_temp_directory(tmp_dir, graph_save_dir)
         return result
     except Exception as e:  # noqa: BLE001
-        logger.error(e)
+        logger.exception(e)
+        dir_to_save_graphs = tmp_path.parent / "validation-graphs"
         msg = (
             f"An error occurred during the data validation. "
             f"Please contact the dsp-tools development team "
-            f"with your log files and the files in the directory: {tmp_dir.name}"
+            f"with your log files and the files in the directory: {dir_to_save_graphs}"
         )
         raise ShaclValidationError(msg) from None
+    finally:
+        clean_up_temp_directory(tmp_dir, dir_to_save_graphs)
 
 
 def _call_shacl_cli(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> ValidationReportGraphs:
     _create_and_write_graphs(rdf_graphs, tmp_path)
+    raise IndexError()
     results_graph = Graph()
     conforms = True
     card_files = ValidationFilePaths(

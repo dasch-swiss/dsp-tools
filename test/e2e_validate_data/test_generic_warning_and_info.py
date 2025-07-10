@@ -65,8 +65,8 @@ def no_violations_with_info(
 
 
 @pytest.fixture(scope="module")
-def parsed_resources_100_duplicate_images(create_generic_project, authentication):
-    file = Path("testdata/validate-data/generic/100_duplicate_images.xml")
+def parsed_resources_51_duplicate_images(create_generic_project, authentication):
+    file = Path("testdata/validate-data/generic/51_duplicate_images.xml")
     parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
         file, authentication.server
     )
@@ -74,8 +74,8 @@ def parsed_resources_100_duplicate_images(create_generic_project, authentication
 
 
 class TestGetDuplicateFileValidationResult:
-    def test_ignore_files_on_test_env(self, parsed_resources_100_duplicate_images, authentication):
-        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+    def test_ignore_files_on_test_env(self, parsed_resources_51_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_51_duplicate_images
         config = ValidateDataConfig(
             xml_file=Path(),
             save_graph_dir=None,
@@ -93,8 +93,8 @@ class TestGetDuplicateFileValidationResult:
         )
         assert validation_passed
 
-    def test_do_not_ignore_files_on_test_env(self, parsed_resources_100_duplicate_images, authentication):
-        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+    def test_do_not_ignore_files_on_test_env(self, parsed_resources_51_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_51_duplicate_images
         config = ValidateDataConfig(
             xml_file=Path(),
             save_graph_dir=None,
@@ -112,8 +112,8 @@ class TestGetDuplicateFileValidationResult:
         )
         assert validation_passed
 
-    def test_ignore_files_on_prod_env(self, parsed_resources_100_duplicate_images, authentication):
-        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+    def test_ignore_files_on_prod_env(self, parsed_resources_51_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_51_duplicate_images
         config = ValidateDataConfig(
             xml_file=Path(),
             save_graph_dir=None,
@@ -131,8 +131,8 @@ class TestGetDuplicateFileValidationResult:
         )
         assert validation_passed
 
-    def test_do_not_ignore_files_on_prod_env(self, parsed_resources_100_duplicate_images, authentication):
-        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_100_duplicate_images
+    def test_do_not_ignore_files_on_prod_env(self, parsed_resources_51_duplicate_images, authentication):
+        parsed_resources, authorship_lookup, permission_ids, shortcode = parsed_resources_51_duplicate_images
         config = ValidateDataConfig(
             xml_file=Path(),
             save_graph_dir=None,

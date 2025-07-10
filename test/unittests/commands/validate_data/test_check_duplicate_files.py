@@ -30,6 +30,9 @@ PROD_ENV_CONFIG = ValidateDataConfig(
 FILEPATH_1 = "file_path_1.jpg"
 FILEPATH_2 = "file_path_2.jpg"
 
+TOO_MAY_DUPLICATES_NUMBER = MAXIMUM_DUPLICATE_FILE_PATHS + 1
+OK_NUMBER_OF_DUPLICATES = MAXIMUM_DUPLICATE_FILE_PATHS - 1
+
 
 @pytest.fixture
 def file_value_1():
@@ -45,29 +48,41 @@ def file_value_2():
 def too_many_duplicate_files(file_value_1):
     return [
         ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
-        for i in range(MAXIMUM_DUPLICATE_FILE_PATHS + 1)
+        for i in range(TOO_MAY_DUPLICATES_NUMBER)
     ]
 
 
 @pytest.fixture
 def ok_amount_of_duplicate_files(file_value_1):
     return [
-        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
-        for i in range(MAXIMUM_DUPLICATE_FILE_PATHS - 1)
+        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None) for i in range(OK_NUMBER_OF_DUPLICATES)
     ]
 
 
 class TestCheckForDuplicateFiles:
     def test_too_many_files_on_test_environment(self, too_many_duplicate_files):
         result = check_for_duplicate_files(too_many_duplicate_files, TEST_ENV_CONFIG)
-        expected_msg = ""
+        expected_msg = (
+            "1 file(s) were used multiple times in your data. "
+            "Due to the large number of duplicates they cannot be included in the schema validation.\n"
+            "Since you are on a test environment, the validation or xmlupload will continue "
+            "without the duplicate check. Please note that this is not allowed on a production server. "
+            "The following filepaths are used more than once, result displayed as: "
+            f"file count - 'file path'\n{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
+        )
         assert result.user_msg == expected_msg
         assert result.should_continue
         assert result.duplicate_files_must_be_ignored
 
     def test_too_many_files_on_prod_environment(self, too_many_duplicate_files):
         result = check_for_duplicate_files(too_many_duplicate_files, PROD_ENV_CONFIG)
-        expected_msg = ""
+        expected_msg = (
+            "1 file(s) were used multiple times in your data. Due to the large number of "
+            "duplicates they cannot be included in the schema validation.\n"
+            "Since you are on a production server, the validation or xmlupload cannot continue. "
+            "The following filepaths are used more than once, result displayed as: file count - 'file path'\n"
+            f"{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
+        )
         assert result.user_msg == expected_msg
         assert not result.should_continue
         assert result.duplicate_files_must_be_ignored

@@ -55,16 +55,16 @@ def _determine_if_duplicate_files_must_be_ignored(path_count: dict[str, int]) ->
 def _get_duplicate_msg(count_dict: dict[str, int], is_on_prod: bool) -> str:
     file_paths = sorted([f"{count} - '{path}'" for path, count in count_dict.items()])
     msg = (
-        f"{len(count_dict)} files were used multiple times in your data. "
+        f"{len(count_dict)} file(s) were used multiple times in your data. "
         f"Due to the large number of duplicates they cannot be included in the schema validation.\n"
     )
     if is_on_prod:
-        msg += "Since you are on a production server, the validation or xmlupload cannot continue."
+        msg += "Since you are on a production server, the validation or xmlupload cannot continue. "
     else:
         msg += (
             "Since you are on a test environment, "
-            "the validation or xmlupload will continue without the duplicate check."
-            "Please note that this is not allowed on a production server."
+            "the validation or xmlupload will continue without the duplicate check. "
+            "Please note that this is not allowed on a production server. "
         )
     msg += (
         f"The following filepaths are used more than once, "

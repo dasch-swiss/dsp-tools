@@ -1,5 +1,25 @@
 # Changelog
 
+## [16.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.3.0...v16.4.0) (2025-07-11)
+
+
+### Enhancements
+
+* **validate-data:** eable multiple parallel calls at the same time without conflicts (DEV-5137) ([#1836](https://github.com/dasch-swiss/dsp-tools/issues/1836)) ([26a4599](https://github.com/dasch-swiss/dsp-tools/commit/26a45999d769ff5c16c009381a9c206603a0c58a))
+* **validate-data:** prevent crash if too many duplicate files are in the data (DEV-5140) ([#1841](https://github.com/dasch-swiss/dsp-tools/issues/1841)) ([4bf4fa0](https://github.com/dasch-swiss/dsp-tools/commit/4bf4fa06d3612750f5dba913adde61d4c800fa45))
+* **validate-data:** use the SHACL CLI for all validation calls (DEV-5127) ([#1831](https://github.com/dasch-swiss/dsp-tools/issues/1831)) ([687adfe](https://github.com/dasch-swiss/dsp-tools/commit/687adfec6693dc43e1ae02ccc91032977f1da268))
+
+
+### Maintenance
+
+* **validate-data:** create `validation` folder ([#1843](https://github.com/dasch-swiss/dsp-tools/issues/1843)) ([ae24254](https://github.com/dasch-swiss/dsp-tools/commit/ae2425409cb89a42a46c8e078d425189703953d8))
+* **validate-data:** group files into categories ([#1837](https://github.com/dasch-swiss/dsp-tools/issues/1837)) ([00f6ade](https://github.com/dasch-swiss/dsp-tools/commit/00f6adef00218f80ab1d1218dd8b3386708e4a5b))
+* **validate-data:** move check for unknown resources classes to own file ([#1844](https://github.com/dasch-swiss/dsp-tools/issues/1844)) ([1b15119](https://github.com/dasch-swiss/dsp-tools/commit/1b151199454786c29899b3bccb7fb025cce5a454))
+* **validate-data:** move get ontology validation message to correct file ([#1845](https://github.com/dasch-swiss/dsp-tools/issues/1845)) ([bd1eb96](https://github.com/dasch-swiss/dsp-tools/commit/bd1eb96ed538a42742fc9ef032fd39db3c2282be))
+* **validate-data:** move get validation report to own file ([#1846](https://github.com/dasch-swiss/dsp-tools/issues/1846)) ([7669828](https://github.com/dasch-swiss/dsp-tools/commit/766982849b0bfd247974f2f1d3831bb2c06ec929))
+* **validate-data:** remove unused parameter `asset_value` from `RdfLikeResource` ([#1839](https://github.com/dasch-swiss/dsp-tools/issues/1839)) ([a2dc2d4](https://github.com/dasch-swiss/dsp-tools/commit/a2dc2d40486f814d45c71a0521b786d57966c968))
+* **validate-data:** restructure function calls internally ([#1840](https://github.com/dasch-swiss/dsp-tools/issues/1840)) ([8a9847c](https://github.com/dasch-swiss/dsp-tools/commit/8a9847caaa219fb18ea6e47f987cb913170e5f5f))
+
 ## [16.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.2.0...v16.3.0) (2025-07-09)
 
 

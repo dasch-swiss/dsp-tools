@@ -18,7 +18,6 @@ from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -31,7 +30,8 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
-from dsp_tools.commands.validate_data.validation.validate_ontology import check_for_unknown_resource_classes
+from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
+from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
@@ -128,7 +128,7 @@ def validate_parsed_resources(
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
-        msg = _get_msg_str_unknown_classes_in_data(unknown_classes)
+        msg = get_msg_str_unknown_classes_in_data(unknown_classes)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
@@ -152,35 +152,6 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
     return _get_validation_status(sorted_problems, config.is_on_prod_server)
-
-
-def _get_msg_str_unknown_classes_in_data(unknown: UnknownClassesInData) -> str:
-    if unknown_onto_msg := _get_unknown_ontos_msg(unknown):
-        return unknown_onto_msg
-    unknown_classes = sorted(list(unknown.unknown_classes))
-    known_classes = sorted(list(unknown.defined_classes))
-    return (
-        f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
-        f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
-        f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}"
-    )
-
-
-def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:
-    def split_prefix(relative_iri: str) -> str | None:
-        if ":" not in relative_iri:
-            return None
-        return relative_iri.split(":")[0]
-
-    used_ontos = set(not_knora for x in unknown.unknown_classes if (not_knora := split_prefix(x)))
-    exising_ontos = set(not_knora for x in unknown.defined_classes if (not_knora := split_prefix(x)))
-    if unknown_found := used_ontos - exising_ontos:
-        return (
-            f"Your data uses ontologies that don't exist in the database.\n"
-            f"The following ontologies that are used in the data are unknown: {', '.join(unknown_found)}\n"
-            f"The following ontologies are uploaded: {', '.join(exising_ontos)}"
-        )
-    return None
 
 
 def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:

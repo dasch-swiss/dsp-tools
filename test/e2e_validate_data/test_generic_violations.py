@@ -27,7 +27,7 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_report
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
-from dsp_tools.commands.validate_data.validation.validate_ontology import check_for_unknown_resource_classes
+from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from test.e2e_validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument

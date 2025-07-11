@@ -134,10 +134,9 @@ coll-->ProcessedResource: successful processed resources
 
 ## `validate-data` Validation Logic
 
+### Validation Process
+
 ```mermaid
----
-title: Validation Process
----
 stateDiagram-v2
 
 state "XSD validation" as XSD
@@ -155,11 +154,11 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
 
     [*] --> XSD
     XSD --> stopXSD: validation failure
-    XSD --> unknownCls: sucess
+    XSD --> unknownCls: success
     unknownCls --> stopUnknown: unkonwn found
-    unknownCls --> ontoVal: sucess
+    unknownCls --> ontoVal: success
     ontoVal --> ontoViolation: violations found
-    ontoVal --> ignoreF: sucess
+    ontoVal --> ignoreF: success
     ignoreF --> dataSH: present
     ignoreF --> duplicFile: not present
     duplicFile --> dataSH: continue
@@ -169,10 +168,11 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
     dataSH --> warning: severity
 ```
 
+### Determine Validation Success
+
+The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
+
 ```mermaid
----
-title: Determine Validation Sucess
----
 stateDiagram-v2
 
 state "SEVERITY: <b>INFO<b>" as info
@@ -182,19 +182,19 @@ state "SEVERITY: <b>ERROR<b>" as err
     state info {
         state "SUCCESS" as sInfo1
         state "SUCCESS" as sInfo2
-        INFO --> sInfo1: ON PROD
-        INFO --> sInfo2: ON TEST
+        INFO --> sInfo1: <b>on TEST<b>
+        INFO --> sInfo2: <b>on PROD<b>
     }
 
     state warn {
-        WARNING --> SUCESS: ON TEST
-        WARNING --> FAILURE: ON PROD
+        WARNING --> SUCCESS: <b>on TEST<b>
+        WARNING --> FAILURE: <b>on PROD<b>
     }
 
     state err {
         state "FAILURE" as f1
         state "FAILURE" as f2
-        ERROR --> f1: ON PROD
-        ERROR --> f2: ON TEST
+        ERROR --> f1: <b>on TEST<b>
+        ERROR --> f2: <b>on PROD<b>
     }
 ```

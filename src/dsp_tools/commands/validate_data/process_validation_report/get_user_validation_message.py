@@ -134,9 +134,9 @@ def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeveri
         Problem message
     """
     violation_message, warning_message, info_message, unexpected_violations = None, None, None, None
-    save_as_csv = _save_as_csv(sorted_problems, severity)
+    too_many_to_print = _are_there_too_many_to_print(sorted_problems, severity)
     if sorted_problems.unique_violations:
-        if save_as_csv:
+        if too_many_to_print:
             violation_body = None
             violation_df = _get_message_df(sorted_problems.unique_violations)
         else:
@@ -148,7 +148,7 @@ def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeveri
         )
         violation_message = MessageComponents(violation_header, violation_body, violation_df)
     if sorted_problems.user_warnings:
-        if save_as_csv:
+        if too_many_to_print:
             warning_body = None
             warning_df = _get_message_df(sorted_problems.user_warnings)
         else:
@@ -161,7 +161,7 @@ def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeveri
         )
         warning_message = MessageComponents(warning_header, warning_body, warning_df)
     if sorted_problems.user_info:
-        if save_as_csv:
+        if too_many_to_print:
             info_body = None
             info_df = _get_message_df(sorted_problems.user_info)
         else:
@@ -179,7 +179,7 @@ def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeveri
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
 
 
-def _save_as_csv(sorted_problems: SortedProblems, severity: ValidationSeverity) -> bool:
+def _are_there_too_many_to_print(sorted_problems: SortedProblems, severity: ValidationSeverity) -> bool:
     number_of_problems = len(sorted_problems.unique_violations)
     if severity.value <= 2:
         number_of_problems += len(sorted_problems.user_warnings)

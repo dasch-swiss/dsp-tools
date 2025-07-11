@@ -19,6 +19,7 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_data import LIST_SEPARATOR
 from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
@@ -88,3 +89,18 @@ def _get_one_problem(val_g: Graph, result_bn: SubjectObjectTypeAlias) -> Ontolog
     msg = str(next(val_g.objects(result_bn, SH.resultMessage)))
     splt = [x.strip() for x in msg.split("\n")]
     return OntologyResourceProblem(iri_str, " ".join(splt))
+
+
+def get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:
+    probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
+
+    def get_resource_msg(res: OntologyResourceProblem) -> str:
+        return f"Resource Class: {res.res_iri} | Problem: {res.msg}"
+
+    problems = [get_resource_msg(x) for x in probs]
+    return (
+        "The ontology structure contains errors that prevent the validation of the data.\n"
+        "Please correct the following errors and re-upload the corrected ontology.\n"
+        f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
+        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
+    )

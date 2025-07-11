@@ -110,7 +110,7 @@ state "Process FileValues" as processedfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
 state "ProcessedValue" as valdes
-state "Collected Results" as coll
+state "Continue" as cont
 
 parsedres-->processedfile
 parsedres-->processedationval
@@ -124,12 +124,11 @@ state processedationval {
 state processedfile {
     ParsedFileValue-->ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
 }
-processedres-->coll: return result
-processedationval-->coll: return result
-processedfile-->coll: return result
-coll-->ResourceInputProcessingFailure: resolving errors
-ResourceInputProcessingFailure-->[*]
-coll-->ProcessedResource: successful processed resources
+processedres-->ProcessedResource: return result
+processedationval-->ProcessedResource: return result
+processedfile-->ProcessedResource: return result
+ProcessedResource--> cont: success
+ProcessedResource-->[*]: unexpected transformation failure
 ```
 
 ## `validate-data` Validation Logic

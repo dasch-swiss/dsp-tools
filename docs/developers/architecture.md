@@ -134,4 +134,64 @@ coll-->ProcessedResource: successful processed resources
 
 ## `validate-data` Validation Logic
 
+```mermaid
+---
+title: Validation Process
+---
+stateDiagram-v2
 
+state "XSD validation" as XSD
+state "<b>STOP<b>" as stopXSD
+state "Check for Unknown Classes<br>(Python Logic)" as unknownCls
+state "<b>STOP<b>" as stopUnknown
+state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
+state "<b>STOP<b>" as ontoViolation
+state "Duplicate Filepaths<br>(Python Logic)" as duplicFile
+state "level: WARNING" as warning
+state "level: INFO" as info
+state "level: ERROR" as err
+state "Data Validation<br>(SHACL-CLI)" as dataSH
+
+    [*] --> XSD
+    XSD --> stopXSD: validation failure
+    XSD --> unknownCls: sucess
+    unknownCls --> stopUnknown: unkonwn found
+    unknownCls --> ontoVal: sucess
+    ontoVal --> ontoViolation: violations found
+    ontoVal --> duplicFile: sucess
+    duplicFile --> warning: duplicates found
+    duplicFile --> dataSH: continue
+    dataSH --> info: severity
+    dataSH --> err: severity
+    dataSH --> warning: severity
+```
+
+```mermaid
+---
+title: Determine Validation Sucess
+---
+stateDiagram-v2
+
+state "SEVERITY: <b>INFO<b>" as info
+state "SEVERITY: <b>WARNING<b>" as warn
+state "SEVERITY: <b>ERROR<b>" as err
+
+    state info {
+        state "SUCESS" as sInfo1
+        state "SUCESS" as sInfo2
+        INFO --> sInfo1: ON PROD
+        INFO --> sInfo2: ON TEST
+    }
+
+    state warn {
+        WARNING --> SUCESS: ON TEST
+        WARNING --> FAILURE: ON PROD
+    }
+
+    state err {
+        state "FAILURE" as f1
+        state "FAILURE" as f2
+        ERROR --> f1: ON PROD
+        ERROR --> f2: ON TEST
+    }
+```

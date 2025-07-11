@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.validate_data.check_duplicate_files import _get_filepath_with_more_than_one_usage
+from dsp_tools.commands.validate_data.check_duplicate_files import _get_filepaths_with_more_than_one_usage
 from dsp_tools.commands.validate_data.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -113,7 +113,7 @@ class TestGetFilePathCountDict:
         resources.extend(
             [ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_2, None) for i in range(file_2_number)]
         )
-        result = _get_filepath_with_more_than_one_usage(resources)
+        result = _get_filepaths_with_more_than_one_usage(resources)
         assert set(result.keys()) == {FILEPATH_1, FILEPATH_2}
         assert result[FILEPATH_1] == file_1_number
         assert result[FILEPATH_2] == file_2_number
@@ -127,7 +127,7 @@ class TestGetFilePathCountDict:
         resources.extend(
             [ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_2, None) for i in range(file_2_number)]
         )
-        result = _get_filepath_with_more_than_one_usage(resources)
+        result = _get_filepaths_with_more_than_one_usage(resources)
         assert set(result.keys()) == {FILEPATH_1}
         assert result[FILEPATH_1] == file_1_number
 
@@ -136,5 +136,5 @@ class TestGetFilePathCountDict:
             ParsedResource("id_1", ":type", "lbl", None, [], file_value_1, None),
             ParsedResource("id_2", ":type", "lbl", None, [], file_value_2, None),
         ]
-        result = _get_filepath_with_more_than_one_usage(resources)
+        result = _get_filepaths_with_more_than_one_usage(resources)
         assert not result

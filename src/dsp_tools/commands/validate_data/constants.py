@@ -3,6 +3,11 @@ from rdflib import XSD
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
+# If too many duplicate files are in the data and are checked the validation will crash due to too many errors
+# This is the maximum amount of files allowed
+MAXIMUM_DUPLICATE_FILE_PATHS = 50
+
+
 # paths for the validation files used by the docker container
 
 ONTOLOGIES_DATA_TTL = "ONTOLOGIES_DATA.ttl"

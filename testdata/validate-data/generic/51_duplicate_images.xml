@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>auth</author>
+    </authorship>
+
+    <resource label="lbl" id="id_1" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_2" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_3" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_4" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_5" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_6" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_7" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_8" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_9" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_10" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_11" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_12" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_13" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_14" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_15" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_16" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_17" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_18" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_19" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_20" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_21" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_22" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_23" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_24" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_25" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_26" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_27" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_28" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_29" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_30" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_31" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_32" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_33" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_34" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_35" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_36" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_37" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_38" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_39" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_40" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_41" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_42" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_43" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_44" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_45" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_46" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_47" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_48" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_49" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_50" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+    <resource label="lbl" id="id_51" restype=":TestStillImageRepresentation">
+        <bitstream license="http://rdfh.ch/licenses/unknown" 
+                   copyright-holder="copyright holder"
+                   authorship-id="authorship_1">
+            file.jpg
+        </bitstream>
+    </resource>
+</knora>

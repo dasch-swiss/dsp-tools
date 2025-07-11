@@ -9,6 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.commands.validate_data.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.constants import CARDINALITY_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CARDINALITY_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
@@ -102,13 +103,24 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
+    ignore_duplicate_files = config.ignore_duplicate_files_warning
+    if not config.ignore_duplicate_files_warning:
+        duplicate_check = check_for_duplicate_files(parsed_resources, config)
+        if duplicate_check.user_msg:
+            logger.error(duplicate_check.user_msg)
+            print(f"{BACKGROUND_BOLD_RED}   Duplicate Filepaths Found!    {RESET_TO_DEFAULT}")
+            print(f"{BOLD_RED}{duplicate_check.user_msg}{RESET_TO_DEFAULT}")
+        if not duplicate_check.should_continue:
+            return False
+        ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
+
     rdf_graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
-        ignore_duplicate_files_warning=config.ignore_duplicate_files_warning,
+        ignore_duplicate_files_warning=ignore_duplicate_files,
     )
     return _validate_data(rdf_graphs, used_iris, config)
 

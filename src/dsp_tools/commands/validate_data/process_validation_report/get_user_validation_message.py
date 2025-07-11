@@ -137,11 +137,12 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
     )
     save_as_csv = bool(number_of_problems > 60)
     if sorted_problems.unique_violations:
-        violation_body, violation_df = None, None
         if save_as_csv:
+            violation_body = None
             violation_df = _get_message_df(sorted_problems.unique_violations)
         else:
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
+            violation_df = None
         violation_header = (
             f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
             f"Until they are resolved an xmlupload is not possible."
@@ -149,10 +150,11 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
         violation_message = MessageComponents(violation_header, violation_body, violation_df)
     if sorted_problems.user_warnings:
         if save_as_csv:
-            warning_body, warning_df = _get_message_df(sorted_problems.user_warnings, "warnings")
+            warning_body = None
+            warning_df = _get_message_df(sorted_problems.user_warnings)
         else:
-            warning_df = None
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
+            warning_df = None
         warning_header = (
             f"During the validation of the data {len(sorted_problems.user_warnings)} "
             f"problems were found. Warnings are allowed on test servers. "
@@ -161,10 +163,11 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
         warning_message = MessageComponents(warning_header, warning_body, warning_df)
     if sorted_problems.user_info:
         if save_as_csv:
-            info_body, info_df = _get_message_df(sorted_problems.user_info, "info")
+            info_body = None
+            info_df = _get_message_df(sorted_problems.user_info)
         else:
-            info_df = None
             info_body = _get_problem_print_message(sorted_problems.user_info)
+            info_df = None
         info_header = (
             f"During the validation of the data {len(sorted_problems.user_info)} "
             f"potential problems were found. They will not impede an xmlupload."
@@ -227,12 +230,11 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _get_message_df(problems: list[InputProblem], severity: str = "errors") -> tuple[str, pd.DataFrame]:
+def _get_message_df(problems: list[InputProblem]) -> pd.DataFrame:
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
-    msg = f"Due to the large number of {severity}, the validation {severity} were saved as a csv."
-    return msg, df
+    return df
 
 
 def _get_message_dict(problem: InputProblem) -> dict[str, str]:

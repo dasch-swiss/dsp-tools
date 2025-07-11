@@ -110,7 +110,7 @@ state "Process FileValues" as processedfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
 state "ProcessedValue" as valdes
-state "Collected Results" as coll
+state "Continue" as cont
 
 parsedres-->processedfile
 parsedres-->processedationval
@@ -124,10 +124,76 @@ state processedationval {
 state processedfile {
     ParsedFileValue-->ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
 }
-processedres-->coll: return result
-processedationval-->coll: return result
-processedfile-->coll: return result
-coll-->ResourceInputProcessingFailure: resolving errors
-ResourceInputProcessingFailure-->[*]
-coll-->ProcessedResource: successful processed resources
+processedres-->ProcessedResource: return result
+processedationval-->ProcessedResource: return result
+processedfile-->ProcessedResource: return result
+ProcessedResource--> cont: success
+ProcessedResource-->[*]: unexpected transformation failure
+```
+
+## `validate-data` Validation Logic
+
+### Validation Process
+
+```mermaid
+stateDiagram-v2
+
+state "XSD validation" as XSD
+state "<b>STOP<b>" as stopXSD
+state "Check for Unknown Classes<br>(Python Logic)" as unknownCls
+state "<b>STOP<b>" as stopUnknown
+state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
+state "<b>STOP<b>" as ontoViolation
+state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
+state "Duplicate Filepaths<br>(Python Logic)" as duplicFile
+state "level: WARNING" as warning
+state "level: INFO" as info
+state "level: ERROR" as err
+state "Data Validation<br>(SHACL-CLI)" as dataSH
+
+    [*] --> XSD
+    XSD --> stopXSD: validation failure
+    XSD --> unknownCls: success
+    unknownCls --> stopUnknown: unkonwn found
+    unknownCls --> ontoVal: success
+    ontoVal --> ontoViolation: violations found
+    ontoVal --> ignoreF: success
+    ignoreF --> dataSH: present
+    ignoreF --> duplicFile: not present
+    duplicFile --> dataSH: continue
+    duplicFile --> warning: duplicates found
+    dataSH --> info: severity
+    dataSH --> err: severity
+    dataSH --> warning: severity
+```
+
+### Determine Validation Success
+
+The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
+
+```mermaid
+stateDiagram-v2
+
+state "SEVERITY: <b>INFO<b>" as info
+state "SEVERITY: <b>WARNING<b>" as warn
+state "SEVERITY: <b>ERROR<b>" as err
+
+    state info {
+        state "SUCCESS" as sInfo1
+        state "SUCCESS" as sInfo2
+        INFO --> sInfo1: <b>on TEST<b>
+        INFO --> sInfo2: <b>on PROD<b>
+    }
+
+    state warn {
+        WARNING --> SUCCESS: <b>on TEST<b>
+        WARNING --> FAILURE: <b>on PROD<b>
+    }
+
+    state err {
+        state "FAILURE" as f1
+        state "FAILURE" as f2
+        ERROR --> f1: <b>on TEST<b>
+        ERROR --> f2: <b>on PROD<b>
+    }
 ```

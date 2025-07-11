@@ -131,3 +131,7 @@ coll-->ResourceInputProcessingFailure: resolving errors
 ResourceInputProcessingFailure-->[*]
 coll-->ProcessedResource: successful processed resources
 ```
+
+## `validate-data` Validation Logic
+
+

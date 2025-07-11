@@ -15,8 +15,6 @@ from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
-from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
-from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -32,6 +30,7 @@ from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
+from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
@@ -44,9 +43,6 @@ from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
-
-LIST_SEPARATOR = "\n    - "
-
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
@@ -137,7 +133,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
     shacl_validator = ShaclCliValidator()
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
-        msg = _get_msg_str_ontology_validation_violation(onto_validation_result)
+        msg = get_msg_str_ontology_validation_violation(onto_validation_result)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
@@ -152,21 +148,6 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
     sorted_problems = sort_user_problems(reformatted)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
     return _get_validation_status(sorted_problems, config.is_on_prod_server)
-
-
-def _get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:
-    probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
-
-    def get_resource_msg(res: OntologyResourceProblem) -> str:
-        return f"Resource Class: {res.res_iri} | Problem: {res.msg}"
-
-    problems = [get_resource_msg(x) for x in probs]
-    return (
-        "The ontology structure contains errors that prevent the validation of the data.\n"
-        "Please correct the following errors and re-upload the corrected ontology.\n"
-        f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
-        f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
-    )
 
 
 def _get_validation_report(

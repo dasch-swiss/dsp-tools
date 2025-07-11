@@ -9,7 +9,6 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.constants import CARDINALITY_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CARDINALITY_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
@@ -31,8 +30,9 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
-from dsp_tools.commands.validate_data.validate_ontology import check_for_unknown_resource_classes
-from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
+from dsp_tools.commands.validate_data.validation.validate_ontology import check_for_unknown_resource_classes
+from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import ShaclValidationError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN

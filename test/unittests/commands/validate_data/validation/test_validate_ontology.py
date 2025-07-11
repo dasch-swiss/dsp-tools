@@ -1,6 +1,6 @@
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.validate_ontology import _reformat_ontology_validation_result
+from dsp_tools.commands.validate_data.validation.validate_ontology import _reformat_ontology_validation_result
 
 
 def test_reformat_ontology_validation_result() -> None:

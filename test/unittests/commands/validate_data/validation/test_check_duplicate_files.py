@@ -6,9 +6,9 @@ import pytest
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.validate_data.check_duplicate_files import _get_filepaths_with_more_than_one_usage
-from dsp_tools.commands.validate_data.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
+from dsp_tools.commands.validate_data.validation.check_duplicate_files import _get_filepaths_with_more_than_one_usage
+from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource

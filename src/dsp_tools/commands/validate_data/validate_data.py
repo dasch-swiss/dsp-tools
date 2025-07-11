@@ -179,7 +179,7 @@ def _print_shacl_validation_violation_message(
     else:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
-    if (messages.warnings and config.severity.value <= 2) or (messages.warnings and config.is_on_prod_server):
+    if messages.warnings and config.severity.value <= 2:
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         w_body = messages.warnings.message_body

@@ -45,7 +45,7 @@ class SortedProblems:
 @dataclass
 class MessageComponents:
     message_header: str
-    message_body: str
+    message_body: str | None
     message_df: pd.DataFrame | None
 
 

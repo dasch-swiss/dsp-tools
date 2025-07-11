@@ -168,37 +168,33 @@ def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
     messages = get_user_message(sorted_problems)
-    problems_saved = False
     if messages.violations:
-        logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
-        print(messages.violations.message_body)
-        if messages.violations.message_df:
-            problems_saved = True
-            _save_message_df(messages.violations.message_df, "error", config.xml_file)
+        v_body = messages.violations.message_body
+        if messages.violations.message_df is not None:
+            v_body = _save_message_df_get_path(messages.violations.message_df, "error", config.xml_file)
+        print(v_body)
+        logger.error(messages.violations.message_header, v_body)
     else:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
     if (messages.warnings and config.severity.value <= 2) or (messages.warnings and config.is_on_prod_server):
-        logger.warning(messages.warnings.message_header, messages.warnings.message_body)
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
-        print(messages.warnings.message_body)
-        if messages.warnings.message_df:
-            problems_saved = True
-            _save_message_df(messages.warnings.message_df, "warning", config.xml_file)
+        w_body = messages.warnings.message_body
+        if messages.warnings.message_df is not None:
+            w_body = _save_message_df_get_path(messages.warnings.message_df, "warning", config.xml_file)
+        print(w_body)
+        logger.warning(messages.warnings.message_header, w_body)
     if messages.infos and config.severity.value == 1:
-        logger.info(messages.infos.message_header, messages.infos.message_body)
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
-        print(messages.infos.message_body)
-        if messages.infos.message_df:
-            problems_saved = True
-            _save_message_df(messages.infos.message_df, "info", config.xml_file)
-    if problems_saved:
-        msg = f"Due to the large number of violations the information was saved in {config.xml_file.parent}"
-        print(BACKGROUND_BOLD_RED + msg + RESET_TO_DEFAULT)
+        i_body = messages.infos.message_body
+        if messages.infos.message_df is not None:
+            i_body = _save_message_df_get_path(messages.infos.message_df, "info", config.xml_file)
+        print(i_body)
+        logger.info(messages.infos.message_header, i_body)
     if messages.unexpected_violations:
         logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
         print(
@@ -218,9 +214,11 @@ def _print_shacl_validation_violation_message(
             _save_unexpected_results_and_inform_user(report, config.xml_file)
 
 
-def _save_message_df(df: pd.DataFrame, severity: str, file_path: Path) -> None:
+def _save_message_df_get_path(df: pd.DataFrame, severity: str, file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
+    msg = f"Due to the large number of violations the information was saved at '{out_path}'"
     df.to_csv(out_path)
+    return msg
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:

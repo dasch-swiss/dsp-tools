@@ -137,10 +137,10 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
     )
     save_as_csv = bool(number_of_problems > 60)
     if sorted_problems.unique_violations:
+        violation_body, violation_df = None, None
         if save_as_csv:
-            violation_body, violation_df = _get_message_and_df(sorted_problems.unique_violations)
+            violation_df = _get_message_df(sorted_problems.unique_violations)
         else:
-            violation_df = None
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
         violation_header = (
             f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
@@ -149,7 +149,7 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
         violation_message = MessageComponents(violation_header, violation_body, violation_df)
     if sorted_problems.user_warnings:
         if save_as_csv:
-            warning_body, warning_df = _get_message_and_df(sorted_problems.user_warnings, "warnings")
+            warning_body, warning_df = _get_message_df(sorted_problems.user_warnings, "warnings")
         else:
             warning_df = None
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
@@ -161,7 +161,7 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
         warning_message = MessageComponents(warning_header, warning_body, warning_df)
     if sorted_problems.user_info:
         if save_as_csv:
-            info_body, info_df = _get_message_and_df(sorted_problems.user_info, "info")
+            info_body, info_df = _get_message_df(sorted_problems.user_info, "info")
         else:
             info_df = None
             info_body = _get_problem_print_message(sorted_problems.user_info)
@@ -227,7 +227,7 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _get_message_and_df(problems: list[InputProblem], severity: str = "errors") -> tuple[str, pd.DataFrame]:
+def _get_message_df(problems: list[InputProblem], severity: str = "errors") -> tuple[str, pd.DataFrame]:
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])

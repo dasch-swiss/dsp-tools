@@ -146,6 +146,7 @@ state "Check for Unknown Classes<br>(Python Logic)" as unknownCls
 state "<b>STOP<b>" as stopUnknown
 state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
 state "<b>STOP<b>" as ontoViolation
+state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
 state "Duplicate Filepaths<br>(Python Logic)" as duplicFile
 state "level: WARNING" as warning
 state "level: INFO" as info
@@ -158,9 +159,11 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
     unknownCls --> stopUnknown: unkonwn found
     unknownCls --> ontoVal: sucess
     ontoVal --> ontoViolation: violations found
-    ontoVal --> duplicFile: sucess
-    duplicFile --> warning: duplicates found
+    ontoVal --> ignoreF: sucess
+    ignoreF --> dataSH: present
+    ignoreF --> duplicFile: not present
     duplicFile --> dataSH: continue
+    duplicFile --> warning: duplicates found
     dataSH --> info: severity
     dataSH --> err: severity
     dataSH --> warning: severity
@@ -177,8 +180,8 @@ state "SEVERITY: <b>WARNING<b>" as warn
 state "SEVERITY: <b>ERROR<b>" as err
 
     state info {
-        state "SUCESS" as sInfo1
-        state "SUCESS" as sInfo2
+        state "SUCCESS" as sInfo1
+        state "SUCCESS" as sInfo2
         INFO --> sInfo1: ON PROD
         INFO --> sInfo2: ON TEST
     }

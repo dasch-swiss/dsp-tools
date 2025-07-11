@@ -167,7 +167,7 @@ def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bo
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems)
+    messages = get_user_message(sorted_problems, config.severity)
     if messages.violations:
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)

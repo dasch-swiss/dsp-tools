@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import pandas as pd
 
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
@@ -121,21 +122,19 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
     return grouped_res
 
 
-def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
+def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeverity) -> UserPrintMessages:
     """
     Creates the string to communicate the user message.
 
     Args:
         sorted_problems: validation problems
+        severity: Severity level of validation information
 
     Returns:
         Problem message
     """
     violation_message, warning_message, info_message, unexpected_violations = None, None, None, None
-    number_of_problems = sum(
-        [len(sorted_problems.unique_violations), len(sorted_problems.user_warnings), len(sorted_problems.user_info)]
-    )
-    save_as_csv = bool(number_of_problems > 60)
+    save_as_csv = _save_as_csv(sorted_problems, severity)
     if sorted_problems.unique_violations:
         if save_as_csv:
             violation_body = None
@@ -178,6 +177,15 @@ def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
         unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
         unexpected_violations = MessageComponents(unexpected_header, unexpected_body, None)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
+
+
+def _save_as_csv(sorted_problems: SortedProblems, severity: ValidationSeverity) -> bool:
+    number_of_problems = len(sorted_problems.unique_violations)
+    if severity.value <= 2:
+        number_of_problems += len(sorted_problems.user_warnings)
+    if severity.value == 1:
+        number_of_problems += len(sorted_problems.user_info)
+    return bool(number_of_problems > 60)
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:

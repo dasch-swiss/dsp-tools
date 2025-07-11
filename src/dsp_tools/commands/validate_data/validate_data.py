@@ -20,7 +20,7 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
-from dsp_tools.commands.validate_data.validation.get_validation_report import _get_validation_report
+from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
@@ -129,7 +129,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    report = _get_validation_report(graphs, shacl_validator, config.save_graph_dir)
+    report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)

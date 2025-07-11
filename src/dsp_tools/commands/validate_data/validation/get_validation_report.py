@@ -18,7 +18,7 @@ from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.error.exceptions import ShaclValidationError
 
 
-def _get_validation_report(
+def get_validation_report(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, graph_save_dir: Path | None = None
 ) -> ValidationReportGraphs:
     tmp_dir = get_temp_directory()

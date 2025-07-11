@@ -1,11 +1,10 @@
 from collections import defaultdict
-from pathlib import Path
 
 import pandas as pd
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import MessageStrings
+from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -122,53 +121,59 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
     return grouped_res
 
 
-def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPrintMessages:
+def get_user_message(sorted_problems: SortedProblems) -> UserPrintMessages:
     """
     Creates the string to communicate the user message.
 
     Args:
         sorted_problems: validation problems
-        file_path: Path to the original data XML
 
     Returns:
         Problem message
     """
     violation_message, warning_message, info_message, unexpected_violations = None, None, None, None
+    number_of_problems = sum(
+        [len(sorted_problems.unique_violations), len(sorted_problems.user_warnings), len(sorted_problems.user_info)]
+    )
+    save_as_csv = bool(number_of_problems > 60)
     if sorted_problems.unique_violations:
-        if len(sorted_problems.unique_violations) > 50:
-            violation_body = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+        if save_as_csv:
+            violation_body, violation_df = _get_message_and_df(sorted_problems.unique_violations)
         else:
+            violation_df = None
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
         violation_header = (
             f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
             f"Until they are resolved an xmlupload is not possible."
         )
-        violation_message = MessageStrings(violation_header, violation_body)
+        violation_message = MessageComponents(violation_header, violation_body, violation_df)
     if sorted_problems.user_warnings:
-        if len(sorted_problems.user_warnings) > 50:
-            warning_body = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
+        if save_as_csv:
+            warning_body, warning_df = _get_message_and_df(sorted_problems.user_warnings, "warnings")
         else:
+            warning_df = None
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
         warning_header = (
             f"During the validation of the data {len(sorted_problems.user_warnings)} "
             f"problems were found. Warnings are allowed on test servers. "
             f"Please note that an xmlupload on a prod sever will fail."
         )
-        warning_message = MessageStrings(warning_header, warning_body)
+        warning_message = MessageComponents(warning_header, warning_body, warning_df)
     if sorted_problems.user_info:
-        if len(sorted_problems.user_info) > 50:
-            info_body = _save_problem_info_as_csv(sorted_problems.user_info, file_path, "info")
+        if save_as_csv:
+            info_body, info_df = _get_message_and_df(sorted_problems.user_info, "info")
         else:
+            info_df = None
             info_body = _get_problem_print_message(sorted_problems.user_info)
         info_header = (
             f"During the validation of the data {len(sorted_problems.user_info)} "
             f"potential problems were found. They will not impede an xmlupload."
         )
-        info_message = MessageStrings(info_header, info_body)
+        info_message = MessageComponents(info_header, info_body, info_df)
     if sorted_problems.unexpected_shacl_validation_components:
         unexpected_header = "The following unknown violation types were found!"
         unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
-        unexpected_violations = MessageStrings(unexpected_header, unexpected_body)
+        unexpected_violations = MessageComponents(unexpected_header, unexpected_body, None)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
 
 
@@ -222,13 +227,12 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path, severity: str = "errors") -> str:
-    out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
+def _get_message_and_df(problems: list[InputProblem], severity: str = "errors") -> tuple[str, pd.DataFrame]:
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
-    df.to_csv(out_path, index=False)
-    return f"Due to the large number of {severity}, the validation {severity} were saved at:\n{out_path}"
+    msg = f"Due to the large number of {severity}, the validation {severity} were saved as a csv."
+    return msg, df
 
 
 def _get_message_dict(problem: InputProblem) -> dict[str, str]:

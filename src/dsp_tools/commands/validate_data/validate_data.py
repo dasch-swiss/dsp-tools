@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+import pandas as pd
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
@@ -166,25 +167,38 @@ def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bo
 def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
 ) -> None:
-    messages = get_user_message(sorted_problems, config.xml_file)
+    messages = get_user_message(sorted_problems)
+    problems_saved = False
     if messages.violations:
         logger.error(messages.violations.message_header, messages.violations.message_body)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         print(messages.violations.message_body)
+        if messages.violations.message_df:
+            problems_saved = True
+            _save_message_df(messages.violations.message_df, "error", config.xml_file)
     else:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
-    if messages.warnings and config.severity.value <= 2:
+    if (messages.warnings and config.severity.value <= 2) or (messages.warnings and config.is_on_prod_server):
         logger.warning(messages.warnings.message_header, messages.warnings.message_body)
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         print(messages.warnings.message_body)
+        if messages.warnings.message_df:
+            problems_saved = True
+            _save_message_df(messages.warnings.message_df, "warning", config.xml_file)
     if messages.infos and config.severity.value == 1:
         logger.info(messages.infos.message_header, messages.infos.message_body)
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
         print(messages.infos.message_body)
+        if messages.infos.message_df:
+            problems_saved = True
+            _save_message_df(messages.infos.message_df, "info", config.xml_file)
+    if problems_saved:
+        msg = f"Due to the large number of violations the information was saved in {config.xml_file.parent}"
+        print(BACKGROUND_BOLD_RED + msg + RESET_TO_DEFAULT)
     if messages.unexpected_violations:
         logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
         print(
@@ -202,6 +216,11 @@ def _print_shacl_validation_violation_message(
             print(messages.unexpected_violations.message_body)
         else:
             _save_unexpected_results_and_inform_user(report, config.xml_file)
+
+
+def _save_message_df(df: pd.DataFrame, severity: str, file_path: Path) -> None:
+    out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
+    df.to_csv(out_path)
 
 
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:

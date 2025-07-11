@@ -1,5 +1,6 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from rdflib import Graph
-from unittests.commands.validate_data.constants import PREFIXES
 
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
@@ -8,6 +9,7 @@ from dsp_tools.commands.validate_data.validation.check_for_unknown_classes impor
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import _get_msg_str_unknown_classes_in_data
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from test.unittests.commands.validate_data.constants import PREFIXES
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 NON_EXISTING_ONTO = "http://0.0.0.0:3333/ontology/9999/non-existent/v2#"

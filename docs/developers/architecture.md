@@ -175,8 +175,8 @@ Some validation problems are allowed on test environments while the "prod-like" 
 Prod like servers include prod as well as servers for testing purposes 
 (software and data) that should behave like prod. 
 
-| validation success \ server | TEST    | PROD    |
-|-----------------------------|---------|---------|
-| INFO                        | success | success |
-| WARNING                     | success | failure |
-| ERROR                       | failure | failure |
+|         | TEST    | PROD    |
+|---------|---------|---------|
+| INFO    | success | success |
+| WARNING | success | failure |
+| ERROR   | failure | failure |

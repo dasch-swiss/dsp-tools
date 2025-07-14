@@ -5,6 +5,8 @@ name: PR-Title
 on:
   pull_request:
     types: [opened, edited, synchronize]
+    branches-ignore:
+      - main
 
 permissions:
   contents: read

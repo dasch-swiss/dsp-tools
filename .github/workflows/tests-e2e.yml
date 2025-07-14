@@ -3,11 +3,8 @@
 name: Tests e2e
 
 on:
-  push:
-    branches-ignore:
-      - main
   pull_request:
-    types: [synchronize]
+    types: [opened, synchronize]
     branches-ignore:
       - main
 

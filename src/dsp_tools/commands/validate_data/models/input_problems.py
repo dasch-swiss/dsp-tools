@@ -5,6 +5,7 @@ from enum import Enum
 from enum import StrEnum
 from enum import auto
 
+import pandas as pd
 import regex
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -42,17 +43,18 @@ class SortedProblems:
 
 
 @dataclass
-class MessageStrings:
+class MessageComponents:
     message_header: str
-    message_body: str
+    message_body: str | None
+    message_df: pd.DataFrame | None
 
 
 @dataclass
 class UserPrintMessages:
-    violations: MessageStrings | None
-    warnings: MessageStrings | None
-    infos: MessageStrings | None
-    unexpected_violations: MessageStrings | None
+    violations: MessageComponents | None
+    warnings: MessageComponents | None
+    infos: MessageComponents | None
+    unexpected_violations: MessageComponents | None
 
 
 @dataclass

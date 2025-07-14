@@ -63,6 +63,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          name: e2e-legacy-logging.log
+          path: /home/runner/.dsp-tools/e2e-legacy-logging.log
           compression-level: 0

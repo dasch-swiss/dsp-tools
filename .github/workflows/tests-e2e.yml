@@ -10,24 +10,24 @@ env:
   DSP_TOOLS_TESTING: true
 
 jobs:
-  e2e-tests:
+  e2e:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: e2e-tests
+      - name: e2e
         run: just e2e-tests
 
-  validate-data-e2e-tests:
+  validate-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: validate-data-e2e-tests
+      - name: validate-data
         run: just e2e-tests-validate-data
       - name: make logging file available
         uses: actions/upload-artifact@v4
@@ -37,7 +37,7 @@ jobs:
           path: /home/runner/.dsp-tools/e2e-validate-data-logging.log
           compression-level: 0
 
-  legacy-e2e-tests:
+  legacy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -46,7 +46,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: start stack
         run: uv run dsp-tools start-stack --no-prune --with-test-data
-      - name: legacy e2e tests
+      - name: legacy
         run: just legacy-e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: uv run dsp-tools stop-stack

@@ -8,7 +8,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  lint:
+  lint-code:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

@@ -171,29 +171,12 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
 
 The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
 
-```mermaid
-stateDiagram-v2
+Some validation problems are allowed on test environments while the "prod-like" servers are stricter.
+Prod like servers include prod as well as servers for testing purposes 
+(software and data) that should behave like prod. 
 
-state "SEVERITY: <b>INFO<b>" as info
-state "SEVERITY: <b>WARNING<b>" as warn
-state "SEVERITY: <b>ERROR<b>" as err
-
-    state info {
-        state "SUCCESS" as sInfo1
-        state "SUCCESS" as sInfo2
-        INFO --> sInfo1: <b>on TEST<b>
-        INFO --> sInfo2: <b>on PROD<b>
-    }
-
-    state warn {
-        WARNING --> SUCCESS: <b>on TEST<b>
-        WARNING --> FAILURE: <b>on PROD<b>
-    }
-
-    state err {
-        state "FAILURE" as f1
-        state "FAILURE" as f2
-        ERROR --> f1: <b>on TEST<b>
-        ERROR --> f2: <b>on PROD<b>
-    }
-```
+| validation success \ server | TEST    | PROD    |
+|-----------------------------|---------|---------|
+| INFO                        | success | success |
+| WARNING                     | success | failure |
+| ERROR                       | failure | failure |

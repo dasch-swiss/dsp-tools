@@ -173,7 +173,7 @@ def _print_shacl_validation_violation_message(
         print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
         v_body = messages.violations.message_body
         if messages.violations.message_df is not None:
-            v_body = _save_message_df_get_path(messages.violations.message_df, "error", config.xml_file)
+            v_body = _save_message_df_get_message_body(messages.violations.message_df, "error", config.xml_file)
         print(v_body)
         logger.error(messages.violations.message_header, v_body)
     else:
@@ -184,7 +184,7 @@ def _print_shacl_validation_violation_message(
         print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
         w_body = messages.warnings.message_body
         if messages.warnings.message_df is not None:
-            w_body = _save_message_df_get_path(messages.warnings.message_df, "warning", config.xml_file)
+            w_body = _save_message_df_get_message_body(messages.warnings.message_df, "warning", config.xml_file)
         print(w_body)
         logger.warning(messages.warnings.message_header, w_body)
     if messages.infos and config.severity.value == 1:
@@ -192,7 +192,7 @@ def _print_shacl_validation_violation_message(
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
         i_body = messages.infos.message_body
         if messages.infos.message_df is not None:
-            i_body = _save_message_df_get_path(messages.infos.message_df, "info", config.xml_file)
+            i_body = _save_message_df_get_message_body(messages.infos.message_df, "info", config.xml_file)
         print(i_body)
         logger.info(messages.infos.message_header, i_body)
     if messages.unexpected_violations:
@@ -214,7 +214,7 @@ def _print_shacl_validation_violation_message(
             _save_unexpected_results_and_inform_user(report, config.xml_file)
 
 
-def _save_message_df_get_path(df: pd.DataFrame, severity: str, file_path: Path) -> str:
+def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
     msg = f"Due to the large number of violations the information was saved at '{out_path}'"
     df.to_csv(out_path)

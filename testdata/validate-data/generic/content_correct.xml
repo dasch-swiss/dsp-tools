@@ -147,4 +147,46 @@
         </uri-prop>
     </resource>
 
+    <!--
+    A check is conducted that ensures that the start date is equal or before the end date.
+    This is implemented for all date CE, BCE will be ignored.
+    All calendars are treated the same, as they can all be parsed into a standard xsd date format.
+    -->
+
+    <resource label="date_full_JULIAN" restype=":ClassWithEverything" id="date_full_JULIAN">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:CE:1800-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_full_GREGORIAN" restype=":ClassWithEverything" id="date_full_GREGORIAN">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_full_ISLAMIC" restype=":ClassWithEverything" id="date_full_ISLAMIC">
+        <date-prop name=":testSubDate1">
+            <date>ISLAMIC:1800-01-01:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_yyyy_mm" restype=":ClassWithEverything" id="date_yyyy_mm">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01:CE:1900-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_yyyy" restype=":ClassWithEverything" id="date_yyyy">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800:CE:1900</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_mixed_precision" restype=":ClassWithEverything" id="date_mixed_precision">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900</date>
+        </date-prop>
+    </resource>
+
 </knora>

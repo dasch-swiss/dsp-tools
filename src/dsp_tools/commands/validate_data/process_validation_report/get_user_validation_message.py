@@ -181,9 +181,9 @@ def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeveri
 
 def _are_there_too_many_to_print(sorted_problems: SortedProblems, severity: ValidationSeverity) -> bool:
     number_of_problems = len(sorted_problems.unique_violations)
-    if severity.value <= 2:
+    if severity.value <= ValidationSeverity.WARNING.value:
         number_of_problems += len(sorted_problems.user_warnings)
-    if severity.value == 1:
+    if severity.value == ValidationSeverity.INFO.value:
         number_of_problems += len(sorted_problems.user_info)
     return bool(number_of_problems > 60)
 

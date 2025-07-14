@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  lint-docs:
+  check-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -26,13 +26,5 @@ jobs:
           just check-links
       - name: markdownlint
         run: just markdownlint
-
-  build-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
-      - name: Install uv, just, and dependencies
-        uses: ./.github/actions/setup
       - name: build docs
         run: uv run mkdocs build --strict

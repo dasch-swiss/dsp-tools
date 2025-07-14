@@ -146,9 +146,9 @@ state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
 state "<b>STOP<b>" as ontoViolation
 state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
 state "Duplicate Filepaths<br>(Python Logic)" as duplicFile
-state "level: WARNING" as warning
-state "level: INFO" as info
-state "level: ERROR" as err
+state "severity: WARNING" as warning
+state "severity: INFO" as info
+state "severity: ERROR" as err
 state "Data Validation<br>(SHACL-CLI)" as dataSH
 
     [*] --> XSD
@@ -162,9 +162,9 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
     ignoreF --> duplicFile: not present
     duplicFile --> dataSH: continue
     duplicFile --> warning: duplicates found
-    dataSH --> info: severity
-    dataSH --> err: severity
-    dataSH --> warning: severity
+    dataSH --> info: problems
+    dataSH --> err: problems
+    dataSH --> warning: problems
 ```
 
 ### Determine Validation Success

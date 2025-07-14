@@ -1,0 +1,37 @@
+---
+
+name: Lint Code
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: Linting with ruff
+        run: just ruff-check --output-format=github
+      - name: Check formatting with ruff
+        run: just ruff-format-check
+      - name: Linting with mypy
+        run: just mypy
+      - name: yamllint
+        run: just yamllint
+      - name: Check formatting of YAML files
+        # Homebrew is pre-installed but not added to PATH.
+        # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#homebrew-note
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install yamlfmt
+          just yamlfmt-check
+      - name: Find dead code with vulture
+        run: just vulture

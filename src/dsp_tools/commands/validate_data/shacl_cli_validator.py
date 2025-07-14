@@ -38,7 +38,7 @@ class ShaclCliValidator:
         data_path = f"/data/{file_paths.data_file}"
         report_path = f"/data/{file_paths.report_file}"
 
-        docker_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/shacl-cli-version.yml")
+        docker_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/shacl-cli-image.yml")
         docker_spec = yaml.safe_load(docker_file.read_bytes())
         docker_image = docker_spec["image"]
 

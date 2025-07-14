@@ -1,0 +1,35 @@
+---
+
+name: Check Docs
+
+on: push
+
+permissions:
+  pull-requests: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: Linting with darglint
+        run: just darglint
+      - name: check external links in docs
+        run: |
+          npm install -g markdown-link-validator
+          just check-links
+      - name: markdownlint
+        run: just markdownlint
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: build docs
+        run: uv run mkdocs build --strict

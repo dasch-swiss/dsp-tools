@@ -171,6 +171,12 @@
         </date-prop>
     </resource>
 
+    <resource label="date_start_end_is_the_same" restype=":ClassWithEverything" id="date_start_end_is_the_same">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1800-01-01</date>
+        </date-prop>
+    </resource>
+
     <resource label="date_yyyy_mm" restype=":ClassWithEverything" id="date_yyyy_mm">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:1800-01:CE:1900-01</date>

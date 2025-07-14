@@ -91,9 +91,9 @@
     <resource label="With linebreaks" restype=":ClassWithEverything" id="simple_text_with_newlines">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">
-            This may not
+                This may not
 
-            have newlines
+                have newlines
             </text>
         </text-prop>
     </resource>
@@ -119,6 +119,47 @@
         <uri-prop name=":testUriValue">
             <uri comment="   ">https://dasch.swiss</uri>
         </uri-prop>
+    </resource>
+
+    <!-- Date with start later than end date -->
+
+    <resource label="wrong_date_range_full_JULIAN" restype=":ClassWithEverything" id="wrong_date_range_full_JULIAN">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:CE:2000-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="wrong_date_range_full_GREGORIAN" restype=":ClassWithEverything"
+              id="wrong_date_range_full_GREGORIAN">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:2000-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="wrong_date_range_full_ISLAMIC" restype=":ClassWithEverything" id="wrong_date_range_full_ISLAMIC">
+        <date-prop name=":testSubDate1">
+            <date>ISLAMIC:2000-01-01:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="wrong_date_range_yyyy_mm" restype=":ClassWithEverything" id="wrong_date_range_yyyy_mm">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:2000-01:CE:1900-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="wrong_date_range_yyyy" restype=":ClassWithEverything" id="wrong_date_range_yyyy">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:2000:CE:1900</date>
+        </date-prop>
+    </resource>
+
+    <resource label="wrong_date_range_mixed_precision"
+              restype=":ClassWithEverything"
+              id="wrong_date_range_mixed_precision">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:2000-01-01:CE:1900</date>
+        </date-prop>
     </resource>
 
 </knora>

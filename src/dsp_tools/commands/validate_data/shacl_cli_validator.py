@@ -1,6 +1,8 @@
+import importlib.resources
 import subprocess
 from pathlib import Path
 
+import yaml
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
@@ -9,8 +11,6 @@ from dsp_tools.commands.validate_data.models.api_responses import SHACLValidatio
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ShaclValidationCliError
-
-DOCKER_IMAGE = "daschswiss/shacl-cli:v0.0.5"
 
 
 class ShaclCliValidator:
@@ -38,8 +38,12 @@ class ShaclCliValidator:
         data_path = f"/data/{file_paths.data_file}"
         report_path = f"/data/{file_paths.report_file}"
 
+        docker_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/shacl-cli-image.yml")
+        docker_spec = yaml.safe_load(docker_file.read_bytes())
+        docker_image = docker_spec["image"]
+
         d_cmd = (
-            f"docker run --rm -v {file_paths.directory.absolute()}:/data {DOCKER_IMAGE} "
+            f"docker run --rm -v {file_paths.directory.absolute()}:/data {docker_image} "
             f"validate --shacl {shacl_path} --data {data_path} --report {report_path}"
         )
         logger.debug(f"Running SHACL validation: {d_cmd}")

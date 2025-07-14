@@ -5,8 +5,6 @@ name: Tests e2e
 on:
   pull_request:
     types: [opened, synchronize]
-    branches-ignore:
-      - main
 
 permissions:
   contents: read

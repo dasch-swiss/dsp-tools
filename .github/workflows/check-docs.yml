@@ -5,8 +5,6 @@ name: Check Docs
 on:
   pull_request:
     types: [opened, synchronize]
-    branches-ignore:
-      - main
 
 permissions:
   contents: read

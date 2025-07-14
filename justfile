@@ -103,21 +103,35 @@ integration-tests *FLAGS:
     uv run pytest test/integration/ {{FLAGS}}
 
 
-# Run the end-to-end tests (with testcontainers)
+# Run all the end-to-end tests with testcontainers
 [no-exit-message]
-e2e-tests *FLAGS:
-    # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
-    # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
-    uv run pytest -n=auto --dist=loadfile test/e2e/ {{FLAGS}}
+e2e-tests:
+    just e2e-tests-ingest-xmlupload
+    just e2e-tests-validate-data
+    just e2e-tests-xmlupload
+    just e2e-test-create-xmlupload
 
+# Run the end-to-end tests for the ingest-xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-ingest-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/ingest_xmlupload/ {{FLAGS}}
 
 # Run the end-to-end tests for the validate-data command (with testcontainers)
 [no-exit-message]
-e2e-tests-validate-data *FLAGS:
+e2e-test-validate-data *FLAGS:
     # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
     # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
-    uv run pytest -n=auto --dist=loadfile test/e2e_validate_data/ {{FLAGS}}
+    uv run pytest -n=auto --dist=loadfile test/e2e/commands/validate_data/ {{FLAGS}}
 
+# Run the end-to-end tests for the xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/xmlupload/ {{FLAGS}}
+
+# Run the end-to-end tests for the create and xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-create-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/test_create_and_xmlupload.py/ {{FLAGS}}
 
 # Run the legacy end-to-end tests (needs a running stack)
 [no-exit-message]

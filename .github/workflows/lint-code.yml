@@ -2,7 +2,14 @@
 
 name: Lint Code
 
-on: push
+on:
+  push:
+    branches-ignore:
+      - main  # otherwise it runs when a PR is merged into main
+  pull_request:
+    types:
+      - opened
+      - synchronize  # when a branch is updated from main
 
 permissions:
   pull-requests: read

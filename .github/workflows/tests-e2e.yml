@@ -78,8 +78,8 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: create-xmlupload-logging.log
-          path: /home/runner/.dsp-tools/create-xmlupload-logging.log
+          name: e2e-create-xmlupload-logging.log
+          path: /home/runner/.dsp-tools/e2e-create-xmlupload-logging.log
           compression-level: 0
 
   legacy:

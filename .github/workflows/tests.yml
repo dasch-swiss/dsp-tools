@@ -27,7 +27,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
-  integration-tests:
+  integration:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

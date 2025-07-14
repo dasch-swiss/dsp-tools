@@ -123,7 +123,7 @@ def _get_ingest(
         .with_network(network)
         .with_bind_ports(host=ports.ingest, container=INGEST_INTERNAL_PORT)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
-        .with_env("STORAGE_TEMP_DIR", "/opt/temp")
+        .with_env("STORAGE_TEMP_DIR", "/opt/tmp")
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("JWT_ISSUER", f"http://{names.api}:{ports.api}")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
@@ -131,7 +131,7 @@ def _get_ingest(
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
         .with_volume_mapping(artifact_dirs.sipi_images, "/opt/images", "rw")
-        .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/temp", "rw")
+        .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/tmp", "rw")
         .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
     )
     ingest.start()

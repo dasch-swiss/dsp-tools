@@ -6,7 +6,9 @@ import pytest
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import _get_filepaths_with_more_than_one_usage
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -32,9 +34,6 @@ PROD_ENV_CONFIG = ValidateDataConfig(
 FILEPATH_1 = "file_path_1.jpg"
 FILEPATH_2 = "file_path_2.jpg"
 
-TOO_MAY_DUPLICATES_NUMBER = MAXIMUM_DUPLICATE_FILE_PATHS + 1
-OK_NUMBER_OF_DUPLICATES = MAXIMUM_DUPLICATE_FILE_PATHS - 1
-
 
 @pytest.fixture
 def file_value_1():
@@ -46,61 +45,47 @@ def file_value_2():
     return ParsedFileValue(FILEPATH_2, None, ParsedFileValueMetadata(None, None, None, None))
 
 
-@pytest.fixture
-def too_many_duplicate_files(file_value_1):
-    return [
-        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None)
-        for i in range(TOO_MAY_DUPLICATES_NUMBER)
-    ] + [ParsedResource(f"no_file_{i}", ":type", "lbl", None, [], None, None) for i in range(10)]
+class TestCheckDuplicates:
+    def test_no_duplicates(self, file_value_1, file_value_2):
+        resources = [
+            ParsedResource("no_file", ":type", "lbl", None, [], None, None),
+            ParsedResource("file_value_1", ":type", "lbl", None, [], file_value_1, None),
+            ParsedResource("file_value_2", ":type", "lbl", None, [], file_value_2, None),
+        ]
+        result = check_for_duplicate_files(resources)
+        assert not result
 
+    def test_one_duplicate(self, file_value_1):
+        resources = [
+            ParsedResource("no_file", ":type", "lbl", None, [], None, None),
+            ParsedResource("id_1", ":type", "lbl", None, [], file_value_1, None),
+            ParsedResource("id_2", ":type", "lbl", None, [], file_value_1, None),
+        ]
+        result = check_for_duplicate_files(resources)
+        assert isinstance(result, DuplicateFileWarnings)
+        assert len(result.warnings_) == 1
+        problem = result.warnings_.pop(0)
+        expected_msg = ""
+        assert problem.problem_type == ProblemType.FILE_DUPLICATE
+        assert not problem.res_id
+        assert not problem.res_type
+        assert problem.prop_name == "bitstream / iiif-uri"
+        assert problem.severity == Severity.WARNING
+        assert problem.message == expected_msg
+        assert problem.input_value == file_value_1.value
 
-@pytest.fixture
-def ok_amount_of_duplicate_files(file_value_1):
-    return [
-        ParsedResource(f"id_{i}", ":type", "lbl", None, [], file_value_1, None) for i in range(OK_NUMBER_OF_DUPLICATES)
-    ]
-
-
-class TestCheckForDuplicateFiles:
-    def test_too_many_files_on_test_environment(self, too_many_duplicate_files):
-        result = check_for_duplicate_files(too_many_duplicate_files, TEST_ENV_CONFIG)
-        expected_msg = (
-            "1 file(s) were used multiple times in your data. "
-            "Due to the large number of duplicates they cannot be included in the schema validation.\n"
-            "Since you are on a test environment, the validation or xmlupload will continue "
-            "without the duplicate check. Please note that this is not allowed on a production server.\n"
-            "The following filepaths are used more than once, result displayed as: "
-            f"file count - 'file path'\n{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
-        )
-        assert result.user_msg == expected_msg
-        assert result.should_continue
-        assert result.duplicate_files_must_be_ignored
-
-    def test_too_many_files_on_prod_environment(self, too_many_duplicate_files):
-        result = check_for_duplicate_files(too_many_duplicate_files, PROD_ENV_CONFIG)
-        expected_msg = (
-            "1 file(s) were used multiple times in your data. Due to the large number of "
-            "duplicates they cannot be included in the schema validation.\n"
-            "Since you are on a production server, the validation or xmlupload cannot continue. "
-            "If you wish to upload duplicate images, use the designated flag to ignore them.\n"
-            "The following filepaths are used more than once, result displayed as: file count - 'file path'\n"
-            f"{TOO_MAY_DUPLICATES_NUMBER} - 'file_path_1.jpg'"
-        )
-        assert result.user_msg == expected_msg
-        assert not result.should_continue
-        assert result.duplicate_files_must_be_ignored
-
-    def test_ok_amount_of_duplicate_files_on_test_environment(self, ok_amount_of_duplicate_files):
-        result = check_for_duplicate_files(ok_amount_of_duplicate_files, TEST_ENV_CONFIG)
-        assert result.user_msg is None
-        assert result.should_continue
-        assert not result.duplicate_files_must_be_ignored
-
-    def test_ok_amount_of_duplicate_files_on_prod_environment(self, ok_amount_of_duplicate_files):
-        result = check_for_duplicate_files(ok_amount_of_duplicate_files, PROD_ENV_CONFIG)
-        assert result.user_msg is None
-        assert result.should_continue
-        assert not result.duplicate_files_must_be_ignored
+    def test_several_duplicates(self, file_value_1, file_value_2):
+        resources = [
+            ParsedResource("no_file", ":type", "lbl", None, [], None, None),
+            ParsedResource("file_value_1_1", ":type", "lbl", None, [], file_value_1, None),
+            ParsedResource("file_value_1_2", ":type", "lbl", None, [], file_value_1, None),
+            ParsedResource("file_value_1_3", ":type", "lbl", None, [], file_value_1, None),
+            ParsedResource("file_value_2_1", ":type", "lbl", None, [], file_value_2, None),
+            ParsedResource("file_value_2_2", ":type", "lbl", None, [], file_value_2, None),
+        ]
+        result = check_for_duplicate_files(resources)
+        assert isinstance(result, DuplicateFileWarnings)
+        assert len(result.warnings_) == 2
 
 
 class TestGetFilePathCountDict:

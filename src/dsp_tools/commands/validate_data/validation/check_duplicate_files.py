@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -52,10 +51,6 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
             )
         )
     return all_duplicates
-
-
-def _determine_if_max_count_has_been_reached(path_count: dict[str, int]) -> bool:
-    return any([cnt > MAXIMUM_DUPLICATE_FILE_PATHS for cnt in path_count.values()])
 
 
 def _determine_duplicate_file_result(

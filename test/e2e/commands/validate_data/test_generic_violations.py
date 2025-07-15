@@ -14,7 +14,8 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.models.input_problems import ProblemType, SortedProblems
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -115,10 +116,12 @@ def content_violation(
 @pytest.fixture(scope="module")
 def value_type_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -128,7 +131,6 @@ def every_violation_combination_once(
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return get_validation_report(graphs, shacl_validator)
-
 
 
 def test_reformat_cardinality_violation(cardinality_violation: ValidateDataResult) -> None:
@@ -250,11 +252,8 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
-    assert not value_type_violation.conforms
-
-
-def test_reformat_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
+def test_reformat_value_type_violation(value_type_violation: ValidateDataResult) -> None:
+    assert not value_type_violation.passed
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -272,9 +271,8 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
         ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
     ]
-    result = reformat_validation_graph(value_type_violation)
-    # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
-    sorted_problems = sort_user_problems(result)
+    sorted_problems = value_type_violation.problems
+    assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info

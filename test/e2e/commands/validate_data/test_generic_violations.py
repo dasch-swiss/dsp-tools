@@ -8,7 +8,7 @@ from typing import cast
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
-from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
+
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
@@ -27,7 +27,6 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
-from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -72,6 +71,7 @@ def unique_value_violation(
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
+
 
 @pytest.fixture(scope="module")
 def file_value_violation(
@@ -381,9 +381,15 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_extract_identifiers_of_resource_results(every_violation_combination_once_report: ValidationReportGraphs) -> None:
-    report_and_onto = every_violation_combination_once_report.validation_graph + every_violation_combination_once_report.onto_graph
-    data_and_onto = every_violation_combination_once_report.data_graph + every_violation_combination_once_report.onto_graph
+def test_extract_identifiers_of_resource_results(
+    every_violation_combination_once_report: ValidationReportGraphs,
+) -> None:
+    report_and_onto = (
+        every_violation_combination_once_report.validation_graph + every_violation_combination_once_report.onto_graph
+    )
+    data_and_onto = (
+        every_violation_combination_once_report.data_graph + every_violation_combination_once_report.onto_graph
+    )
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [

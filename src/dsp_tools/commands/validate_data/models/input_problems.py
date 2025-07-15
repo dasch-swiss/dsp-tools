@@ -9,6 +9,14 @@ import pandas as pd
 import regex
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
+
+
+@dataclass
+class ValidateDataResult:
+    passed: bool
+    problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
+    report_graphs: None | ValidationReportGraphs
 
 
 @dataclass

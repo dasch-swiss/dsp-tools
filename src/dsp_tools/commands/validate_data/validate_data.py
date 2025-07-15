@@ -9,7 +9,10 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
+from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
@@ -109,36 +112,43 @@ def validate_parsed_resources(
         shortcode=shortcode,
         ignore_duplicate_files_warning=ignore_duplicate_files,
     )
-    return _validate_data(rdf_graphs, used_iris, config)
-
-
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
-    logger.debug(f"Validate-data called with the following config: {vars(config)}")
-    if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
-        msg = get_msg_str_unknown_classes_in_data(unknown_classes)
+    validation_result = _validate_data(rdf_graphs, used_iris, config)
+    if validation_result.passed:
+        logger.debug("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+        return True
+    if isinstance(validation_result.problems, UnknownClassesInData):
+        msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    shacl_validator = ShaclCliValidator()
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
-    if onto_validation_result:
-        msg = get_msg_str_ontology_validation_violation(onto_validation_result)
+    if isinstance(validation_result.problems, OntologyValidationProblem):
+        msg = get_msg_str_ontology_validation_violation(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
+    _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
+    return _get_validation_status(validation_result.problems, config.is_on_prod_server)
+
+
+def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> ValidateDataResult:
+    logger.debug(f"Validate-data called with the following config: {vars(config)}")
+    if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
+        return ValidateDataResult(False, unknown_classes, None)
+    shacl_validator = ShaclCliValidator()
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
+    if onto_validation_result:
+        return ValidateDataResult(False, onto_validation_result, None)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
-        logger.debug("No validation errors found.")
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
-        return True
+        return ValidateDataResult(True, None, None)
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted)
-    _print_shacl_validation_violation_message(sorted_problems, report, config)
-    return _get_validation_status(sorted_problems, config.is_on_prod_server)
+    return ValidateDataResult(False, sorted_problems, report)
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

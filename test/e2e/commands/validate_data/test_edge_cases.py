@@ -12,10 +12,8 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
-from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
-from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
@@ -82,11 +80,11 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
     assert result.passed
 
 
-def test_special_characters_violation(special_characters_violation: ValidationReportGraphs) -> None:
-    assert not special_characters_violation.conforms
+def test_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
+    assert not special_characters_violation.passed
 
 
-def test_reformat_special_characters_violation(special_characters_violation: ValidationReportGraphs) -> None:
+def test_reformat_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
     expected_tuples = [
         (
             "node_backslash",
@@ -124,13 +122,13 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             "other / \\ backslash",
         ),
     ]
-    result = reformat_validation_graph(special_characters_violation)
-    sorted_problems = sort_user_problems(result)
+    sorted_problems = special_characters_violation.problems
+    assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for prblm, expected in zip(alphabetically_sorted, expected_tuples):
         if prblm.problem_type == ProblemType.GENERIC:
             assert prblm.res_id == expected[0]
@@ -150,32 +148,34 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     assert result.passed
 
 
-def test_inheritance_violation(inheritance_violation: ValidationReportGraphs) -> None:
-    assert not inheritance_violation.conforms
+def test_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
+    assert not inheritance_violation.passed
 
 
-def test_reformat_inheritance_violation(inheritance_violation: ValidationReportGraphs) -> None:
+def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceUnrelated", {"onto:hasText0"}),
     ]
-    result = reformat_validation_graph(inheritance_violation)
-    sorted_problems = sort_user_problems(result)
+    sorted_problems = inheritance_violation.problems
+    assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_results)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]
         assert one_result.prop_name in expected[1]
 
 
-def test_validate_ontology_violation(validate_ontology_violation: ValidationReportGraphs | None) -> None:
-    assert isinstance(validate_ontology_violation, OntologyValidationProblem)
+def test_validate_ontology_violation(validate_ontology_violation: ValidateDataResult) -> None:
+    assert not validate_ontology_violation.passed
+    all_problems = validate_ontology_violation.problems
+    assert isinstance(all_problems, OntologyValidationProblem)
     erroneous_cards_msg = {
         "seqnum must either have cardinality 1 or 0-1.",
     }
@@ -189,8 +189,8 @@ def test_validate_ontology_violation(validate_ontology_violation: ValidationRepo
         ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
     ]
-    sorted_problems = sorted(validate_ontology_violation.problems, key=lambda x: x.res_iri)
-    assert len(validate_ontology_violation.problems) == len(expected_results)
+    sorted_problems = sorted(all_problems.problems, key=lambda x: x.res_iri)
+    assert len(all_problems.problems) == len(expected_results)
     for one_result, expected in zip(sorted_problems, expected_results):
         assert one_result.res_iri == expected[0]
         assert one_result.msg in expected[1]

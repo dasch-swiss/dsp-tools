@@ -44,15 +44,19 @@ def special_characters_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
 def inheritance_violation(_create_projects_edge_cases, authentication: AuthenticationClient) -> ValidateDataResult:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -60,15 +64,19 @@ def validate_ontology_violation(
     _create_projects_edge_cases, authentication: AuthenticationClient
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
     assert result.passed
 
 
@@ -130,8 +138,10 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
     assert result.passed
 
 

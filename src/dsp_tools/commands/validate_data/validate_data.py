@@ -133,8 +133,12 @@ def validate_parsed_resources(
         raise BaseError(f"Unknown validate data problems: {validation_result.problems!s}")
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str],
-    duplicate_file_warnings: DuplicateFileWarnings | None, config: ValidateDataConfig) -> ValidateDataResult:
+def _validate_data(
+    graphs: RDFGraphs,
+    used_iris: set[str],
+    duplicate_file_warnings: DuplicateFileWarnings | None,
+    config: ValidateDataConfig,
+) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         return ValidateDataResult(False, unknown_classes, None)
@@ -151,7 +155,7 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str],
                 unique_violations=[],
                 user_warnings=duplicate_file_warnings.warnings_,
                 user_info=[],
-                unexpected_shacl_validation_components=[]
+                unexpected_shacl_validation_components=[],
             )
             return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)

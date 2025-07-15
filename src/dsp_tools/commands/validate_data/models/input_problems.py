@@ -60,8 +60,8 @@ class UserPrintMessages:
 @dataclass
 class InputProblem:
     problem_type: ProblemType
-    res_id: str
-    res_type: str
+    res_id: str | None
+    res_type: str | None
     prop_name: str
     severity: Severity
     message: str | None = None
@@ -92,6 +92,7 @@ class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE = "file problem"
     FILE_DUPLICATE = "file used several times"
+    DUPLICATE_FILE = "Duplicate Filepath / IIIF-URI"
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."

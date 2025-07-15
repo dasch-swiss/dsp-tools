@@ -195,7 +195,10 @@ def _get_problem_print_message(problems: list[InputProblem]) -> str:
 
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
-    start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    if problems[0].res_id:
+        start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    else:
+        start_msg = ""
     prop_messages = _get_message_with_properties(problems)
     return f"{start_msg}\n{prop_messages}"
 
@@ -279,6 +282,7 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
     if problem_type in [
         ProblemType.FILE_DUPLICATE,
+        ProblemType.DUPLICATE_FILE,
         ProblemType.FILE_VALUE,
         ProblemType.FILE_VALUE_PROHIBITED,
         ProblemType.LINK_TARGET_TYPE_MISMATCH,

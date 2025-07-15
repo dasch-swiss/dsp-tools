@@ -217,7 +217,7 @@ def _print_shacl_validation_violation_message(
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
     msg = f"Due to the large number of violations the information was saved at '{out_path}'"
-    df.to_csv(out_path)
+    df.to_csv(out_path, index=False)
     return msg
 
 

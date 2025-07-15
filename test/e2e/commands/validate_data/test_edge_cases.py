@@ -13,7 +13,6 @@ from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
-from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
@@ -39,37 +38,6 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
     return auth
 
 
-@pytest.fixture(scope="module")
-def special_characters_violation(
-    _create_projects_edge_cases, authentication: AuthenticationClient
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def inheritance_violation(_create_projects_edge_cases, authentication: AuthenticationClient) -> ValidateDataResult:
-    file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def validate_ontology_violation(
-    _create_projects_edge_cases, authentication: AuthenticationClient
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
@@ -80,8 +48,14 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
     assert result.no_problems
 
 
-def test_reformat_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
-    assert not special_characters_violation.no_problems
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_reformat_special_characters_violation(authentication) -> None:
+    file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
     expected_tuples = [
         (
             "node_backslash",
@@ -119,7 +93,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
             "other / \\ backslash",
         ),
     ]
-    sorted_problems = special_characters_violation.problems
+    sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_tuples)
     assert not sorted_problems.user_warnings
@@ -145,15 +119,21 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     assert result.no_problems
 
 
-def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
-    assert not inheritance_violation.no_problems
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_reformat_inheritance_violation(authentication) -> None:
+    file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
         ("ResourceUnrelated", {"onto:hasText0"}),
     ]
-    sorted_problems = inheritance_violation.problems
+    sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_results)
     assert not sorted_problems.user_warnings
@@ -166,9 +146,15 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResul
         assert one_result.prop_name in expected[1]
 
 
-def test_validate_ontology_violation(validate_ontology_violation: ValidateDataResult) -> None:
-    assert not validate_ontology_violation.no_problems
-    all_problems = validate_ontology_violation.problems
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_validate_ontology_violation(authentication) -> None:
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
     erroneous_cards_msg = {
         "seqnum must either have cardinality 1 or 0-1.",

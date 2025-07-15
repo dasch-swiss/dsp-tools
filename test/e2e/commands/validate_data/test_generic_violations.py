@@ -80,10 +80,12 @@ def unique_value_violation(
 @pytest.fixture(scope="module")
 def file_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -289,10 +291,6 @@ def test_reformat_value_type_violation(value_type_violation: ValidateDataResult)
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_file_value_cardinality_violation(file_value_violation: ValidationReportGraphs) -> None:
-    assert not file_value_violation.conforms
-
-
 def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) -> None:
     assert not dsp_inbuilt_violation.conforms
 
@@ -320,7 +318,8 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
-    def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
+    def test_reformat_file_value_violation(self, file_value_violation: ValidateDataResult) -> None:
+        assert not file_value_violation.passed
         expected_info_violation = [
             ("authorship_with_newline", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
@@ -344,14 +343,13 @@ class TestReformatValidationGraph:
             ("license_not_enabled", ProblemType.GENERIC),
             ("unknown_authorship_id", ProblemType.INPUT_REGEX),
         ]
-        result = reformat_validation_graph(file_value_violation)
-        sorted_problems = sort_user_problems(result)
+        sorted_problems = file_value_violation.problems
+        assert isinstance(sorted_problems, SortedProblems)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert not sorted_problems.user_warnings
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
-        assert not result.unexpected_results
         for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]

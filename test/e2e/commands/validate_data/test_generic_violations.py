@@ -59,7 +59,7 @@ def unknown_classes_result(create_generic_project, authentication) -> ValidateDa
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_result: ValidateDataResult) -> None:
-    assert not unknown_classes_result.passed
+    assert not unknown_classes_result.no_problems
     result = unknown_classes_result.problems
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
@@ -140,7 +140,7 @@ def every_violation_combination_once(
 
 
 def test_reformat_cardinality_violation(cardinality_violation: ValidateDataResult) -> None:
-    assert not cardinality_violation.passed
+    assert not cardinality_violation.no_problems
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -259,7 +259,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
 
 
 def test_reformat_value_type_violation(value_type_violation: ValidateDataResult) -> None:
-    assert not value_type_violation.passed
+    assert not value_type_violation.no_problems
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -295,7 +295,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidateDataResult)
 
 class TestReformatValidationGraph:
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidateDataResult) -> None:
-        assert not unique_value_violation.passed
+        assert not unique_value_violation.no_problems
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
@@ -317,7 +317,7 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidateDataResult) -> None:
-        assert not file_value_violation.passed
+        assert not file_value_violation.no_problems
         expected_info_violation = [
             ("authorship_with_newline", ProblemType.GENERIC),
             ("copyright_holder_with_newline", ProblemType.GENERIC),
@@ -355,7 +355,7 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidateDataResult) -> None:
-        assert not dsp_inbuilt_violation.passed
+        assert not dsp_inbuilt_violation.no_problems
         expected_info_tuples = [
             ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),

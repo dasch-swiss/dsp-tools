@@ -77,11 +77,11 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     result = _validate_data(graphs, used_iris, CONFIG)
-    assert result.passed
+    assert result.no_problems
 
 
 def test_reformat_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
-    assert not special_characters_violation.passed
+    assert not special_characters_violation.no_problems
     expected_tuples = [
         (
             "node_backslash",
@@ -142,11 +142,11 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     result = _validate_data(graphs, used_iris, CONFIG)
-    assert result.passed
+    assert result.no_problems
 
 
 def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
-    assert not inheritance_violation.passed
+    assert not inheritance_violation.no_problems
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
@@ -167,7 +167,7 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResul
 
 
 def test_validate_ontology_violation(validate_ontology_violation: ValidateDataResult) -> None:
-    assert not validate_ontology_violation.passed
+    assert not validate_ontology_violation.no_problems
     all_problems = validate_ontology_violation.problems
     assert isinstance(all_problems, OntologyValidationProblem)
     erroneous_cards_msg = {

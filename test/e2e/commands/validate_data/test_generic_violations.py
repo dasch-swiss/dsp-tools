@@ -69,10 +69,12 @@ def test_check_for_unknown_resource_classes(unknown_classes_result: ValidateData
 @pytest.fixture(scope="module")
 def unique_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -287,10 +289,6 @@ def test_reformat_value_type_violation(value_type_violation: ValidateDataResult)
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_unique_value_violation(unique_value_violation: ValidationReportGraphs) -> None:
-    assert not unique_value_violation.conforms
-
-
 def test_file_value_cardinality_violation(file_value_violation: ValidationReportGraphs) -> None:
     assert not file_value_violation.conforms
 
@@ -300,7 +298,8 @@ def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) ->
 
 
 class TestReformatValidationGraph:
-    def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
+    def test_reformat_unique_value_violation(self, unique_value_violation: ValidateDataResult) -> None:
+        assert not unique_value_violation.passed
         expected_ids = [
             "identical_values_LinkValue",
             "identical_values_listNode",
@@ -308,13 +307,12 @@ class TestReformatValidationGraph:
             "identical_values_valueAsString",
             "identical_values_valueHas",
         ]
-        result = reformat_validation_graph(unique_value_violation)
-        sorted_problems = sort_user_problems(result)
+        sorted_problems = unique_value_violation.problems
+        assert isinstance(sorted_problems, SortedProblems)
         assert len(sorted_problems.unique_violations) == len(expected_ids)
         assert not sorted_problems.user_warnings
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
-        assert not result.unexpected_results
         alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE

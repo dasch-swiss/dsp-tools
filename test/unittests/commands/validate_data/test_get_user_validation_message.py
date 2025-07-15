@@ -424,7 +424,9 @@ def test_get_message_duplicate_files_no_res_id():
     )
     result = _get_message_for_one_resource([file1, file2])
     expected = (
-        "bitstream / iiif-uri\n    - Expected: A MovingImageRepresentation requires a file with the extension 'mp4'."
+        "\nbitstream / iiif-uri\n"
+        "    - msg | Duplicate Filepath / IIIF-URI | Your input: 'file1.jpg'\n"
+        "    - msg | Duplicate Filepath / IIIF-URI | Your input: 'file2.jpg'"
     )
     assert result == expected
 

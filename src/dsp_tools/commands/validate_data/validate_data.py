@@ -9,6 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -90,16 +91,9 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    ignore_duplicate_files = config.ignore_duplicate_files_warning
+    duplicate_file_warnings = None
     if not config.ignore_duplicate_files_warning:
-        duplicate_check = check_for_duplicate_files(parsed_resources, config)
-        if duplicate_check.user_msg:
-            logger.error(duplicate_check.user_msg)
-            print(f"{BACKGROUND_BOLD_RED}   Duplicate Filepaths Found!    {RESET_TO_DEFAULT}")
-            print(f"{BOLD_RED}{duplicate_check.user_msg}{RESET_TO_DEFAULT}")
-        if not duplicate_check.should_continue:
-            return False
-        ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
+        duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
 
     rdf_graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
@@ -107,12 +101,16 @@ def validate_parsed_resources(
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
-        ignore_duplicate_files_warning=ignore_duplicate_files,
     )
-    return _validate_data(rdf_graphs, used_iris, config)
+    return _validate_data(rdf_graphs, used_iris, duplicate_file_warnings, config)
 
 
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
+def _validate_data(
+    graphs: RDFGraphs,
+    used_iris: set[str],
+    duplicate_file_warnings: DuplicateFileWarnings | None,
+    config: ValidateDataConfig,
+) -> bool:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         msg = get_msg_str_unknown_classes_in_data(unknown_classes)
@@ -131,12 +129,21 @@ def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataC
         # if the ontology itself has errors, we will not validate the data
         return False
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
-    if report.conforms:
+
+    if report.conforms and not duplicate_file_warnings:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
-    reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted)
+    if report.conforms and duplicate_file_warnings:
+        sorted_problems = SortedProblems(
+            unique_violations=[],
+            user_warnings=duplicate_file_warnings.warnings_,
+            user_info=[],
+            unexpected_shacl_validation_components=[],
+        )
+    else:
+        reformatted = reformat_validation_graph(report)
+        sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings)
     _print_shacl_validation_violation_message(sorted_problems, report, config)
     return _get_validation_status(sorted_problems, config.is_on_prod_server)
 

@@ -9,7 +9,7 @@ from dsp_tools.commands.validate_data.models.validation import DuplicateFileResu
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 
-def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarnings:
+def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarnings | None:
     """
     Too many duplicate filepaths in the data may cause the SHACL validator to crash.
     If one file is referenced n times, this produces n * (n-1) validation errors.
@@ -22,6 +22,8 @@ def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> Duplica
         Results for the user and decisions how the program should continue
     """
     count_dict = _get_filepaths_with_more_than_one_usage(parsed_resources)
+    if not count_dict:
+        return None
     input_problems = _create_input_problems(count_dict)
     return DuplicateFileWarnings(input_problems)
 
@@ -37,10 +39,10 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
 def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
     all_duplicates = []
     for dup_entry, usage_count in duplicates.items():
-        msg = f"The filepath / IIIF-URI is used {usage_count} times."
+        msg = f"{usage_count} entries for this value."
         all_duplicates.append(
             InputProblem(
-                problem_type=ProblemType.DUPLICATE_FILE,
+                problem_type=ProblemType.FILE_DUPLICATE,
                 res_id=None,
                 res_type=None,
                 prop_name="bitstream / iiif-uri",

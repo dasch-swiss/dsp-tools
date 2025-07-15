@@ -39,13 +39,12 @@ def prepare_data_for_validation_from_parsed_resource(
     permission_ids: list[str],
     auth: AuthenticationClient,
     shortcode: str,
-    ignore_duplicate_files_warning: bool,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info = _get_project_specific_information_from_api(auth, shortcode)
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids, ignore_duplicate_files_warning)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids, True)
     return rdf_graphs, used_iris
 
 

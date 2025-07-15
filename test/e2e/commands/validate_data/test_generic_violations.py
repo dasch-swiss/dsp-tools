@@ -279,10 +279,10 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
     )
     result = _validate_data(graphs, used_iris, CONFIG)
     assert not result.no_problems
-    result = result.problems
-    assert isinstance(result, UnknownClassesInData)
+    problems = result.problems
+    assert isinstance(problems, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
-    assert result.unknown_classes == expected
+    assert problems.unknown_classes == expected
 
 
 @pytest.mark.usefixtures("create_generic_project")

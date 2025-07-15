@@ -91,10 +91,12 @@ def file_value_violation(
 @pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -291,10 +293,6 @@ def test_reformat_value_type_violation(value_type_violation: ValidateDataResult)
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidationReportGraphs) -> None:
-    assert not dsp_inbuilt_violation.conforms
-
-
 class TestReformatValidationGraph:
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidateDataResult) -> None:
         assert not unique_value_violation.passed
@@ -356,7 +354,8 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
-    def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
+    def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidateDataResult) -> None:
+        assert not dsp_inbuilt_violation.passed
         expected_info_tuples = [
             ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -377,12 +376,11 @@ class TestReformatValidationGraph:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
-        result = reformat_validation_graph(dsp_inbuilt_violation)
-        sorted_problems = sort_user_problems(result)
+        sorted_problems = dsp_inbuilt_violation.problems
+        assert isinstance(sorted_problems, SortedProblems)
         assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
-        assert not result.unexpected_results
         alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]

@@ -106,9 +106,9 @@ integration-tests *FLAGS:
 # Run all the end-to-end tests with testcontainers
 [no-exit-message]
 e2e-tests:
-    just e2e-tests-ingest-xmlupload
-    just e2e-tests-validate-data
-    just e2e-tests-xmlupload
+    just e2e-test-ingest-xmlupload
+    just e2e-test-validate-data
+    just e2e-test-xmlupload
     just e2e-test-create-xmlupload
 
 # Run the end-to-end tests for the ingest-xmlupload command (with testcontainers)

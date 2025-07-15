@@ -22,6 +22,6 @@ def write_id2iri_mapping(id2iri_mapping: dict[str, str], shortcode: str, diagnos
 
     id_2_iri_folder = Path.home() / ".dsp-tools" / "id2iri"
     id_2_iri_folder.mkdir(parents=True, exist_ok=True)
-    id2iri_filename_for_logs = f"{timestamp}_id2iri_{shortcode}_{servername}.json"
+    id2iri_filename_for_logs = f"id2iri_{timestamp}_{shortcode}_{servername}.json"
     with open(id_2_iri_folder / id2iri_filename_for_logs, "w", encoding="utf-8") as f:
         f.write(json_str)

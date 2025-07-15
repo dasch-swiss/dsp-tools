@@ -17,7 +17,6 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
-from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
@@ -50,78 +49,6 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 
 
 @pytest.fixture(scope="module")
-def unknown_classes_result(create_generic_project, authentication) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-def test_check_for_unknown_resource_classes(unknown_classes_result: ValidateDataResult) -> None:
-    assert not unknown_classes_result.no_problems
-    result = unknown_classes_result.problems
-    assert isinstance(result, UnknownClassesInData)
-    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
-    assert result.unknown_classes == expected
-
-
-@pytest.fixture(scope="module")
-def unique_value_violation(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def file_value_violation(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def dsp_inbuilt_violation(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def cardinality_violation(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
-def value_type_violation(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
-
-
-@pytest.fixture(scope="module")
 def content_violation_report(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
@@ -137,161 +64,6 @@ def every_violation_combination_once_report(
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
     graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
     return get_validation_report(graphs, shacl_validator)
-
-
-def test_reformat_cardinality_violation(cardinality_violation: ValidateDataResult) -> None:
-    assert not cardinality_violation.no_problems
-    expected_info_tuples = [
-        ("id_card_one", ProblemType.MIN_CARD),
-        ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
-        ("id_max_card", ProblemType.MAX_CARD),
-        ("id_min_card", ProblemType.MIN_CARD),
-        ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
-    ]
-    sorted_problems = cardinality_violation.problems
-    assert isinstance(sorted_problems, SortedProblems)
-    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-    assert not sorted_problems.user_warnings
-    assert not sorted_problems.user_info
-    assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
-        assert one_result.res_id == expected_info[0]
-        assert one_result.problem_type == expected_info[1]
-    assert not _get_validation_status(sorted_problems, is_on_prod=True)
-    assert not _get_validation_status(sorted_problems, is_on_prod=False)
-
-
-def test_reformat_value_type_violation(value_type_violation: ValidateDataResult) -> None:
-    assert not value_type_violation.no_problems
-    expected_info_tuples = [
-        ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
-        ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
-        ("date_wrong_value_type", "This property requires a DateValue", "onto:testSubDate1"),
-        ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
-        ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
-        ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
-        ("is_date_should_be_simpletext", "This property requires a TextValue", "onto:testTextarea"),
-        ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
-        ("is_text_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
-        ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
-        ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
-        ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
-        ("simpletext_wrong_value_type", "TextValue without formatting", "onto:testTextarea"),
-        ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
-        ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
-    ]
-    sorted_problems = value_type_violation.problems
-    assert isinstance(sorted_problems, SortedProblems)
-    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-    assert not sorted_problems.user_warnings
-    assert not sorted_problems.user_info
-    assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
-        assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
-        assert one_result.res_id == expected_info[0]
-        assert one_result.expected == expected_info[1]
-        assert one_result.prop_name == expected_info[2]
-    assert not _get_validation_status(sorted_problems, is_on_prod=True)
-    assert not _get_validation_status(sorted_problems, is_on_prod=False)
-
-
-def test_reformat_unique_value_violation(unique_value_violation: ValidateDataResult) -> None:
-    assert not unique_value_violation.no_problems
-    expected_ids = [
-        "identical_values_LinkValue",
-        "identical_values_listNode",
-        "identical_values_richtext",
-        "identical_values_valueAsString",
-        "identical_values_valueHas",
-    ]
-    sorted_problems = unique_value_violation.problems
-    assert isinstance(sorted_problems, SortedProblems)
-    assert len(sorted_problems.unique_violations) == len(expected_ids)
-    assert not sorted_problems.user_warnings
-    assert not sorted_problems.user_info
-    assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
-        assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
-        assert one_result.res_id == expected_id
-    assert not _get_validation_status(sorted_problems, is_on_prod=True)
-    assert not _get_validation_status(sorted_problems, is_on_prod=False)
-
-
-def test_reformat_file_value_violation(file_value_violation: ValidateDataResult) -> None:
-    assert not file_value_violation.no_problems
-    expected_info_violation = [
-        ("authorship_with_newline", ProblemType.GENERIC),
-        ("copyright_holder_with_newline", ProblemType.GENERIC),
-        ("empty_copyright_holder", ProblemType.INPUT_REGEX),
-        ("empty_license", ProblemType.GENERIC),
-        ("id_archive_missing", ProblemType.FILE_VALUE),
-        ("id_archive_unknown", ProblemType.FILE_VALUE),
-        ("id_audio_missing", ProblemType.FILE_VALUE),
-        ("id_audio_unknown", ProblemType.FILE_VALUE),
-        ("id_document_missing", ProblemType.FILE_VALUE),
-        ("id_document_unknown", ProblemType.FILE_VALUE),
-        ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
-        ("id_still_image_missing", ProblemType.FILE_VALUE),
-        ("id_still_image_unknown", ProblemType.FILE_VALUE),
-        ("id_text_missing", ProblemType.FILE_VALUE),
-        ("id_text_unknown", ProblemType.FILE_VALUE),
-        ("id_video_missing", ProblemType.FILE_VALUE),
-        ("id_video_unknown", ProblemType.FILE_VALUE),
-        ("id_wrong_file_type", ProblemType.FILE_VALUE),
-        ("inexistent_license_iri", ProblemType.GENERIC),
-        ("license_not_enabled", ProblemType.GENERIC),
-        ("unknown_authorship_id", ProblemType.INPUT_REGEX),
-    ]
-    sorted_problems = file_value_violation.problems
-    assert isinstance(sorted_problems, SortedProblems)
-    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    assert len(sorted_problems.unique_violations) == len(expected_info_violation)
-    assert not sorted_problems.user_warnings
-    assert not sorted_problems.user_info
-    assert not sorted_problems.unexpected_shacl_validation_components
-    for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
-        assert one_result.problem_type == expected_info[1]
-        assert one_result.res_id == expected_info[0]
-    assert not _get_validation_status(sorted_problems, is_on_prod=True)
-    assert not _get_validation_status(sorted_problems, is_on_prod=False)
-
-
-def test_reformat_dsp_inbuilt_violation(dsp_inbuilt_violation: ValidateDataResult) -> None:
-    assert not dsp_inbuilt_violation.no_problems
-    expected_info_tuples = [
-        ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
-        ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
-        ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
-        ("missing_isPartOf", ProblemType.GENERIC),
-        ("missing_seqnum", ProblemType.GENERIC),
-        ("non_existent_permissions_bitstream", ProblemType.GENERIC),
-        ("non_existent_permissions_resource", ProblemType.GENERIC),
-        ("non_existent_permissions_value", ProblemType.GENERIC),
-        ("region_invalid_geometry", ProblemType.INPUT_REGEX),
-        ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
-        ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
-        ("target_must_be_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
-        ("target_must_be_an_image_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
-        ("video_segment_start_larger_than_end", ProblemType.GENERIC),
-        ("video_segment_target_is_audio", ProblemType.LINK_TARGET_TYPE_MISMATCH),
-        ("video_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
-        ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
-        ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
-    ]
-    sorted_problems = dsp_inbuilt_violation.problems
-    assert isinstance(sorted_problems, SortedProblems)
-    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-    assert not sorted_problems.user_info
-    assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
-        assert one_result.problem_type == expected_info[1]
-        assert one_result.res_id == expected_info[0]
-    assert not _get_validation_status(sorted_problems, is_on_prod=True)
-    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 class TestWithReportGraphs:
@@ -497,6 +269,205 @@ class TestWithReportGraphs:
             assert one_result.res_id == expected[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_check_for_unknown_resource_classes(authentication) -> None:
+    file = Path("testdata/validate-data/generic/unknown_classes.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    result = result.problems
+    assert isinstance(result, UnknownClassesInData)
+    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
+    assert result.unknown_classes == expected
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_cardinality_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/cardinality_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    expected_info_tuples = [
+        ("id_card_one", ProblemType.MIN_CARD),
+        ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
+        ("id_max_card", ProblemType.MAX_CARD),
+        ("id_min_card", ProblemType.MIN_CARD),
+        ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        assert one_result.res_id == expected_info[0]
+        assert one_result.problem_type == expected_info[1]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_value_type_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/value_type_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    expected_info_tuples = [
+        ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
+        ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
+        ("date_wrong_value_type", "This property requires a DateValue", "onto:testSubDate1"),
+        ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
+        ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
+        ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
+        ("is_date_should_be_simpletext", "This property requires a TextValue", "onto:testTextarea"),
+        ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
+        ("is_text_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
+        ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
+        ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
+        ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
+        ("simpletext_wrong_value_type", "TextValue without formatting", "onto:testTextarea"),
+        ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
+        ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
+        assert one_result.res_id == expected_info[0]
+        assert one_result.expected == expected_info[1]
+        assert one_result.prop_name == expected_info[2]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_unique_value_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/unique_value_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    expected_ids = [
+        "identical_values_LinkValue",
+        "identical_values_listNode",
+        "identical_values_richtext",
+        "identical_values_valueAsString",
+        "identical_values_valueHas",
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_ids)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
+        assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
+        assert one_result.res_id == expected_id
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_file_value_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/file_value_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    expected_info_violation = [
+        ("authorship_with_newline", ProblemType.GENERIC),
+        ("copyright_holder_with_newline", ProblemType.GENERIC),
+        ("empty_copyright_holder", ProblemType.INPUT_REGEX),
+        ("empty_license", ProblemType.GENERIC),
+        ("id_archive_missing", ProblemType.FILE_VALUE),
+        ("id_archive_unknown", ProblemType.FILE_VALUE),
+        ("id_audio_missing", ProblemType.FILE_VALUE),
+        ("id_audio_unknown", ProblemType.FILE_VALUE),
+        ("id_document_missing", ProblemType.FILE_VALUE),
+        ("id_document_unknown", ProblemType.FILE_VALUE),
+        ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
+        ("id_still_image_missing", ProblemType.FILE_VALUE),
+        ("id_still_image_unknown", ProblemType.FILE_VALUE),
+        ("id_text_missing", ProblemType.FILE_VALUE),
+        ("id_text_unknown", ProblemType.FILE_VALUE),
+        ("id_video_missing", ProblemType.FILE_VALUE),
+        ("id_video_unknown", ProblemType.FILE_VALUE),
+        ("id_wrong_file_type", ProblemType.FILE_VALUE),
+        ("inexistent_license_iri", ProblemType.GENERIC),
+        ("license_not_enabled", ProblemType.GENERIC),
+        ("unknown_authorship_id", ProblemType.INPUT_REGEX),
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    assert len(sorted_problems.unique_violations) == len(expected_info_violation)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    for one_result, expected_info in zip(alphabetically_sorted_violations, expected_info_violation):
+        assert one_result.problem_type == expected_info[1]
+        assert one_result.res_id == expected_info[0]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_dsp_inbuilt_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    result = _validate_data(graphs, used_iris, CONFIG)
+    assert not result.no_problems
+    expected_info_tuples = [
+        ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+        ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ("missing_isPartOf", ProblemType.GENERIC),
+        ("missing_seqnum", ProblemType.GENERIC),
+        ("non_existent_permissions_bitstream", ProblemType.GENERIC),
+        ("non_existent_permissions_resource", ProblemType.GENERIC),
+        ("non_existent_permissions_value", ProblemType.GENERIC),
+        ("region_invalid_geometry", ProblemType.INPUT_REGEX),
+        ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+        ("target_must_be_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+        ("target_must_be_an_image_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+        ("video_segment_start_larger_than_end", ProblemType.GENERIC),
+        ("video_segment_target_is_audio", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+        ("video_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
+        ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        assert one_result.problem_type == expected_info[1]
+        assert one_result.res_id == expected_info[0]
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 if __name__ == "__main__":

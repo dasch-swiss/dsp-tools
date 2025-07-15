@@ -199,7 +199,6 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Args:
         clients: the clients needed for the upload
         upload_state: the initial state of the upload to execute
-        is_on_prod_like_server: if it is a prod like server
 
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
@@ -230,7 +229,6 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
 
     Args:
         upload_state: the current state of the upload
-        is_on_prod_like_server: if it is a prod-like server
 
     Returns:
         success status (deduced from failed_uploads and non-applied stash)

@@ -130,7 +130,7 @@ def ingest_xmlupload(
         config=config,
     )
 
-    return execute_upload(clients, state)
+    return execute_upload(clients, state, is_on_prod_like_server)
 
 
 def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, shortcode: str) -> etree._Element:

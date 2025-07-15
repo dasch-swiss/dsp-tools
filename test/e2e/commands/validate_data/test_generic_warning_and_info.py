@@ -13,13 +13,10 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
-from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
-from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
-from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
@@ -45,10 +42,8 @@ def no_violations_with_warnings(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -56,10 +51,8 @@ def no_violations_with_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -226,7 +219,7 @@ class TestSortedProblems:
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
-    def test_no_violations_with_info_ignore_duplicate_files_warning(self, authentication, shacl_validator):
+    def test_no_violations_with_info_ignore_duplicate_files_warning(self, authentication):
         file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
         config = ValidateDataConfig(
             xml_file=Path(),
@@ -235,12 +228,11 @@ class TestSortedProblems:
             ignore_duplicate_files_warning=True,
             is_on_prod_server=False,
         )
-        graphs, used_iris = prepare_data_for_validation_from_file(
-            file, authentication, config.ignore_duplicate_files_warning
-        )
-        report = get_validation_report(graphs, shacl_validator)
-        reformatted = reformat_validation_graph(report)
-        no_violations_with_info = sort_user_problems(reformatted)
+        graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+        result = _validate_data(graphs, used_iris, parsed_resources, config)
+        assert not result.no_problems
+        no_violations_with_info = result.problems
+        assert isinstance(no_violations_with_info, SortedProblems)
         all_expected_info = [
             ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
             ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),

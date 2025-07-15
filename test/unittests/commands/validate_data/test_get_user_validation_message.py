@@ -403,6 +403,30 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
     assert result == expected
 
 
+def test_get_message_duplicate_files_no_res_id():
+    file1 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file1.jpg",
+    )
+    file2 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file2.jpg",
+    )
+    result = _get_message_for_one_resource([file1, file2])
+    expected = "\nbitstream / iiif-uri\n    - msg | Your input: 'file1.jpg'\n    - msg | Your input: 'file2.jpg'"
+    assert result == expected
+
+
 @pytest.mark.parametrize(
     ("user_input", "problem_type", "expected"),
     [

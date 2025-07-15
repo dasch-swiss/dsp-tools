@@ -7,7 +7,7 @@ from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 def get_temp_directory() -> TemporaryDirectory[str]:
     ttl_dir = (Path.home() / ".dsp-tools" / "validate-data").absolute()
-    ttl_dir.mkdir(exist_ok=True)
+    ttl_dir.mkdir(exist_ok=True, parents=True)
     t_dir = TemporaryDirectory(dir=ttl_dir)
     return t_dir
 

@@ -14,15 +14,22 @@ env:
   DSP_TOOLS_TESTING: true
 
 jobs:
-  e2e:
+  ingest-xmlupload:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: e2e
-        run: just e2e-tests
+      - name: ingest-xmlupload
+        run: just e2e-test-ingest-xmlupload
+      - name: make logging file available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-ingest-xmlupload-logging.log
+          path: /home/runner/.dsp-tools/logging.log
+          compression-level: 0
 
   validate-data:
     runs-on: ubuntu-latest
@@ -32,13 +39,47 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: validate-data
-        run: just e2e-tests-validate-data
+        run: just e2e-test-validate-data
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e2e-validate-data-logging.log
-          path: /home/runner/.dsp-tools/e2e-validate-data-logging.log
+          path: /home/runner/.dsp-tools/logging.log
+          compression-level: 0
+
+  xmlupload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: xmlupload
+        run: just e2e-test-xmlupload
+      - name: make logging file available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-xmlupload-logging.log
+          path: /home/runner/.dsp-tools/logging.log
+          compression-level: 0
+
+  create-xmlupload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: create-xmlupload
+        run: just e2e-test-create-xmlupload
+      - name: make logging file available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-create-xmlupload-logging.log
+          path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
 
   legacy:
@@ -59,5 +100,5 @@ jobs:
         if: always()
         with:
           name: e2e-legacy-logging.log
-          path: /home/runner/.dsp-tools/e2e-legacy-logging.log
+          path: /home/runner/.dsp-tools/logging.log
           compression-level: 0

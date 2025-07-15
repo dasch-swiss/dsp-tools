@@ -80,11 +80,8 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
     assert result.passed
 
 
-def test_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
-    assert not special_characters_violation.passed
-
-
 def test_reformat_special_characters_violation(special_characters_violation: ValidateDataResult) -> None:
+    assert not special_characters_violation.passed
     expected_tuples = [
         (
             "node_backslash",
@@ -148,11 +145,8 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     assert result.passed
 
 
-def test_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
-    assert not inheritance_violation.passed
-
-
 def test_reformat_inheritance_violation(inheritance_violation: ValidateDataResult) -> None:
+    assert not inheritance_violation.passed
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
         ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),

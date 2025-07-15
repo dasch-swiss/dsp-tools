@@ -196,7 +196,7 @@ def _are_there_too_many_to_print(sorted_problems: SortedProblems, severity: Vali
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
     grouped, without_res_id = _group_problems_by_resource(problems)
-    messages = [_get_message_for_one_resource(without_res_id)]
+    messages = [_get_message_for_one_resource(without_res_id)] if without_res_id else []
     messages_with_ids = [
         _get_message_for_one_resource(v) for v in sorted(grouped.values(), key=lambda x: str(x[0].res_id))
     ]

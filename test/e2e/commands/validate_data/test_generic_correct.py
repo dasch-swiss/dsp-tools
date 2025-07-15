@@ -37,7 +37,7 @@ def test_minimal_correct(authentication) -> None:
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     validation_result = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_result.passed
+    assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
 
@@ -49,7 +49,7 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator)
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     validation_result = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_result.passed
+    assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
 
@@ -61,7 +61,7 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     validation_result = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_result.passed
+    assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
 
@@ -73,7 +73,7 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     validation_result = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_result.passed
+    assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
 
@@ -85,6 +85,6 @@ def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator)
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
     validation_result = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_result.passed
+    assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs

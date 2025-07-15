@@ -22,7 +22,7 @@ from test.e2e.commands.validate_data.util import prepare_data_for_validation_fro
 # ruff: noqa: ARG001 Unused function argument
 
 
-CONFIG = ValidateDataConfig(
+CONFIG_DO_NOT_IGNORE_DUPLICATE_FILES = ValidateDataConfig(
     xml_file=Path(),
     save_graph_dir=None,
     severity=ValidationSeverity.INFO,
@@ -43,7 +43,7 @@ def no_violations_with_warnings(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG_DO_NOT_IGNORE_DUPLICATE_FILES)
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +52,7 @@ def no_violations_with_info(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG_DO_NOT_IGNORE_DUPLICATE_FILES)
 
 
 @pytest.fixture(scope="module")

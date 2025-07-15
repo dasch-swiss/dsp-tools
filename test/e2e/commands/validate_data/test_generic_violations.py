@@ -8,7 +8,7 @@ from typing import cast
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
-
+from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
@@ -28,6 +28,7 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
@@ -51,9 +52,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.fixture(scope="module")
 def unknown_classes_graphs(create_generic_project, authentication) -> tuple[RDFGraphs, set[str]]:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
+    graphs, used_iris, _ = prepare_data_for_validation_from_file(file, authentication)
     return graphs, used_iris
 
 
@@ -70,7 +69,7 @@ def unique_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
 
 
@@ -79,7 +78,7 @@ def file_value_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
 
 
@@ -88,51 +87,56 @@ def dsp_inbuilt_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
 
 
 @pytest.fixture(scope="module")
 def cardinality_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, _, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    report = get_validation_report(graphs, shacl_validator)
+    return report, parsed_resources
 
 
 @pytest.fixture(scope="module")
 def content_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, _, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    report = get_validation_report(graphs, shacl_validator)
+    return report, parsed_resources
 
 
 @pytest.fixture(scope="module")
-def value_type_violation(
+def value_type_violation_report(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
 
 
 @pytest.fixture(scope="module")
-def every_violation_combination_once(
+def every_violation_combination_once_report(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     return get_validation_report(graphs, shacl_validator)
 
 
-def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
-    assert not cardinality_violation.conforms
+def test_cardinality_violation(cardinality_violation: tuple[ValidationReportGraphs, list[ParsedResource]]) -> None:
+    report, _ = cardinality_violation
+    assert not report.conforms
 
 
-def test_reformat_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
+def test_reformat_cardinality_violation(cardinality_violation: tuple[ValidationReportGraphs, list[ParsedResource]]) -> None:
+    # This test tests the intermediary results of the functions as well as the end reformatted problems
+    report, parsed_resources = cardinality_violation
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -140,8 +144,9 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
         ("id_min_card", ProblemType.MIN_CARD),
         ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
     ]
-    result = reformat_validation_graph(cardinality_violation)
-    sorted_problems = sort_user_problems(result)
+    result = reformat_validation_graph(report)
+    duplicate_files = check_for_duplicate_files(parsed_resources)
+    sorted_problems = sort_user_problems(result, duplicate_files)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
@@ -154,11 +159,14 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_content_violation(content_violation: ValidationReportGraphs) -> None:
-    assert not content_violation.conforms
+def test_content_violation(content_violation: tuple[ValidationReportGraphs, list[ParsedResource]]) -> None:
+    report, _ = content_violation
+    assert not report.conforms
 
 
-def test_reformat_content_violation(content_violation: ValidationReportGraphs) -> None:
+def test_reformat_content_violation(content_violation: tuple[ValidationReportGraphs, list[ParsedResource]]) -> None:
+    # This test tests the intermediary results of the functions as well as the end reformatted problems
+    report, parsed_resources = content_violation
     expected_info_tuples = [
         (
             "comment_on_value_empty",
@@ -221,8 +229,9 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             ),
         ),
     ]
-    result = reformat_validation_graph(content_violation)
-    sorted_problems = sort_user_problems(result)
+    result = reformat_validation_graph(report)
+    duplicate_files = check_for_duplicate_files(parsed_resources)
+    sorted_problems = sort_user_problems(result, duplicate_files)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
@@ -248,11 +257,11 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
-    assert not value_type_violation.conforms
+def test_value_type_violation(value_type_violation_report: ValidationReportGraphs) -> None:
+    assert not value_type_violation_report.conforms
 
 
-def test_reformat_value_type_violation(value_type_violation: ValidationReportGraphs) -> None:
+def test_reformat_value_type_violation(value_type_violation_report: ValidationReportGraphs) -> None:
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -270,7 +279,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
         ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
         ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
     ]
-    result = reformat_validation_graph(value_type_violation)
+    result = reformat_validation_graph(value_type_violation_report)
     # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
@@ -395,9 +404,9 @@ class TestReformatValidationGraph:
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
-def test_extract_identifiers_of_resource_results(every_violation_combination_once: ValidationReportGraphs) -> None:
-    report_and_onto = every_violation_combination_once.validation_graph + every_violation_combination_once.onto_graph
-    data_and_onto = every_violation_combination_once.data_graph + every_violation_combination_once.onto_graph
+def test_extract_identifiers_of_resource_results(every_violation_combination_once_report: ValidationReportGraphs) -> None:
+    report_and_onto = every_violation_combination_once_report.validation_graph + every_violation_combination_once_report.onto_graph
+    data_and_onto = every_violation_combination_once_report.data_graph + every_violation_combination_once_report.onto_graph
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
@@ -440,11 +449,11 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
             assert isinstance(detail_base_info.detail_bn, expected_iri[1])
 
 
-def test_every_violation_combination_once(every_violation_combination_once: ValidationReportGraphs) -> None:
-    assert not every_violation_combination_once.conforms
+def test_every_violation_combination_once(every_violation_combination_once_report: ValidationReportGraphs) -> None:
+    assert not every_violation_combination_once_report.conforms
 
 
-def test_reformat_every_constraint_once(every_violation_combination_once: ValidationReportGraphs) -> None:
+def test_reformat_every_constraint_once(every_violation_combination_once_report: ValidationReportGraphs) -> None:
     expected_violations = [
         ("empty_label", ProblemType.INPUT_REGEX),
         ("geoname_not_number", ProblemType.INPUT_REGEX),
@@ -478,7 +487,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
         ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
     ]
-    result = reformat_validation_graph(every_violation_combination_once)
+    result = reformat_validation_graph(every_violation_combination_once_report)
     sorted_problems = sort_user_problems(result)
     alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))

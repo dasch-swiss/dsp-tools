@@ -145,7 +145,7 @@ state "<b>STOP<b>" as stopUnknown
 state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
 state "<b>STOP<b>" as ontoViolation
 state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
-state "Duplicate Filepaths<br>(Python Logic)" as duplicFile
+state "Check for Duplicate Filepaths<br>(Python Logic)" as duplicFile
 state "severity: WARNING" as warning
 state "severity: INFO" as info
 state "severity: ERROR" as err
@@ -154,7 +154,7 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
     [*] --> XSD
     XSD --> stopXSD: validation failure
     XSD --> unknownCls: success
-    unknownCls --> stopUnknown: unkonwn found
+    unknownCls --> stopUnknown: unknown found
     unknownCls --> ontoVal: success
     ontoVal --> ontoViolation: violations found
     ontoVal --> ignoreF: success
@@ -172,10 +172,9 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
 The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
 
 Some validation problems are allowed on test environments while the "prod-like" servers are stricter.
-Prod like servers include prod as well as servers for testing purposes 
-(software and data) that should behave like prod. 
+Prod like servers include prod, ls-prod, stage, and rdu-stage (rdu.dasch.swiss).
 
-|         | TEST    | PROD    |
+|         | LOCALHOST/RDU TEST SERVERS    | RDU-STAGE/PROD    |
 |---------|---------|---------|
 | INFO    | success | success |
 | WARNING | success | failure |

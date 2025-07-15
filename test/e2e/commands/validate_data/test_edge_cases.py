@@ -18,7 +18,7 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
-from test.e2e_validate_data.util import prepare_data_for_validation_from_file
+from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 CONFIG = ValidateDataConfig(
     xml_file=Path(),

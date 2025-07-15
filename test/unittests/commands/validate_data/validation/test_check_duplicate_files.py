@@ -65,7 +65,7 @@ class TestCheckDuplicates:
         assert isinstance(result, DuplicateFileWarnings)
         assert len(result.warnings_) == 1
         problem = result.warnings_.pop(0)
-        expected_msg = ""
+        expected_msg = "value used 2 times"
         assert problem.problem_type == ProblemType.FILE_DUPLICATE
         assert not problem.res_id
         assert not problem.res_type
@@ -86,6 +86,10 @@ class TestCheckDuplicates:
         result = check_for_duplicate_files(resources)
         assert isinstance(result, DuplicateFileWarnings)
         assert len(result.warnings_) == 2
+        file_1 = next(x for x in result.warnings_ if x.input_value == file_value_1.value)
+        assert file_1.message == "value used 3 times"
+        file_2 = next(x for x in result.warnings_ if x.input_value == file_value_2.value)
+        assert file_2.message == "value used 2 times"
 
 
 class TestGetFilePathCountDict:

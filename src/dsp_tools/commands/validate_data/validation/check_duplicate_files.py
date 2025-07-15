@@ -38,7 +38,7 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
 def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
     all_duplicates = []
     for dup_entry, usage_count in duplicates.items():
-        msg = f"{usage_count} entries for this value."
+        msg = f"value used {usage_count} times"
         all_duplicates.append(
             InputProblem(
                 problem_type=ProblemType.FILE_DUPLICATE,

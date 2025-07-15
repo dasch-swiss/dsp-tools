@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 from loguru import logger
@@ -27,6 +28,7 @@ from dsp_tools.commands.validate_data.validation.check_for_unknown_classes impor
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
@@ -131,8 +133,11 @@ def validate_parsed_resources(
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
-    _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
-    return _get_validation_status(validation_result.problems, config.is_on_prod_server)
+    if isinstance(validation_result.problems, SortedProblems):
+        _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
+        return _get_validation_status(validation_result.problems, config.is_on_prod_server)
+    else:
+        raise BaseError(f"Unknown validate data problems: {validation_result.problems!s}")
 
 
 def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> ValidateDataResult:
@@ -175,7 +180,7 @@ def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bo
 
 
 def _print_shacl_validation_violation_message(
-    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
+    sorted_problems: SortedProblems, report: ValidationReportGraphs | None, config: ValidateDataConfig
 ) -> None:
     messages = get_user_message(sorted_problems, config.severity)
     if messages.violations:
@@ -221,7 +226,8 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.xml_file)
+            report_graph = cast(ValidationReportGraphs, report)
+            _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:

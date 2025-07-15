@@ -151,6 +151,8 @@ class TestGetDuplicateFileValidationResult:
 
 class TestGetCorrectValidationResult:
     def test_no_violations_with_warnings_not_on_prod(self, no_violations_with_warnings):
+        # this boolean signifies that there are problems of any severity level, but not if the validation will pass
+        assert not no_violations_with_warnings.no_problems
         sorted_problems = no_violations_with_warnings.problems
         assert isinstance(sorted_problems, SortedProblems)
         result = _get_validation_status(sorted_problems, is_on_prod=False)
@@ -163,6 +165,8 @@ class TestGetCorrectValidationResult:
         assert result is False
 
     def test_no_violations_with_info_not_on_prod(self, no_violations_with_info):
+        # this boolean signifies that there are problems of any severity level, but not if the validation will pass
+        assert not no_violations_with_info.no_problems
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)
         result = _get_validation_status(sorted_problems, is_on_prod=False)
@@ -189,7 +193,6 @@ class TestSortedProblems:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
-        assert not no_violations_with_warnings.passed
         sorted_problems = no_violations_with_warnings.problems
         assert isinstance(sorted_problems, SortedProblems)
         sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
@@ -212,7 +215,6 @@ class TestSortedProblems:
             ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
             ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
         ]
-        assert not no_violations_with_info.passed
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)
         sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))

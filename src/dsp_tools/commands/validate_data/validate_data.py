@@ -115,7 +115,7 @@ def validate_parsed_resources(
         ignore_duplicate_files_warning=ignore_duplicate_files,
     )
     validation_result = _validate_data(rdf_graphs, used_iris, config)
-    if validation_result.passed:
+    if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True

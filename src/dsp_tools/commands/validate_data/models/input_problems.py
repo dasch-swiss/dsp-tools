@@ -14,7 +14,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 
 @dataclass
 class ValidateDataResult:
-    passed: bool
+    no_problems: bool
     problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
     report_graphs: None | ValidationReportGraphs
 

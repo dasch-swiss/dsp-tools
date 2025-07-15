@@ -21,7 +21,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 
 
 def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:
@@ -56,8 +55,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
     clients = UploadClients(ingest_client, project_client, list_client, legal_info_client)
-    is_on_prod_like_server = is_prod_like_server(creds.server)
-    return execute_upload(clients, upload_state, is_on_prod_like_server)
+    return execute_upload(clients, upload_state)
 
 
 def _read_upload_state_from_disk(server: str) -> UploadState:

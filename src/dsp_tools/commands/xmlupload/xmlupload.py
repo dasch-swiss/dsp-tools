@@ -155,7 +155,7 @@ def xmlupload(
         config=config,
     )
 
-    return execute_upload(clients, state, is_on_prod_like_server)
+    return execute_upload(clients, state)
 
 
 def _get_live_clients(
@@ -193,7 +193,7 @@ def enable_unknown_license_if_any_are_missing(
         print(BOLD_YELLOW, msg, RESET_TO_DEFAULT)
 
 
-def execute_upload(clients: UploadClients, upload_state: UploadState, is_on_prod_like_server: bool) -> bool:
+def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     """Execute an upload from an upload state, and clean up afterwards.
 
     Args:
@@ -206,7 +206,7 @@ def execute_upload(clients: UploadClients, upload_state: UploadState, is_on_prod
     """
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
-    return _cleanup_upload(upload_state, is_on_prod_like_server)
+    return _cleanup_upload(upload_state)
 
 
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
@@ -224,7 +224,7 @@ def _get_copyright_holders(resources: list[ProcessedResource]) -> list[str]:
     return [x for x in copyright_holders if x]
 
 
-def _cleanup_upload(upload_state: UploadState, is_on_prod_like_server: bool) -> bool:
+def _cleanup_upload(upload_state: UploadState) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.
 
@@ -239,7 +239,6 @@ def _cleanup_upload(upload_state: UploadState, is_on_prod_like_server: bool) -> 
         id2iri_mapping=upload_state.iri_resolver.lookup,
         shortcode=upload_state.config.shortcode,
         diagnostics=upload_state.config.diagnostics,
-        is_on_prod_like_server=is_on_prod_like_server,
     )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:

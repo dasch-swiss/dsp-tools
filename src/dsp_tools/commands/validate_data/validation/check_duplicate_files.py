@@ -2,6 +2,8 @@ from collections import defaultdict
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
+from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DuplicateFileResult
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
@@ -32,6 +34,10 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
         if res.file_value and res.file_value.value:
             count_dict[res.file_value.value] += 1
     return {f_path: count for f_path, count in count_dict.items() if count > 1}
+
+
+def _create_input_problems(duplicates: dict[str, int], problem_type: ProblemType) -> list[InputProblem]:
+    pass
 
 
 def _determine_if_max_count_has_been_reached(path_count: dict[str, int]) -> bool:

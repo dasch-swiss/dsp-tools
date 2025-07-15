@@ -14,7 +14,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType, SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -95,10 +95,12 @@ def dsp_inbuilt_violation(
 @pytest.fixture(scope="module")
 def cardinality_violation(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> ValidationReportGraphs:
+) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs, _ = prepare_data_for_validation_from_file(file, authentication, CONFIG.ignore_duplicate_files_warning)
-    return get_validation_report(graphs, shacl_validator)
+    graphs, used_iris = prepare_data_for_validation_from_file(
+        file, authentication, CONFIG.ignore_duplicate_files_warning
+    )
+    return _validate_data(graphs, used_iris, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -128,11 +130,9 @@ def every_violation_combination_once(
     return get_validation_report(graphs, shacl_validator)
 
 
-def test_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
-    assert not cardinality_violation.conforms
 
-
-def test_reformat_cardinality_violation(cardinality_violation: ValidationReportGraphs) -> None:
+def test_reformat_cardinality_violation(cardinality_violation: ValidateDataResult) -> None:
+    assert not cardinality_violation.passed
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
         ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
@@ -140,13 +140,13 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
         ("id_min_card", ProblemType.MIN_CARD),
         ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
     ]
-    result = reformat_validation_graph(cardinality_violation)
-    sorted_problems = sort_user_problems(result)
+    sorted_problems = cardinality_violation.problems
+    assert isinstance(sorted_problems, SortedProblems)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
@@ -221,14 +221,16 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
             ),
         ),
     ]
+    # check the reformatting result
     result = reformat_validation_graph(content_violation)
+    assert not result.unexpected_results
+    assert len(result.problems) == len(expected_info_tuples)
+    # check the result of the sorted problems
     sorted_problems = sort_user_problems(result)
     assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    assert not result.unexpected_results
-    assert len(result.problems) == len(expected_info_tuples)
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]

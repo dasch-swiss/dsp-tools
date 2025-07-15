@@ -151,7 +151,8 @@ class TestGetDuplicateFileValidationResult:
 
 class TestGetCorrectValidationResult:
     def test_no_violations_with_warnings_not_on_prod(self, no_violations_with_warnings):
-        # this boolean carries the information if there are problems of any severity level, but not if the validation will pass
+        # this boolean carries the information if there are problems of any severity level,
+        # but not if the validation will pass
         assert not no_violations_with_warnings.no_problems
         sorted_problems = no_violations_with_warnings.problems
         assert isinstance(sorted_problems, SortedProblems)
@@ -165,7 +166,8 @@ class TestGetCorrectValidationResult:
         assert result is False
 
     def test_no_violations_with_info_not_on_prod(self, no_violations_with_info):
-        # this boolean carries the information if there are problems of any severity level, but not if the validation will pass
+        # this boolean carries the information if there are problems of any severity level,
+        # but not if the validation will pass
         assert not no_violations_with_info.no_problems
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)

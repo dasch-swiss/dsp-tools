@@ -146,7 +146,7 @@ def test_reformat_cardinality_violation(cardinality_violation: ValidationReportG
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.problem_type == expected_info[1]
@@ -229,7 +229,7 @@ def test_reformat_content_violation(content_violation: ValidationReportGraphs) -
     assert not sorted_problems.unexpected_shacl_validation_components
     assert not result.unexpected_results
     assert len(result.problems) == len(expected_info_tuples)
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.res_id == expected_info[0]
         assert one_result.prop_name == expected_info[1]
@@ -277,7 +277,7 @@ def test_reformat_value_type_violation(value_type_violation: ValidationReportGra
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
         assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert one_result.res_id == expected_info[0]
@@ -315,7 +315,7 @@ class TestReformatValidationGraph:
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
             assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
@@ -348,7 +348,7 @@ class TestReformatValidationGraph:
         ]
         result = reformat_validation_graph(file_value_violation)
         sorted_problems = sort_user_problems(result)
-        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_info_violation)
         assert not sorted_problems.user_warnings
         assert not sorted_problems.user_info
@@ -387,7 +387,7 @@ class TestReformatValidationGraph:
         assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
+        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
@@ -480,9 +480,9 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
     ]
     result = reformat_validation_graph(every_violation_combination_once)
     sorted_problems = sort_user_problems(result)
-    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: x.res_id)
-    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: x.res_id)
-    alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: x.res_id)
+    alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+    alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
     assert len(sorted_problems.unique_violations) == len(expected_violations)
     assert len(sorted_problems.user_warnings) == len(expected_warnings)
     assert len(sorted_problems.user_info) == len(expected_info)

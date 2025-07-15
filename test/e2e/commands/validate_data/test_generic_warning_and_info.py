@@ -183,7 +183,7 @@ class TestSortedProblems:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
-        sorted_warnings = sorted(no_violations_with_warnings.user_warnings, key=lambda x: x.res_id)
+        sorted_warnings = sorted(no_violations_with_warnings.user_warnings, key=lambda x: str(x.res_id))
         assert not no_violations_with_warnings.unique_violations
         assert len(no_violations_with_warnings.user_warnings) == len(expected_warnings)
         assert not no_violations_with_warnings.user_info
@@ -203,7 +203,7 @@ class TestSortedProblems:
             ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
             ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
         ]
-        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)
+        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: str(x.res_id))
         assert not no_violations_with_info.unique_violations
         assert not no_violations_with_info.user_warnings
         assert len(no_violations_with_info.user_info) == len(all_expected_info)
@@ -232,7 +232,7 @@ class TestSortedProblems:
             ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
             ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ]
-        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: x.res_id)
+        sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: str(x.res_id))
         assert not no_violations_with_info.unique_violations
         assert not no_violations_with_info.user_warnings
         assert len(no_violations_with_info.user_info) == len(all_expected_info)

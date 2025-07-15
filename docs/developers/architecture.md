@@ -171,7 +171,8 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
 
 The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
 
-Some validation problems are allowed on test environments while the "prod-like" servers are stricter.
+Some validation problems are allowed on test environments (including localhost), 
+while the "prod-like" servers are stricter.
 Prod like servers include prod, ls-prod, stage, and rdu-stage.
 
 |         | TEST ENVIRONMENTS | PROD-LIKE ENVIRONMENTS |

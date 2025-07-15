@@ -1,16 +1,15 @@
 from collections import defaultdict
 
-from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import MAXIMUM_DUPLICATE_FILE_PATHS
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import DuplicateFileResult
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 
-def check_for_duplicate_files(
-    parsed_resources: list[ParsedResource], config: ValidateDataConfig
-) -> DuplicateFileResult:
+def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarnings:
     """
     Too many duplicate filepaths in the data may cause the SHACL validator to crash.
     If one file is referenced n times, this produces n * (n-1) validation errors.
@@ -18,14 +17,13 @@ def check_for_duplicate_files(
 
     Args:
         parsed_resources: Resources to check
-        config: Validate data config
 
     Returns:
         Results for the user and decisions how the program should continue
     """
     count_dict = _get_filepaths_with_more_than_one_usage(parsed_resources)
-    max_count_of_duplicates_reached = _determine_if_max_count_has_been_reached(count_dict)
-    return _determine_duplicate_file_result(count_dict, max_count_of_duplicates_reached, config.is_on_prod_server)
+    input_problems = _create_input_problems(count_dict)
+    return DuplicateFileWarnings(input_problems)
 
 
 def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResource]) -> dict[str, int]:
@@ -36,8 +34,22 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
     return {f_path: count for f_path, count in count_dict.items() if count > 1}
 
 
-def _create_input_problems(duplicates: dict[str, int], problem_type: ProblemType) -> list[InputProblem]:
-    pass
+def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
+    all_duplicates = []
+    for dup_entry, usage_count in duplicates.items():
+        msg = f"The filepath / IIIF-URI is used {usage_count} times."
+        all_duplicates.append(
+            InputProblem(
+                problem_type=ProblemType.DUPLICATE_FILE,
+                res_id=None,
+                res_type=None,
+                prop_name="bitstream / iiif-uri",
+                severity=Severity.WARNING,
+                message=msg,
+                input_value=dup_entry,
+            )
+        )
+    return all_duplicates
 
 
 def _determine_if_max_count_has_been_reached(path_count: dict[str, int]) -> bool:

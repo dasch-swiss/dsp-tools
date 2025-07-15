@@ -126,7 +126,7 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
     for prblm, expected in zip(alphabetically_sorted, expected_tuples):
         if prblm.problem_type == ProblemType.GENERIC:
             assert prblm.res_id == expected[0]
@@ -161,7 +161,7 @@ def test_reformat_inheritance_violation(inheritance_violation: ValidationReportG
     assert not sorted_problems.user_warnings
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
-    alphabetically_sorted = sorted(result.problems, key=lambda x: x.res_id)
+    alphabetically_sorted = sorted(result.problems, key=lambda x: str(x.res_id))
     for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]

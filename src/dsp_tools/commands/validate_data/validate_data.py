@@ -10,7 +10,6 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -96,10 +95,6 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    duplicate_file_warnings = None
-    if not config.ignore_duplicate_files_warning:
-        duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
-
     rdf_graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
@@ -107,7 +102,7 @@ def validate_parsed_resources(
         auth=auth,
         shortcode=shortcode,
     )
-    validation_result = _validate_data(rdf_graphs, used_iris, duplicate_file_warnings, config)
+    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config)
     if validation_result.passed:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -136,16 +131,22 @@ def validate_parsed_resources(
 def _validate_data(
     graphs: RDFGraphs,
     used_iris: set[str],
-    duplicate_file_warnings: DuplicateFileWarnings | None,
+    parsed_resources: list[ParsedResource],
     config: ValidateDataConfig,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
+    # Check if unknown classes are used
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         return ValidateDataResult(False, unknown_classes, None)
     shacl_validator = ShaclCliValidator()
+    # Validation of the ontology
     onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
     if onto_validation_result:
         return ValidateDataResult(False, onto_validation_result, None)
+    # Validation of the data
+    duplicate_file_warnings = None
+    if not config.ignore_duplicate_files_warning:
+        duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
         if not duplicate_file_warnings:

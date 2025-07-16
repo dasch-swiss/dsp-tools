@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import XmllibInternalError
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -30,7 +30,7 @@ def serialise_file_value(file_value: AbstractFileValue, authorship_id: str | Non
     elif isinstance(file_value, IIIFUri):
         return _serialise_file_value(file_value, authorship_id, "iiif-uri")
     else:
-        raise BaseError(
+        raise XmllibInternalError(
             f"file_value must be either a FileValue or a IIIFUri, but you provided {file_value.__class__.__name__}"
         )
 

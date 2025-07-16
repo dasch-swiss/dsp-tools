@@ -36,8 +36,10 @@ def test_minimal_correct(authentication) -> None:
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_success
+    validation_result = _validate_data(graphs, used_iris, CONFIG)
+    assert validation_result.no_problems
+    assert not validation_result.problems
+    assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
@@ -46,8 +48,10 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator)
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_success
+    validation_result = _validate_data(graphs, used_iris, CONFIG)
+    assert validation_result.no_problems
+    assert not validation_result.problems
+    assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
@@ -56,8 +60,10 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_success
+    validation_result = _validate_data(graphs, used_iris, CONFIG)
+    assert validation_result.no_problems
+    assert not validation_result.problems
+    assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
@@ -66,8 +72,10 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_success
+    validation_result = _validate_data(graphs, used_iris, CONFIG)
+    assert validation_result.no_problems
+    assert not validation_result.problems
+    assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
@@ -76,5 +84,7 @@ def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator)
     graphs, used_iris = prepare_data_for_validation_from_file(
         file, authentication, CONFIG.ignore_duplicate_files_warning
     )
-    validation_success = _validate_data(graphs, used_iris, CONFIG)
-    assert validation_success
+    validation_result = _validate_data(graphs, used_iris, CONFIG)
+    assert validation_result.no_problems
+    assert not validation_result.problems
+    assert not validation_result.report_graphs

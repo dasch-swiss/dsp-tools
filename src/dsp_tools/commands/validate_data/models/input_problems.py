@@ -9,6 +9,14 @@ import pandas as pd
 import regex
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
+
+
+@dataclass
+class ValidateDataResult:
+    no_problems: bool
+    problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
+    report_graphs: None | ValidationReportGraphs
 
 
 @dataclass
@@ -60,8 +68,8 @@ class UserPrintMessages:
 @dataclass
 class InputProblem:
     problem_type: ProblemType
-    res_id: str
-    res_type: str
+    res_id: str | None
+    res_type: str | None
     prop_name: str
     severity: Severity
     message: str | None = None
@@ -91,7 +99,7 @@ class Severity(Enum):
 class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE = "file problem"
-    FILE_DUPLICATE = "file used several times"
+    FILE_DUPLICATE = "Duplicate Filepath / IIIF-URI"
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."

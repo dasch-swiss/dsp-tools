@@ -72,7 +72,9 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped, without_res_id = _group_problems_by_resource(problems)
     filtered = without_res_id
     for problems_per_resource in grouped.values():
-        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
+        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
+        file_value_corrected = _filter_out_duplicate_wrong_file_type_problems(text_value_filtered)
+        filtered.extend(file_value_corrected)
     return filtered
 
 
@@ -101,6 +103,26 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
         filtered_problems.extend(problem_list)
 
     return filtered_problems
+
+
+def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality (because the audio file is missing)
+    # and a closed constraint violation (because it is not permissible to add an image)
+    # However, we only want to give one message to the user
+    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    idx_prohibited = next(
+        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
+    )
+    if idx_missing is None or idx_prohibited is None:
+        return problems
+    missing_problem = problems[idx_missing]
+    prohibited_problem = problems[idx_prohibited]
+    # The result of the closed constraint violation, contains the input value,
+    # while the message of the other shape is better, we want to include the actual input value.
+    missing_problem.input_value = prohibited_problem.input_value
+    return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
 
 
 def _group_problems_by_resource(

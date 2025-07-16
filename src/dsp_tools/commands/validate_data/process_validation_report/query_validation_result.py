@@ -213,7 +213,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 expected=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
+            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
@@ -274,26 +274,26 @@ def _query_class_constraint_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult | None:
-    # If a class is for example, an AudioRepresentation, but a jpg file is used,
-    # the created value is of type StillImageFileValue.
-    # This creates a min cardinality and a closed constraint violation.
-    # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
+    input_val = None
     if base_info.result_path in FILE_VALUE_PROPERTIES:
-        sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
-        if KNORA_API.Representation in sub_classes:
-            return None
         violation_type = ViolationType.FILE_VALUE_PROHIBITED
+        if value_bn_found := list(results_and_onto.objects(base_info.result_bn, SH.value)):
+            value_bn = value_bn_found.pop(0)
+            if file_path := list(data.objects(value_bn, KNORA_API.fileValueHasFilename)):
+                input_val = file_path.pop(0)
+            elif iiif_uri := list(data.objects(value_bn, KNORA_API.stillImageFileValueHasExternalUrl)):
+                input_val = iiif_uri.pop(0)
     else:
         violation_type = ViolationType.NON_EXISTING_CARD
-
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
         severity=base_info.severity,
         property=base_info.result_path,
+        input_value=input_val,
     )
 
 

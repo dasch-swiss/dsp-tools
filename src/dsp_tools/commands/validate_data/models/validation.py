@@ -26,14 +26,6 @@ class RDFGraphs:
 
 
 @dataclass
-class RDFGraphStrings:
-    cardinality_validation_data: str
-    cardinality_shapes: str
-    content_validation_data: str
-    content_shapes: str
-
-
-@dataclass
 class ValidationFilePaths:
     directory: Path
     data_file: str
@@ -104,7 +96,6 @@ class ViolationType(Enum):
     NON_EXISTING_CARD = auto()
     FILE_VALUE_PROHIBITED = auto()
     FILE_VALUE_MISSING = auto()
-    FILE_DUPLICATE = auto()
 
 
 @dataclass

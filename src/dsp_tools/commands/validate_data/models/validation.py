@@ -34,13 +34,6 @@ class ValidationFilePaths:
 
 
 @dataclass
-class DuplicateFileResult:
-    user_msg: str | None
-    should_continue: bool
-    duplicate_files_must_be_ignored: bool
-
-
-@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph

@@ -157,7 +157,7 @@ class TestWithReportGraphs:
         alphabetically_sorted_info = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):

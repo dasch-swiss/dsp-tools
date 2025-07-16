@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileInfo
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import _get_filepaths_with_more_than_one_usage
@@ -62,9 +62,9 @@ class TestCheckDuplicates:
             ParsedResource("id_2", ":type", "lbl", None, [], file_value_1, None),
         ]
         result = check_for_duplicate_files(resources)
-        assert isinstance(result, DuplicateFileWarnings)
-        assert len(result.warnings_) == 1
-        problem = result.warnings_.pop(0)
+        assert isinstance(result, DuplicateFileInfo)
+        assert len(result.info) == 1
+        problem = result.info.pop(0)
         expected_msg = "value used 2 times"
         assert problem.problem_type == ProblemType.FILE_DUPLICATE
         assert not problem.res_id
@@ -84,11 +84,11 @@ class TestCheckDuplicates:
             ParsedResource("file_value_2_2", ":type", "lbl", None, [], file_value_2, None),
         ]
         result = check_for_duplicate_files(resources)
-        assert isinstance(result, DuplicateFileWarnings)
-        assert len(result.warnings_) == 2
-        file_1 = next(x for x in result.warnings_ if x.input_value == file_value_1.value)
+        assert isinstance(result, DuplicateFileInfo)
+        assert len(result.info) == 2
+        file_1 = next(x for x in result.info if x.input_value == file_value_1.value)
         assert file_1.message == "value used 3 times"
-        file_2 = next(x for x in result.warnings_ if x.input_value == file_value_2.value)
+        file_2 = next(x for x in result.info if x.input_value == file_value_2.value)
         assert file_2.message == "value used 2 times"
 
 

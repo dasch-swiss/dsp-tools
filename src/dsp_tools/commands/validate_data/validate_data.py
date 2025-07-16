@@ -154,8 +154,8 @@ def _validate_data(
         else:
             sorted_problems = SortedProblems(
                 unique_violations=[],
-                user_warnings=duplicate_file_warnings.warnings_,
-                user_info=[],
+                user_warnings=[],
+                user_info=duplicate_file_warnings.info,
                 unexpected_shacl_validation_components=[],
             )
             return ValidateDataResult(False, sorted_problems, report)

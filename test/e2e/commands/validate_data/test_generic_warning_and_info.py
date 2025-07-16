@@ -115,8 +115,15 @@ class TestSortedProblems:
     def test_no_violations_with_warnings_problems_ignore_duplicates(self, authentication):
         # This only tests if the duplicates were ignored, the details of the result is tested separately
         file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
+        config = ValidateDataConfig(
+            xml_file=Path(),
+            save_graph_dir=None,
+            severity=ValidationSeverity.INFO,
+            ignore_duplicate_files_warning=True,
+            is_on_prod_server=False,
+        )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+        result = _validate_data(graphs, used_iris, parsed_resources, config)
         expected_res_ids = {"archive_no_legal_info", "iiif_no_legal_info", "image_no_legal_info"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)

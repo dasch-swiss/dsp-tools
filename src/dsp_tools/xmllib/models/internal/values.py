@@ -7,7 +7,7 @@ from typing import Protocol
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
-from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
@@ -288,7 +288,7 @@ class Richtext(Value):
         converted_val = replace_newlines_with_tags(converted_val, newline_replacement)
         result = parse_richtext_as_xml(converted_val)
         if isinstance(result, MessageInfo):
-            raise_input_error(result)
+            raise_xmllib_input_error(result)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 

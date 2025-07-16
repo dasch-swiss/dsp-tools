@@ -107,7 +107,7 @@ def _filter_stack_frames(file_path: str) -> bool:
     return False
 
 
-def raise_input_error(msg: MessageInfo) -> Never:
+def raise_xmllib_input_error(msg: MessageInfo) -> Never:
     """These are to be used if the error is caused by user input."""
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):

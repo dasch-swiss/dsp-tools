@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from loguru import logger
+
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarnings
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -38,6 +40,7 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
     all_duplicates = []
     for dup_entry, usage_count in duplicates.items():
         msg = f"value used {usage_count} times"
+        logger.warning(f"File '{dup_entry}' {msg}")
         all_duplicates.append(
             InputProblem(
                 problem_type=ProblemType.FILE_DUPLICATE,

@@ -78,8 +78,9 @@ class TestWithReportGraphs:
         # To query and identify the validation properly
         # we rely on knowing whether a result contains a sh:detail (those with BNodes) and those without.
         # This is something that we do not have an influence on directly
-        # as the sh:detail is returned by the validation and is based on the shape of the SHACL-shape.
+        # as the sh:detail is created by the SHACL engine and is based on the SHACL-shape.
         # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
+        # and consequently how we must query for it.
         expected_iris = [
             (URIRef("http://data/bitstream_no_legal_info"), None),
             (URIRef("http://data/bitstream_no_legal_info"), None),

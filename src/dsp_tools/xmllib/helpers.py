@@ -56,7 +56,7 @@ def create_footnote_string(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+        XmllibInputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string
@@ -107,7 +107,7 @@ def create_footnote_element(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+        XmllibInputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string
@@ -133,7 +133,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
         A standoff link in string form.
 
     Raises:
-        InputError: if the resource ID or the displayed text are empty
+        XmllibInputError: if the resource ID or the displayed text are empty
 
     Examples:
         ```python
@@ -165,7 +165,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
         A standoff link in string form.
 
     Raises:
-        InputError: if the URI or the displayed text are empty
+        XmllibInputError: if the URI or the displayed text are empty
 
     Examples:
         ```python
@@ -1168,7 +1168,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         input_value: input value
 
     Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
+        XmllibInputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
         An xsd ID compatible string based on the input value
@@ -1203,7 +1203,7 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
         input_value: input value
 
     Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
+        XmllibInputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
         an xsd ID based on the input value, with a UUID attached.
@@ -1235,7 +1235,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
             If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
 
     Raises:
-        InputError: If the input value is not a string.
+        XmllibInputError: If the input value is not a string.
 
     Examples:
         ```python
@@ -1262,7 +1262,7 @@ def create_non_empty_list_from_string(
     Creates a list from a string.
     Trailing and leading whitespaces are removed from the list items.
 
-    If the resulting list is empty it will raise an `InputError`.
+    If the resulting list is empty it will raise an `XmllibInputError`.
 
     Args:
         string: input string
@@ -1275,7 +1275,7 @@ def create_non_empty_list_from_string(
         The list that results from splitting the input string.
 
     Raises:
-        InputError: If the resulting list is empty.
+        XmllibInputError: If the resulting list is empty.
 
     Examples:
         ```python
@@ -1285,7 +1285,7 @@ def create_non_empty_list_from_string(
 
         ```python
         result = xmllib.create_non_empty_list_from_string("   \\n/    ", "/")
-        # raises InputError
+        # raises XmllibInputError
         ```
     """
     lst = create_list_from_string(string, separator)

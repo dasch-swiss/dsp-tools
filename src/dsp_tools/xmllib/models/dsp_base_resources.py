@@ -363,7 +363,7 @@ class RegionResource:
             ark: Original ARK in SALSAH
 
         Raises:
-            InputError: if metadata already exists
+            XmllibInputError: if metadata already exists
 
         Returns:
             The original region, with the added metadata
@@ -552,7 +552,7 @@ class LinkResource:
             ark: Original ARK in SALSAH
 
         Raises:
-            InputError: if metadata already exists
+            XmllibInputError: if metadata already exists
 
         Returns:
             The original resource, with the added metadata
@@ -1109,7 +1109,7 @@ class VideoSegmentResource:
             ark: Original ARK in SALSAH
 
         Raises:
-            InputError: if metadata already exists
+            XmllibInputError: if metadata already exists
 
         Returns:
             The original resource, with the added metadata
@@ -1632,7 +1632,7 @@ class AudioSegmentResource:
             ark: Original ARK in SALSAH
 
         Raises:
-            InputError: if metadata already exists
+            XmllibInputError: if metadata already exists
 
         Returns:
             The original resource, with the added metadata

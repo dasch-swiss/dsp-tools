@@ -77,7 +77,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         The input as a list
 
     Raises:
-        InputError: if the input is a dictionary
+        XmllibInputError: if the input is a dictionary
     """
     match value:
         case set() | list() | tuple():

@@ -1558,7 +1558,7 @@ class Resource:
             comment: optional comment
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            XmllibInputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original resource, with the added value
@@ -1626,7 +1626,7 @@ class Resource:
             comment: optional comment
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            XmllibInputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original resource, with the added value
@@ -1677,7 +1677,7 @@ class Resource:
             ark: Original ARK in SALSAH
 
         Raises:
-            InputError: if metadata already exists
+            XmllibInputError: if metadata already exists
 
         Returns:
             The original resource, with the added migration metadata

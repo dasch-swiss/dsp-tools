@@ -1,5 +1,6 @@
 import contextlib
 import importlib.resources
+import os
 import shutil
 import subprocess
 import time
@@ -19,6 +20,9 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
+ENV = os.environ.copy()
+ENV["PODMAN_COMPOSE_PROVIDER"] = "/opt/homebrew/bin/podman-compose"
+# /opt/homebrew/bin/podman-compose | /usr/local/bin/docker-compose
 
 
 @dataclass(frozen=True)
@@ -189,10 +193,10 @@ class StackHandler:
             InputError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = "docker compose up -d db".split()
-        completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
+        cmd = "podman compose up -d db".split()
+        completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False, env=ENV)
         if not completed_process or completed_process.returncode != 0:
-            msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
+            msg = "Cannot start the API: Error while executing 'podman compose up -d db'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
             raise InputError(msg)
 
@@ -295,7 +299,7 @@ class StackHandler:
         @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
         @prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
         @prefix knora-admin: <http://www.knora.org/ontology/knora-admin#> .
-        
+
         <http://rdfh.ch/users/root>
         rdf:type                         knora-admin:User ;
         knora-admin:username             "root"^^xsd:string ;
@@ -333,16 +337,16 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
-        compose_str = "docker compose -f docker-compose.yml"
+        compose_str = "podman compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
-            logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
-            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
+            logger.debug("In order to get the latest dev version, run 'podman compose pull' ...")
+            subprocess.run("podman compose pull".split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
         logger.debug(f"Running '{compose_str}' ...")
-        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
+        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
 
     def _wait_for_api(self) -> None:
         """
@@ -364,15 +368,16 @@ class StackHandler:
                 # There is probably an issue, so we need more logs
                 with contextlib.suppress():
                     docker_ps_output = subprocess.run(
-                        "docker ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True
+                        "podman ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True, env=ENV
                     ).stdout.decode("utf-8")
                     docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
                     logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
                     docker_logs_output = subprocess.run(
-                        "docker logs start-stack-api-1".split(),
+                        "podman logs start-stack-api-1".split(),
                         cwd=self.__docker_path_of_user,
                         check=True,
                         capture_output=True,
+                        env=ENV,
                     ).stdout.decode("utf-8")
                     docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
                     logger.debug(f"Logs of DSP-API container:\n\t{docker_logs_output}")
@@ -394,15 +399,17 @@ class StackHandler:
             prune_docker = None
             while prune_docker not in ["y", "n"]:
                 prune_docker = input(
-                    "Allow dsp-tools to execute 'docker system prune'? \n"
+                    "Allow dsp-tools to execute 'podman system prune'? \n"
                     "If you press 'y', all unused containers, networks, and images (both dangling and unused) "
-                    "in your docker will be deleted.\n"
+                    "in your podman will be deleted.\n"
                     "It is recommended that you do this every once in a while "
-                    "to keep your docker clean and running smoothly. [y/n]"
+                    "to keep your podman clean and running smoothly. [y/n]"
                 )
         if prune_docker == "y":
-            logger.debug("Running 'docker system prune --volumes -f' ...")
-            subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)
+            logger.debug("Running 'podman system prune --volumes -f' ...")
+            subprocess.run(
+                "podman system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False, env=ENV
+            )
 
     def _start_docker_containers(self) -> None:
         """
@@ -430,8 +437,11 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
-            raise InputError("Docker is not running properly. Please start Docker and try again.")
+        if (
+            subprocess.run("podman stats --no-stream".split(), check=False, capture_output=True, env=ENV).returncode
+            != 0
+        ):
+            raise InputError("Podman is not running properly. Please start Podman and try again.")
         self._copy_resources_to_home_dir()
         self._set_custom_host()
         self._get_sipi_docker_config_lua()
@@ -445,7 +455,7 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        subprocess.run("docker compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
+        subprocess.run("podman compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
         with contextlib.suppress(PermissionError):  # in GitHub CI, python lacks permissions to delete this dir
             shutil.rmtree(self.__docker_path_of_user / "sipi")
         return True

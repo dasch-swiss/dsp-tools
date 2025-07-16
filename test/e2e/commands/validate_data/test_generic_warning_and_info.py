@@ -45,10 +45,8 @@ def no_violations_with_warnings(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -56,10 +54,8 @@ def no_violations_with_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    return _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
 
 
 @pytest.fixture(scope="module")
@@ -230,19 +226,11 @@ class TestSortedProblems:
 
     def test_no_violations_with_info_ignore_duplicate_files_warning(self, authentication, shacl_validator):
         file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-        config = ValidateDataConfig(
-            xml_file=Path(),
-            save_graph_dir=None,
-            severity=ValidationSeverity.INFO,
-            ignore_duplicate_files_warning=True,
-            is_on_prod_server=False,
-        )
-        graphs, used_iris = prepare_data_for_validation_from_file(
-            file, authentication, config.ignore_duplicate_files_warning
-        )
+        graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
         report = get_validation_report(graphs, shacl_validator)
         reformatted = reformat_validation_graph(report)
-        no_violations_with_info = sort_user_problems(reformatted)
+        # This is the behaviour if the flag `ignore_duplicate_files_warning` were set.
+        no_violations_with_info = sort_user_problems(reformatted, None)
         all_expected_info = [
             ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
             ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),

@@ -508,12 +508,17 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
-    def test_file_value_cardinality_to_ignore(
-        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
+    def test_report_file_closed_constraint(
+        self, report_file_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        graphs, info = file_value_cardinality_to_ignore
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert result is None
+        results_g, data, info = report_file_closed_constraint
+        result = _query_one_without_detail(info, results_g, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
+        assert result.property == KNORA_API.hasMovingImageFileValue
 
     def test_file_value_for_resource_without_representation(
         self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]

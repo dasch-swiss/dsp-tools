@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 from time import sleep
 from typing import cast

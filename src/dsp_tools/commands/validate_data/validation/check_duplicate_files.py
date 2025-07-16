@@ -44,7 +44,7 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
                 res_id=None,
                 res_type=None,
                 prop_name="bitstream / iiif-uri",
-                severity=Severity.WARNING,
+                severity=Severity.INFO,
                 message=msg,
                 input_value=dup_entry,
             )

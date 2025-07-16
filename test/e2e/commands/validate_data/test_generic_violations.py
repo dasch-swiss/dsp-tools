@@ -6,6 +6,7 @@ from typing import assert_never
 from typing import cast
 
 import pytest
+from rdflib import SH
 from rdflib import BNode
 from rdflib import URIRef
 
@@ -29,6 +30,7 @@ from dsp_tools.commands.validate_data.validate_data import _get_validation_statu
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
+from dsp_tools.utils.rdflib_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
@@ -81,43 +83,76 @@ class TestWithReportGraphs:
         # as the sh:detail is created by the SHACL engine and is based on the SHACL-shape.
         # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
         # and consequently how we must query for it.
-        expected_iris = [
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/empty_label"), None),
-            (URIRef("http://data/geoname_not_number"), None),
-            (URIRef("http://data/id_card_one"), None),
-            (URIRef("http://data/id_closed_constraint"), None),
-            (URIRef("http://data/id_max_card"), None),
-            (URIRef("http://data/id_missing_file_value"), None),
-            (URIRef("http://data/identical_values"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/inexistent_license_iri"), None),
-            (URIRef("http://data/label_with_newline"), None),
-            (URIRef("http://data/link_target_non_existent"), BNode),
-            (URIRef("http://data/link_target_wrong_class"), BNode),
-            (URIRef("http://data/link_to_resource_in_db"), BNode),
-            (URIRef("http://data/list_node_non_existent"), BNode),
-            (URIRef("http://data/missing_seqnum"), None),
-            (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
-            (URIRef("http://data/simpletext_wrong_value_type"), BNode),
-            (URIRef("http://data/uri_wrong_value_type"), None),
-            (URIRef("http://data/video_segment_start_larger_than_end"), None),
-            (URIRef("http://data/video_segment_wrong_bounds"), None),
-            (URIRef("http://data/video_segment_wrong_bounds"), None),
+        expected_info = [
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
+            (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
+            (URIRef("http://data/id_card_one"), SH.MaxCountConstraintComponent, None, None),
+            (URIRef("http://data/id_closed_constraint"), DASH.ClosedByTypesConstraintComponent, None, None),
+            (URIRef("http://data/id_max_card"), SH.MaxCountConstraintComponent, None, None),
+            (URIRef("http://data/id_missing_file_value"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/identical_values"), SH.SPARQLConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/inexistent_license_iri"), SH.InConstraintComponent, None, None),
+            (URIRef("http://data/label_with_newline"), DASH.SingleLineConstraintComponent, None, None),
+            (
+                URIRef("http://data/link_target_non_existent"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/link_target_wrong_class"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/link_to_resource_in_db"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/list_node_non_existent"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (URIRef("http://data/missing_seqnum"), DASH.CoExistsWithConstraintComponent, None, None),
+            (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
+            (
+                URIRef("http://data/simpletext_wrong_value_type"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.MinCountConstraintComponent,
+            ),
+            (URIRef("http://data/uri_wrong_value_type"), SH.ClassConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_start_larger_than_end"), SH.LessThanConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_wrong_bounds"), SH.MinInclusiveConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_wrong_bounds"), SH.MinExclusiveConstraintComponent, None, None),
         ]
-        assert len(result) == len(expected_iris)
-        for result_info, expected_iri in zip(result_sorted, expected_iris):
-            assert result_info.focus_node_iri == expected_iri[0]
-            if expected_iri[1] is None:
+        assert len(result) == len(expected_info)
+        for result_info, expected in zip(result_sorted, expected_info):
+            assert result_info.focus_node_iri == expected[0]
+            if result_info.focus_node_iri == URIRef("http://data/video_segment_wrong_bounds"):
+                assert result_info.source_constraint_component in [
+                    SH.MinInclusiveConstraintComponent,
+                    SH.MinExclusiveConstraintComponent,
+                ]
+            else:
+                assert result_info.source_constraint_component == expected[1]
+            if expected[2] is None:
                 assert not result_info.detail
             else:
                 detail_base_info = result_info.detail
                 assert isinstance(detail_base_info, DetailBaseInfo)
-                assert isinstance(detail_base_info.detail_bn, expected_iri[1])
+                assert isinstance(detail_base_info.detail_bn, expected[2])
+                assert detail_base_info.source_constraint_component == expected[3]
 
     def test_reformat_every_constraint_once(
         self, every_violation_combination_once_info: tuple[ValidationReportGraphs, list[ParsedResource]]

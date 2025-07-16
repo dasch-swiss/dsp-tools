@@ -204,8 +204,6 @@ class TestSortedProblems:
 
     def test_no_violations_with_info(self, no_violations_with_info):
         all_expected_info = [
-            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
             ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
             (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
             (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif

@@ -182,7 +182,8 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
         AllProblems(
             [duplicate_value, link_value_type_mismatch, references_iri, inexistent_license_iri, missing_legal_warning],
             [],
-        )
+        ),
+        duplicate_file_info=None,
     )
     assert len(result.unique_violations) == 3
     assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
@@ -248,7 +249,8 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
                 file_duplicate_resource_other_problem_should_stay,
             ],
             [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
-        )
+        ),
+        duplicate_file_info=None,
     )
     assert len(result.unique_violations) == 4
     assert len(result.user_info) == 1
@@ -274,7 +276,7 @@ def test_sort_user_problems_different_props():
         severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
-    result = sort_user_problems(AllProblems([one, two], []))
+    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_info=None)
     assert len(result.unique_violations) == 2
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components
@@ -400,6 +402,30 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
         "onto:hasProp\n"
         "    - Linked Resource does not exist | Your input: 'link_target_id'"
     )
+    assert result == expected
+
+
+def test_get_message_duplicate_files_no_res_id():
+    file1 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file1.jpg",
+    )
+    file2 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file2.jpg",
+    )
+    result = _get_message_for_one_resource([file1, file2])
+    expected = "\nbitstream / iiif-uri\n    - msg | Your input: 'file1.jpg'\n    - msg | Your input: 'file2.jpg'"
     assert result == expected
 
 

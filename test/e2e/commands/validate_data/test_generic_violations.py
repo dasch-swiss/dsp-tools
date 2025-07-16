@@ -121,7 +121,7 @@ class TestWithReportGraphs:
                 URIRef("http://data/list_node_non_existent"),
                 SH.NodeConstraintComponent,
                 BNode,
-                SH.ClassConstraintComponent,
+                SH.InConstraintComponent,
             ),
             (URIRef("http://data/missing_seqnum"), DASH.CoExistsWithConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),

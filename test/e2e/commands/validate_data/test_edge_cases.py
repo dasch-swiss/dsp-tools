@@ -13,7 +13,6 @@ from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
-from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 

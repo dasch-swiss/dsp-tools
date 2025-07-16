@@ -75,6 +75,11 @@ class TestWithReportGraphs:
         data_and_onto = report_graphs.data_graph + report_graphs.onto_graph
         result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
         result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
+        # To query and identify the validation properly
+        # we rely on knowing whether a result contains a sh:detail (those with BNodes) and those without.
+        # This is something that we do not have an influence on directly
+        # as the sh:detail is returned by the validation and is based on the shape of the SHACL-shape.
+        # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
         expected_iris = [
             (URIRef("http://data/bitstream_no_legal_info"), None),
             (URIRef("http://data/bitstream_no_legal_info"), None),

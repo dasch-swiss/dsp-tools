@@ -48,12 +48,6 @@ class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
 
-class XmllibInternalError(BaseError):
-    """
-    This error is raised if an internal error, i.e. an error on which the user has no influence is found in the xmllib.
-    """
-
-
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 

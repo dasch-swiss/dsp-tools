@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.error.exceptions import XmllibInternalError
+from dsp_tools.error.xmllib_errors import XmllibInternalError
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions

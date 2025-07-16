@@ -6,7 +6,7 @@ from typing import cast
 from dotenv import load_dotenv
 from lxml import etree
 
-from dsp_tools.error.exceptions import XmllibInternalError
+from dsp_tools.error.xmllib_errors import XmllibInternalError
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP

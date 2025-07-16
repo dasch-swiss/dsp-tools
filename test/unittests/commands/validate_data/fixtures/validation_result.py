@@ -198,7 +198,7 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
 @pytest.fixture
 def extracted_file_value_for_resource_without_representation() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILEVALUE_PROHIBITED,
+        violation_type=ViolationType.FILE_VALUE_PROHIBITED,
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,

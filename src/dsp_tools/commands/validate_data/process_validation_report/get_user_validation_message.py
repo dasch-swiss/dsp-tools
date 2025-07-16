@@ -16,7 +16,7 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE, ProblemType.FILE_DUPLICATE}
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_DUPLICATE}
 
 
 def sort_user_problems(
@@ -280,7 +280,7 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
     if problem_type in [
         ProblemType.FILE_DUPLICATE,
-        ProblemType.FILE_VALUE,
+        ProblemType.FILE_VALUE_MISSING,
         ProblemType.FILE_VALUE_PROHIBITED,
         ProblemType.LINK_TARGET_TYPE_MISMATCH,
         ProblemType.INEXISTENT_LINKED_RESOURCE,

@@ -284,7 +284,7 @@ def _query_for_non_existent_cardinality_violation(
         sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
-        violation_type = ViolationType.FILEVALUE_PROHIBITED
+        violation_type = ViolationType.FILE_VALUE_PROHIBITED
     else:
         violation_type = ViolationType.NON_EXISTING_CARD
 
@@ -474,7 +474,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
-        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
+        case ViolationType.FILE_VALUE_PROHIBITED | ViolationType.FILE_VALUE_MISSING as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:
@@ -492,7 +492,7 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
     if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):
         prop_str, file_extensions = file_prop_info
         detail_msg = None
-        problem_type = ProblemType.FILE_VALUE
+        problem_type = ProblemType.FILE_VALUE_MISSING
         expected: str | None = f"This resource requires a file with one of the following extensions: {file_extensions}"
     else:
         prop_str = iris.prop_name

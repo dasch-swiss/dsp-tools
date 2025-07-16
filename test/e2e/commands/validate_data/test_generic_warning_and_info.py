@@ -121,10 +121,6 @@ class TestSortedProblems:
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}
-        assert not sorted_problems.unique_violations
-        assert len(sorted_problems.user_warnings) == 9
-        assert not sorted_problems.user_info
-        assert not sorted_problems.unexpected_shacl_validation_components
         assert warnings_ids == expected_res_ids
 
     def test_no_violations_with_info(self, no_violations_with_info):

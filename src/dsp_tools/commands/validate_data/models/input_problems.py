@@ -37,8 +37,8 @@ class UnknownClassesInData:
 
 
 @dataclass
-class DuplicateFileInfo:
-    info: list[InputProblem]
+class DuplicateFileWarning:
+    problems: list[InputProblem]
 
 
 @dataclass

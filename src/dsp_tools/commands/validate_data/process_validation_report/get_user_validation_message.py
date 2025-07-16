@@ -72,8 +72,7 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped, without_res_id = _group_problems_by_resource(problems)
     filtered = without_res_id
     for problems_per_resource in grouped.values():
-        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
-        filtered.extend(_filter_out_multiple_duplicate_file_value_problems(text_value_filtered))
+        filtered.extend(_filter_out_duplicate_text_value_problem(problems_per_resource))
     return filtered
 
 
@@ -102,22 +101,6 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
         filtered_problems.extend(problem_list)
 
     return filtered_problems
-
-
-def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    # The check for multiple usage per file creates a violation per usage.
-    # Meaning if 3 resources use the same file -> each resource gets 2 messages
-    # The user only needs to see the message once per resource, as the messages are identical
-    seen_file_duplicate = False
-    result = []
-    for prob in problems:
-        if prob.problem_type == ProblemType.FILE_DUPLICATE:
-            if not seen_file_duplicate:
-                result.append(prob)
-                seen_file_duplicate = True
-        else:
-            result.append(prob)
-    return result
 
 
 def _group_problems_by_resource(

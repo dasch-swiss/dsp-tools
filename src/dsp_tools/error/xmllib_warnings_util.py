@@ -8,7 +8,7 @@ from typing import Never
 import regex
 from dotenv import load_dotenv
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import UserMessageSeverity
@@ -34,7 +34,7 @@ def initialise_warning_file() -> None:
                 writer = csv.writer(file)
                 writer.writerow(new_row)
         except FileNotFoundError:
-            raise InputError(
+            raise XmllibFileNotFoundError(
                 f"The filepath '{file_path}' you entered in your .env file does not exist. "
                 f"Please ensure that the folder you named exists."
             ) from None

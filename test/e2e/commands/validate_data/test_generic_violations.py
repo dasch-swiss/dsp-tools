@@ -178,10 +178,9 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert problems.unknown_classes == expected
 
+
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_content_violation(
-    authentication
-) -> None:
+def test_reformat_content_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)

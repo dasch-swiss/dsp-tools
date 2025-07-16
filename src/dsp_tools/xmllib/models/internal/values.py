@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import raise_input_error
@@ -52,7 +52,7 @@ class BooleanValue(Value):
     ) -> BooleanValue:
         try:
             val = str(convert_to_bool_string(value)).lower()
-        except InputError:
+        except XmllibInputError:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
             )

@@ -142,7 +142,7 @@ class TestGetDuplicateFileValidationResult:
             config=config,
             auth=authentication,
         )
-        assert not validation_passed
+        assert validation_passed
 
 
 class TestGetCorrectValidationResult:
@@ -204,14 +204,12 @@ class TestSortedProblems:
 
     def test_no_violations_with_info(self, no_violations_with_info):
         all_expected_info = [
-            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
             ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
             ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
             ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
-            ("triplicate_archive_1", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_2", ProblemType.FILE_DUPLICATE),
-            ("triplicate_archive_3", ProblemType.FILE_DUPLICATE),
+            (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
+            (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif
+            (None, ProblemType.FILE_DUPLICATE),  # duplicate_still_image
         ]
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)

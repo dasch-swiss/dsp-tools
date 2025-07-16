@@ -253,7 +253,7 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
-        expected_info = [("None", ProblemType.FILE_DUPLICATE)]
+        expected_info = [(None, ProblemType.FILE_DUPLICATE)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files)

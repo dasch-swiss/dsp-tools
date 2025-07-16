@@ -137,5 +137,4 @@ RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
     ViolationType.FILEVALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
     ViolationType.FILE_VALUE: ProblemType.FILE_VALUE,
-    ViolationType.FILE_DUPLICATE: ProblemType.FILE_DUPLICATE,
 }

@@ -519,6 +519,7 @@ class TestQueryFileValueViolations:
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
+        assert result.input_value == Literal("file.mp4", datatype=XSD.string)
 
     def test_file_value_for_resource_without_representation(
         self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]

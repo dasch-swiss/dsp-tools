@@ -89,7 +89,7 @@ class TestWithReportGraphs:
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
-            (URIRef("http://data/id_card_one"), SH.MaxCountConstraintComponent, None, None),
+            (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/id_closed_constraint"), DASH.ClosedByTypesConstraintComponent, None, None),
             (URIRef("http://data/id_max_card"), SH.MaxCountConstraintComponent, None, None),
             (URIRef("http://data/id_missing_file_value"), SH.MinCountConstraintComponent, None, None),
@@ -145,14 +145,14 @@ class TestWithReportGraphs:
                     SH.MinExclusiveConstraintComponent,
                 ]
             else:
-                assert result_info.source_constraint_component == expected[1]
+                assert result_info.source_constraint_component == expected[1], result_info.focus_node_iri
             if expected[2] is None:
                 assert not result_info.detail
             else:
                 detail_base_info = result_info.detail
                 assert isinstance(detail_base_info, DetailBaseInfo)
-                assert isinstance(detail_base_info.detail_bn, expected[2])
-                assert detail_base_info.source_constraint_component == expected[3]
+                assert isinstance(detail_base_info.detail_bn, expected[2]), result_info.focus_node_iri
+                assert detail_base_info.source_constraint_component == expected[3], result_info.focus_node_iri
 
     def test_reformat_every_constraint_once(
         self, every_violation_combination_once_info: tuple[ValidationReportGraphs, list[ParsedResource]]

@@ -37,6 +37,11 @@ class UnknownClassesInData:
 
 
 @dataclass
+class DuplicateFileInfo:
+    info: list[InputProblem]
+
+
+@dataclass
 class AllProblems:
     problems: list[InputProblem]
     unexpected_results: list[UnexpectedComponent]

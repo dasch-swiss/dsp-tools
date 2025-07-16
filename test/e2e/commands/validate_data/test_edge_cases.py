@@ -41,20 +41,17 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    result = _validate_data(graphs, used_iris, CONFIG)
+
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
     assert result.no_problems
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_special_characters_violation(authentication) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    result = _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
     assert not result.no_problems
     expected_tuples = [
         (
@@ -112,20 +109,16 @@ def test_reformat_special_characters_violation(authentication) -> None:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    result = _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
     assert result.no_problems
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_inheritance_violation(authentication) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    result = _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
     assert not result.no_problems
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
@@ -149,10 +142,8 @@ def test_reformat_inheritance_violation(authentication) -> None:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation(authentication) -> None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs, used_iris = prepare_data_for_validation_from_file(
-        file, authentication, CONFIG.ignore_duplicate_files_warning
-    )
-    result = _validate_data(graphs, used_iris, CONFIG)
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)

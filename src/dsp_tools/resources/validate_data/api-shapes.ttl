@@ -499,13 +499,6 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:name        "Validates the class type" ;
   sh:targetClass knora-api:StillImageExternalFileValue ;
   sh:property    [
-                    a                        sh:PropertyShape ;
-                    sh:path                  knora-api:stillImageFileValueHasExternalUrl ;
-                    dash:uniqueValueForClass knora-api:FileValue ;
-                    sh:severity              sh:Info ;
-                    sh:message               "The entered IIIF-URI is used more than once in your data."
-                 ] ,
-                 [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:stillImageFileValueHasExternalUrl ;
                     sh:datatype xsd:anyURI ;

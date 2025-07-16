@@ -4,7 +4,6 @@ from dsp_tools.commands.validate_data.models.input_problems import DuplicateFile
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
-from dsp_tools.commands.validate_data.models.validation import DuplicateFileResult
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 
@@ -51,45 +50,3 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
             )
         )
     return all_duplicates
-
-
-def _determine_duplicate_file_result(
-    count_dict: dict[str, int], max_count_of_duplicates_reached: bool, is_on_prod_server: bool
-) -> DuplicateFileResult:
-    if not max_count_of_duplicates_reached:
-        return DuplicateFileResult(
-            user_msg=None,
-            duplicate_files_must_be_ignored=False,
-            should_continue=True,
-        )
-    msg = _get_duplicate_msg(count_dict, is_on_prod_server)
-    should_continue = not is_on_prod_server
-    return DuplicateFileResult(
-        user_msg=msg,
-        duplicate_files_must_be_ignored=True,
-        should_continue=should_continue,
-    )
-
-
-def _get_duplicate_msg(count_dict: dict[str, int], is_on_prod: bool) -> str:
-    file_paths = sorted([f"{count} - '{path}'" for path, count in count_dict.items()])
-    msg = (
-        f"{len(count_dict)} file(s) were used multiple times in your data. "
-        f"Due to the large number of duplicates they cannot be included in the schema validation.\n"
-    )
-    if is_on_prod:
-        msg += (
-            "Since you are on a production server, the validation or xmlupload cannot continue. "
-            "If you wish to upload duplicate images, use the designated flag to ignore them."
-        )
-    else:
-        msg += (
-            "Since you are on a test environment, "
-            "the validation or xmlupload will continue without the duplicate check. "
-            "Please note that this is not allowed on a production server."
-        )
-    msg += (
-        f"\nThe following filepaths are used more than once, "
-        f"result displayed as: file count - 'file path'\n{' | '.join(file_paths)}"
-    )
-    return msg

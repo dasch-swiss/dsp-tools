@@ -147,11 +147,13 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
+        expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+        alphabetically_sorted_info = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
         assert not sorted_problems.user_info
@@ -163,6 +165,9 @@ class TestWithReportGraphs:
         for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_w[1]
             assert one_result.res_id == expected_w[0]
+        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
+            assert one_result.problem_type == expected_i[1]
+            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 

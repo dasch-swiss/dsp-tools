@@ -195,7 +195,7 @@ class TestWithReportGraphs:
         sorted_problems = sort_user_problems(result, duplicate_files)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
-        alphabetically_sorted_info = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
         assert len(sorted_problems.user_info) == len(expected_info)

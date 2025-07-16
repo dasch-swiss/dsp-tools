@@ -3,6 +3,7 @@
 import pytest
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
@@ -178,17 +179,27 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
         input_value="http://rdfh.ch/licenses/this-iri-does-not-exist",
         message="Files and IIIF-URIs require a reference to a license.",
     )
+    duplicate_file = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="fil.jpg",
+    )
     result = sort_user_problems(
         AllProblems(
             [duplicate_value, link_value_type_mismatch, references_iri, inexistent_license_iri, missing_legal_warning],
             [],
         ),
-        duplicate_file_info=None,
+        duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
     )
     assert len(result.unique_violations) == 3
     assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
-    assert len(result.user_warnings) == 1
-    assert result.user_warnings[0].res_id == "image_no_legal_info"
+    assert len(result.user_warnings) == 2
+    warning_ids = {x.res_id for x in result.user_warnings}
+    assert warning_ids == {None, "image_no_legal_info"}
     assert len(result.user_info) == 1
     assert result.user_info[0].res_id == "references_iri"
     assert not result.unexpected_shacl_validation_components
@@ -250,7 +261,7 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
             ],
             [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
         ),
-        duplicate_file_info=None,
+        duplicate_file_warnings=None,
     )
     assert len(result.unique_violations) == 4
     assert len(result.user_info) == 1
@@ -276,7 +287,7 @@ def test_sort_user_problems_different_props():
         severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
-    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_info=None)
+    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_warnings=None)
     assert len(result.unique_violations) == 2
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components

@@ -4,7 +4,7 @@ import pandas as pd
 
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileInfo
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -19,12 +19,14 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE, ProblemType.FILE_DUPLICATE}
 
 
-def sort_user_problems(all_problems: AllProblems, duplicate_file_info: DuplicateFileInfo | None) -> SortedProblems:
+def sort_user_problems(
+    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None
+) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
-    if duplicate_file_info:
-        info.extend(duplicate_file_info.info)
+    if duplicate_file_warnings:
+        warnings.extend(duplicate_file_warnings.problems)
     info.extend(problems_with_iris)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(

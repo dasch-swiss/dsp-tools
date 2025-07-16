@@ -2,14 +2,14 @@ from collections import defaultdict
 
 from loguru import logger
 
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileInfo
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 
-def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileInfo | None:
+def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarning | None:
     """
     Too many duplicate filepaths in the data may cause the SHACL validator to crash.
     If one file is referenced n times, this produces n * (n-1) validation errors.
@@ -25,7 +25,7 @@ def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> Duplica
     if not count_dict:
         return None
     input_problems = _create_input_problems(count_dict)
-    return DuplicateFileInfo(input_problems)
+    return DuplicateFileWarning(input_problems)
 
 
 def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResource]) -> dict[str, int]:
@@ -47,7 +47,7 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
                 res_id=None,
                 res_type=None,
                 prop_name="bitstream / iiif-uri",
-                severity=Severity.INFO,
+                severity=Severity.WARNING,
                 message=msg,
                 input_value=dup_entry,
             )

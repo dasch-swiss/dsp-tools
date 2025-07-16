@@ -23,7 +23,7 @@ def serialise_file_value(file_value: AbstractFileValue, authorship_id: str | Non
         File Value as etree
 
     Raises:
-        BaseError: in case of an unknown class
+        XmllibInternalError: in case of an unknown class
     """
     if isinstance(file_value, FileValue):
         return _serialise_file_value(file_value, authorship_id, "bitstream")

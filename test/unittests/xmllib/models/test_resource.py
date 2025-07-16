@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import LicenseRecommended
@@ -428,7 +428,7 @@ class TestAddFiles:
             "This resource already contains a file with the name: 'existing filename'. "
             "The new file with the name 'new filename' cannot be added."
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             res.add_file("new filename", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"])
 
     def test_add_iiif_uri(self) -> None:
@@ -470,7 +470,7 @@ class TestAddFiles:
             "This resource already contains a file with the name: 'existing IIIF'. "
             "The new file with the name 'new IIIF' cannot be added."
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             res.add_iiif_uri("new IIIF", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"])
 
 
@@ -496,7 +496,7 @@ def test_check_and_fix_collection_input_raises() -> None:
         "Resource ID 'id' | Property 'prop' | "
         "The input is a dictionary. Only collections (list, set, tuple) are permissible."
     )
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmllibInputError, match=msg):
         check_and_fix_collection_input({1: 1}, "prop", "id")
 
 

@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import Calendar
 from dsp_tools.xmllib import DateFormat
@@ -86,7 +86,7 @@ class TestFootnotes:
     def test_create_footnote_string_raises(
         self, input_text: str, newline_replacement: NewlineReplacement, expected_msg: str
     ) -> None:
-        with pytest.raises(InputError, match=regex.escape(expected_msg)):
+        with pytest.raises(XmllibInputError, match=regex.escape(expected_msg)):
             create_footnote_string(input_text, newline_replacement)
 
 
@@ -96,12 +96,12 @@ def test_create_standoff_link_to_resource_success() -> None:
 
 
 def test_create_standoff_link_to_resource_id_empty() -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         create_standoff_link_to_resource("", "Text")
 
 
 def test_create_standoff_link_to_resource_text_empty() -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         create_standoff_link_to_resource("id", "")
 
 
@@ -111,12 +111,12 @@ def test_create_standoff_link_to_uri_success() -> None:
 
 
 def test_create_standoff_link_to_uri_empty() -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         create_standoff_link_to_uri("", "Text")
 
 
 def test_create_standoff_link_to_uri_text_empty() -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         create_standoff_link_to_uri("https://uri.ch", "")
 
 
@@ -287,7 +287,7 @@ class TestReformatDate:
     def test_raises_invalid_precision_and_range_is_the_same(self):
         date = "11.2000.12.2000"
         msg = "The precision separator and range separator provided are identical: '.'. This is not allowed."
-        with pytest.raises(InputError, match=regex.escape(msg)):
+        with pytest.raises(XmllibInputError, match=regex.escape(msg)):
             reformat_date(
                 date, date_precision_separator=".", date_range_separator=".", date_format=DateFormat.DD_MM_YYYY
             )
@@ -295,7 +295,7 @@ class TestReformatDate:
     def test_raises_invalid_invalid_date_order(self):
         date = "11.2000-12.2000"
         msg = "The provided date format 'some string' to reformat the date is invalid."
-        with pytest.raises(InputError, match=regex.escape(msg)):
+        with pytest.raises(XmllibInputError, match=regex.escape(msg)):
             reformat_date(date, date_precision_separator=".", date_range_separator="-", date_format="some string")  # type:ignore[arg-type]
 
 
@@ -548,7 +548,7 @@ class TestCreateListFromString:
 
     def test_create_list_from_string_not_string(self) -> None:
         msg = regex.escape("The input for this function must be a string. Your input is a bool.")
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             create_list_from_string(True, ",")  # type: ignore[arg-type]
 
     def test_create_list_from_string_empty(self) -> None:
@@ -564,7 +564,7 @@ class TestCreateListFromString:
         msg = regex.escape(
             "The input for this function must result in a non-empty list. Your input results in an empty list."
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             create_non_empty_list_from_string(" , ", ",")
 
 
@@ -894,11 +894,11 @@ def test_make_xsd_compatible_id() -> None:
     assert bool(regex.search(r"^[a-zA-Z_][\w.-]*$", result_2))
 
     # test that invalid inputs lead to an error
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         make_xsd_compatible_id_with_uuid(None)  # type: ignore[arg-type]
 
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         make_xsd_compatible_id_with_uuid("")
 
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         make_xsd_compatible_id_with_uuid(" ")

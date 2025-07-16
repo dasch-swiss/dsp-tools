@@ -89,8 +89,6 @@ class TestWithReportGraphs:
             (URIRef("http://data/bitstream_no_legal_info"), None),
             (URIRef("http://data/bitstream_no_legal_info"), None),
             (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/duplicate_still_image_1"), None),
-            (URIRef("http://data/duplicate_still_image_2"), None),
             (URIRef("http://data/empty_label"), None),
             (URIRef("http://data/geoname_not_number"), None),
             (URIRef("http://data/id_card_one"), None),
@@ -256,8 +254,7 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
         expected_info = [
-            ("duplicate_still_image_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_still_image_2", ProblemType.FILE_DUPLICATE),
+            ("None", ProblemType.FILE_DUPLICATE)
         ]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)

@@ -51,16 +51,6 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 
 
 @pytest.fixture(scope="module")
-def content_violation_info(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
-    file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    g = get_validation_report(graphs, shacl_validator)
-    return g, parsed_resources
-
-
-@pytest.fixture(scope="module")
 def every_violation_combination_once_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
@@ -121,103 +111,6 @@ class TestWithReportGraphs:
                 detail_base_info = result_info.detail
                 assert isinstance(detail_base_info, DetailBaseInfo)
                 assert isinstance(detail_base_info.detail_bn, expected_iri[1])
-
-    def test_reformat_content_violation(
-        self, content_violation_info: tuple[ValidationReportGraphs, list[ParsedResource]]
-    ) -> None:
-        report_graphs, parsed_resources = content_violation_info
-        assert not report_graphs.conforms
-        expected_info_tuples = [
-            (
-                "comment_on_value_empty",
-                "onto:testUriValue",
-                "The comment on the value must be a non-empty string",
-            ),
-            (
-                "comment_on_value_whitespace",
-                "onto:testUriValue",
-                "The comment on the value must be a non-empty string",
-            ),
-            ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
-            ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
-            ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
-            ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
-            ("link_target_non_existent", "onto:testHasLinkTo", "other"),
-            ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
-            (
-                "list_name_attrib_empty",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "list_name_non_existent",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "list_node_non_existent",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "richtext_standoff_link_nonexistent",
-                "hasStandoffLinkTo",
-                "A stand-off link must target an existing resource.",
-            ),
-            (
-                "simple_text_with_newlines",
-                "onto:testSimpleText",
-                "The value must be a non-empty string without newlines.",
-            ),
-            ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            (
-                "wrong_list_used",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-        ]
-        # check the reformatting result
-        result = reformat_validation_graph(report_graphs)
-        assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        duplicate_files = check_for_duplicate_files(parsed_resources)
-        # check the result of the sorted problems
-        sorted_problems = sort_user_problems(result, duplicate_files)
-        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-        assert not sorted_problems.user_warnings
-        assert not sorted_problems.user_info
-        assert not sorted_problems.unexpected_shacl_validation_components
-        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
-            assert one_result.res_id == expected_info[0]
-            assert one_result.prop_name == expected_info[1]
-            # depending on the ProblemType, the string we want to test against is in a different parameter
-            if one_result.problem_type == ProblemType.INPUT_REGEX:
-                assert one_result.expected == expected_info[2]
-            elif one_result.problem_type == ProblemType.GENERIC:
-                assert one_result.message == expected_info[2]
-            elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
-                assert one_result.input_value == expected_info[2]
-            elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
-                assert one_result.input_value == expected_info[2]
-            else:
-                nev: Never = cast(Never, one_result.problem_type)
-                assert_never(nev)
-        assert not _get_validation_status(sorted_problems, is_on_prod=True)
-        assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
     def test_reformat_every_constraint_once(
         self, every_violation_combination_once_info: tuple[ValidationReportGraphs, list[ParsedResource]]
@@ -284,6 +177,100 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
     assert isinstance(problems, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert problems.unknown_classes == expected
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_content_violation(
+    authentication
+) -> None:
+    file = Path("testdata/validate-data/generic/content_violation.xml")
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    expected_info_tuples = [
+        (
+            "comment_on_value_empty",
+            "onto:testUriValue",
+            "The comment on the value must be a non-empty string",
+        ),
+        (
+            "comment_on_value_whitespace",
+            "onto:testUriValue",
+            "The comment on the value must be a non-empty string",
+        ),
+        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
+        ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("link_target_non_existent", "onto:testHasLinkTo", "other"),
+        ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
+        (
+            "list_name_attrib_empty",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "list_name_non_existent",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "list_node_non_existent",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "richtext_standoff_link_nonexistent",
+            "hasStandoffLinkTo",
+            "A stand-off link must target an existing resource.",
+        ),
+        (
+            "simple_text_with_newlines",
+            "onto:testSimpleText",
+            "The value must be a non-empty string without newlines.",
+        ),
+        ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        (
+            "wrong_list_used",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        assert one_result.res_id == expected_info[0]
+        assert one_result.prop_name == expected_info[1]
+        # depending on the ProblemType, the string we want to test against is in a different parameter
+        if one_result.problem_type == ProblemType.INPUT_REGEX:
+            assert one_result.expected == expected_info[2]
+        elif one_result.problem_type == ProblemType.GENERIC:
+            assert one_result.message == expected_info[2]
+        elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
+            assert one_result.input_value == expected_info[2]
+        elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
+            assert one_result.input_value == expected_info[2]
+        else:
+            nev: Never = cast(Never, one_result.problem_type)
+            assert_never(nev)
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 @pytest.mark.usefixtures("create_generic_project")

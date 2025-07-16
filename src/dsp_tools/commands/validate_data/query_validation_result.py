@@ -474,7 +474,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
-        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE_MISSING as violation:
+        case ViolationType.FILE_VALUE_PROHIBITED | ViolationType.FILE_VALUE_MISSING as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:

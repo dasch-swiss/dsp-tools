@@ -227,11 +227,7 @@ class TestSortedProblems:
         reformatted = reformat_validation_graph(report)
         # This is the behaviour if the flag `ignore_duplicate_files_warning` were set.
         no_violations_with_info = sort_user_problems(reformatted, None)
-        all_expected_info = [
-            ("duplicate_iiif_1", ProblemType.FILE_DUPLICATE),
-            ("duplicate_iiif_2", ProblemType.FILE_DUPLICATE),
-            ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
-        ]
+        all_expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
         sorted_info = sorted(no_violations_with_info.user_info, key=lambda x: str(x.res_id))
         assert not no_violations_with_info.unique_violations
         assert not no_violations_with_info.user_warnings

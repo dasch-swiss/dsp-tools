@@ -271,9 +271,9 @@ class TestWithReportGraphs:
         for one_result, expected in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected[1]
             assert one_result.res_id == expected[0]
-        for one_result, expected in zip(alphabetically_sorted_info, expected_info):
-            assert one_result.problem_type == expected[1]
-            assert one_result.res_id == expected[0]
+        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
+            assert one_result.problem_type == expected_i[1]
+            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 

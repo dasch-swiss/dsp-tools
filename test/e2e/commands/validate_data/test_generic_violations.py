@@ -6,6 +6,7 @@ from typing import assert_never
 from typing import cast
 
 import pytest
+from rdflib import SH
 from rdflib import BNode
 from rdflib import URIRef
 
@@ -29,6 +30,7 @@ from dsp_tools.commands.validate_data.validate_data import _get_validation_statu
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
+from dsp_tools.utils.rdflib_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
@@ -48,16 +50,6 @@ CONFIG = ValidateDataConfig(
 def authentication(creds: ServerCredentials) -> AuthenticationClient:
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     return auth
-
-
-@pytest.fixture(scope="module")
-def content_violation_info(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
-) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
-    file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs, _, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    g = get_validation_report(graphs, shacl_validator)
-    return g, parsed_resources
 
 
 @pytest.fixture(scope="module")
@@ -85,139 +77,82 @@ class TestWithReportGraphs:
         data_and_onto = report_graphs.data_graph + report_graphs.onto_graph
         result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
         result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
-        expected_iris = [
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/bitstream_no_legal_info"), None),
-            (URIRef("http://data/empty_label"), None),
-            (URIRef("http://data/geoname_not_number"), None),
-            (URIRef("http://data/id_card_one"), None),
-            (URIRef("http://data/id_closed_constraint"), None),
-            (URIRef("http://data/id_max_card"), None),
-            (URIRef("http://data/id_missing_file_value"), None),
-            (URIRef("http://data/identical_values"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/image_no_legal_info"), None),
-            (URIRef("http://data/inexistent_license_iri"), None),
-            (URIRef("http://data/label_with_newline"), None),
-            (URIRef("http://data/link_target_non_existent"), BNode),
-            (URIRef("http://data/link_target_wrong_class"), BNode),
-            (URIRef("http://data/list_node_non_existent"), BNode),
-            (URIRef("http://data/missing_seqnum"), None),
-            (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
-            (URIRef("http://data/simpletext_wrong_value_type"), BNode),
-            (URIRef("http://data/uri_wrong_value_type"), None),
-            (URIRef("http://data/video_segment_start_larger_than_end"), None),
-            (URIRef("http://data/video_segment_wrong_bounds"), None),
-            (URIRef("http://data/video_segment_wrong_bounds"), None),
+        # To query and identify the validation properly
+        # we rely on knowing whether a result contains a sh:detail (those with BNodes) and those without.
+        # This is something that we do not have an influence on directly
+        # as the sh:detail is created by the SHACL engine and is based on the SHACL-shape.
+        # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
+        # and consequently how we must query for it.
+        expected_info = [
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
+            (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
+            (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/id_closed_constraint"), DASH.ClosedByTypesConstraintComponent, None, None),
+            (URIRef("http://data/id_max_card"), SH.MaxCountConstraintComponent, None, None),
+            (URIRef("http://data/id_missing_file_value"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/identical_values"), SH.SPARQLConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/inexistent_license_iri"), SH.InConstraintComponent, None, None),
+            (URIRef("http://data/label_with_newline"), DASH.SingleLineConstraintComponent, None, None),
+            (
+                URIRef("http://data/link_target_non_existent"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/link_target_wrong_class"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/link_to_resource_in_db"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
+                URIRef("http://data/list_node_non_existent"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.InConstraintComponent,
+            ),
+            (URIRef("http://data/missing_seqnum"), DASH.CoExistsWithConstraintComponent, None, None),
+            (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
+            (
+                URIRef("http://data/simpletext_wrong_value_type"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.MinCountConstraintComponent,
+            ),
+            (URIRef("http://data/uri_wrong_value_type"), SH.ClassConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_start_larger_than_end"), SH.LessThanConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_wrong_bounds"), SH.MinInclusiveConstraintComponent, None, None),
+            (URIRef("http://data/video_segment_wrong_bounds"), SH.MinExclusiveConstraintComponent, None, None),
         ]
-        assert len(result) == len(expected_iris)
-        for result_info, expected_iri in zip(result_sorted, expected_iris):
-            assert result_info.focus_node_iri == expected_iri[0]
-            if expected_iri[1] is None:
+        assert len(result) == len(expected_info)
+        for result_info, expected in zip(result_sorted, expected_info):
+            assert result_info.focus_node_iri == expected[0]
+            if result_info.focus_node_iri == URIRef("http://data/video_segment_wrong_bounds"):
+                assert result_info.source_constraint_component in [
+                    SH.MinInclusiveConstraintComponent,
+                    SH.MinExclusiveConstraintComponent,
+                ]
+            else:
+                assert result_info.source_constraint_component == expected[1], result_info.focus_node_iri
+            if expected[2] is None:
                 assert not result_info.detail
             else:
                 detail_base_info = result_info.detail
                 assert isinstance(detail_base_info, DetailBaseInfo)
-                assert isinstance(detail_base_info.detail_bn, expected_iri[1])
-
-    def test_reformat_content_violation(
-        self, content_violation_info: tuple[ValidationReportGraphs, list[ParsedResource]]
-    ) -> None:
-        report_graphs, parsed_resources = content_violation_info
-        assert not report_graphs.conforms
-        expected_info_tuples = [
-            (
-                "comment_on_value_empty",
-                "onto:testUriValue",
-                "The comment on the value must be a non-empty string",
-            ),
-            (
-                "comment_on_value_whitespace",
-                "onto:testUriValue",
-                "The comment on the value must be a non-empty string",
-            ),
-            ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
-            ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
-            ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
-            ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
-            ("link_target_non_existent", "onto:testHasLinkTo", "other"),
-            ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
-            (
-                "list_name_attrib_empty",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "list_name_non_existent",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "list_node_non_existent",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-            (
-                "richtext_standoff_link_nonexistent",
-                "hasStandoffLinkTo",
-                "A stand-off link must target an existing resource.",
-            ),
-            (
-                "simple_text_with_newlines",
-                "onto:testSimpleText",
-                "The value must be a non-empty string without newlines.",
-            ),
-            ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            (
-                "wrong_list_used",
-                "onto:testListProp",
-                (
-                    "A valid node from the list 'firstList' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-            ),
-        ]
-        # check the reformatting result
-        result = reformat_validation_graph(report_graphs)
-        assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
-        duplicate_files = check_for_duplicate_files(parsed_resources)
-        # check the result of the sorted problems
-        sorted_problems = sort_user_problems(result, duplicate_files)
-        assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
-        assert not sorted_problems.user_warnings
-        assert not sorted_problems.user_info
-        assert not sorted_problems.unexpected_shacl_validation_components
-        alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-        for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
-            assert one_result.res_id == expected_info[0]
-            assert one_result.prop_name == expected_info[1]
-            # depending on the ProblemType, the string we want to test against is in a different parameter
-            if one_result.problem_type == ProblemType.INPUT_REGEX:
-                assert one_result.expected == expected_info[2]
-            elif one_result.problem_type == ProblemType.GENERIC:
-                assert one_result.message == expected_info[2]
-            elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
-                assert one_result.input_value == expected_info[2]
-            elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
-                assert one_result.input_value == expected_info[2]
-            else:
-                nev: Never = cast(Never, one_result.problem_type)
-                assert_never(nev)
-        assert not _get_validation_status(sorted_problems, is_on_prod=True)
-        assert not _get_validation_status(sorted_problems, is_on_prod=False)
+                assert isinstance(detail_base_info.detail_bn, expected[2]), result_info.focus_node_iri
+                assert detail_base_info.source_constraint_component == expected[3], result_info.focus_node_iri
 
     def test_reformat_every_constraint_once(
         self, every_violation_combination_once_info: tuple[ValidationReportGraphs, list[ParsedResource]]
@@ -254,14 +189,16 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
+        expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):
@@ -270,6 +207,9 @@ class TestWithReportGraphs:
         for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_w[1]
             assert one_result.res_id == expected_w[0]
+        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
+            assert one_result.problem_type == expected_i[1]
+            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
@@ -284,6 +224,99 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
     assert isinstance(problems, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert problems.unknown_classes == expected
+
+
+@pytest.mark.usefixtures("create_generic_project")
+def test_reformat_content_violation(authentication) -> None:
+    file = Path("testdata/validate-data/generic/content_violation.xml")
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    expected_info_tuples = [
+        (
+            "comment_on_value_empty",
+            "onto:testUriValue",
+            "The comment on the value must be a non-empty string",
+        ),
+        (
+            "comment_on_value_whitespace",
+            "onto:testUriValue",
+            "The comment on the value must be a non-empty string",
+        ),
+        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
+        ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("link_target_non_existent", "onto:testHasLinkTo", "other"),
+        ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
+        (
+            "list_name_attrib_empty",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "list_name_non_existent",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "list_node_non_existent",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        (
+            "richtext_standoff_link_nonexistent",
+            "hasStandoffLinkTo",
+            "A stand-off link must target an existing resource.",
+        ),
+        (
+            "simple_text_with_newlines",
+            "onto:testSimpleText",
+            "The value must be a non-empty string without newlines.",
+        ),
+        ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        (
+            "wrong_list_used",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+    ]
+    sorted_problems = result.problems
+    assert isinstance(sorted_problems, SortedProblems)
+    assert len(sorted_problems.unique_violations) == len(expected_info_tuples)
+    assert not sorted_problems.user_warnings
+    assert not sorted_problems.user_info
+    assert not sorted_problems.unexpected_shacl_validation_components
+    alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+    for one_result, expected_info in zip(alphabetically_sorted, expected_info_tuples):
+        assert one_result.res_id == expected_info[0]
+        assert one_result.prop_name == expected_info[1]
+        # depending on the ProblemType, the string we want to test against is in a different parameter
+        if one_result.problem_type == ProblemType.INPUT_REGEX:
+            assert one_result.expected == expected_info[2]
+        elif one_result.problem_type == ProblemType.GENERIC:
+            assert one_result.message == expected_info[2]
+        elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
+            assert one_result.input_value == expected_info[2]
+        elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
+            assert one_result.input_value == expected_info[2]
+        else:
+            nev: Never = cast(Never, one_result.problem_type)
+            assert_never(nev)
+    assert not _get_validation_status(sorted_problems, is_on_prod=True)
+    assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
 
 @pytest.mark.usefixtures("create_generic_project")

@@ -93,6 +93,7 @@ class TestWithReportGraphs:
             (URIRef("http://data/label_with_newline"), None),
             (URIRef("http://data/link_target_non_existent"), BNode),
             (URIRef("http://data/link_target_wrong_class"), BNode),
+            (URIRef("http://data/link_to_resource_in_db"), BNode),
             (URIRef("http://data/list_node_non_existent"), BNode),
             (URIRef("http://data/missing_seqnum"), None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), None),

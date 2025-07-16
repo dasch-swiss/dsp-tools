@@ -246,6 +246,7 @@ class TestWithReportGraphs:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         expected_warnings = [
+            (None, ProblemType.FILE_DUPLICATE),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -253,7 +254,7 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
-        expected_info = [(None, ProblemType.FILE_DUPLICATE)]
+        expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files)
@@ -265,12 +266,12 @@ class TestWithReportGraphs:
         assert len(sorted_problems.user_info) == len(expected_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
-        for one_result, expected in zip(alphabetically_sorted_violations, expected_violations):
-            assert one_result.res_id == expected[0]
-            assert one_result.problem_type == expected[1]
-        for one_result, expected in zip(alphabetically_sorted_warnings, expected_warnings):
-            assert one_result.problem_type == expected[1]
-            assert one_result.res_id == expected[0]
+        for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):
+            assert one_result.res_id == expected_e[0]
+            assert one_result.problem_type == expected_e[1]
+        for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
+            assert one_result.problem_type == expected_w[1]
+            assert one_result.res_id == expected_w[0]
         for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
             assert one_result.problem_type == expected_i[1]
             assert one_result.res_id == expected_i[0]

@@ -38,7 +38,7 @@ def parse_and_validate_xml_file(input_file: Path | str) -> bool:
 def _parse_xml_file(input_file: str | Path) -> etree._Element:
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
     if not Path(input_file).exists():
-        raise UserFilepathNotFoundError(f"The provided filepath does not exist: {input_file}")
+        raise UserFilepathNotFoundError(input_file)
     try:
         return etree.parse(source=input_file, parser=parser).getroot()
     except etree.XMLSyntaxError as err:

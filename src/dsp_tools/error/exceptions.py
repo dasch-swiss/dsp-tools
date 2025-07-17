@@ -51,6 +51,10 @@ class InputError(BaseError):
 class UserFilepathNotFoundError(InputError):
     """This error is raised if a filepath from the user does not exist."""
 
+    def __init__(self, filepath: str | Path) -> None:
+        msg = f"The provided filepath does not exist: {filepath}"
+        super().__init__(msg)
+
 
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""

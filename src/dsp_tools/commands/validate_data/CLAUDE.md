@@ -110,7 +110,7 @@ The validation process follows a strict sequential pipeline:
 
 ### Docker-Based Validation Architecture
 
-- **Containerized SHACL**: Uses Docker containers for SHACL validation to ensure consistency
+- **Containerized SHACL**: Uses a Docker container for SHACL validation to ensure consistency
 - **File-based Communication**: Writes RDF files to temporary directories for Docker processing
 - **Error Handling**: Robust error handling for Docker communication failures
 - **Temporary File Management**: Automatic cleanup of temporary validation files
@@ -149,7 +149,7 @@ Validation results are categorized into:
 ## Important Notes
 
 - **Docker Requirement**: Validation requires Docker Desktop to be running for SHACL validation
-- **Local SHACL Validation**: Validation is performed locally using Docker containers, not server-side
+- **Local SHACL Validation**: Validation is performed locally using a Docker container, not server-side
 - **Temporary File Management**: Creates temporary files for Docker communication, automatically cleaned up
 - **Graph Saving**: Optional graph saving functionality for debugging complex validation failures  
 - **Production Behavior**: Production servers treat warnings as blockers, preventing upload

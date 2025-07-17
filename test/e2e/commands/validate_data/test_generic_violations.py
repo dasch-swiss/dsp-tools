@@ -162,8 +162,8 @@ class TestWithReportGraphs:
         report, parsed_resources = every_violation_combination_once_info
         assert not report.conforms
         expected_violations = [
-            ("date_month_does_not_exist", ProblemType.INVALID_DATE_FORMAT),
-            ("date_month_does_not_exist", ProblemType.INVALID_DATE_FORMAT),
+            ("date_month_does_not_exist", ProblemType.GENERIC),
+            ("date_month_does_not_exist", ProblemType.GENERIC),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),

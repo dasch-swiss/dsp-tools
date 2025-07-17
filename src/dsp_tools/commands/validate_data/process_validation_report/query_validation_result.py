@@ -232,13 +232,10 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
+            | SH.OrConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
-            )
-        case SH.OrConstraintComponent:
-            return _query_general_violation_info(
-                base_info.result_bn, base_info, results_and_onto, ViolationType.INVALID_DATE_FORMAT
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -469,8 +466,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
             | ViolationType.UNIQUE_VALUE
-            | ViolationType.VALUE_TYPE
-            | ViolationType.INVALID_DATE_FORMAT as violation
+            | ViolationType.VALUE_TYPE as violation
         ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem)

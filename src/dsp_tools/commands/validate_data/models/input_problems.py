@@ -104,7 +104,6 @@ class Severity(Enum):
 class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE_MISSING = "file problem"
-    INVALID_DATE_FORMAT = "date cannot be parsed"
     FILE_DUPLICATE = "Duplicate Filepath / IIIF-URI"
     FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     MAX_CARD = "Maximum Cardinality Violation"

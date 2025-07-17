@@ -124,6 +124,71 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
         for resource in onto["resources"]:
             resource_lookup[onto["name"]][resource["name"]] = resource
 
+    def _is_subclass_of_still_image_representation(
+        ontology_name: str, class_name: str, visited: set[str] | None = None
+    ) -> bool:
+        """
+        Recursively check if a class is a subclass of StillImageRepresentation.
+
+        Args:
+            ontology_name: The name of the ontology containing the class
+            class_name: The name of the class to check
+            visited: Set of visited classes to prevent infinite recursion
+
+        Returns:
+            True if the class is a subclass of StillImageRepresentation, False otherwise
+        """
+        if visited is None:
+            visited = set()
+
+        # Create a unique identifier for this class
+        class_id = f"{ontology_name}:{class_name}"
+
+        # Prevent infinite recursion
+        if class_id in visited:
+            return False
+        visited.add(class_id)
+
+        # Check if the ontology exists
+        if ontology_name not in resource_lookup:
+            return False
+
+        # Check if the resource exists in the ontology
+        if class_name not in resource_lookup[ontology_name]:
+            return False
+
+        resource = resource_lookup[ontology_name][class_name]
+        super_class = resource.get("super")
+
+        # Handle both string and list formats for super
+        super_classes = []
+        if isinstance(super_class, list):
+            super_classes = super_class
+        elif super_class:
+            super_classes = [super_class]
+
+        for super_cls in super_classes:
+            # Check if this directly inherits from StillImageRepresentation
+            if super_cls == "StillImageRepresentation":
+                return True
+
+            # Check if this is a reference to another resource in the same ontology
+            if super_cls.startswith(":"):
+                # Remove the colon prefix to get the class name
+                super_class_name = super_cls[1:]
+                if _is_subclass_of_still_image_representation(ontology_name, super_class_name, visited):
+                    return True
+
+            # Check if this is a reference to another resource in a different ontology
+            elif ":" in super_cls:
+                parts = super_cls.split(":", 1)
+                if len(parts) == 2:
+                    super_onto_name, super_class_name = parts
+                    if _is_subclass_of_still_image_representation(super_onto_name, super_class_name, visited):
+                        return True
+
+        return False
+
     # Check each class in limited_view
     for class_ref in limited_view:
         if ":" not in class_ref:
@@ -148,20 +213,11 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             )
             continue
 
-        # Check if the resource has the correct superclass
-        resource = resource_lookup[ontology_name][class_name]
-        super_class = resource.get("super")
-
-        # Handle both string and list formats for super
-        if isinstance(super_class, list):
-            if "StillImageRepresentation" not in super_class:
-                errors[f"Class reference '{class_ref}'"] = (
-                    f"Resource '{class_name}' must have 'StillImageRepresentation' as superclass, "
-                    f"but has: {super_class}"
-                )
-        elif super_class != "StillImageRepresentation":
+        # Check if the resource is a subclass of StillImageRepresentation
+        if not _is_subclass_of_still_image_representation(ontology_name, class_name):
             errors[f"Class reference '{class_ref}'"] = (
-                f"Resource '{class_name}' must have 'StillImageRepresentation' as superclass, but has: '{super_class}'"
+                f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
+                f"(directly or through inheritance)"
             )
 
     if errors:

@@ -16,7 +16,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InvalidFileNameError
+from dsp_tools.error.exceptions import InvalidIngestFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
 
 STATUS_OK = 200
@@ -109,7 +109,7 @@ class DspIngestClientLive(AssetClient):
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 elif res.status_code == BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
-                    raise InvalidFileNameError()
+                    raise InvalidIngestFileNameError()
                 else:
                     raise PermanentConnectionError()
             except requests.exceptions.RequestException as e:
@@ -121,7 +121,7 @@ class DspIngestClientLive(AssetClient):
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")
             return BitstreamInfo(res.internal_filename, file_info.metadata.permissions)
-        except InvalidFileNameError:
+        except InvalidIngestFileNameError:
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"

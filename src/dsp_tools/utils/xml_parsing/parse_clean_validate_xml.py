@@ -10,6 +10,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 from dsp_tools.error.xsd_validation_error_msg import XSDValidationMessage
 from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
@@ -36,6 +37,8 @@ def parse_and_validate_xml_file(input_file: Path | str) -> bool:
 
 def _parse_xml_file(input_file: str | Path) -> etree._Element:
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
+    if not Path(input_file).exists():
+        raise UserFilepathNotFoundError(f"The provided filepath does not exist: {input_file}")
     try:
         return etree.parse(source=input_file, parser=parser).getroot()
     except etree.XMLSyntaxError as err:

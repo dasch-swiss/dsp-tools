@@ -48,6 +48,10 @@ class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
 
+class UserFilepathNotFoundError(InputError):
+    """This error is raised if a filepath from the user does not exist."""
+
+
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
@@ -64,7 +68,7 @@ class ShaclValidationError(BaseError):
     """This error is raised when an unexpected error occurs during the validation"""
 
 
-class InvalidFileNameError(InvalidInputError):
+class InvalidIngestFileNameError(InvalidInputError):
     """This error is raised if INGEST rejects a file due to its name."""
 
 

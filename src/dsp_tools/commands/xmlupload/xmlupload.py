@@ -203,12 +203,14 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
+    logger.debug("Start uploading data")
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
 
 
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
+    logger.debug("Get and upload copyright holders")
     copyright_holders = _get_copyright_holders(resources)
     legal_info_client.post_copyright_holders(copyright_holders)
 
@@ -276,6 +278,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
+    logger.debug("Start uploading resources")
     project_iri = clients.project_client.get_project_iri()
 
     iri_lookup = IRILookups(

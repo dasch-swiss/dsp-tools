@@ -83,6 +83,9 @@ def _make_one_rdflib_object(
 
 
 def _process_date_string(object_value: str, object_type: TripleObjectType) -> Literal:
+    # In case a date is not a valid xsd datatype, rdflib only raises the error when serialising the graph
+    # not during the construction of the literal.
+    # Therefore, we test the validity beforehand with the rdflib native functions.
     try:
         if object_type == TripleObjectType.DATE_YYYY:
             parse_xsd_gyear(object_value)

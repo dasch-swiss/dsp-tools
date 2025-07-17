@@ -66,6 +66,24 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
             Literal("1990-01-50", datatype=XSD.string),
         ),
         (
+            "1900",
+            TripleObjectType.DATE_YYYY,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900", datatype=XSD.gYear),
+        ),
+        (
+            "1900-01",
+            TripleObjectType.DATE_YYYY_MM,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-01", datatype=XSD.gYearMonth),
+        ),
+        (
+            "1990-01-10",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1990-01-10", datatype=XSD.date),
+        ),
+        (
             "label",
             TripleObjectType.STRING,
             None,

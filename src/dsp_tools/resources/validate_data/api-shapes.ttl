@@ -165,7 +165,7 @@ api-shapes:DateValue_ClassShape
                                     [ sh:datatype xsd:date ]
                                 ) ;
                     sh:severity sh:Violation ;
-                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the year or month number."
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
                  ] .
 
 api-shapes:DecimalValue_ClassShape

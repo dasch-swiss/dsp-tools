@@ -247,17 +247,17 @@ def test_reformat_content_violation(authentication) -> None:
         (
             "date_end_day_does_not_exist",
             "onto:testSubDate1",
-            "The entered date cannot be parsed into a valid date. It may have issues with the year or month number.",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
         (
             "date_end_month_does_not_exist",
             "onto:testSubDate1",
-            "The entered date cannot be parsed into a valid date. It may have issues with the year or month number.",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
         (
             "date_single_month_does_not_exist",
             "onto:testSubDate1",
-            "The entered date cannot be parsed into a valid date. It may have issues with the year or month number.",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
         ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),

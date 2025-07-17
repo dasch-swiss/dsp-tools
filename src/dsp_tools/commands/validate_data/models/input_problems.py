@@ -5,9 +5,18 @@ from enum import Enum
 from enum import StrEnum
 from enum import auto
 
+import pandas as pd
 import regex
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
+
+
+@dataclass
+class ValidateDataResult:
+    no_problems: bool
+    problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
+    report_graphs: None | ValidationReportGraphs
 
 
 @dataclass
@@ -28,6 +37,11 @@ class UnknownClassesInData:
 
 
 @dataclass
+class DuplicateFileWarning:
+    problems: list[InputProblem]
+
+
+@dataclass
 class AllProblems:
     problems: list[InputProblem]
     unexpected_results: list[UnexpectedComponent]
@@ -42,24 +56,25 @@ class SortedProblems:
 
 
 @dataclass
-class MessageStrings:
+class MessageComponents:
     message_header: str
-    message_body: str
+    message_body: str | None
+    message_df: pd.DataFrame | None
 
 
 @dataclass
 class UserPrintMessages:
-    violations: MessageStrings | None
-    warnings: MessageStrings | None
-    infos: MessageStrings | None
-    unexpected_violations: MessageStrings | None
+    violations: MessageComponents | None
+    warnings: MessageComponents | None
+    infos: MessageComponents | None
+    unexpected_violations: MessageComponents | None
 
 
 @dataclass
 class InputProblem:
     problem_type: ProblemType
-    res_id: str
-    res_type: str
+    res_id: str | None
+    res_type: str | None
     prop_name: str
     severity: Severity
     message: str | None = None
@@ -88,12 +103,12 @@ class Severity(Enum):
 
 class ProblemType(StrEnum):
     GENERIC = "generic"
-    FILE_VALUE = "file problem"
-    FILE_DUPLICATE = "file used several times"
+    FILE_VALUE_MISSING = "file problem"
+    FILE_DUPLICATE = "Duplicate Filepath / IIIF-URI"
+    FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."
-    FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     VALUE_TYPE_MISMATCH = "Value Type Mismatch"
     INPUT_REGEX = "Wrong Format of Input"
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"

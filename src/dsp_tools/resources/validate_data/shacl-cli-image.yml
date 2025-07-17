@@ -1,0 +1,4 @@
+---
+# Take the latest release from:
+# https://github.com/dasch-swiss/shacl-cli/releases
+image: "daschswiss/shacl-cli:v0.0.5"

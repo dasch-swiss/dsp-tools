@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
+from pathlib import Path
 
 from rdflib import Graph
 
@@ -25,11 +26,11 @@ class RDFGraphs:
 
 
 @dataclass
-class RDFGraphStrings:
-    cardinality_validation_data: str
-    cardinality_shapes: str
-    content_validation_data: str
-    content_shapes: str
+class ValidationFilePaths:
+    directory: Path
+    data_file: str
+    shacl_file: str
+    report_file: str
 
 
 @dataclass
@@ -93,9 +94,8 @@ class ViolationType(Enum):
     MAX_CARD = auto()
     MIN_CARD = auto()
     NON_EXISTING_CARD = auto()
-    FILEVALUE_PROHIBITED = auto()
-    FILE_VALUE = auto()
-    FILE_DUPLICATE = auto()
+    FILE_VALUE_PROHIBITED = auto()
+    FILE_VALUE_MISSING = auto()
 
 
 @dataclass

@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
@@ -116,6 +117,9 @@ def xmlupload(
                 resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
             if str(resp) == "no":
                 ignore_duplicates = False
+        v_severity = config.validation_severity
+        if is_on_prod_like_server:
+            v_severity = ValidationSeverity.INFO
         validation_passed = validate_parsed_resources(
             parsed_resources=parsed_resources,
             authorship_lookup=lookups.authorships,
@@ -124,7 +128,7 @@ def xmlupload(
             config=ValidateDataConfig(
                 input_file,
                 save_graph_dir=None,
-                severity=config.validation_severity,
+                severity=v_severity,
                 ignore_duplicate_files_warning=ignore_duplicates,
                 is_on_prod_server=is_on_prod_like_server,
             ),
@@ -230,7 +234,9 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
         success status (deduced from failed_uploads and non-applied stash)
     """
     write_id2iri_mapping(
-        upload_state.iri_resolver.lookup, upload_state.config.shortcode, upload_state.config.diagnostics
+        id2iri_mapping=upload_state.iri_resolver.lookup,
+        shortcode=upload_state.config.shortcode,
+        diagnostics=upload_state.config.diagnostics,
     )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:

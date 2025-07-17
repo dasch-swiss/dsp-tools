@@ -3,7 +3,7 @@ services:
   api:
     # on the verge of every deployment, update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/knora-api:v31.19.0
+    image: daschswiss/knora-api:v31.19.2
     depends_on:
       - sipi
       - db
@@ -28,7 +28,7 @@ services:
 
   sipi:
     # on the verge of every deployment, take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v31.19.0
+    image: daschswiss/knora-sipi:v31.19.2
     ports:
       - "1024:1024"
     volumes:
@@ -44,7 +44,7 @@ services:
   app:
     # on the verge of every deployment, update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-app:v11.35.0
+    image: daschswiss/dsp-app:v11.36.0
     volumes:
       - ./dsp-app-config.json:/public/config/config.prod.json
     ports:
@@ -64,17 +64,17 @@ services:
   ingest:
     # on the verge of every deployment, update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.20.0
+    image: daschswiss/dsp-ingest:v0.20.1
     ports:
       - "3340:3340"
     volumes:
       - ./sipi/images:/opt/images
-      - ./sipi/tmp-dsp-ingest:/opt/temp
+      - ./sipi/tmp-dsp-ingest:/opt/tmp
       - ingest-db:/opt/db
     environment:
       - SERVICE_LOG_FORMAT=text
       - STORAGE_ASSET_DIR=/opt/images
-      - STORAGE_TEMP_DIR=/opt/temp
+      - STORAGE_TEMP_DIR=/opt/tmp
       - JWT_AUDIENCE=http://localhost:3340
       - JWT_ISSUER=0.0.0.0:3333
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine

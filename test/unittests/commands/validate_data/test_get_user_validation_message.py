@@ -2,14 +2,17 @@
 
 import pytest
 
-from dsp_tools.commands.validate_data.get_user_validation_message import _get_message_for_one_resource
-from dsp_tools.commands.validate_data.get_user_validation_message import _shorten_input
-from dsp_tools.commands.validate_data.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import (
+    _get_message_for_one_resource,
+)
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import _shorten_input
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 
 
 @pytest.fixture
@@ -27,7 +30,7 @@ def generic_problem() -> InputProblem:
 @pytest.fixture
 def file_value() -> InputProblem:
     return InputProblem(
-        problem_type=ProblemType.FILE_VALUE,
+        problem_type=ProblemType.FILE_VALUE_MISSING,
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
@@ -176,48 +179,33 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
         input_value="http://rdfh.ch/licenses/this-iri-does-not-exist",
         message="Files and IIIF-URIs require a reference to a license.",
     )
+    duplicate_file = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="fil.jpg",
+    )
     result = sort_user_problems(
         AllProblems(
             [duplicate_value, link_value_type_mismatch, references_iri, inexistent_license_iri, missing_legal_warning],
             [],
-        )
+        ),
+        duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
     )
     assert len(result.unique_violations) == 3
     assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
-    assert len(result.user_warnings) == 1
-    assert result.user_warnings[0].res_id == "image_no_legal_info"
+    assert len(result.user_warnings) == 2
+    warning_ids = {x.res_id for x in result.user_warnings}
+    assert warning_ids == {None, "image_no_legal_info"}
     assert len(result.user_info) == 1
     assert result.user_info[0].res_id == "references_iri"
     assert not result.unexpected_shacl_validation_components
 
 
 def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mismatch):
-    duplicate_message_should_stay = InputProblem(
-        problem_type=ProblemType.FILE_DUPLICATE,
-        res_id="file_value_duplicate",
-        res_type="onto:TestStillImageRepresentation",
-        prop_name="bitstream / iiif-uri",
-        severity=Severity.INFO,
-        input_value="duplicate_file.zip",
-        expected="The entered filepath is used more than once in your data.",
-    )
-    duplicate_message_should_be_removed = InputProblem(
-        problem_type=ProblemType.FILE_DUPLICATE,
-        res_id="file_value_duplicate",
-        res_type="onto:TestStillImageRepresentation",
-        prop_name="bitstream / iiif-uri",
-        severity=Severity.INFO,
-        input_value="duplicate_file.zip",
-        expected="The entered filepath is used more than once in your data.",
-    )
-    file_duplicate_resource_other_problem_should_stay = InputProblem(
-        problem_type=ProblemType.GENERIC,
-        res_id="file_value_duplicate",
-        res_type="",
-        prop_name="onto:hasProp",
-        severity=Severity.VIOLATION,
-        expected="Some Expectation",
-    )
     should_remain = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="text_value_id",
@@ -236,23 +224,15 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
     )
     result = sort_user_problems(
         AllProblems(
-            [
-                duplicate_value,
-                link_value_type_mismatch,
-                should_remain,
-                should_be_removed,
-                duplicate_message_should_stay,
-                duplicate_message_should_be_removed,
-                file_duplicate_resource_other_problem_should_stay,
-            ],
+            [duplicate_value, link_value_type_mismatch, should_remain, should_be_removed],
             [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
-        )
+        ),
+        duplicate_file_warnings=None,
     )
-    assert len(result.unique_violations) == 4
-    assert len(result.user_info) == 1
-    assert result.user_info[0].res_id == "file_value_duplicate"
+    assert len(result.unique_violations) == 3
+    assert not result.user_info
     assert len(result.unexpected_shacl_validation_components) == 1
-    assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id", "file_value_duplicate"}
+    assert set([x.res_id for x in result.unique_violations]) == {"text_value_id", "res_id"}
 
 
 def test_sort_user_problems_different_props():
@@ -272,7 +252,7 @@ def test_sort_user_problems_different_props():
         severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
-    result = sort_user_problems(AllProblems([one, two], []))
+    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_warnings=None)
     assert len(result.unique_violations) == 2
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components
@@ -401,12 +381,36 @@ def test_get_message_for_one_resource_several_problems(file_value, inexistent_li
     assert result == expected
 
 
+def test_get_message_duplicate_files_no_res_id():
+    file1 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file1.jpg",
+    )
+    file2 = InputProblem(
+        problem_type=ProblemType.FILE_DUPLICATE,
+        res_id=None,
+        res_type=None,
+        prop_name="bitstream / iiif-uri",
+        severity=Severity.WARNING,
+        message="msg",
+        input_value="file2.jpg",
+    )
+    result = _get_message_for_one_resource([file1, file2])
+    expected = "\nbitstream / iiif-uri\n    - msg | Your input: 'file1.jpg'\n    - msg | Your input: 'file2.jpg'"
+    assert result == expected
+
+
 @pytest.mark.parametrize(
     ("user_input", "problem_type", "expected"),
     [
         (
             "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
-            ProblemType.FILE_VALUE,
+            ProblemType.FILE_VALUE_MISSING,
             "this/is/a/very/very/very/very/long/filepath/but/should/remain/intact/file.csv",
         ),
         (

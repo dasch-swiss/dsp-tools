@@ -8,7 +8,8 @@ from typing import Never
 import regex
 from dotenv import load_dotenv
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
@@ -33,7 +34,7 @@ def initialise_warning_file() -> None:
                 writer = csv.writer(file)
                 writer.writerow(new_row)
         except FileNotFoundError:
-            raise InputError(
+            raise XmllibFileNotFoundError(
                 f"The filepath '{file_path}' you entered in your .env file does not exist. "
                 f"Please ensure that the folder you named exists."
             ) from None
@@ -106,15 +107,17 @@ def _filter_stack_frames(file_path: str) -> bool:
     return False
 
 
-def raise_input_error(msg: MessageInfo) -> Never:
+def raise_xmllib_input_error(msg: MessageInfo) -> Never:
+    """These are to be used if the error is caused by user input."""
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.ERROR)
     msg_str = get_user_message_string(msg, function_trace)
-    raise InputError(msg_str)
+    raise XmllibInputError(msg_str)
 
 
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
+    """These are to be used if the error is caused by user input."""
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.WARNING)
@@ -124,6 +127,7 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
 
 
 def emit_xmllib_input_info(msg: MessageInfo) -> None:
+    """These are to be used if the error is caused by user input."""
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.INFO)
@@ -140,6 +144,7 @@ def emit_xmllib_input_type_mismatch_warning(
     value_field: str | None = None,
     prop_name: str | None = None,
 ) -> None:
+    """These are to be used if the error is caused by user input."""
     msg_info = MessageInfo(
         message=f"The input should be a valid {expected_type}, your input '{value}' does not match the type.",
         resource_id=res_id,

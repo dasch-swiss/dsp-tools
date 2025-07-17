@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -21,7 +21,7 @@ def test_convert_to_bool_true(val: Any) -> None:
 
 @pytest.mark.parametrize("val", [pd.NA, None, 2.421, 10, "other", "  "])
 def test_convert_to_bool_failure(val: Any) -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(XmllibInputError):
         convert_to_bool_string(val)
 
 

@@ -1,11 +1,12 @@
 from collections import defaultdict
-from pathlib import Path
 
 import pandas as pd
 
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import MessageStrings
+from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -15,13 +16,17 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE, ProblemType.FILE_DUPLICATE}
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_DUPLICATE}
 
 
-def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
+def sort_user_problems(
+    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None
+) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
+    if duplicate_file_warnings:
+        warnings.extend(duplicate_file_warnings.problems)
     info.extend(problems_with_iris)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
@@ -64,11 +69,12 @@ def _separate_link_value_missing_if_reference_is_an_iri(
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    grouped = _group_problems_by_resource(problems)
-    filtered = []
+    grouped, without_res_id = _group_problems_by_resource(problems)
+    filtered = without_res_id
     for problems_per_resource in grouped.values():
         text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
-        filtered.extend(_filter_out_multiple_duplicate_file_value_problems(text_value_filtered))
+        file_value_corrected = _filter_out_duplicate_wrong_file_type_problems(text_value_filtered)
+        filtered.extend(file_value_corrected)
     return filtered
 
 
@@ -99,87 +105,120 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
     return filtered_problems
 
 
-def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    # The check for multiple usage per file creates a violation per usage.
-    # Meaning if 3 resources use the same file -> each resource gets 2 messages
-    # The user only needs to see the message once per resource, as the messages are identical
-    seen_file_duplicate = False
-    result = []
-    for prob in problems:
-        if prob.problem_type == ProblemType.FILE_DUPLICATE:
-            if not seen_file_duplicate:
-                result.append(prob)
-                seen_file_duplicate = True
-        else:
-            result.append(prob)
-    return result
+def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality (because the audio file is missing)
+    # and a closed constraint violation (because it is not permissible to add an image)
+    # However, we only want to give one message to the user
+    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    idx_prohibited = next(
+        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
+    )
+    if idx_missing is None or idx_prohibited is None:
+        return problems
+    missing_problem = problems[idx_missing]
+    prohibited_problem = problems[idx_prohibited]
+    # The result of the closed constraint violation, contains the input value,
+    # while the message of the other shape is better, we want to include the actual input value.
+    missing_problem.input_value = prohibited_problem.input_value
+    return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
 
 
-def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
+def _group_problems_by_resource(
+    problems: list[InputProblem],
+) -> tuple[dict[str, list[InputProblem]], list[InputProblem]]:
     grouped_res = defaultdict(list)
+    problem_no_res_id = []
     for prob in problems:
-        grouped_res[prob.res_id].append(prob)
-    return grouped_res
+        if not prob.res_id:
+            problem_no_res_id.append(prob)
+        else:
+            grouped_res[prob.res_id].append(prob)
+    return grouped_res, problem_no_res_id
 
 
-def get_user_message(sorted_problems: SortedProblems, file_path: Path) -> UserPrintMessages:
+def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeverity) -> UserPrintMessages:
     """
     Creates the string to communicate the user message.
 
     Args:
         sorted_problems: validation problems
-        file_path: Path to the original data XML
+        severity: Severity level of validation information
 
     Returns:
         Problem message
     """
     violation_message, warning_message, info_message, unexpected_violations = None, None, None, None
+    too_many_to_print = _are_there_too_many_to_print(sorted_problems, severity)
     if sorted_problems.unique_violations:
-        if len(sorted_problems.unique_violations) > 50:
-            violation_body = _save_problem_info_as_csv(sorted_problems.unique_violations, file_path)
+        if too_many_to_print:
+            violation_body = None
+            violation_df = _get_message_df(sorted_problems.unique_violations)
         else:
             violation_body = _get_problem_print_message(sorted_problems.unique_violations)
+            violation_df = None
         violation_header = (
             f"During the validation of the data {len(sorted_problems.unique_violations)} errors were found. "
             f"Until they are resolved an xmlupload is not possible."
         )
-        violation_message = MessageStrings(violation_header, violation_body)
+        violation_message = MessageComponents(violation_header, violation_body, violation_df)
     if sorted_problems.user_warnings:
-        if len(sorted_problems.user_warnings) > 50:
-            warning_body = _save_problem_info_as_csv(sorted_problems.user_warnings, file_path, "warnings")
+        if too_many_to_print:
+            warning_body = None
+            warning_df = _get_message_df(sorted_problems.user_warnings)
         else:
             warning_body = _get_problem_print_message(sorted_problems.user_warnings)
+            warning_df = None
         warning_header = (
             f"During the validation of the data {len(sorted_problems.user_warnings)} "
             f"problems were found. Warnings are allowed on test servers. "
             f"Please note that an xmlupload on a prod sever will fail."
         )
-        warning_message = MessageStrings(warning_header, warning_body)
+        warning_message = MessageComponents(warning_header, warning_body, warning_df)
     if sorted_problems.user_info:
-        if len(sorted_problems.user_info) > 50:
-            info_body = _save_problem_info_as_csv(sorted_problems.user_info, file_path, "info")
+        if too_many_to_print:
+            info_body = None
+            info_df = _get_message_df(sorted_problems.user_info)
         else:
             info_body = _get_problem_print_message(sorted_problems.user_info)
+            info_df = None
         info_header = (
             f"During the validation of the data {len(sorted_problems.user_info)} "
             f"potential problems were found. They will not impede an xmlupload."
         )
-        info_message = MessageStrings(info_header, info_body)
+        info_message = MessageComponents(info_header, info_body, info_df)
     if sorted_problems.unexpected_shacl_validation_components:
         unexpected_header = "The following unknown violation types were found!"
         unexpected_body = LIST_SEPARATOR + LIST_SEPARATOR.join(sorted_problems.unexpected_shacl_validation_components)
-        unexpected_violations = MessageStrings(unexpected_header, unexpected_body)
+        unexpected_violations = MessageComponents(unexpected_header, unexpected_body, None)
     return UserPrintMessages(violation_message, warning_message, info_message, unexpected_violations)
 
 
+def _are_there_too_many_to_print(sorted_problems: SortedProblems, severity: ValidationSeverity) -> bool:
+    number_of_problems = len(sorted_problems.unique_violations)
+    if severity.value <= ValidationSeverity.WARNING.value:
+        number_of_problems += len(sorted_problems.user_warnings)
+    if severity.value == ValidationSeverity.INFO.value:
+        number_of_problems += len(sorted_problems.user_info)
+    return bool(number_of_problems > 60)
+
+
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
-    grouped = list(_group_problems_by_resource(problems).values())
-    messages = [_get_message_for_one_resource(v) for v in sorted(grouped, key=lambda x: x[0].res_id)]
+    grouped, without_res_id = _group_problems_by_resource(problems)
+    messages = [_get_message_for_one_resource(without_res_id)] if without_res_id else []
+    messages_with_ids = [
+        _get_message_for_one_resource(v) for v in sorted(grouped.values(), key=lambda x: str(x[0].res_id))
+    ]
+    messages.extend(messages_with_ids)
     return GRAND_SEPARATOR.join(messages)
 
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
-    start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    if problems[0].res_id:
+        start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    else:
+        start_msg = ""
     prop_messages = _get_message_with_properties(problems)
     return f"{start_msg}\n{prop_messages}"
 
@@ -222,13 +261,11 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path, severity: str = "errors") -> str:
-    out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
+def _get_message_df(problems: list[InputProblem]) -> pd.DataFrame:
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
-    df.to_csv(out_path, index=False)
-    return f"Due to the large number of {severity}, the validation {severity} were saved at:\n{out_path}"
+    return df
 
 
 def _get_message_dict(problem: InputProblem) -> dict[str, str]:
@@ -265,7 +302,7 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
     if problem_type in [
         ProblemType.FILE_DUPLICATE,
-        ProblemType.FILE_VALUE,
+        ProblemType.FILE_VALUE_MISSING,
         ProblemType.FILE_VALUE_PROHIBITED,
         ProblemType.LINK_TARGET_TYPE_MISMATCH,
         ProblemType.INEXISTENT_LINKED_RESOURCE,

@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 from time import sleep
 from typing import cast
@@ -56,8 +55,10 @@ def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
 def _save_mapping(mapping: str, shortcode: str) -> None:
     filepath = Path(f"mapping-{shortcode}.csv")
     if filepath.exists():
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
-        filepath = filepath.with_name(f"{filepath.stem}-{timestamp}.csv")
-    filepath.write_text(mapping)
+        i = 1
+        while (new_name_for_existing := Path(f"mapping-{shortcode}-{i}.csv")).exists():
+            i += 1
+        filepath.rename(new_name_for_existing)
+    filepath.write_text(mapping, encoding="utf-8")
     print(f"Saved mapping CSV to '{filepath}'")
     logger.info(f"Saved mapping CSV to '{filepath}'")

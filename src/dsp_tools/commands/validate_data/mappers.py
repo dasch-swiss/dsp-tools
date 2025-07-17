@@ -135,7 +135,6 @@ RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.MAX_CARD: ProblemType.MAX_CARD,
     ViolationType.MIN_CARD: ProblemType.MIN_CARD,
     ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
-    ViolationType.FILEVALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
-    ViolationType.FILE_VALUE: ProblemType.FILE_VALUE,
-    ViolationType.FILE_DUPLICATE: ProblemType.FILE_DUPLICATE,
+    ViolationType.FILE_VALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
+    ViolationType.FILE_VALUE_MISSING: ProblemType.FILE_VALUE_MISSING,
 }

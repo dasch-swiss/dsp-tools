@@ -14,7 +14,7 @@ from regex import Match
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
@@ -56,7 +56,7 @@ def create_footnote_string(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+        XmllibInputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string
@@ -107,15 +107,17 @@ def create_footnote_element(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+        XmllibInputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string
     """
     if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
-        raise_input_error(MessageInfo("Currently the only supported newline replacement is linebreak (<br/>) or None."))
+        raise_xmllib_input_error(
+            MessageInfo("Currently the only supported newline replacement is linebreak (<br/>) or None.")
+        )
     if not is_nonempty_value_internal(footnote_text):
-        raise_input_error(MessageInfo("The input value is empty."))
+        raise_xmllib_input_error(MessageInfo("The input value is empty."))
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
     unescaped_text = unescape_reserved_xml_chars(footnote_text)
     return etree.Element("footnote", attrib={"content": unescaped_text})
@@ -133,7 +135,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
         A standoff link in string form.
 
     Raises:
-        InputError: if the resource ID or the displayed text are empty
+        XmllibInputError: if the resource ID or the displayed text are empty
 
     Examples:
         ```python
@@ -146,7 +148,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
             f"The entered resource ID and displayed text may not be empty. "
             f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
         )
-        raise_input_error(MessageInfo(msg_str))
+        raise_xmllib_input_error(MessageInfo(msg_str))
     attribs = {"class": "salsah-link", "href": f"IRI:{resource_id}:IRI"}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
@@ -165,7 +167,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
         A standoff link in string form.
 
     Raises:
-        InputError: if the URI or the displayed text are empty
+        XmllibInputError: if the URI or the displayed text are empty
 
     Examples:
         ```python
@@ -178,7 +180,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
             f"The entered URI and displayed text may not be empty. "
             f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
         )
-        raise_input_error(MessageInfo(msg_str))
+        raise_xmllib_input_error(MessageInfo(msg_str))
     attribs = {"href": uri}
     ele = etree.Element("a", attrib=attribs)
     ele.text = displayed_text
@@ -685,7 +687,7 @@ def reformat_date(
                 f"This is not allowed.",
                 resource_id=resource_id,
             )
-            raise_input_error(msg_info)
+            raise_xmllib_input_error(msg_info)
     if date_range_separator is not None:
         date_split = [found for x in date.split(date_range_separator) if (found := x.strip())]
     else:
@@ -733,7 +735,7 @@ def _reformat_single_date(  # noqa: PLR0911 Too many return statements
         f"The provided date format '{date_format}' to reformat the date is invalid.",
         resource_id=resource_id,
     )
-    raise_input_error(msg_info)
+    raise_xmllib_input_error(msg_info)
 
 
 def find_dates_in_string(string: str) -> set[str]:
@@ -1168,7 +1170,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         input_value: input value
 
     Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
+        XmllibInputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
         An xsd ID compatible string based on the input value
@@ -1180,7 +1182,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         ```
     """
     if not is_nonempty_value_internal(input_value):
-        raise_input_error(MessageInfo(f"The input '{input_value}' cannot be transformed to an xsd:ID"))
+        raise_xmllib_input_error(MessageInfo(f"The input '{input_value}' cannot be transformed to an xsd:ID"))
     # if the start of string is neither letter nor underscore, add an underscore
     res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
     # replace all illegal characters by underscore
@@ -1203,7 +1205,7 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
         input_value: input value
 
     Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
+        XmllibInputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
         an xsd ID based on the input value, with a UUID attached.
@@ -1235,7 +1237,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
             If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
 
     Raises:
-        InputError: If the input value is not a string.
+        XmllibInputError: If the input value is not a string.
 
     Examples:
         ```python
@@ -1249,7 +1251,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         ```
     """
     if not isinstance(string, str):
-        raise_input_error(
+        raise_xmllib_input_error(
             MessageInfo(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
         )
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
@@ -1262,7 +1264,7 @@ def create_non_empty_list_from_string(
     Creates a list from a string.
     Trailing and leading whitespaces are removed from the list items.
 
-    If the resulting list is empty it will raise an `InputError`.
+    If the resulting list is empty it will raise an `XmllibInputError`.
 
     Args:
         string: input string
@@ -1275,7 +1277,7 @@ def create_non_empty_list_from_string(
         The list that results from splitting the input string.
 
     Raises:
-        InputError: If the resulting list is empty.
+        XmllibInputError: If the resulting list is empty.
 
     Examples:
         ```python
@@ -1285,7 +1287,7 @@ def create_non_empty_list_from_string(
 
         ```python
         result = xmllib.create_non_empty_list_from_string("   \\n/    ", "/")
-        # raises InputError
+        # raises XmllibInputError
         ```
     """
     lst = create_list_from_string(string, separator)
@@ -1295,7 +1297,7 @@ def create_non_empty_list_from_string(
             resource_id=resource_id,
             prop_name=prop_name,
         )
-        raise_input_error(msg_info)
+        raise_xmllib_input_error(msg_info)
     return lst
 
 

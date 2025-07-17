@@ -104,7 +104,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_archive_unknown.unknown</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->
@@ -115,7 +115,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_audio_unknown.unknown</bitstream>
     </resource>
 
     <!-- DocumentRepresentation -->
@@ -126,7 +126,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_document_unknown.unknown</bitstream>
     </resource>
 
     <!-- MovingImageRepresentation -->
@@ -137,7 +137,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_video_unknown.unknown</bitstream>
     </resource>
 
     <!-- TextRepresentation -->
@@ -148,7 +148,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_text_unknown.unknown</bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->
@@ -159,7 +159,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.unknown</bitstream>
+        >id_still_image_unknown.unknown</bitstream>
     </resource>
 
 </knora>

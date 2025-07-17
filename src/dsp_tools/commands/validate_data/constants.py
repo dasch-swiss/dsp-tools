@@ -3,6 +3,21 @@ from rdflib import XSD
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
+# paths for the validation files used by the docker container
+
+ONTOLOGIES_DATA_TTL = "ONTOLOGIES_DATA.ttl"
+ONTOLOGIES_SHACL_TTL = "ONTOLOGIES_SHACL.ttl"
+ONTOLOGIES_REPORT_TTL = "ONTOLOGIES_REPORT.ttl"
+
+CARDINALITY_DATA_TTL = "CARDINALITY_DATA.ttl"
+CARDINALITY_SHACL_TTL = "CARDINALITY_SHACL.ttl"
+CARDINALITY_REPORT_TTL = "CARDINALITY_REPORT.ttl"
+
+CONTENT_DATA_TTL = "CONTENT_DATA.ttl"
+CONTENT_SHACL_TTL = "CONTENT_SHACL.ttl"
+CONTENT_REPORT_TTL = "CONTENT_REPORT.ttl"
+
+
 ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 AUDIO_FILE_VALUE = RDFPropTypeInfo(KNORA_API.AudioFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 DOCUMENT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.DocumentFileValue, KNORA_API.fileValueHasFilename, XSD.string)

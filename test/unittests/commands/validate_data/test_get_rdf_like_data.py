@@ -2,18 +2,18 @@
 
 import pytest
 
-from dsp_tools.commands.validate_data.get_rdf_like_data import _get_file_metadata
-from dsp_tools.commands.validate_data.get_rdf_like_data import _get_file_value
-from dsp_tools.commands.validate_data.get_rdf_like_data import _get_list_value_str
-from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_resource
-from dsp_tools.commands.validate_data.get_rdf_like_data import _get_one_value
-from dsp_tools.commands.validate_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_metadata
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_value
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_list_value_str
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_resource
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_value
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -68,7 +68,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -89,7 +88,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
-        assert not result.asset_value
         lbl, rdf_type, perm = _get_label_and_type(result)
         assert len(perm) == 1
         permission = perm.pop(0)
@@ -117,7 +115,6 @@ class TestResource:
         result = result_list.resources.pop(0)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -157,7 +154,6 @@ class TestResource:
         result = _get_one_resource(res, {}, LIST_LOOKUP)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
-        assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING

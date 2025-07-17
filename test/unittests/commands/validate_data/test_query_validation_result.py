@@ -17,15 +17,21 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
-from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
-from dsp_tools.commands.validate_data.query_validation_result import _get_resource_iri_and_type
-from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
-from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
-from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
-from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
-from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
-from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _extract_base_info_of_resource_results,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _get_all_main_result_bns
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _get_resource_iri_and_type,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_all_results
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_one_with_detail
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_one_without_detail
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import (
+    _reformat_one_validation_result,
+)
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _separate_result_types
+from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
@@ -502,12 +508,18 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
-    def test_file_value_cardinality_to_ignore(
-        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
+    def test_report_file_closed_constraint(
+        self, report_file_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        graphs, info = file_value_cardinality_to_ignore
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert result is None
+        results_g, data, info = report_file_closed_constraint
+        result = _query_one_without_detail(info, results_g, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
+        assert result.property == KNORA_API.hasMovingImageFileValue
+        assert result.input_value == Literal("file.mp4", datatype=XSD.string)
 
     def test_file_value_for_resource_without_representation(
         self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
@@ -515,25 +527,11 @@ class TestQueryFileValueViolations:
         graphs, info = file_value_for_resource_without_representation
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
-
-    def test_report_file_value_duplicate(
-        self, report_file_value_duplicate: tuple[Graph, ValidationResultBaseInfo]
-    ) -> None:
-        graphs, info = report_file_value_duplicate
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILE_DUPLICATE
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.severity == SH.Info
-        assert result.input_value == Literal("duplicate_file.zip")
-        assert result.property == KNORA_API.hasArchiveFileValue
-        assert result.message == Literal("The entered filepath is used more than once in your data.")
 
 
 class TestReformatResult:
@@ -673,7 +671,7 @@ class TestReformatResult:
 
     def test_missing_file_value(self, extracted_missing_file_value: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
-        assert result.problem_type == ProblemType.FILE_VALUE
+        assert result.problem_type == ProblemType.FILE_VALUE_MISSING
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream"
@@ -710,16 +708,6 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.severity == Severity.VIOLATION
-
-    def test_extracted_file_value_duplicate(self, extracted_file_value_duplicate: ValidationResult) -> None:
-        result = _reformat_one_validation_result(extracted_file_value_duplicate)
-        assert result.problem_type == ProblemType.FILE_DUPLICATE
-        assert result.res_id == "duplicate_archive_1"
-        assert result.res_type == "onto:TestArchiveRepresentation"
-        assert result.prop_name == "bitstream / iiif-uri"
-        assert result.severity == Severity.INFO
-        assert result.input_value == "duplicate_file.zip"
-        assert result.message == "The entered filepath is used more than once in your data."
 
     def test_seqnum_is_part_of(self, extracted_coexist_with: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)

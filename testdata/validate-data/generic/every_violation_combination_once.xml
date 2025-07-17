@@ -157,6 +157,16 @@
         </resource>
 
         <!--
+            It is permissible to reference resources that exist in the database but not the XML.
+            This cannot be specified through SHACL and is done when sorting the user messages.
+        -->
+        <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
+            <resptr-prop name=":testHasLinkToCardOneResource">
+                <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:ClassConstraintComponent
         -->

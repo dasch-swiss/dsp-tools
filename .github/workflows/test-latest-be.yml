@@ -28,6 +28,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: logging.log
+          name: latest-backend-components-logging.log
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0

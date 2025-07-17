@@ -7,16 +7,16 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_rdflib_object
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_resource
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_value
-from dsp_tools.commands.validate_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_rdflib_object
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_resource
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_value
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
@@ -89,7 +89,6 @@ class TestResource:
             res_id="id",
             property_objects=UNREIFIED_TRIPLE_OBJECTS,
             values=[],
-            asset_value=None,
             migration_metadata=MigrationMetadata(),
         )
         res_g = _make_one_resource(res)
@@ -102,7 +101,6 @@ class TestResource:
             res_id="id",
             property_objects=UNREIFIED_TRIPLE_OBJECTS,
             values=[rdf_like_boolean_value_corr],
-            asset_value=None,
             migration_metadata=MigrationMetadata(),
         )
         res_g = _make_one_resource(res)
@@ -111,28 +109,6 @@ class TestResource:
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
         bool_bn = next(res_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(res_g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
-
-    def test_with_asset(self):
-        res = RdfLikeResource(
-            res_id="id",
-            property_objects=UNREIFIED_TRIPLE_OBJECTS,
-            values=[],
-            asset_value=RdfLikeValue(
-                f"{KNORA_API_STR}hasAudioFileValue",
-                "testdata/bitstreams/test.wav",
-                KnoraValueType.AUDIO_FILE,
-                [],
-            ),
-            migration_metadata=MigrationMetadata(),
-        )
-        res_g = _make_one_resource(res)
-        assert len(res_g) == 5
-        assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
-        assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
-        bool_bn = next(res_g.objects(RES_IRI, KNORA_API.hasAudioFileValue))
-        assert next(res_g.objects(bool_bn, KNORA_API.fileValueHasFilename)) == Literal(
-            "testdata/bitstreams/test.wav", datatype=XSD.string
-        )
 
 
 class TestBooleanValue:

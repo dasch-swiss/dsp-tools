@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -182,7 +182,7 @@ class TestRichtext:
             "Original error message: Opening and ending tag mismatch: p line 1 and ignore-this, line 1, column 43\n"
             "Potential line/column numbers are relative to this text: <ignore-this><p> not escaped</ignore-this>"
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             Richtext.new(
                 "<p> not escaped", ":richtextProp", resource_id="res_id", permissions=Permissions.PUBLIC, comment=None
             )

@@ -1326,7 +1326,7 @@ def report_date_range_wrong_yyyy(
     <http://data/date_range_wrong_yyyy> a onto:ClassWithEverything ;
         rdfs:label "date_range_wrong_yyyy"^^xsd:string ;
         onto:testSubDate1 <http://data/value_date_range_wrong_yyyy> .
-    
+
     <http://data/value_date_range_wrong_yyyy> a knora-api:DateValue ;
         api-shapes:dateHasEnd "1900"^^xsd:gYear ;
         api-shapes:dateHasStart "2000"^^xsd:gYear ;
@@ -1342,6 +1342,49 @@ def report_date_range_wrong_yyyy(
         result_bn=val_bn,
         source_constraint_component=SH.LessThanOrEqualsConstraintComponent,
         focus_node_iri=DATA.date_range_wrong_yyyy,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSubDate1,
+        severity=SH.Violation,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def report_date_range_wrong_to_ignore(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+     sh:focusNode                  <http://data/value_date_end_day_does_not_exist>;
+     sh:resultMessage              "The end date must be equal or later than the start date.";
+     sh:resultPath                 api-shapes:dateHasStart;
+     sh:resultSeverity             sh:Violation;
+     sh:sourceConstraintComponent  sh:LessThanOrEqualsConstraintComponent;
+     sh:sourceShape                _:b13;
+     sh:value                      "1800-01-01"^^xsd:date
+   ] .
+    """
+    data_str = f"""{PREFIXES}
+    <http://data/date_end_day_does_not_exist> a onto:ClassWithEverything ;
+        rdfs:label "date_end_day_does_not_exist"^^xsd:string ;
+        onto:testSubDate1 <http://data/value_date_end_day_does_not_exist> .
+    
+    <http://data/value_date_end_day_does_not_exist> a knora-api:DateValue ;
+        api-shapes:dateHasEnd "1900-01-50"^^xsd:string ;
+        api-shapes:dateHasStart "1800-01-01"^^xsd:date ;
+        knora-api:valueAsString "GREGORIAN:CE:1800-01-01:CE:1900-01-50"^^xsd:string .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.LessThanOrEqualsConstraintComponent,
+        focus_node_iri=DATA.date_end_day_does_not_exist,
         focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testSubDate1,
         severity=SH.Violation,

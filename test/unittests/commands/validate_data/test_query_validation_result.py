@@ -440,6 +440,13 @@ Second Line"""
         assert result.message == Literal("date message")
         assert result.input_value == Literal("GREGORIAN:CE:2000:CE:1900", datatype=XSD.string)
 
+    def test_report_date_range_wrong_to_ignore(
+        self, report_date_range_wrong_to_ignore: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_date_range_wrong_to_ignore
+        result = _query_one_without_detail(info, res, data)
+        assert not result
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())

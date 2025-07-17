@@ -4,6 +4,7 @@ from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
+from rdflib import XSD
 from rdflib import Graph
 from rdflib import URIRef
 
@@ -214,15 +215,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 expected=msg,
             )
         case SH.LessThanOrEqualsConstraintComponent:
-            return ValidationResult(
-                violation_type=ViolationType.GENERIC,
-                res_iri=base_info.focus_node_iri,
-                res_class=base_info.focus_node_type,
-                severity=base_info.severity,
-                property=base_info.result_path,
-                input_value=_get_value_as_string(base_info.result_bn, results_and_onto, data),
-                message=msg,
-            )
+            return _query_for_less_than_or_equal_violation(base_info, results_and_onto, data, msg)
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
@@ -276,6 +269,30 @@ def _query_class_constraint_without_detail(
         expected=expected,
         input_value=val,
         input_type=value_type,
+    )
+
+
+def _query_for_less_than_or_equal_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
+) -> ValidationResult | None:
+    value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
+    start = next(results_and_onto.objects(value_iri, API_SHAPES.dateHasStart))
+    end = next(results_and_onto.objects(value_iri, API_SHAPES.dateHasEnd))
+    start_is_string = start.datatype == XSD.string
+    end_is_string = end.datatype == XSD.string
+    # If any one of the date ranges cannot be parsed as an xsd date, we get this violation also.
+    # But the main problem is, that the date format is wrong, in which case the datatype is xsd:string.
+    # This produces its own message
+    if any([start_is_string, end_is_string]):
+        return None
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        severity=base_info.severity,
+        property=base_info.result_path,
+        input_value=_get_value_as_string(base_info.result_bn, results_and_onto, data),
+        message=message,
     )
 
 

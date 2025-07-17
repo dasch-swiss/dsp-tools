@@ -239,6 +239,7 @@ def test_reformat_content_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
     expected_info_tuples = [
         (
             "comment_on_value_empty",
@@ -265,6 +266,13 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The start date may not be later than the end date. Please take a look if your eras are correct.",
         ),
+        ("date_range_wrong_mixed_precision", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_year_full_GREGORIAN", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_year_full_ISLAMIC", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_year_full_JULIAN", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_year_month_good_day_wrong", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_yyyy", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_yyyy_mm", "onto:testSubDate1", msg_end_date_larger_than_start),
         (
             "date_single_month_does_not_exist",
             "onto:testSubDate1",

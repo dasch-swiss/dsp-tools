@@ -455,13 +455,17 @@ def _query_for_coexists_with_violation(
     if source_shapes == API_SHAPES.seqnum_PropShape:
         violation_type = ViolationType.SEQNUM_IS_PART_OF
         value = None
+        prop = None
     else:
         violation_type = ViolationType.GENERIC
-        value = next(data.objects(base_info.focus_node_iri, KNORA_API.valueAsString))
+        value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
+        value = next(data.objects(value_iri, KNORA_API.valueAsString))
+        prop = base_info.result_path
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
+        property=prop,
         severity=base_info.severity,
         message=message,
         input_value=value,

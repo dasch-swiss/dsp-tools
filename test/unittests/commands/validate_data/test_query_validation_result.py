@@ -346,8 +346,10 @@ class TestQueryWithoutDetail:
         assert not result.property
         assert not result.input_value
 
-    def test_report_coexist_with_date(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        validation_g, data, info = report_coexist_with
+    def test_report_coexist_with_date(
+        self, report_coexist_with_date: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        validation_g, data, info = report_coexist_with_date
         result = _query_one_without_detail(info, validation_g, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC

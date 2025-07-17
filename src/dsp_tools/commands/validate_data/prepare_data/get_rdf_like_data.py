@@ -97,11 +97,16 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> RdfLikeVal
 
 
 def _get_date_value(value: ParsedValue) -> RdfLikeValue:
-    generic_value = _get_generic_value(value, value.value)
-    if not value.value:
-        return generic_value
-    generic_value.value_metadata.extend(_get_xsd_like_dates(value.value))
-    return generic_value
+    typed_val: str | None = value.value if isinstance(value.value, str) else None
+    date_metadata = _get_value_metadata(value)
+    if typed_val:
+        date_metadata.extend(_get_xsd_like_dates(typed_val))
+    return RdfLikeValue(
+        user_facing_prop=value.prop_name,
+        user_facing_value=typed_val,
+        knora_type=value.value_type,
+        value_metadata=date_metadata,
+    )
 
 
 def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:

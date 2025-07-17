@@ -265,8 +265,8 @@ class TestValues:
         assert start.object_value == "1800-01-01"
         assert start.object_type == TripleObjectType.DATE_YYYY_MM_DD
         assert end.property_type == TriplePropertyType.KNORA_DATE_END
-        assert end.object_value == "1900"
-        assert end.object_type == TripleObjectType.DATE_YYYY
+        assert end.object_value == "1900-01-01"
+        assert end.object_type == TripleObjectType.DATE_YYYY_MM_DD
 
     def test_get_xsd_like_dates_second_era_wrong(self):
         date_str = "GREGORIAN:CE:2000:BCE:1900"

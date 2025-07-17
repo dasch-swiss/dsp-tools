@@ -234,6 +234,14 @@ class TestValues:
         assert res.knora_type == KnoraValueType.DATE_VALUE
         assert not res.value_metadata
 
+    def test_date_corr_with_date_range_yyyy(self):
+        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "CE:1849:CE:1850"
+        assert res.knora_type == KnoraValueType.DATE_VALUE
+        assert len(res.value_metadata) == 2
+
     def test_decimal_corr(self):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)

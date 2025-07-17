@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -36,6 +37,8 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
     Raises:
         InputError: If the sheets are not correctly named
     """
+    if not Path(excelfile).exists():
+        raise UserFilepathNotFoundError(excelfile)
     try:
         df_dict = pd.read_excel(excelfile, sheet_name=None)
     except ValueError:

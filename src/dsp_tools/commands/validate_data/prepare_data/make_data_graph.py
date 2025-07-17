@@ -71,4 +71,7 @@ def _make_one_rdflib_object(
         if prop_type == TriplePropertyType.KNORA_STANDOFF_LINK:
             return DATA[object_value]
         return URIRef(object_value)
-    return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
+    try:
+        return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
+    except ValueError:
+        return Literal(object_value, datatype=XSD.string)

@@ -48,6 +48,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
     ("trpl_obj", "object_type", "prop_type", "expected"),
     [
         (
+            "1900-20",
+            TripleObjectType.DATE_YYYY_MM,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-20", datatype=XSD.string),
+        ),
+        (
             "label",
             TripleObjectType.STRING,
             None,

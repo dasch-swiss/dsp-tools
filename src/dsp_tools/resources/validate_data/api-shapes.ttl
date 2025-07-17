@@ -147,7 +147,7 @@ api-shapes:DateValue_ClassShape
                  ] ,
                  [
                     a           sh:PropertyShape  ;
-                    sh:path     knora-api:dateHasStart ;
+                    sh:path     api-shapes:dateHasStart ;
                     sh:or       (
                                     [ sh:datatype xsd:gYear ]
                                     [ sh:datatype xsd:gYearMonth ]
@@ -158,7 +158,7 @@ api-shapes:DateValue_ClassShape
                  ] ,
                  [
                     a           sh:PropertyShape  ;
-                    sh:path     knora-api:dateHasEnd ;
+                    sh:path     api-shapes:dateHasEnd ;
                     sh:or       (
                                     [ sh:datatype xsd:gYear ]
                                     [ sh:datatype xsd:gYearMonth ]
@@ -176,8 +176,8 @@ api-shapes:DateValue_ClassShape
                  ] ,
                  [
                      a                 sh:PropertyShape ;
-                     sh:path           knora-api:dateHasStart ;
-                     dash:coExistsWith knora-api:dateHasEnd ;
+                     sh:path           api-shapes:dateHasStart ;
+                     dash:coExistsWith api-shapes:dateHasEnd ;
                      sh:severity       sh:Violation ;
                      sh:message        "The start date may not be later than the end date. Please take a look if your eras are correct."
                  ] .

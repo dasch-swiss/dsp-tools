@@ -221,8 +221,8 @@ class TestDateValue:
         assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
             "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
         )
-        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
-        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000", datatype=XSD.gYear)
 
     def test_with_date_range_invalid_date(self):
         val = RdfLikeValue(
@@ -241,8 +241,8 @@ class TestDateValue:
         assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
             "GREGORIAN:CE:1900:CE:2000-50", datatype=XSD.string
         )
-        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
-        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000-50", datatype=XSD.string)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-50", datatype=XSD.string)
 
 
 class TestDecimalValue:

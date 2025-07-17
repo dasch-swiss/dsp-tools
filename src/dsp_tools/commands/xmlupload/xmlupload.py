@@ -278,7 +278,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    logger.debug("Start uploading resources")
     project_iri = clients.project_client.get_project_iri()
 
     iri_lookup = IRILookups(

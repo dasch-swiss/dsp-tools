@@ -76,6 +76,10 @@ class DspIngestClientLive(AssetClient):
 
         After all retry attempts are exhausted it will raise exceptions if the upload failed.
         The http status code is also checked and if it is not 200, a PermanentConnectionError is raised.
+        
+        The load balancer on DSP servers currently has a timeout of 10m,
+        so we need to use a slightly shorter timeout of 9m.
+        See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
 
         Args:
             filepath: Path to the file to ingest, could be either absolute or relative.
@@ -93,7 +97,7 @@ class DspIngestClientLive(AssetClient):
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
             "Content-Type": "application/octet-stream",
         }
-        timeout = 600
+        timeout = 9*60
         with open(filepath, "rb") as binary_io:
             try:
                 logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")

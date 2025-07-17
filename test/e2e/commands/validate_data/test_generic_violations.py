@@ -270,6 +270,7 @@ def test_reformat_content_violation(authentication) -> None:
         ("date_range_wrong_year_full_GREGORIAN", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_year_full_ISLAMIC", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_year_full_JULIAN", "onto:testSubDate1", msg_end_date_larger_than_start),
+        ("date_range_wrong_year_good_month_wrong", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_year_month_good_day_wrong", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_yyyy", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_yyyy_mm", "onto:testSubDate1", msg_end_date_larger_than_start),

@@ -8,13 +8,13 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResourc
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
-from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_date_range
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_date_str_and_precision
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_metadata
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_value
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_list_value_str
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_resource
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_value
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_xsd_like_dates
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
@@ -229,14 +229,6 @@ class TestValues:
         assert res.knora_type == KnoraValueType.COLOR_VALUE
         assert not res.value_metadata
 
-    def test_date_corr(self):
-        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
-        res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "CE:1849:CE:1850"
-        assert res.knora_type == KnoraValueType.DATE_VALUE
-        assert not res.value_metadata
-
     def test_date_corr_with_date_range_yyyy(self):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
@@ -251,9 +243,18 @@ class TestValues:
         assert end.object_value == "1850"
         assert end.object_type == TripleObjectType.DATE_YYYY
 
-    def test_date_mixed_precision_range(self):
+    def test__get_xsd_like_dates_only_start(self):
+        date_str = "GREGORIAN:CE:1800-01-01"
+        result = _get_xsd_like_dates(date_str)
+        assert len(result) == 1
+        start = result.pop(0)
+        assert start.property_type == TriplePropertyType.KNORA_DATE_START
+        assert start.object_value == "1800-01-01"
+        assert start.object_type == TripleObjectType.DATE_YYYY_MM_DD
+
+    def test_get_xsd_like_dates_mixed_precision(self):
         date_str = "GREGORIAN:CE:1800-01-01:CE:1900"
-        result = _get_date_range(date_str)
+        result = _get_xsd_like_dates(date_str)
         assert len(result) == 2
         start, end = result
         assert start.property_type == TriplePropertyType.KNORA_DATE_START
@@ -272,7 +273,7 @@ class TestValues:
         ],
     )
     def test_dates_not_supported(self, date):
-        result = _get_date_range(date)
+        result = _get_xsd_like_dates(date)
         assert not result
 
     @pytest.mark.parametrize(

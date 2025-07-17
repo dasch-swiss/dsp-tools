@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResourc
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -99,22 +100,40 @@ def _get_date_value(value: ParsedValue) -> RdfLikeValue:
     generic_value = _get_generic_value(value, value.value)
     if not value.value:
         return generic_value
-    generic_value.value_metadata.extend(_get_date_range(value.value))
+    generic_value.value_metadata.extend(_get_xsd_like_dates(value.value))
     return generic_value
 
 
-def _get_date_range(date_string: str) -> list[PropertyObject]:
+def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:
     parsed_date = parse_date_string(date_string)
-    if not parsed_date.end:
+    dates = []
+    if not (ce_start := _make_xsd_compatible_date(parsed_date.start, TriplePropertyType.KNORA_DATE_START)):
         return []
+    dates.append(ce_start)
+    if parsed_date.end:
+        if not (ce_end := _make_xsd_compatible_date(parsed_date.end, TriplePropertyType.KNORA_DATE_END)):
+            return []
+        dates.append(ce_end)
+    return dates
 
 
 def _make_xsd_compatible_date(single_date: SingleDate, prop_type: TriplePropertyType) -> PropertyObject | None:
-    pass
+    if single_date.era in (Era.BC, Era.BCE):
+        return None
+    date_str, precision = _get_date_str_and_precision(single_date)
+    return PropertyObject(property_type=prop_type, object_value=date_str, object_type=precision)
 
 
 def _get_date_str_and_precision(date: SingleDate) -> tuple[str, TripleObjectType]:
-    pass
+    date_str = [str(date.year).zfill(4)]
+    precision = TripleObjectType.DATE_YYYY
+    if date.month:
+        date_str.append(str(date.month).zfill(2))
+        precision = TripleObjectType.DATE_YYYY_MM
+    if date.day:
+        date_str.append(str(date.day).zfill(2))
+        precision = TripleObjectType.DATE_YYYY_MM_DD
+    return "-".join(date_str), precision
 
 
 def _get_interval_value(value: ParsedValue) -> RdfLikeValue:

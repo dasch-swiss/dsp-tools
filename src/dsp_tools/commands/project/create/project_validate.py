@@ -83,6 +83,7 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
         ) from None
 
     # make some checks that are too complex for JSON schema
+    _check_for_invalid_default_permissions_overrule(project_definition)
     _check_for_undefined_super_property(project_definition)
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
@@ -93,6 +94,10 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
+
+
+def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
+    return True
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:

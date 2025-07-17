@@ -403,7 +403,7 @@ Second Line"""
         res, data, info = report_date_single_month_does_not_exist
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
+        assert result.violation_type == ViolationType.INVALID_DATE_FORMAT
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testSubDate1
@@ -736,7 +736,7 @@ class TestReformatResult:
         self, extracted_date_single_month_does_not_exist: ValidationResult
     ) -> None:
         result = _reformat_one_validation_result(extracted_date_single_month_does_not_exist)
-        assert result.problem_type == ProblemType.GENERIC
+        assert result.problem_type == ProblemType.INVALID_DATE_FORMAT
         assert result.res_id == "date_month_does_not_exist"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testSubDate1"

@@ -1259,7 +1259,7 @@ def report_date_single_month_does_not_exist(
 @pytest.fixture
 def extracted_date_single_month_does_not_exist() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.GENERIC,
+        violation_type=ViolationType.INVALID_DATE_FORMAT,
         res_iri=DATA.date_month_does_not_exist,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testSubDate1,

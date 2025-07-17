@@ -149,7 +149,7 @@
 
     <!--
     A check is conducted that ensures that the start date is equal or before the end date.
-    This is implemented for all date CE, BCE will be ignored.
+    This is implemented for CE dates only. BCE will be ignored.
     All calendars are treated the same, as they can all be parsed into a standard xsd date format.
     -->
 

@@ -397,6 +397,20 @@ class TestQueryWithoutDetail:
 Second Line"""
         )
 
+    def test_report_date_single_month_does_not_exist(
+        self, report_date_single_month_does_not_exist: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_date_single_month_does_not_exist
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == ONTO.testSubDate1
+        assert result.severity == SH.Violation
+        assert result.message == Literal("date message")
+        assert result.input_value == Literal("1800-22")
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())
@@ -717,6 +731,18 @@ class TestReformatResult:
         assert result.prop_name == "seqnum or isPartOf"
         assert result.severity == Severity.VIOLATION
         assert result.message == "Coexist message from knora-api turtle"
+
+    def test_date_single_month_does_not_exist(
+        self, extracted_date_single_month_does_not_exist: ValidationResult
+    ) -> None:
+        result = _reformat_one_validation_result(extracted_date_single_month_does_not_exist)
+        assert result.problem_type == ProblemType.GENERIC
+        assert result.res_id == "date_month_does_not_exist"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testSubDate1"
+        assert result.severity == Severity.VIOLATION
+        assert result.message == "date message"
+        assert result.input_value == "1800-22"
 
 
 if __name__ == "__main__":

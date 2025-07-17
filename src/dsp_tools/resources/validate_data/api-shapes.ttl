@@ -136,8 +136,6 @@ api-shapes:DateValue_ClassShape
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DateValue ;
   sh:property    [
-                    # Currently it is only checked that the string value is not empty
-                    # To validate the DateValue as the API receives it, the Date should be taken apart
                     a           sh:PropertyShape ;
                     sh:path     knora-api:valueAsString ;
                     sh:datatype xsd:string ;
@@ -146,6 +144,28 @@ api-shapes:DateValue_ClassShape
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "A DateValue requires a valid Date"
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     knora-api:dateHasStart ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     knora-api:dateHasEnd ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
                  ] .
 
 api-shapes:DecimalValue_ClassShape

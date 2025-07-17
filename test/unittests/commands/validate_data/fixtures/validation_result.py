@@ -1155,7 +1155,7 @@ def report_single_line_constraint_component_content_is_value(
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText_PropShape> ;
             sh:value <http://data/value_simple_text_with_newlines> ].
-            
+
     _:detail_bn a sh:ValidationResult ;
     sh:focusNode <http://data/value_simple_text_with_newlines> ;
     sh:resultMessage "The value must be a non-empty string without newlines." ;
@@ -1209,6 +1209,62 @@ def extracted_single_line_constraint_component() -> ValidationResult:
         property=KNORA_API.hasCopyrightHolder,
         message=Literal("The copyright holder must be a string without newlines."),
         input_value=Literal("with newline"),
+        severity=SH.Violation,
+    )
+
+
+@pytest.fixture
+def report_date_single_month_does_not_exist(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [    a                             sh:ValidationResult;
+         sh:focusNode                  <http://data/value_date_month_does_not_exist>;
+         sh:resultMessage              "date message";
+         sh:resultPath                 knora-api:dateHasStart;
+         sh:resultSeverity             sh:Violation;
+         sh:sourceConstraintComponent  sh:OrConstraintComponent;
+         sh:sourceShape                [] ;
+         sh:value                      "1800-22"
+       ] .
+    """
+    data_str = f"""{PREFIXES}
+    <http://data/date_month_does_not_exist> a onto:ClassWithEverything ;
+        rdfs:label "date_month_does_not_exist"^^xsd:string ;
+        onto:testSubDate1 <http://data/value_date_month_does_not_exist> .
+        
+    <http://data/value_date_month_does_not_exist> a knora-api:DateValue ;
+        knora-api:dateHasEnd "1800-22"^^xsd:string ;
+        knora-api:dateHasStart "1800-22"^^xsd:string ;
+        knora-api:valueAsString "GREGORIAN:CE:1800-22"^^xsd:string .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.OrConstraintComponent,
+        focus_node_iri=DATA.date_month_does_not_exist,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSubDate1,
+        severity=SH.Violation,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_date_single_month_does_not_exist() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=DATA.date_month_does_not_exist,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testSubDate1,
+        message=Literal("date message"),
+        input_value=Literal("1800-22"),
         severity=SH.Violation,
     )
 

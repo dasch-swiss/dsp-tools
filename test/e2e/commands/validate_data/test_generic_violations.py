@@ -87,6 +87,8 @@ class TestWithReportGraphs:
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
+            (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
             (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),
@@ -160,6 +162,8 @@ class TestWithReportGraphs:
         report, parsed_resources = every_violation_combination_once_info
         assert not report.conforms
         expected_violations = [
+            ("date_month_does_not_exist", ProblemType.GENERIC),
+            ("date_month_does_not_exist", ProblemType.GENERIC),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),
@@ -241,6 +245,26 @@ def test_reformat_content_violation(authentication) -> None:
             "comment_on_value_whitespace",
             "onto:testUriValue",
             "The comment on the value must be a non-empty string",
+        ),
+        (
+            "date_end_day_does_not_exist",
+            "onto:testSubDate1",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
+        ),
+        (
+            "date_end_month_does_not_exist",
+            "onto:testSubDate1",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
+        ),
+        (
+            "date_single_month_does_not_exist",
+            "onto:testSubDate1",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
+        ),
+        (
+            "date_single_month_does_not_exist",
+            "onto:testSubDate1",
+            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
         ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),

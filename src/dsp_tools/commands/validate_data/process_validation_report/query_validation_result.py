@@ -232,6 +232,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
+            | SH.OrConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC

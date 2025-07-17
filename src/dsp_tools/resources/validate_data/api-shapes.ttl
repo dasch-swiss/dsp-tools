@@ -168,11 +168,11 @@ api-shapes:DateValue_ClassShape
                     sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
                  ] ,
                  [
-                    a           sh:PropertyShape  ;
-                    sh:path     api-shapes:dateHasStart ;
-                    sh:lessThan api-shapes:dateHasEnd ;
-                    sh:severity sh:Violation ;
-                    sh:message  "The start end date must be equal or later than the start date."
+                    a                   sh:PropertyShape  ;
+                    sh:path             api-shapes:dateHasStart ;
+                    sh:lessThanOrEquals api-shapes:dateHasEnd ;
+                    sh:severity         sh:Violation ;
+                    sh:message          "The end date must be equal or later than the start date."
                  ] ,
                  [
                      a                 sh:PropertyShape ;

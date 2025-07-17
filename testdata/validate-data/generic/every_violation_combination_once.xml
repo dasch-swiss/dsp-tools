@@ -256,6 +256,10 @@
             <hasSegmentBounds segment_start="99" segment_end="1"/>
         </video-segment>
 
+        <!--
+        sh:sourceConstraintComponent  sh:LessThanOrEqualsConstraintComponent
+        sh:detail                     -
+        -->
         <resource label="wrong_date_range_yyyy" restype=":ClassWithEverything" id="wrong_date_range_yyyy">
             <date-prop name=":testSubDate1">
                 <date>GREGORIAN:CE:2000:CE:1900</date>

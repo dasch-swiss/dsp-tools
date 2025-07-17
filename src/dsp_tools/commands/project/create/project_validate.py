@@ -167,8 +167,8 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     if errors:
         err_msg = (
             "All classes in project.default_permissions_overrule.limited_view "
-            "must have 'StillImageRepresentation' as superclass, because the 'limited view' "
-            "permission is only implemented for images (i.e. blurring, watermarking)."
+            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
+            "permission is only implemented for images (i.e. blurring, watermarking). "
             "The following classes do not meet this requirement:\n"
         )
         err_msg += "\n".join(f" - {loc}: {error}" for loc, error in errors.items())

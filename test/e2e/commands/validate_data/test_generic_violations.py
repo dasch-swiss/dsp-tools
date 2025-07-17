@@ -88,6 +88,7 @@ class TestWithReportGraphs:
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
+            (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
             (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),
@@ -161,7 +162,8 @@ class TestWithReportGraphs:
         report, parsed_resources = every_violation_combination_once_info
         assert not report.conforms
         expected_violations = [
-            ("date_month_does_not_exist", ProblemType.GENERIC),
+            ("date_month_does_not_exist", ProblemType.INVALID_DATE_FORMAT),
+            ("date_month_does_not_exist", ProblemType.INVALID_DATE_FORMAT),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),

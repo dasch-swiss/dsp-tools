@@ -97,6 +97,83 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
 
 
 def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
+    """
+    Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a class in limited_view doesn't have the correct superclass
+
+    Returns:
+        True if all classes in limited_view are subclasses of StillImageRepresentation
+    """
+    if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
+        return True
+    limited_view: list[str] = default_permissions_overrule.get("limited_view")
+    if not limited_view:
+        return True
+
+    errors: dict[str, str] = {}
+
+    # Create a lookup dictionary for resources by ontology and name
+    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        resource_lookup[onto["name"]] = {}
+        for resource in onto["resources"]:
+            resource_lookup[onto["name"]][resource["name"]] = resource
+
+    # Check each class in limited_view
+    for class_ref in limited_view:
+        if ":" not in class_ref:
+            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
+            continue
+
+        parts = class_ref.split(":")
+        if len(parts) != 2:
+            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
+            continue
+        ontology_name, class_name = parts
+
+        # Check if the ontology exists
+        if ontology_name not in resource_lookup:
+            errors[f"Class reference '{class_ref}'"] = f"Ontology '{ontology_name}' not found"
+            continue
+
+        # Check if the resource exists in the ontology
+        if class_name not in resource_lookup[ontology_name]:
+            errors[f"Class reference '{class_ref}'"] = (
+                f"Resource '{class_name}' not found in ontology '{ontology_name}'"
+            )
+            continue
+
+        # Check if the resource has the correct superclass
+        resource = resource_lookup[ontology_name][class_name]
+        super_class = resource.get("super")
+
+        # Handle both string and list formats for super
+        if isinstance(super_class, list):
+            if "StillImageRepresentation" not in super_class:
+                errors[f"Class reference '{class_ref}'"] = (
+                    f"Resource '{class_name}' must have 'StillImageRepresentation' as superclass, "
+                    f"but has: {super_class}"
+                )
+        elif super_class != "StillImageRepresentation":
+            errors[f"Class reference '{class_ref}'"] = (
+                f"Resource '{class_name}' must have 'StillImageRepresentation' as superclass, but has: '{super_class}'"
+            )
+
+    if errors:
+        err_msg = (
+            "All classes in project.default_permissions_overrule.limited_view "
+            "must have 'StillImageRepresentation' as superclass, because the 'limited view' "
+            "permission is only implemented for images (i.e. blurring, watermarking)."
+            "The following classes do not meet this requirement:\n"
+        )
+        err_msg += "\n".join(f" - {loc}: {error}" for loc, error in errors.items())
+        raise BaseError(err_msg)
+
     return True
 
 

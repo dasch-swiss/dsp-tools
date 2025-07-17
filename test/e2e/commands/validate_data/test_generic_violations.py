@@ -87,7 +87,7 @@ class TestWithReportGraphs:
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/date_month_does_not_exist"), SH.ValidationResult, None, None),
+            (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
             (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),

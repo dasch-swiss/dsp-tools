@@ -241,6 +241,12 @@ class TestValues:
         assert res.user_facing_value == "CE:1849:CE:1850"
         assert res.knora_type == KnoraValueType.DATE_VALUE
         assert len(res.value_metadata) == 2
+        start = next(x for x in res.value_metadata if x.property_type == TriplePropertyType.KNORA_DATE_START)
+        assert start.object_value == "1849"
+        assert start.object_type == TripleObjectType.DATE_YYYY
+        end = next(x for x in res.value_metadata if x.property_type == TriplePropertyType.KNORA_DATE_END)
+        assert end.object_value == "1850"
+        assert end.object_type == TripleObjectType.DATE_YYYY
 
     def test_decimal_corr(self):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)

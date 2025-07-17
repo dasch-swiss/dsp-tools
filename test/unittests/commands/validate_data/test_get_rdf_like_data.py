@@ -8,12 +8,15 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResourc
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_date_range
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_date_str_and_precision
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_metadata
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_value
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_list_value_str
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_resource
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_value
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
+from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -247,6 +250,43 @@ class TestValues:
         end = next(x for x in res.value_metadata if x.property_type == TriplePropertyType.KNORA_DATE_END)
         assert end.object_value == "1850"
         assert end.object_type == TripleObjectType.DATE_YYYY
+
+    def test_date_mixed_precision_range(self):
+        date_str = "GREGORIAN:CE:1800-01-01:CE:1900"
+        result = _get_date_range(date_str)
+        assert len(result) == 2
+        start, end = result
+        assert start.property_type == TriplePropertyType.KNORA_DATE_START
+        assert start.object_value == "1800-01-01"
+        assert start.object_type == TripleObjectType.DATE_YYYY_MM_DD
+        assert end.property_type == TriplePropertyType.KNORA_DATE_END
+        assert end.object_value == "1900"
+        assert end.object_type == TripleObjectType.DATE_YYYY
+
+    @pytest.mark.parametrize(
+        "date",
+        [
+            "GREGORIAN:CE:1800-01-01",  # not a range
+            "BCE:2020-01-01:BCE:2021-02-02"  # BCE is not supported
+            "BC:2020-01-01:BC:2021-02-02",  # BC is not supported
+        ],
+    )
+    def test_dates_not_supported(self, date):
+        result = _get_date_range(date)
+        assert not result
+
+    @pytest.mark.parametrize(
+        ("date", "expected_str", "expected_type"),
+        [
+            (SingleDate(era=None, year=1900, month=10, day=1), "1900-10-01", TripleObjectType.DATE_YYYY_MM_DD),
+            (SingleDate(era=None, year=1900, month=10, day=None), "1900-10", TripleObjectType.DATE_YYYY_MM),
+            (SingleDate(era=None, year=900, month=None, day=None), "0900", TripleObjectType.DATE_YYYY),
+        ],
+    )
+    def test_get_date_str_and_precision(self, date, expected_str, expected_type):
+        result_str, result_type = _get_date_str_and_precision(date)
+        assert result_str == expected_str
+        assert result_type == expected_type
 
     def test_decimal_corr(self):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)

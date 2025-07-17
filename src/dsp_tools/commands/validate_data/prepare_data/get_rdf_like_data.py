@@ -14,6 +14,8 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResourc
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.data_formats.date_util import parse_date_string
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -70,6 +72,8 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
 def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeValue:
     user_value = value.value
     match value.value_type:
+        case KnoraValueType.DATE_VALUE:
+            return _get_date_value(value)
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
@@ -89,6 +93,28 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> RdfLikeVal
         knora_type=value.value_type,
         value_metadata=_get_value_metadata(value),
     )
+
+
+def _get_date_value(value: ParsedValue) -> RdfLikeValue:
+    generic_value = _get_generic_value(value, value.value)
+    if not value.value:
+        return generic_value
+    generic_value.value_metadata.extend(_get_date_range(value.value))
+    return generic_value
+
+
+def _get_date_range(date_string: str) -> list[PropertyObject]:
+    parsed_date = parse_date_string(date_string)
+    if not parsed_date.end:
+        return []
+
+
+def _make_xsd_compatible_date(single_date: SingleDate, prop_type: TriplePropertyType) -> PropertyObject | None:
+    pass
+
+
+def _get_date_str_and_precision(date: SingleDate) -> tuple[str, TripleObjectType]:
+    pass
 
 
 def _get_interval_value(value: ParsedValue) -> RdfLikeValue:

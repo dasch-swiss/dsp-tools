@@ -123,42 +123,80 @@
 
     <!-- Date with start later than end date -->
 
-    <resource label="wrong_date_range_full_JULIAN" restype=":ClassWithEverything" id="wrong_date_range_full_JULIAN">
+    <resource label="date_range_wrong_year_full_JULIAN" restype=":ClassWithEverything" id="date_range_wrong_year_full_JULIAN">
         <date-prop name=":testSubDate1">
             <date>JULIAN:CE:2000-01-01:CE:1900-01-01</date>
         </date-prop>
     </resource>
 
-    <resource label="wrong_date_range_full_GREGORIAN" restype=":ClassWithEverything"
-              id="wrong_date_range_full_GREGORIAN">
+    <resource label="date_range_wrong_year_full_GREGORIAN"
+              restype=":ClassWithEverything"
+              id="date_range_wrong_year_full_GREGORIAN">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:2000-01-01:CE:1900-01-01</date>
         </date-prop>
     </resource>
 
-    <resource label="wrong_date_range_full_ISLAMIC" restype=":ClassWithEverything" id="wrong_date_range_full_ISLAMIC">
+    <resource label="date_range_wrong_year_full_ISLAMIC" restype=":ClassWithEverything" id="date_range_wrong_year_full_ISLAMIC">
         <date-prop name=":testSubDate1">
             <date>ISLAMIC:2000-01-01:1900-01-01</date>
         </date-prop>
     </resource>
 
-    <resource label="wrong_date_range_yyyy_mm" restype=":ClassWithEverything" id="wrong_date_range_yyyy_mm">
+    <resource label="date_range_wrong_yyyy_mm" restype=":ClassWithEverything" id="date_range_wrong_yyyy_mm">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:2000-01:CE:1900-01</date>
         </date-prop>
     </resource>
 
-    <resource label="wrong_date_range_yyyy" restype=":ClassWithEverything" id="wrong_date_range_yyyy">
+    <resource
+            label="date_range_wrong_year_good_month_wrong"
+            restype=":ClassWithEverything"
+            id="wrong_date_range_year_good_month_wrong">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:2000-05:CE:2000-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_range_wrong_year_month_good_day_wrong"
+              restype=":ClassWithEverything"
+              id="date_range_wrong_year_month_good_day_wrong">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-20:CE:1800-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_range_wrong_yyyy" restype=":ClassWithEverything" id="date_range_wrong_yyyy">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:2000:CE:1900</date>
         </date-prop>
     </resource>
 
-    <resource label="wrong_date_range_mixed_precision"
+    <resource label="date_range_wrong_mixed_precision"
               restype=":ClassWithEverything"
-              id="wrong_date_range_mixed_precision">
+              id="date_range_wrong_mixed_precision">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:2000-01-01:CE:1900</date>
+        </date-prop>
+    </resource>
+
+    <!-- These dates do not exist, it will not be possible to parse them into a correct xsd dataType -->
+
+    <resource label="date_end_month_does_not_exist" restype=":ClassWithEverything" id="date_end_month_does_not_exist">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900-20-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_end_day_does_not_exist" restype=":ClassWithEverything" id="date_end_day_does_not_exist">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900-01-50</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_single_month_does_not_exist" restype=":ClassWithEverything" id="date_single_month_does_not_exist">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-22</date>
         </date-prop>
     </resource>
 

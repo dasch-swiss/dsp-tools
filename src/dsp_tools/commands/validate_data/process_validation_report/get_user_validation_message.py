@@ -4,6 +4,7 @@ import pandas as pd
 
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -15,13 +16,17 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE, ProblemType.FILE_DUPLICATE}
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_DUPLICATE}
 
 
-def sort_user_problems(all_problems: AllProblems) -> SortedProblems:
+def sort_user_problems(
+    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None
+) -> SortedProblems:
     iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
+    if duplicate_file_warnings:
+        warnings.extend(duplicate_file_warnings.problems)
     info.extend(problems_with_iris)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
@@ -64,11 +69,12 @@ def _separate_link_value_missing_if_reference_is_an_iri(
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    grouped = _group_problems_by_resource(problems)
-    filtered = []
+    grouped, without_res_id = _group_problems_by_resource(problems)
+    filtered = without_res_id
     for problems_per_resource in grouped.values():
         text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
-        filtered.extend(_filter_out_multiple_duplicate_file_value_problems(text_value_filtered))
+        file_value_corrected = _filter_out_duplicate_wrong_file_type_problems(text_value_filtered)
+        filtered.extend(file_value_corrected)
     return filtered
 
 
@@ -99,27 +105,37 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
     return filtered_problems
 
 
-def _filter_out_multiple_duplicate_file_value_problems(problems: list[InputProblem]) -> list[InputProblem]:
-    # The check for multiple usage per file creates a violation per usage.
-    # Meaning if 3 resources use the same file -> each resource gets 2 messages
-    # The user only needs to see the message once per resource, as the messages are identical
-    seen_file_duplicate = False
-    result = []
-    for prob in problems:
-        if prob.problem_type == ProblemType.FILE_DUPLICATE:
-            if not seen_file_duplicate:
-                result.append(prob)
-                seen_file_duplicate = True
-        else:
-            result.append(prob)
-    return result
+def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality (because the audio file is missing)
+    # and a closed constraint violation (because it is not permissible to add an image)
+    # However, we only want to give one message to the user
+    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    idx_prohibited = next(
+        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
+    )
+    if idx_missing is None or idx_prohibited is None:
+        return problems
+    missing_problem = problems[idx_missing]
+    prohibited_problem = problems[idx_prohibited]
+    # The result of the closed constraint violation, contains the input value,
+    # while the message of the other shape is better, we want to include the actual input value.
+    missing_problem.input_value = prohibited_problem.input_value
+    return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
 
 
-def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
+def _group_problems_by_resource(
+    problems: list[InputProblem],
+) -> tuple[dict[str, list[InputProblem]], list[InputProblem]]:
     grouped_res = defaultdict(list)
+    problem_no_res_id = []
     for prob in problems:
-        grouped_res[prob.res_id].append(prob)
-    return grouped_res
+        if not prob.res_id:
+            problem_no_res_id.append(prob)
+        else:
+            grouped_res[prob.res_id].append(prob)
+    return grouped_res, problem_no_res_id
 
 
 def get_user_message(sorted_problems: SortedProblems, severity: ValidationSeverity) -> UserPrintMessages:
@@ -189,13 +205,20 @@ def _are_there_too_many_to_print(sorted_problems: SortedProblems, severity: Vali
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
-    grouped = list(_group_problems_by_resource(problems).values())
-    messages = [_get_message_for_one_resource(v) for v in sorted(grouped, key=lambda x: x[0].res_id)]
+    grouped, without_res_id = _group_problems_by_resource(problems)
+    messages = [_get_message_for_one_resource(without_res_id)] if without_res_id else []
+    messages_with_ids = [
+        _get_message_for_one_resource(v) for v in sorted(grouped.values(), key=lambda x: str(x[0].res_id))
+    ]
+    messages.extend(messages_with_ids)
     return GRAND_SEPARATOR.join(messages)
 
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
-    start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    if problems[0].res_id:
+        start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    else:
+        start_msg = ""
     prop_messages = _get_message_with_properties(problems)
     return f"{start_msg}\n{prop_messages}"
 
@@ -279,7 +302,7 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
     if problem_type in [
         ProblemType.FILE_DUPLICATE,
-        ProblemType.FILE_VALUE,
+        ProblemType.FILE_VALUE_MISSING,
         ProblemType.FILE_VALUE_PROHIBITED,
         ProblemType.LINK_TARGET_TYPE_MISMATCH,
         ProblemType.INEXISTENT_LINKED_RESOURCE,

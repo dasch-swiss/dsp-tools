@@ -1,5 +1,42 @@
 # Changelog
 
+## [16.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.3.0...v16.4.0) (2025-07-16)
+
+
+### Enhancements
+
+* **validate-data:** consistently save or print validation results based on total number found (DEV-5135) ([#1848](https://github.com/dasch-swiss/dsp-tools/issues/1848)) ([ef37b87](https://github.com/dasch-swiss/dsp-tools/commit/ef37b874d28004c77ac2d0161fd275653213f480))
+* **validate-data:** eable multiple parallel calls at the same time without conflicts (DEV-5137) ([#1836](https://github.com/dasch-swiss/dsp-tools/issues/1836)) ([26a4599](https://github.com/dasch-swiss/dsp-tools/commit/26a45999d769ff5c16c009381a9c206603a0c58a))
+* **validate-data:** prevent crash if too many duplicate files are in the data (DEV-5140) ([#1841](https://github.com/dasch-swiss/dsp-tools/issues/1841)) ([4bf4fa0](https://github.com/dasch-swiss/dsp-tools/commit/4bf4fa06d3612750f5dba913adde61d4c800fa45))
+* **validate-data:** use the SHACL CLI for all validation calls (DEV-5127) ([#1831](https://github.com/dasch-swiss/dsp-tools/issues/1831)) ([687adfe](https://github.com/dasch-swiss/dsp-tools/commit/687adfec6693dc43e1ae02ccc91032977f1da268))
+* **xmlupload:** always write id2iri to ".dsp-tools" folder (DEV-5162) ([#1862](https://github.com/dasch-swiss/dsp-tools/issues/1862)) ([08b050b](https://github.com/dasch-swiss/dsp-tools/commit/08b050ba021f69668ce1be96e1a7cc55f51f60d3))
+
+
+### Maintenance
+
+* align folder naming of ingest docker folders with naming on servers ([#1849](https://github.com/dasch-swiss/dsp-tools/issues/1849)) ([1f0cdd4](https://github.com/dasch-swiss/dsp-tools/commit/1f0cdd4420e812a5e0b143c35aa85f051ddc2553))
+* bump start-stack to 2025.07.03 ([#1864](https://github.com/dasch-swiss/dsp-tools/issues/1864)) ([71f1f28](https://github.com/dasch-swiss/dsp-tools/commit/71f1f2873f16e6161713933b32876e3599a26bd8))
+* reorganise GitHub workflow files (DEV-5154) ([#1851](https://github.com/dasch-swiss/dsp-tools/issues/1851)) ([8a3fa56](https://github.com/dasch-swiss/dsp-tools/commit/8a3fa56fa1ba1dddfe0231d0fc2d286aa8af7367))
+* **validate-data:** allow `InputProblems` without resource ID and type ([#1857](https://github.com/dasch-swiss/dsp-tools/issues/1857)) ([10a462c](https://github.com/dasch-swiss/dsp-tools/commit/10a462cb4d7fafddc5a39d8b152d1f45cef1ba30))
+* **validate-data:** create `validation` folder ([#1843](https://github.com/dasch-swiss/dsp-tools/issues/1843)) ([ae24254](https://github.com/dasch-swiss/dsp-tools/commit/ae2425409cb89a42a46c8e078d425189703953d8))
+* **validate-data:** group files into categories ([#1837](https://github.com/dasch-swiss/dsp-tools/issues/1837)) ([00f6ade](https://github.com/dasch-swiss/dsp-tools/commit/00f6adef00218f80ab1d1218dd8b3386708e4a5b))
+* **validate-data:** improve edge cases e2e tests ([#1859](https://github.com/dasch-swiss/dsp-tools/issues/1859)) ([d23e389](https://github.com/dasch-swiss/dsp-tools/commit/d23e389394cd3e11266fda075421d292b2b643d2))
+* **validate-data:** improve generic violations e2e tests ([#1860](https://github.com/dasch-swiss/dsp-tools/issues/1860)) ([df78c39](https://github.com/dasch-swiss/dsp-tools/commit/df78c391c6ef0f329545dfcdc183bed5a1a1a7f5))
+* **validate-data:** improve warnings and info e2e tests ([#1861](https://github.com/dasch-swiss/dsp-tools/issues/1861)) ([d8e80f1](https://github.com/dasch-swiss/dsp-tools/commit/d8e80f1520821ff2cb1260bf9cc68b05186d13d3))
+* **validate-data:** move check for unknown resources classes to own file ([#1844](https://github.com/dasch-swiss/dsp-tools/issues/1844)) ([1b15119](https://github.com/dasch-swiss/dsp-tools/commit/1b151199454786c29899b3bccb7fb025cce5a454))
+* **validate-data:** move get ontology validation message to correct file ([#1845](https://github.com/dasch-swiss/dsp-tools/issues/1845)) ([bd1eb96](https://github.com/dasch-swiss/dsp-tools/commit/bd1eb96ed538a42742fc9ef032fd39db3c2282be))
+* **validate-data:** move get validation report to own file ([#1846](https://github.com/dasch-swiss/dsp-tools/issues/1846)) ([7669828](https://github.com/dasch-swiss/dsp-tools/commit/766982849b0bfd247974f2f1d3831bb2c06ec929))
+* **validate-data:** only use `pytest.fixtures` in e2e tests when needed ([#1863](https://github.com/dasch-swiss/dsp-tools/issues/1863)) ([77f924f](https://github.com/dasch-swiss/dsp-tools/commit/77f924fe66796ea2fcd97ca7f90ce92e74ca6017))
+* **validate-data:** read shacl-cli docker image from file ([#1850](https://github.com/dasch-swiss/dsp-tools/issues/1850)) ([4c4daf2](https://github.com/dasch-swiss/dsp-tools/commit/4c4daf29a959aaaa7417b9a864f15d2eccab24a3))
+* **validate-data:** remove unused parameter `asset_value` from `RdfLikeResource` ([#1839](https://github.com/dasch-swiss/dsp-tools/issues/1839)) ([a2dc2d4](https://github.com/dasch-swiss/dsp-tools/commit/a2dc2d40486f814d45c71a0521b786d57966c968))
+* **validate-data:** restructure function calls internally ([#1840](https://github.com/dasch-swiss/dsp-tools/issues/1840)) ([8a9847c](https://github.com/dasch-swiss/dsp-tools/commit/8a9847caaa219fb18ea6e47f987cb913170e5f5f))
+* **validate-data:** separate printing of messages and creating the validation result ([#1858](https://github.com/dasch-swiss/dsp-tools/issues/1858)) ([a80596f](https://github.com/dasch-swiss/dsp-tools/commit/a80596f4017ced5a42ae89dcdeb01f5f4b342f13))
+
+
+### Documentation
+
+* **validate-data:** add validation logic diagram to developers' docs ([#1847](https://github.com/dasch-swiss/dsp-tools/issues/1847)) ([6cd508a](https://github.com/dasch-swiss/dsp-tools/commit/6cd508a00c90ecd49e83683feea58c00ff3267ad))
+
 ## [16.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.2.0...v16.3.0) (2025-07-09)
 
 

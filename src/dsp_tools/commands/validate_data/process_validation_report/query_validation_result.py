@@ -213,7 +213,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 expected=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
+            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
@@ -235,10 +235,6 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
-            )
-        case DASH.UniqueValueForClassConstraintComponent:
-            return _query_general_violation_info(
-                base_info.result_bn, base_info, results_and_onto, ViolationType.FILE_DUPLICATE
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -278,26 +274,26 @@ def _query_class_constraint_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult | None:
-    # If a class is for example, an AudioRepresentation, but a jpg file is used,
-    # the created value is of type StillImageFileValue.
-    # This creates a min cardinality and a closed constraint violation.
-    # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
+    input_val = None
     if base_info.result_path in FILE_VALUE_PROPERTIES:
-        sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
-        if KNORA_API.Representation in sub_classes:
-            return None
-        violation_type = ViolationType.FILEVALUE_PROHIBITED
+        violation_type = ViolationType.FILE_VALUE_PROHIBITED
+        if value_bn_found := list(results_and_onto.objects(base_info.result_bn, SH.value)):
+            value_bn = value_bn_found.pop(0)
+            if file_path := list(data.objects(value_bn, KNORA_API.fileValueHasFilename)):
+                input_val = file_path.pop(0)
+            elif iiif_uri := list(data.objects(value_bn, KNORA_API.stillImageFileValueHasExternalUrl)):
+                input_val = iiif_uri.pop(0)
     else:
         violation_type = ViolationType.NON_EXISTING_CARD
-
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,
         res_class=base_info.focus_node_type,
         severity=base_info.severity,
         property=base_info.result_path,
+        input_value=input_val,
     )
 
 
@@ -478,7 +474,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
-        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE | ViolationType.FILE_DUPLICATE as violation:
+        case ViolationType.FILE_VALUE_PROHIBITED | ViolationType.FILE_VALUE_MISSING as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:
@@ -496,7 +492,7 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
     if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):
         prop_str, file_extensions = file_prop_info
         detail_msg = None
-        problem_type = ProblemType.FILE_VALUE
+        problem_type = ProblemType.FILE_VALUE_MISSING
         expected: str | None = f"This resource requires a file with one of the following extensions: {file_extensions}"
     else:
         prop_str = iris.prop_name

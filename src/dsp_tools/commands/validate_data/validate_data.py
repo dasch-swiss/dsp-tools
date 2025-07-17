@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 from loguru import logger
@@ -9,7 +10,10 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
+from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
@@ -24,6 +28,7 @@ from dsp_tools.commands.validate_data.validation.check_for_unknown_classes impor
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
@@ -90,55 +95,73 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    ignore_duplicate_files = config.ignore_duplicate_files_warning
-    if not config.ignore_duplicate_files_warning:
-        duplicate_check = check_for_duplicate_files(parsed_resources, config)
-        if duplicate_check.user_msg:
-            logger.error(duplicate_check.user_msg)
-            print(f"{BACKGROUND_BOLD_RED}   Duplicate Filepaths Found!    {RESET_TO_DEFAULT}")
-            print(f"{BOLD_RED}{duplicate_check.user_msg}{RESET_TO_DEFAULT}")
-        if not duplicate_check.should_continue:
-            return False
-        ignore_duplicate_files = duplicate_check.duplicate_files_must_be_ignored
-
     rdf_graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
-        ignore_duplicate_files_warning=ignore_duplicate_files,
     )
-    return _validate_data(rdf_graphs, used_iris, config)
-
-
-def _validate_data(graphs: RDFGraphs, used_iris: set[str], config: ValidateDataConfig) -> bool:
-    logger.debug(f"Validate-data called with the following config: {vars(config)}")
-    if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
-        msg = get_msg_str_unknown_classes_in_data(unknown_classes)
+    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config)
+    if validation_result.no_problems:
+        logger.debug("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+        return True
+    if isinstance(validation_result.problems, UnknownClassesInData):
+        msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
         return False
-    shacl_validator = ShaclCliValidator()
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
-    if onto_validation_result:
-        msg = get_msg_str_ontology_validation_violation(onto_validation_result)
+    if isinstance(validation_result.problems, OntologyValidationProblem):
+        msg = get_msg_str_ontology_validation_violation(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if the ontology itself has errors, we will not validate the data
         return False
+    if isinstance(validation_result.problems, SortedProblems):
+        _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
+        return _get_validation_status(validation_result.problems, config.is_on_prod_server)
+    else:
+        raise BaseError(f"Unknown validate data problems: {validation_result.problems!s}")
+
+
+def _validate_data(
+    graphs: RDFGraphs,
+    used_iris: set[str],
+    parsed_resources: list[ParsedResource],
+    config: ValidateDataConfig,
+) -> ValidateDataResult:
+    logger.debug(f"Validate-data called with the following config: {vars(config)}")
+    # Check if unknown classes are used
+    if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
+        return ValidateDataResult(False, unknown_classes, None)
+    shacl_validator = ShaclCliValidator()
+    # Validation of the ontology
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
+    if onto_validation_result:
+        return ValidateDataResult(False, onto_validation_result, None)
+    # Validation of the data
+    duplicate_file_warnings = None
+    if not config.ignore_duplicate_files_warning:
+        duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
-        logger.debug("No validation errors found.")
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
-        return True
+        if not duplicate_file_warnings:
+            return ValidateDataResult(True, None, None)
+        else:
+            sorted_problems = SortedProblems(
+                unique_violations=[],
+                user_warnings=duplicate_file_warnings.problems,
+                user_info=[],
+                unexpected_shacl_validation_components=[],
+            )
+            return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted)
-    _print_shacl_validation_violation_message(sorted_problems, report, config)
-    return _get_validation_status(sorted_problems, config.is_on_prod_server)
+    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings)
+    return ValidateDataResult(False, sorted_problems, report)
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:
@@ -165,7 +188,7 @@ def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bo
 
 
 def _print_shacl_validation_violation_message(
-    sorted_problems: SortedProblems, report: ValidationReportGraphs, config: ValidateDataConfig
+    sorted_problems: SortedProblems, report: ValidationReportGraphs | None, config: ValidateDataConfig
 ) -> None:
     messages = get_user_message(sorted_problems, config.severity)
     if messages.violations:
@@ -211,13 +234,14 @@ def _print_shacl_validation_violation_message(
             )
             print(messages.unexpected_violations.message_body)
         else:
-            _save_unexpected_results_and_inform_user(report, config.xml_file)
+            report_graph = cast(ValidationReportGraphs, report)
+            _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_{severity}.csv"
     msg = f"Due to the large number of violations the information was saved at '{out_path}'"
-    df.to_csv(out_path)
+    df.to_csv(out_path, index=False)
     return msg
 
 

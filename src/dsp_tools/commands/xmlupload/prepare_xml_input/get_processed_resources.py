@@ -1,6 +1,8 @@
 from typing import cast
 from uuid import uuid4
 
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
@@ -64,6 +66,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 def get_processed_resources(
     resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
 ) -> list[ProcessedResource]:
+    logger.debug("Transform ParsedResource into ProcessedResource")
     return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in resources]
 
 

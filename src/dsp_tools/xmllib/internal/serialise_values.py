@@ -6,6 +6,7 @@ from typing import cast
 from dotenv import load_dotenv
 from lxml import etree
 
+from dsp_tools.error.xmllib_errors import XmllibInternalError
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
@@ -142,7 +143,7 @@ def _create_richtext_elements_from_string(value: Richtext, text_element: etree._
     new_element = deepcopy(text_element)
     parsed_xml = parse_richtext_as_xml(value.value)
     if not isinstance(parsed_xml, etree._Element):
-        raise ValueError(
+        raise XmllibInternalError(
             "Richtexts should be validated for correct XML syntax when they are created. Apparently this didn't happen."
         )
     new_element.text = parsed_xml.text  # everything before the first child tag

@@ -1,7 +1,7 @@
 from typing import Any
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
@@ -21,7 +21,7 @@ def convert_to_bool_string(value: Any) -> bool:
         `True` or `False` if it is an accepted value.
 
     Raises:
-        InputError: If the value is not convertable to a boolean
+        XmllibInputError: If the value is not convertable to a boolean
 
     Examples:
         ```python
@@ -36,7 +36,7 @@ def convert_to_bool_string(value: Any) -> bool:
 
         ```python
         result = xmllib.convert_to_bool_string(None)
-        # raises InputError
+        # raises XmllibInputError
         ```
     """
     str_val = str(value).lower().strip()
@@ -44,7 +44,7 @@ def convert_to_bool_string(value: Any) -> bool:
         return False
     elif str_val in ("true", "1", "1.0", "yes", "oui", "ja", "sì"):
         return True
-    raise_input_error(MessageInfo(f"The entered value '{value}' cannot be converted to a bool."))
+    raise_xmllib_input_error(MessageInfo(f"The entered value '{value}' cannot be converted to a bool."))
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:
@@ -59,7 +59,7 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
         String with replaced values
 
     Raises:
-        InputError: If an invalid conversion option is given
+        XmllibInputError: If an invalid conversion option is given
 
     Examples:
         ```python

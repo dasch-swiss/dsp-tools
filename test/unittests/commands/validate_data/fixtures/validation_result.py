@@ -130,7 +130,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+def report_file_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [   a sh:ValidationResult ;
     sh:focusNode <http://data/id_wrong_file_type> ;
@@ -145,12 +145,16 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
     <http://data/id_wrong_file_type> a onto:TestStillImageRepresentation ;
         rdfs:label "TestStillImageRepresentation File mp4"^^xsd:string ;
         knora-api:hasMovingImageFileValue <http://data/fileValueBn> .
+        
+    <http://data/fileValueBn> a knora-api:MovingImageFileValue ;
+        knora-api:fileValueHasFilename "file.mp4"^^xsd:string .
     """
-    graphs = Graph()
-    graphs.parse(data=validation_str, format="ttl")
-    graphs.parse(data=data_str, format="ttl")
-    graphs += onto_graph
-    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    result_g = Graph()
+    result_g.parse(data=validation_str, format="ttl")
+    data_g = Graph()
+    data_g.parse(data=data_str, format="ttl")
+    result_g += onto_graph
+    val_bn = next(result_g.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
@@ -159,7 +163,7 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
         result_path=KNORA_API.hasMovingImageFileValue,
         severity=SH.Violation,
     )
-    return graphs, base_info
+    return result_g, data_g, base_info
 
 
 @pytest.fixture
@@ -198,60 +202,11 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
 @pytest.fixture
 def extracted_file_value_for_resource_without_representation() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILEVALUE_PROHIBITED,
+        violation_type=ViolationType.FILE_VALUE_PROHIBITED,
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,
         severity=SH.Violation,
-    )
-
-
-@pytest.fixture
-def report_file_value_duplicate(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
-    validation_str = f"""{PREFIXES}
-[ a sh:ValidationResult ;
-    sh:focusNode <http://data/value_duplicate_archive_1> ;
-    sh:resultMessage "The entered filepath is used more than once in your data." ;
-    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#fileValueHasFilename> ;
-    sh:resultSeverity sh:Info ;
-    sh:sourceConstraintComponent <http://datashapes.org/dash#UniqueValueForClassConstraintComponent> ;
-    sh:sourceShape _:nbc536211f72c45abab34094e81552f87b26 ;
-    sh:value "duplicate_file.zip" ] .
-    """
-    data_str = f"""{PREFIXES}
-<http://data/duplicate_archive_1> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
-    rdfs:label "duplicate file"^^xsd:string ;
-    knora-api:hasArchiveFileValue <http://data/value_duplicate_archive_1> .
-    
-<http://data/value_duplicate_archive_1> a knora-api:ArchiveFileValue ;
-    knora-api:fileValueHasFilename "duplicate_file.zip"^^xsd:string .
-    """
-    graphs = Graph()
-    graphs.parse(data=validation_str, format="ttl")
-    graphs.parse(data=data_str, format="ttl")
-    graphs += onto_graph
-    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
-    base_info = ValidationResultBaseInfo(
-        result_bn=val_bn,
-        source_constraint_component=DASH.UniqueValueForClassConstraintComponent,
-        focus_node_iri=DATA.duplicate_archive_1,
-        focus_node_type=ONTO.TestArchiveRepresentation,
-        result_path=KNORA_API.hasArchiveFileValue,
-        severity=SH.Info,
-    )
-    return graphs, base_info
-
-
-@pytest.fixture
-def extracted_file_value_duplicate() -> ValidationResult:
-    return ValidationResult(
-        violation_type=ViolationType.FILE_DUPLICATE,
-        res_iri=DATA.duplicate_archive_1,
-        res_class=ONTO.TestArchiveRepresentation,
-        property=KNORA_API.hasArchiveFileValue,
-        input_value=Literal("duplicate_file.zip"),
-        message=Literal("The entered filepath is used more than once in your data."),
-        severity=SH.Info,
     )
 
 

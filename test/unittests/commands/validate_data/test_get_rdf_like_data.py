@@ -282,6 +282,8 @@ class TestValues:
         [
             "BCE:2020-01-01:BCE:2021-02-02",  # BCE is not supported
             "BC:2020-01-01:BC:2021-02-02",  # BC is not supported
+            "GREGORIAN:CE:0000-01-01:CE:0004-01-02",  # valid input but xsd cannot handle year 0
+            "GREGORIAN:BCE:0005-01-01:CE:0000-01-02",  # combination of year 0 and BCE
         ],
     )
     def test_dates_not_supported(self, date):

@@ -201,4 +201,10 @@
         </date-prop>
     </resource>
 
+    <resource label="date_starts_year_0" restype=":ClassWithEverything" id="date_starts_year_0">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:0000-01-01:CE:0004-01-02</date>
+        </date-prop>
+    </resource>
+
 </knora>

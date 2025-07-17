@@ -124,6 +124,8 @@ def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:
 def _make_xsd_compatible_date(single_date: SingleDate, prop_type: TriplePropertyType) -> PropertyObject | None:
     if single_date.era in (Era.BC, Era.BCE):
         return None
+    if single_date.year == 0:
+        return None
     date_str, precision = _get_date_str_and_precision(single_date)
     return PropertyObject(property_type=prop_type, object_value=date_str, object_type=precision)
 

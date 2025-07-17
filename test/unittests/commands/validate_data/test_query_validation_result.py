@@ -438,7 +438,7 @@ Second Line"""
         assert result.property == ONTO.testSubDate1
         assert result.severity == SH.Violation
         assert result.message == Literal("date message")
-        assert result.input_value == Literal("GREGORIAN:CE:2000:CE:1900")
+        assert result.input_value == Literal("GREGORIAN:CE:2000:CE:1900", datatype=XSD.string)
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component

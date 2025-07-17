@@ -213,6 +213,16 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 property=base_info.result_path,
                 expected=msg,
             )
+        case SH.LessThanOrEqualsConstraintComponent:
+            return ValidationResult(
+                violation_type=ViolationType.GENERIC,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
+                severity=base_info.severity,
+                property=base_info.result_path,
+                input_value=_get_value_as_string(base_info.result_bn, results_and_onto, data),
+                message=msg,
+            )
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
@@ -458,8 +468,7 @@ def _query_for_coexists_with_violation(
         prop = None
     else:
         violation_type = ViolationType.GENERIC
-        value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
-        value = next(data.objects(value_iri, KNORA_API.valueAsString))
+        value = _get_value_as_string(base_info.result_bn, results_and_onto, data)
         prop = base_info.result_path
     return ValidationResult(
         violation_type=violation_type,
@@ -470,6 +479,11 @@ def _query_for_coexists_with_violation(
         message=message,
         input_value=value,
     )
+
+
+def _get_value_as_string(result_bn: SubjectObjectTypeAlias, results: Graph, data: Graph) -> SubjectObjectTypeAlias:
+    value_iri = next(results.objects(result_bn, SH.focusNode))
+    return next(data.objects(value_iri, KNORA_API.valueAsString))
 
 
 def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:

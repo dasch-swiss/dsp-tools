@@ -116,9 +116,8 @@ def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:
         return []
     dates.append(ce_start)
     if parsed_date.end:
-        if not (ce_end := _make_xsd_compatible_date(parsed_date.end, TriplePropertyType.KNORA_DATE_END)):
-            return []
-        dates.append(ce_end)
+        if ce_end := _make_xsd_compatible_date(parsed_date.end, TriplePropertyType.KNORA_DATE_END):
+            dates.append(ce_end)
     return dates
 
 

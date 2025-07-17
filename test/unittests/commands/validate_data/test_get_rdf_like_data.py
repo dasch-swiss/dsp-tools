@@ -268,6 +268,15 @@ class TestValues:
         assert end.object_value == "1900"
         assert end.object_type == TripleObjectType.DATE_YYYY
 
+    def test_get_xsd_like_dates_second_era_wrong(self):
+        date_str = "GREGORIAN:CE:2000:BCE:1900"
+        result = _get_xsd_like_dates(date_str)
+        assert len(result) == 1
+        start = result.pop(0)
+        assert start.property_type == TriplePropertyType.KNORA_DATE_START
+        assert start.object_value == "2000"
+        assert start.object_type == TripleObjectType.DATE_YYYY
+
     @pytest.mark.parametrize(
         "date",
         [

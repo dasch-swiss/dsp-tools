@@ -25,7 +25,7 @@ LIST_SEPARATOR = "\n-    "
 def get_parsed_resources_and_mappers(
     root: etree._Element, clients: UploadClients
 ) -> tuple[list[ParsedResource], XmlReferenceLookups]:
-    logger.info("Get data from XML...")
+    logger.debug("Get ParsedResource and XML-Lookups from root")
     parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
     processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
     return parsed_resources, processed_lookups
@@ -57,6 +57,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
 def get_stash_and_upload_order(
     resources: list[ProcessedResource],
 ) -> tuple[list[ProcessedResource], Stash | None]:
+    logger.debug("Get stash and upload order")
     info_for_graph = create_info_for_graph_from_processed_resources(resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in resources}

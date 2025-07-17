@@ -76,10 +76,7 @@ def _make_one_rdflib_object(
         return URIRef(object_value)
     if prop_type in (TriplePropertyType.KNORA_DATE_START, TriplePropertyType.KNORA_DATE_END):
         return _process_date_string(object_value, object_type)
-    try:
-        return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
-    except ValueError:
-        return Literal(object_value, datatype=XSD.string)
+    return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
 
 
 def _process_date_string(object_value: str, object_type: TripleObjectType) -> Literal:

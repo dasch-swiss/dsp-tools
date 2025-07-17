@@ -243,14 +243,17 @@ class TestValues:
         assert end.object_value == "1850"
         assert end.object_type == TripleObjectType.DATE_YYYY
 
-    def test__get_xsd_like_dates_only_start(self):
+    def test_get_xsd_like_dates_only_start(self):
         date_str = "GREGORIAN:CE:1800-01-01"
         result = _get_xsd_like_dates(date_str)
-        assert len(result) == 1
-        start = result.pop(0)
+        assert len(result) == 2
+        start, end = result
         assert start.property_type == TriplePropertyType.KNORA_DATE_START
         assert start.object_value == "1800-01-01"
         assert start.object_type == TripleObjectType.DATE_YYYY_MM_DD
+        assert end.property_type == TriplePropertyType.KNORA_DATE_END
+        assert end.object_value == "1800-01-01"
+        assert end.object_type == TripleObjectType.DATE_YYYY_MM_DD
 
     def test_get_xsd_like_dates_mixed_precision(self):
         date_str = "GREGORIAN:CE:1800-01-01:CE:1900"
@@ -267,8 +270,7 @@ class TestValues:
     @pytest.mark.parametrize(
         "date",
         [
-            "GREGORIAN:CE:1800-01-01",  # not a range
-            "BCE:2020-01-01:BCE:2021-02-02"  # BCE is not supported
+            "BCE:2020-01-01:BCE:2021-02-02",  # BCE is not supported
             "BC:2020-01-01:BC:2021-02-02",  # BC is not supported
         ],
     )

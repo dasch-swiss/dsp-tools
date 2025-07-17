@@ -186,6 +186,46 @@ class TestDateValue:
             "JULIAN:BCE:0700:BCE:0600", datatype=XSD.string
         )
 
+    def test_with_date_range_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000", TripleObjectType.DATE_YYYY),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000", datatype=XSD.gYear)
+
+    def test_with_date_range_invalid_date(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000-50",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50", TripleObjectType.DATE_YYYY_MM),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000-50", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000-50", datatype=XSD.string)
+
 
 class TestDecimalValue:
     def test_corr(self):

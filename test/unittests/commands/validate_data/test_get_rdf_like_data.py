@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_value
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_xsd_like_dates
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
+from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -284,6 +285,8 @@ class TestValues:
             (SingleDate(era=None, year=1900, month=10, day=1), "1900-10-01", TripleObjectType.DATE_YYYY_MM_DD),
             (SingleDate(era=None, year=1900, month=10, day=None), "1900-10", TripleObjectType.DATE_YYYY_MM),
             (SingleDate(era=None, year=900, month=None, day=None), "0900", TripleObjectType.DATE_YYYY),
+            (SingleDate(era=Era.CE, year=900, month=None, day=None), "0900", TripleObjectType.DATE_YYYY),
+            (SingleDate(era=Era.AD, year=900, month=None, day=None), "0900", TripleObjectType.DATE_YYYY),
         ],
     )
     def test_get_date_str_and_precision(self, date, expected_str, expected_type):

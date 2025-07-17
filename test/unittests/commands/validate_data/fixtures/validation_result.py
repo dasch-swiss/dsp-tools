@@ -922,6 +922,44 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
 
 
 @pytest.fixture
+def report_coexist_with_date(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a                            sh:ValidationResult;
+     sh:focusNode                  <http://data/value_date_range_first_is_ce_second_bce>;
+     sh:resultMessage              "date message";
+     sh:resultPath                 knora-api:dateHasStart;
+     sh:resultSeverity             sh:Violation;
+     sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent;
+     sh:sourceShape                [] 
+               ].
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/date_range_first_is_ce_second_bce> a onto:ClassWithEverything ;
+        rdfs:label "date_range_first_is_ce_second_bce"^^xsd:string ;
+        onto:testSubDate1 <http://data/value_date_range_first_is_ce_second_bce> .
+    
+    <http://data/value_date_range_first_is_ce_second_bce> a knora-api:DateValue ;
+        knora-api:dateHasStart "2000"^^xsd:gYear ;
+        knora-api:valueAsString "GREGORIAN:CE:2000:BCE:1900"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.CoExistsWithConstraintComponent,
+        focus_node_iri=DATA.date_range_first_is_ce_second_bce,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSubDate1,
+        severity=SH.Violation,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def extracted_coexist_with() -> ValidationResult:
     return ValidationResult(
         violation_type=ViolationType.SEQNUM_IS_PART_OF,

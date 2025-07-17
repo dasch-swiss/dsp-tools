@@ -124,71 +124,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
         for resource in onto["resources"]:
             resource_lookup[onto["name"]][resource["name"]] = resource
 
-    def _is_subclass_of_still_image_representation(
-        ontology_name: str, class_name: str, visited: set[str] | None = None
-    ) -> bool:
-        """
-        Recursively check if a class is a subclass of StillImageRepresentation.
-
-        Args:
-            ontology_name: The name of the ontology containing the class
-            class_name: The name of the class to check
-            visited: Set of visited classes to prevent infinite recursion
-
-        Returns:
-            True if the class is a subclass of StillImageRepresentation, False otherwise
-        """
-        if visited is None:
-            visited = set()
-
-        # Create a unique identifier for this class
-        class_id = f"{ontology_name}:{class_name}"
-
-        # Prevent infinite recursion
-        if class_id in visited:
-            return False
-        visited.add(class_id)
-
-        # Check if the ontology exists
-        if ontology_name not in resource_lookup:
-            return False
-
-        # Check if the resource exists in the ontology
-        if class_name not in resource_lookup[ontology_name]:
-            return False
-
-        resource = resource_lookup[ontology_name][class_name]
-        super_class = resource.get("super")
-
-        # Handle both string and list formats for super
-        super_classes = []
-        if isinstance(super_class, list):
-            super_classes = super_class
-        elif super_class:
-            super_classes = [super_class]
-
-        for super_cls in super_classes:
-            # Check if this directly inherits from StillImageRepresentation
-            if super_cls == "StillImageRepresentation":
-                return True
-
-            # Check if this is a reference to another resource in the same ontology
-            if super_cls.startswith(":"):
-                # Remove the colon prefix to get the class name
-                super_class_name = super_cls[1:]
-                if _is_subclass_of_still_image_representation(ontology_name, super_class_name, visited):
-                    return True
-
-            # Check if this is a reference to another resource in a different ontology
-            elif ":" in super_cls:
-                parts = super_cls.split(":", 1)
-                if len(parts) == 2:
-                    super_onto_name, super_class_name = parts
-                    if _is_subclass_of_still_image_representation(super_onto_name, super_class_name, visited):
-                        return True
-
-        return False
-
     # Check each class in limited_view
     for class_ref in limited_view:
         if ":" not in class_ref:
@@ -214,7 +149,57 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             continue
 
         # Check if the resource is a subclass of StillImageRepresentation
-        if not _is_subclass_of_still_image_representation(ontology_name, class_name):
+        # Build the inheritance chain by following super references
+        current_onto = ontology_name
+        current_class = class_name
+        visited = set()
+        is_valid = False
+
+        # Follow the inheritance chain up to 10 levels (prevent infinite loops)
+        for _ in range(10):
+            class_id = f"{current_onto}:{current_class}"
+            if class_id in visited:
+                break  # Circular reference detected
+            visited.add(class_id)
+
+            if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
+                break  # Resource not found
+
+            resource = resource_lookup[current_onto][current_class]
+            super_class = resource.get("super")
+
+            # Handle both string and list formats for super
+            super_classes = []
+            if isinstance(super_class, list):
+                super_classes = super_class
+            elif super_class:
+                super_classes = [super_class]
+
+            # Check if any superclass is StillImageRepresentation
+            if "StillImageRepresentation" in super_classes:
+                is_valid = True
+                break
+
+            # Find the next class in the inheritance chain
+            next_class = None
+            for super_cls in super_classes:
+                if super_cls.startswith(":"):
+                    # Same ontology reference
+                    next_class = (current_onto, super_cls[1:])
+                    break
+                elif ":" in super_cls and super_cls != "StillImageRepresentation":
+                    # Different ontology reference
+                    super_parts = super_cls.split(":", 1)
+                    if len(super_parts) == 2:
+                        next_class = (super_parts[0], super_parts[1])
+                        break
+
+            if next_class:
+                current_onto, current_class = next_class
+            else:
+                break  # No more inheritance to follow
+
+        if not is_valid:
             errors[f"Class reference '{class_ref}'"] = (
                 f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
                 f"(directly or through inheritance)"

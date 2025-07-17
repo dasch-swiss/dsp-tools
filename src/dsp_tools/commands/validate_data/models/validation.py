@@ -94,8 +94,8 @@ class ViolationType(Enum):
     MAX_CARD = auto()
     MIN_CARD = auto()
     NON_EXISTING_CARD = auto()
-    FILEVALUE_PROHIBITED = auto()
-    FILE_VALUE = auto()
+    FILE_VALUE_PROHIBITED = auto()
+    FILE_VALUE_MISSING = auto()
 
 
 @dataclass

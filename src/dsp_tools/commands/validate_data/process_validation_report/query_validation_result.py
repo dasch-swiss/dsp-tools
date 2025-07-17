@@ -276,8 +276,8 @@ def _query_for_less_than_or_equal_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
 ) -> ValidationResult | None:
     value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
-    start = next(results_and_onto.objects(value_iri, API_SHAPES.dateHasStart))
-    end = next(results_and_onto.objects(value_iri, API_SHAPES.dateHasEnd))
+    start = next(data.objects(value_iri, API_SHAPES.dateHasStart))
+    end = next(data.objects(value_iri, API_SHAPES.dateHasEnd))
     start_is_string = start.datatype == XSD.string
     end_is_string = end.datatype == XSD.string
     # If any one of the date ranges cannot be parsed as an xsd date, we get this violation also.

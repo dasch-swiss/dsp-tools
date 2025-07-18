@@ -415,9 +415,7 @@ def _query_general_violation_info(
     value: SubjectObjectTypeAlias | None = None,
 ) -> ValidationResult:
     if not value:
-        val = None
-        if found_val := list(results_and_onto.objects(result_bn, SH.value)):
-            val = found_val.pop()
+        val = next(results_and_onto.objects(result_bn, SH.value), None)
     else:
         val = value
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
@@ -448,9 +446,7 @@ def _query_for_link_value_target_violation(
 ) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     target_iri = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    target_rdf_type: SubjectObjectTypeAlias | None = None
-    if target_type := list(data_graph.objects(target_iri, RDF.type)):
-        target_rdf_type = target_type[0]
+    target_rdf_type = next(data_graph.objects(target_iri, RDF.type), None)
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.LINK_TARGET,

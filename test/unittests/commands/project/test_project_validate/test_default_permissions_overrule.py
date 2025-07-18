@@ -182,9 +182,6 @@ def project_circular_reference() -> dict[str, Any]:
     }
 
 
-# Tests for _check_for_invalid_default_permissions_overrule
-
-
 def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
     """Test that validation passes when no default_permissions_overrule exists"""
     assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is True

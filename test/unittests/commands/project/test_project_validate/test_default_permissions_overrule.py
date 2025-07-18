@@ -182,6 +182,34 @@ def project_circular_reference() -> dict[str, Any]:
     }
 
 
+@pytest.fixture
+def project_mixed_valid_invalid() -> dict[str, Any]:
+    """Project with mixed valid and invalid classes"""
+    return {
+        "project": {
+            "shortcode": "1234",
+            "shortname": "test-project",
+            "default_permissions_overrule": {
+                "limited_view": [
+                    "test-onto:ImageResource",  # Valid
+                    "test-onto:PDFResource",  # Invalid
+                    "test-onto:SubImageResource",  # Valid
+                ]
+            },
+            "ontologies": [
+                {
+                    "name": "test-onto",
+                    "resources": [
+                        {"name": "ImageResource", "super": "StillImageRepresentation"},
+                        {"name": "PDFResource", "super": "DocumentRepresentation"},
+                        {"name": "SubImageResource", "super": ":ImageResource"},
+                    ],
+                }
+            ],
+        }
+    }
+
+
 def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
     """Test that validation passes when no default_permissions_overrule exists"""
     assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is True
@@ -267,34 +295,10 @@ def test_check_overrule_circular_reference(project_circular_reference: dict[str,
     assert "directly or through inheritance" in error_message
 
 
-def test_check_overrule_mixed_valid_invalid() -> None:
+def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
     """Test validation with mixed valid and invalid classes"""
-    project_data = {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {
-                "limited_view": [
-                    "test-onto:ImageResource",  # Valid
-                    "test-onto:PDFResource",  # Invalid
-                    "test-onto:SubImageResource",  # Valid
-                ]
-            },
-            "ontologies": [
-                {
-                    "name": "test-onto",
-                    "resources": [
-                        {"name": "ImageResource", "super": "StillImageRepresentation"},
-                        {"name": "PDFResource", "super": "DocumentRepresentation"},
-                        {"name": "SubImageResource", "super": ":ImageResource"},
-                    ],
-                }
-            ],
-        }
-    }
-
     with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_data)
+        _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
 
     error_message = str(exc_info.value)
     assert "must be subclasses of 'StillImageRepresentation'" in error_message

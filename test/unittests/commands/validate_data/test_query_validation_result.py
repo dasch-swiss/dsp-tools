@@ -344,6 +344,21 @@ class TestQueryWithoutDetail:
         assert result.severity == SH.Violation
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
+        assert not result.input_value
+
+    def test_report_coexist_with_date(
+        self, report_coexist_with_date: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        validation_g, data, info = report_coexist_with_date
+        result = _query_one_without_detail(info, validation_g, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
+        assert result.message == Literal("date message")
+        assert result.property == info.result_path
+        assert result.input_value == Literal("GREGORIAN:CE:2000:BCE:1900", datatype=XSD.string)
 
     def test_image_missing_legal_info(
         self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -396,6 +411,41 @@ class TestQueryWithoutDetail:
             """FirstLine
 Second Line"""
         )
+
+    def test_report_date_single_month_does_not_exist(
+        self, report_date_single_month_does_not_exist: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_date_single_month_does_not_exist
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == ONTO.testSubDate1
+        assert result.severity == SH.Violation
+        assert result.message == Literal("date message")
+        assert result.input_value == Literal("GREGORIAN:CE:1800-22", datatype=XSD.string)
+
+    def test_report_date_range_wrong_yyyy(
+        self, report_date_range_wrong_yyyy: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_date_range_wrong_yyyy
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == ONTO.testSubDate1
+        assert result.severity == SH.Violation
+        assert result.message == Literal("date message")
+        assert result.input_value == Literal("GREGORIAN:CE:2000:CE:1900", datatype=XSD.string)
+
+    def test_report_date_range_wrong_to_ignore(
+        self, report_date_range_wrong_to_ignore: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_date_range_wrong_to_ignore
+        result = _query_one_without_detail(info, res, data)
+        assert not result
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
@@ -508,12 +558,18 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("Cardinality 1")
 
-    def test_file_value_cardinality_to_ignore(
-        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
+    def test_report_file_closed_constraint(
+        self, report_file_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        graphs, info = file_value_cardinality_to_ignore
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert result is None
+        results_g, data, info = report_file_closed_constraint
+        result = _query_one_without_detail(info, results_g, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
+        assert result.property == KNORA_API.hasMovingImageFileValue
+        assert result.input_value == Literal("file.mp4", datatype=XSD.string)
 
     def test_file_value_for_resource_without_representation(
         self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
@@ -521,25 +577,11 @@ class TestQueryFileValueViolations:
         graphs, info = file_value_for_resource_without_representation
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
+        assert result.violation_type == ViolationType.FILE_VALUE_PROHIBITED
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
         assert result.property == KNORA_API.hasMovingImageFileValue
-
-    def test_report_file_value_duplicate(
-        self, report_file_value_duplicate: tuple[Graph, ValidationResultBaseInfo]
-    ) -> None:
-        graphs, info = report_file_value_duplicate
-        result = _query_one_without_detail(info, graphs, Graph())
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILE_DUPLICATE
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.severity == SH.Info
-        assert result.input_value == Literal("duplicate_file.zip")
-        assert result.property == KNORA_API.hasArchiveFileValue
-        assert result.message == Literal("The entered filepath is used more than once in your data.")
 
 
 class TestReformatResult:
@@ -679,7 +721,7 @@ class TestReformatResult:
 
     def test_missing_file_value(self, extracted_missing_file_value: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
-        assert result.problem_type == ProblemType.FILE_VALUE
+        assert result.problem_type == ProblemType.FILE_VALUE_MISSING
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream"
@@ -717,16 +759,6 @@ class TestReformatResult:
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.severity == Severity.VIOLATION
 
-    def test_extracted_file_value_duplicate(self, extracted_file_value_duplicate: ValidationResult) -> None:
-        result = _reformat_one_validation_result(extracted_file_value_duplicate)
-        assert result.problem_type == ProblemType.FILE_DUPLICATE
-        assert result.res_id == "duplicate_archive_1"
-        assert result.res_type == "onto:TestArchiveRepresentation"
-        assert result.prop_name == "bitstream / iiif-uri"
-        assert result.severity == Severity.INFO
-        assert result.input_value == "duplicate_file.zip"
-        assert result.message == "The entered filepath is used more than once in your data."
-
     def test_seqnum_is_part_of(self, extracted_coexist_with: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)
         assert result.problem_type == ProblemType.GENERIC
@@ -735,6 +767,18 @@ class TestReformatResult:
         assert result.prop_name == "seqnum or isPartOf"
         assert result.severity == Severity.VIOLATION
         assert result.message == "Coexist message from knora-api turtle"
+
+    def test_date_single_month_does_not_exist(
+        self, extracted_date_single_month_does_not_exist: ValidationResult
+    ) -> None:
+        result = _reformat_one_validation_result(extracted_date_single_month_does_not_exist)
+        assert result.problem_type == ProblemType.GENERIC
+        assert result.res_id == "date_month_does_not_exist"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testSubDate1"
+        assert result.severity == Severity.VIOLATION
+        assert result.message == "date message"
+        assert result.input_value == "1800-22"
 
 
 if __name__ == "__main__":

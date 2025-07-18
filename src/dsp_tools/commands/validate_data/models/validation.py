@@ -34,13 +34,6 @@ class ValidationFilePaths:
 
 
 @dataclass
-class DuplicateFileResult:
-    user_msg: str | None
-    should_continue: bool
-    duplicate_files_must_be_ignored: bool
-
-
-@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph
@@ -101,9 +94,8 @@ class ViolationType(Enum):
     MAX_CARD = auto()
     MIN_CARD = auto()
     NON_EXISTING_CARD = auto()
-    FILEVALUE_PROHIBITED = auto()
-    FILE_VALUE = auto()
-    FILE_DUPLICATE = auto()
+    FILE_VALUE_PROHIBITED = auto()
+    FILE_VALUE_MISSING = auto()
 
 
 @dataclass

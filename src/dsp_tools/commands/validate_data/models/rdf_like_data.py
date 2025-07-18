@@ -96,6 +96,8 @@ class TriplePropertyType(Enum):
     KNORA_LICENSE = auto()
     KNORA_AUTHORSHIP = auto()
     KNORA_COPYRIGHT_HOLDER = auto()
+    KNORA_DATE_START = auto()
+    KNORA_DATE_END = auto()
 
 
 class TripleObjectType(Enum):
@@ -111,3 +113,4 @@ class TripleObjectType(Enum):
     IRI = auto()
     STRING = auto()
     URI = auto()
+    DATE_YYYY_MM_DD = auto()

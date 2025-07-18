@@ -39,13 +39,12 @@ def prepare_data_for_validation_from_parsed_resource(
     permission_ids: list[str],
     auth: AuthenticationClient,
     shortcode: str,
-    ignore_duplicate_files_warning: bool,
 ) -> tuple[RDFGraphs, set[str]]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info = _get_project_specific_information_from_api(auth, shortcode)
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids, ignore_duplicate_files_warning)
+    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
     return rdf_graphs, used_iris
 
 
@@ -79,7 +78,6 @@ def _create_graphs(
     auth: AuthenticationClient,
     proj_info: ProjectDataFromApi,
     permission_ids: list[str],
-    ignore_duplicate_files_warning: bool,
 ) -> RDFGraphs:
     logger.debug("Create all graphs.")
     onto_client = OntologyClient(auth.server, shortcode)
@@ -91,13 +89,6 @@ def _create_graphs(
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
-    if not ignore_duplicate_files_warning:
-        duplicate_shapes_path = importlib.resources.files("dsp_tools").joinpath(
-            "resources/validate_data/duplicate-file-shape.ttl"
-        )
-        duplicate_shapes = Graph()
-        duplicate_shapes.parse(str(duplicate_shapes_path))
-        api_shapes += duplicate_shapes
     api_card_shapes = Graph()
     api_card_path = importlib.resources.files("dsp_tools").joinpath(
         "resources/validate_data/api-shapes-resource-cardinalities.ttl"

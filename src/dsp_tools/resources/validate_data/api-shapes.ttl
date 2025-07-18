@@ -136,8 +136,6 @@ api-shapes:DateValue_ClassShape
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DateValue ;
   sh:property    [
-                    # Currently it is only checked that the string value is not empty
-                    # To validate the DateValue as the API receives it, the Date should be taken apart
                     a           sh:PropertyShape ;
                     sh:path     knora-api:valueAsString ;
                     sh:datatype xsd:string ;
@@ -146,6 +144,42 @@ api-shapes:DateValue_ClassShape
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "A DateValue requires a valid Date"
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     api-shapes:dateHasStart ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     api-shapes:dateHasEnd ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                    a                   sh:PropertyShape  ;
+                    sh:path             api-shapes:dateHasStart ;
+                    sh:lessThanOrEquals api-shapes:dateHasEnd ;
+                    sh:severity         sh:Violation ;
+                    sh:message          "The end date must be equal or later than the start date."
+                 ] ,
+                 [
+                     a                 sh:PropertyShape ;
+                     sh:path           api-shapes:dateHasStart ;
+                     dash:coExistsWith api-shapes:dateHasEnd ;
+                     sh:severity       sh:Violation ;
+                     sh:message        "The start date may not be later than the end date. Please take a look if your eras are correct."
                  ] .
 
 api-shapes:DecimalValue_ClassShape
@@ -499,13 +533,6 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:name        "Validates the class type" ;
   sh:targetClass knora-api:StillImageExternalFileValue ;
   sh:property    [
-                    a                        sh:PropertyShape ;
-                    sh:path                  knora-api:stillImageFileValueHasExternalUrl ;
-                    dash:uniqueValueForClass knora-api:FileValue ;
-                    sh:severity              sh:Info ;
-                    sh:message               "The entered IIIF-URI is used more than once in your data."
-                 ] ,
-                 [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:stillImageFileValueHasExternalUrl ;
                     sh:datatype xsd:anyURI ;

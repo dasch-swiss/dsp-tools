@@ -203,12 +203,14 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
+    logger.debug("Start uploading data")
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
 
 
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
+    logger.debug("Get and upload copyright holders")
     copyright_holders = _get_copyright_holders(resources)
     legal_info_client.post_copyright_holders(copyright_holders)
 
@@ -234,7 +236,9 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
         success status (deduced from failed_uploads and non-applied stash)
     """
     write_id2iri_mapping(
-        upload_state.iri_resolver.lookup, upload_state.config.shortcode, upload_state.config.diagnostics
+        id2iri_mapping=upload_state.iri_resolver.lookup,
+        shortcode=upload_state.config.shortcode,
+        diagnostics=upload_state.config.diagnostics,
     )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:

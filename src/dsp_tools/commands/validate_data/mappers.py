@@ -65,6 +65,8 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_LICENSE: KNORA_API.hasLicense,
     TriplePropertyType.KNORA_AUTHORSHIP: KNORA_API.hasAuthorship,
     TriplePropertyType.KNORA_COPYRIGHT_HOLDER: KNORA_API.hasCopyrightHolder,
+    TriplePropertyType.KNORA_DATE_START: API_SHAPES.dateHasStart,
+    TriplePropertyType.KNORA_DATE_END: API_SHAPES.dateHasEnd,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {
@@ -121,6 +123,7 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
     TripleObjectType.INTEGER: XSD.integer,
     TripleObjectType.STRING: XSD.string,
     TripleObjectType.URI: XSD.anyURI,
+    TripleObjectType.DATE_YYYY_MM_DD: XSD.date,
 }
 
 # validation results
@@ -135,7 +138,6 @@ RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.MAX_CARD: ProblemType.MAX_CARD,
     ViolationType.MIN_CARD: ProblemType.MIN_CARD,
     ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
-    ViolationType.FILEVALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
-    ViolationType.FILE_VALUE: ProblemType.FILE_VALUE,
-    ViolationType.FILE_DUPLICATE: ProblemType.FILE_DUPLICATE,
+    ViolationType.FILE_VALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
+    ViolationType.FILE_VALUE_MISSING: ProblemType.FILE_VALUE_MISSING,
 }

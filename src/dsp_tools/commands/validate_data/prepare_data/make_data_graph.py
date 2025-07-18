@@ -4,6 +4,7 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
+from rdflib.xsd_datetime import parse_xsd_date
 
 from dsp_tools.commands.validate_data.mappers import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.mappers import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
@@ -71,4 +72,17 @@ def _make_one_rdflib_object(
         if prop_type == TriplePropertyType.KNORA_STANDOFF_LINK:
             return DATA[object_value]
         return URIRef(object_value)
+    if prop_type in (TriplePropertyType.KNORA_DATE_START, TriplePropertyType.KNORA_DATE_END):
+        return _process_date_string(object_value, object_type)
     return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
+
+
+def _process_date_string(object_value: str, object_type: TripleObjectType) -> Literal:
+    # In case a date is not a valid xsd datatype, rdflib only raises the error when serialising the graph
+    # not during the construction of the literal.
+    # Therefore, we test the validity beforehand with the rdflib native functions.
+    try:
+        parse_xsd_date(object_value)
+        return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
+    except ValueError:
+        return Literal(object_value, datatype=XSD.string)

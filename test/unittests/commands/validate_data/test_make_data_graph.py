@@ -48,6 +48,30 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
     ("trpl_obj", "object_type", "prop_type", "expected"),
     [
         (
+            "1900-20-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-20-01", datatype=XSD.string),
+        ),
+        (
+            "9-01-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("9-01-01", datatype=XSD.string),
+        ),
+        (
+            "1990-01-50",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1990-01-50", datatype=XSD.string),
+        ),
+        (
+            "1900-01-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-01-01", datatype=XSD.date),
+        ),
+        (
             "label",
             TripleObjectType.STRING,
             None,
@@ -167,6 +191,46 @@ class TestDateValue:
         assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
             "JULIAN:BCE:0700:BCE:0600", datatype=XSD.string
         )
+
+    def test_with_date_range_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-01-01", datatype=XSD.date)
+
+    def test_with_date_range_invalid_date(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000-50",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50-01", TripleObjectType.DATE_YYYY_MM_DD),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000-50", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-50-01", datatype=XSD.string)
 
 
 class TestDecimalValue:

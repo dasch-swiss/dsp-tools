@@ -7,7 +7,7 @@ from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings_util import raise_input_error
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
@@ -58,7 +58,7 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
         case VideoSegmentResource():
             return _serialise_segment(res, "video-segment")
         case _:
-            raise_input_error(
+            raise_xmllib_input_error(
                 MessageInfo(
                     f"An unknown resource was added to the root. "
                     f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "

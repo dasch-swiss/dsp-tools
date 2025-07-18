@@ -16,7 +16,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InvalidFileNameError
+from dsp_tools.error.exceptions import InvalidIngestFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
 
 STATUS_OK = 200
@@ -77,6 +77,10 @@ class DspIngestClientLive(AssetClient):
         After all retry attempts are exhausted it will raise exceptions if the upload failed.
         The http status code is also checked and if it is not 200, a PermanentConnectionError is raised.
 
+        The load balancer on DSP servers currently has a timeout of 10m,
+        so we need to use a slightly shorter timeout of 9m.
+        See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
+
         Args:
             filepath: Path to the file to ingest, could be either absolute or relative.
 
@@ -93,7 +97,7 @@ class DspIngestClientLive(AssetClient):
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
             "Content-Type": "application/octet-stream",
         }
-        timeout = 600
+        timeout = 9 * 60
         with open(filepath, "rb") as binary_io:
             try:
                 logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")
@@ -109,7 +113,7 @@ class DspIngestClientLive(AssetClient):
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 elif res.status_code == BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
-                    raise InvalidFileNameError()
+                    raise InvalidIngestFileNameError()
                 else:
                     raise PermanentConnectionError()
             except requests.exceptions.RequestException as e:
@@ -121,7 +125,7 @@ class DspIngestClientLive(AssetClient):
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")
             return BitstreamInfo(res.internal_filename, file_info.metadata.permissions)
-        except InvalidFileNameError:
+        except InvalidIngestFileNameError:
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"

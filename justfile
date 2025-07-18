@@ -86,10 +86,12 @@ markdownlint:
     --ignore README.md \
     "**/*.md"
 
+
 # Run vulture, dead code analysis
 [no-exit-message]
 vulture:
     uv run vulture
+
 
 # Run the unit tests
 [no-exit-message]
@@ -106,15 +108,16 @@ integration-tests *FLAGS:
 # Run all the end-to-end tests with testcontainers
 [no-exit-message]
 e2e-tests *FLAGS:
-    just e2e-test-ingest-xmlupload {{FLAGS}}
-    just e2e-test-validate-data {{FLAGS}}
-    just e2e-test-xmlupload {{FLAGS}}
-    just e2e-test-create-xmlupload {{FLAGS}}
+    # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
+    # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
+    uv run pytest -n=auto --dist=loadfile test/e2e/ {{FLAGS}}
+
 
 # Run the end-to-end tests for the ingest-xmlupload command (with testcontainers)
 [no-exit-message]
 e2e-test-ingest-xmlupload *FLAGS:
     uv run pytest test/e2e/commands/ingest_xmlupload/ {{FLAGS}}
+
 
 # Run the end-to-end tests for the validate-data command (with testcontainers)
 [no-exit-message]
@@ -123,15 +126,18 @@ e2e-test-validate-data *FLAGS:
     # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
     uv run pytest -n=auto --dist=loadfile test/e2e/commands/validate_data/ {{FLAGS}}
 
+
 # Run the end-to-end tests for the xmlupload command (with testcontainers)
 [no-exit-message]
 e2e-test-xmlupload *FLAGS:
     uv run pytest test/e2e/commands/xmlupload/ {{FLAGS}}
 
+
 # Run the end-to-end tests for the create and xmlupload command (with testcontainers)
 [no-exit-message]
 e2e-test-create-xmlupload *FLAGS:
     uv run pytest test/e2e/commands/test_create_and_xmlupload.py/ {{FLAGS}}
+
 
 # Run the legacy end-to-end tests (needs a running stack)
 [no-exit-message]

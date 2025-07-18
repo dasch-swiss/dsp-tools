@@ -96,6 +96,110 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     return _check_cardinalities_of_circular_references(project_definition)
 
 
+def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
+    """
+    Build a lookup dictionary for resources by ontology and name.
+    
+    Args:
+        project_definition: parsed JSON project definition
+        
+    Returns:
+        Dictionary mapping ontology names to resource names to resource definitions
+    """
+    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        resource_lookup[onto["name"]] = {}
+        for resource in onto["resources"]:
+            resource_lookup[onto["name"]][resource["name"]] = resource
+    return resource_lookup
+
+
+def _parse_class_reference(class_ref: str) -> tuple[str, str] | None:
+    """
+    Parse a class reference in the format 'ontology:ClassName'.
+    
+    Args:
+        class_ref: Class reference string
+        
+    Returns:
+        Tuple of (ontology_name, class_name) or None if invalid format
+    """
+    if ":" not in class_ref:
+        return None
+    
+    parts = class_ref.split(":")
+    if len(parts) != 2:
+        return None
+        
+    return parts[0], parts[1]
+
+
+def _is_subclass_of_still_image_representation(
+    ontology_name: str, 
+    class_name: str, 
+    resource_lookup: dict[str, dict[str, dict[str, Any]]]
+) -> bool:
+    """
+    Check if a class is a subclass of StillImageRepresentation by traversing the inheritance chain.
+    
+    Args:
+        ontology_name: Name of the ontology containing the class
+        class_name: Name of the class to check
+        resource_lookup: Dictionary mapping ontology names to resource definitions
+        
+    Returns:
+        True if the class is a subclass of StillImageRepresentation
+    """
+    current_onto = ontology_name
+    current_class = class_name
+    visited = set()
+    
+    # Follow the inheritance chain up to 10 levels (prevent infinite loops)
+    for _ in range(10):
+        class_id = f"{current_onto}:{current_class}"
+        if class_id in visited:
+            break  # Circular reference detected
+        visited.add(class_id)
+        
+        if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
+            break  # Resource not found
+        
+        resource = resource_lookup[current_onto][current_class]
+        super_class = resource.get("super")
+        
+        # Handle both string and list formats for super
+        super_classes = []
+        if isinstance(super_class, list):
+            super_classes = super_class
+        elif super_class:
+            super_classes = [super_class]
+        
+        # Check if any superclass is StillImageRepresentation
+        if "StillImageRepresentation" in super_classes:
+            return True
+        
+        # Find the next class in the inheritance chain
+        next_class = None
+        for super_cls in super_classes:
+            if super_cls.startswith(":"):
+                # Same ontology reference
+                next_class = (current_onto, super_cls[1:])
+                break
+            elif ":" in super_cls and super_cls != "StillImageRepresentation":
+                # Different ontology reference
+                super_parts = super_cls.split(":", 1)
+                if len(super_parts) == 2:
+                    next_class = (super_parts[0], super_parts[1])
+                    break
+        
+        if next_class:
+            current_onto, current_class = next_class
+        else:
+            break  # No more inheritance to follow
+    
+    return False
+
+
 def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
     """
     Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
@@ -116,25 +220,16 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
         return True
 
     errors: dict[str, str] = {}
-
-    # Create a lookup dictionary for resources by ontology and name
-    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        resource_lookup[onto["name"]] = {}
-        for resource in onto["resources"]:
-            resource_lookup[onto["name"]][resource["name"]] = resource
+    resource_lookup = _build_resource_lookup(project_definition)
 
     # Check each class in limited_view
     for class_ref in limited_view:
-        if ":" not in class_ref:
+        parsed_ref = _parse_class_reference(class_ref)
+        if not parsed_ref:
             errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
             continue
-
-        parts = class_ref.split(":")
-        if len(parts) != 2:
-            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
-            continue
-        ontology_name, class_name = parts
+        
+        ontology_name, class_name = parsed_ref
 
         # Check if the ontology exists
         if ontology_name not in resource_lookup:
@@ -149,57 +244,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             continue
 
         # Check if the resource is a subclass of StillImageRepresentation
-        # Build the inheritance chain by following super references
-        current_onto = ontology_name
-        current_class = class_name
-        visited = set()
-        is_valid = False
-
-        # Follow the inheritance chain up to 10 levels (prevent infinite loops)
-        for _ in range(10):
-            class_id = f"{current_onto}:{current_class}"
-            if class_id in visited:
-                break  # Circular reference detected
-            visited.add(class_id)
-
-            if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
-                break  # Resource not found
-
-            resource = resource_lookup[current_onto][current_class]
-            super_class = resource.get("super")
-
-            # Handle both string and list formats for super
-            super_classes = []
-            if isinstance(super_class, list):
-                super_classes = super_class
-            elif super_class:
-                super_classes = [super_class]
-
-            # Check if any superclass is StillImageRepresentation
-            if "StillImageRepresentation" in super_classes:
-                is_valid = True
-                break
-
-            # Find the next class in the inheritance chain
-            next_class = None
-            for super_cls in super_classes:
-                if super_cls.startswith(":"):
-                    # Same ontology reference
-                    next_class = (current_onto, super_cls[1:])
-                    break
-                elif ":" in super_cls and super_cls != "StillImageRepresentation":
-                    # Different ontology reference
-                    super_parts = super_cls.split(":", 1)
-                    if len(super_parts) == 2:
-                        next_class = (super_parts[0], super_parts[1])
-                        break
-
-            if next_class:
-                current_onto, current_class = next_class
-            else:
-                break  # No more inheritance to follow
-
-        if not is_valid:
+        if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
             errors[f"Class reference '{class_ref}'"] = (
                 f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
                 f"(directly or through inheritance)"

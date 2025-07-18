@@ -941,7 +941,7 @@ def report_coexist_with_date(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
         onto:testSubDate1 <http://data/value_date_range_first_is_ce_second_bce> .
     
     <http://data/value_date_range_first_is_ce_second_bce> a knora-api:DateValue ;
-        api-shapes:dateHasStart "2000"^^xsd:gYear ;
+        api-shapes:dateHasStart "2000-01-01"^^xsd:date ;
         knora-api:valueAsString "GREGORIAN:CE:2000:BCE:1900"^^xsd:string .
     """
     onto_data_g = Graph()
@@ -1263,7 +1263,7 @@ def report_date_single_month_does_not_exist(
          sh:resultSeverity             sh:Violation;
          sh:sourceConstraintComponent  sh:OrConstraintComponent;
          sh:sourceShape                [] ;
-         sh:value                      "1800-22"
+         sh:value                      "1800-22-01"
        ] .
     """
     data_str = f"""{PREFIXES}
@@ -1272,8 +1272,8 @@ def report_date_single_month_does_not_exist(
         onto:testSubDate1 <http://data/value_date_month_does_not_exist> .
         
     <http://data/value_date_month_does_not_exist> a knora-api:DateValue ;
-        api-shapes:dateHasEnd "1800-22"^^xsd:string ;
-        api-shapes:dateHasStart "1800-22"^^xsd:string ;
+        api-shapes:dateHasEnd "1800-22-01"^^xsd:string ;
+        api-shapes:dateHasStart "1800-22-01"^^xsd:string ;
         knora-api:valueAsString "GREGORIAN:CE:1800-22"^^xsd:string .
     """
     validation_g = Graph()

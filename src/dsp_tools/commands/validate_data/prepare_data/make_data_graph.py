@@ -5,8 +5,6 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 from rdflib.xsd_datetime import parse_xsd_date
-from rdflib.xsd_datetime import parse_xsd_gyear
-from rdflib.xsd_datetime import parse_xsd_gyearmonth
 
 from dsp_tools.commands.validate_data.mappers import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.mappers import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
@@ -84,12 +82,7 @@ def _process_date_string(object_value: str, object_type: TripleObjectType) -> Li
     # not during the construction of the literal.
     # Therefore, we test the validity beforehand with the rdflib native functions.
     try:
-        if object_type == TripleObjectType.DATE_YYYY:
-            parse_xsd_gyear(object_value)
-        elif object_type == TripleObjectType.DATE_YYYY_MM:
-            parse_xsd_gyearmonth(object_value)
-        elif object_type == TripleObjectType.DATE_YYYY_MM_DD:
-            parse_xsd_date(object_value)
+        parse_xsd_date(object_value)
         return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
     except ValueError:
         return Literal(object_value, datatype=XSD.string)

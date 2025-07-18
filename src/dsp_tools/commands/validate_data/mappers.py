@@ -123,8 +123,6 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
     TripleObjectType.INTEGER: XSD.integer,
     TripleObjectType.STRING: XSD.string,
     TripleObjectType.URI: XSD.anyURI,
-    TripleObjectType.DATE_YYYY: XSD.gYear,
-    TripleObjectType.DATE_YYYY_MM: XSD.gYearMonth,
     TripleObjectType.DATE_YYYY_MM_DD: XSD.date,
 }
 

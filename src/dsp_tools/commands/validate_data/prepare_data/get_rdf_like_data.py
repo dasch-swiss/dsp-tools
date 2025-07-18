@@ -122,20 +122,26 @@ def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:
 def _make_xsd_compatible_date(single_date: SingleDate, prop_type: TriplePropertyType) -> PropertyObject | None:
     if single_date.era in (Era.BC, Era.BCE):
         return None
-    date_str, precision = _get_date_str_and_precision(single_date)
-    return PropertyObject(property_type=prop_type, object_value=date_str, object_type=precision)
+    date_str = _get_date_str(single_date)
+    return PropertyObject(
+        property_type=prop_type,
+        object_value=date_str,
+        object_type=TripleObjectType.DATE_YYYY_MM_DD,
+    )
 
 
-def _get_date_str_and_precision(date: SingleDate) -> tuple[str, TripleObjectType]:
+def _get_date_str(date: SingleDate) -> str:
+    # SHACL cannot compare dates of varying precision, therefore we turn partial dates into full dates
     date_str = [str(date.year).zfill(4)]
-    precision = TripleObjectType.DATE_YYYY
     if date.month:
         date_str.append(str(date.month).zfill(2))
-        precision = TripleObjectType.DATE_YYYY_MM
+    else:
+        date_str.append("01")
     if date.day:
         date_str.append(str(date.day).zfill(2))
-        precision = TripleObjectType.DATE_YYYY_MM_DD
-    return "-".join(date_str), precision
+    else:
+        date_str.append("01")
+    return "-".join(date_str)
 
 
 def _fix_mixed_precision_of_date(start: PropertyObject, end: PropertyObject) -> list[PropertyObject]:

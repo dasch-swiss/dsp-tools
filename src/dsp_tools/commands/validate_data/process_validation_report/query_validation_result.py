@@ -227,10 +227,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
-            | SH.OrConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
+            )
+        case SH.OrConstraintComponent:
+            return _query_general_violation_info_with_value_as_string(
+                base_info.result_bn, base_info, results_and_onto, data
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -379,10 +382,14 @@ def _query_general_violation_info(
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
     violation_type: ViolationType,
+    value: SubjectObjectTypeAlias | None = None,
 ) -> ValidationResult:
-    val = None
-    if found_val := list(results_and_onto.objects(result_bn, SH.value)):
-        val = found_val.pop()
+    if not value:
+        val = None
+        if found_val := list(results_and_onto.objects(result_bn, SH.value)):
+            val = found_val.pop()
+    else:
+        val = value
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=violation_type,
@@ -393,6 +400,17 @@ def _query_general_violation_info(
         message=msg,
         input_value=val,
     )
+
+
+def _query_general_violation_info_with_value_as_string(
+    result_bn: SubjectObjectTypeAlias,
+    base_info: ValidationResultBaseInfo,
+    results_and_onto: Graph,
+    data: Graph,
+) -> ValidationResult:
+    value_iri = next(results_and_onto.objects(result_bn, SH.focusNode))
+    value = next(data.objects(value_iri, KNORA_API.valueAsString))
+    return _query_general_violation_info(result_bn, base_info, results_and_onto, ViolationType.GENERIC, value)
 
 
 def _query_for_link_value_target_violation(

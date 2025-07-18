@@ -1263,7 +1263,7 @@ def report_date_single_month_does_not_exist(
          sh:resultSeverity             sh:Violation;
          sh:sourceConstraintComponent  sh:OrConstraintComponent;
          sh:sourceShape                [] ;
-         sh:value                      "1800-22"
+         sh:value                      "1800-22-01"
        ] .
     """
     data_str = f"""{PREFIXES}
@@ -1272,8 +1272,8 @@ def report_date_single_month_does_not_exist(
         onto:testSubDate1 <http://data/value_date_month_does_not_exist> .
         
     <http://data/value_date_month_does_not_exist> a knora-api:DateValue ;
-        knora-api:dateHasEnd "1800-22"^^xsd:string ;
-        knora-api:dateHasStart "1800-22"^^xsd:string ;
+        knora-api:dateHasEnd "1800-22-01"^^xsd:string ;
+        knora-api:dateHasStart "1800-22-01"^^xsd:string ;
         knora-api:valueAsString "GREGORIAN:CE:1800-22"^^xsd:string .
     """
     validation_g = Graph()

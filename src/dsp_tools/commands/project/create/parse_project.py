@@ -30,7 +30,7 @@ def parse_project_json(
         descriptions=project_json["project"].get("descriptions"),
         enabled_licenses=project_json["project"].get("enabled_licenses"),
         default_permissions=project_json["project"]["default_permissions"],
-        default_permissions_overrule=project_json["project"]["default_permissions_overrule"],
+        default_permissions_overrule=project_json["project"].get("default_permissions_overrule"),
     )
     if project_json["project"].get("default_permissions_overrule"):
         warnings.warn(DspToolsUserWarning("'default_permissions_overrule' is not implemented yet!"))

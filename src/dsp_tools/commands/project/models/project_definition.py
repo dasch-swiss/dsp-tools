@@ -22,4 +22,4 @@ class ProjectMetadata:
     descriptions: dict[str, str] | None
     enabled_licenses: list[str] | None
     default_permissions: str
-    default_permissions_overrule: dict[str, str | list[str]]
+    default_permissions_overrule: dict[str, str | list[str]] | None

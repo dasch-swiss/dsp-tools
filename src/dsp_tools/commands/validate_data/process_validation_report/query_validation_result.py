@@ -26,6 +26,7 @@ from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DASH
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
@@ -217,13 +218,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
-            return ValidationResult(
-                violation_type=ViolationType.SEQNUM_IS_PART_OF,
-                res_iri=base_info.focus_node_iri,
-                res_class=base_info.focus_node_type,
-                severity=base_info.severity,
-                message=msg,
-            )
+            return _query_for_coexists_with_violation(base_info, results_and_onto, data, msg)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
         case (
@@ -232,10 +227,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
-            | SH.OrConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
+            )
+        case SH.OrConstraintComponent:
+            return _query_general_violation_info_with_value_as_string(
+                base_info.result_bn, base_info, results_and_onto, data
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -384,10 +382,14 @@ def _query_general_violation_info(
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
     violation_type: ViolationType,
+    value: SubjectObjectTypeAlias | None = None,
 ) -> ValidationResult:
-    val = None
-    if found_val := list(results_and_onto.objects(result_bn, SH.value)):
-        val = found_val.pop()
+    if not value:
+        val = None
+        if found_val := list(results_and_onto.objects(result_bn, SH.value)):
+            val = found_val.pop()
+    else:
+        val = value
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=violation_type,
@@ -398,6 +400,17 @@ def _query_general_violation_info(
         message=msg,
         input_value=val,
     )
+
+
+def _query_general_violation_info_with_value_as_string(
+    result_bn: SubjectObjectTypeAlias,
+    base_info: ValidationResultBaseInfo,
+    results_and_onto: Graph,
+    data: Graph,
+) -> ValidationResult:
+    value_iri = next(results_and_onto.objects(result_bn, SH.focusNode))
+    value = next(data.objects(value_iri, KNORA_API.valueAsString))
+    return _query_general_violation_info(result_bn, base_info, results_and_onto, ViolationType.GENERIC, value)
 
 
 def _query_for_link_value_target_violation(
@@ -450,6 +463,30 @@ def _query_for_unique_value_violation(
         severity=base_info.severity,
         property=base_info.result_path,
         input_value=val,
+    )
+
+
+def _query_for_coexists_with_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
+) -> ValidationResult:
+    source_shapes = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
+    if source_shapes == API_SHAPES.seqnum_PropShape:
+        violation_type = ViolationType.SEQNUM_IS_PART_OF
+        value = None
+        prop = None
+    else:
+        violation_type = ViolationType.GENERIC
+        value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
+        value = next(data.objects(value_iri, KNORA_API.valueAsString))
+        prop = base_info.result_path
+    return ValidationResult(
+        violation_type=violation_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        property=prop,
+        severity=base_info.severity,
+        message=message,
+        input_value=value,
     )
 
 

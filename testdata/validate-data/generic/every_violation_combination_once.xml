@@ -262,9 +262,25 @@
             </date-prop>
         </resource>
 
+        <!--
+        sh:sourceConstraintComponent  sh:OrConstraintComponent
+        sh:detail                     -
+        -->
         <resource label="date_month_does_not_exist" restype=":ClassWithEverything" id="date_month_does_not_exist">
             <date-prop name=":testSubDate1">
                 <date>GREGORIAN:CE:1800-22</date>
+            </date-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="date_range_first_is_ce_second_bce"
+                  restype=":ClassWithEverything"
+                  id="date_range_first_is_ce_second_bce">
+            <date-prop name=":testSubDate1">
+                <date>GREGORIAN:CE:2000:BCE:1900</date>
             </date-prop>
         </resource>
 

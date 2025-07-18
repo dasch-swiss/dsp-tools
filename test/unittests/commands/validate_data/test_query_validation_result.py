@@ -344,6 +344,21 @@ class TestQueryWithoutDetail:
         assert result.severity == SH.Violation
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
+        assert not result.input_value
+
+    def test_report_coexist_with_date(
+        self, report_coexist_with_date: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        validation_g, data, info = report_coexist_with_date
+        result = _query_one_without_detail(info, validation_g, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.severity == SH.Violation
+        assert result.message == Literal("date message")
+        assert result.property == info.result_path
+        assert result.input_value == Literal("GREGORIAN:CE:2000:BCE:1900", datatype=XSD.string)
 
     def test_image_missing_legal_info(
         self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]

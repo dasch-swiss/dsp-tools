@@ -166,6 +166,13 @@ api-shapes:DateValue_ClassShape
                                 ) ;
                     sh:severity sh:Violation ;
                     sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                     a                 sh:PropertyShape ;
+                     sh:path           knora-api:dateHasStart ;
+                     dash:coExistsWith knora-api:dateHasEnd ;
+                     sh:severity       sh:Violation ;
+                     sh:message        "The start date may not be later than the end date. Please take a look if your eras are correct."
                  ] .
 
 api-shapes:DecimalValue_ClassShape

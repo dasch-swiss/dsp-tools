@@ -66,7 +66,7 @@ class BulkIngestClient:
         # noqa: DAR101
         # noqa: DAR201
         """
-        timeout = 9*60
+        timeout = 9 * 60
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
         headers = {"Content-Type": "application/octet-stream"}
         err_msg = f"Failed to upload '{filepath}' to '{url}'."

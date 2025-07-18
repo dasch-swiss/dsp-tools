@@ -198,8 +198,8 @@ class TestDateValue:
             "GREGORIAN:CE:1900:CE:2000",
             KnoraValueType.DATE_VALUE,
             [
-                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
-                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000", TripleObjectType.DATE_YYYY),
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-01-01", TripleObjectType.DATE_YYYY_MM_DD),
             ],
         )
         val_g = _make_one_value(val, RES_IRI)
@@ -209,8 +209,8 @@ class TestDateValue:
         assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
             "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
         )
-        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
-        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000", datatype=XSD.gYear)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-01-01", datatype=XSD.date)
 
     def test_with_date_range_invalid_date(self):
         val = RdfLikeValue(
@@ -218,8 +218,8 @@ class TestDateValue:
             "GREGORIAN:CE:1900:CE:2000-50",
             KnoraValueType.DATE_VALUE,
             [
-                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
-                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50", TripleObjectType.DATE_YYYY_MM),
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50-01", TripleObjectType.DATE_YYYY_MM_DD),
             ],
         )
         val_g = _make_one_value(val, RES_IRI)
@@ -229,8 +229,8 @@ class TestDateValue:
         assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
             "GREGORIAN:CE:1900:CE:2000-50", datatype=XSD.string
         )
-        assert next(val_g.objects(bn, KNORA_API.dateHasStart)) == Literal("1900", datatype=XSD.gYear)
-        assert next(val_g.objects(bn, KNORA_API.dateHasEnd)) == Literal("2000-50", datatype=XSD.string)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-50-01", datatype=XSD.string)
 
 
 class TestDecimalValue:

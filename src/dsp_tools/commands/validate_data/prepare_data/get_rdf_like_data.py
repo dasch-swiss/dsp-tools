@@ -111,12 +111,14 @@ def _get_date_value(value: ParsedValue) -> RdfLikeValue:
 
 def _get_xsd_like_dates(date_string: str) -> list[PropertyObject]:
     parsed_date = parse_date_string(date_string)
+    dates = []
     if not (ce_start := _make_xsd_compatible_date(parsed_date.start, TriplePropertyType.KNORA_DATE_START)):
         return []
+    dates.append(ce_start)
     if parsed_date.end:
         if ce_end := _make_xsd_compatible_date(parsed_date.end, TriplePropertyType.KNORA_DATE_END):
-            return _fix_mixed_precision_of_date(ce_start, ce_end)
-    return [ce_start]
+            dates.append(ce_end)
+    return dates
 
 
 def _make_xsd_compatible_date(single_date: SingleDate, prop_type: TriplePropertyType) -> PropertyObject | None:
@@ -142,13 +144,6 @@ def _get_date_str(date: SingleDate) -> str:
     else:
         date_str.append("01")
     return "-".join(date_str)
-
-
-def _fix_mixed_precision_of_date(start: PropertyObject, end: PropertyObject) -> list[PropertyObject]:
-    start_precision = start.object_type
-    end_precision = end.object_type
-    if start_precision == end_precision:
-        return [start, end]
 
 
 def _get_interval_value(value: ParsedValue) -> RdfLikeValue:

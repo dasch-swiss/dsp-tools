@@ -6,6 +6,7 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import XSD
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
@@ -281,8 +282,10 @@ def _query_for_less_than_or_equal_violation(
     value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
     start = next(data.objects(value_iri, API_SHAPES.dateHasStart))
     end = next(data.objects(value_iri, API_SHAPES.dateHasEnd))
-    start_is_string = start.datatype == XSD.string
-    end_is_string = end.datatype == XSD.string
+    start_lit = cast(Literal, start)
+    end_lit = cast(Literal, end)
+    start_is_string = start_lit.datatype == XSD.string
+    end_is_string = end_lit.datatype == XSD.string
     # If any one of the date ranges cannot be parsed as an xsd date, we get this violation also.
     # But the main problem is, that the date format is wrong, in which case the datatype is xsd:string.
     # This produces its own message

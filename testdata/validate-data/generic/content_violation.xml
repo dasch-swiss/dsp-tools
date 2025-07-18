@@ -152,7 +152,7 @@
     <resource
             label="date_range_wrong_year_good_month_wrong"
             restype=":ClassWithEverything"
-            id="wrong_date_range_year_good_month_wrong">
+            id="date_range_wrong_year_good_month_wrong">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:2000-05:CE:2000-01</date>
         </date-prop>

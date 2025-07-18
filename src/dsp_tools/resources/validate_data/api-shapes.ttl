@@ -147,7 +147,7 @@ api-shapes:DateValue_ClassShape
                  ] ,
                  [
                     a           sh:PropertyShape  ;
-                    sh:path     knora-api:dateHasStart ;
+                    sh:path     api-shapes:dateHasStart ;
                     sh:or       (
                                     [ sh:datatype xsd:gYear ]
                                     [ sh:datatype xsd:gYearMonth ]
@@ -158,7 +158,7 @@ api-shapes:DateValue_ClassShape
                  ] ,
                  [
                     a           sh:PropertyShape  ;
-                    sh:path     knora-api:dateHasEnd ;
+                    sh:path     api-shapes:dateHasEnd ;
                     sh:or       (
                                     [ sh:datatype xsd:gYear ]
                                     [ sh:datatype xsd:gYearMonth ]
@@ -168,9 +168,16 @@ api-shapes:DateValue_ClassShape
                     sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
                  ] ,
                  [
+                    a                   sh:PropertyShape  ;
+                    sh:path             api-shapes:dateHasStart ;
+                    sh:lessThanOrEquals api-shapes:dateHasEnd ;
+                    sh:severity         sh:Violation ;
+                    sh:message          "The end date must be equal or later than the start date."
+                 ] ,
+                 [
                      a                 sh:PropertyShape ;
-                     sh:path           knora-api:dateHasStart ;
-                     dash:coExistsWith knora-api:dateHasEnd ;
+                     sh:path           api-shapes:dateHasStart ;
+                     dash:coExistsWith api-shapes:dateHasEnd ;
                      sh:severity       sh:Violation ;
                      sh:message        "The start date may not be later than the end date. Please take a look if your eras are correct."
                  ] .

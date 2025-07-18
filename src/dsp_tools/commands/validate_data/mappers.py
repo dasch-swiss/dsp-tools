@@ -65,8 +65,8 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_LICENSE: KNORA_API.hasLicense,
     TriplePropertyType.KNORA_AUTHORSHIP: KNORA_API.hasAuthorship,
     TriplePropertyType.KNORA_COPYRIGHT_HOLDER: KNORA_API.hasCopyrightHolder,
-    TriplePropertyType.KNORA_DATE_START: KNORA_API.dateHasStart,
-    TriplePropertyType.KNORA_DATE_END: KNORA_API.dateHasEnd,
+    TriplePropertyType.KNORA_DATE_START: API_SHAPES.dateHasStart,
+    TriplePropertyType.KNORA_DATE_END: API_SHAPES.dateHasEnd,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {

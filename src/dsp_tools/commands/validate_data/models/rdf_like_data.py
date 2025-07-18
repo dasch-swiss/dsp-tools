@@ -113,6 +113,4 @@ class TripleObjectType(Enum):
     IRI = auto()
     STRING = auto()
     URI = auto()
-    DATE_YYYY = auto()
-    DATE_YYYY_MM = auto()
     DATE_YYYY_MM_DD = auto()

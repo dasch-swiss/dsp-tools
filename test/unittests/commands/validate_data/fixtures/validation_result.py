@@ -927,7 +927,7 @@ def report_coexist_with_date(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     [ a                            sh:ValidationResult;
      sh:focusNode                  <http://data/value_date_range_first_is_ce_second_bce>;
      sh:resultMessage              "date message";
-     sh:resultPath                 knora-api:dateHasStart;
+     sh:resultPath                 api-shapes:dateHasStart;
      sh:resultSeverity             sh:Violation;
      sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent;
      sh:sourceShape                [] 
@@ -941,7 +941,7 @@ def report_coexist_with_date(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
         onto:testSubDate1 <http://data/value_date_range_first_is_ce_second_bce> .
     
     <http://data/value_date_range_first_is_ce_second_bce> a knora-api:DateValue ;
-        knora-api:dateHasStart "2000"^^xsd:gYear ;
+        api-shapes:dateHasStart "2000-01-01"^^xsd:date ;
         knora-api:valueAsString "GREGORIAN:CE:2000:BCE:1900"^^xsd:string .
     """
     onto_data_g = Graph()
@@ -1259,11 +1259,11 @@ def report_date_single_month_does_not_exist(
     [    a                             sh:ValidationResult;
          sh:focusNode                  <http://data/value_date_month_does_not_exist>;
          sh:resultMessage              "date message";
-         sh:resultPath                 knora-api:dateHasStart;
+         sh:resultPath                 api-shapes:dateHasStart;
          sh:resultSeverity             sh:Violation;
          sh:sourceConstraintComponent  sh:OrConstraintComponent;
          sh:sourceShape                [] ;
-         sh:value                      "1800-22"
+         sh:value                      "1800-22-01"
        ] .
     """
     data_str = f"""{PREFIXES}
@@ -1272,8 +1272,8 @@ def report_date_single_month_does_not_exist(
         onto:testSubDate1 <http://data/value_date_month_does_not_exist> .
         
     <http://data/value_date_month_does_not_exist> a knora-api:DateValue ;
-        knora-api:dateHasEnd "1800-22"^^xsd:string ;
-        knora-api:dateHasStart "1800-22"^^xsd:string ;
+        api-shapes:dateHasEnd "1800-22-01"^^xsd:string ;
+        api-shapes:dateHasStart "1800-22-01"^^xsd:string ;
         knora-api:valueAsString "GREGORIAN:CE:1800-22"^^xsd:string .
     """
     validation_g = Graph()
@@ -1305,6 +1305,92 @@ def extracted_date_single_month_does_not_exist() -> ValidationResult:
         input_value=Literal("1800-22"),
         severity=SH.Violation,
     )
+
+
+@pytest.fixture
+def report_date_range_wrong_yyyy(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+     sh:focusNode                  <http://data/value_date_range_wrong_yyyy>;
+     sh:resultMessage              "date message";
+     sh:resultPath                 api-shapes:dateHasStart;
+     sh:resultSeverity             sh:Violation;
+     sh:sourceConstraintComponent  sh:LessThanOrEqualsConstraintComponent;
+     sh:sourceShape                [] ;
+     sh:value                      "2000"^^xsd:gYear
+   ] .
+    """
+    data_str = f"""{PREFIXES}
+    <http://data/date_range_wrong_yyyy> a onto:ClassWithEverything ;
+        rdfs:label "date_range_wrong_yyyy"^^xsd:string ;
+        onto:testSubDate1 <http://data/value_date_range_wrong_yyyy> .
+
+    <http://data/value_date_range_wrong_yyyy> a knora-api:DateValue ;
+        api-shapes:dateHasEnd "1900"^^xsd:gYear ;
+        api-shapes:dateHasStart "2000"^^xsd:gYear ;
+        knora-api:valueAsString "GREGORIAN:CE:2000:CE:1900"^^xsd:string .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.LessThanOrEqualsConstraintComponent,
+        focus_node_iri=DATA.date_range_wrong_yyyy,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSubDate1,
+        severity=SH.Violation,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def report_date_range_wrong_to_ignore(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+     sh:focusNode                  <http://data/value_date_end_day_does_not_exist>;
+     sh:resultMessage              "The end date must be equal or later than the start date.";
+     sh:resultPath                 api-shapes:dateHasStart;
+     sh:resultSeverity             sh:Violation;
+     sh:sourceConstraintComponent  sh:LessThanOrEqualsConstraintComponent;
+     sh:sourceShape                _:b13;
+     sh:value                      "1800-01-01"^^xsd:date
+   ] .
+    """
+    data_str = f"""{PREFIXES}
+    <http://data/date_end_day_does_not_exist> a onto:ClassWithEverything ;
+        rdfs:label "date_end_day_does_not_exist"^^xsd:string ;
+        onto:testSubDate1 <http://data/value_date_end_day_does_not_exist> .
+    
+    <http://data/value_date_end_day_does_not_exist> a knora-api:DateValue ;
+        api-shapes:dateHasEnd "1900-01-50"^^xsd:string ;
+        api-shapes:dateHasStart "1800-01-01"^^xsd:date ;
+        knora-api:valueAsString "GREGORIAN:CE:1800-01-01:CE:1900-01-50"^^xsd:string .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.LessThanOrEqualsConstraintComponent,
+        focus_node_iri=DATA.date_end_day_does_not_exist,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testSubDate1,
+        severity=SH.Violation,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture

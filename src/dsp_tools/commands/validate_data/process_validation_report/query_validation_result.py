@@ -4,7 +4,9 @@ from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
+from rdflib import XSD
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
@@ -213,6 +215,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 property=base_info.result_path,
                 expected=msg,
             )
+        case SH.LessThanOrEqualsConstraintComponent:
+            return _query_for_less_than_or_equal_violation(base_info, results_and_onto, data, msg)
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
         case SH.SPARQLConstraintComponent:
@@ -227,10 +231,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
-            | SH.OrConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC
+            )
+        case SH.OrConstraintComponent:
+            return _query_general_violation_info_with_value_as_string(
+                base_info.result_bn, base_info, results_and_onto, data
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -266,6 +273,32 @@ def _query_class_constraint_without_detail(
         expected=expected,
         input_value=val,
         input_type=value_type,
+    )
+
+
+def _query_for_less_than_or_equal_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
+) -> ValidationResult | None:
+    value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
+    start = next(data.objects(value_iri, API_SHAPES.dateHasStart))
+    end = next(data.objects(value_iri, API_SHAPES.dateHasEnd))
+    start_lit = cast(Literal, start)
+    end_lit = cast(Literal, end)
+    start_is_string = start_lit.datatype == XSD.string
+    end_is_string = end_lit.datatype == XSD.string
+    # If any one of the date ranges cannot be parsed as an xsd date, we get this violation also.
+    # But the main problem is, that the date format is wrong, in which case the datatype is xsd:string.
+    # This produces its own message
+    if any([start_is_string, end_is_string]):
+        return None
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        severity=base_info.severity,
+        property=base_info.result_path,
+        input_value=_get_value_as_string(base_info.result_bn, results_and_onto, data),
+        message=message,
     )
 
 
@@ -379,10 +412,12 @@ def _query_general_violation_info(
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
     violation_type: ViolationType,
+    value: SubjectObjectTypeAlias | None = None,
 ) -> ValidationResult:
-    val = None
-    if found_val := list(results_and_onto.objects(result_bn, SH.value)):
-        val = found_val.pop()
+    if not value:
+        val = next(results_and_onto.objects(result_bn, SH.value), None)
+    else:
+        val = value
     msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=violation_type,
@@ -395,14 +430,23 @@ def _query_general_violation_info(
     )
 
 
+def _query_general_violation_info_with_value_as_string(
+    result_bn: SubjectObjectTypeAlias,
+    base_info: ValidationResultBaseInfo,
+    results_and_onto: Graph,
+    data: Graph,
+) -> ValidationResult:
+    value_iri = next(results_and_onto.objects(result_bn, SH.focusNode))
+    value = next(data.objects(value_iri, KNORA_API.valueAsString))
+    return _query_general_violation_info(result_bn, base_info, results_and_onto, ViolationType.GENERIC, value)
+
+
 def _query_for_link_value_target_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     target_iri = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    target_rdf_type: SubjectObjectTypeAlias | None = None
-    if target_type := list(data_graph.objects(target_iri, RDF.type)):
-        target_rdf_type = target_type[0]
+    target_rdf_type = next(data_graph.objects(target_iri, RDF.type), None)
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.LINK_TARGET,
@@ -458,8 +502,7 @@ def _query_for_coexists_with_violation(
         prop = None
     else:
         violation_type = ViolationType.GENERIC
-        value_iri = next(results_and_onto.objects(base_info.result_bn, SH.focusNode))
-        value = next(data.objects(value_iri, KNORA_API.valueAsString))
+        value = _get_value_as_string(base_info.result_bn, results_and_onto, data)
         prop = base_info.result_path
     return ValidationResult(
         violation_type=violation_type,
@@ -470,6 +513,11 @@ def _query_for_coexists_with_violation(
         message=message,
         input_value=value,
     )
+
+
+def _get_value_as_string(result_bn: SubjectObjectTypeAlias, results: Graph, data: Graph) -> SubjectObjectTypeAlias:
+    value_iri = next(results.objects(result_bn, SH.focusNode))
+    return next(data.objects(value_iri, KNORA_API.valueAsString))
 
 
 def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:

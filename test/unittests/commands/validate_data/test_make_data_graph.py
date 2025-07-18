@@ -49,13 +49,13 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
     [
         (
             "1900-20",
-            TripleObjectType.DATE_YYYY_MM,
+            TripleObjectType.DATE_YYYY_MM_DD,
             TriplePropertyType.KNORA_DATE_START,
             Literal("1900-20", datatype=XSD.string),
         ),
         (
             "9",
-            TripleObjectType.DATE_YYYY,
+            TripleObjectType.DATE_YYYY_MM_DD,
             TriplePropertyType.KNORA_DATE_START,
             Literal("9", datatype=XSD.string),
         ),
@@ -67,13 +67,13 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
         ),
         (
             "1900",
-            TripleObjectType.DATE_YYYY,
+            TripleObjectType.DATE_YYYY_MM_DD,
             TriplePropertyType.KNORA_DATE_START,
             Literal("1900", datatype=XSD.gYear),
         ),
         (
             "1900-01",
-            TripleObjectType.DATE_YYYY_MM,
+            TripleObjectType.DATE_YYYY_MM_DD,
             TriplePropertyType.KNORA_DATE_START,
             Literal("1900-01", datatype=XSD.gYearMonth),
         ),
@@ -210,8 +210,8 @@ class TestDateValue:
             "GREGORIAN:CE:1900:CE:2000",
             KnoraValueType.DATE_VALUE,
             [
-                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
-                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000", TripleObjectType.DATE_YYYY),
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000", TripleObjectType.DATE_YYYY_MM_DD),
             ],
         )
         val_g = _make_one_value(val, RES_IRI)
@@ -230,8 +230,8 @@ class TestDateValue:
             "GREGORIAN:CE:1900:CE:2000-50",
             KnoraValueType.DATE_VALUE,
             [
-                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY),
-                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50", TripleObjectType.DATE_YYYY_MM),
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50", TripleObjectType.DATE_YYYY_MM_DD),
             ],
         )
         val_g = _make_one_value(val, RES_IRI)

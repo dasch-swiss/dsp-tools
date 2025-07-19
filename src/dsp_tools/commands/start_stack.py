@@ -196,7 +196,7 @@ class StackHandler:
         cmd = "podman compose up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False, env=ENV)
         if not completed_process or completed_process.returncode != 0:
-            msg = "Cannot start the API: Error while executing 'podman compose up -d db'"
+            msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
             raise InputError(msg)
 
@@ -339,7 +339,7 @@ class StackHandler:
         """
         compose_str = "podman compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
-            logger.debug("In order to get the latest dev version, run 'podman compose pull' ...")
+            logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run("podman compose pull".split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
@@ -399,14 +399,14 @@ class StackHandler:
             prune_docker = None
             while prune_docker not in ["y", "n"]:
                 prune_docker = input(
-                    "Allow dsp-tools to execute 'podman system prune'? \n"
+                    "Allow dsp-tools to execute 'docker system prune'? \n"
                     "If you press 'y', all unused containers, networks, and images (both dangling and unused) "
-                    "in your podman will be deleted.\n"
+                    "in your docker will be deleted.\n"
                     "It is recommended that you do this every once in a while "
-                    "to keep your podman clean and running smoothly. [y/n]"
+                    "to keep your docker clean and running smoothly. [y/n]"
                 )
         if prune_docker == "y":
-            logger.debug("Running 'podman system prune --volumes -f' ...")
+            logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run(
                 "podman system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False, env=ENV
             )
@@ -441,7 +441,7 @@ class StackHandler:
             subprocess.run("podman stats --no-stream".split(), check=False, capture_output=True, env=ENV).returncode
             != 0
         ):
-            raise InputError("Podman is not running properly. Please start Podman and try again.")
+            raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
         self._set_custom_host()
         self._get_sipi_docker_config_lua()

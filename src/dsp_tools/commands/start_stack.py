@@ -469,5 +469,7 @@ class StackHandler:
         subprocess.run(
             f"{CONTAINER_ENGINE} compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True, env=ENV
         )
+        subprocess.run([CONTAINER_ENGINE, "system", "prune", "-f"], check=True)
+        subprocess.run([CONTAINER_ENGINE, "volume", "prune", "-f"], check=True)
         shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
         return True

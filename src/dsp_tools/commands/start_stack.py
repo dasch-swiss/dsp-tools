@@ -450,12 +450,8 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        if (
-            subprocess.run(
-                f"{CONTAINER_ENGINE} stats --no-stream".split(), check=False, capture_output=True, env=ENV
-            ).returncode
-            != 0
-        ):
+        cmd = f"{CONTAINER_ENGINE} stats --no-stream"
+        if subprocess.run(cmd.split(), check=False, capture_output=True, env=ENV).returncode != 0:
             raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
         self._set_custom_host()

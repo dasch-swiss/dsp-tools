@@ -89,6 +89,7 @@ dev-dependencies = [
     "viztracer",
     "vulture",
     "yamllint",
+    "pyperf>=2.9.0",
 ]
 
 

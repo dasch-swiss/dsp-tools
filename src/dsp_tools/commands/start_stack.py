@@ -6,6 +6,7 @@ import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 from typing import Optional
 
 import regex
@@ -21,8 +22,11 @@ from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
 ENV = os.environ.copy()
-ENV["PODMAN_COMPOSE_PROVIDER"] = "/opt/homebrew/bin/podman-compose"
-# /opt/homebrew/bin/podman-compose | /usr/local/bin/docker-compose
+CONTAINER_ENGINE: Literal["podman", "docker"] = "podman"
+if CONTAINER_ENGINE == "podman":
+    ENV["PODMAN_COMPOSE_PROVIDER"] = "/opt/homebrew/bin/podman-compose"
+else:
+    ENV["DOCKER_COMPOSE_PROVIDER"] = "/usr/local/bin/docker-compose"
 
 
 @dataclass(frozen=True)
@@ -193,7 +197,7 @@ class StackHandler:
             InputError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = "podman compose up -d db".split()
+        cmd = f"{CONTAINER_ENGINE} compose up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False, env=ENV)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
@@ -337,10 +341,12 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
-        compose_str = "podman compose -f docker-compose.yml"
+        compose_str = f"{CONTAINER_ENGINE} compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
             logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
-            subprocess.run("podman compose pull".split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
+            subprocess.run(
+                f"{CONTAINER_ENGINE} compose pull".split(), cwd=self.__docker_path_of_user, check=True, env=ENV
+            )
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
@@ -368,12 +374,16 @@ class StackHandler:
                 # There is probably an issue, so we need more logs
                 with contextlib.suppress():
                     docker_ps_output = subprocess.run(
-                        "podman ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True, env=ENV
+                        f"{CONTAINER_ENGINE} ps -a".split(),
+                        cwd=self.__docker_path_of_user,
+                        check=True,
+                        capture_output=True,
+                        env=ENV,
                     ).stdout.decode("utf-8")
                     docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
                     logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
                     docker_logs_output = subprocess.run(
-                        "podman logs start-stack-api-1".split(),
+                        f"{CONTAINER_ENGINE} logs start-stack-api-1".split(),
                         cwd=self.__docker_path_of_user,
                         check=True,
                         capture_output=True,
@@ -408,7 +418,10 @@ class StackHandler:
         if prune_docker == "y":
             logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run(
-                "podman system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False, env=ENV
+                f"{CONTAINER_ENGINE} system prune --volumes -f".split(),
+                cwd=self.__docker_path_of_user,
+                check=False,
+                env=ENV,
             )
 
     def _start_docker_containers(self) -> None:
@@ -438,7 +451,9 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         if (
-            subprocess.run("podman stats --no-stream".split(), check=False, capture_output=True, env=ENV).returncode
+            subprocess.run(
+                f"{CONTAINER_ENGINE} stats --no-stream".split(), check=False, capture_output=True, env=ENV
+            ).returncode
             != 0
         ):
             raise InputError("Docker is not running properly. Please start Docker and try again.")
@@ -455,6 +470,8 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        subprocess.run("podman compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
+        subprocess.run(
+            f"{CONTAINER_ENGINE} compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True, env=ENV
+        )
         shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
         return True

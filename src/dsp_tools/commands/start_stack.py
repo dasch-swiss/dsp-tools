@@ -5,9 +5,11 @@ import shutil
 import subprocess
 import time
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 from typing import Literal
 from typing import Optional
+from typing import cast
 
 import regex
 import requests
@@ -21,15 +23,9 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
-ENV = os.environ.copy()
-CONTAINER_ENGINE: Literal["podman", "docker"] = "podman"
-if CONTAINER_ENGINE == "podman":
-    ENV["PODMAN_COMPOSE_PROVIDER"] = "/opt/homebrew/bin/podman-compose"
-else:
-    ENV["DOCKER_COMPOSE_PROVIDER"] = "/usr/local/bin/docker-compose"
 
 
-@dataclass(frozen=True)
+@dataclass
 class StackConfiguration:
     """
     Groups together configuration information for the StackHandler.
@@ -47,6 +43,8 @@ class StackConfiguration:
     latest_dev_version: bool = False
     upload_test_data: bool = False
     custom_host: Optional[str] = None
+    container_engine: Literal["docker", "podman"] = "docker"
+    environment: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """
@@ -63,6 +61,18 @@ class StackConfiguration:
             r"^(((\d{1,3}\.){3}\d{1,3})|((([-\w_~]+\.)*([a-z]){2,})))$", self.custom_host
         ):
             raise InputError("Invalid format for custom host. Please, enter an IP or a domain name.")
+        self._initialise_container_engine()
+
+    def _initialise_container_engine(self) -> None:
+        cont_eng = os.environ["CONTAINER_ENGINE"]
+        if cont_eng not in ["podman", "docker"]:
+            raise InputError(f"Invalid container engine: {cont_eng}. Supported engines are 'podman' and 'docker'.")
+        self.container_engine = cast(Literal["podman", "docker"], cont_eng)
+        self.environment = os.environ.copy()
+        if self.container_engine == "podman":
+            self.environment["PODMAN_COMPOSE_PROVIDER"] = "/opt/homebrew/bin/podman-compose"
+        else:
+            self.environment["DOCKER_COMPOSE_PROVIDER"] = "/usr/local/bin/docker-compose"
 
 
 class StackHandler:
@@ -197,8 +207,10 @@ class StackHandler:
             InputError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = f"{CONTAINER_ENGINE} compose up -d db".split()
-        completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False, env=ENV)
+        cmd = f"{self.__stack_configuration.container_engine} compose up -d db".split()
+        completed_process = subprocess.run(
+            cmd, cwd=self.__docker_path_of_user, check=False, env=self.__stack_configuration.environment
+        )
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
@@ -341,18 +353,23 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
-        compose_str = f"{CONTAINER_ENGINE} compose -f docker-compose.yml"
+        compose_str = f"{self.__stack_configuration.container_engine} compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
             logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run(
-                f"{CONTAINER_ENGINE} compose pull".split(), cwd=self.__docker_path_of_user, check=True, env=ENV
+                f"{self.__stack_configuration.container_engine} compose pull".split(),
+                cwd=self.__docker_path_of_user,
+                check=True,
+                env=self.__stack_configuration.environment,
             )
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
         logger.debug(f"Running '{compose_str}' ...")
-        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
+        subprocess.run(
+            compose_str.split(), cwd=self.__docker_path_of_user, check=True, env=self.__stack_configuration.environment
+        )
 
     def _wait_for_api(self) -> None:
         """
@@ -374,20 +391,20 @@ class StackHandler:
                 # There is probably an issue, so we need more logs
                 with contextlib.suppress():
                     docker_ps_output = subprocess.run(
-                        f"{CONTAINER_ENGINE} ps -a".split(),
+                        f"{self.__stack_configuration.container_engine} ps -a".split(),
                         cwd=self.__docker_path_of_user,
                         check=True,
                         capture_output=True,
-                        env=ENV,
+                        env=self.__stack_configuration.environment,
                     ).stdout.decode("utf-8")
                     docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
                     logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
                     docker_logs_output = subprocess.run(
-                        f"{CONTAINER_ENGINE} logs start-stack-api-1".split(),
+                        f"{self.__stack_configuration.container_engine} logs start-stack-api-1".split(),
                         cwd=self.__docker_path_of_user,
                         check=True,
                         capture_output=True,
-                        env=ENV,
+                        env=self.__stack_configuration.environment,
                     ).stdout.decode("utf-8")
                     docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
                     logger.debug(f"Logs of DSP-API container:\n\t{docker_logs_output}")
@@ -418,10 +435,10 @@ class StackHandler:
         if prune_docker == "y":
             logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run(
-                f"{CONTAINER_ENGINE} system prune --volumes -f".split(),
+                f"{self.__stack_configuration.container_engine} system prune --volumes -f".split(),
                 cwd=self.__docker_path_of_user,
                 check=False,
-                env=ENV,
+                env=self.__stack_configuration.environment,
             )
 
     def _start_docker_containers(self) -> None:
@@ -450,8 +467,13 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        cmd = f"{CONTAINER_ENGINE} stats --no-stream"
-        if subprocess.run(cmd.split(), check=False, capture_output=True, env=ENV).returncode != 0:
+        cmd = f"{self.__stack_configuration.container_engine} stats --no-stream"
+        if (
+            subprocess.run(
+                cmd.split(), check=False, capture_output=True, env=self.__stack_configuration.environment
+            ).returncode
+            != 0
+        ):
             raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
         self._set_custom_host()
@@ -467,9 +489,12 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         subprocess.run(
-            f"{CONTAINER_ENGINE} compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True, env=ENV
+            f"{self.__stack_configuration.container_engine} compose down --volumes".split(),
+            cwd=self.__docker_path_of_user,
+            check=True,
+            env=self.__stack_configuration.environment,
         )
-        subprocess.run([CONTAINER_ENGINE, "system", "prune", "-f"], check=True)
-        subprocess.run([CONTAINER_ENGINE, "volume", "prune", "-f"], check=True)
+        subprocess.run([self.__stack_configuration.container_engine, "system", "prune", "-f"], check=True)
+        subprocess.run([self.__stack_configuration.container_engine, "volume", "prune", "-f"], check=True)
         shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
         return True

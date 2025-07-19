@@ -455,7 +455,6 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        subprocess.run("podman compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
-        with contextlib.suppress(PermissionError):  # in GitHub CI, python lacks permissions to delete this dir
-            shutil.rmtree(self.__docker_path_of_user / "sipi")
+        subprocess.run("podman compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True, env=ENV)
+        shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
         return True

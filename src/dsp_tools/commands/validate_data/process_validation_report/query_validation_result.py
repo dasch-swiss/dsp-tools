@@ -263,6 +263,8 @@ def _query_class_constraint_without_detail(
             violation_type = ViolationType.VALUE_TYPE
             msg = None
             expected = message
+    elif base_info.result_path == KNORA_API.hasStandoffLinkTo:
+        violation_type = ViolationType.LINK_TARGET
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.focus_node_iri,

@@ -7,6 +7,7 @@ from rdflib import SH
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
@@ -446,6 +447,20 @@ Second Line"""
         res, data, info = report_date_range_wrong_to_ignore
         result = _query_one_without_detail(info, res, data)
         assert not result
+
+    def test_report_standoff_link_target_is_iri(
+        self, report_standoff_link_target_is_iri: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_standoff_link_target_is_iri
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.LINK_TARGET
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == KNORA_API.hasStandoffLinkTo
+        assert result.severity == SH.Violation
+        assert result.message == Literal("A stand-off link must target an existing resource.")
+        assert result.input_value == URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component

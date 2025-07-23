@@ -559,7 +559,7 @@ class TestRichtextStandoff:
         assert triple_type == TripleObjectType.IRI
 
     def test_get_link_string_and_triple_object_malformed_content(self):
-        link = "something_else"
+        link = "malformed_content"
         link_str, triple_type = _get_link_string_and_triple_object_type(link)
         assert link_str == link
         assert triple_type == TripleObjectType.INTERNAL_ID

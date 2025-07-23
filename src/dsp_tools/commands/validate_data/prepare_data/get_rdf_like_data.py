@@ -57,21 +57,17 @@ def _get_one_resource(
 
 
 def _get_all_stand_off_links(values: list[RdfLikeValue]) -> list[PropertyObject]:
-    stand_offs = []
+    stand_off_ids = set()
     for val in values:
         if val.knora_type.RICHTEXT_VALUE:
-            stand_offs.extend(_get_stand_off_links(val.user_facing_value))
-    return stand_offs
-
-
-def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
-    if not text:
-        return []
-    links = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=text))
-    return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.INTERNAL_ID) for lnk in links]
+            new_ids = _get_resource_ids_and_iri_strings(val.user_facing_value)
+            stand_off_ids.update(new_ids)
+    return [_get_stand_off_links(x) for x in stand_off_ids]
 
 
 def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
+    if not isinstance(text, str):
+        return set()
     text_tree = etree.fromstring(text)
     all_hrefs = set()
     for a_link in text_tree.iterdescendants(tag="a"):
@@ -80,8 +76,19 @@ def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
     return all_hrefs
 
 
+def _get_stand_off_links(extracted: str) -> PropertyObject:
+    link, obj_type = _get_link_string_and_triple_object_type(extracted)
+    return PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, link, obj_type)
+
+
 def _get_link_string_and_triple_object_type(res_link: str) -> tuple[str, TripleObjectType]:
-    pass
+    if found := regex.search(r'href="IRI:(.*?):IRI"', res_link):
+        return found.group(0), TripleObjectType.INTERNAL_ID
+    if res_link.startswith("http://rdfh.ch/"):
+        return res_link, TripleObjectType.IRI
+    # if it is not a valid IRI, rdflib may crash when trying to turn it into one
+    # the TripleObjectType.INTERNAL_ID only expects a string and is therefore able to deal with malformed content
+    return res_link, TripleObjectType.INTERNAL_ID
 
 
 def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeValue:

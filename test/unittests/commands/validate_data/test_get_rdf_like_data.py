@@ -524,6 +524,10 @@ class TestRichtextStandoff:
     def test_get_all_stand_off_links_(self, richtext_with_standoff):
         result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff])
         assert len(result) == 1
+        prop_obj = result.pop(0)
+        assert prop_obj.property_type == TriplePropertyType.KNORA_STANDOFF_LINK
+        assert prop_obj.object_value == "link"
+        assert prop_obj.object_type == TripleObjectType.INTERNAL_ID
 
     def test_get_resource_ids_and_iri_strings_none_found(self):
         txt = "text"
@@ -553,6 +557,12 @@ class TestRichtextStandoff:
         link_str, triple_type = _get_link_string_and_triple_object_type(link)
         assert link_str == link
         assert triple_type == TripleObjectType.IRI
+
+    def test_get_link_string_and_triple_object_malformed_content(self):
+        link = "something_else"
+        link_str, triple_type = _get_link_string_and_triple_object_type(link)
+        assert link_str == link
+        assert triple_type == TripleObjectType.INTERNAL_ID
 
 
 if __name__ == "__main__":

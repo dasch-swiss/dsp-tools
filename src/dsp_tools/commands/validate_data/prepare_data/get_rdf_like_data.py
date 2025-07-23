@@ -59,7 +59,7 @@ def _get_one_resource(
 def _get_all_stand_off_links(values: list[ParsedValue]) -> list[PropertyObject]:
     stand_off_ids = set()
     for val in values:
-        if val.value_type.RICHTEXT_VALUE:
+        if val.value_type == KnoraValueType.RICHTEXT_VALUE:
             if isinstance(val.value, str):
                 new_ids = _get_resource_ids_and_iri_strings(val.value)
                 stand_off_ids.update(new_ids)

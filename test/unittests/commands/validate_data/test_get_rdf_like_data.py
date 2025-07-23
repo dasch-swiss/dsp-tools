@@ -521,8 +521,8 @@ class TestRichtextStandoff:
         result = _get_all_stand_off_links([val_none, val_str])
         assert not result
 
-    def test_get_all_stand_off_links_(self, richtext_with_standoff):
-        result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff])
+    def test_get_all_stand_off_links_(self, richtext_with_standoff, bool_value):
+        result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff, bool_value])
         assert len(result) == 1
         prop_obj = result.pop(0)
         assert prop_obj.property_type == TriplePropertyType.KNORA_STANDOFF_LINK

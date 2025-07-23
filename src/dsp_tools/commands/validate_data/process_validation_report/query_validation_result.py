@@ -606,6 +606,11 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
     input_type = None
     expected = None
     problem_type = ProblemType.INEXISTENT_LINKED_RESOURCE
+    # If it is a stand-off link, we want to preserve the message
+    if result.property == KNORA_API.hasStandoffLinkTo:
+        msg = result.message
+    else:
+        msg = None
 
     if result.input_type:
         problem_type = ProblemType.LINK_TARGET_TYPE_MISMATCH
@@ -621,6 +626,7 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         input_value=reformat_data_iri(str(result.input_value)),
         input_type=input_type,
         expected=expected,
+        message=msg,
     )
 
 

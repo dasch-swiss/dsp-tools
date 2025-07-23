@@ -181,7 +181,7 @@ class TestWithReportGraphs:
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
-            ("richtext_standoff_link_nonexistent", ProblemType.GENERIC),
+            ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("video_segment_start_larger_than_end", ProblemType.GENERIC),
@@ -318,7 +318,7 @@ def test_reformat_content_violation(authentication) -> None:
         (
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",
-            "A stand-off link must target an existing resource.",
+            "non_existing",
         ),
         (
             "simple_text_with_newlines",

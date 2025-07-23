@@ -8,12 +8,15 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResourc
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_all_stand_off_links
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_date_str
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_metadata
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_file_value
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_link_string_and_triple_object_type
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_list_value_str
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_resource
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_one_value
+from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_resource_ids_and_iri_strings
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get_xsd_like_dates
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.data_formats.date_util import Era
@@ -509,6 +512,47 @@ class TestFileValue:
 )
 def test_get_list_value_str(input_val, expected):
     assert _get_list_value_str(input_val, LIST_LOOKUP) == expected
+
+
+class TestRichtextStandoff:
+    def test_get_all_stand_off_links_no_links(self):
+        val_str = ParsedValue(HAS_PROP, "text", KnoraValueType.RICHTEXT_VALUE, None, None)
+        val_none = ParsedValue(HAS_PROP, None, KnoraValueType.RICHTEXT_VALUE, None, None)
+        result = _get_all_stand_off_links([val_none, val_str])
+        assert not result
+
+    def test_get_all_stand_off_links_(self, richtext_with_standoff):
+        result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff])
+        assert len(result) == 1
+
+    def test_get_resource_ids_and_iri_strings_none_found(self):
+        txt = "text"
+        result = _get_resource_ids_and_iri_strings(txt)
+        assert not result
+
+    def test_get_resource_ids_and_iri_strings_multiple_found(self):
+        link = "IRI:link:IRI"
+        res_link = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
+        txt = (
+            f'With <a class="salsah-link" href="{link}">link text</a>.'
+            f'Some more text <a class="salsah-link" href="{link}">with the same link</a>.'
+            f'Text with <a class="salsah-link" href="{res_link}"> stand off</a> to resource in DB.'
+        )
+        result = _get_resource_ids_and_iri_strings(txt)
+        expected = {link, res_link}
+        assert result == expected
+
+    def test_get_link_string_and_triple_object_type_internal_link(self):
+        link = "IRI:link:IRI"
+        link_str, triple_type = _get_link_string_and_triple_object_type(link)
+        assert link_str == "link"
+        assert triple_type == TripleObjectType.INTERNAL_ID
+
+    def test_get_link_string_and_triple_object_type_iri(self):
+        link = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
+        link_str, triple_type = _get_link_string_and_triple_object_type(link)
+        assert link_str == link
+        assert triple_type == TripleObjectType.IRI
 
 
 if __name__ == "__main__":

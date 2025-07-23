@@ -69,9 +69,9 @@ def _make_one_rdflib_object(
     if not object_value:
         return Literal("", datatype=XSD.string)
     if object_type == TripleObjectType.IRI:
-        if prop_type == TriplePropertyType.KNORA_STANDOFF_LINK:
-            return DATA[object_value]
         return URIRef(object_value)
+    if object_type == TripleObjectType.INTERNAL_ID:
+        return DATA[object_value]
     if prop_type in (TriplePropertyType.KNORA_DATE_START, TriplePropertyType.KNORA_DATE_END):
         return _process_date_string(object_value, object_type)
     return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])

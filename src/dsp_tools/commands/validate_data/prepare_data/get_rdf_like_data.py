@@ -68,16 +68,20 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
     if not text:
         return []
     links = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=text))
-    return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
+    return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.INTERNAL_ID) for lnk in links]
 
 
-def _get_resource_ids_iri_strings(text: str) -> set[str]:
+def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
     text_tree = etree.fromstring(text)
     all_hrefs = set()
     for a_link in text_tree.iterdescendants(tag="a"):
         if found := a_link.get("href"):
             all_hrefs.add(found)
     return all_hrefs
+
+
+def _get_link_string_and_triple_object_type(res_link: str) -> tuple[str, TripleObjectType]:
+    pass
 
 
 def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeValue:

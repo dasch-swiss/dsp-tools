@@ -60,14 +60,13 @@ def _get_all_stand_off_links(values: list[ParsedValue]) -> list[PropertyObject]:
     stand_off_ids = set()
     for val in values:
         if val.value_type.RICHTEXT_VALUE:
-            new_ids = _get_resource_ids_and_iri_strings(val.value)
-            stand_off_ids.update(new_ids)
+            if isinstance(val.value, str):
+                new_ids = _get_resource_ids_and_iri_strings(val.value)
+                stand_off_ids.update(new_ids)
     return [_get_stand_off_links(x) for x in stand_off_ids]
 
 
 def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
-    if not isinstance(text, str):
-        return set()
     txt_wrapped = f"<wrapper>{text}</wrapper>"
     text_tree = etree.fromstring(txt_wrapped)
     all_hrefs = set()

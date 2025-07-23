@@ -168,7 +168,7 @@ class TestResource:
         assert rdf_type.object_type == TripleObjectType.IRI
         standoff = next(x for x in result.property_objects if x.property_type == TriplePropertyType.KNORA_STANDOFF_LINK)
         assert standoff.object_value == "link"
-        assert standoff.object_type == TripleObjectType.IRI
+        assert standoff.object_type == TripleObjectType.INTERNAL_ID
         assert len(result.values) == 1
 
 

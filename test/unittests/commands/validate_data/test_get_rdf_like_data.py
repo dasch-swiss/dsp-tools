@@ -541,6 +541,7 @@ class TestRichtextStandoff:
             f'With <a class="salsah-link" href="{link}">link text</a>.'
             f'Some more text <a class="salsah-link" href="{link}">with the same link</a>.'
             f'Text with <a class="salsah-link" href="{res_link}"> stand off</a> to resource in DB.'
+            f'Text with an external link: <a href="https://www.google.com/">Google</a>'
         )
         result = _get_resource_ids_and_iri_strings(txt)
         expected = {link, res_link}

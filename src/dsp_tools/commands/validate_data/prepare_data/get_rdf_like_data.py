@@ -71,8 +71,9 @@ def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
     text_tree = etree.fromstring(txt_wrapped)
     all_hrefs = set()
     for a_link in text_tree.iterdescendants(tag="a"):
-        if found := a_link.get("href"):
-            all_hrefs.add(found)
+        if a_link.get("class") == "salsah-link":
+            if found := a_link.get("href"):
+                all_hrefs.add(found)
     return all_hrefs
 
 

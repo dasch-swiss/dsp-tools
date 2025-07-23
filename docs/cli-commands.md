@@ -273,7 +273,7 @@ Currently, only one interrupted upload can be resumed at a time per server.
 
 !!! warning
 
-    These commands are experimental. They might change in the future.
+    These commands require SystemAdmin credentials, until DEV-5196 is resolved.
 
 This new workflow consists of 3 commands:
 

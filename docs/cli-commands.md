@@ -273,7 +273,8 @@ Currently, only one interrupted upload can be resumed at a time per server.
 
 !!! warning
 
-    These commands are experimental. They might change in the future.
+    The `upload-files` and `ingest-files` require SystemAdmin credentials, until DEV-5196 is resolved.
+    The `ingest-xmlupload` can be used with ProjectAdmin credentials.
 
 This new workflow consists of 3 commands:
 
@@ -294,7 +295,8 @@ dsp-tools upload-files [options] xml_data_file.xml
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
-- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API.
+    - **Requires SystemAdmin credentials, until DEV-5196 is resolved.**
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
@@ -340,7 +342,8 @@ dsp-tools ingest-files [options] <shortcode>
 The following options are available:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
-- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API
+    - **Requires SystemAdmin credentials, until DEV-5196 is resolved.** 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)

@@ -1,0 +1,231 @@
+# CLAUDE.md - XMLUpload Module
+
+This file provides guidance to Claude Code when working with the `xmlupload` module in DSP-TOOLS.
+
+## Module Overview
+
+The `xmlupload` module implements the core functionality for uploading XML data files to a DSP server. It handles the complete workflow from XML parsing and validation to resource creation on the DSP server, including:
+
+- XML file parsing and validation
+- Resource processing and transformation
+- Circular reference resolution via stashing
+- File upload and ingest management
+- RDF graph generation for DSP API
+- Error handling and recovery mechanisms
+
+## Architecture
+
+### Core Entry Point
+
+- **xmlupload.py**: Main entry point containing the `xmlupload()` function and workflow orchestration
+- **upload_config.py**: Configuration management for upload operations
+
+### Key Workflow Stages
+
+1. **XML Input Processing** (`prepare_xml_input/`)
+   - Parse and validate XML files
+   - Transform input values to processed format
+   - Resolve ARKs to IRIs
+   - Validate IIIF URIs and bitstream existence
+
+2. **Resource Processing** (`models/processed/`)
+   - Transform parsed resources to processed format
+   - Handle permissions and metadata
+   - Manage file values and IIIF URIs
+
+3. **Circular Reference Handling** (`stash/`)
+   - Detect circular references between resources
+   - Create stash for problematic references
+   - Generate upload order to resolve dependencies
+
+4. **RDF Graph Generation** (`make_rdf_graph/`)
+   - Convert processed resources to RDF graphs
+   - Handle file values and metadata
+   - Generate JSON-LD for DSP API consumption
+
+5. **Resource Creation**
+   - Upload resources to DSP server via API calls
+   - Handle file ingestion process
+   - Manage upload state and recovery
+
+### Key Components
+
+#### prepare_xml_input/
+- **prepare_xml_input.py**: Main orchestration for XML processing pipeline
+- **read_validate_xml_file.py**: XML file reading and validation logic
+- **get_processed_resources.py**: Transform parsed resources to processed format
+- **transform_input_values.py**: Value transformation utilities
+- **ark2iri.py**: ARK to IRI resolution
+- **iiif_uri_validator.py**: IIIF URI validation
+- **list_client.py**: Client for list node lookups
+
+#### models/
+- **processed/**: Data models for processed resources and values
+  - **res.py**: `ProcessedResource` and `MigrationMetadata` models
+  - **values.py**: Various processed value types
+  - **file_values.py**: File-specific value models
+- **lookup_models.py**: Lookup tables for IRIs and XML references
+- **upload_state.py**: State management for upload operations
+- **upload_clients.py**: Client collection for various services
+- **ingest.py**: File ingest process models
+- **permission.py**: Permission handling models
+- **bitstream_info.py**: Bitstream metadata models
+- **input_problems.py**: Input validation problem tracking
+
+#### stash/
+- **stash_models.py**: Data models for stashing circular references
+  - `StandoffStash`: Manages stashed XML text values with standoff markup
+  - `StandoffStashItem`: Individual stashed text value
+  - `LinkObjStash`: Manages stashed link object references
+- **stash_circular_references.py**: Logic for detecting and stashing circular references
+- **analyse_circular_reference_graph.py**: Graph analysis for upload ordering
+- **create_info_for_graph.py**: Graph information extraction
+- **upload_stashed_resptr_props.py**: Upload stashed resource pointer properties
+- **upload_stashed_xml_texts.py**: Upload stashed XML text values
+
+#### make_rdf_graph/
+- **make_resource_and_values.py**: Main RDF graph creation logic
+- **make_values.py**: RDF generation for various value types
+- **make_file_value.py**: File value RDF generation
+- **jsonld_utils.py**: JSON-LD serialization utilities
+- **constants.py**: RDF-related constants and mappings
+
+#### Client Classes
+- **resource_create_client.py**: `ResourceCreateClient` for creating resources via DSP API
+- **project_client.py**: `ProjectClient` for project-related operations
+- **iri_resolver.py**: IRI resolution utilities
+
+#### Utilities
+- **write_diagnostic_info.py**: Diagnostic output generation (ID to IRI mappings)
+
+## Key Data Models
+
+### ProcessedResource
+The central data model representing a fully processed resource ready for upload:
+```python
+@dataclass
+class ProcessedResource:
+    res_id: str                    # Resource identifier
+    type_iri: str                  # Resource type IRI
+    label: str                     # Resource label
+    permissions: Permissions | None # Access permissions
+    values: list[ProcessedValue]   # Associated values
+    file_value: ProcessedFileValue | None = None
+    iiif_uri: ProcessedIIIFUri | None = None
+    migration_metadata: MigrationMetadata | None = None
+```
+
+### Stash Models
+For handling circular references:
+- **StandoffStash**: Manages stashed XML text values with standoff markup
+- **LinkObjStash**: Manages stashed resource pointer properties
+
+### Upload Configuration
+- **UploadConfig**: Central configuration management
+- **UploadState**: Tracks upload progress and enables resumption
+
+## Workflow
+
+### Standard XMLUpload Flow
+1. **Initialization**: Load configuration, authenticate, set up clients
+2. **XML Processing**: Parse XML, validate structure, transform to processed resources
+3. **Dependency Analysis**: Detect circular references, create stashes
+4. **Upload Order Generation**: Determine optimal upload sequence
+5. **Resource Creation**: Upload resources in batches, handle file ingestion
+6. **Stash Resolution**: Upload previously stashed references
+7. **Cleanup**: Write diagnostic info, clean up temporary files
+
+### File Handling
+- Supports both local file uploads and IIIF URI references
+- Integrates with DSP ingest service for file processing
+- Handles various media types (images, audio, video, documents, archives)
+
+### Error Handling
+- Comprehensive error tracking and reporting
+- Support for resuming interrupted uploads
+- Validation at multiple stages (XML, values, permissions)
+- Detailed diagnostic output for troubleshooting
+
+## Important Design Patterns
+
+### Client Abstraction
+- Separate client classes for different DSP API endpoints
+- Live implementations for actual server communication
+- Interface-based design for testing and mocking
+
+### Pipeline Processing
+- Multi-stage transformation pipeline from XML to RDF
+- Clear separation between parsing, processing, and uploading
+- Intermediate data models at each stage
+
+### Stashing Strategy
+- Sophisticated circular reference detection and resolution
+- Two-phase upload process (resources first, then references)
+- Graph analysis for optimal upload ordering
+
+### State Management
+- Persistent upload state for resumption capability
+- Progress tracking and reporting
+- Checkpoint system for recovery
+
+## Testing Considerations
+
+- Unit tests should focus on individual transformation functions
+- Integration tests should verify the full pipeline with sample data
+- Mock clients for testing without server dependencies
+- Test circular reference scenarios thoroughly
+- Validate error handling and recovery mechanisms
+
+## Common Issues and Solutions
+
+### Circular References
+- Handled automatically via stashing mechanism
+- Resources uploaded first, then cross-references added
+- Graph analysis determines optimal upload order
+
+### File Upload Failures
+- Separate file upload and ingest processes
+- Resume capability for interrupted uploads
+- Comprehensive validation before upload
+
+### Performance Optimization
+- Batch processing for large datasets
+- Progress tracking with tqdm
+- Memory-efficient streaming for large files
+
+## Development Guidelines
+
+- Follow existing patterns for client implementations
+- Use dataclasses for model definitions
+- Implement comprehensive error handling
+- Add type hints for all new code
+- Write descriptive docstrings for public APIs
+- Use dependency injection for testability
+
+## Key Files to Reference
+
+When working on xmlupload functionality, these are the most important files to understand:
+
+- `xmlupload.py:52-120` - Main upload workflow orchestration
+- `prepare_xml_input/prepare_xml_input.py:25-50` - XML processing pipeline
+- `models/processed/res.py:12-22` - Core ProcessedResource model
+- `stash/stash_circular_references.py` - Circular reference handling
+- `make_rdf_graph/make_resource_and_values.py:26-50` - RDF generation
+- `resource_create_client.py:16-25` - DSP API resource creation
+
+## Module Dependencies
+
+The xmlupload module depends on:
+- Core DSP-TOOLS utilities (`utils/xml_parsing/`, `utils/data_formats/`)
+- Client libraries (`clients/`)
+- Legacy models (`legacy_models/`)
+- Configuration and CLI args (`cli/args.py`)
+- External libraries: `lxml`, `rdflib`, `tqdm`, `loguru`
+
+## Integration Points
+
+- **CLI Integration**: Called from `dsp-tools xmlupload` command
+- **Validation Integration**: Uses `validate_data` module for SHACL validation
+- **File Services**: Integrates with DSP ingest service for file processing
+- **Authentication**: Uses authentication clients for server access
+- **Logging**: Comprehensive logging throughout the pipeline

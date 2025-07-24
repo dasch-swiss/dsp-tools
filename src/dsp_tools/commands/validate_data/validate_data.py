@@ -145,10 +145,11 @@ def _validate_data(
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         return ValidateDataResult(False, unknown_classes, None)
     shacl_validator = ShaclCliValidator()
-    # Validation of the ontology
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
-    if onto_validation_result:
-        return ValidateDataResult(False, onto_validation_result, None)
+    if not config.skip_ontology_validation:
+        # Validation of the ontology
+        onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
+        if onto_validation_result:
+            return ValidateDataResult(False, onto_validation_result, None)
     # Validation of the data
     duplicate_file_warnings = None
     if not config.ignore_duplicate_files_warning:

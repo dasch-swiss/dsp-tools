@@ -7,6 +7,7 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -36,28 +37,44 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(config: ValidateDataConfig, creds: ServerCredentials) -> bool:
+def validate_data(
+    filepath: Path, creds: ServerCredentials, ignore_duplicate_files_warning: bool, save_graphs: bool,
+) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
-        config: validation config object
+        filepath: path to the xml data file
         creds: server credentials for authentication
+        ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
+        save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         True if no errors that impede an xmlupload were found.
         Warnings and user info do not impede an xmlupload.
     """
+    graph_save_dir = None
+
+    if save_graphs:
+        graph_save_dir = _get_graph_save_dir(filepath)
+    config = ValidateDataConfig(
+        xml_file=filepath,
+        save_graph_dir=graph_save_dir,
+        severity=ValidationSeverity.INFO,
+        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
+        is_on_prod_server=is_prod_like_server(creds.server),
+    )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
 
     parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
-        file=config.xml_file,
+        file=filepath,
         api_url=auth.server,
     )
     return validate_parsed_resources(
@@ -145,6 +162,15 @@ def _validate_data(
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings)
     return ValidateDataResult(False, sorted_problems, report)
+
+
+def _get_graph_save_dir(filepath: Path) -> Path:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    save_file_template = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_file_template}   " + RESET_TO_DEFAULT)
+    return save_file_template
 
 
 def _get_validation_status(all_problems: SortedProblems, is_on_prod: bool) -> bool:

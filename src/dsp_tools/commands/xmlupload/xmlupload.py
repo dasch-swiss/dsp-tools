@@ -131,6 +131,7 @@ def xmlupload(
                 severity=v_severity,
                 ignore_duplicate_files_warning=ignore_duplicates,
                 is_on_prod_server=is_on_prod_like_server,
+                skip_ontology_validation=config.skip_ontology_validation,
             ),
             auth=auth,
         )

@@ -202,6 +202,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         creds=_get_creds(args),
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
+        skip_ontology_validation=args.skip_ontology_validation,
     )
 
 
@@ -234,6 +235,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 skip_validation=args.skip_validation,
                 ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
                 validation_severity=severity,
+                skip_ontology_validation=args.skip_ontology_validation,
             ),
         )
 
@@ -248,6 +250,7 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
         severity=ValidationSeverity.INFO,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         is_on_prod_server=is_prod_like_server(args.server),
+        skip_ontology_validation=args.skip_ontology_validation,
     )
     return validate_data(
         config=config,

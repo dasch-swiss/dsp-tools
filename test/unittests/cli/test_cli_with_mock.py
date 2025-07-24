@@ -215,6 +215,30 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_skip_ontology_validation(xmlupload: Mock) -> None:
+    file = "filename.xml"
+    args = f"xmlupload {file} --skip-ontology-validation".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(
+            skip_iiif_validation=False,
+            interrupt_after=None,
+            validation_severity=ValidationSeverity.INFO,
+            skip_ontology_validation=True,
+        ),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload --interrupt-after=1 {file}".split()
@@ -439,7 +463,11 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=False,
+        skip_ontology_validation=False,
     )
 
 
@@ -455,7 +483,13 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=True)
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=True,
+        skip_ontology_validation=False,
+    )
 
 
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
@@ -469,7 +503,9 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=1, skip_validation=False)
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=xml_file, creds=creds, interrupt_after=1, skip_validation=False, skip_ontology_validation=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
@@ -487,7 +523,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
         dsp_ingest_url=server.replace("api", "ingest"),
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False
+        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False, skip_ontology_validation=False
     )
 
 

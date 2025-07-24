@@ -140,8 +140,8 @@ The following options are available:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data, 
-  this is intended for projects already on the production server
+- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
+  This is intended for projects that are already on the production server
 - `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
   This is primarily intended for development use.
 
@@ -203,8 +203,8 @@ The following options are available:
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
 - `--skip-validation` (optional): skip the SHACL schema validation
 - `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data, 
-  this is intended for projects already on the production server
+- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
+  This is intended for projects that are already on the production server
 - `--validation-severity` (optional, default: `info`): which severity level of messages 
   will be printed out during validation. 
   Options: `info`, `warning`, and `error` 
@@ -389,8 +389,8 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 - `--skip-validation` (optional): skip the SHACL schema validation
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data, 
-  this is intended for projects already on the production server
+- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
+  This is intended for projects that are already on the production server
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 

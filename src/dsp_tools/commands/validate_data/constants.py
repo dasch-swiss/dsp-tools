@@ -55,3 +55,5 @@ FILEVALUE_DETAIL_INFO = {
         "'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or a IIIF-URI",
     ),
 }
+
+LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}

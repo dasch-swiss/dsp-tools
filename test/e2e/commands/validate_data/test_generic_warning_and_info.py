@@ -131,7 +131,10 @@ class TestSortedProblems:
         assert warnings_ids == expected_res_ids
 
     def test_no_violations_with_info(self, no_violations_with_info):
-        all_expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
+        all_expected_info = [
+            ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("richtext_with_standoff_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ]
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)
         sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))

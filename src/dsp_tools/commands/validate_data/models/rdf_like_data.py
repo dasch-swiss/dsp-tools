@@ -111,6 +111,7 @@ class TripleObjectType(Enum):
     DECIMAL = auto()
     INTEGER = auto()
     IRI = auto()
+    INTERNAL_ID = auto()
     STRING = auto()
     URI = auto()
     DATE_YYYY_MM_DD = auto()

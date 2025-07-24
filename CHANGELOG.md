@@ -1,5 +1,39 @@
 # Changelog
 
+## [16.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.4.0...v16.5.0) (2025-07-23)
+
+
+### Enhancements
+
+* improve message if file path from user is not found (DEV-5171) ([#1874](https://github.com/dasch-swiss/dsp-tools/issues/1874)) ([3c6cfe5](https://github.com/dasch-swiss/dsp-tools/commit/3c6cfe5821540b27853548c257e128d2e7d2a39b))
+* **validate-data:** Create CLAUDE.md (DEV-5107) ([#1829](https://github.com/dasch-swiss/dsp-tools/issues/1829)) ([405c8ae](https://github.com/dasch-swiss/dsp-tools/commit/405c8ae47e670454c3bee1ffa8553ae4dd03c807))
+* **validate-data:** ensure that the end date is equal or after the start date (DEV-5173) ([#1879](https://github.com/dasch-swiss/dsp-tools/issues/1879)) ([db32e38](https://github.com/dasch-swiss/dsp-tools/commit/db32e382ac62c28b2737c08ddbd72b29f06aa263))
+* **validate-data:** ensure that the end date is not `BCE` when the start date is `CE` (DEV-5176) ([#1878](https://github.com/dasch-swiss/dsp-tools/issues/1878)) ([6f9b136](https://github.com/dasch-swiss/dsp-tools/commit/6f9b1363e49a69d20839f3ef95439c3f482b4e51))
+* **validate-data:** find dates that have an invalid month or year number (DEV-5175) ([#1876](https://github.com/dasch-swiss/dsp-tools/issues/1876)) ([66ec5ce](https://github.com/dasch-swiss/dsp-tools/commit/66ec5ce4b08610466ac277789d24d4a5d8f2d881))
+* **validate-data:** improve user message if the file value is wrong (DEV-5122) ([#1873](https://github.com/dasch-swiss/dsp-tools/issues/1873)) ([758d323](https://github.com/dasch-swiss/dsp-tools/commit/758d323735d78db588ea7db0aa75bd623f7a3bda))
+* **validate-data:** parse DateValue into xsd compatible date datatypes (DEV-5172) ([#1875](https://github.com/dasch-swiss/dsp-tools/issues/1875)) ([7f7f42e](https://github.com/dasch-swiss/dsp-tools/commit/7f7f42e4177c461a977831b3842f52d4d5f96308))
+* **validate-data:** raise validation severity of duplicate files from `INFO` to `WARNING` (DEV-5167) ([#1868](https://github.com/dasch-swiss/dsp-tools/issues/1868)) ([e36893d](https://github.com/dasch-swiss/dsp-tools/commit/e36893d648f7a3fb233ed17d3d8b4bb2491d4885))
+
+
+### Bug Fixes
+
+* **ingest-files:** save latest mapping without timestamp (DEV-5163) ([#1866](https://github.com/dasch-swiss/dsp-tools/issues/1866)) ([66a78ba](https://github.com/dasch-swiss/dsp-tools/commit/66a78babe387138c77966b2bab6a5955020e7adf))
+* **start-stack:** don't crash if `stop-stack` is called multiple times ([#1884](https://github.com/dasch-swiss/dsp-tools/issues/1884)) ([e638620](https://github.com/dasch-swiss/dsp-tools/commit/e638620750384aca0966107cb417de0afeec995c))
+* **validate-data:** turn all dates into full dates for validation to allow for comparison (DEV-5180) ([#1880](https://github.com/dasch-swiss/dsp-tools/issues/1880)) ([7c64869](https://github.com/dasch-swiss/dsp-tools/commit/7c6486924b7d7e76d82276a0ede470a6ebf36d03))
+* **xmlupload:** use slightly shorter timeout than traefik's 10 min ([#1883](https://github.com/dasch-swiss/dsp-tools/issues/1883)) ([f78cc2f](https://github.com/dasch-swiss/dsp-tools/commit/f78cc2fe768304b4f02bfe80c80da3ccb1dea34a))
+
+
+### Maintenance
+
+* bump start-stack to 2025.07.04 ([#1887](https://github.com/dasch-swiss/dsp-tools/issues/1887)) ([e0815a8](https://github.com/dasch-swiss/dsp-tools/commit/e0815a81c05ab58fa7e196c4bd95ce31f501b2da))
+* make dependabot functional again ([#1855](https://github.com/dasch-swiss/dsp-tools/issues/1855)) ([9dec12a](https://github.com/dasch-swiss/dsp-tools/commit/9dec12a71980148d309cbc52dedef310ca7f9b6e))
+* run e2e tests in parallel ([#1882](https://github.com/dasch-swiss/dsp-tools/issues/1882)) ([e81520c](https://github.com/dasch-swiss/dsp-tools/commit/e81520cab0d0a5517af664fa2dd7bd521920e2df))
+* **validate-data:** always check for duplicates with python logic (DEV-5158) ([#1856](https://github.com/dasch-swiss/dsp-tools/issues/1856)) ([3d33663](https://github.com/dasch-swiss/dsp-tools/commit/3d336632ee5cda4e8440c15f0a85b185e227bf31))
+* **validate-data:** delete unnecessary code to filter out multiple duplicate file warnings (DEV-5168) ([#1872](https://github.com/dasch-swiss/dsp-tools/issues/1872)) ([1abd25b](https://github.com/dasch-swiss/dsp-tools/commit/1abd25b894e3233b646af850c5fe4bd06fff1b28))
+* **validate-data:** remove unnecessary file duplicate reformatting (DEV-5159) ([#1869](https://github.com/dasch-swiss/dsp-tools/issues/1869)) ([72d8734](https://github.com/dasch-swiss/dsp-tools/commit/72d8734cd6a3d346a0494817aaa86e9fdb16adb3))
+* **validate-data:** remove unused turtle files for duplicate check (DEV-5164) ([#1870](https://github.com/dasch-swiss/dsp-tools/issues/1870)) ([5b26b7e](https://github.com/dasch-swiss/dsp-tools/commit/5b26b7e4a266f0fc9e8dd4ab6282a5223ddb5120))
+* **xmllib:** create designated `xmllib` error classes (DEV-5098) ([#1865](https://github.com/dasch-swiss/dsp-tools/issues/1865)) ([5620780](https://github.com/dasch-swiss/dsp-tools/commit/562078078dd7a9c8bcf7c63c7677363e38921d41))
+
 ## [16.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.3.0...v16.4.0) (2025-07-16)
 
 

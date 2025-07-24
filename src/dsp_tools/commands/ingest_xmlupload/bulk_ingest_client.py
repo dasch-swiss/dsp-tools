@@ -60,12 +60,13 @@ class BulkIngestClient:
     ) -> UploadFailure | None:
         """
         Uploads a file to the ingest server.
-        The load balancer on DSP servers currently has a timeout of 60s, so we need to use a timeout of 58s.
-        See https://github.com/dasch-swiss/dsp-tools/pull/1335/files#r1882508057
+        The load balancer on DSP servers currently has a timeout of 10m,
+        so we need to use a slightly shorter timeout of 9m.
+        See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
         # noqa: DAR101
         # noqa: DAR201
         """
-        timeout = 58
+        timeout = 9 * 60
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
         headers = {"Content-Type": "application/octet-stream"}
         err_msg = f"Failed to upload '{filepath}' to '{url}'."

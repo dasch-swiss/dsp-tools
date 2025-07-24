@@ -4,6 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
@@ -30,6 +31,9 @@ from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
@@ -235,12 +239,29 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    return validate_data(
-        filepath=Path(args.xmlfile),
-        creds=_get_creds(args),
-        save_graphs=args.save_graphs,
+    save_graph = None
+    if args.save_graphs:
+        save_graph = _get_validate_data_graph_save_dir(args.xmlfile)
+    config = ValidateDataConfig(
+        xml_file=Path(args.xmlfile),
+        save_graph_dir=save_graph,
+        severity=ValidationSeverity.INFO,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
+        is_on_prod_server=is_prod_like_server(args.server),
     )
+    return validate_data(
+        config=config,
+        creds=_get_creds(args),
+    )
+
+
+def _get_validate_data_graph_save_dir(filepath: Path) -> Path:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    save_file_template = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_file_template}   " + RESET_TO_DEFAULT)
+    return save_file_template
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

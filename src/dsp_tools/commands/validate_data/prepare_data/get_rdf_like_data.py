@@ -4,6 +4,7 @@ from typing import Any
 from typing import cast
 
 import regex
+from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
@@ -42,7 +43,7 @@ def _get_one_resource(
         PropertyObject(TriplePropertyType.RDFS_LABEL, resource.label, TripleObjectType.STRING),
         PropertyObject(TriplePropertyType.RDF_TYPE, resource.res_type, TripleObjectType.IRI),
     ]
-    metadata.extend(_get_all_stand_off_links(values))
+    metadata.extend(_get_all_stand_off_links(resource.values))
     if resource.permissions_id is not None:
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
@@ -55,19 +56,40 @@ def _get_one_resource(
     )
 
 
-def _get_all_stand_off_links(values: list[RdfLikeValue]) -> list[PropertyObject]:
-    stand_offs = []
+def _get_all_stand_off_links(values: list[ParsedValue]) -> list[PropertyObject]:
+    stand_off_ids = set()
     for val in values:
-        if val.knora_type.RICHTEXT_VALUE:
-            stand_offs.extend(_get_stand_off_links(val.user_facing_value))
-    return stand_offs
+        if val.value_type == KnoraValueType.RICHTEXT_VALUE:
+            if isinstance(val.value, str):
+                new_ids = _get_resource_ids_and_iri_strings(val.value)
+                stand_off_ids.update(new_ids)
+    return [_get_stand_off_links(x) for x in stand_off_ids]
 
 
-def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
-    if not text:
-        return []
-    links = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=text))
-    return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
+def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
+    txt_wrapped = f"<wrapper>{text}</wrapper>"
+    text_tree = etree.fromstring(txt_wrapped)
+    all_hrefs = set()
+    for a_link in text_tree.iterdescendants(tag="a"):
+        if a_link.get("class") == "salsah-link":
+            if found := a_link.get("href"):
+                all_hrefs.add(found)
+    return all_hrefs
+
+
+def _get_stand_off_links(extracted: str) -> PropertyObject:
+    link, obj_type = _get_link_string_and_triple_object_type(extracted)
+    return PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, link, obj_type)
+
+
+def _get_link_string_and_triple_object_type(res_link: str) -> tuple[str, TripleObjectType]:
+    if found := regex.search(r"IRI:(.*?):IRI", res_link):
+        return found.group(1), TripleObjectType.INTERNAL_ID
+    if res_link.startswith("http://rdfh.ch/"):
+        return res_link, TripleObjectType.IRI
+    # if it is not a valid IRI, rdflib may crash when trying to turn it into one
+    # the TripleObjectType.INTERNAL_ID only expects a string and is therefore able to deal with malformed content
+    return res_link, TripleObjectType.INTERNAL_ID
 
 
 def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeValue:

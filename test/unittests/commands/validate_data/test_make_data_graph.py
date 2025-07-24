@@ -91,7 +91,7 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
         ),
         (
             "res_id",
-            TripleObjectType.IRI,
+            TripleObjectType.INTERNAL_ID,
             TriplePropertyType.KNORA_STANDOFF_LINK,
             DATA.res_id,
         ),

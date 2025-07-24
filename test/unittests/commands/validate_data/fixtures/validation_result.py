@@ -1394,6 +1394,48 @@ def report_date_range_wrong_to_ignore(
 
 
 @pytest.fixture
+def report_standoff_link_target_is_iri(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+     sh:focusNode                  <http://data/richtext_with_standoff_to_resource_in_db>;
+     sh:resultMessage              "A stand-off link must target an existing resource.";
+     sh:resultPath                 knora-api:hasStandoffLinkTo;
+     sh:resultSeverity             sh:Violation;
+     sh:sourceConstraintComponent  sh:ClassConstraintComponent;
+     sh:sourceShape                [] ;
+     sh:value                      <http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA>
+   ] .
+    """
+    data_str = f"""{PREFIXES}
+<http://data/richtext_with_standoff_to_resource_in_db> a onto:ClassWithEverything ;
+    rdfs:label "Richtext"^^xsd:string ;
+    onto:testRichtext <http://data/value_richtext_with_standoff_to_resource_in_db> ;
+    knora-api:hasStandoffLinkTo <http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA> .
+
+<http://data/value_richtext_with_standoff_to_resource_in_db> a knora-api:TextValue ;
+    knora-api:textValueAsXml "Text"^^xsd:string .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.ClassConstraintComponent,
+        focus_node_iri=DATA.richtext_with_standoff_to_resource_in_db,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=KNORA_API.hasStandoffLinkTo,
+        severity=SH.Violation,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

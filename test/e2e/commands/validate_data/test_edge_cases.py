@@ -22,6 +22,7 @@ CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
+    skip_ontology_validation=False,
 )
 
 
@@ -165,3 +166,21 @@ def test_validate_ontology_violation(authentication) -> None:
     for one_result, expected in zip(sorted_problems, expected_results):
         assert one_result.res_iri == expected[0]
         assert one_result.msg in expected[1]
+
+
+@pytest.mark.usefixtures("_create_projects_edge_cases")
+def test_validate_ontology_violation_skip_ontology_validation(authentication) -> None:
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    config_skip_onto_val = ValidateDataConfig(
+        xml_file=Path(),
+        save_graph_dir=None,
+        severity=ValidationSeverity.INFO,
+        ignore_duplicate_files_warning=False,
+        is_on_prod_server=False,
+        skip_ontology_validation=True,
+    )
+    result = _validate_data(graphs, used_iris, parsed_resources, config_skip_onto_val)
+    assert not result.no_problems
+    all_problems = result.problems
+    assert isinstance(all_problems, SortedProblems)

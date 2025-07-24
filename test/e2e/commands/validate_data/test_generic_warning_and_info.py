@@ -26,6 +26,7 @@ CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
+    skip_ontology_validation=False,
 )
 
 
@@ -121,6 +122,7 @@ class TestSortedProblems:
             severity=ValidationSeverity.INFO,
             ignore_duplicate_files_warning=True,
             is_on_prod_server=False,
+            skip_ontology_validation=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
         result = _validate_data(graphs, used_iris, parsed_resources, config)

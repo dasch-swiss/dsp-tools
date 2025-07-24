@@ -21,6 +21,7 @@ CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=True,
+    skip_ontology_validation=False,
 )
 
 

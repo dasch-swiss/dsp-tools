@@ -24,6 +24,7 @@ class ValidateDataConfig:
     severity: ValidationSeverity
     ignore_duplicate_files_warning: bool
     is_on_prod_server: bool
+    skip_ontology_validation: bool
 
 
 class ValidationSeverity(Enum):

@@ -45,7 +45,11 @@ NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation err
 
 
 def validate_data(
-    filepath: Path, creds: ServerCredentials, ignore_duplicate_files_warning: bool, save_graphs: bool
+    filepath: Path,
+    creds: ServerCredentials,
+    ignore_duplicate_files_warning: bool,
+    save_graphs: bool,
+    skip_ontology_validation: bool,
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -55,6 +59,7 @@ def validate_data(
         creds: server credentials for authentication
         ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
         save_graphs: if this flag is set, all the graphs will be saved in a folder
+        skip_ontology_validation: skip the ontology validation
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -70,6 +75,7 @@ def validate_data(
         severity=ValidationSeverity.INFO,
         ignore_duplicate_files_warning=ignore_duplicate_files_warning,
         is_on_prod_server=is_prod_like_server(creds.server),
+        skip_ontology_validation=skip_ontology_validation,
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
 
@@ -139,10 +145,11 @@ def _validate_data(
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         return ValidateDataResult(False, unknown_classes, None)
     shacl_validator = ShaclCliValidator()
-    # Validation of the ontology
-    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
-    if onto_validation_result:
-        return ValidateDataResult(False, onto_validation_result, None)
+    if not config.skip_ontology_validation:
+        # Validation of the ontology
+        onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
+        if onto_validation_result:
+            return ValidateDataResult(False, onto_validation_result, None)
     # Validation of the data
     duplicate_file_warnings = None
     if not config.ignore_duplicate_files_warning:

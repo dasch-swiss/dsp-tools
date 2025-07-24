@@ -40,6 +40,7 @@ def ingest_xmlupload(
     creds: ServerCredentials,
     interrupt_after: int | None = None,
     skip_validation: bool = False,
+    skip_ontology_validation: bool = False,
 ) -> bool:
     """
     This function reads an XML file
@@ -54,6 +55,7 @@ def ingest_xmlupload(
         creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
         skip_validation: skip the SHACL validation
+        skip_ontology_validation: skip the ontology validation
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -106,6 +108,7 @@ def ingest_xmlupload(
                 severity=v_severity,
                 ignore_duplicate_files_warning=True,
                 is_on_prod_server=is_on_prod_like_server,
+                skip_ontology_validation=skip_ontology_validation,
             ),
             auth=auth,
         )

@@ -21,6 +21,7 @@ TEST_ENV_CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
+    skip_ontology_validation=False,
 )
 
 PROD_ENV_CONFIG = ValidateDataConfig(
@@ -29,6 +30,7 @@ PROD_ENV_CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=True,
+    skip_ontology_validation=False,
 )
 
 FILEPATH_1 = "file_path_1.jpg"

@@ -43,6 +43,7 @@ CONFIG = ValidateDataConfig(
     severity=ValidationSeverity.INFO,
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
+    skip_ontology_validation=False,
 )
 
 

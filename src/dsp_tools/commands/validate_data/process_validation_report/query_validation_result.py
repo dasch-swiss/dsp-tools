@@ -9,8 +9,8 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
+from dsp_tools.commands.validate_data.constants import LEGAL_INFO_PROPS
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
-from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -25,15 +25,6 @@ from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DASH
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
-
-LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
-
-
-SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
-    SH.Violation: Severity.VIOLATION,
-    SH.Warning: Severity.WARNING,
-    SH.Info: Severity.INFO,
-}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:

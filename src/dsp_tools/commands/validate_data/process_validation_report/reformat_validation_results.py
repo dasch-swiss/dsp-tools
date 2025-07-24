@@ -1,23 +1,30 @@
 from typing import cast
 
+from rdflib import SH
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
+from dsp_tools.commands.validate_data.constants import LEGAL_INFO_PROPS
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import LEGAL_INFO_PROPS
-from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import SEVERITY_MAPPER
 from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+
+SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
+    SH.Violation: Severity.VIOLATION,
+    SH.Warning: Severity.WARNING,
+    SH.Info: Severity.INFO,
+}
 
 
 def reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:

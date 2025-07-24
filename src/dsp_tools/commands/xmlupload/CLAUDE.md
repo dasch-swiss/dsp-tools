@@ -1,4 +1,4 @@
-# CLAUDE.md - XMLUpload Module
+# CLAUDE.md - xmlupload Module
 
 This file provides guidance to Claude Code when working with the `xmlupload` module in DSP-TOOLS.
 
@@ -52,6 +52,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
 ### Key Components
 
 #### prepare_xml_input/
+
 - **prepare_xml_input.py**: Main orchestration for XML processing pipeline
 - **read_validate_xml_file.py**: XML file reading and validation logic
 - **get_processed_resources.py**: Transform parsed resources to processed format
@@ -61,10 +62,11 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **list_client.py**: Client for list node lookups
 
 #### models/
+
 - **processed/**: Data models for processed resources and values
-  - **res.py**: `ProcessedResource` and `MigrationMetadata` models
-  - **values.py**: Various processed value types
-  - **file_values.py**: Value models for Files
+    - **res.py**: `ProcessedResource` and `MigrationMetadata` models
+    - **values.py**: Various processed value types
+    - **file_values.py**: Value models for Files
 - **lookup_models.py**: Lookup tables for IRIs and XML references
 - **upload_state.py**: State management for upload operations
 - **upload_clients.py**: Client collection for various services
@@ -74,10 +76,11 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **input_problems.py**: Input validation problem tracking
 
 #### stash/
+
 - **stash_models.py**: Data models for stashing circular references
-  - `StandoffStash`: Manages stashed RichtextValue with standoff markup
-  - `StandoffStashItem`: Individual stashed RichtextValue
-  - `LinkObjStash`: Manages stashed LinkValue references
+    - `StandoffStash`: Manages stashed RichtextValue with standoff markup
+    - `StandoffStashItem`: Individual stashed RichtextValue
+    - `LinkObjStash`: Manages stashed LinkValue references
 - **stash_circular_references.py**: Logic for detecting and stashing circular references
 - **analyse_circular_reference_graph.py**: Graph analysis for upload ordering
 - **create_info_for_graph.py**: Graph information extraction
@@ -85,6 +88,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **upload_stashed_xml_texts.py**: Upload stashed XML text values
 
 #### make_rdf_graph/
+
 - **make_resource_and_values.py**: Main RDF graph creation logic, creates resources and calls other functionalities
 - **make_values.py**: RDF generation for various value types
 - **make_file_value.py**: File value RDF generation
@@ -92,17 +96,21 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **constants.py**: RDF-related constants and mappings
 
 #### Client Classes
+
 - **resource_create_client.py**: `ResourceCreateClient` for creating resources via DSP API
 - **project_client.py**: `ProjectClient` for project-related operations
 - **iri_resolver.py**: IRI resolution utilities
 
 #### Utilities
+
 - **write_diagnostic_info.py**: Diagnostic output generation (ID to IRI mappings)
 
 ## Key Data Models
 
 ### ProcessedResource
+
 The central data model representing a fully processed resource ready for upload:
+
 ```python
 @dataclass
 class ProcessedResource:
@@ -115,20 +123,25 @@ class ProcessedResource:
     iiif_uri: ProcessedIIIFUri | None = None
     migration_metadata: MigrationMetadata | None = None
 ```
+
 The `ProcessedResource` is created from the `ParsedResources`
 
 ### Stash Models
+
 For handling circular references:
+
 - **StandoffStash**: Manages stashed XML text values with standoff markup
 - **LinkObjStash**: Manages stashed resource pointer properties
 
 ### Upload Configuration
+
 - **UploadConfig**: Central configuration management
 - **UploadState**: Tracks upload progress and enables resumption
 
 ## Workflow
 
 ### Standard XMLUpload Flow
+
 1. **Initialization**: Load configuration, authenticate, set up clients
 2. **XML Processing**: Parse XML, validate structure, transform to processed resources
 3. **Dependency Analysis**: Detect circular references, create stashes
@@ -138,11 +151,13 @@ For handling circular references:
 7. **Cleanup**: Write diagnostic info, clean up temporary files
 
 ### File Handling
+
 - Supports both local file uploads and IIIF URI references
 - Integrates with DSP ingest service for file processing
 - Handles various media types (images, audio, video, documents, archives)
 
 ### Error Handling
+
 - Comprehensive error tracking and reporting
 - Support for resuming interrupted uploads
 - Validation at multiple stages (XML, values, permissions)
@@ -151,21 +166,29 @@ For handling circular references:
 ## Important Design Patterns
 
 ### Client Abstraction
+
+
 - Separate client classes for different DSP-API endpoints
 - Live implementations for actual server communication
 - Interface-based design for testing and mocking
 
 ### Pipeline Processing
+
+
 - Multi-stage transformation pipeline from XML to RDF
 - Clear separation between parsing, processing, and uploading
 - Intermediate data models at each stage
 
 ### Stashing Strategy
+
+
 - Sophisticated circular reference detection and resolution
 - Two-phase upload process (resources first, then references)
 - Graph analysis for optimal upload ordering
 
 ### State Management
+
+
 - Persistent upload state for resumption capability
 - Progress tracking and reporting
 - Checkpoint system for recovery
@@ -181,16 +204,19 @@ For handling circular references:
 ## Common Issues and Solutions
 
 ### Circular References
+
 - Handled automatically via stashing mechanism
 - Resources uploaded first, then cross-references added
 - Graph analysis determines optimal upload order
 
 ### File Upload Failures
+
 - Separate file upload and ingest processes
 - Resume capability for interrupted uploads
 - Comprehensive validation before upload
 
 ### Performance Optimization
+
 - Batch processing for large datasets
 - Progress tracking with tqdm
 - Memory-efficient streaming for large files
@@ -218,6 +244,7 @@ When working on xmlupload functionality, these are the most important files to u
 ## Module Dependencies
 
 The xmlupload module depends on:
+
 - Core DSP-TOOLS utilities (`utils/xml_parsing/`, `utils/data_formats/`)
 - Client libraries (`clients/`)
 - Legacy models (`legacy_models/`)

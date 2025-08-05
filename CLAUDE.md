@@ -173,3 +173,4 @@ The system follows this general flow for XML processing:
 - Always use descriptive variable names
 - Pull request reviews: Only request reviews from one of the following GitHub users:
   BalduinLandolt, Nora-Olivia-Ammann, Notheturtle, seakayone, jnussbaum
+- Whenever you modify the codebase, make sure to also update all CLAUDE.md files (if necessary)

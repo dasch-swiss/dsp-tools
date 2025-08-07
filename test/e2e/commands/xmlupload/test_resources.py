@@ -8,8 +8,10 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from test.e2e.commands.xmlupload.utils import util_get_copyright_holders
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
@@ -199,3 +201,12 @@ class TestDspResources:
         number_of_values = 6
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
+
+
+@pytest.mark.usefixtures("_xmlupload_minimal_correct")
+def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
+    response = util_get_copyright_holders(auth_header, creds)
+    assert set(response["data"]) == {
+        "DaSCH",
+        "Wellcome Collection",
+    }

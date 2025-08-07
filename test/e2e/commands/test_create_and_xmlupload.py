@@ -126,18 +126,31 @@ def test_default_permissions(creds: ServerCredentials, project_iri: str, auth_he
         {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
         {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
     ]
-    
+
     # There is only one standard public DOAP
     public_doap = next(filter(lambda x: x.get("forGroup", "") == f"{USER_IRI_PREFIX}ProjectMember", doaps))
     assert unordered(public_doap["hasPermissions"]) == public_permissions
+    assert not public_doap.get("forResourceClass")
+    assert not public_doap.get("forProperty")
 
     # For each class/property which defines their own permissions, there is a separate DOAP
-    private_res_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("PrivatePermissionsResource"), doaps))
-    assert unordered(private_res_doap["hasPermissions"]) == private_permissions
-    private_prop_doap = next(filter(lambda x: x.get("forProperty", "").endswith("privateProp"), doaps))
-    assert unordered(private_prop_doap["hasPermissions"]) == private_permissions
+    # DOAP for resource class: only for class
+    priv_res_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("PrivatePermissionsResource"), doaps))
+    assert unordered(priv_res_doap["hasPermissions"]) == private_permissions
+    assert not priv_res_doap.get("forProperty")
+    assert not priv_res_doap.get("forGroup")
+    
+    # DOAP for property: only for property
+    priv_prop_doap = next(filter(lambda x: x.get("forProperty", "").endswith("privateProp"), doaps))
+    assert unordered(priv_prop_doap["hasPermissions"]) == private_permissions
+    assert not priv_prop_doap.get("forResourceClass")
+    assert not priv_prop_doap.get("forGroup")
+    
+    # DOAP for image: not only for class, but also for knora-base:hasStillImageFileValue
     limited_view_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("ImageResource"), doaps))
     assert unordered(limited_view_doap["hasPermissions"]) == limited_view_permissions
+    assert limited_view_doap["forProperty"] == "http://www.knora.org/ontology/knora-base#hasStillImageFileValue"
+    assert not limited_view_doap.get("forGroup")
 
 
 def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

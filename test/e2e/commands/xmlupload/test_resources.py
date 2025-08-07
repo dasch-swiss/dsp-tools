@@ -25,11 +25,11 @@ NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES = 9
 """
 Note on these tests:
 - The xmlupload code that creates metadata triples (e.g. the permissions) is shared by all resource types.
-- FileValue metadata is also created by code that is shared by all file value types, 
+- FileValue metadata is also created by code that is shared by all file value types,
   therefore it is not necessary to assert the correct creation for every FileValue type separately.
 - The content of values is tested.
-- For built-in DSP resources the presence of the expected values is explicitly tested here, 
-  but the content of the values is not as that is included in the tests for the values 
+- For built-in DSP resources the presence of the expected values is explicitly tested here,
+  but the content of the values is not as that is included in the tests for the values
   in the designated file of this directory.
 """
 
@@ -205,8 +205,7 @@ class TestDspResources:
 
 @pytest.mark.usefixtures("_xmlupload_minimal_correct")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
+    default_copyright_holders = {"AI-Generated Content - Not Protected by Copyright", "Public Domain - Not Protected by Copyright"}
+    copyright_holders_from_xml = {"DaSCH", "Wellcome Collection"}
     response = util_get_copyright_holders(auth_header, creds)
-    assert set(response["data"]) == {
-        "DaSCH",
-        "Wellcome Collection",
-    }
+    assert set(response["data"]) == default_copyright_holders.union(copyright_holders_from_xml)

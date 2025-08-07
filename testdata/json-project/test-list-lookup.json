@@ -64,7 +64,8 @@
             {
                 "name": "list2",
                 "labels": {
-                    "en": "label List 2"
+                    "en": "label List 2",
+                    "de": "deutsch List 2"
                 },
                 "comments": {
                     "en": "no comment"

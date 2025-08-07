@@ -1,4 +1,6 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
+import warnings
+
 import pytest
 
 from dsp_tools.xmllib.helpers import ListLookup
@@ -6,12 +8,18 @@ from dsp_tools.xmllib.helpers import ListLookup
 
 @pytest.fixture
 def list_lookup_en() -> ListLookup:
-    return ListLookup.create_new("testdata/json-project/test-list-lookup.json", "en", "default")
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        lst = ListLookup.create_new("testdata/json-project/test-list-lookup.json", "en", "default")
+    assert len(caught_warnings) == 0
+    return lst
 
 
 @pytest.fixture
 def list_lookup_de() -> ListLookup:
-    return ListLookup.create_new("testdata/json-project/test-list-lookup.json", "de", "default")
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        lst = ListLookup.create_new("testdata/json-project/test-list-lookup.json", "de", "default")
+    assert len(caught_warnings) == 1
+    return lst
 
 
 class TestGetListLookup:

@@ -130,7 +130,7 @@ def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCred
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_default_permissions(
+def test_default_permissions(  # noqa: PLR0913 (too many arguments)
     creds: ServerCredentials,
     project_iri: str,
     auth_header: dict[str, str],

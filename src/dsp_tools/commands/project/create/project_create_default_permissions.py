@@ -9,6 +9,7 @@ def create_default_permissions(
     perm_client: PermissionsClient,
     default_permissions: str,
     default_permissions_overrule: dict[str, str | list[str]] | None,
+    shortcode: str,
 ) -> bool:
     logger.info("Set default permissions...")
     print("Set default permissions...")
@@ -21,7 +22,7 @@ def create_default_permissions(
         logger.warning("Cannot create default permissions")
         return False
     if default_permissions_overrule:
-        if not _create_overrules(perm_client, default_permissions_overrule):
+        if not _create_overrules(perm_client, default_permissions_overrule, shortcode):
             print("WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
@@ -57,41 +58,44 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: str) -
     return perm_client.create_new_doap(payload)
 
 
-def _create_overrules(perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]]) -> bool:
+def _create_overrules(perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]], shortcode: str) -> bool:
     overall_success = True
     for entity in default_permissions_overrule["private"]:
         first_letter = entity.split(":")[-1][0]
         is_res = first_letter.upper() == first_letter
+        entity_iri = _get_iri_from_prefixed_name(entity, shortcode, perm_client.auth.server)
         if is_res:
-            success = _create_one_private_overrule(perm_client=perm_client, prefixed_res=entity, prefixed_prop=None)
+            success = _create_one_private_overrule(perm_client=perm_client, res_iri=entity_iri, prop_iri=None)
         else:
-            success = _create_one_private_overrule(perm_client=perm_client, prefixed_res=None, prefixed_prop=entity)
+            success = _create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=entity_iri)
         if not success:
             overall_success = False
     for prefixed_img_class in default_permissions_overrule["limited_view"]:
-        success = _create_one_limited_view_overrule(perm_client=perm_client, prefixed_img_class=prefixed_img_class)
+        img_class_iri = _get_iri_from_prefixed_name(prefixed_img_class, shortcode, perm_client.auth.server)
+        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=img_class_iri)
         if not success:
             overall_success = False
     return overall_success
 
 
 def _create_one_private_overrule(
-    perm_client: PermissionsClient, prefixed_res: str | None, prefixed_prop: str | None
+    perm_client: PermissionsClient, res_iri: str | None, prop_iri: str | None
 ) -> bool:
     perm = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
     ]
     payload = {
-        "forProperty": prefixed_prop,
-        "forResourceClass": prefixed_res,
+        "forProperty": prop_iri,
+        "forResourceClass": res_iri,
         "forProject": perm_client.proj_iri,
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
 
 
-def _create_one_limited_view_overrule(perm_client: PermissionsClient, prefixed_img_class: str) -> bool:
+def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_iri: str) -> bool:
+    # This makes only sense for the knora-api:hasStillImageFileValue property of image classes
     perm = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
@@ -99,9 +103,17 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, prefixed_i
         {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": None},
     ]
     payload = {
-        "forProperty": "knora-api:hasStillImageFileValue",
-        "forResourceClass": prefixed_img_class,
+        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forResourceClass": img_class_iri,
         "forProject": perm_client.proj_iri,
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
+    
+    
+def _get_iri_from_prefixed_name(prefixed_name: str, proj_shortcode: str, server: str) -> str:
+    onto, name = prefixed_name.split(":")
+    host_iri = server.replace("https://", "http://")
+    if onto == "knora-api":
+        return f"http://api.knora.org/ontology/knora-api/v2#{name}"
+    return f"{host_iri}/ontology/{proj_shortcode}/{onto}/v2#{name}"

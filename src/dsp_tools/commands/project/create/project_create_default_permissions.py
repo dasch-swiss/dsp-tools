@@ -97,7 +97,7 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, prefixed_i
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": None},
-   ]
+    ]
     payload = {
         "forProperty": "knora-api:hasStillImageFileValue",
         "forResourceClass": prefixed_img_class,

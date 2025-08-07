@@ -1,4 +1,3 @@
-import warnings
 from typing import Any
 from typing import cast
 
@@ -6,7 +5,6 @@ from loguru import logger
 
 from dsp_tools.commands.project.models.project_definition import ProjectDefinition
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 
 

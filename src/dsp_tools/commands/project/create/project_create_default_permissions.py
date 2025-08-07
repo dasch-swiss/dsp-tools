@@ -58,7 +58,9 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: str) -
     return perm_client.create_new_doap(payload)
 
 
-def _create_overrules(perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]], shortcode: str) -> bool:
+def _create_overrules(
+    perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]], shortcode: str
+) -> bool:
     overall_success = True
     for entity in default_permissions_overrule["private"]:
         first_letter = entity.split(":")[-1][0]
@@ -78,9 +80,7 @@ def _create_overrules(perm_client: PermissionsClient, default_permissions_overru
     return overall_success
 
 
-def _create_one_private_overrule(
-    perm_client: PermissionsClient, res_iri: str | None, prop_iri: str | None
-) -> bool:
+def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | None, prop_iri: str | None) -> bool:
     perm = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
@@ -109,8 +109,8 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
-    
-    
+
+
 def _get_iri_from_prefixed_name(prefixed_name: str, proj_shortcode: str, server: str) -> str:
     onto, name = prefixed_name.split(":")
     host_iri = server.replace("https://", "http://")

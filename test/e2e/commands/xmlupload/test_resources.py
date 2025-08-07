@@ -205,7 +205,10 @@ class TestDspResources:
 
 @pytest.mark.usefixtures("_xmlupload_minimal_correct")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
-    default_copyright_holders = {"AI-Generated Content - Not Protected by Copyright", "Public Domain - Not Protected by Copyright"}
+    default_copyright_holders = {
+        "AI-Generated Content - Not Protected by Copyright",
+        "Public Domain - Not Protected by Copyright",
+    }
     copyright_holders_from_xml = {"DaSCH", "Wellcome Collection"}
     response = util_get_copyright_holders(auth_header, creds)
     assert set(response["data"]) == default_copyright_holders.union(copyright_holders_from_xml)

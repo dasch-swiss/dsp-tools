@@ -68,6 +68,10 @@ def _create_overrules(perm_client: PermissionsClient, default_permissions_overru
             success = _create_one_private_overrule(perm_client=perm_client, prefixed_res=None, prefixed_prop=entity)
         if not success:
             overall_success = False
+    for prefixed_img_class in default_permissions_overrule["limited_view"]:
+        success = _create_one_limited_view_overrule(perm_client=perm_client, prefixed_img_class=prefixed_img_class)
+        if not success:
+            overall_success = False
     return overall_success
 
 
@@ -81,6 +85,22 @@ def _create_one_private_overrule(
     payload = {
         "forProperty": prefixed_prop,
         "forResourceClass": prefixed_res,
+        "forProject": perm_client.proj_iri,
+        "hasPermissions": perm,
+    }
+    return perm_client.create_new_doap(payload)
+
+
+def _create_one_limited_view_overrule(perm_client: PermissionsClient, prefixed_img_class: str) -> bool:
+    perm = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": None},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": None},
+   ]
+    payload = {
+        "forProperty": "knora-api:hasStillImageFileValue",
+        "forResourceClass": prefixed_img_class,
         "forProject": perm_client.proj_iri,
         "hasPermissions": perm,
     }

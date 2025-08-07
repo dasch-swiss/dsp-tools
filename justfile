@@ -135,7 +135,7 @@ e2e-test-xmlupload *FLAGS:
 
 # Run the end-to-end tests for the create and xmlupload command (with testcontainers)
 [no-exit-message]
-e2e-test-create-xmlupload *FLAGS:
+e2e-test-create *FLAGS:
     uv run pytest test/e2e/commands/test_create.py/ {{FLAGS}}
 
 

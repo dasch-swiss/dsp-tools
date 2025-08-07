@@ -31,19 +31,22 @@
                     {
                         "name": "list1_node2",
                         "labels": {
-                            "en": "label 2"
+                            "en": "label 2",
+                            "de": "deutsch 2"
                         },
                         "nodes": [
                             {
                                 "name": "list1_node2.1",
                                 "labels": {
-                                    "en": "label 2.1"
+                                    "en": "label 2.1",
+                                    "de": "deutsch 2.1"
                                 }
                             },
                             {
                                 "name": "list1_node2.2",
                                 "labels": {
-                                    "en": "label 2.2"
+                                    "en": "label 2.2",
+                                    "de": "deutsch 2.2"
                                 },
                                 "nodes": [
                                     {

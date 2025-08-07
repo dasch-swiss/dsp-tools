@@ -32,8 +32,6 @@ def parse_project_json(
         default_permissions=project_json["project"]["default_permissions"],
         default_permissions_overrule=project_json["project"].get("default_permissions_overrule"),
     )
-    if project_json["project"].get("default_permissions_overrule"):
-        warnings.warn(DspToolsUserWarning("'default_permissions_overrule' is not implemented yet!"))
     all_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
     all_ontos = _parse_all_ontos(project_json, all_lists)
 

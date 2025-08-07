@@ -107,22 +107,37 @@ def test_default_permissions(creds: ServerCredentials, project_iri: str, auth_he
         f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
     )
     doaps = response.json()["default_object_access_permissions"]
-    assert len(doaps) == 4  # As soon as per-class DOAPs are supported, there will be more
+    NUM_OF_OVERRULES_IN_JSON_FILE = 3
+    assert len(doaps) == NUM_OF_OVERRULES_IN_JSON_FILE + 1
 
-    # There is only one standard public DOAP
-    public_doap = next(filter(lambda x: x.get("forGroup", "") == f"{USER_IRI_PREFIX}ProjectMember", doaps))
-    expected_permissions = [
+    private_permissions = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+    ]
+    public_permissions = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
         {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
         {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
     ]
-    assert unordered(public_doap["hasPermissions"]) == expected_permissions
+    limited_view_permissions = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+    ]
+    
+    # There is only one standard public DOAP
+    public_doap = next(filter(lambda x: x.get("forGroup", "") == f"{USER_IRI_PREFIX}ProjectMember", doaps))
+    assert unordered(public_doap["hasPermissions"]) == public_permissions
 
     # For each class/property which defines their own permissions, there is a separate DOAP
     private_res_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("PrivatePermissionsResource"), doaps))
+    assert unordered(private_res_doap["hasPermissions"]) == private_permissions
     private_prop_doap = next(filter(lambda x: x.get("forProperty", "").endswith("privateProp"), doaps))
+    assert unordered(private_prop_doap["hasPermissions"]) == private_permissions
     limited_view_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("ImageResource"), doaps))
+    assert unordered(limited_view_doap["hasPermissions"]) == limited_view_permissions
 
 
 def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

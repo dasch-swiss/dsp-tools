@@ -1,6 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
 
-from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 

@@ -1,6 +1,5 @@
 import json
 import urllib.parse
-from typing import Any
 
 import requests
 from rdflib import RDFS
@@ -39,10 +38,3 @@ def _get_single_graph_from_api(
 
 def util_get_res_iri_from_label(g: Graph, label_str: str) -> SubjectObjectTypeAlias:
     return next(g.subjects(RDFS.label, Literal(label_str)))
-
-
-def util_get_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:
-    url = f"{creds.server}/admin/projects/shortcode/9999/legal-info/copyright-holders?page=1&page-size=25&order=Asc"
-    headers = auth_header | {"Accept": "application/json"}
-    response = requests.get(url=url, headers=headers, timeout=3).json()
-    return dict(response)

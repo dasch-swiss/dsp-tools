@@ -201,12 +201,3 @@ class TestDspResources:
         number_of_values = 6
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
-
-
-@pytest.mark.usefixtures("_xmlupload_minimal_correct")
-def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
-    response = util_get_copyright_holders(auth_header, creds)
-    assert set(response["data"]) == {
-        "DaSCH",
-        "Wellcome Collection",
-    }

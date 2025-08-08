@@ -103,7 +103,8 @@ It handles the complete workflow from XML parsing and validation to resource cre
 
 #### Utilities
 
-- **write_diagnostic_info.py**: Generates JSON files mapping XML resource IDs to DSP server IRIs for troubleshooting and post-upload reference
+- **write_diagnostic_info.py**: Generates JSON files mapping XML resource IDs to DSP server IRIs 
+  for troubleshooting and post-upload reference
 
 ## Key Data Models
 
@@ -185,6 +186,7 @@ The xmlupload process automatically generates diagnostic files containing mappin
 #### Upload State Contents
 
 The saved state includes:
+
 - Progress tracking for resource uploads
 - Failed upload information
 - Pending stash items (circular references)
@@ -196,6 +198,7 @@ The saved state includes:
 #### 1. Upload Interruption Handling
 
 When an upload fails or is interrupted:
+
 - Upload state is preserved in `~/.dsp-tools/xmluploads/`
 - ID-to-IRI mappings are written for successfully uploaded resources
 - Use `dsp-tools resume-xmlupload` to continue from the last checkpoint
@@ -235,12 +238,6 @@ When an upload fails or is interrupted:
 - Two-phase upload process (resources first, then stashed references)
 - Graph analysis for optimal upload ordering
 
-### State Management
-
-
-- Persistent upload state for resumption capability
-- Progress tracking and reporting
-- Checkpoint system for recovery
 
 ## Testing Considerations
 

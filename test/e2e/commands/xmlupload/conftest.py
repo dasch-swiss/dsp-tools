@@ -8,6 +8,7 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: ARG001 Unused function argument
@@ -37,6 +38,27 @@ def class_with_everything_iri(onto_iri) -> str:
 @pytest.fixture(scope="module")
 def second_onto_iri(creds) -> str:
     return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{SECOND_ONTO}/v2#"
+
+
+@pytest.fixture(scope="module")
+def create_e2e_project(creds: ServerCredentials) -> None:
+    assert create_project(Path("testdata/json-project/test-project-e2e.json"), creds)
+
+
+@pytest.fixture(scope="module")
+def _xmlupload_e2e_project(create_e2e_project, creds: ServerCredentials) -> None:
+    """
+    If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
+    This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.
+    Then it can happen that they try to save the id2iri mapping at the same time,
+    which fails, because the id2iri mapping is named after the shortcode and the timestamp.
+    """
+    absolute_xml_path = Path("testdata/xml-data/test-data-e2e.xml").absolute()
+    original_cwd = Path.cwd()
+    with TemporaryDirectory() as tmpdir:
+        with pytest.MonkeyPatch.context() as m:
+            m.chdir(tmpdir)
+            assert xmlupload(absolute_xml_path, creds, str(original_cwd))
 
 
 @pytest.fixture(scope="module")

@@ -113,41 +113,46 @@ def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCred
     assert all_ids == {"http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/cc-by-nc-4.0"}
 
 
-@pytest.mark.usefixtures("_create_project")
-def test_default_permissions(
-    creds: ServerCredentials,
-    project_iri: str,
-    auth_header: dict[str, str],
-    private_permissions: list[dict[str, Any]],
-    public_permissions: list[dict[str, Any]],
-    limited_view_permissions: list[dict[str, Any]],
-) -> None:
+@pytest.fixture(scope="module")
+def doaps(creds: ServerCredentials, project_iri: str, auth_header: dict[str, str]) -> list[dict[str, Any]]:
     response = requests.get(
         f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
     )
     doaps = response.json()["default_object_access_permissions"]
     NUM_OF_OVERRULES_IN_JSON_FILE = 3
     assert len(doaps) == NUM_OF_OVERRULES_IN_JSON_FILE + 1
+    return doaps
 
+
+@pytest.mark.usefixtures("_create_project")
+def test_public_doap(doaps: list[dict[str, Any]], public_permissions: list[dict[str, Any]]) -> None:
     # There is only one standard public DOAP
     public_doap = next(filter(lambda x: x.get("forGroup", "") == f"{USER_IRI_PREFIX}ProjectMember", doaps))
     assert unordered(public_doap["hasPermissions"]) == public_permissions
     assert not public_doap.get("forResourceClass")
     assert not public_doap.get("forProperty")
 
-    # For each class/property which defines their own permissions, there is a separate DOAP
+
+@pytest.mark.usefixtures("_create_project")
+def test_private_resource_doap(doaps: list[dict[str, Any]], private_permissions: list[dict[str, Any]]) -> None:
     # DOAP for resource class: only for class
     priv_res_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("PrivatePermissionsResource"), doaps))
     assert unordered(priv_res_doap["hasPermissions"]) == private_permissions
     assert not priv_res_doap.get("forProperty")
     assert not priv_res_doap.get("forGroup")
 
+
+@pytest.mark.usefixtures("_create_project")
+def test_private_property_doap(doaps: list[dict[str, Any]], private_permissions: list[dict[str, Any]]) -> None:
     # DOAP for property: only for property
     priv_prop_doap = next(filter(lambda x: x.get("forProperty", "").endswith("privateProp"), doaps))
     assert unordered(priv_prop_doap["hasPermissions"]) == private_permissions
     assert not priv_prop_doap.get("forResourceClass")
     assert not priv_prop_doap.get("forGroup")
 
+
+@pytest.mark.usefixtures("_create_project")
+def test_limited_view_image_doap(doaps: list[dict[str, Any]], limited_view_permissions: list[dict[str, Any]]) -> None:
     # DOAP for image: not only for class, but also for knora-base:hasStillImageFileValue
     limited_view_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("ImageResource"), doaps))
     assert unordered(limited_view_doap["hasPermissions"]) == limited_view_permissions

@@ -1278,8 +1278,8 @@ def create_list_if_input_is_non_empty(input_value: Any, separator: str) -> list[
 
     Examples:
         ```python
-        result = xmllib.create_list_if_input_is_non_empty(" One/  Two\\n/", "/")
-        # result == ["One", "Two"]
+        result = xmllib.create_list_if_input_is_non_empty("one, two, three", ",")
+        # result == ["one", "two", "three"]
         ```
 
         ```python

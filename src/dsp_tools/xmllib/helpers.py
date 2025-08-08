@@ -1264,6 +1264,49 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
+def create_list_if_input_is_non_empty(input_value: Any, separator: str) -> list[str]:
+    """
+    If the input value is a non-empty string it returns the separated list.
+    If the input value is non-empty but not a string,
+    it converts the input value into a string and returns a list with one element.
+    If the input value is empty it returns an empty list.
+
+    Args:
+        input_value: input value to check and convert
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline.
+
+    Returns:
+        The list that results from splitting the input string.
+
+    Examples:
+        ```python
+        result = xmllib.create_list_if_input_is_non_empty(" One/  Two\\n/", "/")
+        # result == ["One", "Two"]
+        ```
+
+        ```python
+        result = xmllib.create_list_if_input_is_non_empty(1, "-")
+        # result == ["1"]
+        ```
+
+        ```python
+        result = xmllib.create_list_if_input_is_non_empty("   \\n    ", "\\n")
+        # result == []
+        ```
+
+        ```python
+        result = xmllib.create_list_if_input_is_non_empty(None, ",")
+        # result == []
+        ```
+    """
+    if not is_nonempty_value_internal(input_value):
+        return []
+    if isinstance(input_value, str):
+        return [strpd for x in input_value.split(separator) if (strpd := x.strip())]
+    return [str(input_value)]
+
+
 def create_non_empty_list_from_string(
     string: str, separator: str, resource_id: str | None = None, prop_name: str | None = None
 ) -> list[str]:

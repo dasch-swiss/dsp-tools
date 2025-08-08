@@ -62,6 +62,8 @@ def _create_overrules(
     perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]], shortcode: str
 ) -> bool:
     overall_success = True
+
+    # Handle private overrules
     for entity in default_permissions_overrule["private"]:
         first_letter = entity.split(":")[-1][0]
         is_res = first_letter.upper() == first_letter
@@ -72,11 +74,22 @@ def _create_overrules(
             success = _create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=entity_iri)
         if not success:
             overall_success = False
-    for prefixed_img_class in default_permissions_overrule["limited_view"]:
-        img_class_iri = _get_iri_from_prefixed_name(prefixed_img_class, shortcode, perm_client.auth.server)
-        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=img_class_iri)
+
+    # Handle limited_view overrules
+    if not (limited_view := default_permissions_overrule.get("limited_view")):
+        return overall_success
+    if limited_view == "all":
+        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
         if not success:
             overall_success = False
+    else:
+        # limited_view is a list of prefixed class names
+        for prefixed_img_class in limited_view:
+            img_class_iri = _get_iri_from_prefixed_name(prefixed_img_class, shortcode, perm_client.auth.server)
+            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=img_class_iri)
+            if not success:
+                overall_success = False
+
     return overall_success
 
 
@@ -94,8 +107,9 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
     return perm_client.create_new_doap(payload)
 
 
-def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_iri: str) -> bool:
+def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_iri: str | None) -> bool:
     # This makes only sense for the knora-api:hasStillImageFileValue property of image classes
+    # To set it for all image classes, set img_class_iri to None
     perm = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": None},

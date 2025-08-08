@@ -7,6 +7,7 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: ARG001 Unused function argument
@@ -17,7 +18,7 @@ SECOND_ONTO_9999 = "second-onto"
 
 
 @pytest.fixture(scope="module")
-def project_iri_9999(create_generic_project, creds: ServerCredentials) -> str:
+def project_iri_9999(create_generic_project_9999, creds: ServerCredentials) -> str:
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE_9999}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
@@ -39,7 +40,12 @@ def second_onto_iri_9999(creds) -> str:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload_minimal_correct_9999(create_generic_project, creds) -> None:
+def create_generic_project_9999(creds: ServerCredentials) -> None:
+    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
+
+
+@pytest.fixture(scope="module")
+def _xmlupload_minimal_correct_9999(create_generic_project_9999, creds) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.
@@ -55,7 +61,7 @@ def _xmlupload_minimal_correct_9999(create_generic_project, creds) -> None:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload_text_parsing_9999(create_generic_project: None, creds: ServerCredentials) -> None:
+def _xmlupload_text_parsing_9999(create_generic_project_9999: None, creds: ServerCredentials) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.
@@ -71,7 +77,7 @@ def _xmlupload_text_parsing_9999(create_generic_project: None, creds: ServerCred
 
 
 @pytest.fixture(scope="module")
-def auth_header(create_generic_project, creds) -> dict[str, str]:
+def auth_header(create_generic_project_9999, creds) -> dict[str, str]:
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}

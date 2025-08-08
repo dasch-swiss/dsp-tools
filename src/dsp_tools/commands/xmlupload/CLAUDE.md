@@ -234,12 +234,12 @@ For handling circular references:
 
 When working on xmlupload functionality, these are the most important files to understand:
 
-- `xmlupload.py:52-120` - Main upload workflow orchestration
-- `prepare_xml_input/prepare_xml_input.py:25-50` - XML processing pipeline
-- `models/processed/res.py:12-22` - Core ProcessedResource model
+- `xmlupload.py` - Main upload workflow orchestration
+- `prepare_xml_input/prepare_xml_input.py` - XML processing pipeline
+- `models/processed/res.py` - Core ProcessedResource model
 - `stash/stash_circular_references.py` - Circular reference handling
-- `make_rdf_graph/make_resource_and_values.py:26-50` - RDF generation
-- `resource_create_client.py:16-25` - DSP-API resource creation
+- `make_rdf_graph/make_resource_and_values.py` - RDF generation
+- `resource_create_client.py:` - DSP-API resource creation
 
 ## Module Dependencies
 

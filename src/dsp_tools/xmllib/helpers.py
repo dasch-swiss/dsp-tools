@@ -1266,10 +1266,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 
 def create_list_if_input_is_non_empty(input_value: Any, separator: str) -> list[str]:
     """
-    If the input value is a non-empty string it returns the separated list.
-    If the input value is non-empty but not a string,
-    it converts the input value into a string and returns a list with one element.
-    If the input value is empty it returns an empty list.
+    Create a list of strings from the input value, using the provided separator.
 
     Args:
         input_value: input value to check and convert

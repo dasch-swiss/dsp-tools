@@ -497,8 +497,15 @@ def _name_label_mapper_iterator(
             yield from _name_label_mapper_iterator(node["nodes"], language_of_label)
             # each yielded value is a (label, name) pair of a single list entry
         if "name" in node:
-            yield node["labels"][language_of_label], node["name"]
             # the actual values of the name and the label
+            if found := node["labels"].get(language_of_label):
+                yield found, node["name"]
+            else:
+                msg = (
+                    f"The language of the labels is '{language_of_label}', "
+                    f"the list node with the name '{node['name']}' does not have a label in this language."
+                )
+                emit_xmllib_input_warning(MessageInfo(msg))
 
 
 def escape_reserved_xml_characters(text: str) -> str:

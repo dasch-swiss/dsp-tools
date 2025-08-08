@@ -1,5 +1,24 @@
 # Changelog
 
+## [16.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.1...v16.7.0) (2025-08-08)
+
+
+### Enhancements
+
+* **xmllib:** helper function create list if the input is non-empty (DEV-5249) ([#1906](https://github.com/dasch-swiss/dsp-tools/issues/1906)) ([6bc7aa4](https://github.com/dasch-swiss/dsp-tools/commit/6bc7aa4c0c47d8ad7877428d3f39c0df63c5ef85))
+
+
+### Bug Fixes
+
+* **upload-files:** enable extension ".json" (was forgotten) ([#1899](https://github.com/dasch-swiss/dsp-tools/issues/1899)) ([86017ee](https://github.com/dasch-swiss/dsp-tools/commit/86017ee0047e240bf33e54de95671a69c959f3a8))
+* **xmllib:** don't crash if the listnode lookup does not find a label with the specified language (DEV-5247) ([#1902](https://github.com/dasch-swiss/dsp-tools/issues/1902)) ([583d273](https://github.com/dasch-swiss/dsp-tools/commit/583d2738151306dcc58809db1b90eeee20620ef8))
+* **xmllib:** make the function `create_list_from_input` importable (DEV-5250) ([#1908](https://github.com/dasch-swiss/dsp-tools/issues/1908)) ([53ba941](https://github.com/dasch-swiss/dsp-tools/commit/53ba9419270ab06cd79a6ca92d5d98a13bd52438))
+
+
+### Maintenance
+
+* **xmlupload:** generate CLAUDE.md file (DEV-5204) ([#1893](https://github.com/dasch-swiss/dsp-tools/issues/1893)) ([1b089b5](https://github.com/dasch-swiss/dsp-tools/commit/1b089b553108e5238de9770b42f15d4e8bd25499))
+
 ## [16.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.0...v16.6.1) (2025-08-06)
 
 

@@ -1,10 +1,10 @@
-# CLAUDE.md - xmlupload Module
+# CLAUDE.md - xmlupload command
 
-This file provides guidance to Claude Code when working with the `xmlupload` module in DSP-TOOLS.
+This file provides guidance to Claude Code when working with the `xmlupload` command in DSP-TOOLS.
 
 ## Module Overview
 
-The `xmlupload` module implements the core functionality for uploading XML data files to a DSP server. 
+The `xmlupload` package implements the core functionality for uploading XML data files to a DSP server. 
 It handles the complete workflow from XML parsing and validation to resource creation on the DSP server, including:
 
 - XML file parsing and validation

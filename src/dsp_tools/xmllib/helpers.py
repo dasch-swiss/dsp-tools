@@ -1264,7 +1264,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
-def create_list_if_input_is_non_empty(input_value: Any, separator: str) -> list[str]:
+def create_list_from_input(input_value: Any, separator: str) -> list[str]:
     """
     Create a list of strings from the input value, using the provided separator.
 
@@ -1278,22 +1278,22 @@ def create_list_if_input_is_non_empty(input_value: Any, separator: str) -> list[
 
     Examples:
         ```python
-        result = xmllib.create_list_if_input_is_non_empty("one, two, three", ",")
+        result = xmllib.create_list_from_input("  one, two,  three", ",")
         # result == ["one", "two", "three"]
         ```
 
         ```python
-        result = xmllib.create_list_if_input_is_non_empty(1, "-")
+        result = xmllib.create_list_from_input(1, "-")
         # result == ["1"]
         ```
 
         ```python
-        result = xmllib.create_list_if_input_is_non_empty("   \\n    ", "\\n")
+        result = xmllib.create_list_from_input("   \\n    ", "\\n")
         # result == []
         ```
 
         ```python
-        result = xmllib.create_list_if_input_is_non_empty(None, ",")
+        result = xmllib.create_list_from_input(None, ",")
         # result == []
         ```
     """

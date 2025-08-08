@@ -69,7 +69,7 @@ def _xmlupload_text_parsing_9999(create_generic_project: None, creds: ServerCred
         with pytest.MonkeyPatch.context() as m:
             m.chdir(tmpdir)
             assert xmlupload(absolute_xml_path, creds, str(original_cwd))
-            
+
 
 @pytest.fixture(scope="module")
 def create_4125_e2e_project(creds: ServerCredentials) -> None:

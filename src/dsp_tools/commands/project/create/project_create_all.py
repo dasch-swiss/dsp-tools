@@ -145,7 +145,12 @@ def create_project(  # noqa: PLR0915 (too many statements)
 
     # create the default permissions (DOAPs)
     perm_client = PermissionsClient(auth, str(project_remote.iri))
-    success = create_default_permissions(perm_client, project.metadata.default_permissions)
+    success = create_default_permissions(
+        perm_client,
+        project.metadata.default_permissions,
+        project.metadata.default_permissions_overrule,
+        project.metadata.shortcode,
+    )
     if not success:
         overall_success = False
 

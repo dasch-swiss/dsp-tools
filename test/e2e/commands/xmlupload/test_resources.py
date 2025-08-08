@@ -36,25 +36,25 @@ Note on these tests:
 
 @pytest.fixture(scope="module")
 def cls_with_everything_graph(
-    _xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds
+    _xmlupload_minimal_correct_9999, class_with_everything_iri_9999, auth_header, project_iri_9999, creds
 ) -> Graph:
-    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+    return util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
 
 
 class TestResources:
-    def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri):
-        cls_iri = URIRef(class_with_everything_iri)
+    def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri_9999):
+        cls_iri = URIRef(class_with_everything_iri_9999)
         resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
         expected_number_of_resources = 17
         assert len(resource_iris) == expected_number_of_resources
 
     def test_resource_no_values_assert_triples_present(
-        self, cls_with_everything_graph, class_with_everything_iri, project_iri
+        self, cls_with_everything_graph, class_with_everything_iri_9999, project_iri_9999
     ):
         res_iri = util_get_res_iri_from_label(cls_with_everything_graph, "resource_no_values")
         number_of_triples = list(cls_with_everything_graph.triples((res_iri, None, None)))
-        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(project_iri)
-        assert next(cls_with_everything_graph.objects(res_iri, RDF.type)) == URIRef(class_with_everything_iri)
+        assert next(cls_with_everything_graph.objects(res_iri, KNORA_API.attachedToProject)) == URIRef(project_iri_9999)
+        assert next(cls_with_everything_graph.objects(res_iri, RDF.type)) == URIRef(class_with_everything_iri_9999)
         assert len(list(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))) == 1
         assert len(list(cls_with_everything_graph.objects(res_iri, KNORA_API.arkUrl))) == 1
         assert len(list(cls_with_everything_graph.objects(res_iri, KNORA_API.versionArkUrl))) == 1
@@ -73,21 +73,21 @@ class TestResources:
         actual_permissions = next(cls_with_everything_graph.objects(res_iri, KNORA_API.hasPermissions))
         assert actual_permissions == PRIVATE_PERMISSIONS
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_second_onto_class(self, second_onto_iri, onto_iri, auth_header, project_iri, creds):
-        cls_iri_str = f"{second_onto_iri}SecondOntoClass"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_second_onto_class(self, second_onto_iri_9999, onto_iri_9999, auth_header, project_iri_9999, creds):
+        cls_iri_str = f"{second_onto_iri_9999}SecondOntoClass"
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
         res_iri = resource_iris.pop(0)
-        assert next(g.objects(res_iri, URIRef(f"{second_onto_iri}testBoolean")))
-        assert next(g.objects(res_iri, URIRef(f"{onto_iri}testSimpleText")))
+        assert next(g.objects(res_iri, URIRef(f"{second_onto_iri_9999}testBoolean")))
+        assert next(g.objects(res_iri, URIRef(f"{onto_iri_9999}testSimpleText")))
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_still_image(self, onto_iri, auth_header, project_iri, creds):
-        cls_iri_str = f"{onto_iri}TestStillImageRepresentation"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_still_image(self, onto_iri_9999, auth_header, project_iri_9999, creds):
+        cls_iri_str = f"{onto_iri_9999}TestStillImageRepresentation"
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 2
         assert len(resource_iris) == expected_number_of_resources
@@ -112,19 +112,19 @@ class TestResources:
         assert next(g.objects(iiif_uri_val, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
         assert next(g.objects(iiif_uri_val, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_audio(self, onto_iri, auth_header, project_iri, creds):
-        cls_iri_str = f"{onto_iri}TestAudioRepresentation"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_audio(self, onto_iri_9999, auth_header, project_iri_9999, creds):
+        cls_iri_str = f"{onto_iri_9999}TestAudioRepresentation"
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         assert next(g.objects(predicate=RDFS.label)) == Literal("audio")
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_video(self, onto_iri, auth_header, project_iri, creds):
-        cls_iri_str = f"{onto_iri}TestMovingImageRepresentation"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_video(self, onto_iri_9999, auth_header, project_iri_9999, creds):
+        cls_iri_str = f"{onto_iri_9999}TestMovingImageRepresentation"
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         assert next(g.objects(predicate=RDFS.label)) == Literal("video")
         expected_number_of_resources = 1
@@ -132,10 +132,10 @@ class TestResources:
 
 
 class TestDspResources:
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_region(self, auth_header, project_iri, creds):
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_region(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
@@ -149,10 +149,10 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_link_obj(self, auth_header, project_iri, creds):
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_link_obj(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}LinkObj"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
@@ -164,10 +164,10 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_audio_segment(self, auth_header, project_iri, creds):
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_audio_segment(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
@@ -183,10 +183,10 @@ class TestDspResources:
         expected_number_of_triples = NUMBER_OF_RESOURCE_TRIPLES_WITHOUT_VALUES + number_of_values
         assert len(res_triples) == expected_number_of_triples
 
-    @pytest.mark.usefixtures("_xmlupload_minimal_correct")
-    def test_video_segment(self, auth_header, project_iri, creds):
+    @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
+    def test_video_segment(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}VideoSegment"
-        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
         assert len(resource_iris) == expected_number_of_resources
@@ -203,7 +203,7 @@ class TestDspResources:
         assert len(res_triples) == expected_number_of_triples
 
 
-@pytest.mark.usefixtures("_xmlupload_minimal_correct")
+@pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
     default_copyright_holders = {
         "AI-Generated Content - Not Protected by Copyright",

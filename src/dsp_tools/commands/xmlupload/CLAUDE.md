@@ -111,19 +111,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
 ### ProcessedResource
 
 The central data model representing a fully processed resource ready for upload:
-
-```python
-@dataclass
-class ProcessedResource:
-    res_id: str                    # Resource identifier
-    type_iri: str                  # Resource type IRI
-    label: str                     # Resource label
-    permissions: Permissions | None # Access permissions
-    values: list[ProcessedValue]   # Associated values
-    file_value: ProcessedFileValue | None = None
-    iiif_uri: ProcessedIIIFUri | None = None
-    migration_metadata: MigrationMetadata | None = None
-```
+The class `ProcessedResource` in `models/processed/res.py`
 
 The `ProcessedResource` is created from the `ParsedResources`
 

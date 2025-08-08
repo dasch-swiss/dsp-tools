@@ -103,7 +103,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
 
 #### Utilities
 
-- **write_diagnostic_info.py**: Diagnostic output generation (ID to IRI mappings)
+- **write_diagnostic_info.py**: Generates JSON files mapping XML resource IDs to DSP server IRIs for troubleshooting and post-upload reference
 
 ## Key Data Models
 
@@ -161,7 +161,56 @@ For handling circular references:
 - Comprehensive error tracking and reporting
 - Support for resuming interrupted uploads
 - Validation at multiple stages (XML, values, permissions)
-- Detailed diagnostic output for troubleshooting
+- Comprehensive diagnostic output including ID-to-IRI mappings and upload state persistence
+
+## Diagnostic Output and Troubleshooting
+
+### ID-to-IRI Mapping Files
+
+The xmlupload process automatically generates diagnostic files containing mappings of internal XML IDs to DSP IRIs:
+
+#### File Generation (`write_diagnostic_info.py`)
+
+- **Function**: `write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)`
+- **Purpose**: Creates JSON files mapping XML resource IDs to their corresponding DSP server IRIs
+- **Timing**: Generated at the end of successful uploads (called in `xmlupload.py`)
+
+#### State Management
+
+- **Save Location**: Configurable via `DiagnosticsConfig.save_location`
+- **Default Path**: `~/.dsp-tools/xmluploads/`
+- **Cleanup**: State files are automatically removed after successful completion
+- **Persistence**: Used for resuming interrupted uploads with `resume-xmlupload`
+
+#### Upload State Contents
+
+The saved state includes:
+- Progress tracking for resource uploads
+- Failed upload information
+- Pending stash items (circular references)
+- IRI resolver lookup table
+- Upload configuration parameters
+
+### Troubleshooting Workflow
+
+#### 1. Upload Interruption Handling
+
+When an upload fails or is interrupted:
+- Upload state is preserved in `~/.dsp-tools/xmluploads/`
+- ID-to-IRI mappings are written for successfully uploaded resources
+- Use `dsp-tools resume-xmlupload` to continue from the last checkpoint
+
+#### 2. Diagnostic File Analysis
+
+- **Check ID mappings**: Verify which resources were successfully created
+- **Cross-reference with XML**: Compare XML IDs with generated IRIs
+- **State inspection**: Examine saved upload state for failure points
+
+#### 3. Error Recovery
+
+- Failed uploads are tracked in the upload state
+- Stash failures prevent completion but preserve progress
+- State cleanup occurs only after full success confirmation
 
 ## Important Design Patterns
 
@@ -209,11 +258,9 @@ For handling circular references:
 - Resources uploaded first, then cross-references added
 - Graph analysis determines optimal upload order
 
-### File Upload Failures
+### File Upload
 
-- Separate file upload and ingest processes
-- Resume capability for interrupted uploads
-- Comprehensive validation before upload
+- Separate file upload from data upload
 
 ### Performance Optimization
 
@@ -239,7 +286,7 @@ When working on xmlupload functionality, these are the most important files to u
 - `models/processed/res.py` - Core ProcessedResource model
 - `stash/stash_circular_references.py` - Circular reference handling
 - `make_rdf_graph/make_resource_and_values.py` - RDF generation
-- `resource_create_client.py:` - DSP-API resource creation
+- `resource_create_client.py` - DSP-API resource creation
 
 ## Module Dependencies
 

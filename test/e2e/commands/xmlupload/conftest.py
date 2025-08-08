@@ -72,12 +72,12 @@ def _xmlupload_text_parsing(create_generic_project: None, creds: ServerCredentia
             
 
 @pytest.fixture(scope="module")
-def create_e2e_project(creds: ServerCredentials) -> None:
+def create_4125_e2e_project(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/json-project/test-project-e2e.json"), creds)
 
 
 @pytest.fixture(scope="module")
-def _xmlupload_e2e_project(create_e2e_project, creds: ServerCredentials) -> None:
+def _xmlupload_4125_e2e_project(create_e2e_project, creds: ServerCredentials) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.

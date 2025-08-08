@@ -4,6 +4,7 @@ from .helpers import ListLookup as ListLookup
 from .helpers import clean_whitespaces_from_string as clean_whitespaces_from_string
 from .helpers import create_footnote_element as create_footnote_element
 from .helpers import create_footnote_string as create_footnote_string
+from .helpers import create_list_from_input as create_list_from_input
 from .helpers import create_list_from_string as create_list_from_string
 from .helpers import create_non_empty_list_from_string as create_non_empty_list_from_string
 from .helpers import create_standoff_link_to_resource as create_standoff_link_to_resource

@@ -1267,6 +1267,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 def create_list_from_input(input_value: Any, separator: str) -> list[str]:
     """
     Create a list of strings from the input value, using the provided separator.
+    If the input is empty it returns an empty list.
 
     Args:
         input_value: input value to check and convert

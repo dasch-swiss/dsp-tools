@@ -30,13 +30,17 @@ SPECIAL_CHARACTERS_STRING = "àéèêëôûç äöüß _-'()[]{}+=!| 漢が글�
 
 
 @pytest.fixture(scope="module")
-def g_minimal(_xmlupload_minimal_correct, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
-    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+def g_minimal(
+    _xmlupload_minimal_correct_9999, class_with_everything_iri_9999, auth_header, project_iri_9999, creds
+) -> Graph:
+    return util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
 
 
 @pytest.fixture(scope="module")
-def g_text_parsing(_xmlupload_text_parsing, class_with_everything_iri, auth_header, project_iri, creds) -> Graph:
-    return util_request_resources_by_class(class_with_everything_iri, auth_header, project_iri, creds)
+def g_text_parsing(
+    _xmlupload_text_parsing_9999, class_with_everything_iri_9999, auth_header, project_iri_9999, creds
+) -> Graph:
+    return util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
 
 
 def _assert_number_of_values_is_one_and_get_val_iri(g: Graph, label: str, prop_iri: URIRef) -> SubjectObjectTypeAlias:
@@ -52,8 +56,8 @@ class TestSharedTriples:
     These generic triples are tested only once and not for each value type individually.
     """
 
-    def test_all_triples_of_a_value(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testBoolean")
+    def test_all_triples_of_a_value(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "bool_true", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         props = [
@@ -71,22 +75,22 @@ class TestSharedTriples:
             assert len(list(g_minimal.objects(val_iri, prp))) == 1
         assert len(val_triples) == len(props)
 
-    def test_doap(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testBoolean")
+    def test_doap(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "bool_true", prop_iri)
         permissions = next(g_minimal.objects(val_iri, KNORA_API.hasPermissions))
         assert permissions == PUBLIC_PERMISSIONS
 
-    def test_private_permissions(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testBoolean")
+    def test_private_permissions(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(
             g_minimal, "bool_1_private_permissions_on_value", prop_iri
         )
         permissions = next(g_minimal.objects(val_iri, KNORA_API.hasPermissions))
         assert permissions == PRIVATE_PERMISSIONS
 
-    def test_comment_on_value(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testBoolean")
+    def test_comment_on_value(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "bool_0_comment_on_value", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         cmnt = next(g_minimal.objects(val_iri, KNORA_API.valueHasComment))
@@ -100,8 +104,8 @@ class TestValues:
     The following tests, test the triples that are specific to each value type.
     """
 
-    def test_bool_true(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testBoolean")
+    def test_bool_true(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testBoolean")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "bool_true", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal(True)
@@ -110,8 +114,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.BooleanValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_color(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testColor")
+    def test_color(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testColor")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "color", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("#00ff00")
@@ -120,8 +124,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.ColorValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_date(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testSubDate1")
+    def test_date(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testSubDate1")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "date", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("JULIAN:0700 BCE:0600 BCE")
@@ -139,8 +143,8 @@ class TestValues:
             assert next(g_minimal.objects(val_iri, prp)) == val
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + len(date_details)
 
-    def test_decimal(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testDecimalSimpleText")
+    def test_decimal(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testDecimalSimpleText")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "decimal", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("2.71", datatype=XSD.decimal)
@@ -149,9 +153,9 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.DecimalValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_geometry(self, auth_header, project_iri, creds):
+    def test_geometry(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}Region"
-        res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "region", KNORA_API.hasGeometry)
         val_triples = list(res_g.triples((val_iri, None, None)))
         actual_value = str(next(res_g.objects(val_iri, KNORA_API.geometryValueAsGeometry)))
@@ -160,8 +164,8 @@ class TestValues:
         assert next(res_g.objects(val_iri, RDF.type)) == KNORA_API.GeomValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_geoname(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testGeoname")
+    def test_geoname(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testGeoname")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "geoname", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("1111111")
@@ -170,8 +174,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.GeonameValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_integer(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testIntegerSimpleText")
+    def test_integer(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testIntegerSimpleText")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "integer", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal(1)
@@ -180,9 +184,9 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.IntValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_interval(self, auth_header, project_iri, creds):
+    def test_interval(self, auth_header, project_iri_9999, creds):
         cls_iri_str = f"{KNORA_API_STR}AudioSegment"
-        res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri, creds)
+        res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "audio_segment", KNORA_API.hasSegmentBounds)
         val_triples = list(res_g.triples((val_iri, None, None)))
         interval_start = Literal("0.1", datatype=XSD.decimal)
@@ -208,8 +212,8 @@ class TestValues:
         assert len(node_one) == 1
         return cast(str, node_one.pop(0)["id"])
 
-    def test_list(self, g_minimal, onto_iri, creds, auth_header):
-        prop_iri = URIRef(f"{onto_iri}testListProp")
+    def test_list(self, g_minimal, onto_iri_9999, creds, auth_header):
+        prop_iri = URIRef(f"{onto_iri_9999}testListProp")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "list", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         list_node_iri = self._util_get_list_node(creds, auth_header)
@@ -219,8 +223,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.ListValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_link(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testHasLinkToValue")
+    def test_link(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testHasLinkToValue")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "link", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         target_iri = util_get_res_iri_from_label(g_minimal, "resource_no_values")
@@ -229,8 +233,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.LinkValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_richtext(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "richtext", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal(f"{RICHTEXT_XML_DECLARATION}<text><p> Text </p></text>")
@@ -244,8 +248,8 @@ class TestValues:
         additional_richtext_triples = 2
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_richtext_triples
 
-    def test_textarea(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testTextarea")
+    def test_textarea(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testTextarea")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "textarea", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("Line One\nLine Two")
@@ -257,8 +261,8 @@ class TestValues:
         additional_text_type_triple = 1
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_text_type_triple
 
-    def test_simpletext(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testSimpleText")
+    def test_simpletext(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testSimpleText")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "simpletext", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("Text")
@@ -270,8 +274,8 @@ class TestValues:
         additional_text_type_triple = 1
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + additional_text_type_triple
 
-    def test_time(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testTimeValue")
+    def test_time(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testTimeValue")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "time", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("2019-10-24T03:45:12.010Z", datatype=XSD.dateTimeStamp)
@@ -280,8 +284,8 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.TimeValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
-    def test_uri(self, g_minimal, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testUriValue")
+    def test_uri(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testUriValue")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "uri", prop_iri)
         val_triples = list(g_minimal.triples((val_iri, None, None)))
         expected_val = Literal("https://dasch.swiss", datatype=XSD.anyURI)
@@ -306,37 +310,37 @@ class TestTextParsing:
         assert len(actual_value) == 1
         return str(actual_value.pop(0))
 
-    def test_richtext_res_with_tags_in_text(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext_res_with_tags_in_text(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_tags_in_text", prop_iri)
         expected_str = (
             f"{RICHTEXT_XML_DECLARATION}<text>This is <em>italicized and <strong>bold</strong> </em> text!</text>"
         )
         assert returned_str == expected_str
 
-    def test_richtext_res_text_wrapped_in_tag(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext_res_text_wrapped_in_tag(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_text_wrapped_in_tag", prop_iri)
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph text </p></text>"
         assert returned_str == expected_str
 
-    def test_richtext_res_with_multiple_paragraphs(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext_res_with_multiple_paragraphs(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_multiple_paragraphs", prop_iri)
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text><p> Paragraph 1 text </p> <p> Paragraph 2 text </p></text>"
         assert returned_str == expected_str
 
-    def test_richtext_res_with_escaped_characters(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext_res_with_escaped_characters(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_characters", prop_iri)
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text>text &lt;notatag&gt; text and with ampersand &amp;</text>"
         assert returned_str == expected_str
 
-    def test_richtext_res_with_standoff_link_to_id(self, g_text_parsing, onto_iri):
+    def test_richtext_res_with_standoff_link_to_id(self, g_text_parsing, onto_iri_9999):
         # In the order of the attributes in the <a> tag to denote a stand-off is not always the same.
         # Therefore, a string comparison may fail at some times.
         target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "richtext_res_with_standoff_link_to_id", prop_iri)
         returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
@@ -349,10 +353,10 @@ class TestTextParsing:
         assert stand_off_link.attrib["class"] == "salsah-link"
         assert stand_off_link.attrib["href"] == str(target_iri)
 
-    def test_richtext_res_with_standoff_link_to_iri(self, g_text_parsing, onto_iri):
+    def test_richtext_res_with_standoff_link_to_iri(self, g_text_parsing, onto_iri_9999):
         # When serialised as string, the order of the attributes in the <a> tag is not always the same.
         # Therefore, we must test against the etree object, not against a string.
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_standoff_link_to_iri", prop_iri)
         returned_str = returned_str.removeprefix(RICHTEXT_XML_DECLARATION)
         returned_tree = etree.fromstring(returned_str)
@@ -371,13 +375,13 @@ class TestTextParsing:
         )
         assert returned_str == expected_str
 
-    def test_richtext_res_with_footnotes(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_richtext_res_with_footnotes(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_footnotes", prop_iri)
         expected_str = f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="Footnote"/> end text</text>'
         assert returned_str == expected_str
 
-    def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri):
+    def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri_9999):
         """
         Currently, DSP-API doesn't create this value correctly,
         see [DEV-4796](https://linear.app/dasch/issue/DEV-4796).
@@ -386,7 +390,7 @@ class TestTextParsing:
         This is also true for the single apostrophe in the following two tests.
         Use this ticket to fix the tests: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
         """
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
         expected_str = (
             f"{RICHTEXT_XML_DECLARATION}<text>"
@@ -395,15 +399,15 @@ class TestTextParsing:
         )
         assert returned_str == expected_str
 
-    def test_special_characters_in_richtext(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_special_characters_in_richtext(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
         wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
         expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{wrongly_escaped_special_char_string}</text>"
         assert returned_str == expected_str
 
-    def test_special_characters_in_footnote(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testRichtext")
+    def test_special_characters_in_footnote(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
         wrongly_escaped_special_char_string = "àéèêëôûç äöüß _-\&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
         expected_str = (
@@ -412,8 +416,8 @@ class TestTextParsing:
         )
         assert returned_str == expected_str
 
-    def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri):
-        prop_iri = URIRef(f"{onto_iri}testSimpleText")
+    def test_special_characters_in_simpletext(self, g_text_parsing, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testSimpleText")
         returned_str = self._util_get_string_value(
             g_text_parsing, "res_simpletext_special_characters", prop_iri, KNORA_API.valueAsString
         )

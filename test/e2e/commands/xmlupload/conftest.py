@@ -11,35 +11,35 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: ARG001 Unused function argument
 
-PROJECT_SHORTCODE = "9999"
-ONTO_NAME = "onto"
-SECOND_ONTO = "second-onto"
+PROJECT_SHORTCODE_9999 = "9999"
+ONTO_NAME_9999 = "onto"
+SECOND_ONTO_9999 = "second-onto"
 
 
 @pytest.fixture(scope="module")
-def project_iri(create_generic_project, creds: ServerCredentials) -> str:
-    get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
+def project_iri_9999(create_generic_project, creds: ServerCredentials) -> str:
+    get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE_9999}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
 
 
 @pytest.fixture(scope="module")
-def onto_iri(creds) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2#"
+def onto_iri_9999(creds) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE_9999}/{ONTO_NAME_9999}/v2#"
 
 
 @pytest.fixture(scope="module")
-def class_with_everything_iri(onto_iri) -> str:
-    return f"{onto_iri}ClassWithEverything"
+def class_with_everything_iri_9999(onto_iri_9999) -> str:
+    return f"{onto_iri_9999}ClassWithEverything"
 
 
 @pytest.fixture(scope="module")
-def second_onto_iri(creds) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{SECOND_ONTO}/v2#"
+def second_onto_iri_9999(creds) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE_9999}/{SECOND_ONTO_9999}/v2#"
 
 
 @pytest.fixture(scope="module")
-def _xmlupload_minimal_correct(create_generic_project, creds) -> None:
+def _xmlupload_minimal_correct_9999(create_generic_project, creds) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.
@@ -55,7 +55,7 @@ def _xmlupload_minimal_correct(create_generic_project, creds) -> None:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload_text_parsing(create_generic_project: None, creds: ServerCredentials) -> None:
+def _xmlupload_text_parsing_9999(create_generic_project: None, creds: ServerCredentials) -> None:
     """
     If there is more than 1 module, pytest-xdist might execute this fixture for multiple modules at the same time.
     This can lead to the situation that multiple workers start the xmlupload of the same data at the same time.

@@ -1248,7 +1248,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 
     Examples:
         ```python
-        result = xmllib.create_non_empty_list_from_string(" One/  Two\\n/", "/")
+        result = xmllib.create_list_from_string(" One/  Two\\n/", "/")
         # result == ["One", "Two"]
         ```
 

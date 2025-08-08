@@ -1,16 +1,16 @@
-# CLAUDE.md - xmlupload Module
+# CLAUDE.md - xmlupload command
 
-This file provides guidance to Claude Code when working with the `xmlupload` module in DSP-TOOLS.
+This file provides guidance to Claude Code when working with the `xmlupload` command in DSP-TOOLS.
 
 ## Module Overview
 
-The `xmlupload` module implements the core functionality for uploading XML data files to a DSP server. 
+The `xmlupload` package implements the core functionality for uploading XML data files to a DSP server. 
 It handles the complete workflow from XML parsing and validation to resource creation on the DSP server, including:
 
 - XML file parsing and validation
 - Resource processing and transformation
 - Circular reference resolution via stashing
-- File upload and ingest management
+- Upload of multimedia files referenced in the XML file, and ingest management
 - RDF graph generation for DSP-API
 - Error handling and recovery mechanisms
 
@@ -27,7 +27,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
    - Parse and validate XML files
    - Transform input values to processed format
    - Resolve ARKs to IRIs
-   - Validate IIIF URIs and bitstream existence
+   - Validate IIIF URIs and check if bitstreams (i.e. referenced multimedia files) exist
 
 2. **Resource Processing** (`models/processed/`)
    - Transform parsed resources to processed format
@@ -130,7 +130,7 @@ The `ProcessedResource` is created from the `ParsedResources`
 
 For handling circular references:
 
-- **StandoffStash**: Manages stashed XML text values with standoff markup
+- **StandoffStash**: Manages stashed Richtext values with standoff markup
 - **LinkObjStash**: Manages stashed resource pointer properties
 
 ### Upload Configuration
@@ -183,7 +183,7 @@ For handling circular references:
 
 
 - Sophisticated circular reference detection and resolution
-- Two-phase upload process (resources first, then references)
+- Two-phase upload process (resources first, then stashed references)
 - Graph analysis for optimal upload ordering
 
 ### State Management
@@ -227,7 +227,7 @@ For handling circular references:
 - Use dataclasses for model definitions
 - Implement comprehensive error handling
 - Add type hints for all new code
-- Write descriptive docstrings for public APIs
+- Write descriptive docstrings for public functions and classes
 - Use dependency injection for testability
 
 ## Key Files to Reference
@@ -243,7 +243,7 @@ When working on xmlupload functionality, these are the most important files to u
 
 ## Module Dependencies
 
-The xmlupload module depends on:
+The xmlupload package depends on:
 
 - Core DSP-TOOLS utilities (`utils/xml_parsing/`, `utils/data_formats/`)
 - Client libraries (`clients/`)

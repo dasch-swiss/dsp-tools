@@ -1,5 +1,4 @@
 import pytest
-import requests
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -8,10 +7,6 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
-PROJECT_SHORTCODE = "4125"
-ONTO_NAME = "e2e-testonto"
-SECOND_ONTO_NAME = "second-onto"
-
 PUBLIC_PERMISSIONS = Literal(
     "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
 )
@@ -19,23 +14,6 @@ PRIVATE_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:Project
 PREVIEW_PERMISSIONS = Literal(
     "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|RV knora-admin:KnownUser,knora-admin:UnknownUser"
 )
-
-
-@pytest.fixture(scope="module")
-def project_iri_4125(create_4125_e2e_project: None, creds: ServerCredentials) -> str:  # noqa: ARG001 (unused argument)
-    get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
-    project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
-    return project_iri
-
-
-@pytest.fixture(scope="module")
-def onto_iri_4125(creds: ServerCredentials) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2#"
-
-
-@pytest.fixture(scope="module")
-def second_onto_iri_4125(creds: ServerCredentials) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{SECOND_ONTO_NAME}/v2#"
 
 
 @pytest.fixture(scope="module")

@@ -16,6 +16,10 @@ PROJECT_SHORTCODE_9999 = "9999"
 ONTO_NAME_9999 = "onto"
 SECOND_ONTO_9999 = "second-onto"
 
+PROJECT_SHORTCODE_4125 = "4125"
+ONTO_NAME_4125 = "e2e-testonto"
+SECOND_ONTO_4125 = "second-onto"
+
 
 @pytest.fixture(scope="module")
 def project_iri_9999(create_generic_project, creds: ServerCredentials) -> str:
@@ -69,6 +73,23 @@ def _xmlupload_text_parsing_9999(create_generic_project: None, creds: ServerCred
         with pytest.MonkeyPatch.context() as m:
             m.chdir(tmpdir)
             assert xmlupload(absolute_xml_path, creds, str(original_cwd))
+
+
+@pytest.fixture(scope="module")
+def project_iri_4125(create_4125_e2e_project: None, creds: ServerCredentials) -> str:
+    get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE_4125}"
+    project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
+    return project_iri
+
+
+@pytest.fixture(scope="module")
+def onto_iri_4125(creds: ServerCredentials) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE_4125}/{ONTO_NAME_4125}/v2#"
+
+
+@pytest.fixture(scope="module")
+def second_onto_iri_4125(creds: ServerCredentials) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE_4125}/{SECOND_ONTO_4125}/v2#"
 
 
 @pytest.fixture(scope="module")

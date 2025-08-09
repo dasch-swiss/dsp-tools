@@ -32,7 +32,7 @@ class InternalError(BaseError):
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
-            f"    - The log file {Path.home() / '.dsp-tools/logging.log'}.\n"
+            f"    - The log file in {Path.home() / '.dsp-tools/<instance_id>/logging.log'}.\n"
         )
         match keep_default_msg, custom_msg:
             case False, str():

@@ -64,7 +64,7 @@ def _create_overrules(
     overall_success = True
 
     # Handle private overrules
-    for entity in default_permissions_overrule["private"]:
+    for entity in default_permissions_overrule.get("private", []):
         first_letter = entity.split(":")[-1][0]
         is_res = first_letter.upper() == first_letter
         entity_iri = _get_iri_from_prefixed_name(entity, shortcode, perm_client.auth.server)

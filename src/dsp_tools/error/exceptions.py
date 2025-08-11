@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+
 
 @dataclass
 class BaseError(Exception):

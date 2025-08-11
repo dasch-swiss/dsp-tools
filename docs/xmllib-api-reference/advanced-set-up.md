@@ -42,7 +42,7 @@ that may be printed out or saved as csv, namely info, warning and error.
     - Set the variable `XMLLIB_IGNORE_USER_INFO` to ignore this
 - Warnings:
     - The input is wrong, but the XML can be created
-    - For example, a value could not be converted into a boolean
+    - For example, a value which is expected to be a boolean could not be converted into a boolean
     - Set the variable `XMLLIB_IGNORE_USER_WARNING` to ignore this
 - Errors: 
     - The input is so wrong, that the code cannot be executed

@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -252,7 +252,7 @@ wheels = [
 
 [[package]]
 name = "dsp-tools"
-version = "16.5.0"
+version = "16.6.1"
 source = { editable = "." }
 dependencies = [
     { name = "argparse" },

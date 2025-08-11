@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import Calendar
@@ -15,6 +16,7 @@ from dsp_tools.xmllib import reformat_date
 from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
+from dsp_tools.xmllib.helpers import create_list_from_input
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
 from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
@@ -543,18 +545,26 @@ class TestFindDate:
 
 class TestCreateListFromString:
     def test_create_list_from_string_ok(self) -> None:
-        result = create_list_from_string("ab, cd , ", ",")
+        with pytest.warns(DspToolsFutureWarning):
+            result = create_list_from_string("ab, cd , ", ",")
         assert set(result) == {"ab", "cd"}
 
     def test_create_list_from_string_not_string(self) -> None:
         msg = regex.escape("The input for this function must be a string. Your input is a bool.")
-        with pytest.raises(XmllibInputError, match=msg):
-            create_list_from_string(True, ",")  # type: ignore[arg-type]
+        with pytest.warns(DspToolsFutureWarning):
+            with pytest.raises(XmllibInputError, match=msg):
+                create_list_from_string(True, ",")  # type: ignore[arg-type]
 
     def test_create_list_from_string_empty(self) -> None:
-        result = create_list_from_string(" , ", ",")
+        with pytest.warns(DspToolsFutureWarning):
+            result = create_list_from_string(" , ", ",")
         assert isinstance(result, list)
         assert result == []
+
+    @pytest.mark.parametrize(("input_value", "expected"), [("a, b", ["a", "b"]), ("", []), (1, ["1"])])
+    def test_create_list_from_input(self, input_value, expected) -> None:
+        result = create_list_from_input(input_value, ",")
+        assert set(result) == set(expected)
 
     def test_create_non_empty_list_from_string_ok(self) -> None:
         result = create_non_empty_list_from_string("ab, cd , ", ",")

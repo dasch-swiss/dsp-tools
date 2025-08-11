@@ -1,5 +1,32 @@
 # Changelog
 
+## [16.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.0...v16.6.1) (2025-08-06)
+
+
+### Maintenance
+
+* bump start-stack to 2025.08.01 ([#1897](https://github.com/dasch-swiss/dsp-tools/issues/1897)) ([24ab2d9](https://github.com/dasch-swiss/dsp-tools/commit/24ab2d9348f436b1a89088440cdfc33f97cbc578))
+
+## [16.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.5.0...v16.6.0) (2025-07-30)
+
+
+### Enhancements
+
+* **create:** allow only subclasses of StillImageRepresentation in default_permissions_overrule.limited_view (DEV-5179) ([#1881](https://github.com/dasch-swiss/dsp-tools/issues/1881)) ([67d1b46](https://github.com/dasch-swiss/dsp-tools/commit/67d1b46eb93ad0c895b3fbd336881c2ddce1ef3f))
+* **validate-data:** add flag to ignore ontology validation (DEV-5200) ([#1892](https://github.com/dasch-swiss/dsp-tools/issues/1892)) ([1ee25c4](https://github.com/dasch-swiss/dsp-tools/commit/1ee25c4dc069f5972faaf187da30e205035a8974))
+* **validate-data:** include standoff links to IRIs in validation (DEV-4944) ([#1888](https://github.com/dasch-swiss/dsp-tools/issues/1888)) ([f6aba7c](https://github.com/dasch-swiss/dsp-tools/commit/f6aba7c00423d3e650e1e74e9cb20ed848eb2412))
+
+
+### Maintenance
+
+* bump start-stack to 2025.07.05 ([#1896](https://github.com/dasch-swiss/dsp-tools/issues/1896)) ([fcd7a6b](https://github.com/dasch-swiss/dsp-tools/commit/fcd7a6b8e7471228591d120d08629a94f155ebe6))
+* **validate-data:** separate queries and reformatting of validation results ([#1894](https://github.com/dasch-swiss/dsp-tools/issues/1894)) ([1feaf55](https://github.com/dasch-swiss/dsp-tools/commit/1feaf555427bc19f96fa86d19d3f5b06914d3766))
+
+
+### Documentation
+
+* **bulk ingest:** remove "experimental" warning, add "SystemAdmin" warning ([#1889](https://github.com/dasch-swiss/dsp-tools/issues/1889)) ([323a27e](https://github.com/dasch-swiss/dsp-tools/commit/323a27e804a2ee567a111a21aa7eaeb509efe1eb))
+
 ## [16.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.4.0...v16.5.0) (2025-07-23)
 
 

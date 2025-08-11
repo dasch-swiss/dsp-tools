@@ -1,10 +1,8 @@
 from collections.abc import Iterator
-from pathlib import Path
 
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -23,8 +21,3 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
         f"http://0.0.0.0:{container_ports.api}",
         f"http://0.0.0.0:{container_ports.ingest}",
     )
-
-
-@pytest.fixture(scope="module")
-def create_generic_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)

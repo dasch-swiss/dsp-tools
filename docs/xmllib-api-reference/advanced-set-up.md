@@ -33,24 +33,22 @@ If you wish to keep the old file, you must move or rename it.
 
 ## Configure Warnings Level
 
-During the runtime of the `xmllib` there are three possible levels of user information 
+During the runtime of the `xmllib`, there are three possible levels of user information 
 that may be printed out or saved as csv, namely info, warning and error.
 
-The lowest level, info, primarily validation information, for example you handed over an empty list.
+- Info:
+    - The input may be incorrect in some cases
+    - For example, the list you provided does not contain any elements
+    - Set the variable `XMLLIB_IGNORE_USER_INFO` to ignore this
+- Warnings:
+    - The input is wrong, but the XML can be created
+    - For example, a value could not be converted into a boolean
+    - Set the variable `XMLLIB_IGNORE_USER_WARNING` to ignore this
+- Errors: 
+    - The input is so wrong, that the code cannot be executed
+    - Cannot be ignored
 
-Warnings do not impede the creation of the XML file but the file itself may be invalid. 
-For example an input could not be converted into a boolean.
-
-Errors are raised and stop the program if the input is so wrong that the code cannot continue to be executed.
-It is not possible to ignore errors, but they are rare.
-
-As, the info messages may contain information that is not interesting to the user and be very verbose 
-it is possible to configure the output with the following variables in the `.env` file.
-
-- `XMLLIB_IGNORE_USER_INFO`: don't display messages with the level info
-- `XMLLIB_IGNORE_USER_WARNING`: don't display messages with the level warning
-
-If you only want to have the errors displayed you need to set both the variables to true.
+If both info and warnings should be ignored, you need to set both variables to `true`.
 
 Example `.env` file content:
 

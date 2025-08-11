@@ -1,7 +1,11 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import load_dotenv
 from loguru import logger
+
+load_dotenv()
 
 
 def _make_and_get_logs_directory() -> Path:
@@ -41,12 +45,24 @@ def logger_config() -> None:
         retention=retention_number,
     )
 
-    logger.add(
-        sink=WARNINGS_SAVEPATH,
-        level="WARNING",
-        format=text_format,
-        backtrace=False,
-        diagnose=False,
-        rotation=rotation_size,
-        retention=10,
-    )
+    additional_log = str(os.getenv("SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
+    if additional_log.lower() == "true":
+        local_log = Path("logging.log")
+        logger.add(
+            sink=local_log,
+            format=text_format,
+            backtrace=True,
+            diagnose=True,
+            rotation=rotation_size,
+            retention=1,
+        )
+    else:
+        logger.add(
+            sink=WARNINGS_SAVEPATH,
+            level="WARNING",
+            format=text_format,
+            backtrace=False,
+            diagnose=False,
+            rotation=rotation_size,
+            retention=10,
+        )

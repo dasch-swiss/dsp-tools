@@ -118,7 +118,7 @@ def doaps(creds: ServerCredentials, project_iri: str, auth_header: dict[str, str
     response = requests.get(
         f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
     )
-    doaps = response.json()["default_object_access_permissions"]
+    doaps: list[dict[str, Any]] = response.json()["default_object_access_permissions"]
     NUM_OF_OVERRULES_IN_JSON_FILE = 3
     assert len(doaps) == NUM_OF_OVERRULES_IN_JSON_FILE + 1
     return doaps

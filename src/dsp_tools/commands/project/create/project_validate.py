@@ -213,14 +213,17 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     """
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
         return True
-    limited_view: list[str] = default_permissions_overrule.get("limited_view")
-    if not limited_view:
+    if not (limited_view := default_permissions_overrule.get("limited_view")):
+        return True
+
+    # If limited_view is "all", no validation needed - it applies to all image classes
+    if limited_view == "all":
         return True
 
     errors: dict[str, str] = {}
     resource_lookup = _build_resource_lookup(project_definition)
 
-    # Check each class in limited_view
+    # Check each class in limited_view (when it's a list)
     for class_ref in limited_view:
         parsed_ref = _parse_class_reference(class_ref)
         if not parsed_ref:

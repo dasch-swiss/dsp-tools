@@ -1248,6 +1248,9 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     Raises:
         XmllibInputError: If the input value is not a string.
 
+    Attention:
+        This function will be removed in the future. Use `create_list_from_input` instead.
+
     Examples:
         ```python
         result = xmllib.create_list_from_string(" One/  Two\\n/", "/")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import uuid
+import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +13,7 @@ import regex
 from lxml import etree
 from regex import Match
 
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
@@ -1246,6 +1248,9 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     Raises:
         XmllibInputError: If the input value is not a string.
 
+    Attention:
+        This function will be removed in the future. Use `create_list_from_input` instead.
+
     Examples:
         ```python
         result = xmllib.create_list_from_string(" One/  Two\\n/", "/")
@@ -1257,6 +1262,8 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         # result == []
         ```
     """
+    msg = "This function will be deleted in the future. Use the new function called 'create_list_from_input' instead."
+    warnings.warn(DspToolsFutureWarning(msg))
     if not isinstance(string, str):
         raise_xmllib_input_error(
             MessageInfo(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
@@ -1338,7 +1345,7 @@ def create_non_empty_list_from_string(
         # raises XmllibInputError
         ```
     """
-    lst = create_list_from_string(string, separator)
+    lst = create_list_from_input(string, separator)
     if len(lst) == 0:
         msg_info = MessageInfo(
             message="The input for this function must result in a non-empty list. Your input results in an empty list.",

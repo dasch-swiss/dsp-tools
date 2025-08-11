@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib import Calendar
@@ -544,16 +545,19 @@ class TestFindDate:
 
 class TestCreateListFromString:
     def test_create_list_from_string_ok(self) -> None:
-        result = create_list_from_string("ab, cd , ", ",")
+        with pytest.warns(DspToolsFutureWarning):
+            result = create_list_from_string("ab, cd , ", ",")
         assert set(result) == {"ab", "cd"}
 
     def test_create_list_from_string_not_string(self) -> None:
         msg = regex.escape("The input for this function must be a string. Your input is a bool.")
-        with pytest.raises(XmllibInputError, match=msg):
-            create_list_from_string(True, ",")  # type: ignore[arg-type]
+        with pytest.warns(DspToolsFutureWarning):
+            with pytest.raises(XmllibInputError, match=msg):
+                create_list_from_string(True, ",")  # type: ignore[arg-type]
 
     def test_create_list_from_string_empty(self) -> None:
-        result = create_list_from_string(" , ", ",")
+        with pytest.warns(DspToolsFutureWarning):
+            result = create_list_from_string(" , ", ",")
         assert isinstance(result, list)
         assert result == []
 

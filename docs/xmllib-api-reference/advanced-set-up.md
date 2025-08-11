@@ -31,6 +31,33 @@ If a CSV file from a previous run already exists, it is overwritten.
 If you wish to keep the old file, you must move or rename it.
 
 
+## Configure Warnings Level
+
+During the runtime of the `xmllib`, there are three possible levels of user information 
+that may be printed out or saved as csv, namely info, warning and error.
+
+- Info:
+    - The input may be incorrect in some cases
+    - For example, the list you provided does not contain any elements
+    - Set the variable `XMLLIB_IGNORE_USER_INFO` to ignore this
+- Warnings:
+    - The input is wrong, but the XML can be created
+    - For example, a value which is expected to be a boolean could not be converted into a boolean
+    - Set the variable `XMLLIB_IGNORE_USER_WARNING` to ignore this
+- Errors: 
+    - The input is so wrong, that the code cannot be executed
+    - Cannot be ignored
+
+If both info and warnings should be ignored, you need to set both variables to `true`.
+
+Example `.env` file content:
+
+  ```env
+  XMLLIB_IGNORE_USER_INFO=true
+  XMLLIB_IGNORE_USER_WARNING=true
+  ```
+
+
 ## Configurations for the Resulting XML File
 
 ### Sorting of Resources and Values in the XML

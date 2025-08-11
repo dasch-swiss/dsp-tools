@@ -65,6 +65,34 @@ def project_iri(_create_project: None, creds: ServerCredentials) -> str:
     return project_iri
 
 
+@pytest.fixture(scope="module")
+def private_permissions() -> list[dict[str, Any]]:
+    return [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+    ]
+
+
+@pytest.fixture(scope="module")
+def public_permissions() -> list[dict[str, Any]]:
+    return [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
+    ]
+
+
+@pytest.fixture(scope="module")
+def limited_view_permissions() -> list[dict[str, Any]]:
+    return [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+    ]
+
+
 @pytest.mark.usefixtures("_create_project")
 def test_project(
     auth_header: dict[str, str], creds: ServerCredentials, e2e_testonto_iri: str, second_onto_iri: str
@@ -86,25 +114,44 @@ def test_all_get_licenses_enabled(auth_header: dict[str, str], creds: ServerCred
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_default_permissions(creds: ServerCredentials, project_iri: str, auth_header: dict[str, str]) -> None:
+def test_default_permissions(
+    creds: ServerCredentials,
+    project_iri: str,
+    auth_header: dict[str, str],
+    private_permissions: list[dict[str, Any]],
+    public_permissions: list[dict[str, Any]],
+    limited_view_permissions: list[dict[str, Any]],
+) -> None:
     response = requests.get(
         f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
     )
-    doaps = response.json()["default_object_access_permissions"]
-    assert len(doaps) == 1  # As soon as per-class DOAPs are supported, there will be more
+    doaps: list[dict[str, Any]] = response.json()["default_object_access_permissions"]
+    NUM_OF_OVERRULES_IN_JSON_FILE = 3
+    assert len(doaps) == NUM_OF_OVERRULES_IN_JSON_FILE + 1
 
-    # The first DOAP is the public one
-    assert doaps[0]["forGroup"] == f"{USER_IRI_PREFIX}ProjectMember"
-    expected_permissions = [
-        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 8},
-        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 7},
-        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
-        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
-    ]
-    assert unordered(doaps[0]["hasPermissions"]) == expected_permissions
+    # There is only one standard public DOAP
+    public_doap = next(filter(lambda x: x.get("forGroup", "") == f"{USER_IRI_PREFIX}ProjectMember", doaps))
+    assert unordered(public_doap["hasPermissions"]) == public_permissions
+    assert not public_doap.get("forResourceClass")
+    assert not public_doap.get("forProperty")
 
-    # For each class/property which defines their own permissions, there will be a separate DOAP
-    pass  # noqa: PIE790
+    # DOAP for resource class: only for class
+    priv_res_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("PrivatePermissionsResource"), doaps))
+    assert unordered(priv_res_doap["hasPermissions"]) == private_permissions
+    assert not priv_res_doap.get("forProperty")
+    assert not priv_res_doap.get("forGroup")
+
+    # DOAP for property: only for property
+    priv_prop_doap = next(filter(lambda x: x.get("forProperty", "").endswith("privateProp"), doaps))
+    assert unordered(priv_prop_doap["hasPermissions"]) == private_permissions
+    assert not priv_prop_doap.get("forResourceClass")
+    assert not priv_prop_doap.get("forGroup")
+
+    # DOAP for image: not only for class, but also for knora-base:hasStillImageFileValue
+    limited_view_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("ImageResource"), doaps))
+    assert unordered(limited_view_doap["hasPermissions"]) == limited_view_permissions
+    assert limited_view_doap["forProperty"] == "http://www.knora.org/ontology/knora-base#hasStillImageFileValue"
+    assert not limited_view_doap.get("forGroup")
 
 
 def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

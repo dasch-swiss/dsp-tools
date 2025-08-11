@@ -208,8 +208,8 @@ def project_mixed_valid_invalid() -> dict[str, Any]:
             ],
         }
     }
-    
-    
+
+
 @pytest.fixture
 def project_limited_view_all() -> dict[str, Any]:
     """Project definition with limited_view: 'all'"""

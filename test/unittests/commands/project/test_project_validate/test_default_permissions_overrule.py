@@ -210,6 +210,20 @@ def project_mixed_valid_invalid() -> dict[str, Any]:
     }
 
 
+@pytest.fixture
+def project_limited_view_all() -> dict[str, Any]:
+    """Project definition with limited_view: 'all'"""
+    return {
+        "project": {
+            "shortcode": "1234",
+            "shortname": "test-project",
+            "default_permissions": "public",
+            "default_permissions_overrule": {"limited_view": "all"},
+            "ontologies": [{"name": "test-onto", "resources": [{"name": "Img", "super": "StillImageRepresentation"}]}],
+        }
+    }
+
+
 def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
     """Test that validation passes when no default_permissions_overrule exists"""
     assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is True
@@ -308,3 +322,8 @@ def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[st
     assert (
         "SubImageResource" not in error_message or "Class reference 'test-onto:SubImageResource'" not in error_message
     )
+
+
+def test_check_overrule_limited_view_all(project_limited_view_all: dict[str, Any]) -> None:
+    """Test that validation passes when limited_view is 'all'"""
+    assert _check_for_invalid_default_permissions_overrule(project_limited_view_all)

@@ -118,6 +118,8 @@ def raise_xmllib_input_error(msg: MessageInfo) -> Never:
 
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     """These are to be used if the error is caused by user input."""
+    if os.getenv("XMLLIB_IGNORE_USER_WARNING").lower() == "true":
+        return
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.WARNING)
@@ -128,6 +130,8 @@ def emit_xmllib_input_warning(msg: MessageInfo) -> None:
 
 def emit_xmllib_input_info(msg: MessageInfo) -> None:
     """These are to be used if the error is caused by user input."""
+    if os.getenv("XMLLIB_IGNORE_USER_INFO").lower() == "true":
+        return
     function_trace = _get_calling_code_context()
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         write_message_to_csv(file_path, msg, function_trace, UserMessageSeverity.INFO)

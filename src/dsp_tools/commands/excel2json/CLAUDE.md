@@ -47,7 +47,7 @@ This module converts Excel files into JSON project files for DSP-TOOLS.
 - If the user has omitted optional Excel columns, the python code adds these columns to the pandas df,
   using the `add_optional_columns()` utility
 - Missing optional columns are added as empty to maintain consistent DataFrame structure
-- Optional fields in models are handled with `Optional[]` types
+- Optional fields in models are handled with `foo | None` types
 
 ## Testing Strategy
 
@@ -69,7 +69,7 @@ This module converts Excel files into JSON project files for DSP-TOOLS.
 When adding new optional columns:
 
 1. **Define Column** - Add column name to expected columns list
-2. **Add to Optional** - Use `add_optional_columns()` to handle missing columns
+2. **Add to Optional** - Use `add_optional_columns()` to handle missing optional columns
 3. **Parse in Row Handler** - Extract value in `_get_*_from_row()` functions
 4. **Update Model** - Add field to corresponding dataclass model
 5. **Serialize** - Include in `serialise()` method when present

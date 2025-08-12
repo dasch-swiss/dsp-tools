@@ -99,10 +99,3 @@ def serialise(self) -> dict[str, Any]:
         result["optional_field"] = self.optional_field
     return result
 ```
-
-## Current Development
-
-Working on implementing `default_permissions_overrule` feature:
-- Optional column in both properties and resources Excel files
-- Allows marking classes/properties as "private" or "limited_view" 
-- Only applies when project default_permissions is "public"

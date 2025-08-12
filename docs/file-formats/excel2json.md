@@ -149,6 +149,11 @@ The expected columns are:
   i.e. the base resource class/classes that this resource class is derived from.
   Must be one of the values listed in the documentation. 
   If more than one: separated by commas. 
+- [`default_permissions_overrule`](../json-project/overview/#default_permissions_overrule)
+  (optional): If you have set this project to "public" in the `json_header.xlsx`, then you can still hide certain classes.
+  Use "private" on any resource class (including image classes) to make it invisible for people outside of your project.
+  Use "limited view" on an image class to blur the image for people outside of your project. 
+
 
 The optional columns may be omitted in the Excel.
 
@@ -220,6 +225,10 @@ The expected columns are:
   (only mandatory for lists): Some `gui_element`s need further specifications. 
   Read the documentation of the respective `object` to learn if your `gui_element` needs a `gui_attributes`.
   Form: `attr: value, attr: value`. 
+- [`default_permissions_overrule`](../json-project/overview/#default_permissions_overrule)
+  (optional): If you have set this project to "public" in the `json_header.xlsx`,
+  then you can still hide certain properties.
+  Use "private" to make a property invisible for people outside of your project.
 
 The optional columns may be omitted in the Excel.  
 

@@ -45,7 +45,7 @@ def logger_config() -> None:
         retention=retention_number,
     )
 
-    additional_log = str(os.getenv("SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
+    additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
     if additional_log.lower() == "true":
         local_log = Path("logging.log")
         logger.add(

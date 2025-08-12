@@ -19,5 +19,5 @@ then set the following variable in an `.env` file:
 
 
   ```env
-  SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true
+  DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true
   ```

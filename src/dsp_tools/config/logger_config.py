@@ -25,7 +25,7 @@ def logger_config() -> None:
     """
     This function configures the log files.
     Currently, there are three sinks:
-    - instance-specific logger.log in ~/.dsp-tools/ for development purposes
+    - instance-specific logging.log in ~/.dsp-tools/ for development purposes
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
     - print output on the terminal, formatted the same as the warnings.log
     """
@@ -44,9 +44,8 @@ def logger_config() -> None:
 
     additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
     if additional_log.lower() == "true":
-        local_log = Path("logging.log")
         logger.add(
-            sink=local_log,
+            sink=Path("logging.log"),
             format=text_format,
             backtrace=True,
             diagnose=True,

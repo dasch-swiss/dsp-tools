@@ -224,5 +224,118 @@ class TestValidateClassesExcelSheet:
         assert not res
 
 
+def test_row2resource_with_default_permissions_overrule_private() -> None:
+    """Test that default_permissions_overrule='private' is correctly parsed and serialized for resources."""
+    class_info_row = pd.Series({
+        "name": "TestResource",
+        "label_en": "Test Resource",
+        "super": "Resource",
+        "comment_en": pd.NA,
+        "comment_de": pd.NA,
+        "comment_fr": pd.NA,
+        "comment_it": pd.NA,
+        "comment_rm": pd.NA,
+        "label_de": pd.NA,
+        "label_fr": pd.NA,
+        "label_it": pd.NA,
+        "label_rm": pd.NA,
+        "default_permissions_overrule": "private",
+    })
+    
+    result = e2j._row2resource(class_info_row, None)
+    expected_dict = {
+        "name": "TestResource",
+        "super": ["Resource"],
+        "labels": {"en": "Test Resource"},
+        "default_permissions_overrule": "private",
+    }
+    
+    assert result.serialise() == expected_dict
+
+
+def test_row2resource_with_default_permissions_overrule_limited_view() -> None:
+    """Test that default_permissions_overrule='limited_view' is correctly parsed and serialized for resources."""
+    class_info_row = pd.Series({
+        "name": "ImageResource",
+        "label_en": "Image Resource",
+        "super": "StillImageRepresentation",
+        "comment_en": pd.NA,
+        "comment_de": pd.NA,
+        "comment_fr": pd.NA,
+        "comment_it": pd.NA,
+        "comment_rm": pd.NA,
+        "label_de": pd.NA,
+        "label_fr": pd.NA,
+        "label_it": pd.NA,
+        "label_rm": pd.NA,
+        "default_permissions_overrule": "limited_view",
+    })
+    
+    result = e2j._row2resource(class_info_row, None)
+    expected_dict = {
+        "name": "ImageResource",
+        "super": ["StillImageRepresentation"],
+        "labels": {"en": "Image Resource"},
+        "default_permissions_overrule": "limited_view",
+    }
+    
+    assert result.serialise() == expected_dict
+
+
+def test_row2resource_with_default_permissions_overrule_empty() -> None:
+    """Test that empty default_permissions_overrule is handled correctly (not included in serialization)."""
+    class_info_row = pd.Series({
+        "name": "TestResource",
+        "label_en": "Test Resource",
+        "super": "Resource",
+        "comment_en": pd.NA,
+        "comment_de": pd.NA,
+        "comment_fr": pd.NA,
+        "comment_it": pd.NA,
+        "comment_rm": pd.NA,
+        "label_de": pd.NA,
+        "label_fr": pd.NA,
+        "label_it": pd.NA,
+        "label_rm": pd.NA,
+        "default_permissions_overrule": pd.NA,
+    })
+    
+    result = e2j._row2resource(class_info_row, None)
+    expected_dict = {
+        "name": "TestResource",
+        "super": ["Resource"],
+        "labels": {"en": "Test Resource"},
+    }
+    
+    assert result.serialise() == expected_dict
+
+
+def test_row2resource_without_default_permissions_overrule_column() -> None:
+    """Test that missing default_permissions_overrule column is handled correctly."""
+    class_info_row = pd.Series({
+        "name": "TestResource",
+        "label_en": "Test Resource",
+        "super": "Resource",
+        "comment_en": pd.NA,
+        "comment_de": pd.NA,
+        "comment_fr": pd.NA,
+        "comment_it": pd.NA,
+        "comment_rm": pd.NA,
+        "label_de": pd.NA,
+        "label_fr": pd.NA,
+        "label_it": pd.NA,
+        "label_rm": pd.NA,
+    })
+    
+    result = e2j._row2resource(class_info_row, None)
+    expected_dict = {
+        "name": "TestResource",
+        "super": ["Resource"],
+        "labels": {"en": "Test Resource"},
+    }
+    
+    assert result.serialise() == expected_dict
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

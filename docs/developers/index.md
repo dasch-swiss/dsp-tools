@@ -12,11 +12,11 @@ Please read the [README](https://github.com/dasch-swiss/dsp-tools#readme) first.
 
 ## Log File Location 
 
-The log files are by default saved in `~/.dsp-tools/logs/`, 
-if you want to have a copy of the log file in the current working directory as well, 
-set the following variable in an `.env` file.
+The log files are by default saved in `~/.dsp-tools/logs/`
+Every DSP-TOOLS run creates a new log file.
+If you prefer 1 single log file across all DSP-TOOLS runs, in the current working directory, 
+then set the following variable in an `.env` file:
 
-Example `.env` file content:
 
   ```env
   SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true

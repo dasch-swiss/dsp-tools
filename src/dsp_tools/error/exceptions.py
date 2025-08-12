@@ -33,7 +33,7 @@ class InternalError(BaseError):
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
-            f"   - The log file in {LOGGER_SAVEPATH}.\n"
+            f"   - The log file at {LOGGER_SAVEPATH}.\n"
         )
         match keep_default_msg, custom_msg:
             case False, str():

@@ -365,7 +365,7 @@ def test_row2prop_with_default_permissions_overrule_private() -> None:
             "gui_attributes": [pd.NA],
             "subject": [pd.NA],
             "comment_en": [pd.NA],
-            "comment_de": [pd.NA], 
+            "comment_de": [pd.NA],
             "comment_fr": [pd.NA],
             "comment_it": [pd.NA],
             "comment_rm": [pd.NA],
@@ -376,7 +376,7 @@ def test_row2prop_with_default_permissions_overrule_private() -> None:
             "default_permissions_overrule": ["private"],
         }
     )
-    
+
     returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
     expected_dict = {
         "name": "test_prop",
@@ -386,7 +386,7 @@ def test_row2prop_with_default_permissions_overrule_private() -> None:
         "super": ["hasValue"],
         "default_permissions_overrule": "private",
     }
-    
+
     assert isinstance(returned_prop, OntoProperty)
     assert returned_prop.serialise() == expected_dict
 
@@ -414,7 +414,7 @@ def test_row2prop_with_default_permissions_overrule_empty() -> None:
             "default_permissions_overrule": [pd.NA],
         }
     )
-    
+
     returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
     expected_dict = {
         "name": "test_prop",
@@ -423,7 +423,7 @@ def test_row2prop_with_default_permissions_overrule_empty() -> None:
         "labels": {"en": "Test Property"},
         "super": ["hasValue"],
     }
-    
+
     assert isinstance(returned_prop, OntoProperty)
     assert returned_prop.serialise() == expected_dict
 
@@ -450,7 +450,7 @@ def test_row2prop_without_default_permissions_overrule_column() -> None:
             "label_rm": [pd.NA],
         }
     )
-    
+
     returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
     expected_dict = {
         "name": "test_prop",
@@ -459,7 +459,7 @@ def test_row2prop_without_default_permissions_overrule_column() -> None:
         "labels": {"en": "Test Property"},
         "super": ["hasValue"],
     }
-    
+
     assert isinstance(returned_prop, OntoProperty)
     assert returned_prop.serialise() == expected_dict
 

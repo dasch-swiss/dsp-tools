@@ -25,8 +25,9 @@ def logger_config() -> None:
     """
     This function configures the log files.
     Currently, there are three sinks:
-    - instance-specific logging.log in ~/.dsp-tools/ for development purposes
+    - timestamp_logging.log in ~/.dsp-tools/logs/ contains the entire stack-trace
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
+      OR a complete logging.log file with the stack-trace if configured in the .env
     - print output on the terminal, formatted the same as the warnings.log
     """
     # If this is not removed, the default formatting is also printed out on the terminal

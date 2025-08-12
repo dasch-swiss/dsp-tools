@@ -65,6 +65,7 @@ testdata/test-list.json
 tmp/
 /out/
 /warnings.log
+/logging.log
 /mapping-????.csv
 /test/warnings.log
 

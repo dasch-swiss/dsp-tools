@@ -10,7 +10,7 @@ load_dotenv()
 
 def _make_and_get_logs_directory() -> Path:
     """Get the base .dsp-tools directory, creating it if it doesn't exist."""
-    base_dir = Path.home() / ".dsp-tools" / "logs" / Path().cwd().parent.parts[-1]
+    base_dir = Path.home() / ".dsp-tools" / "logs" / Path().cwd().parts[-1]
     base_dir.mkdir(exist_ok=True, parents=True)
     return base_dir
 

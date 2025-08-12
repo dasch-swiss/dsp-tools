@@ -353,5 +353,116 @@ def test_extract_information_from_single_gui_attribute_raises(input_str: str) ->
         e2j._extract_information_from_single_gui_attribute(input_str)
 
 
+def test_row2prop_with_default_permissions_overrule_private() -> None:
+    """Test that default_permissions_overrule='private' is correctly parsed and serialized."""
+    df = pd.DataFrame(
+        {
+            "name": ["test_prop"],
+            "label_en": ["Test Property"],
+            "super": ["hasValue"],
+            "object": ["TextValue"],
+            "gui_element": ["Simple"],
+            "gui_attributes": [pd.NA],
+            "subject": [pd.NA],
+            "comment_en": [pd.NA],
+            "comment_de": [pd.NA], 
+            "comment_fr": [pd.NA],
+            "comment_it": [pd.NA],
+            "comment_rm": [pd.NA],
+            "label_de": [pd.NA],
+            "label_fr": [pd.NA],
+            "label_it": [pd.NA],
+            "label_rm": [pd.NA],
+            "default_permissions_overrule": ["private"],
+        }
+    )
+    
+    returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
+    expected_dict = {
+        "name": "test_prop",
+        "object": "TextValue",
+        "gui_element": "Simple",
+        "labels": {"en": "Test Property"},
+        "super": ["hasValue"],
+        "default_permissions_overrule": "private",
+    }
+    
+    assert isinstance(returned_prop, OntoProperty)
+    assert returned_prop.serialise() == expected_dict
+
+
+def test_row2prop_with_default_permissions_overrule_empty() -> None:
+    """Test that empty default_permissions_overrule is handled correctly (not included in serialization)."""
+    df = pd.DataFrame(
+        {
+            "name": ["test_prop"],
+            "label_en": ["Test Property"],
+            "super": ["hasValue"],
+            "object": ["TextValue"],
+            "gui_element": ["Simple"],
+            "gui_attributes": [pd.NA],
+            "subject": [pd.NA],
+            "comment_en": [pd.NA],
+            "comment_de": [pd.NA],
+            "comment_fr": [pd.NA],
+            "comment_it": [pd.NA],
+            "comment_rm": [pd.NA],
+            "label_de": [pd.NA],
+            "label_fr": [pd.NA],
+            "label_it": [pd.NA],
+            "label_rm": [pd.NA],
+            "default_permissions_overrule": [pd.NA],
+        }
+    )
+    
+    returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
+    expected_dict = {
+        "name": "test_prop",
+        "object": "TextValue",
+        "gui_element": "Simple",
+        "labels": {"en": "Test Property"},
+        "super": ["hasValue"],
+    }
+    
+    assert isinstance(returned_prop, OntoProperty)
+    assert returned_prop.serialise() == expected_dict
+
+
+def test_row2prop_without_default_permissions_overrule_column() -> None:
+    """Test that missing default_permissions_overrule column is handled correctly."""
+    df = pd.DataFrame(
+        {
+            "name": ["test_prop"],
+            "label_en": ["Test Property"],
+            "super": ["hasValue"],
+            "object": ["TextValue"],
+            "gui_element": ["Simple"],
+            "gui_attributes": [pd.NA],
+            "subject": [pd.NA],
+            "comment_en": [pd.NA],
+            "comment_de": [pd.NA],
+            "comment_fr": [pd.NA],
+            "comment_it": [pd.NA],
+            "comment_rm": [pd.NA],
+            "label_de": [pd.NA],
+            "label_fr": [pd.NA],
+            "label_it": [pd.NA],
+            "label_rm": [pd.NA],
+        }
+    )
+    
+    returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
+    expected_dict = {
+        "name": "test_prop",
+        "object": "TextValue",
+        "gui_element": "Simple",
+        "labels": {"en": "Test Property"},
+        "super": ["hasValue"],
+    }
+    
+    assert isinstance(returned_prop, OntoProperty)
+    assert returned_prop.serialise() == expected_dict
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

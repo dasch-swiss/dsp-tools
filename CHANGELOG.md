@@ -1,5 +1,31 @@
 # Changelog
 
+## [16.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.1...v16.7.0) (2025-08-13)
+
+
+### Enhancements
+
+* change organisation of log files (DEV-5228) ([#1895](https://github.com/dasch-swiss/dsp-tools/issues/1895)) ([830836c](https://github.com/dasch-swiss/dsp-tools/commit/830836c8d0d7d9d5988d4907630fe2fbd88e87b8))
+* **create:** add support for classes/property specific default permissions (DOAPs) (DEV-5038) ([#1900](https://github.com/dasch-swiss/dsp-tools/issues/1900)) ([653498e](https://github.com/dasch-swiss/dsp-tools/commit/653498e1092d847c0fa7bfdd05c5790bedb55faa))
+* **xmllib:** add deprecation warning to `create_list_from_string` (DEV-5252) ([#1909](https://github.com/dasch-swiss/dsp-tools/issues/1909)) ([9df7b9d](https://github.com/dasch-swiss/dsp-tools/commit/9df7b9d39dfd164139b9075b72dabd4769aec544))
+* **xmllib:** helper function create list if the input is non-empty (DEV-5249) ([#1906](https://github.com/dasch-swiss/dsp-tools/issues/1906)) ([6bc7aa4](https://github.com/dasch-swiss/dsp-tools/commit/6bc7aa4c0c47d8ad7877428d3f39c0df63c5ef85))
+* **xmllib:** level of user info that is printed configurable in the `.env` (DEV-5254) ([#1910](https://github.com/dasch-swiss/dsp-tools/issues/1910)) ([b261276](https://github.com/dasch-swiss/dsp-tools/commit/b2612766837c8bd603430f6a188078927a5d4e8a))
+
+
+### Bug Fixes
+
+* **upload-files:** enable extension ".json" (was forgotten) ([#1899](https://github.com/dasch-swiss/dsp-tools/issues/1899)) ([86017ee](https://github.com/dasch-swiss/dsp-tools/commit/86017ee0047e240bf33e54de95671a69c959f3a8))
+* **xmllib:** don't crash if the listnode lookup does not find a label with the specified language (DEV-5247) ([#1902](https://github.com/dasch-swiss/dsp-tools/issues/1902)) ([583d273](https://github.com/dasch-swiss/dsp-tools/commit/583d2738151306dcc58809db1b90eeee20620ef8))
+* **xmllib:** make the function `create_list_from_input` importable (DEV-5250) ([#1908](https://github.com/dasch-swiss/dsp-tools/issues/1908)) ([53ba941](https://github.com/dasch-swiss/dsp-tools/commit/53ba9419270ab06cd79a6ca92d5d98a13bd52438))
+
+
+### Maintenance
+
+* bump dependencies ([#1912](https://github.com/dasch-swiss/dsp-tools/issues/1912)) ([377555f](https://github.com/dasch-swiss/dsp-tools/commit/377555fd47bd947d2d3092762f93fd51fa4ecaa2))
+* **excel2json:** add CLAUDE.md ([#1914](https://github.com/dasch-swiss/dsp-tools/issues/1914)) ([8fe0e85](https://github.com/dasch-swiss/dsp-tools/commit/8fe0e857a437266f51ab6c12e3eeed7f13f98802))
+* **start-stack:** bump versions to 2025.08.02 ([#1916](https://github.com/dasch-swiss/dsp-tools/issues/1916)) ([2957bd1](https://github.com/dasch-swiss/dsp-tools/commit/2957bd1b3f838047d9710591a7646def59b734b2))
+* **xmlupload:** generate CLAUDE.md file (DEV-5204) ([#1893](https://github.com/dasch-swiss/dsp-tools/issues/1893)) ([1b089b5](https://github.com/dasch-swiss/dsp-tools/commit/1b089b553108e5238de9770b42f15d4e8bd25499))
+
 ## [16.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.0...v16.6.1) (2025-08-06)
 
 

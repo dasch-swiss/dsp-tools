@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
@@ -32,7 +33,7 @@ class InternalError(BaseError):
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
-            f"    - The log file {Path.home() / '.dsp-tools/logging.log'}.\n"
+            f"   - The log file at {LOGGER_SAVEPATH}.\n"
         )
         match keep_default_msg, custom_msg:
             case False, str():

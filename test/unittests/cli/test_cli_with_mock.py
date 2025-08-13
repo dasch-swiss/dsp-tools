@@ -2,12 +2,12 @@ from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 

@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 import pytest
 
 from dsp_tools.cli import entry_point
@@ -554,7 +555,7 @@ def test_excel2lists(excel2lists: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.excel2resources")
 def test_excel2resources(excel2resources: Mock) -> None:
-    excel2resources.return_value = ([], True)
+    excel2resources.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
     file = "filename.xlsx"
     out_file = "filename.json"
     args = f"excel2resources {file} {out_file}".split()
@@ -567,7 +568,7 @@ def test_excel2resources(excel2resources: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.excel2properties")
 def test_excel2properties(excel2properties: Mock) -> None:
-    excel2properties.return_value = ([], True)
+    excel2properties.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
     file = "filename.xlsx"
     out_file = "filename.json"
     args = f"excel2properties {file} {out_file}".split()

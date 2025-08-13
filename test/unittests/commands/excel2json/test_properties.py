@@ -363,8 +363,8 @@ def test_extract_default_permissions_overrule() -> None:
 
     result = e2j._extract_default_permissions_overrule(test_df)
 
-    expected_private = ["property1", "property3", "property4"]
-    expected_limited_view = []
+    expected_private: list[str] = ["property1", "property3", "property4"]
+    expected_limited_view: list[str] = []
 
     assert result.private == expected_private
     assert result.limited_view == expected_limited_view

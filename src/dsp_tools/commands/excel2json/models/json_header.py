@@ -138,3 +138,34 @@ class User:
         else:
             usr_dict["projects"] = [":member"]
         return usr_dict
+
+
+@dataclass
+class PermissionsOverrulesPrefixed:
+    private: list[str]
+    limited_view: list[str]
+
+    def add_overrules(self, overrules: PermissionsOverrulesUnprefixed, onto_prefix: str) -> None:
+        self.private.extend([f"{onto_prefix}:{p}" for p in overrules.private])
+        self.limited_view.extend([f"{onto_prefix}:{p}" for p in overrules.limited_view])
+
+    def non_empty(self) -> bool:
+        return bool(self.private or self.limited_view)
+
+    def serialize(self) -> dict[str, list[str]]:
+        return {
+            "private": self.private,
+            "limited_view": self.limited_view,
+        }
+
+
+@dataclass
+class PermissionsOverrulesUnprefixed:
+    private: list[str]
+    limited_view: list[str]
+
+    def with_prefix(self, prefix: str) -> PermissionsOverrulesPrefixed:
+        return PermissionsOverrulesPrefixed(
+            private=[f"{prefix}:{p}" for p in self.private],
+            limited_view=[f"{prefix}:{p}" for p in self.limited_view],
+        )

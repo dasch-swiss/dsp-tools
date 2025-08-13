@@ -5,10 +5,11 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json import properties as e2j
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.error.exceptions import InputError
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
-output_from_method, _ = e2j.excel2properties(excelfile, None)
+output_from_method, default_permissions_overrule, _ = e2j.excel2properties(excelfile, None)
 
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -350,6 +351,11 @@ class TestExcelToProperties(unittest.TestCase):
             jsonpath_ng.ext.parse("$[?name='hasDecimal'].gui_attributes").find(output_from_method)[0].value
         )
         self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
+
+    def test_default_permissions_overrules(self) -> None:
+        assert isinstance(default_permissions_overrule, PermissionsOverrulesUnprefixed)
+        assert default_permissions_overrule.private == ["hasAnthroponym"]
+        assert default_permissions_overrule.limited_view == []
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMiss
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import OntoResource
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.utils import add_optional_columns
@@ -37,7 +38,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 def excel2resources(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
-) -> tuple[list[dict[str, Any]], bool]:
+) -> tuple[list[dict[str, Any]], PermissionsOverrulesUnprefixed, bool]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.
@@ -51,8 +52,9 @@ def excel2resources(
         InputError: if something went wrong
 
     Returns:
-        a tuple consisting of the "resources" section as Python list,
-            and the success status (True if everything went well)
+        - the "resources" section as Python list,
+        - the unprefixed "default_permissions_overrule",
+        - the success status (True if everything went well)
     """
 
     all_dfs = read_and_clean_all_sheets(excelfile)
@@ -65,6 +67,7 @@ def excel2resources(
     # transform every row into a resource
     res = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
     resources = [x.serialise() for x in res]
+    default_permissions_overrule = _extract_default_permissions_overrule(classes_df)
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -74,7 +77,7 @@ def excel2resources(
             json.dump(resources, file, indent=4, ensure_ascii=False)
             print(f"resources section was created successfully and written to file '{path_to_output_file}'")
 
-    return resources, True
+    return resources, default_permissions_overrule, True
 
 
 def _validate_excel_file(all_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:

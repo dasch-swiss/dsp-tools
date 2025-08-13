@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
@@ -6,6 +8,7 @@ import regex
 
 from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesPrefixed
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
@@ -206,23 +209,28 @@ def _create_project_json(
         lists, success = excel2lists(list_folder)
         if not success:
             overall_success = False
-    ontologies, success = _get_ontologies(data_model_files, onto_folders)
+    ontologies, permissions_overrules, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
+    if permissions_overrules.non_empty():
+        project["project"]["default_permissions_overrules"] = permissions_overrules.serialize()
     return overall_success, project
 
 
-def _get_ontologies(data_model_files: str, onto_folders: list[Path]) -> tuple[list[dict[str, Any]], bool]:
+def _get_ontologies(
+    data_model_files: str, onto_folders: list[Path]
+) -> tuple[list[dict[str, Any]], PermissionsOverrulesPrefixed, bool]:
     success = True
     ontologies = []
+    permissions_overrules = PermissionsOverrulesPrefixed(private=[], limited_view=[])
     for onto_folder in onto_folders:
         name, label = regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
-        resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
-        properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
+        resources, r_overrules, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
+        properties, p_overrules, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
         if not success1 or not success2:
             success = False
         ontologies.append(
@@ -233,4 +241,6 @@ def _get_ontologies(data_model_files: str, onto_folders: list[Path]) -> tuple[li
                 "resources": resources,
             }
         )
-    return ontologies, success
+        permissions_overrules.add_overrules(r_overrules, name)
+        permissions_overrules.add_overrules(p_overrules, name)
+    return ontologies, permissions_overrules, success

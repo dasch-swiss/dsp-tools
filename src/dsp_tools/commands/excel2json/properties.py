@@ -15,8 +15,6 @@ import regex
 
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
-from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverrule
-from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverruleProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
@@ -25,9 +23,10 @@ from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.commands.excel2json.utils import add_optional_columns, check_permissions
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
 from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols

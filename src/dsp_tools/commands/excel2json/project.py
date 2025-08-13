@@ -190,13 +190,15 @@ def _old_create_project_json(
     lists, success = old_excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
     if not success:
         overall_success = False
-    ontologies, success = _get_ontologies(data_model_files, onto_folders)
+    ontologies, default_permissions_overrule, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
+    if default_permissions_overrule.non_empty():
+        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     return overall_success, project
 
 
@@ -209,15 +211,15 @@ def _create_project_json(
         lists, success = excel2lists(list_folder)
         if not success:
             overall_success = False
-    ontologies, permissions_overrules, success = _get_ontologies(data_model_files, onto_folders)
+    ontologies, default_permissions_overrule, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
-    if permissions_overrules.non_empty():
-        project["project"]["default_permissions_overrules"] = permissions_overrules.serialize()
+    if default_permissions_overrule.non_empty():
+        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     return overall_success, project
 
 

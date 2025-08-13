@@ -163,9 +163,3 @@ class PermissionsOverrulesPrefixed:
 class PermissionsOverrulesUnprefixed:
     private: list[str]
     limited_view: list[str]
-
-    def with_prefix(self, prefix: str) -> PermissionsOverrulesPrefixed:
-        return PermissionsOverrulesPrefixed(
-            private=[f"{prefix}:{p}" for p in self.private],
-            limited_view=[f"{prefix}:{p}" for p in self.limited_view],
-        )

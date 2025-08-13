@@ -22,9 +22,10 @@ from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotLis
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import OntoResource
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
-from dsp_tools.commands.excel2json.utils import add_optional_columns, check_permissions
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels

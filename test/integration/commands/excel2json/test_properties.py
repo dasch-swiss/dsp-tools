@@ -352,7 +352,7 @@ class TestExcelToProperties(unittest.TestCase):
         )
         self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
 
-    def test_default_permissions_overrules(self) -> None:
+    def test_default_permissions_overrule(self) -> None:
         assert isinstance(default_permissions_overrule, PermissionsOverrulesUnprefixed)
         assert default_permissions_overrule.private == ["hasAnthroponym"]
         assert default_permissions_overrule.limited_view == []

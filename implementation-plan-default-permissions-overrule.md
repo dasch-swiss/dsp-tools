@@ -7,9 +7,9 @@
 
 ## Phase 2: Model Updates
 
-- [ ] Update OntoProperty model - Add `default_permissions_overrule` field (Optional[str])
-- [ ] Update OntoResource model - Add `default_permissions_overrule` field (Optional[str])
-- [ ] Update serialization methods - Include field in JSON output when present
+- ~~[ ] Update OntoProperty model - Add `default_permissions_overrule` field (Optional[str])~~
+- ~~[ ] Update OntoResource model - Add `default_permissions_overrule` field (Optional[str])~~
+- ~~[ ] Update serialization methods - Include field in JSON output when present~~
 
 ## Phase 3: Excel Parsing
 

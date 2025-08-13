@@ -15,6 +15,8 @@ import regex
 
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverrule
+from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverruleProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
@@ -23,7 +25,7 @@ from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.commands.excel2json.utils import add_optional_columns
+from dsp_tools.commands.excel2json.utils import add_optional_columns, check_permissions
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values
@@ -179,6 +181,8 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
         problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
         problems.append(missing_vals_check)
+    if permissions_prob := check_permissions(df=df, allowed_vals=["private"]):
+        problems.append(permissions_prob)
     if any(problems):
         excel_prob = ExcelFileProblem("properties.xlsx", problems)
         msg = excel_prob.execute_error_protocol()
@@ -360,3 +364,14 @@ def _find_validation_problem(
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
     )
+
+
+def _extract_default_permissions_overrule(classes_df: pd.DataFrame) -> PermissionsOverrulesUnprefixed:
+    result = PermissionsOverrulesUnprefixed(private=[], limited_view=[])
+    for _, row in classes_df.iterrows():
+        perm = row["default_permissions_overrule"]
+        if pd.isna(perm):
+            continue
+        if perm.strip().lower() == "private":
+            result.private.append(row["name"])
+    return result

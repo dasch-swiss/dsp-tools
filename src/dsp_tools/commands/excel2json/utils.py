@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem, InvalidPermissionsOverrule, InvalidPermissionsOverruleProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
@@ -334,3 +334,18 @@ def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.Dat
         additional_df = pd.DataFrame(columns=additional_col, index=df.index)
         df = pd.concat(objs=[df, additional_df], axis=1)
     return df
+
+
+def check_permissions(df: pd.DataFrame, allowed_vals: list[str]) -> None | InvalidPermissionsOverruleProblem:
+    problems: list[InvalidPermissionsOverrule] = []
+    for _, row in df.iterrows():
+        actual_val_preprocessed = row["default_permissions_overrule"].strip().lower()
+        if actual_val_preprocessed and actual_val_preprocessed not in allowed_vals:
+            prob = InvalidPermissionsOverrule(
+                entity_name=row["name"], actual_val=row["default_permissions_overrule"], allowed_vals=allowed_vals
+            )
+            problems.append(prob)
+    if problems:
+        return InvalidPermissionsOverruleProblem(problems)
+    else:
+        return None

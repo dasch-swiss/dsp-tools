@@ -155,6 +155,7 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
             "comment_fr",
             "comment_it",
             "comment_rm",
+            "default_permissions_overrule",
         },
     )
     resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}

@@ -78,6 +78,7 @@ def excel2properties(
         "comment_it",
         "comment_rm",
         "subject",
+        "default_permissions_overrule",
     }
     property_df = add_optional_columns(property_df, optional_col_set)
 

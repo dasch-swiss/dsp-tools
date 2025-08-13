@@ -341,11 +341,10 @@ def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.Dat
 def check_permissions(df: pd.DataFrame, allowed_vals: list[str]) -> None | InvalidPermissionsOverruleProblem:
     problems: list[InvalidPermissionsOverrule] = []
     for _, row in df.iterrows():
-        actual_val_preprocessed = row.get("default_permissions_overrule", "").strip().lower()
-        if actual_val_preprocessed and actual_val_preprocessed not in allowed_vals:
-            prob = InvalidPermissionsOverrule(
-                entity_name=row["name"], actual_val=row["default_permissions_overrule"], allowed_vals=allowed_vals
-            )
+        if pd.isna(actual_val := row.get("default_permissions_overrule")):
+            continue
+        if actual_val.strip().lower() not in allowed_vals:
+            prob = InvalidPermissionsOverrule(entity_name=row["name"], actual_val=actual_val, allowed_vals=allowed_vals)
             problems.append(prob)
     if problems:
         return InvalidPermissionsOverruleProblem(problems)

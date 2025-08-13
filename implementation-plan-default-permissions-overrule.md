@@ -4,7 +4,6 @@
 
 - [x] Write unit tests for default_permissions_overrule in properties - Test parsing and serialization
 - [x] Write unit tests for default_permissions_overrule in resources - Test parsing and serialization  
-- [ ] Write integration tests - Test with actual Excel files
 
 ## Phase 2: Model Updates
 

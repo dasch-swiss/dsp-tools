@@ -260,5 +260,9 @@ def test_add_optional_columns_no_missing_cols() -> None:
     assert_frame_equal(expected_df, unchanged_df)
 
 
+def test_check_permissions() -> None:
+    utl.check_permissions()
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

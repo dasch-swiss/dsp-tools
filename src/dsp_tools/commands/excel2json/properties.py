@@ -368,7 +368,7 @@ def _find_validation_problem(
 def _extract_default_permissions_overrule(classes_df: pd.DataFrame) -> PermissionsOverrulesUnprefixed:
     result = PermissionsOverrulesUnprefixed(private=[], limited_view=[])
     for _, row in classes_df.iterrows():
-        perm = row["default_permissions_overrule"]
+        perm = row.get("default_permissions_overrule")
         if pd.isna(perm):
             continue
         if perm.strip().lower() == "private":

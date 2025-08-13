@@ -353,5 +353,9 @@ def test_extract_information_from_single_gui_attribute_raises(input_str: str) ->
         e2j._extract_information_from_single_gui_attribute(input_str)
 
 
+def test_extract_default_permissions_overrule() -> None:
+    e2j._extract_default_permissions_overrule()
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

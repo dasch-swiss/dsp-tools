@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotLis
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
+from dsp_tools.commands.excel2json.resources import _extract_default_permissions_overrule
 from dsp_tools.commands.excel2json.resources import _make_one_cardinality
 
 
@@ -201,6 +202,10 @@ def test_failing_validate_excel_file() -> None:
     assert isinstance(missing, MandatorySheetsMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
     assert missing.mandatory_sheet == ["classes"]
+
+
+def test_extract_default_permissions_overrule() -> None:
+    _extract_default_permissions_overrule()
 
 
 class TestValidateClassesExcelSheet:

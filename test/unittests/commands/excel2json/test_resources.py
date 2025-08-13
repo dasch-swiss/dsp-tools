@@ -205,16 +205,25 @@ def test_failing_validate_excel_file() -> None:
 
 
 def test_extract_default_permissions_overrule() -> None:
-    test_df = pd.DataFrame({
-        "name": ["resource1", "resource2", "resource3", "resource4", "resource5", "resource6"],
-        "default_permissions_overrule": ["private", "limited_view", "Private", "LIMITED_VIEW", pd.NA, "other_value"]
-    })
-    
+    test_df = pd.DataFrame(
+        {
+            "name": ["resource1", "resource2", "resource3", "resource4", "resource5", "resource6"],
+            "default_permissions_overrule": [
+                "private",
+                "limited_view",
+                "Private",
+                "LIMITED_VIEW",
+                pd.NA,
+                "other_value",
+            ],
+        }
+    )
+
     result = _extract_default_permissions_overrule(test_df)
-    
+
     expected_private = ["resource1", "resource3"]
     expected_limited_view = ["resource2", "resource4"]
-    
+
     assert result.private == expected_private
     assert result.limited_view == expected_limited_view
 

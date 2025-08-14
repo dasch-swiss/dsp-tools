@@ -262,7 +262,7 @@ def test_add_optional_columns_no_missing_cols() -> None:
 
 def test_check_permissions() -> None:
     ALLOWED_VALUES = ["private", "limited_view"]
-    
+
     # Test case 1: All valid permissions (should return None)
     df_dict = {
         "name": ["entity1", "entity2", "entity3", "entity4"],

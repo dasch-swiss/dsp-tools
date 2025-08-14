@@ -261,27 +261,24 @@ def test_add_optional_columns_no_missing_cols() -> None:
 
 
 def test_check_permissions() -> None:
+    ALLOWED_VALUES = ["private", "limited_view"]
+    
     # Test case 1: All valid permissions (should return None)
-    test_df_valid = pd.DataFrame(
-        {
-            "name": ["entity1", "entity2", "entity3", "entity4"],
-            "default_permissions_overrule": ["private", "limited_view", "PRIVATE", pd.NA],
-        }
-    )
-
-    allowed_values = ["private", "limited_view"]
-    result = utl.check_permissions(test_df_valid, allowed_values)
+    df_dict = {
+        "name": ["entity1", "entity2", "entity3", "entity4"],
+        "default_permissions_overrule": ["private", "limited_view", "PRIVATE", pd.NA],
+    }
+    test_df_valid = pd.DataFrame(df_dict)
+    result = utl.check_permissions(test_df_valid, ALLOWED_VALUES)
     assert result is None
 
     # Test case 2: Some invalid permissions (should return InvalidPermissionsOverruleProblem)
-    test_df_invalid = pd.DataFrame(
-        {
-            "name": ["entity1", "entity2", "entity3", "entity4"],
-            "default_permissions_overrule": ["private", "invalid_perm", "another_invalid", "limited_view"],
-        }
-    )
-
-    result = utl.check_permissions(test_df_invalid, allowed_values)
+    df_dict = {
+        "name": ["entity1", "entity2", "entity3", "entity4"],
+        "default_permissions_overrule": ["private", "invalid_perm", "another_invalid", "limited_view"],
+    }
+    test_df_invalid = pd.DataFrame(df_dict)
+    result = utl.check_permissions(test_df_invalid, ALLOWED_VALUES)
     assert result is not None
     assert len(result.wrong_vals) == 2
 
@@ -289,13 +286,13 @@ def test_check_permissions() -> None:
     first_problem = result.wrong_vals[0]
     assert first_problem.entity_name == "entity2"
     assert first_problem.actual_val == "invalid_perm"
-    assert first_problem.allowed_vals == allowed_values
+    assert first_problem.allowed_vals == ALLOWED_VALUES
 
     # Check second invalid permission
     second_problem = result.wrong_vals[1]
     assert second_problem.entity_name == "entity3"
     assert second_problem.actual_val == "another_invalid"
-    assert second_problem.allowed_vals == allowed_values
+    assert second_problem.allowed_vals == ALLOWED_VALUES
 
 
 if __name__ == "__main__":

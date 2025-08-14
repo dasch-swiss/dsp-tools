@@ -141,13 +141,26 @@ class User:
 
 
 @dataclass
-class PermissionsOverrulesPrefixed:
+class PermissionsOverrulesUnprefixed:
+    """
+    Data gathered from 'default_permissions_overrules' from resources.xlx/properties.xlsx,
+    not yet enriched with ontology prefixes
+    """
     private: list[str]
     limited_view: list[str]
 
-    def add_overrules(self, overrules: PermissionsOverrulesUnprefixed, onto_prefix: str) -> None:
-        self.private.extend([f"{onto_prefix}:{p}" for p in overrules.private])
-        self.limited_view.extend([f"{onto_prefix}:{p}" for p in overrules.limited_view])
+
+@dataclass
+class PermissionsOverrulesPrefixed:
+    """
+    Object to gather 'default_permissions_overrules' from resources.xlx/properties.xlsx, with ontology prefixes
+    """
+    private: list[str]
+    limited_view: list[str]
+
+    def add_overrules(self, new_overrules: PermissionsOverrulesUnprefixed, onto_prefix: str) -> None:
+        self.private.extend([f"{onto_prefix}:{p}" for p in new_overrules.private])
+        self.limited_view.extend([f"{onto_prefix}:{p}" for p in new_overrules.limited_view])
 
     def non_empty(self) -> bool:
         return bool(self.private or self.limited_view)
@@ -157,9 +170,3 @@ class PermissionsOverrulesPrefixed:
             "private": self.private,
             "limited_view": self.limited_view,
         }
-
-
-@dataclass
-class PermissionsOverrulesUnprefixed:
-    private: list[str]
-    limited_view: list[str]

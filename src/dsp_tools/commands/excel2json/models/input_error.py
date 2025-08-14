@@ -407,7 +407,7 @@ class InvalidPermissionsOverruleProblem:
             message for the error
         """
         report_lines = [
-            f"Entity: {x.entity_name}. Actual value: {x.actual_val}. Allowed values: {', '.join(x.allowed_vals)}."
+            f"Entity: '{x.entity_name}'. Actual value: '{x.actual_val}'. Allowed values: {", ".join(x.allowed_vals)}."
             for x in self.wrong_vals
         ]
         return (

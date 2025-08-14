@@ -143,7 +143,7 @@ class User:
 @dataclass
 class PermissionsOverrulesUnprefixed:
     """
-    Data gathered from 'default_permissions_overrules' from resources.xlx/properties.xlsx,
+    Data gathered from the column 'default_permissions_overrule' from 1 resources.xlsx / 1 properties.xlsx,
     not yet enriched with ontology prefixes
     """
     private: list[str]
@@ -153,7 +153,8 @@ class PermissionsOverrulesUnprefixed:
 @dataclass
 class PermissionsOverrulesPrefixed:
     """
-    Object to gather 'default_permissions_overrules' from resources.xlx/properties.xlsx, with ontology prefixes
+    Object to gather 'default_permissions_overrule' infos from several resources.xlsx/properties.xlsx,
+    with ontology prefixes.
     """
     private: list[str]
     limited_view: list[str]

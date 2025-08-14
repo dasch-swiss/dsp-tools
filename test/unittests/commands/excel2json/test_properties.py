@@ -354,20 +354,14 @@ def test_extract_information_from_single_gui_attribute_raises(input_str: str) ->
 
 
 def test_extract_default_permissions_overrule() -> None:
-    test_df = pd.DataFrame(
-        {
-            "name": ["property1", "property2", "property3", "property4", "property5"],
-            "default_permissions_overrule": ["private", pd.NA, "Private", "PRIVATE", "other_value"],
-        }
-    )
-
+    df_dict = {
+        "name": ["property1", "property2", "property3", "property4", "property5"],
+        "default_permissions_overrule": ["private", pd.NA, "Private", "PRIVATE", "other_value"],
+    }
+    test_df = pd.DataFrame(df_dict)
     result = e2j._extract_default_permissions_overrule(test_df)
-
-    expected_private: list[str] = ["property1", "property3", "property4"]
-    expected_limited_view: list[str] = []
-
-    assert result.private == expected_private
-    assert result.limited_view == expected_limited_view
+    assert result.private == ["property1", "property3", "property4"]
+    assert result.limited_view == []
 
 
 if __name__ == "__main__":

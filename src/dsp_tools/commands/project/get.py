@@ -189,6 +189,8 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
         if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
             raise UnknownDOAPException()
     
+    # TODO: now all invalid ones have been sifted out. Now we can create the object to return
+    
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

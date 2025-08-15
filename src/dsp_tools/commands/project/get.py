@@ -51,7 +51,10 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    project_obj["default_permissions"] = _get_default_permissions(auth, str(project.iri))
+    default_permissions, default_permissions_override = _get_default_permissions(auth, str(project.iri))
+    project_obj["default_permissions"] = default_permissions
+    if default_permissions_override:
+        project_obj["default_permissions_override"] = default_permissions_override
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
@@ -88,17 +91,18 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         )
 
 
-def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -> str:
+def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -> tuple[str, str | None]:
     perm_client = PermissionsClient(auth, project_iri)
     project_doaps = perm_client.get_project_doaps()
-    result = _parse_default_permissions(project_doaps)
-    if result == "unknown":
-        return (
+    default_permissions = _parse_default_permissions(project_doaps)
+    default_permissions_override = _parse_default_permissions_override(project_doaps)
+    if default_permissions == "unknown" or default_permissions_override is None:
+        default_permissions = (
             "We cannot determine if this project is public or private. "
             "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
             "and help you deciding if the original intent was rather public or rather private."
         )
-    return result
+    return default_permissions, default_permissions_override
 
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)
@@ -127,6 +131,11 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # n
     if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
         return "unknown"
     return "public"
+
+
+def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> str | None:
+    class_doaps = [x for x in project_doaps if x.get("forResourceClass")]
+    property_doaps = [x for x in project_doaps if x.get("forProperty")]
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

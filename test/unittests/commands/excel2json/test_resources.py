@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotLis
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
+from dsp_tools.commands.excel2json.resources import _extract_default_permissions_overrule
 from dsp_tools.commands.excel2json.resources import _make_one_cardinality
 
 
@@ -201,6 +202,17 @@ def test_failing_validate_excel_file() -> None:
     assert isinstance(missing, MandatorySheetsMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
     assert missing.mandatory_sheet == ["classes"]
+
+
+def test_extract_default_permissions_overrule() -> None:
+    df_dict = {
+        "name": ["resource1", "resource2", "resource3", "resource4", "resource5", "resource6"],
+        "default_permissions_overrule": ["private", "limited_view", "Private", "LIMITED_VIEW", pd.NA, "other_value"],
+    }
+    test_df = pd.DataFrame(df_dict)
+    result = _extract_default_permissions_overrule(test_df)
+    assert result.private == ["resource1", "resource3"]
+    assert result.limited_view == ["resource2", "resource4"]
 
 
 class TestValidateClassesExcelSheet:

@@ -133,7 +133,7 @@ def _call_id2iri(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2properties(args: argparse.Namespace) -> bool:
-    _, success = excel2properties(
+    _, _, success = excel2properties(
         excelfile=args.excelfile,
         path_to_output_file=args.properties_section,
     )
@@ -141,7 +141,7 @@ def _call_excel2properties(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2resources(args: argparse.Namespace) -> bool:
-    _, success = excel2resources(
+    _, _, success = excel2resources(
         excelfile=args.excelfile,
         path_to_output_file=args.resources_section,
     )

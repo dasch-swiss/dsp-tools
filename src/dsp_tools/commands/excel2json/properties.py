@@ -20,11 +20,13 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
 from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols
@@ -42,7 +44,7 @@ language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"
 def excel2properties(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
-) -> tuple[list[dict[str, Any]], bool]:
+) -> tuple[list[dict[str, Any]], PermissionsOverrulesUnprefixed, bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
@@ -55,8 +57,9 @@ def excel2properties(
         InputError: if something went wrong
 
     Returns:
-        a tuple consisting of the "properties" section as a Python list,
-            and the success status (True if everything went well)
+        - the "properties" section as a Python list
+        - the unprefixed "default_permissions_overrule"
+        - the success status (True if everything went well)
     """
 
     property_df = _read_check_property_df(excelfile)
@@ -76,6 +79,7 @@ def excel2properties(
         "comment_it",
         "comment_rm",
         "subject",
+        "default_permissions_overrule",
     }
     property_df = add_optional_columns(property_df, optional_col_set)
 
@@ -100,6 +104,7 @@ def excel2properties(
         raise InputError(msg)
 
     serialised_prop = [x.serialise() for x in props]
+    default_permissions_overrule = _extract_default_permissions_overrule(property_df)
 
     # write final JSON file
     _validate_properties_section_in_json(properties_list=serialised_prop)
@@ -108,7 +113,7 @@ def excel2properties(
             json.dump(serialised_prop, file, indent=4, ensure_ascii=False)
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
-    return serialised_prop, True
+    return serialised_prop, default_permissions_overrule, True
 
 
 def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
@@ -175,6 +180,8 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
         problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
         problems.append(missing_vals_check)
+    if permissions_prob := check_permissions(df=df, allowed_vals=["private"]):
+        problems.append(permissions_prob)
     if any(problems):
         excel_prob = ExcelFileProblem("properties.xlsx", problems)
         msg = excel_prob.execute_error_protocol()
@@ -356,3 +363,14 @@ def _find_validation_problem(
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
     )
+
+
+def _extract_default_permissions_overrule(property_df: pd.DataFrame) -> PermissionsOverrulesUnprefixed:
+    result = PermissionsOverrulesUnprefixed(private=[], limited_view=[])
+    for _, row in property_df.iterrows():
+        perm = row.get("default_permissions_overrule")
+        if pd.isna(perm):
+            continue
+        if perm.strip().lower() == "private":
+            result.private.append(row["name"])
+    return result

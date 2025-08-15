@@ -11,6 +11,8 @@ import regex
 from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverrule
+from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsOverruleProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
@@ -334,3 +336,17 @@ def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.Dat
         additional_df = pd.DataFrame(columns=additional_col, index=df.index)
         df = pd.concat(objs=[df, additional_df], axis=1)
     return df
+
+
+def check_permissions(df: pd.DataFrame, allowed_vals: list[str]) -> None | InvalidPermissionsOverruleProblem:
+    problems: list[InvalidPermissionsOverrule] = []
+    for _, row in df.iterrows():
+        if pd.isna(actual_val := row.get("default_permissions_overrule")):
+            continue
+        if actual_val.strip().lower() not in allowed_vals:
+            prob = InvalidPermissionsOverrule(entity_name=row["name"], actual_val=actual_val, allowed_vals=allowed_vals)
+            problems.append(prob)
+    if problems:
+        return InvalidPermissionsOverruleProblem(problems)
+    else:
+        return None

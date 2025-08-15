@@ -353,5 +353,16 @@ def test_extract_information_from_single_gui_attribute_raises(input_str: str) ->
         e2j._extract_information_from_single_gui_attribute(input_str)
 
 
+def test_extract_default_permissions_overrule() -> None:
+    df_dict = {
+        "name": ["property1", "property2", "property3", "property4", "property5"],
+        "default_permissions_overrule": ["private", pd.NA, "Private", "PRIVATE", "other_value"],
+    }
+    test_df = pd.DataFrame(df_dict)
+    result = e2j._extract_default_permissions_overrule(test_df)
+    assert result.private == ["property1", "property3", "property4"]
+    assert result.limited_view == []
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

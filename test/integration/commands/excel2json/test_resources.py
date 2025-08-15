@@ -7,6 +7,7 @@ import regex
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 
@@ -14,7 +15,7 @@ from dsp_tools.error.exceptions import InputError
 
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
-output_from_method, _ = e2j.excel2resources(excelfile, None)
+output_from_method, default_permissions_overrule, _ = e2j.excel2resources(excelfile, None)
 
 
 class TestExcelToResource(unittest.TestCase):
@@ -181,6 +182,11 @@ class TestExcelToResource(unittest.TestCase):
             match.value for match in jsonpath_ng.parse("$[0].cardinalities[*].cardinality").find(output_from_method)
         ]
         assert unordered(res_first_class_cardinalities) == expected_first_class_cardinalities
+
+    def test_default_permissions_overrule(self) -> None:
+        assert isinstance(default_permissions_overrule, PermissionsOverrulesUnprefixed)
+        assert default_permissions_overrule.private == ["Alias"]
+        assert default_permissions_overrule.limited_view == ["Image"]
 
 
 class TestValidateWithSchema:

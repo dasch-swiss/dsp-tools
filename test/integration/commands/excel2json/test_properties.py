@@ -9,6 +9,7 @@ from dsp_tools.error.exceptions import InputError
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, default_permissions_overrule, _ = e2j.excel2properties(excelfile, None)
 
+
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search

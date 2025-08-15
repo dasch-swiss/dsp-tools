@@ -15,6 +15,7 @@ from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import UnknownDOAPException
 
 
 def get_project(
@@ -51,7 +52,10 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    project_obj["default_permissions"] = _get_default_permissions(auth, str(project.iri))
+    default_permissions, default_permissions_override = _get_default_permissions(auth, str(project.iri))
+    project_obj["default_permissions"] = default_permissions
+    if default_permissions_override:
+        project_obj["default_permissions_override"] = default_permissions_override
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
@@ -88,45 +92,105 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         )
 
 
-def _get_default_permissions(auth: AuthenticationClientLive, project_iri: str) -> str:
+def _get_default_permissions(
+    auth: AuthenticationClientLive, project_iri: str
+) -> tuple[str, dict[str, list[str]] | None]:
     perm_client = PermissionsClient(auth, project_iri)
     project_doaps = perm_client.get_project_doaps()
-    result = _parse_default_permissions(project_doaps)
-    if result == "unknown":
-        return (
-            "We cannot determine if this project is public or private. "
-            "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
-            "and help you deciding if the original intent was rather public or rather private."
-        )
-    return result
+    fallback_text = (
+        "We cannot determine if this project is public or private. "
+        "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
+        "and help you deciding if the original intent was rather public or rather private."
+    )
+    try:
+        default_permissions = _parse_default_permissions(project_doaps)
+        default_permissions_override = _parse_default_permissions_override(project_doaps)
+    except UnknownDOAPException:
+        default_permissions = fallback_text
+        default_permissions_override = None
+    return default_permissions, default_permissions_override
 
 
-def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # noqa: PLR0911 (too many return statements)
+def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     """If the DOAPs exactly match our definition of public/private, return public/private. Otherwise, return unknown."""
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
-        return "unknown"
+        raise UnknownDOAPException()
     proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
-        return "unknown"
+        raise UnknownDOAPException()
     perms = proj_member_doaps[0]["hasPermissions"]
     if len(perms) not in [2, 4]:
-        return "unknown"
+        raise UnknownDOAPException()
     proj_adm_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectAdmin")]
     proj_mem_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectMember")]
     knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
     unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
     if not (len(proj_adm_perms) == len(proj_mem_perms) == 1):
-        return "unknown"
+        raise UnknownDOAPException()
     if proj_adm_perms[0]["name"] != "CR" or proj_mem_perms[0]["name"] != "D":
-        return "unknown"
+        raise UnknownDOAPException()
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
         return "private"
     if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
-        return "unknown"
+        raise UnknownDOAPException()
     if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
-        return "unknown"
+        raise UnknownDOAPException()
     return "public"
+
+
+def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> dict[str, list[str]] | None:
+    # these cases exist:
+    # private for prop
+    # private for class
+    # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue
+    # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue and a certain class
+    class_doaps = []
+    prop_doaps = []
+    has_img_all_classes_doaps = []
+    has_img_specific_class_doaps = []
+    other_doaps = []
+    for doap in project_doaps:
+        match (doap["forResourceClass"], doap["forProperty"]):  
+            case (for_class, None) if for_class is not None:
+                class_doaps.append(doap)
+            case (None, for_prop) if for_prop is not None and "hasStillImageFileValue" not in for_prop:
+                prop_doaps.append(doap)
+            case (None, for_prop) if "hasStillImageFileValue" in str(for_prop):
+                has_img_all_classes_doaps.append(doap)
+            case (for_class, for_prop) if for_class is not None and "hasStillImageFileValue" in str(for_prop):
+                has_img_specific_class_doaps.append(doap)
+            case _:
+                other_doaps.append(doap)
+    if other_doaps:
+        raise UnknownDOAPException()
+    
+    for expected_private_doap in class_doaps + prop_doaps:
+        perm = sorted(expected_private_doap["hasPermissions"], key=lambda x: x["name"])
+        if len(perm) != 2:
+            raise UnknownDOAPException()
+        CR, D = perm
+        if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
+            raise UnknownDOAPException()
+        if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
+            raise UnknownDOAPException()
+            
+    for expected_limited_view in has_img_all_classes_doaps + has_img_specific_class_doaps:
+        perm = sorted(expected_limited_view["hasPermissions"], key=lambda x: x["name"])
+        if len(perm) != 4:
+            raise UnknownDOAPException()
+        CR, D, RV1, RV2 = perm
+        if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
+            raise UnknownDOAPException()
+        if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
+            raise UnknownDOAPException()
+        if RV1["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+            raise UnknownDOAPException()
+        if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+            raise UnknownDOAPException()
+    
+    # TODO: now all invalid ones have been sifted out. Now we can create the object to return
+    
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

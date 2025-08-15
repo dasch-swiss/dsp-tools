@@ -152,7 +152,8 @@ The expected columns are:
 - [`default_permissions_overrule`](./json-project/overview.md#default_permissions_overrule)
   (optional): If you have set this project to "public" in the `json_header.xlsx`,
   then you can still hide the resources of certain classes.
-    - Use "private" on any resource class (including image classes) to make its resources invisible for people outside of your project.
+    - Use "private" on any resource class (including image classes)
+      to make its resources invisible for people outside of your project.
     - Use "limited view" on an image class to blur the image for people outside of your project,
       while keeping the rest of the resource public.
 

@@ -1,5 +1,3 @@
-import unittest
-
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
@@ -11,15 +9,12 @@ from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrule
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 
-# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
-
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, default_permissions_overrule, _ = e2j.excel2resources(excelfile, None)
 
 
-class TestExcelToResource(unittest.TestCase):
-    def test_names(self) -> None:
+def test_names() -> None:
         expected_names = [
             "Owner",
             "Title",
@@ -37,7 +32,7 @@ class TestExcelToResource(unittest.TestCase):
         res_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
         assert unordered(res_names) == expected_names
 
-    def test_supers(self) -> None:
+def test_supers() -> None:
         expected_supers = [
             ["Resource", "dcterms:fantasy"],
             ["Resource"],
@@ -55,7 +50,7 @@ class TestExcelToResource(unittest.TestCase):
         res_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
         assert unordered(res_supers) == expected_supers
 
-    def test_labels(self) -> None:
+def test_labels() -> None:
         expected_labels = {
             "en": [
                 "Owner",
@@ -88,14 +83,14 @@ class TestExcelToResource(unittest.TestCase):
         }
         res_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
         res_labels = {lang: [label.get(lang, "").strip() for label in res_labels_all] for lang in ["en", "rm"]}
-        self.assertDictEqual(res_labels, expected_labels)
+        assert res_labels == expected_labels
 
-    def test_image_labels(self) -> None:
+def test_image_labels() -> None:
         expected_labels_of_image = {"en": "Only English"}
         res_labels_of_image = jsonpath_ng.ext.parse('$[?name="Image"].labels').find(output_from_method)[0].value
-        self.assertDictEqual(res_labels_of_image, expected_labels_of_image)
+        assert res_labels_of_image == expected_labels_of_image
 
-    def test_comments(self) -> None:
+def test_comments() -> None:
         expected_comments = {
             "comment_de": [
                 "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
@@ -132,14 +127,14 @@ class TestExcelToResource(unittest.TestCase):
             f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_method]
             for lang in ["de", "fr"]
         }
-        self.assertDictEqual(res_comments, expected_comments)
+        assert res_comments == expected_comments
 
-    def test_image_comments(self) -> None:
+def test_image_comments() -> None:
         expected_comments_of_image = {"en": "Image", "de": "Bild"}
         res_comments_of_image = jsonpath_ng.ext.parse('$[?name="Image"].comments').find(output_from_method)[0].value
-        self.assertDictEqual(expected_comments_of_image, res_comments_of_image)
+        assert expected_comments_of_image == res_comments_of_image
 
-    def test_first_class_properties(self) -> None:
+def test_first_class_properties() -> None:
         expected_first_class_properties = [
             ":hasAnthroponym",
             ":isOwnerOf",
@@ -161,7 +156,7 @@ class TestExcelToResource(unittest.TestCase):
         ]
         assert unordered(res_first_class_properties) == expected_first_class_properties
 
-    def test_cardinalities(self) -> None:
+def test_cardinalities() -> None:
         expected_first_class_cardinalities = [
             "1",
             "0-1",
@@ -183,7 +178,7 @@ class TestExcelToResource(unittest.TestCase):
         ]
         assert unordered(res_first_class_cardinalities) == expected_first_class_cardinalities
 
-    def test_default_permissions_overrule(self) -> None:
+def test_default_permissions_overrule() -> None:
         assert isinstance(default_permissions_overrule, PermissionsOverrulesUnprefixed)
         assert default_permissions_overrule.private == ["Alias"]
         assert default_permissions_overrule.limited_view == ["Image"]

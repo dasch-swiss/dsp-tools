@@ -1,5 +1,12 @@
 # Changelog
 
+## [16.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.7.0...v16.8.0) (2025-08-15)
+
+
+### Enhancements
+
+* **excel2json:** add support for overruling default permissions for classes/properties (DEV-5032) ([#1915](https://github.com/dasch-swiss/dsp-tools/issues/1915)) ([69a20ee](https://github.com/dasch-swiss/dsp-tools/commit/69a20ee6ba80e36846f965f6affb1b1db3b54841))
+
 ## [16.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.1...v16.7.0) (2025-08-13)
 
 

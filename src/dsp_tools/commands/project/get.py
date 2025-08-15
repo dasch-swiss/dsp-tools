@@ -149,6 +149,7 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
     prop_doaps = []
     has_img_all_classes_doaps = []
     has_img_specific_class_doaps = []
+    other_doaps = []
     for doap in project_doaps:
         match (doap["forResourceClass"], doap["forProperty"]):  
             case (for_class, None) if for_class is not None:
@@ -159,7 +160,34 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
                 has_img_all_classes_doaps.append(doap)
             case (for_class, for_prop) if for_class is not None and "hasStillImageFileValue" in str(for_prop):
                 has_img_specific_class_doaps.append(doap)
-        
+            case _:
+                other_doaps.append(doap)
+    if other_doaps:
+        raise UnknownDOAPException()
+    
+    for expected_private_doap in class_doaps + prop_doaps:
+        perm = sorted(expected_private_doap["hasPermissions"], key=lambda x: x["name"])
+        if len(perm) != 2:
+            raise UnknownDOAPException()
+        CR, D = perm
+        if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
+            raise UnknownDOAPException()
+        if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
+            raise UnknownDOAPException()
+            
+    for expected_limited_view in has_img_all_classes_doaps + has_img_specific_class_doaps:
+        perm = sorted(expected_limited_view["hasPermissions"], key=lambda x: x["name"])
+        if len(perm) != 4:
+            raise UnknownDOAPException()
+        CR, D, RV1, RV2 = perm
+        if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
+            raise UnknownDOAPException()
+        if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
+            raise UnknownDOAPException()
+        if RV1["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+            raise UnknownDOAPException()
+        if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+            raise UnknownDOAPException()
     
 
 

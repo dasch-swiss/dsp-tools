@@ -145,8 +145,22 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
     # private for class
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue and a certain class
-    class_doaps = [x for x in project_doaps if x.get("forResourceClass")]
-    property_doaps = [x for x in project_doaps if x.get("forProperty")]
+    class_doaps = []
+    prop_doaps = []
+    has_img_all_classes_doaps = []
+    has_img_specific_class_doaps = []
+    for doap in project_doaps:
+        match (doap["forResourceClass"], doap["forProperty"]):  
+            case (for_class, None) if for_class is not None:
+                class_doaps.append(doap)
+            case (None, for_prop) if for_prop is not None and "hasStillImageFileValue" not in for_prop:
+                prop_doaps.append(doap)
+            case (None, for_prop) if "hasStillImageFileValue" in str(for_prop):
+                has_img_all_classes_doaps.append(doap)
+            case (for_class, for_prop) if for_class is not None and "hasStillImageFileValue" in str(for_prop):
+                has_img_specific_class_doaps.append(doap)
+        
+    
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

@@ -134,7 +134,8 @@ def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url
 
 
 @pytest.mark.parametrize(
-    "unsupported_url", ["https://0.0.0.0:1234", "https://api.unkown-host.ch"],
+    "unsupported_url",
+    ["https://0.0.0.0:1234", "https://api.unkown-host.ch"],
 )
 def test_unsupported_cases(unsupported_url: str) -> None:
     with pytest.raises(InputError, match=r"Invalid DSP server URL"):

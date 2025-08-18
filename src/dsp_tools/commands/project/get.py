@@ -140,7 +140,7 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     return "public"
 
 
-def _parse_default_permissions_override(
+def _parse_default_permissions_override(  # noqa: PLR0912, PLR0915
     project_doaps: list[dict[str, Any]], prefixes: dict[str, str]
 ) -> dict[str, list[str]] | None:
     # these cases exist:

@@ -213,8 +213,8 @@ def _parse_default_permissions_override(
         raise UnknownDOAPException()
     if len(has_img_all_classes_doaps) == 1:
         limited_views.append("all")
-    for has_img_specific_class_doap in has_img_specific_class_doaps:
-        limited_views.append(_shorten_iri(has_img_specific_class_doap["forResourceClass"], prefixes_knora_base_inverted))
+    for img_doap in has_img_specific_class_doaps:
+        limited_views.append(_shorten_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str]] = {}
     if privates:

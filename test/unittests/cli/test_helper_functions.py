@@ -120,7 +120,7 @@ def test_derive_dsp_ingest_url_with_server() -> None:
         ),
     ],
 )
-def test_success(api_url_orig: str, api_url_expected: str, dsp_ingest_url_expected: str) -> None:
+def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url_expected: str) -> None:
     """
     Test the method that canonicalizes the DSP URL and derives the SIPI URL from it.
     """
@@ -136,7 +136,7 @@ def test_success(api_url_orig: str, api_url_expected: str, dsp_ingest_url_expect
 @pytest.mark.parametrize(
     "unsupported_url", ["https://0.0.0.0:1234", "https://api.unkown-host.ch"],
 )
-def test_failure(unsupported_url: str) -> None:
+def test_unsupported_cases(unsupported_url: str) -> None:
     with pytest.raises(InputError, match=r"Invalid DSP server URL"):
         _ = _get_canonical_server_and_dsp_ingest_url(
             server=unsupported_url,

@@ -8,31 +8,24 @@ from dsp_tools.cli.entry_point import _derive_dsp_ingest_url
 from dsp_tools.cli.entry_point import _get_canonical_server_and_dsp_ingest_url
 from dsp_tools.error.exceptions import InputError
 
-
-@pytest.fixture
-def default_dsp_api_url() -> str:
-    return "http://0.0.0.0:3333"
+DEFAULT_DSP_API_URL = "http://0.0.0.0:3333"
+DEFAULT_DSP_INGEST_URL = "http://0.0.0.0:3340"
 
 
 @pytest.fixture
-def default_dsp_ingest_url() -> str:
-    return "http://0.0.0.0:3340"
-
-
-@pytest.fixture
-def positive_testcases(default_dsp_api_url: str, default_dsp_ingest_url: str) -> dict[str, list[str]]:
+def supported_urls() -> dict[str, list[str]]:
     return {
         "https://0.0.0.0:3333/": [
-            default_dsp_api_url,
-            default_dsp_ingest_url,
+            DEFAULT_DSP_API_URL,
+            DEFAULT_DSP_INGEST_URL,
         ],
         "0.0.0.0:3333": [
-            default_dsp_api_url,
-            default_dsp_ingest_url,
+            DEFAULT_DSP_API_URL,
+            DEFAULT_DSP_INGEST_URL,
         ],
         "localhost:3333": [
-            default_dsp_api_url,
-            default_dsp_ingest_url,
+            DEFAULT_DSP_API_URL,
+            DEFAULT_DSP_INGEST_URL,
         ],
         "https://admin.dasch.swiss": [
             "https://api.dasch.swiss",
@@ -110,14 +103,14 @@ def positive_testcases(default_dsp_api_url: str, default_dsp_ingest_url: str) ->
 
 
 @pytest.fixture
-def negative_testcases() -> list[str]:
+def unsupported_urls() -> list[str]:
     return [
         "https://0.0.0.0:1234",
         "https://api.unkown-host.ch",
     ]
 
 
-def test_derive_dsp_ingest_url_without_server(default_dsp_api_url: str, default_dsp_ingest_url: str) -> None:
+def test_derive_dsp_ingest_url_without_server() -> None:
     """
     If the argparse.Namespace does not contain a server,
     the function should return the same object.
@@ -128,13 +121,13 @@ def test_derive_dsp_ingest_url_without_server(default_dsp_api_url: str, default_
     )
     args_returned = _derive_dsp_ingest_url(
         parsed_arguments=args_without_server,
-        default_dsp_api_url=default_dsp_api_url,
-        default_dsp_ingest_url=default_dsp_ingest_url,
+        default_dsp_api_url=DEFAULT_DSP_API_URL,
+        default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
     )
     assert args_without_server == args_returned
 
 
-def test_derive_dsp_ingest_url_with_server(default_dsp_api_url: str, default_dsp_ingest_url: str) -> None:
+def test_derive_dsp_ingest_url_with_server() -> None:
     """
     If the argparse.Namespace contains a server,
     the function should return a modified argparse.Namespace,
@@ -149,8 +142,8 @@ def test_derive_dsp_ingest_url_with_server(default_dsp_api_url: str, default_dsp
     )
     args_returned = _derive_dsp_ingest_url(
         parsed_arguments=args_with_server,
-        default_dsp_api_url=default_dsp_api_url,
-        default_dsp_ingest_url=default_dsp_ingest_url,
+        default_dsp_api_url=DEFAULT_DSP_API_URL,
+        default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
     )
     args_expected = argparse.Namespace(
         action="xmlupload",
@@ -163,31 +156,28 @@ def test_derive_dsp_ingest_url_with_server(default_dsp_api_url: str, default_dsp
     assert args_expected == args_returned
 
 
-def test_get_canonical_server_and_dsp_ingest_url(
-    positive_testcases: dict[str, list[str]],
-    negative_testcases: list[str],
-    default_dsp_api_url: str,
-    default_dsp_ingest_url: str,
-) -> None:
+def test_success(supported_urls: dict[str, list[str]]) -> None:
     """
     Test the method that canonicalizes the DSP URL and derives the SIPI URL from it.
     """
-    for api_url_orig, expected in positive_testcases.items():
+    for api_url_orig, expected in supported_urls.items():
         api_url_expected, dsp_ingest_url_expected = expected
         api_url_returned, dsp_ingest_url_returned = _get_canonical_server_and_dsp_ingest_url(
             server=api_url_orig,
-            default_dsp_api_url=default_dsp_api_url,
-            default_dsp_ingest_url=default_dsp_ingest_url,
+            default_dsp_api_url=DEFAULT_DSP_API_URL,
+            default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
         )
         assert api_url_expected == api_url_returned
         assert dsp_ingest_url_expected == dsp_ingest_url_returned
 
-    for invalid in negative_testcases:
+
+def test_failure(unsupported_urls: list[str]) -> None:
+    for invalid in unsupported_urls:
         with pytest.raises(InputError, match=r"Invalid DSP server URL"):
             _ = _get_canonical_server_and_dsp_ingest_url(
                 server=invalid,
-                default_dsp_api_url=default_dsp_api_url,
-                default_dsp_ingest_url=default_dsp_ingest_url,
+                default_dsp_api_url=DEFAULT_DSP_API_URL,
+                default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
             )
 
 

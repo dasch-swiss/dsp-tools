@@ -15,12 +15,6 @@ def _make_and_get_logs_directory() -> Path:
     return base_dir
 
 
-timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
-
-LOGGER_SAVEPATH = (_make_and_get_logs_directory() / f"{timestamp}_logging.log").absolute()
-WARNINGS_SAVEPATH = Path("warnings.log")
-
-
 def logger_config() -> None:
     """
     This function configures the log files.
@@ -35,9 +29,12 @@ def logger_config() -> None:
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
+    logger_savepath = (_make_and_get_logs_directory() / f"{timestamp}_logging.log").absolute()
+    warnings_savepath = Path("warnings.log")
 
     logger.add(
-        sink=LOGGER_SAVEPATH,
+        sink=logger_savepath,
         format=text_format,
         backtrace=True,
         diagnose=True,
@@ -55,7 +52,7 @@ def logger_config() -> None:
         )
     else:
         logger.add(
-            sink=WARNINGS_SAVEPATH,
+            sink=warnings_savepath,
             level="WARNING",
             format=text_format,
             backtrace=False,

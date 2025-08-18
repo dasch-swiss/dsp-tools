@@ -58,12 +58,20 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
 def _parse_default_permissions_override(
     project_doaps: list[dict[str, Any]], prefixes: dict[str, str]
 ) -> dict[str, list[str]] | None:
-    # these cases exist:
-    # private for prop
-    # private for class
-    # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue
-    # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue and a certain class
+    """
+    The DOAPs retrieved from the server are examined if they fit into our system of the overrides.
+    If yes, an override object is returned. Otherwise, an exception is raised.
 
+    Args:
+        project_doaps: DOAPs as retrieved from the server
+        prefixes: dict in the form {"my-onto": "http://0.0.0.0:3333/ontology/1234/my-onto/v2"}
+
+    Returns:
+        an override object that can be written into the JSON project definition file
+    
+    Raises:
+        UnknownDOAPException: if there are DOAPs that do not fit into our system
+    """
     prefixes_knora_base_inverted = _convert_prefixes(prefixes)
     doap_categories = _categorize_doaps(project_doaps)
     _validate_doap_categories(doap_categories)
@@ -89,6 +97,26 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
 
 
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
+    """
+    The override object of the JSON project definition file has 2 categories: private and limited_view.
+    - "private" is a list of classes/properties that are private.
+      The DOAPs for these correspond 1:1 to the classes/properties.
+    - "limited_view" is 
+        - a list of image classes that are limited_view: 
+          The DOAPs for these are for knora-api:hasStillImageFileValue and the respective class.
+        - or the string "all". The DOAPs for these are only for knora-api:hasStillImageFileValue.
+
+    This function groups the DOAPs into these categories.
+
+    Args:
+        project_doaps: the DOAPs as retrieved from the server
+
+    Raises:
+        UnknownDOAPException: if there are DOAPs that do not fit into our system
+
+    Returns:
+        a DTO with the categories
+    """
     class_doaps = []
     prop_doaps = []
     has_img_all_classes_doaps = []
@@ -120,33 +148,48 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> None:
     for expected_private_doap in doap_categories.class_doaps + doap_categories.prop_doaps:
         perm = sorted(expected_private_doap["hasPermissions"], key=lambda x: x["name"])
         if len(perm) != 2:
-            raise UnknownDOAPException()
+            raise UnknownDOAPException("'private' is defined as CR ProjectAdmin|D ProjectMember")
         CR, D = perm
         if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException("'private' is defined as CR ProjectAdmin|D ProjectMember")
         if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException("'private' is defined as CR ProjectAdmin|D ProjectMember")
 
     for expected_limited_view in (
         doap_categories.has_img_all_classes_doaps + doap_categories.has_img_specific_class_doaps
     ):
+        err_msg = "'limited_view' is defined as CR ProjectAdmin|D ProjectMember|RV KnownUser|RV UnknownUser"
         perm = sorted(expected_limited_view["hasPermissions"], key=lambda x: x["name"])
         if len(perm) != 4:
-            raise UnknownDOAPException()
+            raise UnknownDOAPException(err_msg)
         CR, D, RV1, RV2 = perm
         if CR["name"] != "CR" or not CR["additionalInformation"].endswith("ProjectAdmin"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException(err_msg)
         if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException(err_msg)
         if RV1["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException(err_msg)
         if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
-            raise UnknownDOAPException()
+            raise UnknownDOAPException(err_msg)
 
 
 def _construct_override_object(
     doap_categories: DoapCategories, prefixes_knora_base_inverted: dict[str, str]
 ) -> dict[str, list[str]]:
+    """
+    Construct the final overrides object that can be written into the JSON project definition file.
+    To do so, the fully qualified IRIs of the classes/properties must be converted to prefixed IRIs.
+
+    Args:
+        doap_categories: The categorized DOAPs from the server
+        prefixes_knora_base_inverted: lookup from fully qualified IRIs to prefixed IRIs
+
+    Raises:
+        UnknownDOAPException: if the DOAPs do not fit into our system
+
+    Returns:
+        the final overrides object that can be written into the JSON project definition file
+    """
     privates: list[str] = []
     for class_doap in doap_categories.class_doaps:
         privates.append(_shorten_iri(class_doap["forResourceClass"], prefixes_knora_base_inverted))
@@ -155,9 +198,9 @@ def _construct_override_object(
 
     limited_views: list[str] = []
     if len(doap_categories.has_img_all_classes_doaps) > 1:
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("There can only be 1 all-images DOAP for 'hasStillImageFileValue'")
     if len(doap_categories.has_img_all_classes_doaps) == 1 and len(doap_categories.has_img_specific_class_doaps) > 0:
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("If there is a DOAP for all images, there cannot be DOAPs for specific img classes")
     if len(doap_categories.has_img_all_classes_doaps) == 1:
         limited_views.append("all")
     for img_doap in doap_categories.has_img_specific_class_doaps:
@@ -172,6 +215,10 @@ def _construct_override_object(
 
 
 def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
+    # example: 
+    #    - full_iri = "http://www.knora.org/ontology/1234/my-onto/v2#MyClass"
+    #    - prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
+    #    - output = "my-onto:MyClass"
     before_hashtag, after_hashtag = full_iri.rsplit("#", maxsplit=1)
     prefix = prefixes_inverted[before_hashtag]
     return f"{prefix}:{after_hashtag}"

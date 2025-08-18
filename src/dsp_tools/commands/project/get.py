@@ -52,7 +52,9 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    default_permissions, default_permissions_override = _get_default_permissions(auth, str(project.iri))
+    prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
+
+    default_permissions, default_permissions_override = _get_default_permissions(auth, str(project.iri), prefixes)
     project_obj["default_permissions"] = default_permissions
     if default_permissions_override:
         project_obj["default_permissions_override"] = default_permissions_override
@@ -63,7 +65,6 @@ def get_project(
 
     project_obj["lists"] = _get_lists(con, project, verbose)
 
-    prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
     project_obj["ontologies"] = ontos
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
@@ -93,7 +94,7 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
 
 
 def _get_default_permissions(
-    auth: AuthenticationClientLive, project_iri: str
+    auth: AuthenticationClientLive, project_iri: str, prefixes: dict[str, str]
 ) -> tuple[str, dict[str, list[str]] | None]:
     perm_client = PermissionsClient(auth, project_iri)
     project_doaps = perm_client.get_project_doaps()
@@ -104,7 +105,7 @@ def _get_default_permissions(
     )
     try:
         default_permissions = _parse_default_permissions(project_doaps)
-        default_permissions_override = _parse_default_permissions_override(project_doaps)
+        default_permissions_override = _parse_default_permissions_override(project_doaps, prefixes)
     except UnknownDOAPException:
         default_permissions = fallback_text
         default_permissions_override = None
@@ -116,7 +117,7 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         raise UnknownDOAPException()
-    proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
+    proj_member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
         raise UnknownDOAPException()
     perms = proj_member_doaps[0]["hasPermissions"]
@@ -139,19 +140,29 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     return "public"
 
 
-def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> dict[str, list[str]] | None:
+def _parse_default_permissions_override(
+    project_doaps: list[dict[str, Any]], prefixes: dict[str, str]
+) -> dict[str, list[str]] | None:
     # these cases exist:
     # private for prop
     # private for class
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue and a certain class
+
+    # convert knora-api form of prefixes into knora-base form (used by DOAPs)
+    prefixes_knora_base_inverted = {}
+    for onto_shorthand, knora_api_iri in prefixes.items():
+        if match := regex.search(r"/ontology/([0-9A-Fa-f]{4})/([^/]+)/v2", knora_api_iri):
+            shortcode, onto_name = match.groups()
+            prefixes_knora_base_inverted[f"http://www.knora.org/ontology/{shortcode}/{onto_name}"] = onto_shorthand
+
     class_doaps = []
     prop_doaps = []
     has_img_all_classes_doaps = []
     has_img_specific_class_doaps = []
     other_doaps = []
     for doap in project_doaps:
-        match (doap["forResourceClass"], doap["forProperty"]):  
+        match (doap["forResourceClass"], doap["forProperty"]):
             case (for_class, None) if for_class is not None:
                 class_doaps.append(doap)
             case (None, for_prop) if for_prop is not None and "hasStillImageFileValue" not in for_prop:
@@ -164,7 +175,7 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
                 other_doaps.append(doap)
     if other_doaps:
         raise UnknownDOAPException()
-    
+
     for expected_private_doap in class_doaps + prop_doaps:
         perm = sorted(expected_private_doap["hasPermissions"], key=lambda x: x["name"])
         if len(perm) != 2:
@@ -174,7 +185,7 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
             raise UnknownDOAPException()
         if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
             raise UnknownDOAPException()
-            
+
     for expected_limited_view in has_img_all_classes_doaps + has_img_specific_class_doaps:
         perm = sorted(expected_limited_view["hasPermissions"], key=lambda x: x["name"])
         if len(perm) != 4:
@@ -188,9 +199,22 @@ def _parse_default_permissions_override(project_doaps: list[dict[str, Any]]) -> 
             raise UnknownDOAPException()
         if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
             raise UnknownDOAPException()
+
+    privates: list[str] = []
+    limited_views: list[str] = []
+    for class_doap in class_doaps:
+        full_iri: str = class_doap["forResourceClass"]
+        before_hashtag, after_hashtag = full_iri.split("#", maxsplit=1)
+        prefix = prefixes_knora_base_inverted[before_hashtag]
+        prefixed_iri = f"{prefix}:{after_hashtag}"
+        privates.append(prefixed_iri)
     
-    # TODO: now all invalid ones have been sifted out. Now we can create the object to return
-    
+    result: dict[str, list[str]] = {}
+    if privates:
+        result["private"] = privates
+    if limited_views:
+        result["limited_view"] = limited_views
+    return result
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

@@ -2,7 +2,12 @@ from typing import Any
 
 import pytest
 
+from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
+from dsp_tools.commands.project.get.get_permissions import _construct_override_object
+from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
+from dsp_tools.commands.project.get.get_permissions import _shorten_iri
+from dsp_tools.commands.project.get.get_permissions import _validate_doap_categories
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 PROJ_IRI = "https://api.dev.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
@@ -64,3 +69,23 @@ def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) ->
 
 def test_parse_default_permissions_override() -> None:
     pass
+
+
+def test_convert_prefixes() -> None:
+    _convert_prefixes()
+
+
+def test_categorize_doaps() -> None:
+    _categorize_doaps()
+
+
+def test_validate_doap_categories() -> None:
+    _validate_doap_categories()
+
+
+def test_construct_override_object() -> None:
+    _construct_override_object()
+
+
+def test_shorten_iri() -> None:
+    _shorten_iri()

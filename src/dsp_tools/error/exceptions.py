@@ -108,5 +108,6 @@ class XmlUploadAuthorshipsNotFoundError(BaseError):
 class XmlUploadListNodeNotFoundError(BaseError):
     """Class for errors that are raised when a list node does not exist."""
 
+
 class UnknownDOAPException(BaseError):
     """Class for errors that are raised if a DOAP cannot be parsed"""

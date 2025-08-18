@@ -208,7 +208,7 @@ def _parse_default_permissions_override(
         prefix = prefixes_knora_base_inverted[before_hashtag]
         prefixed_iri = f"{prefix}:{after_hashtag}"
         privates.append(prefixed_iri)
-    
+
     result: dict[str, list[str]] = {}
     if privates:
         result["private"] = privates

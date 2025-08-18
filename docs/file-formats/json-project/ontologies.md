@@ -519,7 +519,7 @@ A short overview how to choose the most suitable `TextValue` type for a particul
     - Suitable for a longer text without mark-up.
     - Specifics:
         - Line breaks are allowed.
-        - Line breaks can be indicated through an XML conform escape sequence or by putting the text on a new line in the XML.
+        - Line breaks can be indicated through an escape sequence or by putting the text on a new line in the XML.
         - Must not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Richtext`
     - Suitable for a longer text containing the 

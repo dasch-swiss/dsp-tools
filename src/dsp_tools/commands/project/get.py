@@ -149,12 +149,7 @@ def _parse_default_permissions_override(  # noqa: PLR0912, PLR0915
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue
     # limited view for http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue and a certain class
 
-    # convert knora-api form of prefixes into knora-base form (used by DOAPs)
-    prefixes_knora_base_inverted = {}
-    for onto_shorthand, knora_api_iri in prefixes.items():
-        if match := regex.search(r"/ontology/([0-9A-Fa-f]{4})/([^/]+)/v2", knora_api_iri):
-            shortcode, onto_name = match.groups()
-            prefixes_knora_base_inverted[f"http://www.knora.org/ontology/{shortcode}/{onto_name}"] = onto_shorthand
+    prefixes_knora_base_inverted= _convert_prefixes(prefixes)
 
     class_doaps = []
     prop_doaps = []
@@ -222,6 +217,24 @@ def _parse_default_permissions_override(  # noqa: PLR0912, PLR0915
     if limited_views:
         result["limited_view"] = limited_views
     return result
+
+
+def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
+    """
+    Convert knora-api form of prefixes into knora-base form (used by DOAPs), and invert it.
+
+    Args:
+        prefixes: dict in the form of {"my-onto": "http://0.0.0.0:3333/ontology/1234/my-onto/v2"}
+    
+    Returns:
+        dict in the form of {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
+    """
+    prefixes_knora_base_inverted = {}
+    for onto_shorthand, knora_api_iri in prefixes.items():
+        if match := regex.search(r"/ontology/([0-9A-Fa-f]{4})/([^/]+)/v2", knora_api_iri):
+            shortcode, onto_name = match.groups()
+            prefixes_knora_base_inverted[f"http://www.knora.org/ontology/{shortcode}/{onto_name}"] = onto_shorthand
+    return prefixes_knora_base_inverted
 
 
 def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:

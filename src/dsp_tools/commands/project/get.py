@@ -203,11 +203,9 @@ def _parse_default_permissions_override(
     privates: list[str] = []
     limited_views: list[str] = []
     for class_doap in class_doaps:
-        full_iri: str = class_doap["forResourceClass"]
-        before_hashtag, after_hashtag = full_iri.split("#", maxsplit=1)
-        prefix = prefixes_knora_base_inverted[before_hashtag]
-        prefixed_iri = f"{prefix}:{after_hashtag}"
-        privates.append(prefixed_iri)
+        privates.append(_shorten_iri(class_doap["forResourceClass"], prefixes_knora_base_inverted))
+    for prop_doap in prop_doaps:
+        privates.append(_shorten_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str]] = {}
     if privates:
@@ -215,6 +213,12 @@ def _parse_default_permissions_override(
     if limited_views:
         result["limited_view"] = limited_views
     return result
+
+
+def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
+    before_hashtag, after_hashtag = full_iri.split("#", maxsplit=1)
+    prefix = prefixes_inverted[before_hashtag]
+    return f"{prefix}:{after_hashtag}"
 
 
 def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:

@@ -527,7 +527,7 @@ A short overview how to choose the most suitable `TextValue` type for a particul
     - Please note that `Richtext` values use much more space in the database than the other types. 
       To economize space in the database, we advise to use it only if mark-up is required.
     - Specifics:
-        - Line break indicated through an escape sequence will not be displayed.
+        - Line breaks indicated through an escape sequence will not be displayed.
         - To create a line break, the tag `<br/>` should be used or the text should be wrapped in a paragraph `<p>`.
         - If your original text contains mark-up other than the DSP standard, it must either be removed or converted.
 

@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.project.get import _parse_default_permissions
+from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 PROJ_IRI = "https://api.dev.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"

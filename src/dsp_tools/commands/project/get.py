@@ -201,11 +201,20 @@ def _parse_default_permissions_override(
             raise UnknownDOAPException()
 
     privates: list[str] = []
-    limited_views: list[str] = []
     for class_doap in class_doaps:
         privates.append(_shorten_iri(class_doap["forResourceClass"], prefixes_knora_base_inverted))
     for prop_doap in prop_doaps:
         privates.append(_shorten_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
+
+    limited_views: list[str] = []
+    if len(has_img_all_classes_doaps) > 1:
+        raise UnknownDOAPException()
+    if len(has_img_all_classes_doaps) == 1 and len(has_img_specific_class_doaps) > 0:
+        raise UnknownDOAPException()
+    if len(has_img_all_classes_doaps) == 1:
+        limited_views.append("all")
+    for has_img_specific_class_doap in has_img_specific_class_doaps:
+        limited_views.append(_shorten_iri(has_img_specific_class_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str]] = {}
     if privates:
@@ -216,7 +225,7 @@ def _parse_default_permissions_override(
 
 
 def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
-    before_hashtag, after_hashtag = full_iri.split("#", maxsplit=1)
+    before_hashtag, after_hashtag = full_iri.rsplit("#", maxsplit=1)
     prefix = prefixes_inverted[before_hashtag]
     return f"{prefix}:{after_hashtag}"
 

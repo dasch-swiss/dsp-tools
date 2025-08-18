@@ -60,3 +60,6 @@ def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) ->
         {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}
     )
     assert _parse_default_permissions([public_perms]) == "unknown"
+
+def test_parse_default_permissions_override() -> None:
+    pass

@@ -162,7 +162,7 @@ def _parse_default_permissions_override(  # noqa: PLR0912, PLR0915
     has_img_specific_class_doaps = []
     other_doaps = []
     for doap in project_doaps:
-        match (doap["forResourceClass"], doap["forProperty"]):
+        match (doap.get("forResourceClass"), doap.get("forProperty")):
             case (for_class, None) if for_class is not None:
                 class_doaps.append(doap)
             case (None, for_prop) if for_prop is not None and "hasStillImageFileValue" not in for_prop:

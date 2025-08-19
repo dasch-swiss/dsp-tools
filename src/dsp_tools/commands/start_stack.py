@@ -430,8 +430,6 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
-            raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
         self._set_custom_host()
         self._get_sipi_docker_config_lua()

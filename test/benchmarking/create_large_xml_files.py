@@ -4,7 +4,7 @@ from dsp_tools.xmllib import XMLRoot
 # This is to be used with the ontology: testdata/validate-data/generic/project.json
 
 
-def create_one_res_many_values(value_counter: int) -> None:
+def file_with_one_resource_and_many_values(value_counter: int) -> None:
     root = XMLRoot.create_new("9999", "onto")
     res = create_one_resource(0)
     res = add_many_values(res, value_counter)
@@ -12,7 +12,7 @@ def create_one_res_many_values(value_counter: int) -> None:
     root.write_file(f"size_test_one_res_with_{value_counter}_values.xml")
 
 
-def create_one_res_large_text_value(text_length: int) -> None:
+def file_with_one_resource_and_large_text_value(text_length: int) -> None:
     root = XMLRoot.create_new("9999", "onto")
     res = create_one_resource(0)
     res = add_one_large_text_value(res, text_length)
@@ -20,7 +20,7 @@ def create_one_res_large_text_value(text_length: int) -> None:
     root.write_file(f"size_test_one_res_with_{text_length}_characters_of_text.xml")
 
 
-def create_many_res_no_values(number_of_resources: int) -> None:
+def file_with_many_resources_no_values(number_of_resources: int) -> None:
     root = XMLRoot.create_new("9999", "onto")
     resources = [create_one_resource(i) for i in range(number_of_resources)]
     root.add_resource_multiple(resources)
@@ -40,3 +40,11 @@ def add_many_values(res: Resource, number_of_values: int) -> Resource:
 def add_one_large_text_value(res: Resource, text_length: int) -> Resource:
     txt = "a" * text_length
     return res.add_simpletext(prop_name=":testTextarea", value=txt)
+
+
+if __name__ == "__main__":
+    focus_number = 10000
+    file_with_one_resource_and_many_values(focus_number)
+    file_with_many_resources_no_values(focus_number)
+
+    file_with_one_resource_and_large_text_value(100000)

@@ -64,8 +64,8 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
         return "private"
     if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
         raise UnknownDOAPException("In case of 'limited_view', there must be 1 for KnownUser and 1 for UnknownUser")
-    if knwn_usr_perms[0]["name"] != "RV" or unkn_usr_perms[0]["name"] != "RV":
-        raise UnknownDOAPException("In case of 'limited_view', KnownUser and UnknownUser must always have RV")
+    if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
+        raise UnknownDOAPException("In case of 'public', KnownUser and UnknownUser must always have V")
     return "public"
 
 

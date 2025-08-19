@@ -53,10 +53,10 @@ def get_project(
 
     prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
 
-    default_permissions, default_permissions_override = get_default_permissions(auth, str(project.iri), prefixes)
+    default_permissions, default_permissions_overrule = get_default_permissions(auth, str(project.iri), prefixes)
     project_obj["default_permissions"] = default_permissions
-    if default_permissions_override:
-        project_obj["default_permissions_override"] = default_permissions_override
+    if default_permissions_overrule:
+        project_obj["default_permissions_overrule"] = default_permissions_overrule
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 

@@ -4,7 +4,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
-from dsp_tools.commands.project.get.get_permissions import _construct_override_object
+from dsp_tools.commands.project.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.project.get.get_permissions import _shorten_iri
@@ -311,7 +311,7 @@ def test_validate_doap_categories_invalid_limited_view_wrong_count() -> None:
         _validate_doap_categories(categories)
 
 
-def test_construct_override_object_private_only() -> None:
+def test_construct_overrule_object_private_only() -> None:
     class_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#MyClass",
         "hasPermissions": [],
@@ -329,11 +329,11 @@ def test_construct_override_object_private_only() -> None:
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
     }
-    result = _construct_override_object(categories, prefixes_inverted)
+    result = _construct_overrule_object(categories, prefixes_inverted)
     assert result == {"private": ["my-onto:MyClass", "my-onto:myProperty"]}
 
 
-def test_construct_override_object_limited_view_all() -> None:
+def test_construct_overrule_object_limited_view_all() -> None:
     img_doap = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -344,11 +344,11 @@ def test_construct_override_object_limited_view_all() -> None:
         has_img_all_classes_doaps=[img_doap],
         has_img_specific_class_doaps=[],
     )
-    result = _construct_override_object(categories, {})
+    result = _construct_overrule_object(categories, {})
     assert result == {"limited_view": ["all"]}
 
 
-def test_construct_override_object_limited_view_specific() -> None:
+def test_construct_overrule_object_limited_view_specific() -> None:
     img_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
@@ -363,11 +363,11 @@ def test_construct_override_object_limited_view_specific() -> None:
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
     }
-    result = _construct_override_object(categories, prefixes_inverted)
+    result = _construct_overrule_object(categories, prefixes_inverted)
     assert result == {"limited_view": ["my-onto:ImageClass"]}
 
 
-def test_construct_override_object_mixed() -> None:
+def test_construct_overrule_object_mixed() -> None:
     class_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#MyClass",
         "hasPermissions": [],
@@ -386,25 +386,25 @@ def test_construct_override_object_mixed() -> None:
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
     }
-    result = _construct_override_object(categories, prefixes_inverted)
+    result = _construct_overrule_object(categories, prefixes_inverted)
     assert result == {
         "private": ["my-onto:MyClass"],
         "limited_view": ["my-onto:ImageClass"],
     }
 
 
-def test_construct_override_object_empty() -> None:
+def test_construct_overrule_object_empty() -> None:
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
         has_img_all_classes_doaps=[],
         has_img_specific_class_doaps=[],
     )
-    result = _construct_override_object(categories, {})
+    result = _construct_overrule_object(categories, {})
     assert result == {}
 
 
-def test_construct_override_object_invalid_multiple_all_images() -> None:
+def test_construct_overrule_object_invalid_multiple_all_images() -> None:
     img_doap1 = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -420,10 +420,10 @@ def test_construct_override_object_invalid_multiple_all_images() -> None:
         has_img_specific_class_doaps=[],
     )
     with pytest.raises(UnknownDOAPException, match="There can only be 1 all-images DOAP"):
-        _construct_override_object(categories, {})
+        _construct_overrule_object(categories, {})
 
 
-def test_construct_override_object_invalid_mixed_image_types() -> None:
+def test_construct_overrule_object_invalid_mixed_image_types() -> None:
     all_img_doap = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -440,7 +440,7 @@ def test_construct_override_object_invalid_mixed_image_types() -> None:
         has_img_specific_class_doaps=[specific_img_doap],
     )
     with pytest.raises(UnknownDOAPException, match="If there is a DOAP for all images, there cannot be DOAPs"):
-        _construct_override_object(categories, {})
+        _construct_overrule_object(categories, {})
 
 
 @pytest.mark.parametrize(

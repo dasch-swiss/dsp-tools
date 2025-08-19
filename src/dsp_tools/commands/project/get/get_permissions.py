@@ -13,13 +13,13 @@ def get_default_permissions(
 ) -> tuple[str, dict[str, list[str]] | None]:
     """
     Retrieve the DOAPs of a project from the server,
-    and try to fit them into our system of "default_permissions" and "default_permissions_override".
+    and try to fit them into our system of "default_permissions" and "default_permissions_overrule".
     If an anomaly is found, return an error message for "default_permissions",
-    and None for "default_permissions_override".
+    and None for "default_permissions_overrule".
 
     Returns:
         "default_permissions": "public" or "private" or error message
-        "default_permissions_override": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
     """
     perm_client = PermissionsClient(auth, project_iri)
     project_doaps = perm_client.get_project_doaps()
@@ -30,11 +30,11 @@ def get_default_permissions(
     )
     try:
         default_permissions = _parse_default_permissions(project_doaps)
-        default_permissions_override = _parse_default_permissions_override(project_doaps, prefixes)
+        default_permissions_overrule = _parse_default_permissions_overrule(project_doaps, prefixes)
     except UnknownDOAPException:
         default_permissions = fallback_text
-        default_permissions_override = None
-    return default_permissions, default_permissions_override
+        default_permissions_overrule = None
+    return default_permissions, default_permissions_overrule
 
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
@@ -69,20 +69,20 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     return "public"
 
 
-def _parse_default_permissions_override(
+def _parse_default_permissions_overrule(
     project_doaps: list[dict[str, Any]], prefixes: dict[str, str]
 ) -> dict[str, list[str]] | None:
     """
-    The DOAPs retrieved from the server are examined if they fit into our system of the overrides.
-    If yes, an override object is returned. Otherwise, an exception is raised.
+    The DOAPs retrieved from the server are examined if they fit into our system of the overrules.
+    If yes, an overrule object is returned. Otherwise, an exception is raised.
 
     Args:
         project_doaps: DOAPs as retrieved from the server
         prefixes: dict in the form {"my-onto": "http://0.0.0.0:3333/ontology/1234/my-onto/v2"}
 
     Returns:
-        an override object that can be written into the JSON project definition file, in this form:
-        "default_permissions_override": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        an overrule object that can be written into the JSON project definition file, in this form:
+        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
 
     Raises:
         UnknownDOAPException: if there are DOAPs that do not fit into our system
@@ -90,7 +90,7 @@ def _parse_default_permissions_override(
     prefixes_knora_base_inverted = _convert_prefixes(prefixes)
     doap_categories = _categorize_doaps(project_doaps)
     _validate_doap_categories(doap_categories)
-    return _construct_override_object(doap_categories, prefixes_knora_base_inverted)
+    return _construct_overrule_object(doap_categories, prefixes_knora_base_inverted)
 
 
 def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
@@ -113,7 +113,7 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
 
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
     """
-    The override object of the JSON project definition file has 2 categories: private and limited_view.
+    The overrule object of the JSON project definition file has 2 categories: private and limited_view.
     - "private" is a list of classes/properties that are private.
       The DOAPs for these correspond 1:1 to the classes/properties.
     - "limited_view" is
@@ -190,11 +190,11 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> None:
             raise UnknownDOAPException(err_msg)
 
 
-def _construct_override_object(
+def _construct_overrule_object(
     doap_categories: DoapCategories, prefixes_knora_base_inverted: dict[str, str]
 ) -> dict[str, list[str]]:
     """
-    Construct the final overrides object that can be written into the JSON project definition file.
+    Construct the final overrules object that can be written into the JSON project definition file.
     To do so, the fully qualified IRIs of the classes/properties must be converted to prefixed IRIs.
 
     Args:
@@ -205,7 +205,7 @@ def _construct_override_object(
         UnknownDOAPException: if the DOAPs do not fit into our system
 
     Returns:
-        the final overrides object that can be written into the JSON project definition file
+        the final overrules object that can be written into the JSON project definition file
     """
     privates: list[str] = []
     for class_doap in doap_categories.class_doaps:

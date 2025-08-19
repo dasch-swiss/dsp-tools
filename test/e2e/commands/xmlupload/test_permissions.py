@@ -41,11 +41,11 @@ def test_ImageResource_uses_doap_should_be_preview(
 
 
 @pytest.mark.usefixtures("_xmlupload_4125_e2e_project")
-def test_ImageResource_overrides_doap_is_open(
+def test_ImageResource_overrules_doap_is_open(
     class_iri_ImageResource: str, auth_header: dict[str, str], project_iri_4125: str, creds: ServerCredentials
 ) -> None:
     res_graph = util_request_resources_by_class(class_iri_ImageResource, auth_header, project_iri_4125, creds)
-    resource_iri = util_get_res_iri_from_label(res_graph, "ImageResource_overrides_doap_is_open")
+    resource_iri = util_get_res_iri_from_label(res_graph, "ImageResource_overrules_doap_is_open")
     resource_permissions = next(res_graph.objects(resource_iri, KNORA_API.hasPermissions))
     assert resource_permissions == PUBLIC_PERMISSIONS
 
@@ -70,7 +70,7 @@ def test_DefaultPermissionsResource_uses_doap_should_be_public(
 
 
 @pytest.mark.usefixtures("_xmlupload_4125_e2e_project")
-def test_DefaultPermissionsResource_overrides_doap_should_be_private(
+def test_DefaultPermissionsResource_overrules_doap_should_be_private(
     class_iri_DefaultPermissionsResource: str,
     auth_header: dict[str, str],
     project_iri_4125: str,
@@ -79,7 +79,7 @@ def test_DefaultPermissionsResource_overrides_doap_should_be_private(
     res_graph = util_request_resources_by_class(
         class_iri_DefaultPermissionsResource, auth_header, project_iri_4125, creds
     )
-    resource_iri = util_get_res_iri_from_label(res_graph, "DefaultPermissionsResource_overrides_doap_should_be_private")
+    resource_iri = util_get_res_iri_from_label(res_graph, "DefaultPermissionsResource_overrules_doap_should_be_private")
     resource_permissions = next(res_graph.objects(resource_iri, KNORA_API.hasPermissions))
     assert resource_permissions == PRIVATE_PERMISSIONS
 
@@ -104,7 +104,7 @@ def test_defaultPermissionsProp_uses_doap_should_be_public(
 
 
 @pytest.mark.usefixtures("_xmlupload_4125_e2e_project")
-def test_defaultPermissionsProp_overrides_doap_should_be_private(
+def test_defaultPermissionsProp_overrules_doap_should_be_private(
     class_iri_DefaultPermissionsResource: str,
     auth_header: dict[str, str],
     project_iri_4125: str,
@@ -114,7 +114,7 @@ def test_defaultPermissionsProp_overrides_doap_should_be_private(
     res_graph = util_request_resources_by_class(
         class_iri_DefaultPermissionsResource, auth_header, project_iri_4125, creds
     )
-    resource_iri = util_get_res_iri_from_label(res_graph, "defaultPermissionsProp_overrides_doap_should_be_private")
+    resource_iri = util_get_res_iri_from_label(res_graph, "defaultPermissionsProp_overrules_doap_should_be_private")
 
     prop_iri = URIRef(f"{second_onto_iri_4125}defaultPermissionsProp")
     prop_val_iri = next(res_graph.objects(resource_iri, prop_iri))
@@ -142,7 +142,7 @@ def test_privateProp_uses_doap_should_be_private(
 
 
 @pytest.mark.usefixtures("_xmlupload_4125_e2e_project")
-def test_privateProp_overrides_doap_should_be_public(
+def test_privateProp_overrules_doap_should_be_public(
     class_iri_DefaultPermissionsResource: str,
     auth_header: dict[str, str],
     project_iri_4125: str,
@@ -152,7 +152,7 @@ def test_privateProp_overrides_doap_should_be_public(
     res_graph = util_request_resources_by_class(
         class_iri_DefaultPermissionsResource, auth_header, project_iri_4125, creds
     )
-    resource_iri = util_get_res_iri_from_label(res_graph, "privateProp_overrides_doap_should_be_public")
+    resource_iri = util_get_res_iri_from_label(res_graph, "privateProp_overrules_doap_should_be_public")
 
     prop_iri = URIRef(f"{second_onto_iri_4125}privateProp")
     prop_val_iri = next(res_graph.objects(resource_iri, prop_iri))

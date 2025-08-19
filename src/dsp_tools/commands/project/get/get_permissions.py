@@ -11,6 +11,16 @@ from dsp_tools.error.exceptions import UnknownDOAPException
 def get_default_permissions(
     auth: AuthenticationClient, project_iri: str, prefixes: dict[str, str]
 ) -> tuple[str, dict[str, list[str]] | None]:
+    """
+    Retrieve the DOAPs of a project from the server,
+    and try to fit them into our system of "default_permissions" and "default_permissions_override".
+    If an anomaly is found, return an error message for "default_permissions",
+    and None for "default_permissions_override".
+
+    Returns:
+        "default_permissions": "public" or "private" or error message
+        "default_permissions_override": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+    """
     perm_client = PermissionsClient(auth, project_iri)
     project_doaps = perm_client.get_project_doaps()
     fallback_text = (
@@ -28,7 +38,10 @@ def get_default_permissions(
 
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
-    """If the DOAPs exactly match our definition of public/private, return public/private. Otherwise, return unknown."""
+    """
+    If the DOAPs exactly match our definition of public/private, return public/private.
+    Otherwise, raise an exception.
+    """
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         raise UnknownDOAPException("The only supported target group for DOAPs is ProjectMember.")
@@ -68,7 +81,8 @@ def _parse_default_permissions_override(
         prefixes: dict in the form {"my-onto": "http://0.0.0.0:3333/ontology/1234/my-onto/v2"}
 
     Returns:
-        an override object that can be written into the JSON project definition file
+        an override object that can be written into the JSON project definition file, in this form:
+        "default_permissions_override": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
 
     Raises:
         UnknownDOAPException: if there are DOAPs that do not fit into our system

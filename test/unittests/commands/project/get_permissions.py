@@ -42,7 +42,7 @@ def prop_doap_private() -> dict[str, Any]:
 @pytest.fixture
 def img_all_doap() -> dict[str, Any]:
     return {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "forProject": PROJ_IRI,
         "hasPermissions": [
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
@@ -57,7 +57,7 @@ def img_all_doap() -> dict[str, Any]:
 def img_specific_doap() -> dict[str, Any]:
     return {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "forProject": PROJ_IRI,
         "hasPermissions": [
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
@@ -179,6 +179,7 @@ def test_categorize_doaps_empty() -> None:
 
 
 def test_categorize_doaps_invalid_doap() -> None:
+    # TODO too generic
     invalid_doap = {
         "forSomethingElse": "invalid",
         "forProject": PROJ_IRI,
@@ -188,31 +189,29 @@ def test_categorize_doaps_invalid_doap() -> None:
         _categorize_doaps([invalid_doap])
 
 
-def test_validate_doap_categories_valid_private(class_doap_private: dict[str, Any]) -> None:
+# TODO Is this already enough for _categorize_doaps?
+
+
+def test_validate_doap_categories_valid_all_images(
+    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], img_all_doap: dict[str, Any]
+) -> None:
     categories = DoapCategories(
         class_doaps=[class_doap_private],
-        prop_doaps=[],
-        has_img_all_classes_doaps=[],
+        prop_doaps=[prop_doap_private],
+        has_img_all_classes_doaps=[img_all_doap],
         has_img_specific_class_doaps=[],
     )
     _validate_doap_categories(categories)
 
 
-def test_validate_doap_categories_valid_limited_view() -> None:
-    img_doap = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
-        "hasPermissions": [
-            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
-            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
-            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
-            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
-        ],
-    }
+def test_validate_doap_categories_valid_specific_images(
+    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], img_specific_doap: dict[str, Any]
+) -> None:
     categories = DoapCategories(
-        class_doaps=[],
-        prop_doaps=[],
-        has_img_all_classes_doaps=[img_doap],
-        has_img_specific_class_doaps=[],
+        class_doaps=[class_doap_private],
+        prop_doaps=[prop_doap_private],
+        has_img_all_classes_doaps=[],
+        has_img_specific_class_doaps=[img_specific_doap],
     )
     _validate_doap_categories(categories)
 
@@ -235,16 +234,16 @@ def test_validate_doap_categories_invalid_private_wrong_count() -> None:
 
 
 def test_validate_doap_categories_invalid_private_wrong_names() -> None:
-    class_doap = {
-        "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#MyClass",
+    prop_doap = {
+        "forProperty": "http://www.knora.org/ontology/1234/my-onto#myProp",
         "hasPermissions": [
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "WRONG", "permissionCode": 16},
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
         ],
     }
     categories = DoapCategories(
-        class_doaps=[class_doap],
-        prop_doaps=[],
+        class_doaps=[],
+        prop_doaps=[prop_doap],
         has_img_all_classes_doaps=[],
         has_img_specific_class_doaps=[],
     )
@@ -254,7 +253,7 @@ def test_validate_doap_categories_invalid_private_wrong_names() -> None:
 
 def test_validate_doap_categories_invalid_limited_view_wrong_count() -> None:
     img_doap = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
@@ -292,14 +291,12 @@ def test_construct_override_object_private_only() -> None:
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
     }
     result = _construct_override_object(categories, prefixes_inverted)
-    assert result == {
-        "private": ["my-onto:MyClass", "my-onto:myProperty"]
-    }
+    assert result == {"private": ["my-onto:MyClass", "my-onto:myProperty"]}
 
 
 def test_construct_override_object_limited_view_all() -> None:
     img_doap = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
@@ -309,15 +306,13 @@ def test_construct_override_object_limited_view_all() -> None:
         has_img_specific_class_doaps=[],
     )
     result = _construct_override_object(categories, {})
-    assert result == {
-        "limited_view": ["all"]
-    }
+    assert result == {"limited_view": ["all"]}
 
 
 def test_construct_override_object_limited_view_specific() -> None:
     img_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
@@ -330,9 +325,7 @@ def test_construct_override_object_limited_view_specific() -> None:
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
     }
     result = _construct_override_object(categories, prefixes_inverted)
-    assert result == {
-        "limited_view": ["my-onto:ImageClass"]
-    }
+    assert result == {"limited_view": ["my-onto:ImageClass"]}
 
 
 def test_construct_override_object_mixed() -> None:
@@ -342,7 +335,7 @@ def test_construct_override_object_mixed() -> None:
     }
     img_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
@@ -374,11 +367,11 @@ def test_construct_override_object_empty() -> None:
 
 def test_construct_override_object_invalid_multiple_all_images() -> None:
     img_doap1 = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     img_doap2 = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
@@ -393,12 +386,12 @@ def test_construct_override_object_invalid_multiple_all_images() -> None:
 
 def test_construct_override_object_invalid_mixed_image_types() -> None:
     all_img_doap = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     specific_img_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
@@ -442,12 +435,12 @@ def test_shorten_iri_valid_cases(full_iri: str, prefixes_inverted: dict[str, str
 def test_shorten_iri_missing_prefix() -> None:
     full_iri = "http://www.knora.org/ontology/1234/my-onto#MyClass"
     prefixes_inverted = {"http://www.knora.org/ontology/ABCD/other-onto": "other-onto"}
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError, match="belongs to an unknown ontology"):
         _shorten_iri(full_iri, prefixes_inverted)
 
 
 def test_shorten_iri_no_hash_separator() -> None:
     full_iri = "http://www.knora.org/ontology/1234/my-onto/MyClass"
     prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
-    with pytest.raises(ValueError, match="not enough values to unpack"):
+    with pytest.raises(ValueError, match="is not a valid full IRI"):
         _shorten_iri(full_iri, prefixes_inverted)

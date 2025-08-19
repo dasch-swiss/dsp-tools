@@ -219,6 +219,10 @@ def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
     #    - full_iri = "http://www.knora.org/ontology/1234/my-onto/v2#MyClass"
     #    - prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
     #    - output = "my-onto:MyClass"
+    if "#" not in full_iri:
+        raise ValueError(f"{full_iri} is not a valid full IRI")
     before_hashtag, after_hashtag = full_iri.rsplit("#", maxsplit=1)
+    if before_hashtag not in prefixes_inverted:
+        raise ValueError(f"{full_iri} belongs to an unknown ontology. It cannot be found in the prefixes.")
     prefix = prefixes_inverted[before_hashtag]
     return f"{prefix}:{after_hashtag}"

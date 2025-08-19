@@ -58,6 +58,10 @@ class Resource:
         """
         Create a new resource.
 
+        Tip:
+            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.make_xsd_compatible_id)
+            to transform the resource ID into a format that meets the requirements for an XML ID.
+
         Args:
             res_id: resource ID
             restype: resource type
@@ -321,6 +325,11 @@ class Resource:
         """
         Add a date value to the resource.
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
+
+        Tip:
+            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date)
+            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_dates_in_string)
+            to transform a date into the DSP conform format.
 
         Args:
             prop_name: name of the property
@@ -906,6 +915,10 @@ class Resource:
         Add a list value to the resource, i.e. a name of a list node.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
+
+        Tip:
+            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.ListLookup)
+            to retrieve the correct list name based on the label.
 
         Args:
             prop_name: name of the property

@@ -184,18 +184,51 @@ def test_categorize_doaps_empty() -> None:
     assert len(result.has_img_specific_class_doaps) == 0
 
 
-def test_categorize_doaps_invalid_doap() -> None:
-    # TODO too generic
-    invalid_doap = {
-        "forSomethingElse": "invalid",
-        "forProject": PROJ_IRI,
-        "hasPermissions": [],
-    }
+@pytest.mark.parametrize(
+    "invalid_doap",
+    [
+        {
+            "forProject": PROJ_IRI,
+            "hasPermissions": [],
+        },
+        {
+            "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#MyClass",
+            "forProperty": "http://www.knora.org/ontology/1234/my-onto#regularProperty",
+            "forProject": PROJ_IRI,
+            "hasPermissions": [],
+        },
+        {
+            "forResourceClass": None,
+            "forProperty": None,
+            "forProject": PROJ_IRI,
+            "hasPermissions": [],
+        },
+        {
+            "forResourceClass": "",
+            "forProject": PROJ_IRI,
+            "hasPermissions": [],
+        },
+        {
+            "forProperty": "",
+            "forProject": PROJ_IRI,
+            "hasPermissions": [],
+        },
+    ],
+)
+def test_categorize_doaps_invalid_doap(invalid_doap: dict[str, Any]) -> None:
     with pytest.raises(UnknownDOAPException):
         _categorize_doaps([invalid_doap])
 
 
-# TODO Is this already enough for _categorize_doaps?
+def test_categorize_doaps_mixed_valid_and_invalid(class_doap_private: dict[str, Any]) -> None:
+    """Test that the function fails if any DOAP is invalid, even if others are valid."""
+    invalid_doap = {
+        "forResourceClass": "",
+        "forProject": PROJ_IRI,
+        "hasPermissions": [],
+    }
+    with pytest.raises(UnknownDOAPException):
+        _categorize_doaps([class_doap_private, invalid_doap])
 
 
 def test_validate_doap_categories_valid_all_images(

@@ -125,13 +125,13 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
     other_doaps = []
     for doap in project_doaps:
         match (doap.get("forResourceClass"), doap.get("forProperty")):
-            case (for_class, None) if for_class is not None:
+            case (for_class, None) if for_class:
                 class_doaps.append(doap)
-            case (None, for_prop) if for_prop is not None and "hasStillImageFileValue" not in for_prop:
+            case (None, for_prop) if for_prop and "hasStillImageFileValue" not in for_prop:
                 prop_doaps.append(doap)
-            case (None, for_prop) if "hasStillImageFileValue" in str(for_prop):
+            case (None, for_prop) if for_prop and "hasStillImageFileValue" in for_prop:
                 has_img_all_classes_doaps.append(doap)
-            case (for_class, for_prop) if for_class is not None and "hasStillImageFileValue" in str(for_prop):
+            case (for_class, for_prop) if for_class and for_prop and "hasStillImageFileValue" in for_prop:
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)

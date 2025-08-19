@@ -149,8 +149,10 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
-    if other_doaps:
-        raise UnknownDOAPException()
+    try:
+        _parse_default_permissions(other_doaps)
+    except UnknownDOAPException:
+        raise UnknownDOAPException("Found DOAPs that do not fit into our system") from None
     return DoapCategories(
         class_doaps=class_doaps,
         prop_doaps=prop_doaps,

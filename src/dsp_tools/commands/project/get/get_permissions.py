@@ -31,13 +31,14 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     """If the DOAPs exactly match our definition of public/private, return public/private. Otherwise, return unknown."""
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("The only supported target group for DOAPs is ProjectMember.")
     proj_member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("There must be exactly 1 DOAP for ProjectMember.")
     perms = proj_member_doaps[0]["hasPermissions"]
     if len(perms) not in [2, 4]:
-        raise UnknownDOAPException()
+        err_msg = "The only allowed permissions are 'private' (with 2 elements), and 'limited_view' (with 4 elements)"
+        raise UnknownDOAPException(err_msg)
     proj_adm_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectAdmin")]
     proj_mem_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectMember")]
     knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
@@ -68,7 +69,7 @@ def _parse_default_permissions_override(
 
     Returns:
         an override object that can be written into the JSON project definition file
-    
+
     Raises:
         UnknownDOAPException: if there are DOAPs that do not fit into our system
     """
@@ -101,8 +102,8 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
     The override object of the JSON project definition file has 2 categories: private and limited_view.
     - "private" is a list of classes/properties that are private.
       The DOAPs for these correspond 1:1 to the classes/properties.
-    - "limited_view" is 
-        - a list of image classes that are limited_view: 
+    - "limited_view" is
+        - a list of image classes that are limited_view:
           The DOAPs for these are for knora-api:hasStillImageFileValue and the respective class.
         - or the string "all". The DOAPs for these are only for knora-api:hasStillImageFileValue.
 
@@ -215,7 +216,7 @@ def _construct_override_object(
 
 
 def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
-    # example: 
+    # example:
     #    - full_iri = "http://www.knora.org/ontology/1234/my-onto/v2#MyClass"
     #    - prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
     #    - output = "my-onto:MyClass"

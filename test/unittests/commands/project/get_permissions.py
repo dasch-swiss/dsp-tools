@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+import regex
 
 from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.project.get.get_permissions import _construct_override_object
@@ -106,20 +107,25 @@ def test_parse_default_permissions_public(public_perms: dict[str, Any]) -> None:
 
 def test_parse_default_permissions_wrong_target(public_perms: dict[str, Any]) -> None:
     public_perms["forGroup"] = f"{USER_IRI_PREFIX}SystemAdmin"
-    assert _parse_default_permissions([public_perms]) == "unknown"
+    with pytest.raises(UnknownDOAPException, match=regex.escape("supported target group for DOAPs is ProjectMember")):
+        _parse_default_permissions([public_perms])
 
 
 def test_parse_default_permissions_previous_standard(public_perms: dict[str, Any]) -> None:
     public_perms_admin = public_perms.copy()
     public_perms_admin["forGroup"] = f"{USER_IRI_PREFIX}ProjectAdmin"
-    assert _parse_default_permissions([public_perms_admin, public_perms]) == "unknown"
+    with pytest.raises(UnknownDOAPException, match=regex.escape("supported target group for DOAPs is ProjectMember")):
+        _parse_default_permissions([public_perms_admin, public_perms])
 
 
 def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) -> None:
     public_perms["hasPermissions"].append(
         {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}
     )
-    assert _parse_default_permissions([public_perms]) == "unknown"
+    with pytest.raises(
+        UnknownDOAPException, match=regex.escape("'private' (with 2 elements), and 'limited_view' (with 4 elements)")
+    ):
+        _parse_default_permissions([public_perms])
 
 
 @pytest.mark.parametrize(

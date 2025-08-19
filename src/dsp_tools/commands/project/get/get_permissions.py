@@ -57,15 +57,15 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
     unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
     if not (len(proj_adm_perms) == len(proj_mem_perms) == 1):
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("There must be always 1 permission for ProjectAdmin and 1 for ProjectMember")
     if proj_adm_perms[0]["name"] != "CR" or proj_mem_perms[0]["name"] != "D":
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("ProjectAdmin must always have CR and ProjectMember must always have D")
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
         return "private"
     if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("In case of 'limited_view', there must be 1 for KnownUser and 1 for UnknownUser")
     if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
-        raise UnknownDOAPException()
+        raise UnknownDOAPException("In case of 'limited_view', KnownUser and UnknownUser must always have RV")
     return "public"
 
 

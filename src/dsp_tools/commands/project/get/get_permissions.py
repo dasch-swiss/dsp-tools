@@ -22,7 +22,7 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:  # n
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         return "unknown"
-    proj_member_doaps = [x for x in project_doaps if x["forGroup"].endswith("ProjectMember")]
+    proj_member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
     if len(proj_member_doaps) != 1:
         return "unknown"
     perms = proj_member_doaps[0]["hasPermissions"]

@@ -16,7 +16,7 @@ from packaging.version import parse
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.config.logger_config import get_warnings_file
-from dsp_tools.config.logger_config import trigger_initial_setup
+from dsp_tools.config.logger_config import trigger_initial_logging_setup
 from dsp_tools.config.warnings_config import initialize_warnings
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -29,7 +29,7 @@ def main() -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
     """
-    trigger_initial_setup()
+    trigger_initial_logging_setup()
     run(sys.argv[1:])
 
 

@@ -5,7 +5,7 @@ import pytest
 from _pytest.logging import caplog as _caplog  # noqa: F401 (imported but unused)
 from loguru import logger
 
-from dsp_tools.config.logger_config import trigger_initial_setup
+from dsp_tools.config.logger_config import trigger_initial_logging_setup
 
 
 @pytest.fixture
@@ -35,4 +35,4 @@ def pytest_sessionstart() -> None:
     and before performing collection and entering the run test loop.
     See https://docs.pytest.org/en/latest/reference/reference.html#pytest.hookspec.pytest_sessionstart.
     """
-    trigger_initial_setup()
+    trigger_initial_logging_setup()

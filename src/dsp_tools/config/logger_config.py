@@ -98,7 +98,7 @@ def get_warnings_file() -> Path:
     return logger_service.get_warnings_file()
 
 
-def trigger_initial_setup() -> None:
+def trigger_initial_logging_setup() -> None:
     """
     Initial configuration of the logger service. Has to be called before any logging is done.
     """

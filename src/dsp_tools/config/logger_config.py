@@ -15,8 +15,8 @@ load_dotenv()
 class LoggerService:
     """Service for managing logger configuration and providing access to log file paths."""
 
-    _current_log_file: Path | None = field(default=None, init=False)
-    _warnings_savepath: Path = field(default=Path("warnings.log"), init=False)
+    _log_file: Path | None = field(default=None, init=False)
+    _warnings_file: Path = field(default=Path("warnings.log"), init=False)
 
     # Class variable for singleton pattern
     _instance: Self | None = None
@@ -39,7 +39,7 @@ class LoggerService:
         logger_savepath = (_make_and_get_logs_directory() / f"{timestamp}_logging.log").absolute()
 
         # Store the log file path for later retrieval
-        self._current_log_file = logger_savepath
+        self._log_file = logger_savepath
 
         logger.add(
             sink=logger_savepath,
@@ -60,7 +60,7 @@ class LoggerService:
             )
         else:
             logger.add(
-                sink=self._warnings_savepath,
+                sink=self._warnings_file,
                 level="WARNING",
                 format=text_format,
                 backtrace=False,
@@ -69,15 +69,15 @@ class LoggerService:
                 retention=2,
             )
 
-    def get_current_log_file(self) -> Path:
-        """Get the path to the current log file."""
-        if self._current_log_file is None:
+    def get_log_file(self) -> Path:
+        """Get the path to the log file. As a fallback, return the parent directory."""
+        if self._log_file is None:
             return _make_and_get_logs_directory()
-        return self._current_log_file
+        return self._log_file
 
     def get_warnings_file(self) -> Path:
-        """Get the path to the warnings log file."""
-        return self._warnings_savepath
+        """Get the path to the warnings file."""
+        return self._warnings_file
 
 
 def _make_and_get_logs_directory() -> Path:
@@ -87,12 +87,10 @@ def _make_and_get_logs_directory() -> Path:
     return base_dir
 
 
-
-
-def get_current_log_file() -> Path:
+def get_log_file() -> Path:
     """Get the path to the current log file."""
     logger_service = LoggerService.get_instance()
-    return logger_service.get_current_log_file()
+    return logger_service.get_log_file()
 
 
 def get_warnings_file() -> Path:

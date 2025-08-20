@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from dsp_tools.config.logger_config import get_current_log_file
+from dsp_tools.config.logger_config import get_log_file
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
@@ -27,8 +27,8 @@ class InternalError(BaseError):
     """
 
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
-        log_file_path = get_current_log_file()
-        
+        log_file_path = get_log_file()
+
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
             "Please contact the dsp-tools development team with the following information:\n"

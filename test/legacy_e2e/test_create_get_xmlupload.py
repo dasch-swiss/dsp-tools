@@ -168,7 +168,14 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             project_returned: returned file
         """
         self.assertListEqual(list(project_original.keys()), list(project_returned.keys()))
-        for field in ["shortcode", "shortname", "longname", "descriptions", "default_permissions"]:
+        for field in [
+            "shortcode",
+            "shortname",
+            "longname",
+            "descriptions",
+            "default_permissions",
+            "default_permissions_overrule",
+        ]:
             orig = project_original["project"].get(field)
             ret = project_returned["project"].get(field)
             self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")

@@ -1,10 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 
 <knora xmlns="https://dasch.swiss/schema"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
-       shortcode="4125"
-       default-ontology="e2e-testonto">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd" shortcode="4125" default-ontology="e2e-testonto">
 
     <permissions id="public">
         <allow group="UnknownUser">V</allow>
@@ -27,25 +24,13 @@
         <author>Cavanagh, Annie</author>
     </authorship>
 
-    <resource label="Resource 1"
-              restype=":ImageResource"
-              id="resource_1"
-              permissions="public">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >testdata/bitstreams/test.jpg
+    <resource label="Resource 1" restype=":ImageResource" id="resource_1" permissions="public">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_1">testdata/bitstreams/test.jpg
         </bitstream>
     </resource>
 
-    <resource label="Resource 2"
-              restype=":ImageResource"
-              id="resource_2">
-        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
-                  copyright-holder="Wellcome Collection"
-                  authorship-id="authorship_3"
-                  permissions="public"
-        >
+    <resource label="Resource 2" restype=":ImageResource" id="resource_2">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0" copyright-holder="Wellcome Collection" authorship-id="authorship_3" permissions="public">
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
         <text-prop name=":hasText">
@@ -54,27 +39,16 @@
         </text-prop>
     </resource>
 
-    <resource label="Resource 3"
-              restype=":PDFResource"
-              id="resource_3">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_2"
-                   permissions="public"
-        >testdata/bitstreams/test.pdf
+    <resource label="Resource 3" restype=":PDFResource" id="resource_3">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2" permissions="public">testdata/bitstreams/test.pdf
         </bitstream>
     </resource>
 
 
     <!-- This is to test the permissions as configured by the json. -->
 
-    <resource label="ImageResource_uses_doap_should_be_preview"
-              restype=":ImageResource"
-              id="ImageResource_uses_doap_should_be_preview">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >testdata/bitstreams/test.png
+    <resource label="ImageResource_uses_doap_should_be_preview" restype=":ImageResource" id="ImageResource_uses_doap_should_be_preview">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_1">testdata/bitstreams/test.png
         </bitstream>
     </resource>
 
@@ -90,9 +64,7 @@
     </resource>
 
 
-    <resource label="DefaultPermissionsResource_uses_doap_should_be_public"
-              restype="second-onto:DefaultPermissionsResource"
-              id="DefaultPermissionsResource_uses_doap_should_be_public"/>
+    <resource label="DefaultPermissionsResource_uses_doap_should_be_public" restype="second-onto:DefaultPermissionsResource" id="DefaultPermissionsResource_uses_doap_should_be_public"/>
 
     <resource label="DefaultPermissionsResource_overrules_doap_should_be_private"
               restype="second-onto:DefaultPermissionsResource"
@@ -100,9 +72,7 @@
               permissions="private"/>
 
 
-    <resource label="defaultPermissionsProp_uses_doap_should_be_public"
-              restype="second-onto:DefaultPermissionsResource"
-              id="defaultPermissionsProp_uses_doap_should_be_public">
+    <resource label="defaultPermissionsProp_uses_doap_should_be_public" restype="second-onto:DefaultPermissionsResource" id="defaultPermissionsProp_uses_doap_should_be_public">
         <text-prop name="second-onto:defaultPermissionsProp">
             <text encoding="utf8">Uses DOAP should be public</text>
         </text-prop>
@@ -117,9 +87,7 @@
     </resource>
 
 
-    <resource label="privateProp_uses_doap_should_be_private"
-              restype="second-onto:DefaultPermissionsResource"
-              id="privateProp_uses_doap_should_be_private">
+    <resource label="privateProp_uses_doap_should_be_private" restype="second-onto:DefaultPermissionsResource" id="privateProp_uses_doap_should_be_private">
         <text-prop name="second-onto:privateProp">
             <text encoding="utf8">Uses DOAP should be private</text>
         </text-prop>

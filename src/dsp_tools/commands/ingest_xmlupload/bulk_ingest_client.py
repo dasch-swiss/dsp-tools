@@ -164,8 +164,7 @@ class BulkIngestClient:
             elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
-                    log_file_path = get_log_file()
-                    raise InputError(f"There were too many server errors. Please check the logs at {log_file_path}.")
+                    raise InputError(f"There were too many server errors. Please check the logs at {get_log_file()}.")
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

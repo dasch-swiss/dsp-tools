@@ -52,24 +52,15 @@
         </bitstream>
     </resource>
 
-    <resource label="ImageResource_overrules_doap_is_open"
-              restype=":ImageResource"
-              id="ImageResource_overrules_doap_is_open">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-                   permissions="public"
-        >testdata/bitstreams/test.jpeg
+    <resource label="ImageResource_overrules_doap_is_open" restype=":ImageResource" id="ImageResource_overrules_doap_is_open">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_1" permissions="public">testdata/bitstreams/test.jpeg
         </bitstream>
     </resource>
 
 
     <resource label="DefaultPermissionsResource_uses_doap_should_be_public" restype="second-onto:DefaultPermissionsResource" id="DefaultPermissionsResource_uses_doap_should_be_public"/>
 
-    <resource label="DefaultPermissionsResource_overrules_doap_should_be_private"
-              restype="second-onto:DefaultPermissionsResource"
-              id="DefaultPermissionsResource_overrules_doap_should_be_private"
-              permissions="private"/>
+    <resource label="DefaultPermissionsResource_overrules_doap_should_be_private" restype="second-onto:DefaultPermissionsResource" id="DefaultPermissionsResource_overrules_doap_should_be_private" permissions="private"/>
 
 
     <resource label="defaultPermissionsProp_uses_doap_should_be_public" restype="second-onto:DefaultPermissionsResource" id="defaultPermissionsProp_uses_doap_should_be_public">
@@ -78,9 +69,7 @@
         </text-prop>
     </resource>
 
-    <resource label="defaultPermissionsProp_overrules_doap_should_be_private"
-              restype="second-onto:DefaultPermissionsResource"
-              id="defaultPermissionsProp_overrules_doap_should_be_private">
+    <resource label="defaultPermissionsProp_overrules_doap_should_be_private" restype="second-onto:DefaultPermissionsResource" id="defaultPermissionsProp_overrules_doap_should_be_private">
         <text-prop name="second-onto:defaultPermissionsProp">
             <text encoding="utf8" permissions="private">overrules DOAP should be private</text>
         </text-prop>
@@ -93,9 +82,7 @@
         </text-prop>
     </resource>
 
-    <resource label="privateProp_overrules_doap_should_be_public"
-              restype="second-onto:DefaultPermissionsResource"
-              id="privateProp_overrules_doap_should_be_public">
+    <resource label="privateProp_overrules_doap_should_be_public" restype="second-onto:DefaultPermissionsResource" id="privateProp_overrules_doap_should_be_public">
         <text-prop name="second-onto:privateProp">
             <text encoding="utf8" permissions="public">overrules DOAP should be public</text>
         </text-prop>

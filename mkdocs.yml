@@ -39,6 +39,7 @@ nav:
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
   - xmllib API documentation:
+      - Overview: xmllib-api-reference/overview.md
       - XMLRoot: xmllib-api-reference/xmlroot.md
       - Resource: xmllib-api-reference/resource.md
       - DSP base resources:

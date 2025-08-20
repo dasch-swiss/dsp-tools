@@ -42,7 +42,7 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import uploa
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.config.logger_config import get_warnings_file
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -251,12 +251,12 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
         if upload_state.failed_uploads:
             res_msg = f"Could not upload the following resources: {upload_state.failed_uploads}"
             print(f"\n{datetime.now()}: WARNING: {res_msg}\n")
-            print(f"See {WARNINGS_SAVEPATH} for more information\n")
+            print(f"See {get_warnings_file()} for more information\n")
             logger.warning(res_msg)
         if has_stash_failed:
             stash_msg = f"Could not reapply the following stash items: {upload_state.pending_stash}"
             print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
-            print(f"See {WARNINGS_SAVEPATH} for more information\n")
+            print(f"See {get_warnings_file()} for more information\n")
             logger.warning(stash_msg)
         msg = _save_upload_state(upload_state)
         print(msg)
@@ -365,7 +365,7 @@ def _handle_permanent_connection_error(err: PermanentConnectionError) -> Never:
     msg = "Lost connection to DSP server, probably because the server is down. "
     msg += f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
     logger.error(msg)
-    msg += f"\nSee {WARNINGS_SAVEPATH} for more information."
+    msg += f"\nSee {get_warnings_file()} for more information."
     raise XmlUploadInterruptedError(msg) from None
 
 
@@ -453,7 +453,7 @@ def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
             f"\n==========================================\n"
             f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
             f"Error message: '{err}'\n"
-            f"See {WARNINGS_SAVEPATH} for more information\n"
+            f"See {get_warnings_file()} for more information\n"
         )
         exit_code = 1
 

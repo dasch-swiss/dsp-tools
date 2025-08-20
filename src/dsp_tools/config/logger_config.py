@@ -87,8 +87,6 @@ def _make_and_get_logs_directory() -> Path:
     return base_dir
 
 
-# Backwards compatibility - some modules still import this directly
-WARNINGS_SAVEPATH = Path("warnings.log")
 
 
 def get_current_log_file() -> Path:

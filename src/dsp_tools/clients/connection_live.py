@@ -14,7 +14,7 @@ from requests import Session
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.config.logger_config import get_warnings_file
 from dsp_tools.error.exceptions import InvalidInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import PostFiles
@@ -186,7 +186,7 @@ class ConnectionLive(Connection):
             self._handle_non_ok_responses(response, retry_counter)
 
         # if all attempts have failed, raise error
-        msg = f"Permanently unable to execute the network action. See {WARNINGS_SAVEPATH} for more information."
+        msg = f"Permanently unable to execute the network action. See {get_warnings_file()} for more information."
         raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:

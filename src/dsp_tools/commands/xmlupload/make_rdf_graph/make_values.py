@@ -30,7 +30,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.config.logger_config import get_warnings_file
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
@@ -185,7 +185,7 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
     msg = (
         f"Could not find the ID {value} in the id2iri mapping. "
         f"This is probably because the resource '{value}' could not be created. "
-        f"See {WARNINGS_SAVEPATH} for more information."
+        f"See {get_warnings_file()} for more information."
     )
     raise BaseError(msg)
 

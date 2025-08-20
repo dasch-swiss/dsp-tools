@@ -48,8 +48,8 @@ if __name__ == "__main__":
     save_dir = Path("x_fuseki_bloating_files")
     save_dir.mkdir(exist_ok=True)
 
-    focus_number = 999_999
+    focus_number = 99_999
     file_with_one_resource_and_many_values(focus_number, save_dir)
     file_with_many_resources_no_values(focus_number, save_dir)
 
-    file_with_one_resource_and_large_text_value(99_999_999, save_dir)
+    file_with_one_resource_and_large_text_value(9_999_999, save_dir)

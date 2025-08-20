@@ -14,7 +14,7 @@ import regex
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)

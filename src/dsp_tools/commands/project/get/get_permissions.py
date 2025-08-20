@@ -1,3 +1,5 @@
+from typing import Any
+
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 

@@ -6,8 +6,8 @@ import regex
 from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.project.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
+from dsp_tools.commands.project.get.get_permissions import _get_prefixed_iri
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
-from dsp_tools.commands.project.get.get_permissions import _shorten_iri
 from dsp_tools.commands.project.get.get_permissions import _validate_doap_categories
 from dsp_tools.commands.project.models.permissions_models import DoapCategories
 from dsp_tools.error.exceptions import UnknownDOAPException
@@ -466,20 +466,20 @@ def test_construct_overrule_object_invalid_mixed_image_types() -> None:
         ),
     ],
 )
-def test_shorten_iri_valid_cases(full_iri: str, prefixes_inverted: dict[str, str], expected: str) -> None:
-    result = _shorten_iri(full_iri, prefixes_inverted)
+def test_get_prefixed_iri_valid_cases(full_iri: str, prefixes_inverted: dict[str, str], expected: str) -> None:
+    result = _get_prefixed_iri(full_iri, prefixes_inverted)
     assert result == expected
 
 
-def test_shorten_iri_missing_prefix() -> None:
+def test_get_prefixed_iri_missing_prefix() -> None:
     full_iri = "http://www.knora.org/ontology/1234/my-onto#MyClass"
     prefixes_inverted = {"http://www.knora.org/ontology/ABCD/other-onto": "other-onto"}
     with pytest.raises(ValueError, match="belongs to an unknown ontology"):
-        _shorten_iri(full_iri, prefixes_inverted)
+        _get_prefixed_iri(full_iri, prefixes_inverted)
 
 
-def test_shorten_iri_no_hash_separator() -> None:
+def test_get_prefixed_iri_no_hash_separator() -> None:
     full_iri = "http://www.knora.org/ontology/1234/my-onto/MyClass"
     prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
     with pytest.raises(ValueError, match="is not a valid full IRI"):
-        _shorten_iri(full_iri, prefixes_inverted)
+        _get_prefixed_iri(full_iri, prefixes_inverted)

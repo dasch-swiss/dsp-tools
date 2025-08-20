@@ -27,7 +27,7 @@ def get_default_permissions(
     fallback_text = (
         "We cannot determine if this project is public or private. "
         "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
-        "and help you deciding if the original intent was rather public or rather private."
+        "and help you decide if the original intent was rather public or rather private."
     )
     try:
         default_permissions = _parse_default_permissions(project_doaps)
@@ -210,9 +210,9 @@ def _construct_overrule_object(
     """
     privates: list[str] = []
     for class_doap in doap_categories.class_doaps:
-        privates.append(_shorten_iri(class_doap["forResourceClass"], prefixes_knora_base_inverted))
+        privates.append(_get_prefixed_iri(class_doap["forResourceClass"], prefixes_knora_base_inverted))
     for prop_doap in doap_categories.prop_doaps:
-        privates.append(_shorten_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
+        privates.append(_get_prefixed_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     limited_views: list[str] | Literal["all"]
     if len(doap_categories.has_img_all_classes_doaps) > 1:
@@ -224,7 +224,7 @@ def _construct_overrule_object(
     else:
         limited_views = []
         for img_doap in doap_categories.has_img_specific_class_doaps:
-            limited_views.append(_shorten_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
+            limited_views.append(_get_prefixed_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str] | Literal["all"]] = {}
     if privates:
@@ -234,7 +234,7 @@ def _construct_overrule_object(
     return result
 
 
-def _shorten_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
+def _get_prefixed_iri(full_iri: str, prefixes_inverted: dict[str, str]) -> str:
     # example:
     #    - full_iri = "http://www.knora.org/ontology/1234/my-onto/v2#MyClass"
     #    - prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}

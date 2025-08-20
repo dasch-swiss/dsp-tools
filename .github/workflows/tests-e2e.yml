@@ -65,20 +65,20 @@ jobs:
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
 
-  create:
+  project:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: create
-        run: just e2e-test-create
+      - name: project
+        run: just e2e-test-project
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-create-logging.log
+          name: e2e-project-logging.log
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
 

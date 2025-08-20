@@ -21,7 +21,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration

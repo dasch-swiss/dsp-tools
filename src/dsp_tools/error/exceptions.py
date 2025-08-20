@@ -27,15 +27,13 @@ class InternalError(BaseError):
     """
 
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
-        log_file_path = get_log_file()
-
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
             "Please contact the dsp-tools development team with the following information:\n"
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
-            f"   - The log file at {log_file_path}.\n"
+            f"   - The log file at {get_log_file()}.\n"
         )
         match keep_default_msg, custom_msg:
             case False, str():

@@ -147,7 +147,7 @@ def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) ->
         ),
         ({}, {}),
         (
-            {"invalid-onto": "http://invalid.com/not-matching-pattern"},
+            {"unknown-external-onto": "http://external.com/not-matching-pattern"},
             {},
         ),
     ],

@@ -278,8 +278,14 @@ class XMLRoot:
             for val in res.values:
                 if self._is_old(val.permissions):
                     contains_old_permissions = True
-                elif self._is_new(res.permissions):
+                elif self._is_new(val.permissions):
                     contains_new_permissions = True
+            if isinstance(res, Resource):
+                if res.file_value:
+                    if self._is_old(res.file_value.metadata.permissions):
+                        contains_old_permissions = True
+                    elif self._is_new(res.file_value.metadata.permissions):
+                        contains_new_permissions = True
             if contains_old_permissions and contains_new_permissions:
                 # no need to continue, the end result won't change any more
                 return True, True

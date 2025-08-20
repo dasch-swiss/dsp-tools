@@ -14,7 +14,7 @@ from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+from dsp_tools.config.logger_config import get_current_log_file
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
 
@@ -164,7 +164,8 @@ class BulkIngestClient:
             elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
-                    raise InputError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
+                    log_file_path = get_current_log_file()
+                    raise InputError(f"There were too many server errors. Please check the logs at {log_file_path}.")
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

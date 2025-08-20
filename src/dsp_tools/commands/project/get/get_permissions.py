@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Literal
 
 import regex
 
@@ -10,7 +11,7 @@ from dsp_tools.error.exceptions import UnknownDOAPException
 
 def get_default_permissions(
     auth: AuthenticationClient, project_iri: str, prefixes: dict[str, str]
-) -> tuple[str, dict[str, list[str]] | None]:
+) -> tuple[str, dict[str, list[str] | Literal["all"]] | None]:
     """
     Retrieve the DOAPs of a project from the server,
     and try to fit them into our system of "default_permissions" and "default_permissions_overrule".
@@ -71,7 +72,7 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
 
 def _parse_default_permissions_overrule(
     project_doaps: list[dict[str, Any]], prefixes: dict[str, str]
-) -> dict[str, list[str]] | None:
+) -> dict[str, list[str] | Literal["all"]] | None:
     """
     The DOAPs retrieved from the server are examined if they fit into our system of the overrules.
     If yes, an overrule object is returned. Otherwise, an exception is raised.
@@ -192,7 +193,7 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> None:
 
 def _construct_overrule_object(
     doap_categories: DoapCategories, prefixes_knora_base_inverted: dict[str, str]
-) -> dict[str, list[str]]:
+) -> dict[str, list[str] | Literal["all"]]:
     """
     Construct the final overrules object that can be written into the JSON project definition file.
     To do so, the fully qualified IRIs of the classes/properties must be converted to prefixed IRIs.
@@ -213,17 +214,19 @@ def _construct_overrule_object(
     for prop_doap in doap_categories.prop_doaps:
         privates.append(_shorten_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
-    limited_views: list[str] = []
+    limited_views: list[str] | Literal["all"]
     if len(doap_categories.has_img_all_classes_doaps) > 1:
         raise UnknownDOAPException("There can only be 1 all-images DOAP for 'hasStillImageFileValue'")
     if len(doap_categories.has_img_all_classes_doaps) == 1 and len(doap_categories.has_img_specific_class_doaps) > 0:
         raise UnknownDOAPException("If there is a DOAP for all images, there cannot be DOAPs for specific img classes")
     if len(doap_categories.has_img_all_classes_doaps) == 1:
-        limited_views.append("all")
-    for img_doap in doap_categories.has_img_specific_class_doaps:
-        limited_views.append(_shorten_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
+        limited_views = "all"
+    else:
+        limited_views = []
+        for img_doap in doap_categories.has_img_specific_class_doaps:
+            limited_views.append(_shorten_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
 
-    result: dict[str, list[str]] = {}
+    result: dict[str, list[str] | Literal["all"]] = {}
     if privates:
         result["private"] = privates
     if limited_views:

@@ -79,9 +79,6 @@ def run(args: Sequence[str]) -> None:
         logger.exception(err)
         print(InternalError())
         success = False
-    finally:
-        if WARNINGS_SAVEPATH.is_file() and len(WARNINGS_SAVEPATH.read_bytes()) == 0:
-            WARNINGS_SAVEPATH.unlink()
 
     if not success:
         logger.error("Terminate without success")

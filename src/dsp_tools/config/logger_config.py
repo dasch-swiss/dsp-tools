@@ -9,16 +9,9 @@ load_dotenv()
 
 
 def _make_and_get_logs_directory() -> Path:
-    """
-    Get the base .dsp-tools directory, creating it if it doesn't exist.
-    In addition, delete all empty log files.
-    For unknown reasons, VSCode frequently creates empty log files.
-    """
+    """Get the base .dsp-tools directory, creating it if it doesn't exist."""
     base_dir = Path.home() / ".dsp-tools" / "logs"
     base_dir.mkdir(exist_ok=True, parents=True)
-    for log_file in base_dir.glob("*.log"):
-        if log_file.stat().st_size == 0:
-            log_file.unlink()
     return base_dir
 
 
@@ -48,6 +41,7 @@ def logger_config() -> None:
         format=text_format,
         backtrace=True,
         diagnose=True,
+        delay=True,
     )
 
     additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
@@ -59,6 +53,7 @@ def logger_config() -> None:
             diagnose=True,
             rotation=rotation_size,
             retention=2,
+            delay=True,
         )
     else:
         logger.add(
@@ -69,4 +64,5 @@ def logger_config() -> None:
             diagnose=False,
             rotation=rotation_size,
             retention=2,
+            delay=True,
         )

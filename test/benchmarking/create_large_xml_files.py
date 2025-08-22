@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     res_number = 10_000
     val_number = 10
-    text_size = 999_999
+    text_size = 9_999
 
     file_with_many_resources_no_values(
         res_counter=res_number,

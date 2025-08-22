@@ -50,23 +50,41 @@ if __name__ == "__main__":
     save_dir = Path("x_fuseki_bloating_files")
     save_dir.mkdir(exist_ok=True)
 
-    faktor = 2
+    faktor = 5
     res_number = 10_000 * faktor
     val_number = 10 * faktor
-    text_size = 9_999 * faktor
+    text_size = 9_999
+    increased_text = text_size * faktor
 
+    # no values
     file_with_many_resources_no_values(
         res_counter=res_number,
         save_dir=save_dir,
     )
+    # int values
     file_with_many_resources_and_small_values(
         res_counter=res_number,
         value_counter=val_number,
         save_dir=save_dir,
     )
+    # increasing text size by faktor
+    file_with_many_resources_and_large_text_value(
+        res_counter=res_number,
+        value_counter=val_number,
+        text_length=increased_text,
+        save_dir=save_dir,
+    )
+    # fixed but large text size
     file_with_many_resources_and_large_text_value(
         res_counter=res_number,
         value_counter=val_number,
         text_length=text_size,
+        save_dir=save_dir,
+    )
+    # fixed but small text size
+    file_with_many_resources_and_large_text_value(
+        res_counter=res_number,
+        value_counter=val_number,
+        text_length=10,
         save_dir=save_dir,
     )

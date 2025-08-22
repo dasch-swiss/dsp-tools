@@ -1,5 +1,24 @@
 # Changelog
 
+## [16.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.8.0...v16.9.0) (2025-08-22)
+
+
+### Enhancements
+
+* **get:** retrieve class-wise and property-wise DOAPs (DEV-5120) ([#1919](https://github.com/dasch-swiss/dsp-tools/issues/1919)) ([30d0a67](https://github.com/dasch-swiss/dsp-tools/commit/30d0a67c2277152d6ad207e631b6129d4a3f0aff))
+* **xmllib:** improve message of deprecation warning (DEV-5300) ([#1932](https://github.com/dasch-swiss/dsp-tools/issues/1932)) ([81d76da](https://github.com/dasch-swiss/dsp-tools/commit/81d76da09d8148b57e5a28d828b1e6aae7c73d46))
+
+
+### Bug Fixes
+
+* empty log files written during long-lived debugging sessions (DEV-5281) ([#1931](https://github.com/dasch-swiss/dsp-tools/issues/1931)) ([3b19134](https://github.com/dasch-swiss/dsp-tools/commit/3b19134f81f4527347ce390d14a4f0dc0ca17a34))
+* **xmllib:** consider permissions of values and files when evaluating which are referenced (DEV-5290) ([#1927](https://github.com/dasch-swiss/dsp-tools/issues/1927)) ([46942aa](https://github.com/dasch-swiss/dsp-tools/commit/46942aa11f73fdc8a47a67b5788b0061b5600c48))
+
+
+### Maintenance
+
+* waypaver for DOAP-PR ([#1928](https://github.com/dasch-swiss/dsp-tools/issues/1928)) ([6ff1012](https://github.com/dasch-swiss/dsp-tools/commit/6ff10127d08678700c06783111788e32af90367d))
+
 ## [16.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.7.0...v16.8.0) (2025-08-20)
 
 

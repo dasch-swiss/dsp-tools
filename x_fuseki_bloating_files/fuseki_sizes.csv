@@ -1,4 +1,7 @@
- file,number res,number vals,size_text, file size (MB), size before (GB), size after (GB), note
-res-10000_val-0.xml,10000,0,,0.728,,,
-res-10000_val-10_small_values.xml,10000,10,,4.9,,,
-res-10000_val-10_lenText-999999.xml,10000,10,9999,101.9,,,
+ file,number res,number vals,size_text,XML file size (MB), DB size before (GB),DB size after (GB),res/val multiplication factor, note
+res-10000_val-0.xml,10000,0,,0.728,0.0036,3.6,1,
+res-10000_val-10_lenText-999999.xml,10000,10,9999,101.9,0.019,6.2,1,
+res-10000_val-10_small_values.xml,10000,10,,4.9,0.018,,1,
+res-20000_val-0.xml,20000,0,,1.5,,,2,
+res-20000_val-20_lenText-19998.xml,20000,20,19998,403.8,,,2,
+res-20000_val-20_small_values.xml,20000,20,,16.7,,,2,

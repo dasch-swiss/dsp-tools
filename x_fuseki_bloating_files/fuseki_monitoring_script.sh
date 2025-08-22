@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 PROJECT_FILE="${1:-project.json}"
-XML_DIR="$(pwd)"  # Always use current working directory
+XML_DIR="$(pwd)/files"  # Always use files subdirectory
 XML_FILE=""
 OUTPUT_CSV="fuseki_size.csv"
 
@@ -62,7 +62,12 @@ validate_inputs() {
         exit 1
     fi
     
-    # XML_DIR is always current working directory, so it always exists
+    # Check if files directory exists
+    if [ ! -d "$XML_DIR" ]; then
+        print_error "Files directory '$XML_DIR' not found"
+        exit 1
+    fi
+    
     print_status "Looking for XML files in: $XML_DIR"
 }
 
@@ -137,7 +142,7 @@ process_xml_file() {
 main() {
     print_status "Starting DSP-Tools Fuseki Monitoring Script"
     print_status "Project file: $PROJECT_FILE"
-    print_status "Searching for XML files in current directory: $XML_DIR"
+    print_status "Searching for XML files in files directory: $XML_DIR"
     
     # Validate inputs
     validate_inputs
@@ -177,7 +182,7 @@ main() {
     fi
     
     if [ $file_count -eq 0 ]; then
-        print_warning "No XML files found in current directory: $XML_DIR"
+        print_warning "No XML files found in files directory: $XML_DIR"
         # Still record the baseline
         local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         echo "$timestamp,$db_before,NO_XML_FILES,N/A" >> "$OUTPUT_CSV"
@@ -229,7 +234,7 @@ usage() {
     echo "  $0 my_project.json                   # Use custom project file"
     echo
     echo "Features:"
-    echo "  - Automatically processes all .xml files in the current working directory"
+    echo "  - Automatically processes all .xml files in the 'files' subdirectory"
     echo "  - Files are processed in alphabetical order"
     echo "  - Records database size before and after each XML upload"
     echo "  - Restarts DSP stack and creates project before processing XML files"
@@ -237,7 +242,7 @@ usage() {
     echo "Output:"
     echo "  Results are written to fuseki_size.csv with columns: Timestamp,DB_Before,Filename,DB_After"
     echo
-    echo "Note: The script must be run from a directory containing both the project.json and XML files."
+    echo "Note: The script must be run from a directory containing project.json and a 'files' subdirectory with XML files."
 }
 
 # Check for help flag

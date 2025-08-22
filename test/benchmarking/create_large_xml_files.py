@@ -17,17 +17,31 @@ def file_with_many_resources_no_values(res_counter: int, save_dir: Path) -> None
     root.write_file(save_dir / f"res-{res_counter}_val-0.xml")
 
 
-def file_with_many_resources_and_small_values(res_counter: int, value_counter: int, save_dir: Path) -> None:
+def file_with_many_resources_and_int_values(res_counter: int, value_counter: int, save_dir: Path) -> None:
     root = XMLRoot.create_new("9999", "onto")
     resources = [create_one_resource(i) for i in range(res_counter)]
     resources = [add_many_int_values(res, value_counter) for res in resources]
     root.add_resource_multiple(resources)
-    root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_small_values.xml")
+    root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_int_values.xml")
 
 
 def add_many_int_values(res: Resource, number_of_values: int) -> Resource:
     for i in range(number_of_values):
         res.add_integer(prop_name=":testIntegerSimpleText", value=i)
+    return res
+
+
+def file_with_many_resources_and_decimal_values(res_counter: int, value_counter: int, save_dir: Path) -> None:
+    root = XMLRoot.create_new("9999", "onto")
+    resources = [create_one_resource(i) for i in range(res_counter)]
+    resources = [add_many_int_values(res, value_counter) for res in resources]
+    root.add_resource_multiple(resources)
+    root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_decimal_values.xml")
+
+
+def add_many_float_values(res: Resource, number_of_values: int) -> Resource:
+    for i in range(number_of_values):
+        res.add_decimal(prop_name=":testDecimalSimpleText", value=i / 10)
     return res
 
 
@@ -62,7 +76,13 @@ if __name__ == "__main__":
         save_dir=save_dir,
     )
     # int values
-    file_with_many_resources_and_small_values(
+    file_with_many_resources_and_int_values(
+        res_counter=res_number,
+        value_counter=val_number,
+        save_dir=save_dir,
+    )
+    # decimals
+    file_with_many_resources_and_decimal_values(
         res_counter=res_number,
         value_counter=val_number,
         save_dir=save_dir,

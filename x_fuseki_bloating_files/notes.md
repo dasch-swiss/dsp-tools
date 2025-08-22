@@ -1,0 +1,7 @@
+# Workflow
+
+- dsp-tools start-stack
+- dsp-tools create fuseki_bloating/project.json
+- CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki
+- dsp-tools xmlupload --skip-validation 
+- CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki

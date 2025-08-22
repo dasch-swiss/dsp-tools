@@ -1262,7 +1262,10 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         # result == []
         ```
     """
-    msg = "This function will be deleted in the future. Use the new function called 'create_list_from_input' instead."
+    msg = (
+        "The function 'create_list_from_string' will be deleted in the future. "
+        "Use the new function called 'create_list_from_input' instead."
+    )
     warnings.warn(DspToolsFutureWarning(msg))
     if not isinstance(string, str):
         raise_xmllib_input_error(

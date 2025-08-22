@@ -7,10 +7,10 @@ from typing import Any
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
+from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.geometry import Circle
 from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
 from dsp_tools.xmllib.models.internal.geometry import GeometryShape

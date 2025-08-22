@@ -5,9 +5,9 @@ from unittest import mock
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.internal.serialise_values import _sort_and_group_values
 from dsp_tools.xmllib.internal.serialise_values import serialise_values
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue

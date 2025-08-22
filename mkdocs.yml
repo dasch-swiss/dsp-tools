@@ -46,13 +46,15 @@ nav:
           - LinkResource: xmllib-api-reference/dsp-base-resources/link-resource.md
           - VideoSegmentResource: xmllib-api-reference/dsp-base-resources/video-segment-resource.md
           - AudioSegmentResource: xmllib-api-reference/dsp-base-resources/audio-segment-resource.md
-      - Configuration options: xmllib-api-reference/config-options.md
+      - Permissions: xmllib-api-reference/permissions.md
       - Licenses:
           - Recommended: xmllib-api-reference/licenses/recommended.md
           - Other: xmllib-api-reference/licenses/other.md
+      - Date Formats: xmllib-api-reference/date_formats.md
+      - Configuration Options: xmllib-api-reference/config-options.md
       - Value Checkers: xmllib-api-reference/value-checkers.md
       - Value Converters: xmllib-api-reference/value-converters.md
-      - Helpers: xmllib-api-reference/helpers.md
+      - Helper Functions: xmllib-api-reference/helpers.md
       - Advanced Set-Up Options: xmllib-api-reference/advanced-set-up.md
 
 theme:

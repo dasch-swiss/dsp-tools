@@ -4,8 +4,8 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.internal.serialise_resource import _serialise_one_resource
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.internal.file_values import AuthorshipLookup

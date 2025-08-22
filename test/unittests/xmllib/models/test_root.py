@@ -7,9 +7,9 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource

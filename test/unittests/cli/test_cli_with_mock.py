@@ -13,6 +13,8 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
 
+# ruff: noqa: ARG001 Unused function argument
+
 
 def test_invalid_arguments() -> None:
     args = "invalid".split()
@@ -21,16 +23,18 @@ def test_invalid_arguments() -> None:
     assert ex.value.code == EXIT_CODE_TWO
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
-def test_lists_validate(validate_lists: Mock) -> None:
+def test_lists_validate(validate_lists: Mock, check_docker: Mock) -> None:
     file = "filename.json"
     args = f"create --lists-only --validate-only {file}".split()
     entry_point.run(args)
     validate_lists.assert_called_once_with(file)
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.create_only_lists")
-def test_lists_create(create_lists: Mock) -> None:
+def test_lists_create(create_lists: Mock, check_docker: Mock) -> None:
     create_lists.return_value = ({}, True)
     file = "filename.json"
     args = f"create --lists-only {file}".split()
@@ -42,16 +46,18 @@ def test_lists_create(create_lists: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_project")
-def test_project_validate(validate_project: Mock) -> None:
+def test_project_validate(validate_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
     args = f"create --validate-only {file}".split()
     entry_point.run(args)
     validate_project.assert_called_once_with(file)
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.create_project")
-def test_project_create(create_project: Mock) -> None:
+def test_project_create(create_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
     args = f"create {file}".split()
     creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
@@ -63,8 +69,9 @@ def test_project_create(create_project: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.get_project")
-def test_project_get(get_project: Mock) -> None:
+def test_project_get(get_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
     project = "shortname"
     args = f"get --project {project} {file}".split()
@@ -78,8 +85,9 @@ def test_project_get(get_project: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_default(xmlupload: Mock) -> None:
+def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file}".split()
     creds = ServerCredentials(
@@ -101,16 +109,18 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
-def test_xmlupload_validate(validate_xml: Mock) -> None:
+def test_xmlupload_validate(validate_xml: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload --validate-only {file}".split()
     entry_point.run(args)
     validate_xml.assert_called_once_with(Path(file))
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
+def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     no_validation = "--no-iiif-uri-validation"
     args = f"xmlupload {no_validation} {file}".split()
@@ -129,8 +139,9 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_skip_validation(xmlupload: Mock) -> None:
+def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     no_validation = "--skip-validation"
     args = f"xmlupload {no_validation} {file}".split()
@@ -149,8 +160,9 @@ def test_xmlupload_skip_validation(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock) -> None:
+def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     ignore_duplicate_files = "--ignore-duplicate-files-warning"
     args = f"xmlupload {ignore_duplicate_files} {file}".split()
@@ -169,8 +181,9 @@ def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
+def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file} --validation-severity warning".split()
     creds = ServerCredentials(
@@ -192,8 +205,9 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
+def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file} --validation-severity error".split()
     creds = ServerCredentials(
@@ -215,8 +229,9 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_skip_ontology_validation(xmlupload: Mock) -> None:
+def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload {file} --skip-ontology-validation".split()
     creds = ServerCredentials(
@@ -239,8 +254,9 @@ def test_xmlupload_skip_ontology_validation(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
+def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload --interrupt-after=1 {file}".split()
     creds = ServerCredentials(
@@ -255,8 +271,9 @@ def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_default(validate_data: Mock) -> None:
+def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file}".split()
     entry_point.run(args)
@@ -272,8 +289,9 @@ def test_validate_data_default(validate_data: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_ignore_duplicate_files(validate_data: Mock) -> None:
+def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     ignore_duplicate_files = "--ignore-duplicate-files-warning"
     args = f"validate-data {ignore_duplicate_files} {file}".split()
@@ -290,8 +308,9 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_save_graph(validate_data: Mock) -> None:
+def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} --save-graphs".split()
     entry_point.run(args)
@@ -347,8 +366,9 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
-def test_validate_data_skip_ontology_validation(validate_data: Mock) -> None:
+def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"validate-data {file} --skip-ontology-validation".split()
     entry_point.run(args)
@@ -364,8 +384,9 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
-def test_resume_xmlupload_default(resume_xmlupload: Mock) -> None:
+def test_resume_xmlupload_default(resume_xmlupload: Mock, check_docker: Mock) -> None:
     args = "resume-xmlupload".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -377,8 +398,9 @@ def test_resume_xmlupload_default(resume_xmlupload: Mock) -> None:
     resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
-def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock) -> None:
+def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock, check_docker: Mock) -> None:
     args = "resume-xmlupload --skip-first-resource".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -390,8 +412,9 @@ def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock) -> None:
     resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=True)
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.upload_files")
-def test_upload_files_localhost(upload_files: Mock) -> None:
+def test_upload_files_localhost(upload_files: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
     args = f"upload-files {file}".split()
     entry_point.run(args)
@@ -421,8 +444,9 @@ def test_upload_files_remote(upload_files: Mock) -> None:
     upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_files")
-def test_ingest_files_localhost(ingest_files: Mock) -> None:
+def test_ingest_files_localhost(ingest_files: Mock, check_docker: Mock) -> None:
     shortcode = "1234"
     args = f"ingest-files {shortcode}".split()
     entry_point.run(args)
@@ -452,8 +476,9 @@ def test_ingest_files_remote(ingest_files: Mock) -> None:
     ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
-def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
+def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
     args = f"ingest-xmlupload {xml_file}".split()
     entry_point.run(args)
@@ -472,8 +497,9 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
-def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock) -> None:
+def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
     skip_validation = "--skip-validation"
     args = f"ingest-xmlupload {skip_validation} {xml_file}".split()
@@ -493,8 +519,9 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
-def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock) -> None:
+def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
     args = f"ingest-xmlupload --interrupt-after=1 {xml_file}".split()
     entry_point.run(args)
@@ -645,9 +672,10 @@ def test_excel2xml(excel2xml: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_default(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -662,9 +690,10 @@ def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
     start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_max_file_size(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_max_file_size(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack --max_file_size=1".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -679,9 +708,10 @@ def test_start_stack_max_file_size(mock_init: Mock, start_stack: Mock) -> None:
     start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_prune(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_prune(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack --prune".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -696,9 +726,10 @@ def test_start_stack_prune(mock_init: Mock, start_stack: Mock) -> None:
     start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_no_prune(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_no_prune(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack --no-prune".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -713,9 +744,10 @@ def test_start_stack_no_prune(mock_init: Mock, start_stack: Mock) -> None:
     start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_latest(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_latest(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack --latest".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -730,9 +762,10 @@ def test_start_stack_latest(mock_init: Mock, start_stack: Mock) -> None:
     start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_with_test_data(mock_init: Mock, start_stack: Mock) -> None:
+def test_start_stack_with_test_data(mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
     args = "start-stack --with-test-data".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -768,36 +801,40 @@ def test_rosetta(upload_rosetta: Mock) -> None:
     upload_rosetta.assert_called_once_with()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock) -> None:
+def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
     args = "xmlupload --user=testuser data.xml".split()
     entry_point.run(args)
     check_version.assert_called_once()
     xmlupload.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock) -> None:
+def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
     args = "xmlupload --suppress-update-prompt --user=testuser data.xml".split()
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock) -> None:
+def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
     args = "xmlupload --user=testuser --suppress-update-prompt data.xml".split()
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock) -> None:
+def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
     args = "xmlupload --user=testuser data.xml --suppress-update-prompt".split()
     entry_point.run(args)
     check_version.assert_not_called()

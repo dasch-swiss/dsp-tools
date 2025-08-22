@@ -1,5 +1,24 @@
 # Changelog
 
+## [16.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.7.0...v16.8.0) (2025-08-20)
+
+
+### Enhancements
+
+* add docker health check to all CLI-commands if they are on localhost and require a stack (DEV-5227) ([#1924](https://github.com/dasch-swiss/dsp-tools/issues/1924)) ([c66a19a](https://github.com/dasch-swiss/dsp-tools/commit/c66a19a153f5c11380d658eee0f9c3b63463c6da))
+* **excel2json:** add support for overruling default permissions for classes/properties (DEV-5032) ([#1915](https://github.com/dasch-swiss/dsp-tools/issues/1915)) ([69a20ee](https://github.com/dasch-swiss/dsp-tools/commit/69a20ee6ba80e36846f965f6affb1b1db3b54841))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.08.03 ([#1926](https://github.com/dasch-swiss/dsp-tools/issues/1926)) ([05c927b](https://github.com/dasch-swiss/dsp-tools/commit/05c927b14e2f37acbc008dbc4941fac524dde8e6))
+
+
+### Documentation
+
+* improve the wording for the text value in the ontology (DEV-5279) ([#1920](https://github.com/dasch-swiss/dsp-tools/issues/1920)) ([bd503c4](https://github.com/dasch-swiss/dsp-tools/commit/bd503c41fb34f27c275fa1e9db5322a9a2c27ee5))
+* **xmllib:** add tips and links to helper functions ([#1922](https://github.com/dasch-swiss/dsp-tools/issues/1922)) ([16e4352](https://github.com/dasch-swiss/dsp-tools/commit/16e4352126d76693e007bc3b130e9f88abe58b61))
+
 ## [16.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.6.1...v16.7.0) (2025-08-13)
 
 

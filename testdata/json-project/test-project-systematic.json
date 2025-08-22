@@ -24,6 +24,13 @@
             "http://rdfh.ch/licenses/ai-generated"
         ],
         "default_permissions": "public",
+        "default_permissions_overrule": {
+            "private": [
+                "testonto:TestThing2",
+                "testonto:hasTextChild2"
+            ],
+            "limited_view": "all"
+        },
         "groups": [
             {
                 "name": "testgroupEditors",

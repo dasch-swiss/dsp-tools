@@ -14,7 +14,7 @@ import regex
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -168,7 +168,14 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             project_returned: returned file
         """
         self.assertListEqual(list(project_original.keys()), list(project_returned.keys()))
-        for field in ["shortcode", "shortname", "longname", "descriptions", "default_permissions"]:
+        for field in [
+            "shortcode",
+            "shortname",
+            "longname",
+            "descriptions",
+            "default_permissions",
+            "default_permissions_overrule",
+        ]:
             orig = project_original["project"].get(field)
             ret = project_returned["project"].get(field)
             self.assertEqual(orig, ret, msg=f"Field '{field}' is not identical: original='{orig}', returned='{ret}'")

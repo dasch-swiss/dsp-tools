@@ -6,6 +6,10 @@ from dsp_tools.xmllib import XMLRoot
 # This is to be used with the ontology: testdata/validate-data/generic/project.json
 
 
+def create_one_resource(id_counter: int) -> Resource:
+    return Resource.create_new(res_id=f"id_{id_counter}", restype=":ClassWithEverything", label=str(id_counter))
+
+
 def file_with_many_resources_no_values(res_counter: int, save_dir: Path) -> None:
     root = XMLRoot.create_new("9999", "onto")
     resources = [create_one_resource(i) for i in range(res_counter)]
@@ -32,13 +36,9 @@ def file_with_many_resources_and_large_text_value(
 ) -> None:
     root = XMLRoot.create_new("9999", "onto")
     resources = [create_one_resource(i) for i in range(res_counter)]
-    resources = [add_many_int_values(res, value_counter) for res in resources]
+    resources = [add_one_large_text_value(res, text_length) for res in resources]
     root.add_resource_multiple(resources)
     root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_lenText-{text_length}.xml")
-
-
-def create_one_resource(id_counter: int) -> Resource:
-    return Resource.create_new(res_id=f"id_{id_counter}", restype=":ClassWithEverything", label=str(id_counter))
 
 
 def add_one_large_text_value(res: Resource, text_length: int) -> Resource:

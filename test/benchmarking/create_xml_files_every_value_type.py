@@ -62,7 +62,7 @@ def _add_list(res: Resource, number_of_vals: int) -> Resource:
 
 def _add_link(res: Resource, number_of_vals: int) -> Resource:
     content = [f"target_{i}" for i in range(number_of_vals)]
-    vals = [LinkValue(":testHasLinkTo", x) for x in content]
+    vals = [LinkValue(x, ":testHasLinkTo") for x in content]
     res.values.extend(vals)
     return res
 

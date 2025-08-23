@@ -1,13 +1,16 @@
-from collections.abc import Callable
+from pathlib import Path
 from typing import Any
+from typing import TypeVar
 
 from dsp_tools.xmllib import Resource
+from dsp_tools.xmllib import XMLRoot
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
+from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import ListValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
@@ -15,10 +18,12 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 
+T = TypeVar("T", bound=Value)
+
 # This is to be used with the ontology: testdata/validate-data/generic/project.json
 
 
-def create_one_resource(id_counter: int) -> Resource:
+def _create_one_resource(id_counter: int) -> Resource:
     return Resource.create_new(res_id=f"id_{id_counter}", restype=":ClassWithEverything", label=str(id_counter))
 
 
@@ -55,9 +60,15 @@ def _add_list(res: Resource, number_of_vals: int) -> Resource:
     return res
 
 
-# TODO: Link Value
-def _add_(res: Resource, number_of_vals: int) -> Resource:
-    return _add_values(res, ":", "", BooleanValue, number_of_vals)
+def _add_link(res: Resource, number_of_vals: int) -> Resource:
+    content = [f"target_{i}" for i in range(number_of_vals)]
+    vals = [LinkValue(":testHasLinkTo", x) for x in content]
+    res.values.extend(vals)
+    return res
+
+
+def _create_link_target_resource(id_counter: int) -> Resource:
+    return Resource.create_new(res_id=f"target_{id_counter}", restype=":ClassWithEverything", label=str(id_counter))
 
 
 def _add_richtext(res: Resource, number_of_vals: int) -> Resource:
@@ -80,11 +91,53 @@ def _add_uri(res: Resource, number_of_vals: int) -> Resource:
     return _add_values(res, ":testUriValue", "https://dasch.swiss", UriValue, number_of_vals)
 
 
-def _add_values(res: Resource, prop: str, val: Any, func: Callable[Any, str], number_of_vals: int) -> Resource:
+def _add_values(res: Resource, prop: str, val: Any, func: type[T], number_of_vals: int) -> Resource:
     vals = [_create_one_value(prop, val, func) for _ in range(number_of_vals)]
     res.values.extend(vals)
     return res
 
 
-def _create_one_value(prop: str, val: Any, func: Callable[Any, str]) -> Value:
+def _create_one_value(prop: str, val: Any, func: type[T]) -> T:
     return func(val, prop)
+
+
+if __name__ == "__main__":
+
+    def create_every_type_separate(number_of_res: int, number_of_vals: int) -> None:
+        file_p = Path("x_fuseki_bloating_files/value_types")
+        file_p.mkdir(exist_ok=True, parents=True)
+
+        funcs = [
+            (_add_boolean, "boolean"),
+            (_add_color, "color"),
+            (_add_date, "date"),
+            (_add_decimal, "decimal"),
+            (_add_geoname, "geoname"),
+            (_add_int, "int"),
+            (_add_list, "list"),
+            (_add_richtext, "richtext"),
+            (_add_textarea, "textarea"),
+            (_add_simpletext, "simpletext"),
+            (_add_time, "time"),
+            (_add_uri, "uri"),
+        ]
+
+        for f, name in funcs:
+            root = XMLRoot.create_new("9999", "onto")
+            resources = [_create_one_resource(x) for x in range(number_of_res)]
+            added = [f(r, number_of_vals) for r in resources]
+            root.add_resource_multiple(added)
+            xml_name = f"res-{number_of_res}_val-{number_of_vals}_{name}.xml"
+            root.write_file(file_p / xml_name)
+
+        root = XMLRoot.create_new("9999", "onto")
+        resources = [_create_one_resource(x) for x in range(number_of_res)]
+        added = [_add_link(r, number_of_vals) for r in resources]
+        target_res = [_create_link_target_resource(i) for i in range(number_of_vals)]
+        root.add_resource_multiple(target_res)
+        root.add_resource_multiple(added)
+
+        xml_name = f"res-{number_of_res}_val-{number_of_vals}_link.xml"
+        root.write_file(file_p / xml_name)
+
+    create_every_type_separate(1, 1)

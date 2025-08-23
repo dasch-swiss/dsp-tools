@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Any
-from typing import TypeVar
 
 from dsp_tools.xmllib import Resource
 from dsp_tools.xmllib import XMLRoot
@@ -17,8 +16,6 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
-
-T = TypeVar("T", bound=Value)
 
 # This is to be used with the ontology: testdata/validate-data/generic/project.json
 
@@ -91,13 +88,13 @@ def _add_uri(res: Resource, number_of_vals: int) -> Resource:
     return _add_values(res, ":testUriValue", "https://dasch.swiss", UriValue, number_of_vals)
 
 
-def _add_values(res: Resource, prop: str, val: Any, func: type[T], number_of_vals: int) -> Resource:
+def _add_values[T: Value](res: Resource, prop: str, val: Any, func: type[T], number_of_vals: int) -> Resource:
     vals = [_create_one_value(prop, val, func) for _ in range(number_of_vals)]
     res.values.extend(vals)
     return res
 
 
-def _create_one_value(prop: str, val: Any, func: type[T]) -> T:
+def _create_one_value[T: Value](prop: str, val: Any, func: type[T]) -> T:
     return func(val, prop)
 
 

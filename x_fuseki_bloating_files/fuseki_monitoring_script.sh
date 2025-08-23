@@ -150,30 +150,7 @@ main() {
     # Initialize CSV
     initialize_csv
     
-    # Stop and start DSP stack
-    print_status "Stopping DSP stack..."
-    dsp-tools stop-stack
-    
-    print_status "Starting DSP stack with prune..."
-    dsp-tools start-stack --prune
-    
-    # Wait for Fuseki to be ready
-    wait_for_fuseki
-    
-    # Create project
-    print_status "Creating project from $PROJECT_FILE..."
-    dsp-tools create "$PROJECT_FILE"
-    
-    # Get initial DB size (after project creation)
-    print_status "Getting initial Fuseki database size..."
-    local db_before=$(get_fuseki_size)
-    if [ $? -ne 0 ]; then
-        print_error "Failed to get initial database size"
-        exit 1
-    fi
-    print_status "DB Before (after project creation): $db_before"
-    
-    # Process XML files from current directory
+    # Get XML files for loop processing
     local xml_files=$(get_xml_files "$XML_DIR")
     local file_count=0
     
@@ -183,43 +160,55 @@ main() {
     
     if [ $file_count -eq 0 ]; then
         print_warning "No XML files found in files directory: $XML_DIR"
-        # Still record the baseline
-        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-        echo "$timestamp,$db_before,NO_XML_FILES,N/A" >> "$OUTPUT_CSV"
-    else
-        print_status "Found $file_count XML files to process"
-        
-        local current_file_num=1
-        while IFS= read -r xml_file; do
-            print_status "Processing file $current_file_num/$file_count: $(basename "$xml_file")"
-            
-            # Use the current database size as the "before" size for this file
-            local current_db_before=$(get_fuseki_size)
-            if [ $? -ne 0 ]; then
-                print_warning "Failed to get database size before processing $xml_file"
-                current_db_before="ERROR"
-            fi
-            
-            process_xml_file "$xml_file" "$current_db_before"
-            
-            print_status "Completed file $current_file_num/$file_count"
-            echo "----------------------------------------"
-            
-            ((current_file_num++))
-        done <<< "$xml_files"
+        exit 1
     fi
     
-    # Get final summary
-    local final_db_size=$(get_fuseki_size)
+    print_status "Found $file_count XML files to process in loop"
     
-    # Display summary
-    echo
-    print_status "=== FINAL SUMMARY ==="
-    echo "Initial DB size (after project creation): $db_before"
-    echo "Final DB size: $final_db_size"
+    # Process each XML file in a complete DSP stack cycle
+    local current_file_num=1
+    while IFS= read -r xml_file; do
+        local filename=$(basename "$xml_file")
+        print_status "=== PROCESSING CYCLE $current_file_num/$file_count: $filename ==="
+        
+        # Stop and start DSP stack
+        print_status "Stopping DSP stack..."
+        dsp-tools stop-stack
+        
+        print_status "Starting DSP stack with prune..."
+        dsp-tools start-stack --prune
+        
+        # Wait for Fuseki to be ready
+        wait_for_fuseki
+        
+        # Create project
+        print_status "Creating project from $PROJECT_FILE..."
+        dsp-tools create "$PROJECT_FILE"
+        
+        # Get DB size before XML upload
+        print_status "Getting Fuseki database size before XML upload..."
+        local db_before=$(get_fuseki_size)
+        if [ $? -ne 0 ]; then
+            print_warning "Failed to get database size before processing $xml_file"
+            db_before="ERROR"
+        fi
+        print_status "DB Before XML upload: $db_before"
+        
+        # Process the XML file
+        process_xml_file "$xml_file" "$db_before"
+        
+        print_status "Completed cycle $current_file_num/$file_count for $filename"
+        echo "========================================"
+        
+        ((current_file_num++))
+    done <<< "$xml_files"
+    
+    # Final cleanup - stop the stack
+    print_status "Stopping DSP stack after all processing..."
+    dsp-tools stop-stack
+    
+    print_status "All cycles completed successfully"
     print_status "All results written to $OUTPUT_CSV"
-    
-    print_status "Script completed successfully"
 }
 
 # Usage function

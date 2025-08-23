@@ -1,0 +1,5 @@
+Timestamp,DB_Before,Filename,DB_After
+2025-08-23 12:53:33,24M,res-10000_val-0.xml,3.6G
+2025-08-23 13:00:34,24M,res-10000_val-10_int_values.xml,18G
+2025-08-23 13:13:04,24M,res-10000_val-10_text-len-1.xml,6.2G
+2025-08-23 13:22:54,24M,res-10000_val-10_text-len-20000.xml,6.2G

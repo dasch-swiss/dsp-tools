@@ -9,16 +9,13 @@
 
 # TODO:
 
-- Create a file for each value type, fixed num res and vals (no stash)
-- Create a file with every value type once per resource
-- Try it out on my computer to compare to cheesegrater
 - Upload the file with every type once, several times without re-starting the stack to see the increase
 
 ## Further but out of scope
 
 - stash
 - do it on a server to compare?
-
+- Richtext with standoff link to resource or URI or XML mark-up
 
 # Analysis
 

@@ -72,15 +72,15 @@ def _create_link_target_resource(id_counter: int) -> Resource:
 
 
 def _add_richtext(res: Resource, number_of_vals: int) -> Resource:
-    return _add_values(res, ":testRichtext", "<p>Text</p>", Richtext, number_of_vals)
+    return _add_values(res, ":testRichtext", "a", Richtext, number_of_vals)
 
 
 def _add_textarea(res: Resource, number_of_vals: int) -> Resource:
-    return _add_values(res, ":testTextarea", "Text", SimpleText, number_of_vals)
+    return _add_values(res, ":testTextarea", "a", SimpleText, number_of_vals)
 
 
 def _add_simpletext(res: Resource, number_of_vals: int) -> Resource:
-    return _add_values(res, ":testSimpleText", "Text", SimpleText, number_of_vals)
+    return _add_values(res, ":testSimpleText", "a", SimpleText, number_of_vals)
 
 
 def _add_time(res: Resource, number_of_vals: int) -> Resource:

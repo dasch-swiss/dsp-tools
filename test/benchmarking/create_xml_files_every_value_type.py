@@ -130,14 +130,43 @@ if __name__ == "__main__":
             xml_name = f"res-{number_of_res}_val-{number_of_vals}_{name}.xml"
             root.write_file(file_p / xml_name)
 
-        root = XMLRoot.create_new("9999", "onto")
+        # link value needs target resources
+        link_root = XMLRoot.create_new("9999", "onto")
         resources = [_create_one_resource(x) for x in range(number_of_res)]
         added = [_add_link(r, number_of_vals) for r in resources]
         target_res = [_create_link_target_resource(i) for i in range(number_of_vals)]
-        root.add_resource_multiple(target_res)
-        root.add_resource_multiple(added)
-
+        link_root.add_resource_multiple(target_res)
+        link_root.add_resource_multiple(added)
         xml_name = f"res-{number_of_res}_val-{number_of_vals}_link.xml"
-        root.write_file(file_p / xml_name)
+        link_root.write_file(file_p / xml_name)
 
-    create_every_type_separate(1, 1)
+        # every type once
+        every_type_root = XMLRoot.create_new("9999", "onto")
+        resources = [_create_one_resource(x) for x in range(number_of_res)]
+
+        # Add one of each value type to each resource
+        for res in resources:
+            _add_boolean(res, 1)
+            _add_color(res, 1)
+            _add_date(res, 1)
+            _add_decimal(res, 1)
+            _add_geoname(res, 1)
+            _add_int(res, 1)
+            _add_list(res, 1)
+            _add_richtext(res, 1)
+            _add_textarea(res, 1)
+            _add_simpletext(res, 1)
+            _add_time(res, 1)
+            _add_uri(res, 1)
+
+        # Add target resources for links (one target per resource)
+        target_resources = [_create_link_target_resource(i) for i in range(number_of_res)]
+        for i, res in enumerate(resources):
+            _add_link(res, 1)  # This will add link to target_0, target_1, etc.
+
+        every_type_root.add_resource_multiple(target_resources)
+        every_type_root.add_resource_multiple(resources)
+        xml_name = f"res-{number_of_res}_val-13_every_type.xml"
+        every_type_root.write_file(file_p / xml_name)
+
+    create_every_type_separate(4, 4)

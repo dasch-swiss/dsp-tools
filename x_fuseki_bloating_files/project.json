@@ -141,6 +141,94 @@
             "gui_element": "Checkbox"
           },
           {
+            "name": "testBoolean6",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean7",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean8",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean9",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean10",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean11",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean12",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean13",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
             "name": "testColor",
             "super": [
               "hasColor"
@@ -431,6 +519,46 @@
               },
               {
                 "propname": ":testBoolean5",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean6",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean7",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean8",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean9",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean10",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean11",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean12",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean13",
                 "cardinality": "0-1",
                 "gui_order": 0
               },

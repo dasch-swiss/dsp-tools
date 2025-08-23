@@ -1,6 +1,8 @@
 .tmp
 **/.DS_Store
 
+x_fuseki_bloating_files/**/*.xml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

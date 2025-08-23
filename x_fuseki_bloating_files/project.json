@@ -411,7 +411,7 @@
                 "propname": ":testColor",
                 "cardinality": "0-n",
                 "gui_order": 1
-              },,
+              },
               {
                 "propname": ":testSuperDate",
                 "cardinality": "0-n",

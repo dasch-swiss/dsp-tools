@@ -152,6 +152,17 @@
             "gui_element": "Colorpicker"
           },
           {
+            "name": "testDate",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DateValue",
+            "labels": {
+              "en": "Property Date"
+            },
+            "gui_element": "Date"
+          },
+          {
             "name": "testSuperDate",
             "super": [
               "hasValue"
@@ -429,7 +440,7 @@
                 "gui_order": 1
               },
               {
-                "propname": ":testSuperDate",
+                "propname": ":testDate",
                 "cardinality": "0-n",
                 "gui_order": 2
               },

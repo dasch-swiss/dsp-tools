@@ -75,7 +75,51 @@
         "label": "Ontology",
         "properties": [
           {
-            "name": "testBoolean",
+            "name": "testBoolean1",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean2",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean3",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean4",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testBoolean5",
             "super": [
               "hasValue"
             ],
@@ -339,7 +383,27 @@
             },
             "cardinalities": [
               {
-                "propname": ":testBoolean",
+                "propname": ":testBoolean1",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean2",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean3",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean4",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testBoolean5",
                 "cardinality": "0-1",
                 "gui_order": 0
               },
@@ -347,6 +411,11 @@
                 "propname": ":testColor",
                 "cardinality": "0-n",
                 "gui_order": 1
+              },,
+              {
+                "propname": ":testSuperDate",
+                "cardinality": "0-n",
+                "gui_order": 2
               },
               {
                 "propname": ":testSubDate1",

@@ -383,6 +383,11 @@
             },
             "cardinalities": [
               {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
                 "propname": ":testBoolean1",
                 "cardinality": "0-1",
                 "gui_order": 0

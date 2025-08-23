@@ -39,7 +39,7 @@ def _add_color(res: Resource, number_of_vals: int) -> Resource:
 
 
 def _add_date(res: Resource, number_of_vals: int) -> Resource:
-    return _add_values(res, ":testSuperDate", "GREGORIAN:AD:0476-09-04:AD:0476-09-04", DateValue, number_of_vals)
+    return _add_values(res, ":testDate", "GREGORIAN:AD:0476-09-04:AD:0476-09-04", DateValue, number_of_vals)
 
 
 def _add_decimal(res: Resource, number_of_vals: int) -> Resource:

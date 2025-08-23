@@ -7,8 +7,6 @@
 - CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki
 
 
-
-
 # TODO:
 
 - Create a file for each value type, fixed num res and vals (no stash)
@@ -20,3 +18,21 @@
 
 - stash
 - do it on a server to compare?
+
+
+# Analysis
+
+## Local Mac Docker Resources
+
+- CPU Limit: 9
+- Memory Limit 16 GB
+- Swap: 1 GB
+- Disk: 1.37 TB
+
+## Cheesgrater Docker Resources
+
+- CPU Limit: 32
+- Memory Limit 78.3 GB
+- Swap: 0 GB
+- Disk: 17 TB
+

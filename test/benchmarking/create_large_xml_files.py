@@ -52,7 +52,7 @@ def file_with_many_resources_and_large_text_value(
     resources = [create_one_resource(i) for i in range(res_counter)]
     resources = [add_one_large_text_value(res, text_length) for res in resources]
     root.add_resource_multiple(resources)
-    root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_lenText-{text_length}.xml")
+    root.write_file(save_dir / f"res-{res_counter}_val-{value_counter}_text-len-{text_length}.xml")
 
 
 def add_one_large_text_value(res: Resource, text_length: int) -> Resource:
@@ -61,50 +61,69 @@ def add_one_large_text_value(res: Resource, text_length: int) -> Resource:
 
 
 if __name__ == "__main__":
-    save_dir = Path("x_fuseki_bloating_files")
-    save_dir.mkdir(exist_ok=True)
 
-    faktor = 5
-    res_number = 10_000 * faktor
-    val_number = 10 * faktor
-    text_size = 9_999
-    increased_text = text_size * faktor
+    def step_1() -> None:
+        save_dir = Path("x_fuseki_bloating_files/files")
+        save_dir.mkdir(exist_ok=True)
 
-    # no values
-    file_with_many_resources_no_values(
-        res_counter=res_number,
-        save_dir=save_dir,
-    )
-    # int values
-    file_with_many_resources_and_int_values(
-        res_counter=res_number,
-        value_counter=val_number,
-        save_dir=save_dir,
-    )
-    # decimals
-    file_with_many_resources_and_decimal_values(
-        res_counter=res_number,
-        value_counter=val_number,
-        save_dir=save_dir,
-    )
-    # increasing text size by faktor
-    file_with_many_resources_and_large_text_value(
-        res_counter=res_number,
-        value_counter=val_number,
-        text_length=increased_text,
-        save_dir=save_dir,
-    )
-    # fixed but large text size
-    file_with_many_resources_and_large_text_value(
-        res_counter=res_number,
-        value_counter=val_number,
-        text_length=text_size,
-        save_dir=save_dir,
-    )
-    # fixed but small text size
-    file_with_many_resources_and_large_text_value(
-        res_counter=res_number,
-        value_counter=val_number,
-        text_length=10,
-        save_dir=save_dir,
-    )
+        def make_all(faktor: int) -> None:
+            res_number = 10_000
+            res_increased = res_number * faktor
+            val_number = 10
+            val_increased = val_number * faktor
+            text_size = 20_000
+
+            # no values
+            file_with_many_resources_no_values(
+                res_counter=res_increased,
+                save_dir=save_dir,
+            )
+
+            # INT
+            # res increased
+            file_with_many_resources_and_int_values(
+                res_counter=res_increased,
+                value_counter=val_number,
+                save_dir=save_dir,
+            )
+            # val increased
+            file_with_many_resources_and_int_values(
+                res_counter=res_number,
+                value_counter=val_increased,
+                save_dir=save_dir,
+            )
+
+            # LARGE TEXT
+            # res increased
+            file_with_many_resources_and_large_text_value(
+                res_counter=res_increased,
+                value_counter=val_number,
+                text_length=text_size,
+                save_dir=save_dir,
+            )
+            # val increased
+            file_with_many_resources_and_large_text_value(
+                res_counter=res_number,
+                value_counter=val_increased,
+                text_length=text_size,
+                save_dir=save_dir,
+            )
+
+            # SMALL TEXT
+            # res increased
+            file_with_many_resources_and_large_text_value(
+                res_counter=res_increased,
+                value_counter=val_number,
+                text_length=1,
+                save_dir=save_dir,
+            )
+            # val increased
+            file_with_many_resources_and_large_text_value(
+                res_counter=res_number,
+                value_counter=val_increased,
+                text_length=1,
+                save_dir=save_dir,
+            )
+
+        for i in range(1, 6):
+            make_all(i)

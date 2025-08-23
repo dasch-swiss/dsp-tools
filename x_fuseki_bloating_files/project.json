@@ -75,6 +75,17 @@
         "label": "Ontology",
         "properties": [
           {
+            "name": "testBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
             "name": "testBoolean1",
             "super": [
               "hasValue"

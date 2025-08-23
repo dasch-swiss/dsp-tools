@@ -1,0 +1,699 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "9999",
+    "shortname": "test",
+    "longname": "Test project for validate-data",
+    "descriptions": {
+      "en": "Test project for validate-data"
+    },
+    "keywords": [
+      "validate"
+    ],
+    "enabled_licenses": [
+      "http://rdfh.ch/licenses/cc-by-4.0",
+      "http://rdfh.ch/licenses/cc-by-nc-4.0",
+      "http://rdfh.ch/licenses/unknown",
+      "http://rdfh.ch/licenses/ai-generated"
+    ],
+    "default_permissions": "public",
+    "lists": [
+      {
+        "name": "firstList",
+        "labels": {
+          "en": "List 1"
+        },
+        "comments": {
+          "en": "This is the first list"
+        },
+        "nodes": [
+          {
+            "name": "n1",
+            "labels": {
+              "en": "Node 1"
+            },
+            "nodes": [
+              {
+                "name": "n1.1",
+                "labels": {
+                  "en": "Node 1.1"
+                },
+                "nodes": [
+                  {
+                    "name": "n1.1.1",
+                    "labels": {
+                      "en": "Node 1.1.1"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "secondList",
+        "labels": {
+          "en": "List"
+        },
+        "comments": {
+          "en": "This is the second list"
+        },
+        "nodes": [
+          {
+            "name": "l2n1",
+            "labels": {
+              "en": "List 2, Node 1"
+            }
+          }
+        ]
+      }
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "Ontology",
+        "properties": [
+          {
+            "name": "testBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "testColor",
+            "super": [
+              "hasColor"
+            ],
+            "object": "ColorValue",
+            "labels": {
+              "en": "Test Color"
+            },
+            "gui_element": "Colorpicker"
+          },
+          {
+            "name": "testSuperDate",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DateValue",
+            "labels": {
+              "en": "Super Property Date"
+            },
+            "gui_element": "Date"
+          },
+          {
+            "name": "testSubDate1",
+            "super": [
+              "hasValue",
+              ":testSuperDate"
+            ],
+            "object": "DateValue",
+            "labels": {
+              "en": "Sub Property Date 1"
+            },
+            "gui_element": "Date"
+          },
+          {
+            "name": "testSubDate2",
+            "super": [
+              "hasValue",
+              ":testSuperDate"
+            ],
+            "object": "DateValue",
+            "labels": {
+              "en": "Sub Property Date 2"
+            },
+            "gui_element": "Date"
+          },
+          {
+            "name": "testDecimalSimpleText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DecimalValue",
+            "labels": {
+              "en": "Test Decimal"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "testDecimalSpinbox",
+            "super": [
+              "hasValue"
+            ],
+            "object": "DecimalValue",
+            "labels": {
+              "en": "Test Decimal"
+            },
+            "gui_element": "Spinbox",
+            "gui_attributes": {
+              "min": 0.0,
+              "max": 10.0
+            }
+          },
+          {
+            "name": "testGeoname",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "en": "Test Geoname"
+            },
+            "gui_element": "Geonames"
+          },
+          {
+            "name": "testIntegerSimpleText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "Test Integer"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "testIntegerSpinbox",
+            "super": [
+              "hasValue"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "Test Integer"
+            },
+            "gui_element": "Spinbox",
+            "gui_attributes": {
+              "min": 0.0,
+              "max": 10.0
+            }
+          },
+          {
+            "name": "testListProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "en": "Test List"
+            },
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "firstList"
+            }
+          },
+          {
+            "name": "testSimpleText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Test SimpleText"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "testTextarea",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Test Textarea"
+            },
+            "gui_element": "Textarea"
+          },
+          {
+            "name": "testRichtext",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Test Richtext"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "testTimeValue",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TimeValue",
+            "labels": {
+              "en": "Test Time"
+            },
+            "gui_element": "TimeStamp"
+          },
+          {
+            "name": "testUriValue",
+            "super": [
+              "hasValue"
+            ],
+            "object": "UriValue",
+            "labels": {
+              "en": "Test URI"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "testHasComment",
+            "super": [
+              "hasComment"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "In-built Comment"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "testHasLinkTo",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Resource",
+            "labels": {
+              "en": "Test In-built hasLinkTo"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasLinkToCardOneResource",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":CardOneResource",
+            "labels": {
+              "en": "Super-class"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasRepresentation",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": "Representation",
+            "labels": {
+              "en": "Represented by"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testIsPartOf",
+            "super": [
+              "isPartOf"
+            ],
+            "object": ":TestStillImageRepresentation",
+            "labels": {
+              "en": "is part of"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testSeqnum",
+            "super": [
+              "seqnum"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "Test Seqnum"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "ClassWithEverything",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with every property"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testColor",
+                "cardinality": "0-n",
+                "gui_order": 1
+              },
+              {
+                "propname": ":testSubDate1",
+                "cardinality": "0-n",
+                "gui_order": 2
+              },
+              {
+                "propname": ":testSubDate2",
+                "cardinality": "0-n",
+                "gui_order": 3
+              },
+              {
+                "propname": ":testDecimalSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 4
+              },
+              {
+                "propname": ":testDecimalSpinbox",
+                "cardinality": "0-n",
+                "gui_order": 5
+              },
+              {
+                "propname": ":testGeoname",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":testIntegerSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 7
+              },
+              {
+                "propname": ":testIntegerSpinbox",
+                "cardinality": "0-n",
+                "gui_order": 8
+              },
+              {
+                "propname": ":testListProp",
+                "cardinality": "0-n",
+                "gui_order": 9
+              },
+              {
+                "propname": ":testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 10
+              },
+              {
+                "propname": ":testTextarea",
+                "cardinality": "0-n",
+                "gui_order": 11
+              },
+              {
+                "propname": ":testRichtext",
+                "cardinality": "0-n",
+                "gui_order": 12
+              },
+              {
+                "propname": ":testTimeValue",
+                "cardinality": "0-n",
+                "gui_order": 13
+              },
+              {
+                "propname": ":testUriValue",
+                "cardinality": "0-n",
+                "gui_order": 14
+              },
+              {
+                "propname": ":testHasComment",
+                "cardinality": "0-n",
+                "gui_order": 15
+              },
+              {
+                "propname": ":testHasLinkTo",
+                "cardinality": "0-n",
+                "gui_order": 16
+              },
+              {
+                "propname": ":testHasLinkToCardOneResource",
+                "cardinality": "0-n",
+                "gui_order": 17
+              },
+              {
+                "propname": ":testHasRepresentation",
+                "cardinality": "0-n",
+                "gui_order": 18
+              }
+            ]
+          },
+          {
+            "name": "CardOneResource",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with One Cardinality"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              }
+            ]
+          },
+          {
+            "name": "ClassInheritedCardinality",
+            "super": ":CardOneResource",
+            "labels": {
+              "en": "Subclass Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 0
+              }
+            ]
+          },
+          {
+            "name": "ClassInheritedCardinalityOverwriting",
+            "super": ":CardOneResource",
+            "labels": {
+              "en": "Subclass Resource that overwrites inherited cardinality"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "1",
+                "gui_order": 0
+              }
+            ]
+          },
+          {
+            "name": "ClassMixedCard",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with all cardinality options"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testHasLinkToCardOneResource",
+                "cardinality": "1",
+                "gui_order": 1
+              },
+              {
+                "propname": ":testGeoname",
+                "cardinality": "1-n",
+                "gui_order": 2
+              },
+              {
+                "propname": ":testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 3
+              }
+            ]
+          },
+          {
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
+            "labels": {
+              "en": "ArchiveRepresentation"
+            }
+          },
+          {
+            "name": "TestAudioRepresentation",
+            "super": "AudioRepresentation",
+            "labels": {
+              "en": "AudioRepresentation"
+            }
+          },
+          {
+            "name": "TestDocumentRepresentation",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "DocumentRepresentation"
+            }
+          },
+          {
+            "name": "TestMovingImageRepresentation",
+            "super": "MovingImageRepresentation",
+            "labels": {
+              "en": "MovingImageRepresentation"
+            }
+          },
+          {
+            "name": "TestStillImageRepresentation",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "StillImageRepresentation"
+            }
+          },
+          {
+            "name": "TestTextRepresentation",
+            "super": "TextRepresentation",
+            "labels": {
+              "en": "TextRepresentation"
+            }
+          }
+        ]
+      },
+      {
+        "name": "second-onto",
+        "label": "Second Ontology",
+        "properties": [
+          {
+            "name": "testBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean of the second onto"
+            },
+            "gui_element": "Checkbox"
+          }
+        ],
+        "resources": [
+          {
+            "name": "SecondOntoClass",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": "onto:testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "in-built",
+        "label": "in-built",
+        "comment": "Ontology focusing on knora-api in-built properties and classes",
+        "properties": [
+          {
+            "name": "testHasRepresentation",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": "Representation",
+            "labels": {
+              "en": "Target is any Representation"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasRepresentationImage",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": "StillImageRepresentation",
+            "labels": {
+              "en": "Target must be a StillImageRepresentation"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testIsPartOf",
+            "super": [
+              "isPartOf"
+            ],
+            "object": ":TestNormalResource",
+            "labels": {
+              "en": "is part of"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testSeqnum",
+            "super": [
+              "seqnum"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "has sequence Number"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "TestNormalResource",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testHasRepresentation",
+                "cardinality": "0-n",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testHasRepresentationImage",
+                "cardinality": "0-n",
+                "gui_order": 1
+              }
+            ]
+          },
+          {
+            "name": "TestStillImageRepresentationWithSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "StillImageRepresentation with knora-api:seqnum"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "cardinality": "0-n"
+              },
+              {
+                "propname": "seqnum",
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
+            "name": "TestStillImageRepresentationWithInheritedSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "StillImageRepresentation using sub-properties of seqnum"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":testSeqnum",
+                "cardinality": "0-1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

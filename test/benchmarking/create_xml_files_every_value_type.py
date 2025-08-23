@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from typing import TypeVar
 
 from dsp_tools.xmllib import Resource
 from dsp_tools.xmllib import XMLRoot
@@ -17,7 +18,9 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 
-# This is to be used with the ontology: testdata/validate-data/generic/project.json
+T = TypeVar("T", bound=Value)
+
+# This is to be used with the ontology: project.json
 
 
 def _create_one_resource(id_counter: int) -> Resource:
@@ -26,7 +29,7 @@ def _create_one_resource(id_counter: int) -> Resource:
 
 def _add_boolean(res: Resource, number_of_vals: int) -> Resource:
     prop_names = [f":testBoolean{i}" for i in range(1, number_of_vals + 1)]
-    bools = [BooleanValue("true", x) for x in prop_names]
+    bools = [BooleanValue(value="true", prop_name=x) for x in prop_names]
     res.values.extend(bools)
     return res
 
@@ -52,14 +55,14 @@ def _add_int(res: Resource, number_of_vals: int) -> Resource:
 
 
 def _add_list(res: Resource, number_of_vals: int) -> Resource:
-    vals = [ListValue("n1", "firstList", ":testListProp") for _ in range(number_of_vals)]
+    vals = [ListValue(value="n1", list_name="firstList", prop_name=":testListProp") for _ in range(number_of_vals)]
     res.values.extend(vals)
     return res
 
 
 def _add_link(res: Resource, number_of_vals: int) -> Resource:
     content = [f"target_{i}" for i in range(number_of_vals)]
-    vals = [LinkValue(x, ":testHasLinkTo") for x in content]
+    vals = [LinkValue(value=x, prop_name=":testHasLinkTo") for x in content]
     res.values.extend(vals)
     return res
 
@@ -88,14 +91,14 @@ def _add_uri(res: Resource, number_of_vals: int) -> Resource:
     return _add_values(res, ":testUriValue", "https://dasch.swiss", UriValue, number_of_vals)
 
 
-def _add_values[T: Value](res: Resource, prop: str, val: Any, func: type[T], number_of_vals: int) -> Resource:
+def _add_values(res: Resource, prop: str, val: Any, func: type[T], number_of_vals: int) -> Resource:  # noqa: UP047
     vals = [_create_one_value(prop, val, func) for _ in range(number_of_vals)]
     res.values.extend(vals)
     return res
 
 
-def _create_one_value[T: Value](prop: str, val: Any, func: type[T]) -> T:
-    return func(val, prop)
+def _create_one_value(prop: str, val: Any, func: type[T]) -> T:  # noqa: UP047
+    return func(val, prop)  # type: ignore[call-arg]
 
 
 if __name__ == "__main__":

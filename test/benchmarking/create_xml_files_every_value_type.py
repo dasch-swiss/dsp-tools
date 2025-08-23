@@ -163,4 +163,4 @@ if __name__ == "__main__":
         xml_name = f"res-{number_of_res}_val-13_every_type.xml"
         every_type_root.write_file(file_p / xml_name)
 
-    create_every_type(2)
+    create_every_type(10_000)

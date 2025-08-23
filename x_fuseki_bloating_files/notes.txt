@@ -5,3 +5,18 @@
 - CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki
 - dsp-tools xmlupload --skip-validation fuseki_bloating/
 - CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki
+
+
+
+
+# TODO:
+
+- Create a file for each value type, fixed num res and vals (no stash)
+- Create a file with every value type once per resource
+- Try it out on my computer to compare to cheesegrater
+- Upload the file with every type once, several times without re-starting the stack to see the increase
+
+## Further but out of scope
+
+- stash
+- do it on a server to compare?

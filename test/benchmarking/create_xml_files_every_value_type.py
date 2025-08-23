@@ -103,7 +103,7 @@ def _create_one_value(prop: str, val: Any, func: type[T]) -> T:  # noqa: UP047
 
 if __name__ == "__main__":
 
-    def create_every_type(number_of_res: int, number_of_vals: int = 13) -> None:
+    def main(number_of_res: int, number_of_vals: int = 13) -> None:
         file_p = Path("x_fuseki_bloating_files/value_types")
         file_p.mkdir(exist_ok=True, parents=True)
 
@@ -163,4 +163,4 @@ if __name__ == "__main__":
         xml_name = f"res-{number_of_res}_val-13_every_type.xml"
         every_type_root.write_file(file_p / xml_name)
 
-    create_every_type(10_000)
+    main(10_000)

@@ -62,7 +62,7 @@ def add_one_large_text_value(res: Resource, text_length: int) -> Resource:
 
 if __name__ == "__main__":
 
-    def step_1() -> None:
+    def main() -> None:
         save_dir = Path("x_fuseki_bloating_files/files")
         save_dir.mkdir(exist_ok=True)
 
@@ -127,3 +127,5 @@ if __name__ == "__main__":
 
         for i in range(1, 6):
             make_all(i)
+
+    main()

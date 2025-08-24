@@ -194,10 +194,7 @@ initialize_csv() {
         # Start with base columns
         local header="Timestamp,DB_Before,numberOfTriples_Before"
         
-        # Wait for Fuseki to be ready and get data types
-        wait_for_fuseki
-        
-        # Get unique data types for column headers
+        # Get unique data types for column headers (Fuseki should already be running)
         local dtypes=$(get_unique_dtypes)
         if [ $? -eq 0 ] && [ -n "$dtypes" ]; then
             while IFS= read -r dtype; do
@@ -311,8 +308,23 @@ main() {
     # Validate inputs
     validate_inputs
     
-    # Initialize CSV
+    # Start stack initially for CSV header initialization
+    print_status "Starting DSP stack for initial setup..."
+    dsp-tools start-stack --prune
+    
+    # Wait for Fuseki to be ready
+    wait_for_fuseki
+    
+    # Create project for initial data type discovery
+    print_status "Creating project from $PROJECT_FILE for initial setup..."
+    dsp-tools create "$PROJECT_FILE"
+    
+    # Initialize CSV with proper headers
     initialize_csv
+    
+    # Stop stack after initialization
+    print_status "Stopping stack after initialization..."
+    dsp-tools stop-stack
     
     # Get XML files for loop processing
     local xml_files=$(get_xml_files "$XML_DIR")

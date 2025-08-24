@@ -6,7 +6,6 @@
 - dsp-tools xmlupload --skip-validation fuseki_bloating/
 - CID=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0") && docker exec -it $CID du -sh /fuseki
 
-
 # TODO:
 
 - Upload the file with every type once, several times without re-starting the stack to see the increase
@@ -33,3 +32,132 @@
 - Swap: 0 GB
 - Disk: 17 TB
 
+
+# Queries
+
+## Number of triples
+
+```
+SELECT (COUNT(*) AS ?count)
+WHERE {
+  ?s ?p ?o .
+}
+```
+
+http://127.0.0.1:3030/#/dataset/knora-test/query?query=SELECT%20%28COUNT%28%2A%29%20AS%20%3Fcount%29%0AWHERE%20%7B%0A%20%20%3Fs%20%3Fp%20%3Fo%20.%0A%7D
+
+Response:
+
+```json
+{
+  "head": {
+    "vars": [
+      "count"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "3353"
+        }
+      }
+    ]
+  }
+}
+```
+
+Give all the dtypes of objects
+
+http://127.0.0.1:3030/#/dataset/knora-test/query?query=SELECT%20%3Fdtype%20%28COUNT%28%2A%29%20AS%20%3Fcount%29%0AWHERE%20%7B%0A%20%20%3Fx%20%3Fy%20%3Fz.%0A%20%20FILTER%20%28%20isLiteral%28%3Fz%29%29%0A%20%20BIND%28DATATYPE%28%3Fz%29%20AS%20%3Fdtype%20%29%0A%7D%0AGROUP%20BY%20%3Fdtype
+
+```
+SELECT ?dtype (COUNT(*) AS ?count)
+WHERE {
+  ?x ?y ?z.
+  FILTER ( isLiteral(?z))
+  BIND(DATATYPE(?z) AS ?dtype )
+}
+GROUP BY ?dtype
+```
+
+{
+  "head": {
+    "vars": [
+      "dtype",
+      "count"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "286"
+        }
+      },
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/2001/XMLSchema#integer"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "6"
+        }
+      },
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "654"
+        }
+      },
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/2001/XMLSchema#boolean"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "131"
+        }
+      },
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "242"
+        }
+      },
+      {
+        "dtype": {
+          "type": "uri",
+          "value": "http://www.w3.org/2001/XMLSchema#dateTime"
+        },
+        "count": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+          "value": "5"
+        }
+      }
+    ]
+  }
+}

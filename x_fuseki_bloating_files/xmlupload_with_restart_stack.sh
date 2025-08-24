@@ -85,7 +85,7 @@ get_triple_count() {
     fi
     
     # Extract the count value from JSON response
-    local count=$(echo "$response" | grep -o '"value":[[:space:]]*"[^"]*"' | tail -1 | sed 's/.*"\([^"]*\)"/\1/')
+    local count=$(echo "$response" | grep -o '"value"[[:space:]]*:[[:space:]]*"[^"]*"' | tail -1 | sed 's/.*"\([^"]*\)".*/\1/')
     
     if [ -z "$count" ]; then
         print_error "Failed to parse triple count from response: $(echo "$response" | head -100)"
@@ -122,10 +122,30 @@ get_triple_types() {
 parse_triple_types() {
     local json_response="$1"
     
-    # Extract dtype and count pairs using grep and sed
-    # This creates a format like: "http://www.w3.org/2001/XMLSchema#string,286"
-    echo "$json_response" | grep -o '"dtype":{[^}]*},"count":{[^}]*}' | \
-    sed -n 's/.*"value":"\([^"]*\)".*"value":"\([^"]*\)".*/\1,\2/p'
+    # Extract all values in order: dtype1, count1, dtype2, count2, ...
+    local values=$(echo "$json_response" | grep -o '"value"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)".*/\1/')
+    
+    # Convert to dtype,count pairs
+    local result=""
+    local line_num=0
+    local current_dtype=""
+    
+    while IFS= read -r value; do
+        if [ $((line_num % 2)) -eq 0 ]; then
+            # Even line numbers are dtypes
+            current_dtype="$value"
+        else
+            # Odd line numbers are counts
+            if [ -n "$result" ]; then
+                result="${result}\n${current_dtype},${value}"
+            else
+                result="${current_dtype},${value}"
+            fi
+        fi
+        ((line_num++))
+    done <<< "$values"
+    
+    echo -e "$result"
 }
 
 # Function to get all unique data types from initial query

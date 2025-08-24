@@ -32,10 +32,19 @@ print_error() {
 
 # Function to get Fuseki container ID
 get_fuseki_container_id() {
+    # Try multiple possible Fuseki container patterns
     local cid=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0")
     if [ -z "$cid" ]; then
-        print_error "No Fuseki container found running"
-        return 1
+        # Try other possible Fuseki containers
+        cid=$(docker ps -q --filter "name=fuseki")
+        if [ -z "$cid" ]; then
+            cid=$(docker ps -q --filter "name=db")
+            if [ -z "$cid" ]; then
+                print_error "No Fuseki container found running. Available containers:"
+                docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"
+                return 1
+            fi
+        fi
     fi
     echo "$cid"
 }
@@ -53,6 +62,108 @@ get_fuseki_size() {
         return 1
     fi
     echo "$size"
+}
+
+# Function to get number of triples from Fuseki
+get_triple_count() {
+    local query="SELECT (COUNT(*) AS ?numberOfTriples) WHERE { ?s ?p ?o . }"
+    local response=$(curl -s -X POST "http://localhost:3030/knora-test/sparql" \
+        -u "admin:test" \
+        -H "Accept: application/sparql-results+json" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "query=${query}")
+    
+    if [ -z "$response" ]; then
+        print_error "Failed to get triple count from Fuseki - empty response"
+        return 1
+    fi
+    
+    # Check if response contains error
+    if echo "$response" | grep -q "error\|Error\|ERROR"; then
+        print_error "Fuseki returned error: $(echo "$response" | head -1)"
+        return 1
+    fi
+    
+    # Extract the count value from JSON response
+    local count=$(echo "$response" | grep -o '"value":[[:space:]]*"[^"]*"' | tail -1 | sed 's/.*"\([^"]*\)"/\1/')
+    
+    if [ -z "$count" ]; then
+        print_error "Failed to parse triple count from response: $(echo "$response" | head -100)"
+        return 1
+    fi
+    
+    echo "$count"
+}
+
+# Function to get triple types from Fuseki
+get_triple_types() {
+    local query="SELECT ?dtype (COUNT(*) AS ?count) WHERE { ?x ?y ?z. FILTER ( isLiteral(?z)) BIND(DATATYPE(?z) AS ?dtype ) } GROUP BY ?dtype"
+    local response=$(curl -s -X POST "http://localhost:3030/knora-test/sparql" \
+        -u "admin:test" \
+        -H "Accept: application/sparql-results+json" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "query=${query}")
+    
+    if [ -z "$response" ]; then
+        print_error "Failed to get triple types from Fuseki"
+        return 1
+    fi
+    
+    # Check if response contains error
+    if echo "$response" | grep -q "error\|Error\|ERROR"; then
+        print_error "Fuseki returned error for triple types: $(echo "$response" | head -1)"
+        return 1
+    fi
+    
+    echo "$response"
+}
+
+# Function to parse triple types from JSON response
+parse_triple_types() {
+    local json_response="$1"
+    
+    # Extract dtype and count pairs using grep and sed
+    # This creates a format like: "http://www.w3.org/2001/XMLSchema#string,286"
+    echo "$json_response" | grep -o '"dtype":{[^}]*},"count":{[^}]*}' | \
+    sed -n 's/.*"value":"\([^"]*\)".*"value":"\([^"]*\)".*/\1,\2/p'
+}
+
+# Function to get all unique data types from initial query
+get_unique_dtypes() {
+    local triple_types_response=$(get_triple_types)
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    
+    parse_triple_types "$triple_types_response" | cut -d',' -f1 | sort -u
+}
+
+# Function to get triple type counts as CSV values
+get_triple_type_counts_csv() {
+    local dtypes="$1"
+    local triple_types_response=$(get_triple_types)
+    local csv_values=""
+    
+    if [ $? -ne 0 ]; then
+        # Return empty values if we can't get the data
+        while IFS= read -r dtype; do
+            csv_values="${csv_values},ERROR"
+        done <<< "$dtypes"
+        echo "$csv_values"
+        return 1
+    fi
+    
+    local parsed_types=$(parse_triple_types "$triple_types_response")
+    
+    while IFS= read -r dtype; do
+        local count=$(echo "$parsed_types" | grep "^${dtype}," | cut -d',' -f2)
+        if [ -z "$count" ]; then
+            count="0"
+        fi
+        csv_values="${csv_values},${count}"
+    done <<< "$dtypes"
+    
+    echo "$csv_values"
 }
 
 # Function to validate required files
@@ -77,10 +188,41 @@ get_xml_files() {
     find "$dir" -name "*.xml" -type f | sort
 }
 
-# Function to initialize CSV file
+# Function to initialize CSV file with dynamic headers
 initialize_csv() {
     if [ ! -f "$OUTPUT_CSV" ]; then
-        echo "Timestamp,DB_Before,Filename,DB_After" > "$OUTPUT_CSV"
+        # Start with base columns
+        local header="Timestamp,DB_Before,numberOfTriples_Before"
+        
+        # Wait for Fuseki to be ready and get data types
+        wait_for_fuseki
+        
+        # Get unique data types for column headers
+        local dtypes=$(get_unique_dtypes)
+        if [ $? -eq 0 ] && [ -n "$dtypes" ]; then
+            while IFS= read -r dtype; do
+                # Convert URL to column name format (add _Before suffix)
+                local col_name="${dtype}_Before"
+                header="${header},${col_name}"
+            done <<< "$dtypes"
+        fi
+        
+        # Add middle columns
+        header="${header},Filename"
+        
+        # Add After columns
+        header="${header},DB_After,numberOfTriples_After"
+        
+        # Add dtype After columns
+        if [ $? -eq 0 ] && [ -n "$dtypes" ]; then
+            while IFS= read -r dtype; do
+                # Convert URL to column name format (add _After suffix)
+                local col_name="${dtype}_After"
+                header="${header},${col_name}"
+            done <<< "$dtypes"
+        fi
+        
+        echo "$header" > "$OUTPUT_CSV"
         print_status "Created new CSV file: $OUTPUT_CSV"
     fi
 }
@@ -92,12 +234,13 @@ wait_for_fuseki() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if get_fuseki_container_id > /dev/null 2>&1; then
-            # Wait a bit more for the service to be fully ready
-            sleep 5
-            print_status "Fuseki is ready"
+        # Check if Fuseki responds on localhost:3030
+        local ping_response=$(curl -s -w "%{http_code}" -o /dev/null "http://localhost:3030/$/ping" 2>/dev/null || echo "000")
+        if [ "$ping_response" = "200" ]; then
+            print_status "Fuseki is ready on localhost:3030"
             return 0
         fi
+        
         print_status "Attempt $attempt/$max_attempts: Waiting for Fuseki..."
         sleep 5
         ((attempt++))
@@ -111,6 +254,9 @@ wait_for_fuseki() {
 process_xml_file() {
     local xml_file="$1"
     local initial_db_size="$2"
+    local initial_triple_count="$3"
+    local initial_triple_types_csv="$4"
+    local dtypes="$5"
     
     local filename=$(basename "$xml_file")
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
@@ -131,8 +277,26 @@ process_xml_file() {
         print_status "DB After: $db_after"
     fi
     
+    # Get final triple count
+    print_status "Getting triple count after upload..."
+    local triple_count_after=$(get_triple_count)
+    if [ $? -ne 0 ]; then
+        print_warning "Failed to get triple count after upload"
+        triple_count_after="ERROR"
+    else
+        print_status "Triple count after: $triple_count_after"
+    fi
+    
+    # Get final triple types
+    print_status "Getting triple types after upload..."
+    local triple_types_after_csv=$(get_triple_type_counts_csv "$dtypes")
+    if [ $? -ne 0 ]; then
+        print_warning "Failed to get triple types after upload"
+    fi
+    
     # Write results to CSV
-    echo "$timestamp,$initial_db_size,$filename,$db_after" >> "$OUTPUT_CSV"
+    local csv_line="$timestamp,$initial_db_size,$initial_triple_count$initial_triple_types_csv,$filename,$db_after,$triple_count_after$triple_types_after_csv"
+    echo "$csv_line" >> "$OUTPUT_CSV"
     print_status "Results for $filename written to $OUTPUT_CSV"
     
     return 0
@@ -194,8 +358,27 @@ main() {
         fi
         print_status "DB Before XML upload: $db_before"
         
+        # Get triple count before XML upload
+        print_status "Getting triple count before XML upload..."
+        local triple_count_before=$(get_triple_count)
+        if [ $? -ne 0 ]; then
+            print_warning "Failed to get triple count before processing $xml_file"
+            triple_count_before="ERROR"
+        fi
+        print_status "Triple count before: $triple_count_before"
+        
+        # Get unique data types for consistent column ordering
+        local dtypes=$(get_unique_dtypes)
+        
+        # Get triple types before XML upload
+        print_status "Getting triple types before XML upload..."
+        local triple_types_before_csv=$(get_triple_type_counts_csv "$dtypes")
+        if [ $? -ne 0 ]; then
+            print_warning "Failed to get triple types before processing $xml_file"
+        fi
+        
         # Process the XML file
-        process_xml_file "$xml_file" "$db_before"
+        process_xml_file "$xml_file" "$db_before" "$triple_count_before" "$triple_types_before_csv" "$dtypes"
         
         print_status "Completed cycle $current_file_num/$file_count for $filename"
         echo "========================================"
@@ -226,10 +409,13 @@ usage() {
     echo "  - Automatically processes all .xml files in the 'files' subdirectory"
     echo "  - Files are processed in alphabetical order"
     echo "  - Records database size before and after each XML upload"
+    echo "  - Records triple count before and after each XML upload"
+    echo "  - Records triple types and counts before and after each XML upload"
     echo "  - Restarts DSP stack and creates project before processing XML files"
     echo
     echo "Output:"
-    echo "  Results are written to fuseki_size.csv with columns: Timestamp,DB_Before,Filename,DB_After"
+    echo "  Results are written to fuseki_size.csv with columns:"
+    echo "  Timestamp,DB_Before,numberOfTriples_Before,[dtype_Before columns],Filename,DB_After,numberOfTriples_After,[dtype_After columns]"
     echo
     echo "Note: The script must be run from a directory containing project.json and a 'files' subdirectory with XML files."
 }

@@ -18,6 +18,25 @@
 
 # Analysis
 
+## Considerations about the data
+
+- Multiple Values per Resource
+  - apart from boolean (where 0-1) every value uses the same property
+  - Int Values contain a different number (0-n), this may have affected the result
+- Type Comparison
+  - apart from boolean (where 0-1) every value uses the same property
+  - All the values contain the identical content (duplicate check disabled)
+  - All text values tested separately, the content of the text value is identical
+
+## Observations
+
+- Change in computer did not make a difference
+- The uploads where the number of resources / values increased have a vastly different DB size than the ones where
+  we compare the value types. While the number of values is not identical, therefore an exact comparison cannot be done
+  I cannot explain the difference.
+- To ensure that the multiple uploads do not differ too much, we need to run it multiple times and compare.
+- 
+
 ## Local Mac Docker Resources
 
 - CPU Limit: 9

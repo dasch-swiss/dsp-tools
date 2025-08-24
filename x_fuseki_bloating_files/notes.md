@@ -38,13 +38,14 @@
 ## Number of triples
 
 ```
-SELECT (COUNT(*) AS ?count)
+SELECT (COUNT(*) AS ?numberOfTriples)
 WHERE {
   ?s ?p ?o .
 }
 ```
 
-http://127.0.0.1:3030/#/dataset/knora-test/query?query=SELECT%20%28COUNT%28%2A%29%20AS%20%3Fcount%29%0AWHERE%20%7B%0A%20%20%3Fs%20%3Fp%20%3Fo%20.%0A%7D
+http://127.0.0.1:3030/#/dataset/knora-test/query?query=SELECT%20%28COUNT%28%2A%29%20AS%20%3FnumberOfTriples%29%0AWHERE%20%7B%0A%20%20%3Fs%20%3Fp%20%3Fo%20.%0A%7D
+
 
 Response:
 
@@ -52,7 +53,7 @@ Response:
 {
   "head": {
     "vars": [
-      "count"
+      "numberOfTriples"
     ]
   },
   "results": {
@@ -83,6 +84,7 @@ WHERE {
 GROUP BY ?dtype
 ```
 
+```json
 {
   "head": {
     "vars": [
@@ -161,3 +163,4 @@ GROUP BY ?dtype
     ]
   }
 }
+```

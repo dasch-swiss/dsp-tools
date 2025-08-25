@@ -76,10 +76,14 @@ def prepare_val_res_num_increasing() -> None:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     
     # Plot 1: DB Size vs Number of Values (one line per val_type)
+    # Filter to keep only data where res_num stays constant (isolate val_num effect)
     for i, val_type in enumerate(unique_types):
-        type_data = df[df["val_type"] == val_type].sort_values("val_num")
-        ax1.plot(type_data["val_num"], type_data["DB_After"], 
-                marker='o', color=colors[i], label=val_type, linewidth=2)
+        type_data = df[df["val_type"] == val_type]
+        # For each val_type, find the most common res_num and filter to that
+        most_common_res = type_data["res_num"].mode()[0] if len(type_data["res_num"].mode()) > 0 else type_data["res_num"].iloc[0]
+        filtered_data = type_data[type_data["res_num"] == most_common_res].sort_values("val_num")
+        ax1.plot(filtered_data["val_num"], filtered_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2, alpha=0.7)
     
     ax1.set_xlabel("Number of Values")
     ax1.set_ylabel("DB Size After (GB)")
@@ -88,10 +92,14 @@ def prepare_val_res_num_increasing() -> None:
     ax1.legend(title="Value Type")
     
     # Plot 2: DB Size vs Number of Resources (one line per val_type)
+    # Filter to keep only data where val_num stays constant (isolate res_num effect)
     for i, val_type in enumerate(unique_types):
-        type_data = df[df["val_type"] == val_type].sort_values("res_num")
-        ax2.plot(type_data["res_num"], type_data["DB_After"], 
-                marker='o', color=colors[i], label=val_type, linewidth=2)
+        type_data = df[df["val_type"] == val_type]
+        # For each val_type, find the most common val_num and filter to that
+        most_common_val = type_data["val_num"].mode()[0] if len(type_data["val_num"].mode()) > 0 else type_data["val_num"].iloc[0]
+        filtered_data = type_data[type_data["val_num"] == most_common_val].sort_values("res_num")
+        ax2.plot(filtered_data["res_num"], filtered_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2, alpha=0.7)
     
     ax2.set_xlabel("Number of Resources")
     ax2.set_ylabel("DB Size After (GB)")
@@ -100,8 +108,88 @@ def prepare_val_res_num_increasing() -> None:
     ax2.legend(title="Value Type")
 
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/val_res_num_increasing_scatterplot.png")
+    plt.savefig("x_fuseki_bloating_files/graphics_output/val_res_num_increasing_plot.png")
     plt.close()
+    
+    # Save individual plots separately
+    # Plot 1: Number of Values
+    plt.figure(figsize=(12, 6))
+    growth_rates_values = []
+    
+    for i, val_type in enumerate(unique_types):
+        type_data = df[df["val_type"] == val_type]
+        most_common_res = type_data["res_num"].mode()[0] if len(type_data["res_num"].mode()) > 0 else type_data["res_num"].iloc[0]
+        filtered_data = type_data[type_data["res_num"] == most_common_res].sort_values("val_num")
+        
+        # Calculate growth rate
+        if len(filtered_data) > 1:
+            val_range = filtered_data["val_num"].max() - filtered_data["val_num"].min()
+            db_range = filtered_data["DB_After"].max() - filtered_data["DB_After"].min()
+            growth_per_value = db_range / val_range if val_range > 0 else 0
+        else:
+            growth_per_value = 0
+        
+        growth_rates_values.append((val_type, growth_per_value))
+        
+        plt.plot(filtered_data["val_num"], filtered_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2, alpha=0.7)
+    
+    plt.xlabel("Number of Values")
+    plt.ylabel("DB Size After (GB)")
+    plt.title("Database Size vs Number of Values")
+    plt.grid(True, alpha=0.3)
+    plt.legend(title="Value Type")
+    
+    # Add growth rates text
+    text_str = "Growth Rates (GB per value):\n"
+    for val_type, rate in growth_rates_values:
+        text_str += f"{val_type}: {rate:.4f}\n"
+    plt.text(1.02, 0.5, text_str, transform=plt.gca().transAxes, fontsize=9,
+             verticalalignment='center', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_vs_values.png", bbox_inches='tight')
+    plt.close()
+    
+    # Plot 2: Number of Resources
+    plt.figure(figsize=(12, 6))
+    growth_rates_resources = []
+    
+    for i, val_type in enumerate(unique_types):
+        type_data = df[df["val_type"] == val_type]
+        most_common_val = type_data["val_num"].mode()[0] if len(type_data["val_num"].mode()) > 0 else type_data["val_num"].iloc[0]
+        filtered_data = type_data[type_data["val_num"] == most_common_val].sort_values("res_num")
+        
+        # Calculate multiplication factor
+        if len(filtered_data) > 1:
+            min_db = filtered_data["DB_After"].min()
+            max_db = filtered_data["DB_After"].max()
+            multiplication_factor = max_db / min_db if min_db > 0 else 0
+        else:
+            multiplication_factor = 0
+        
+        growth_rates_resources.append((val_type, multiplication_factor))
+        
+        plt.plot(filtered_data["res_num"], filtered_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2, alpha=0.7)
+    
+    plt.xlabel("Number of Resources")
+    plt.ylabel("DB Size After (GB)")
+    plt.title("Database Size vs Number of Resources")
+    plt.grid(True, alpha=0.3)
+    plt.legend(title="Value Type")
+    
+    # Add multiplication factors text
+    text_str = "Multiplication Factors:\n"
+    for val_type, factor in growth_rates_resources:
+        text_str += f"{val_type}: {factor:.2f}x\n"
+    plt.text(1.02, 0.5, text_str, transform=plt.gca().transAxes, fontsize=9,
+             verticalalignment='center', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_vs_resources.png", bbox_inches='tight')
+    plt.close()
+    
 
 
 prepare_fuseki_multiple_uploads()

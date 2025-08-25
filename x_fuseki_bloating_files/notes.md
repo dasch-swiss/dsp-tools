@@ -10,6 +10,7 @@
 
 - Upload the file with every type once, several times without re-starting the stack to see the increase
 - To compare fuseki triple size, upload one resource without values and see the val increase
+- Create average GB growth per triple for each value type, for that you need to upload 13 values for a resource so it can be compared to the every once
 
 ## Further but out of scope
 

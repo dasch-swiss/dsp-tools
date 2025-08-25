@@ -15,7 +15,12 @@ def clean_db_sizes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_info_from_filename(filename: str) -> dict[str, str | int]:
+def add_filename_info_to_df(df: pd.DataFrame, filename_col: str) -> pd.DataFrame:
+    pass
+    # TODO: add the result from _get_info_from_filename to new columns
+
+
+def _get_info_from_filename(filename: str) -> dict[str, str | int]:
     f_patt = r"^res-(.*)_val-(.*)_(.*).xml$"
     found = regex.search(f_patt, filename)
     if not found:

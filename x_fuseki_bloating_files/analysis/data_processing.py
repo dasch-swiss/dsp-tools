@@ -48,11 +48,20 @@ def prepare_fuseki_size_value_comparison() -> None:
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")
 
+    # Custom order: alphabetical with "every_type" at the end
+    unique_types = df["val_type"].unique()
+    ordered_types = sorted([t for t in unique_types if t != "every_type"])
+    if "every_type" in unique_types:
+        ordered_types.append("every_type")
+
     avg_db_after = df["DB_After"].mean()
+    median_db_after = df["DB_After"].median()
 
     plt.figure(figsize=(12, 8))
-    sns.boxplot(data=df, x="val_type", y="DB_After")
+    sns.barplot(data=df, x="val_type", y="DB_After", estimator='mean', errorbar=('ci', 95), order=ordered_types)
     plt.axhline(y=avg_db_after, color="red", linestyle="--", label=f"Average: {avg_db_after:.2f} GB")
+    plt.axhline(y=median_db_after, color="blue", linestyle="-.", label=f"Median: {median_db_after:.2f} GB")
+    plt.ylim(0, df["DB_After"].max() * 1.1)  # Set y-axis to start from 0
     plt.xlabel("Value Type")
     plt.ylabel("DB Size After (GB)")
     plt.title("Fuseki Database Size by Value Type")

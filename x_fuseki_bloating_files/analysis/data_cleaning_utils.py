@@ -16,8 +16,14 @@ def clean_db_sizes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_filename_info_to_df(df: pd.DataFrame, filename_col: str) -> pd.DataFrame:
-    pass
-    # TODO: add the result from _get_info_from_filename to new columns
+    info_data = []
+    for filename in df[filename_col]:
+        info_dict = _get_info_from_filename(filename)
+        info_data.append(info_dict)
+
+    info_df = pd.DataFrame(info_data)
+    result_df = pd.concat([df, info_df], axis=1)
+    return result_df
 
 
 def _get_info_from_filename(filename: str) -> dict[str, str | int]:

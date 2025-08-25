@@ -23,6 +23,7 @@ dependencies = [
     "jsonschema",
     "loguru",
     "lxml",
+    "matplotlib>=3.10.5",
     "networkx",
     "openpyxl",
     "packaging",
@@ -35,6 +36,7 @@ dependencies = [
     "regex",
     "requests",
     "rustworkx",
+    "seaborn>=0.13.2",
     "tqdm",
     "typing-extensions",
 ]

@@ -70,18 +70,33 @@ def prepare_val_res_num_increasing() -> None:
     df = add_filename_info_to_df(df, "Filename")
 
     plt.figure(figsize=(12, 8))
+    
+    # Create color mapping for val_type
+    unique_types = df["val_type"].unique()
+    colors = plt.cm.tab10(range(len(unique_types)))
+    color_map = {val_type: colors[i] for i, val_type in enumerate(unique_types)}
+    bubble_colors = [color_map[val_type] for val_type in df["val_type"]]
+    
     scatter = plt.scatter(
-        df["res_num"], df["val_num"], s=df["DB_After"] * 100, alpha=0.6, c=df["DB_After"], cmap="viridis"
+        df["res_num"], df["DB_After"], s=df["val_num"] * 10, alpha=0.3, c=bubble_colors
     )
     plt.xlabel("Number of Resources")
-    plt.ylabel("Number of Values")
+    plt.ylabel("DB Size After (GB)")
     plt.title("Database Size by Resource and Value Count")
-    plt.colorbar(scatter, label="DB Size After (GB)")
 
-    sizes = [1, 5, 10]
-    for size in sizes:
-        plt.scatter([], [], s=size * 100, alpha=0.6, c="gray", label=f"{size} GB")
-    plt.legend(scatterpoints=1, frameon=False, labelspacing=1, title="Size")
+    # Create legends
+    # Color legend for val_type
+    color_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map[val_type], 
+                               markersize=8, label=val_type) for val_type in unique_types]
+    color_legend = plt.legend(handles=color_handles, title="Value Type", loc='upper left', bbox_to_anchor=(1.05, 1))
+    
+    # Size legend for bubble size
+    sizes = [100, 500, 1000]
+    size_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', 
+                              markersize=size**0.5/10, label=f"{size} values") for size in sizes]
+    size_legend = plt.legend(handles=size_handles, title="Bubble Size", loc='upper left', bbox_to_anchor=(1.05, 0.6))
+    
+    plt.gca().add_artist(color_legend)
 
     plt.tight_layout()
     plt.savefig("x_fuseki_bloating_files/graphics_output/val_res_num_increasing_scatterplot.png")

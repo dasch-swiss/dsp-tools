@@ -60,7 +60,7 @@ def prepare_fuseki_multiple_uploads():
 
 
 def prepare_fuseki_size_value_comparison() -> None:
-    f_path = f_dir / "fuseki_size_value_comparison.csv"
+    f_path = f_dir / "fuseki_size_value_comparison_run1.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")

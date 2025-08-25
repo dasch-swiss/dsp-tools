@@ -30,7 +30,7 @@ def prepare_fuseki_multiple_uploads():
     plt.plot(df["Run"], df["DB_After"], marker="o")
     plt.xlabel("Run")
     plt.ylabel("DB Size After (GB)")
-    plt.title("Fuseki Database Size Growth Over Multiple Uploads")
+    plt.title("Database Size Growth Over Multiple Uploads")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig("x_fuseki_bloating_files/graphics_output/db_multiple_uploads_lineplot.png")

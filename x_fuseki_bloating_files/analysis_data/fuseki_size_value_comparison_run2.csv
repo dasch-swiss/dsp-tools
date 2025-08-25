@@ -1,0 +1,14 @@
+Timestamp,DB_Before,Filename,DB_After
+2025-08-25 08:12:08,24M,res-10000_val-13_boolean.xml,13G
+2025-08-25 09:08:15,24M,res-10000_val-13_color.xml,15G
+2025-08-25 09:36:05,24M,res-10000_val-13_date.xml,17G
+2025-08-25 10:08:49,24M,res-10000_val-13_decimal.xml,15G
+2025-08-25 10:37:32,24M,res-10000_val-13_geoname.xml,15G
+2025-08-25 11:05:40,24M,res-10000_val-13_int.xml,15G
+2025-08-25 11:34:10,24M,res-10000_val-13_link.xml,28G
+2025-08-25 12:07:11,24M,res-10000_val-13_list.xml,15G
+2025-08-25 12:36:25,24M,res-10000_val-13_richtext.xml,21G
+2025-08-25 13:11:02,24M,res-10000_val-13_simpletext.xml,15G
+2025-08-25 13:40:23,24M,res-10000_val-13_textarea.xml,15G
+2025-08-25 14:08:41,24M,res-10000_val-13_time.xml,15G
+2025-08-25 14:37:53,24M,res-10000_val-13_uri.xml,15G

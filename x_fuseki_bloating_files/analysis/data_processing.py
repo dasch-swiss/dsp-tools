@@ -33,7 +33,7 @@ def prepare_fuseki_multiple_uploads():
     plt.title("Fuseki Database Size Growth Over Multiple Uploads")
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/fuseki_multiple_uploads_lineplot.png")
+    plt.savefig("x_fuseki_bloating_files/graphics_output/db_multiple_uploads_lineplot.png")
     plt.close()
 
 
@@ -50,13 +50,25 @@ def prepare_fuseki_size_value_comparison() -> None:
     triple_df = add_filename_info_to_df(triple_df, "Filename")
     triple_df["triple_diff"] = triple_df["numberOfTriples_After"] - triple_df["numberOfTriples_Before"]
 
-    # Custom order: alphabetical with "every_type" at the end
+    # Custom order: "no_values" first, then alphabetical, with "every_type" at the end
     unique_types = df["val_type"].unique()
-    ordered_types = sorted([t for t in unique_types if t != "every_type"])
+    ordered_types = []
+
+    # Add "no_values" first if it exists
+    if "no_values" in unique_types:
+        ordered_types.append("no_values")
+
+    # Add other types alphabetically (excluding "no_values" and "every_type")
+    other_types = sorted([t for t in unique_types if t not in ["no_values", "every_type"]])
+    ordered_types.extend(other_types)
+
+    # Add "every_type" at the end if it exists
     if "every_type" in unique_types:
         ordered_types.append("every_type")
 
-    avg_db_after = df["DB_After"].mean()
+    # Calculate average excluding "no_values" and "every_type"
+    filtered_df = df[~df["val_type"].isin(["no_values", "every_type"])]
+    avg_db_after = filtered_df["DB_After"].mean()
 
     plt.figure(figsize=(12, 8))
     ax = sns.barplot(data=df, x="val_type", y="DB_After", estimator="mean", errorbar=("ci", 95), order=ordered_types)
@@ -84,7 +96,7 @@ def prepare_fuseki_size_value_comparison() -> None:
     plt.ylim(0, df["DB_After"].max() * 1.2)  # Increased margin for text
     plt.xlabel("Value Type")
     plt.ylabel("DB Size After (GB)")
-    plt.title("Fuseki Database Size by Value Type")
+    plt.title("Database Size by Value Type")
     plt.legend()
     plt.xticks(rotation=45)
 
@@ -93,7 +105,7 @@ def prepare_fuseki_size_value_comparison() -> None:
         0.02, 0.02, "Numbers on bars: Triple count difference (After - Before)", fontsize=8, style="italic", alpha=0.7
     )
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/fuseki_size_value_comparison_boxplot.png")
+    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_value_comparison_plot.png")
     plt.close()
 
 

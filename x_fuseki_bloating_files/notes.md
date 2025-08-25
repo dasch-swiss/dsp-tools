@@ -9,6 +9,7 @@
 # TODO:
 
 - Upload the file with every type once, several times without re-starting the stack to see the increase
+- To compare fuseki triple size, upload one resource without values and see the val increase
 
 ## Further but out of scope
 

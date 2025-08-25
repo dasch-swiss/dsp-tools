@@ -8,6 +8,7 @@ from x_fuseki_bloating_files.analysis.data_cleaning_utils import add_filename_in
 from x_fuseki_bloating_files.analysis.data_cleaning_utils import clean_db_sizes
 
 f_dir = Path("x_fuseki_bloating_files/analysis_data")
+plot_dir = Path("x_fuseki_bloating_files/graphics_output")
 
 
 def prepare_fuseki_multiple_uploads():
@@ -33,7 +34,7 @@ def prepare_fuseki_multiple_uploads():
     plt.title("Database Size Growth Over Multiple Uploads")
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/db_multiple_uploads_lineplot.png")
+    plt.savefig(plot_dir / "db_multiple_uploads_lineplot.png")
     plt.close()
 
 
@@ -105,7 +106,7 @@ def prepare_fuseki_size_value_comparison() -> None:
         0.02, 0.02, "Numbers on bars: Triple count difference (After - Before)", fontsize=8, style="italic", alpha=0.7
     )
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_value_comparison_plot.png")
+    plt.savefig(plot_dir / "db_size_value_comparison_plot.png")
     plt.close()
 
 
@@ -172,7 +173,7 @@ def prepare_val_res_num_increasing() -> None:
     ax2.legend(title="Value Type")
 
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/val_res_num_increasing_plot.png")
+    plt.savefig(plot_dir / "val_res_num_increasing_plot.png")
     plt.close()
 
     # Save individual plots separately
@@ -228,7 +229,7 @@ def prepare_val_res_num_increasing() -> None:
     )
 
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_vs_values.png", bbox_inches="tight")
+    plt.savefig(plot_dir / "db_size_vs_values.png", bbox_inches="tight")
     plt.close()
 
     # Plot 2: Number of Resources
@@ -283,7 +284,7 @@ def prepare_val_res_num_increasing() -> None:
     )
 
     plt.tight_layout()
-    plt.savefig("x_fuseki_bloating_files/graphics_output/db_size_vs_resources.png", bbox_inches="tight")
+    plt.savefig(plot_dir / "db_size_vs_resources.png", bbox_inches="tight")
     plt.close()
 
 

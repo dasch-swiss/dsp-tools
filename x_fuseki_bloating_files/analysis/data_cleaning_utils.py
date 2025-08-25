@@ -26,9 +26,13 @@ def add_filename_info_to_df(df: pd.DataFrame, filename_col: str) -> pd.DataFrame
     return result_df
 
 
-def _get_info_from_filename(filename: str) -> dict[str, str | int]:
-    f_patt = r"^res-(.*)_val-(.*)_(.*).xml$"
+def _get_info_from_filename(filename: str) -> dict[str, str | int | None]:
+    f_patt = r"^^res-(.*)_val-(.*?)_(.*).xml$"
     found = regex.search(f_patt, filename)
-    if not found:
-        raise ValueError(f"Unknown file pattern: {filename}")
-    return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": found.group(3)}
+    if found:
+        return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": found.group(3)}
+    f_no_vals = r"^res-(.*)_val-(.*).xml$"
+    found = regex.search(f_no_vals, filename)
+    if found:
+        return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": None}
+    raise ValueError(f"Unknown file pattern: {filename}")

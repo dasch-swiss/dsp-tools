@@ -14,8 +14,8 @@ def prepare_fuseki_multiple_uploads():
     f_path = f_dir / "fuseki_multiple_uploads.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
-    first_row = pd.DataFrame({"Run": [0], "Timestamp": [pd.NA], "DB_Before": [pd.NA], "DB_After": [0]})
-    df = pd.concat([first_row, df])
+    first_row = pd.DataFrame({"Run": [0], "Timestamp": [None], "DB_Before": [None], "DB_After": [0.0]})
+    df = pd.concat([first_row, df], ignore_index=True)
 
     plt.figure(figsize=(10, 6))
     plt.plot(df["Run"], df["DB_After"], marker="o")

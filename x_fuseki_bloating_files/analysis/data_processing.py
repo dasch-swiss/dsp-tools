@@ -36,11 +36,7 @@ def prepare_val_res_num_increasing() -> None:
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")
 
-    # TODO: separate df based on if val_num is consistent or res_num is consistent
-
-    # TODO: df where val_num increases:
-    # - scatterplot: x: val_num, y: DB_After
-    # TODO: df where res_num increases:
-    # -scatterplot: x: res_num, y: DB_After
-
+    # TODO: Scatterplot
+        # - x: res_num, y: val_num
+        # - size point is "DB_After"
     # TODO: save in x_fuseki_bloating_files/graphics_output

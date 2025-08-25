@@ -14,7 +14,21 @@ def prepare_fuseki_multiple_uploads():
     f_path = f_dir / "fuseki_multiple_uploads.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
-    first_row = pd.DataFrame({"Run": [0], "Timestamp": [None], "DB_Before": [None], "DB_After": [0.0]})
+    
+    # Ensure consistent dtypes before concatenation
+    first_row_data = {
+        "Run": [0], 
+        "Timestamp": [None], 
+        "DB_Before": [0.0], 
+        "DB_After": [0.0]
+    }
+    first_row = pd.DataFrame(first_row_data)
+    
+    # Convert dtypes to match the main DataFrame
+    for col in df.columns:
+        if col in first_row.columns:
+            first_row[col] = first_row[col].astype(df[col].dtype)
+    
     df = pd.concat([first_row, df], ignore_index=True)
 
     plt.figure(figsize=(10, 6))

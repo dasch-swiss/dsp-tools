@@ -188,13 +188,28 @@ def prepare_val_res_num_increasing() -> None:
         )
         filtered_data = type_data[type_data["res_num"] == most_common_res].sort_values("val_num")
 
-        # Calculate growth rate
-        if len(filtered_data) > 1:
-            val_range = filtered_data["val_num"].max() - filtered_data["val_num"].min()
-            db_range = filtered_data["DB_After"].max() - filtered_data["DB_After"].min()
-            growth_per_value = db_range / val_range if val_range > 0 else 0
-        else:
-            growth_per_value = 0
+        # Calculate growth rate as multiplication factor between consecutive value steps
+        growth_factors = []
+        val_steps = [10, 20, 30, 40, 50]  # Define the value steps to compare
+        
+        for j in range(len(val_steps) - 1):
+            current_val = val_steps[j]
+            next_val = val_steps[j + 1]
+            
+            # Find data points for current and next value counts
+            current_data = filtered_data[filtered_data["val_num"] == current_val]
+            next_data = filtered_data[filtered_data["val_num"] == next_val]
+            
+            if len(current_data) > 0 and len(next_data) > 0:
+                current_db = current_data["DB_After"].iloc[0]
+                next_db = next_data["DB_After"].iloc[0]
+                
+                if current_db > 0:
+                    growth_factor = next_db / current_db
+                    growth_factors.append(growth_factor)
+        
+        # Average the growth factors
+        growth_per_value = sum(growth_factors) / len(growth_factors) if growth_factors else 0
 
         growth_rates_values.append((val_type, growth_per_value))
 
@@ -215,9 +230,9 @@ def prepare_val_res_num_increasing() -> None:
     plt.legend(title="Value Type")
 
     # Add growth rates text
-    text_str = "Growth Rates (GB per value):\n"
+    text_str = "Growth Factors (avg multiplier):\n"
     for val_type, rate in growth_rates_values:
-        text_str += f"{val_type}: {rate:.4f}\n"
+        text_str += f"{val_type}: {rate:.2f}x\n"
     plt.text(
         1.02,
         0.5,
@@ -243,13 +258,28 @@ def prepare_val_res_num_increasing() -> None:
         )
         filtered_data = type_data[type_data["val_num"] == most_common_val].sort_values("res_num")
 
-        # Calculate multiplication factor
-        if len(filtered_data) > 1:
-            min_db = filtered_data["DB_After"].min()
-            max_db = filtered_data["DB_After"].max()
-            multiplication_factor = max_db / min_db if min_db > 0 else 0
-        else:
-            multiplication_factor = 0
+        # Calculate growth rate as multiplication factor between consecutive resource steps
+        growth_factors = []
+        res_steps = [10000, 20000, 30000, 40000, 50000]  # Define the resource steps to compare
+        
+        for j in range(len(res_steps) - 1):
+            current_res = res_steps[j]
+            next_res = res_steps[j + 1]
+            
+            # Find data points for current and next resource counts
+            current_data = filtered_data[filtered_data["res_num"] == current_res]
+            next_data = filtered_data[filtered_data["res_num"] == next_res]
+            
+            if len(current_data) > 0 and len(next_data) > 0:
+                current_db = current_data["DB_After"].iloc[0]
+                next_db = next_data["DB_After"].iloc[0]
+                
+                if current_db > 0:
+                    growth_factor = next_db / current_db
+                    growth_factors.append(growth_factor)
+        
+        # Average the growth factors (or use single factor if only one step)
+        multiplication_factor = sum(growth_factors) / len(growth_factors) if growth_factors else 0
 
         growth_rates_resources.append((val_type, multiplication_factor))
 
@@ -270,7 +300,7 @@ def prepare_val_res_num_increasing() -> None:
     plt.legend(title="Value Type")
 
     # Add multiplication factors text
-    text_str = "Multiplication Factors:\n"
+    text_str = "Growth Factors (avg multiplier):\n"
     for val_type, factor in growth_rates_resources:
         text_str += f"{val_type}: {factor:.2f}x\n"
     plt.text(

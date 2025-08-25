@@ -27,8 +27,29 @@ def prepare_fuseki_multiple_uploads():
 
     df = pd.concat([first_row, df], ignore_index=True)
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 6))
     plt.plot(df["Run"], df["DB_After"], marker="o")
+    
+    # Calculate and annotate differences for each step
+    for i in range(1, len(df)):
+        prev_size = df.iloc[i-1]["DB_After"]
+        curr_size = df.iloc[i]["DB_After"]
+        
+        if prev_size > 0:
+            diff = curr_size - prev_size
+            multiplier = curr_size / prev_size
+            
+            # Position text between points
+            x_pos = (df.iloc[i-1]["Run"] + df.iloc[i]["Run"]) / 2
+            y_pos = (prev_size + curr_size) / 2
+            
+            # Add difference and multiplier text
+            plt.annotate(f'+{diff:.1f}GB\n({multiplier:.2f}x)', 
+                        xy=(x_pos, y_pos), 
+                        ha='center', va='center',
+                        fontsize=8, fontweight='bold',
+                        bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
+    
     plt.xlabel("Run")
     plt.ylabel("DB Size After (GB)")
     plt.title("Database Size Growth Over Multiple Uploads")

@@ -34,5 +34,5 @@ def _get_info_from_filename(filename: str) -> dict[str, str | int | None]:
     f_no_vals = r"^res-(.*)_val-(.*).xml$"
     found = regex.search(f_no_vals, filename)
     if found:
-        return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": None}
+        return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": "No values"}
     raise ValueError(f"Unknown file pattern: {filename}")

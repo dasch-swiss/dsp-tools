@@ -69,34 +69,35 @@ def prepare_val_res_num_increasing() -> None:
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")
 
-    plt.figure(figsize=(12, 8))
-    
-    # Create color mapping for val_type
     unique_types = df["val_type"].unique()
     colors = plt.cm.tab10(range(len(unique_types)))
-    color_map = {val_type: colors[i] for i, val_type in enumerate(unique_types)}
-    bubble_colors = [color_map[val_type] for val_type in df["val_type"]]
     
-    scatter = plt.scatter(
-        df["res_num"], df["DB_After"], s=df["val_num"] * 10, alpha=0.3, c=bubble_colors
-    )
-    plt.xlabel("Number of Resources")
-    plt.ylabel("DB Size After (GB)")
-    plt.title("Database Size by Resource and Value Count")
-
-    # Create legends
-    # Color legend for val_type
-    color_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map[val_type], 
-                               markersize=8, label=val_type) for val_type in unique_types]
-    color_legend = plt.legend(handles=color_handles, title="Value Type", loc='upper left', bbox_to_anchor=(1.05, 1))
+    # Create two subplots side by side
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     
-    # Size legend for bubble size
-    sizes = [100, 500, 1000]
-    size_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', 
-                              markersize=size**0.5/10, label=f"{size} values") for size in sizes]
-    size_legend = plt.legend(handles=size_handles, title="Bubble Size", loc='upper left', bbox_to_anchor=(1.05, 0.6))
+    # Plot 1: DB Size vs Number of Values (one line per val_type)
+    for i, val_type in enumerate(unique_types):
+        type_data = df[df["val_type"] == val_type].sort_values("val_num")
+        ax1.plot(type_data["val_num"], type_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2)
     
-    plt.gca().add_artist(color_legend)
+    ax1.set_xlabel("Number of Values")
+    ax1.set_ylabel("DB Size After (GB)")
+    ax1.set_title("Database Size vs Number of Values")
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(title="Value Type")
+    
+    # Plot 2: DB Size vs Number of Resources (one line per val_type)
+    for i, val_type in enumerate(unique_types):
+        type_data = df[df["val_type"] == val_type].sort_values("res_num")
+        ax2.plot(type_data["res_num"], type_data["DB_After"], 
+                marker='o', color=colors[i], label=val_type, linewidth=2)
+    
+    ax2.set_xlabel("Number of Resources")
+    ax2.set_ylabel("DB Size After (GB)")
+    ax2.set_title("Database Size vs Number of Resources")
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(title="Value Type")
 
     plt.tight_layout()
     plt.savefig("x_fuseki_bloating_files/graphics_output/val_res_num_increasing_scatterplot.png")

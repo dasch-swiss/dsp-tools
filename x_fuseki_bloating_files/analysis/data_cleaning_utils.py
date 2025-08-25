@@ -1,4 +1,5 @@
 import pandas as pd
+import regex
 
 
 def clean_db_sizes(df: pd.DataFrame) -> pd.DataFrame:
@@ -12,3 +13,11 @@ def clean_db_sizes(df: pd.DataFrame) -> pd.DataFrame:
     df["DB_Before"] = df["DB_Before"].apply(convert_input)
     df["DB_After"] = df["DB_After"].apply(convert_input)
     return df
+
+
+def get_info_from_filename(filename: str) -> dict[str, str | int]:
+    f_patt = r"^res-(.*)_val-(.*)_(.*).xml$"
+    found = regex.search(f_patt, filename)
+    if not found:
+        raise ValueError(f"Unknown file pattern: {filename}")
+    return {"res_num": int(found.group(1)), "val_num": int(found.group(2)), "val_type": found.group(3)}

@@ -1158,7 +1158,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a textarea text value to the resource.
+        Add a textarea value to the resource.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 

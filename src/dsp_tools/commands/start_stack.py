@@ -212,46 +212,17 @@ class StackHandler:
                 time.sleep(1)
             time.sleep(1)
 
-    def _create_knora_test_repo(self) -> None:
-        """
-        Inside fuseki, create the "knora-test" repository.
-        This function imitates the behaviour of the script dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
-
-        Raises:
-            InputError: in case of failure
-        """
-        logger.debug("Creating the 'knora-test' repository...")
-        repo_template_response = requests.get(
-            f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
-            timeout=30,
-        )
-        repo_template = repo_template_response.text
-        repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
-        response = requests.post(
-            f"{self.__localhost_url}:3030/$/datasets",
-            files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
-            auth=("admin", "test"),
-            timeout=30,
-        )
-        if not response.ok:
-            msg = (
-                "Cannot start DSP-API: Error when creating the 'knora-test' repository. "
-                "Is DSP-API perhaps running already?"
-            )
-            logger.error(f"{msg}. response = {vars(response)}")
-            raise InputError(msg)
-
     def _load_data_into_repo(self) -> None:
         """
         Load some basic ontologies and data into the repository.
         This function imitates the behaviour of the script
-        dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh.
+        dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
 
         Raises:
             InputError: if one of the graphs cannot be created
         """
-        logger.debug("Loading data into the 'knora-test' repository...")
-        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
+        logger.debug("Loading data into the 'dsp-repo' repository...")
+        graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
         ttl_files = [
             ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
             ("webapi/src/main/resources/knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
@@ -289,7 +260,7 @@ class StackHandler:
             InputError: If the user cannot be created.
         """
         logger.debug("Creating the default admin user...")
-        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
+        graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
         admin_graph = "http://www.knora.org/data/admin"
         admin_user = """
         @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
@@ -320,9 +291,8 @@ class StackHandler:
 
     def _initialize_fuseki(self) -> None:
         """
-        Create the "knora-test" repository and load some basic ontologies and data into it.
+        Load some basic ontologies and data into the 'dsp-repo' repository.
         """
-        self._create_knora_test_repo()
         if self.__stack_configuration.upload_test_data:
             self._load_data_into_repo()
         else:

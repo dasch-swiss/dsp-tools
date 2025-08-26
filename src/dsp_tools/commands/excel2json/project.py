@@ -12,6 +12,7 @@ from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrule
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 
 
@@ -194,11 +195,12 @@ def _old_create_project_json(
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
+    if default_permissions_overrule.non_empty():
+        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
-    if default_permissions_overrule.non_empty():
-        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
+    project["project"] = _sort_project_dict(project["project"])
     return overall_success, project
 
 
@@ -215,12 +217,41 @@ def _create_project_json(
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
+    if default_permissions_overrule.non_empty():
+        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
-    if default_permissions_overrule.non_empty():
-        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
+    project["project"] = _sort_project_dict(project["project"])
     return overall_success, project
+
+
+def _sort_project_dict(unsorted_project_dict: dict[str, Any]) -> dict[str, Any]:
+    # order how the keys should appear in the JSON file
+    ordered_keys = [
+        "shortcode",
+        "shortname",
+        "longname",
+        "descriptions",
+        "keywords",
+        "enabled_licenses",
+        "default_permissions",
+        "default_permissions_overrule",
+        "users",
+        "groups",
+        "lists",
+        "ontologies",
+    ]
+    # filter out unused keys, to prevent a KeyError
+    ordered_keys = [key for key in ordered_keys if key in unsorted_project_dict]
+    # important - if in the future, more keys are added, they must be added to the list above
+    if any(forgotten_keys := [key for key in unsorted_project_dict if key not in ordered_keys]):
+        raise BaseError(
+            "The list of keys is outdated. During sorting, the following keys would be discarded: "
+            + ", ".join(forgotten_keys)
+        )
+    # do the actual sorting
+    return {key: unsorted_project_dict[key] for key in ordered_keys}
 
 
 def _get_ontologies(

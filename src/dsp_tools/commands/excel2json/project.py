@@ -227,6 +227,7 @@ def _create_project_json(
 
 
 def _sort_project_dict(unsorted_project_dict: dict[str, Any]) -> dict[str, Any]:
+    # order how the keys should appear in the JSON file
     ordered_keys = [
         "shortcode",
         "shortname",
@@ -241,11 +242,15 @@ def _sort_project_dict(unsorted_project_dict: dict[str, Any]) -> dict[str, Any]:
         "lists",
         "ontologies",
     ]
+    # filter out unused keys, to prevent a KeyError
+    ordered_keys = [key for key in ordered_keys if key in unsorted_project_dict]
+    # important - if in the future, more keys are added, they must be added to the list above
     if any(forgotten_keys := [key for key in unsorted_project_dict if key not in ordered_keys]):
         raise BaseError(
             "The list of keys is outdated. During sorting, the following keys would be discarded: "
             + ", ".join(forgotten_keys)
         )
+    # do the actual sorting
     return {key: unsorted_project_dict[key] for key in ordered_keys}
 
 

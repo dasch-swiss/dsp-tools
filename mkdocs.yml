@@ -50,12 +50,12 @@ nav:
       - Licenses:
           - Recommended: xmllib-api-reference/licenses/recommended.md
           - Other: xmllib-api-reference/licenses/other.md
-      - Date Formats: xmllib-api-reference/date_formats.md
-      - Data Cleaning Functions:
-        - Configuration Options: xmllib-api-reference/config-options.md
+      - Data Processing Functions:
         - General Functions: xmllib-api-reference/helpers.md
         - Value Checkers: xmllib-api-reference/value-checkers.md
         - Value Converters: xmllib-api-reference/value-converters.md
+        - Configuration Options: xmllib-api-reference/config-options.md
+        - Date Formats: xmllib-api-reference/date_formats.md
       - Advanced Set-Up Options: xmllib-api-reference/advanced-set-up.md
 
 theme:

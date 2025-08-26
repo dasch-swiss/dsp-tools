@@ -17,14 +17,14 @@ from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
-from dsp_tools.xmllib import Calendar
-from dsp_tools.xmllib import DateFormat
-from dsp_tools.xmllib import Era
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.date_formats import Calendar
+from dsp_tools.xmllib.models.date_formats import DateFormat
+from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended

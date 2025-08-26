@@ -3,7 +3,7 @@ from __future__ import annotations
 from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.xmllib import escape_reserved_xml_characters
+from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
 
 

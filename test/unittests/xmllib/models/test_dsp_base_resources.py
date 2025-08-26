@@ -6,14 +6,14 @@ import pytest
 import regex
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib import Permissions
-from dsp_tools.xmllib import VideoSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import SegmentBounds
+from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import _check_strings
 from dsp_tools.xmllib.models.dsp_base_resources import _warn_value_exists
+from dsp_tools.xmllib.models.permissions import Permissions
 
 
 class TestRegionResource:

@@ -9,10 +9,6 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib import Calendar
-from dsp_tools.xmllib import DateFormat
-from dsp_tools.xmllib import Era
-from dsp_tools.xmllib import reformat_date
 from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import clean_whitespaces_from_string
 from dsp_tools.xmllib.helpers import create_footnote_string
@@ -25,7 +21,11 @@ from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_dates_in_string
 from dsp_tools.xmllib.helpers import find_license_in_string
 from dsp_tools.xmllib.helpers import make_xsd_compatible_id_with_uuid
+from dsp_tools.xmllib.helpers import reformat_date
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.date_formats import Calendar
+from dsp_tools.xmllib.models.date_formats import DateFormat
+from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Union
 
-from dsp_tools.xmllib import AudioSegmentResource
-from dsp_tools.xmllib import LinkResource
-from dsp_tools.xmllib import RegionResource
-from dsp_tools.xmllib import Resource
-from dsp_tools.xmllib import VideoSegmentResource
+from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
+from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.dsp_base_resources import Resource
+from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]

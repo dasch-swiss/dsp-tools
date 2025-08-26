@@ -8,11 +8,11 @@ import pytest
 import regex
 
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.permissions import Permissions
 
 
 @pytest.fixture

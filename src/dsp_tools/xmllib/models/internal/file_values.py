@@ -9,12 +9,12 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
-from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.permissions import Permissions
 
 
 @dataclass

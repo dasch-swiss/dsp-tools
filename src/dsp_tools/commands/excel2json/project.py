@@ -215,11 +215,11 @@ def _create_project_json(
     if not success:
         overall_success = False
     project = get_json_header(Path(data_model_files) / "json_header.xlsx").to_dict()
+    if default_permissions_overrule.non_empty():
+        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
-    if default_permissions_overrule.non_empty():
-        project["project"]["default_permissions_overrule"] = default_permissions_overrule.serialize()
     return overall_success, project
 
 

@@ -78,15 +78,8 @@ def _get_fuseki(
 
 
 def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
-    repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/$/datasets"
-    files = {"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")}
-    if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
-        raise RuntimeError("Fuseki did not create the dataset")
-    print("Dataset created")
-
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/knora-test/data?graph=http://www.knora.org/data/admin"
+    url = f"http://0.0.0.0:{fuseki_external_port}/dsp-repo/data?graph=http://www.knora.org/data/admin"
     files = {"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")}
     if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
@@ -150,7 +143,7 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://{names.api}:{ports.api}")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", names.fuseki)
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "dsp-repo")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")

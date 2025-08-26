@@ -3,7 +3,8 @@ services:
   api:
     # on the verge of every deployment, update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/knora-api:v31.21.1
+    # as soon as https://github.com/dasch-swiss/dsp-api/pull/3744 is merged, replace the tag
+    image: daschswiss/knora-api:v31.21.2-19-g28c11d6-chore-update-fuseki
     depends_on:
       - sipi
       - db
@@ -16,7 +17,7 @@ services:
       - KNORA_WEBAPI_DSP_INGEST_AUDIENCE=http://localhost:3340
       - KNORA_WEBAPI_DSP_INGEST_BASE_URL=http://ingest:3340
       - KNORA_WEBAPI_TRIPLESTORE_HOST=db
-      - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME=knora-test
+      - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME=dsp-repo
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME=admin
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD=test
       - KNORA_WEBAPI_CACHE_SERVICE_ENABLED=true
@@ -53,7 +54,7 @@ services:
   db:
     # on the verge of every deployment, update the "image" value from the "db" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:5.2.0
+    image: daschswiss/apache-jena-fuseki:5.5.0-1
     ports:
       - "3030:3030"
     environment:

@@ -12,6 +12,7 @@ from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrule
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 
 
@@ -199,6 +200,7 @@ def _old_create_project_json(
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
+    project["project"] = _sort_project_dict(project["project"])
     return overall_success, project
 
 
@@ -220,7 +222,31 @@ def _create_project_json(
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
+    project["project"] = _sort_project_dict(project["project"])
     return overall_success, project
+
+
+def _sort_project_dict(unsorted_project_dict: dict[str, Any]) -> dict[str, Any]:
+    ordered_keys = [
+        "shortcode",
+        "shortname",
+        "longname",
+        "descriptions",
+        "keywords",
+        "enabled_licenses",
+        "default_permissions",
+        "default_permissions_overrule",
+        "users",
+        "groups",
+        "lists",
+        "ontologies",
+    ]
+    if any(forgotten_keys := [key for key in unsorted_project_dict if key not in ordered_keys]):
+        raise BaseError(
+            "The list of keys is outdated. During sorting, the following keys would be discarded: "
+            + ", ".join(forgotten_keys)
+        )
+    return {key: unsorted_project_dict[key] for key in ordered_keys}
 
 
 def _get_ontologies(

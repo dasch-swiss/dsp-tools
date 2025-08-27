@@ -6,7 +6,7 @@ from enum import auto
 
 class DateFormat(Enum):
     """
-    Date format options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date) function.
+    Date format options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date) function.
 
     - `YYYY_MM_DD`
     - `DD_MM_YYYY`
@@ -20,7 +20,7 @@ class DateFormat(Enum):
 
 class Calendar(Enum):
     """
-    Calendar options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date) function.
+    Calendar options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date) function.
 
     - `GREGORIAN`
     - `JULIAN`
@@ -34,7 +34,7 @@ class Calendar(Enum):
 
 class Era(Enum):
     """
-    Era options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date) function.
+    Era options for the [`reformat_date`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date) function.
 
     - `CE`
     - `BCE`

@@ -59,7 +59,7 @@ class Resource:
         Create a new resource.
 
         Tip:
-            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.make_xsd_compatible_id)
+            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.make_xsd_compatible_id)
             to transform the resource ID into a format that meets the requirements for an XML ID.
 
         Args:
@@ -327,8 +327,8 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
 
         Tip:
-            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date)
-            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_dates_in_string)
+            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date)
+            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string)
             to transform a date into the DSP conform format.
 
         Args:
@@ -917,7 +917,7 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
         Tip:
-            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.ListLookup)
+            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.ListLookup)
             to retrieve the correct list name based on the label.
 
         Args:

@@ -51,7 +51,7 @@ nav:
           - Recommended: xmllib-docs/licenses/recommended.md
           - Other: xmllib-docs/licenses/other.md
       - Data Processing Functions:
-          - General Functions: xmllib-docs/helpers.md
+          - General Functions: xmllib-docs/general-functions.md
           - Value Checkers: xmllib-docs/value-checkers.md
           - Value Converters: xmllib-docs/value-converters.md
           - Configuration Options: xmllib-docs/config-options.md

@@ -1147,6 +1147,113 @@ class Resource:
         return self
 
     #######################
+    # TextValue: Textarea
+    #######################
+
+    def add_textarea(
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add a textarea value to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_textarea(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+        """
+        self.add_simpletext(prop_name, value, permissions, comment)
+        return self
+
+    def add_textarea_multiple(
+        self,
+        prop_name: str,
+        values: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add several textarea values to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_multiple(
+                prop_name=":propName",
+                values=["text 1", "text 2"],
+            )
+            ```
+        """
+        self.add_simpletext_multiple(prop_name, values, permissions, comment)
+        return self
+
+    def add_textarea_optional(
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+        """
+        self.add_simpletext_optional(prop_name, value, permissions, comment)
+        return self
+
+    #######################
     # TextValue: Richtext
     #######################
 

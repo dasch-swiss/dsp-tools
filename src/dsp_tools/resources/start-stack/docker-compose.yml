@@ -72,6 +72,8 @@ services:
       - ./sipi/tmp-dsp-ingest:/opt/tmp
       - ingest-db:/opt/db
     environment:
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=3340
       - SERVICE_LOG_FORMAT=text
       - STORAGE_ASSET_DIR=/opt/images
       - STORAGE_TEMP_DIR=/opt/tmp
@@ -79,8 +81,9 @@ services:
       - JWT_ISSUER=0.0.0.0:3333
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
       - SIPI_USE_LOCAL_DEV=false
-      - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
       - ALLOW_ERASE_PROJECTS=true
+      - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
+      - DSP_API_URL=http://host.docker.internal:3333
 
 volumes:
   ingest-db:

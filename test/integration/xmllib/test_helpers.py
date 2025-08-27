@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-from dsp_tools.xmllib.helpers import ListLookup
+from dsp_tools.xmllib.general_functions import ListLookup
 
 
 @pytest.fixture

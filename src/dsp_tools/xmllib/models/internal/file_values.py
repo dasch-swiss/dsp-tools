@@ -13,8 +13,8 @@ from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contai
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.permissions import Permissions
 
 
 @dataclass

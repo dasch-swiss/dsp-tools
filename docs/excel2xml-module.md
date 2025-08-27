@@ -404,5 +404,5 @@ The function `find_dates_in_string(string)` tries to find calendar dates in a st
 If successful, it returns the DSP-formatted date strings.
 
 This function is a redirection to [`xmllib.find_dates_in_string()`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string). 
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string).
 See there for more information.

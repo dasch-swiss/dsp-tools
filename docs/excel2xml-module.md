@@ -4,7 +4,7 @@
 
 !!! warning
 
-    The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-api-reference/xmlroot.md).
+    The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-docs/xmlroot.md).
 
 ## Two Use Cases - Two Approaches
 

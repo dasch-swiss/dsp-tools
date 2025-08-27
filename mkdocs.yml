@@ -38,25 +38,25 @@ nav:
           - Security checks: developers/code-quality-tools/security.md
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
-  - xmllib API documentation:
-      - XMLRoot: xmllib-api-reference/xmlroot.md
-      - Resource: xmllib-api-reference/resource.md
+  - xmllib documentation:
+      - XMLRoot: xmllib-docs/xmlroot.md
+      - Resource: xmllib-docs/resource.md
       - DSP base resources:
-          - RegionResource: xmllib-api-reference/dsp-base-resources/region-resource.md
-          - LinkResource: xmllib-api-reference/dsp-base-resources/link-resource.md
-          - VideoSegmentResource: xmllib-api-reference/dsp-base-resources/video-segment-resource.md
-          - AudioSegmentResource: xmllib-api-reference/dsp-base-resources/audio-segment-resource.md
-      - Permissions: xmllib-api-reference/permissions.md
+          - RegionResource: xmllib-docs/dsp-base-resources/region-resource.md
+          - LinkResource: xmllib-docs/dsp-base-resources/link-resource.md
+          - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
+          - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
+      - Permissions: xmllib-docs/permissions.md
       - Licenses:
-          - Recommended: xmllib-api-reference/licenses/recommended.md
-          - Other: xmllib-api-reference/licenses/other.md
+          - Recommended: xmllib-docs/licenses/recommended.md
+          - Other: xmllib-docs/licenses/other.md
       - Data Processing Functions:
-          - General Functions: xmllib-api-reference/helpers.md
-          - Value Checkers: xmllib-api-reference/value-checkers.md
-          - Value Converters: xmllib-api-reference/value-converters.md
-          - Configuration Options: xmllib-api-reference/config-options.md
-          - Date Formats: xmllib-api-reference/date_formats.md
-      - Advanced Set-Up Options: xmllib-api-reference/advanced-set-up.md
+          - General Functions: xmllib-docs/helpers.md
+          - Value Checkers: xmllib-docs/value-checkers.md
+          - Value Converters: xmllib-docs/value-converters.md
+          - Configuration Options: xmllib-docs/config-options.md
+          - Date Formats: xmllib-docs/date_formats.md
+      - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
 
 theme:
   name: material

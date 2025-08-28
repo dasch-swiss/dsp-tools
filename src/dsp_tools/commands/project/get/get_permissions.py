@@ -41,8 +41,16 @@ def get_default_permissions(
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     """
     If the DOAPs exactly match our definition of public/private, return public/private.
+    First tries to parse legacy DOAPs with multiple groups, then falls back to new-style parsing.
     Otherwise, raise an exception.
     """
+    # First, try to parse legacy DOAPs (multiple groups: ProjectAdmin, ProjectMember)
+    try:
+        return _parse_legacy_doaps(project_doaps)
+    except UnknownDOAPException:
+        pass  # Fall back to new-style parsing
+
+    # Existing logic for new-style DOAPs (single ProjectMember group)
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         raise UnknownDOAPException("The only supported target group for DOAPs is ProjectMember.")
@@ -68,6 +76,157 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
         raise UnknownDOAPException("In case of 'public', KnownUser and UnknownUser must always have V")
     return "public"
+
+
+def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str:
+    """
+    Parse legacy DOAPs that target multiple groups (ProjectAdmin, ProjectMember).
+    Recognizes specific patterns used before the current permission system.
+
+    Args:
+        project_doaps: DOAPs as retrieved from the server
+
+    Returns:
+        "private" or "public" if a recognized legacy pattern is found
+
+    Raises:
+        UnknownDOAPException: if the DOAPs do not match any recognized legacy pattern
+    """
+    # Check for legacy private pattern
+    if _is_legacy_private_pattern(project_doaps):
+        return "private"
+
+    # Check for legacy public pattern
+    if _is_legacy_public_pattern(project_doaps):
+        return "public"
+
+    # If no known legacy pattern is found, raise exception
+    raise UnknownDOAPException("DOAPs do not match any known legacy pattern")
+
+
+def _is_legacy_private_pattern(project_doaps: list[dict[str, Any]]) -> bool:
+    """
+    Check if DOAPs match the legacy private pattern:
+    - For group ProjectAdmin: CR ProjectAdmin|D ProjectMember
+    - For group ProjectMember: CR ProjectAdmin|D ProjectMember (may also have M)
+
+    This was the default when dsp-api created a new project via dsp-app.
+    """
+    # Must have exactly 2 DOAPs: one for ProjectAdmin, one for ProjectMember
+    if len(project_doaps) != 2:
+        return False
+
+    # Get DOAPs by target group
+    admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
+    member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
+
+    if len(admin_doaps) != 1 or len(member_doaps) != 1:
+        return False
+
+    # Check ProjectAdmin DOAP: should have exactly CR ProjectAdmin|D ProjectMember
+    admin_perms = admin_doaps[0]["hasPermissions"]
+    if not _check_private_permissions(admin_perms):
+        return False
+
+    # Check ProjectMember DOAP: should have CR ProjectAdmin|D ProjectMember (may also have M)
+    member_perms = member_doaps[0]["hasPermissions"]
+    if not _check_private_permissions(member_perms, allow_modify=True):
+        return False
+
+    return True
+
+
+def _is_legacy_public_pattern(project_doaps: list[dict[str, Any]]) -> bool:
+    """
+    Check if DOAPs match the legacy public pattern:
+    - For group ProjectAdmin: CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
+    - For group ProjectMember: CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
+
+    Creator permissions are ignored as specified in the requirements.
+    """
+    # Must have exactly 2 DOAPs: one for ProjectAdmin, one for ProjectMember
+    if len(project_doaps) != 2:
+        return False
+
+    # Get DOAPs by target group
+    admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
+    member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
+
+    if len(admin_doaps) != 1 or len(member_doaps) != 1:
+        return False
+
+    # Check ProjectAdmin DOAP
+    admin_perms = admin_doaps[0]["hasPermissions"]
+    if not _check_public_permissions(admin_perms):
+        return False
+
+    # Check ProjectMember DOAP
+    member_perms = member_doaps[0]["hasPermissions"]
+    if not _check_public_permissions(member_perms):
+        return False
+
+    return True
+
+
+def _check_private_permissions(perms: list[dict[str, Any]], allow_modify: bool = False) -> bool:
+    """
+    Check if permissions match the private pattern: CR ProjectAdmin|D ProjectMember
+
+    Args:
+        perms: List of permission objects
+        allow_modify: If True, also allow M permissions for ProjectMember
+    """
+    # Filter out any M permissions if they're for ProjectMember (allowed for legacy projects)
+    filtered_perms = []
+    for perm in perms:
+        if allow_modify and perm["name"] == "M" and perm["additionalInformation"].endswith("ProjectMember"):
+            continue  # Skip M permissions for ProjectMember
+        filtered_perms.append(perm)
+
+    # Should have exactly 2 permissions after filtering
+    if len(filtered_perms) != 2:
+        return False
+
+    # Sort by permission name for consistent checking
+    sorted_perms = sorted(filtered_perms, key=lambda x: x["name"])
+
+    # First should be CR for ProjectAdmin
+    if sorted_perms[0]["name"] != "CR" or not sorted_perms[0]["additionalInformation"].endswith("ProjectAdmin"):
+        return False
+
+    # Second should be D for ProjectMember
+    if sorted_perms[1]["name"] != "D" or not sorted_perms[1]["additionalInformation"].endswith("ProjectMember"):
+        return False
+
+    return True
+
+
+def _check_public_permissions(perms: list[dict[str, Any]]) -> bool:
+    """
+    Check if permissions match the public pattern:
+    CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
+
+    Creator permissions are ignored as specified.
+    """
+    # Filter out Creator permissions (ignore them as specified)
+    filtered_perms = [p for p in perms if not p["additionalInformation"].endswith("Creator")]
+
+    # Should have exactly 4 permissions after filtering Creator
+    if len(filtered_perms) != 4:
+        return False
+
+    # Sort by permission name for consistent checking
+    sorted_perms = sorted(filtered_perms, key=lambda x: (x["name"], x["additionalInformation"]))
+
+    # Should be: CR ProjectAdmin, D ProjectMember, V KnownUser, V UnknownUser
+    expected = [("CR", "ProjectAdmin"), ("D", "ProjectMember"), ("V", "KnownUser"), ("V", "UnknownUser")]
+
+    for i, (exp_name, exp_group) in enumerate(expected):
+        perm = sorted_perms[i]
+        if perm["name"] != exp_name or not perm["additionalInformation"].endswith(exp_group):
+            return False
+
+    return True
 
 
 def _parse_default_permissions_overrule(
@@ -150,10 +309,12 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
-    try:
-        _parse_default_permissions(other_doaps)
-    except UnknownDOAPException:
-        raise UnknownDOAPException("Found DOAPs that do not fit into our system") from None
+    # Only validate other_doaps if there are any
+    if other_doaps:
+        try:
+            _parse_default_permissions(other_doaps)
+        except UnknownDOAPException:
+            raise UnknownDOAPException("Found DOAPs that do not fit into our system") from None
     return DoapCategories(
         class_doaps=class_doaps,
         prop_doaps=prop_doaps,

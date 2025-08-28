@@ -55,6 +55,7 @@ def _get_image_versions() -> ImageVersions:
     sipi = _get_version(docker_compose_content, "knora-sipi")
     ingest = _get_version(docker_compose_content, "dsp-ingest")
     api = _get_version(docker_compose_content, "knora-api")
+    api = "v31.21.2"  # TODO temporary workaround. remove this before merging  # noqa: FIX002
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 

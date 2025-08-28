@@ -19,6 +19,7 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
+MINUTE = 60
 
 
 @dataclass(frozen=True)
@@ -331,7 +332,7 @@ class StackHandler:
                     break
             except requests.exceptions.RequestException as e:
                 logger.debug(f"RequestException while checking API status: {e}")
-            if num_secs > 30 and num_secs % 10 == 0:
+            if num_secs > MINUTE / 2 and num_secs % 10 == 0:
                 # There is probably an issue, so we need more logs
                 with contextlib.suppress():
                     docker_ps_output = subprocess.run(

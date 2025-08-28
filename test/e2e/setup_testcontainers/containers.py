@@ -71,7 +71,7 @@ def _get_fuseki(
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
-    wait_for_logs(fuseki, f"Server .+ Started .+ on port {FUSEKI_INTERNAL_PORT}")
+    wait_for_logs(fuseki, fr"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)")
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
@@ -95,7 +95,7 @@ def _get_sipi(
         .with_network(network)
         .with_bind_ports(host=ports.sipi, container=SIPI_INTERNAL_PORT)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
@@ -141,7 +141,7 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://{names.ingest}:{INGEST_INTERNAL_PORT}")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://{names.api}:{ports.api}")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", names.fuseki)
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "dsp-repo")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")

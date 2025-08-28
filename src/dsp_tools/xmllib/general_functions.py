@@ -568,9 +568,9 @@ def reformat_date(
         date: date string to be reformatted
         date_precision_separator: the separation between the day, month and year
         date_range_separator: the separation between two dates
-        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.DateFormat)
-        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.Calendar)
-        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.Era)
+        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.DateFormat)
+        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Calendar)
+        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Era)
         resource_id: the ID of the associated resource, this is to improve the error message
 
     Returns:
@@ -1402,7 +1402,7 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
     Look out: Your string should contain no more than 1 license.
     If it contains more, there is no guarantee which one will be returned.
 
-    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/)
+    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/)
     for details.
 
     Args:

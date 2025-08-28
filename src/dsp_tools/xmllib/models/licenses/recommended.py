@@ -10,8 +10,8 @@ class LicenseRecommended:
     """
     Recommended licenses:
 
-    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
-    - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
+    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
+    - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/#xmllib.models.licenses.recommended.CC)
 
     Tip:
         Use the helper function [`find_license_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string)

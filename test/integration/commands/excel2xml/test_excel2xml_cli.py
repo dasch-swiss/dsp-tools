@@ -27,7 +27,7 @@ class TestDifferentExtensions:
     def test_xlsx(self, expected_output: str) -> None:
         warn_msg = (
             "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
-            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/"
         )
         _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output"
@@ -41,7 +41,7 @@ class TestDifferentExtensions:
     def test_xls(self, expected_output: str) -> None:
         warn_msg = (
             "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
-            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/"
         )
         _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output"
@@ -55,7 +55,7 @@ class TestDifferentExtensions:
     def test_csv(self, expected_output: str) -> None:
         warn_msg = (
             "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
-            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+            "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/"
         )
         _, catched_warnings = excel2xml_cli.excel2xml(
             "testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output"

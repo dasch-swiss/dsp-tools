@@ -1274,7 +1274,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1334,7 +1334,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1389,7 +1389,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1670,7 +1670,7 @@ class Resource:
 
         Args:
             filename: path to the file
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1738,7 +1738,7 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.

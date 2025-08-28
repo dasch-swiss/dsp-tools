@@ -6,10 +6,10 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 class LicenseOther:
     """
     Pre-defined licenses that are available in DSP.
-    If the user is free to choose a license, we recommend to choose from our [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/).
+    If the user is free to choose a license, we recommend to choose from our [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
 
-    - `Public`: [See `Public` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Public).
-    - `Various`: [See `Various` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/other/#xmllib.models.licenses.other.Various).
+    - `Public`: [See `Public` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Public).
+    - `Various`: [See `Various` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Various).
 
     Examples:
         ```python

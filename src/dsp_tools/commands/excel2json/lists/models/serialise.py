@@ -23,9 +23,11 @@ class ListNode:
         return [nd.to_dict() for nd in self.sub_nodes]
 
     def _make_own_node(self) -> dict[str, Any]:
-        d = {"name": self.id_, "labels": self.labels}
+        sorted_labels = {k: self.labels[k] for k in sorted(self.labels.keys())}
+        d = {"name": self.id_, "labels": sorted_labels}
         if self.comments:
-            d.update({"comments": self.comments})
+            sorted_comments = {k: self.comments[k] for k in sorted(self.comments.keys())}
+            d["comments"] = sorted_comments
         return d
 
 
@@ -45,9 +47,11 @@ class ListRoot:
         return [nd.to_dict() for nd in self.nodes]
 
     def _make_list_root(self) -> dict[str, Any]:
-        lst = {"name": self.id_, "labels": self.labels}
+        sorted_labels = {k: self.labels[k] for k in sorted(self.labels.keys())}
+        lst = {"name": self.id_, "labels": sorted_labels}
         if self.comments:
-            lst.update({"comments": self.comments})
+            sorted_comments = {k: self.comments[k] for k in sorted(self.comments.keys())}
+            lst["comments"] = sorted_comments
         else:
-            lst.update({"comments": self.labels})
+            lst["comments"] = sorted_labels
         return lst

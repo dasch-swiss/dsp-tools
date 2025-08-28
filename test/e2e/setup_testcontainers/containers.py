@@ -71,22 +71,15 @@ def _get_fuseki(
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
-    wait_for_logs(fuseki, f"Server .+ Started .+ on port {FUSEKI_INTERNAL_PORT}")
+    wait_for_logs(fuseki, rf"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)")
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
 
 
 def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
-    repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/$/datasets"
-    files = {"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")}
-    if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
-        raise RuntimeError("Fuseki did not create the dataset")
-    print("Dataset created")
-
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/knora-test/data?graph=http://www.knora.org/data/admin"
+    url = f"http://0.0.0.0:{fuseki_external_port}/dsp-repo/data?graph=http://www.knora.org/data/admin"
     files = {"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")}
     if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
@@ -102,7 +95,7 @@ def _get_sipi(
         .with_network(network)
         .with_bind_ports(host=ports.sipi, container=SIPI_INTERNAL_PORT)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
@@ -148,9 +141,9 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://{names.ingest}:{INGEST_INTERNAL_PORT}")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://{names.api}:{ports.api}")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", names.fuseki)
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "dsp-repo")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")

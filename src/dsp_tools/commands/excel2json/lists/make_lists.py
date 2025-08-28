@@ -190,7 +190,7 @@ def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: 
 
 
 def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]:
-    all_lists = []
+    all_lists: list[ListRoot] = []
     for sheet in sheet_list:
         all_lists.append(_make_one_list(sheet))
     return [list_.to_dict() for list_ in all_lists]

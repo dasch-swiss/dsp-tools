@@ -12,7 +12,6 @@ from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
@@ -32,6 +31,7 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
@@ -59,7 +59,7 @@ class Resource:
         Create a new resource.
 
         Tip:
-            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.make_xsd_compatible_id)
+            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.make_xsd_compatible_id)
             to transform the resource ID into a format that meets the requirements for an XML ID.
 
         Args:
@@ -327,8 +327,8 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
 
         Tip:
-            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.reformat_date)
-            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_dates_in_string)
+            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date)
+            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string)
             to transform a date into the DSP conform format.
 
         Args:
@@ -917,7 +917,7 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
         Tip:
-            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.ListLookup)
+            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.ListLookup)
             to retrieve the correct list name based on the label.
 
         Args:
@@ -1144,6 +1144,113 @@ class Resource:
         """
         if is_nonempty_value(value):
             self.add_simpletext(prop_name, value, permissions, comment)
+        return self
+
+    #######################
+    # TextValue: Textarea
+    #######################
+
+    def add_textarea(
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add a textarea value to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_textarea(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+        """
+        self.add_simpletext(prop_name, value, permissions, comment)
+        return self
+
+    def add_textarea_multiple(
+        self,
+        prop_name: str,
+        values: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add several textarea values to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_multiple(
+                prop_name=":propName",
+                values=["text 1", "text 2"],
+            )
+            ```
+        """
+        self.add_simpletext_multiple(prop_name, values, permissions, comment)
+        return self
+
+    def add_textarea_optional(
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+        """
+        self.add_simpletext_optional(prop_name, value, permissions, comment)
         return self
 
     #######################

@@ -216,6 +216,9 @@ Defines the permissions that will be applied to new resources/values.
 - `public`: All users can view resources/values.
 - `private`: Only ProjectMembers/ProjectAdmins can view resources/values.
 
+If you work with the Excel templates,
+this setting is available in the [`json_header.xlsx` file](../excel2json.md#the-json_headerxlsx).
+
 !!! info
 
     When creating a new resource/value via xmlupload,
@@ -251,6 +254,10 @@ you can define exceptions, by marking certain classes or properties as `private`
     ],
 }
 ```
+
+If you work with the Excel templates,
+these settings are available in the [`resources.xlsx` file](../excel2json.md#the-resources-section)
+and in the [`properties.xlsx` file](../excel2json.md#the-properties-section).
 
 
 

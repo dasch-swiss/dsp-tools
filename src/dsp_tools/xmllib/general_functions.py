@@ -21,10 +21,10 @@ from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal.input_converters import unescape_reserved_xml_chars
-from dsp_tools.xmllib.models.config_options import Calendar
-from dsp_tools.xmllib.models.config_options import DateFormat
-from dsp_tools.xmllib.models.config_options import Era
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.date_formats import Calendar
+from dsp_tools.xmllib.models.date_formats import DateFormat
+from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
@@ -568,9 +568,9 @@ def reformat_date(
         date: date string to be reformatted
         date_precision_separator: the separation between the day, month and year
         date_range_separator: the separation between two dates
-        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DateFormat)
-        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.Calendar)
-        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.Era)
+        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.DateFormat)
+        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.Calendar)
+        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/date_formats/#xmllib.models.date_formats.Era)
         resource_id: the ID of the associated resource, this is to improve the error message
 
     Returns:

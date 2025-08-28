@@ -13,7 +13,6 @@ from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.internal.serialise_values import serialise_values
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -23,6 +22,7 @@ from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import Value
+from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.res import Resource
 
 load_dotenv()

@@ -1,5 +1,33 @@
 # Changelog
 
+## [16.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.8.0...v16.9.0) (2025-08-27)
+
+
+### Enhancements
+
+* **get:** retrieve class-wise and property-wise DOAPs (DEV-5120) ([#1919](https://github.com/dasch-swiss/dsp-tools/issues/1919)) ([30d0a67](https://github.com/dasch-swiss/dsp-tools/commit/30d0a67c2277152d6ad207e631b6129d4a3f0aff))
+* **xmllib:** create functions to explicitly add textareas to a resource (DEV-5305) ([#1936](https://github.com/dasch-swiss/dsp-tools/issues/1936)) ([6daf503](https://github.com/dasch-swiss/dsp-tools/commit/6daf503b97c03c41e3dd98d715fe04d1d2f3cf79))
+* **xmllib:** improve message of deprecation warning (DEV-5300) ([#1932](https://github.com/dasch-swiss/dsp-tools/issues/1932)) ([81d76da](https://github.com/dasch-swiss/dsp-tools/commit/81d76da09d8148b57e5a28d828b1e6aae7c73d46))
+
+
+### Bug Fixes
+
+* empty log files written during long-lived debugging sessions (DEV-5281) ([#1931](https://github.com/dasch-swiss/dsp-tools/issues/1931)) ([3b19134](https://github.com/dasch-swiss/dsp-tools/commit/3b19134f81f4527347ce390d14a4f0dc0ca17a34))
+* **excel2json:** put "default_permissions_overrule" at correct position (DEV-5345) ([#1935](https://github.com/dasch-swiss/dsp-tools/issues/1935)) ([7a94bbc](https://github.com/dasch-swiss/dsp-tools/commit/7a94bbcb51b3c26baeeeba608c3dff048375ab3a))
+* **xmllib:** consider permissions of values and files when evaluating which are referenced (DEV-5290) ([#1927](https://github.com/dasch-swiss/dsp-tools/issues/1927)) ([46942aa](https://github.com/dasch-swiss/dsp-tools/commit/46942aa11f73fdc8a47a67b5788b0061b5600c48))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.08.04 ([#1938](https://github.com/dasch-swiss/dsp-tools/issues/1938)) ([4e89926](https://github.com/dasch-swiss/dsp-tools/commit/4e89926776b2bf72268ae19faa39cfb53f4766c7))
+* waypaver for DOAP-PR ([#1928](https://github.com/dasch-swiss/dsp-tools/issues/1928)) ([6ff1012](https://github.com/dasch-swiss/dsp-tools/commit/6ff10127d08678700c06783111788e32af90367d))
+
+
+### Documentation
+
+* **excel2json:** better explanation of default_permissions_overrule ([#1934](https://github.com/dasch-swiss/dsp-tools/issues/1934)) ([6506fc5](https://github.com/dasch-swiss/dsp-tools/commit/6506fc5f4e6931fc1ec0065e67bc3794aa506085))
+* **xmllib:** split up configuration options and improve grouping of sections (DEV-5302) ([#1933](https://github.com/dasch-swiss/dsp-tools/issues/1933)) ([8d51d6f](https://github.com/dasch-swiss/dsp-tools/commit/8d51d6fa12674a493fca381b9b92bb44767dcb45))
+
 ## [16.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.7.0...v16.8.0) (2025-08-20)
 
 

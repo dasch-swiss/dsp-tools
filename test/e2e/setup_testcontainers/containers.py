@@ -71,7 +71,7 @@ def _get_fuseki(
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
-    wait_for_logs(fuseki, fr"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)")
+    wait_for_logs(fuseki, rf"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)")
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki

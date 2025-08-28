@@ -3,8 +3,8 @@ services:
   api:
     # on the verge of every deployment, update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    # as soon as https://github.com/dasch-swiss/dsp-api/pull/3744 is merged, replace the tag
-    image: daschswiss/knora-api:v31.21.2-19-g28c11d6-chore-update-fuseki
+    # TODO: before merging, replace this by the officially released version as published in the ops-deploy repo
+    image: daschswiss/knora-api:v31.21.2-3-g0cc0a88
     depends_on:
       - sipi
       - db

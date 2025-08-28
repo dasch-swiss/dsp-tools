@@ -102,7 +102,7 @@ class StackHandler:
         docker_compose_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.yml")
         docker_compose = yaml.safe_load(docker_compose_pth.read_bytes())
         tag = docker_compose["services"]["api"]["image"].split(":")[-1]
-        tag = "v31.21.2"  # TODO temporary workaround. remove this before merging
+        tag = "v31.21.2"  # TODO temporary workaround. remove this before merging  # noqa: FIX002
 
         return f"{url_prefix_base}/{tag}/"
 

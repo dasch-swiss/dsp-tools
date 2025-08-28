@@ -64,7 +64,8 @@ class LanguageDict:
     lang_dict: dict[str, str]
 
     def serialise(self) -> dict[str, str]:
-        return self.lang_dict
+        sorted_dict = {k: self.lang_dict[k] for k in sorted(self.lang_dict.keys())}
+        return sorted_dict
 
 
 @dataclass

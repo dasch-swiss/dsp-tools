@@ -1932,7 +1932,7 @@ def write_xml(
     """
     warn_msg = (
         "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
-        "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/"
+        "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/"
     )
     warnings.warn(DspToolsUserWarning(warn_msg))
     etree.indent(root, space="    ")

@@ -39,7 +39,7 @@ It provides a type-safe, validated approach to generating XML data that conforms
 - **Serialization**: XML output generation (`serialise_resource.py`, `serialise_values.py`, `serialise_file_value.py`)
 - **constants.py**: Constants used in several other files
 - **type_aliases.py**: Type definitions and aliases
-- **circumvent_circular_imports.py**: Module structure utilities
+- **circumvent_circular_imports.py**: Place for functions that would produce a circular import error in other places
 
 ### Data Flow
 

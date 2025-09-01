@@ -729,7 +729,7 @@ and a link to `<resource id="res_2" ...>`:
 ### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
-For details about the formatting of the text [see the ontology documentation](json-project/ontologies.md#textvalue).
+For details about the formatting of the text [see the ontology documentation](../data-model/json-project/ontologies.md#textvalue).
 
 Attributes:
 

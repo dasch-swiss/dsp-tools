@@ -12,8 +12,8 @@ There are two kinds of Excel files that can be transformed into an XML file:
 
 | structure        | provenance | tool                    | example screenshot                                       |
 | ---------------- | ---------- | ----------------------- | -------------------------------------------------------- |
-| custom structure | customer   | module `excel2xml`      | ![](./assets/images/img-excel2xml-raw-data-category.png) |
-| DSP structure    | DSP server | CLI command `excel2xml` | ![](./assets/images/img-excel2xml-closeup.png)           |
+| custom structure | customer   | module `excel2xml`      | ![](../assets/images/img-excel2xml-raw-data-category.png) |
+| DSP structure    | DSP server | CLI command `excel2xml` | ![](../assets/images/img-excel2xml-closeup.png)           |
 
 The first use case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
 different software, so every project will deliver their data in a different structure. The screenshot is just a 
@@ -156,7 +156,7 @@ This happens based on string similarity.
 Please carefully check the result if there are no false matches!
 
 The column "Category" in `00A1-import-scripts/data_raw.csv` has spelling mistakes:  
-![column category](./assets/images/img-excel2xml-raw-data-category.png)
+![column category](../assets/images/img-excel2xml-raw-data-category.png)
 
 The dictionary that results if you call `create_json_excel_list_mapping()`:
 
@@ -218,7 +218,7 @@ Here's how the docstrings assist you:
     - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
       you proceed as described (append the returned object to the parent resource).
 
-![docstring example](./assets/images/img-excel2xml-module-docstring.png)
+![docstring example](../assets/images/img-excel2xml-module-docstring.png)
 
 
 #### Fine-Tuning With the `PropertyElement`

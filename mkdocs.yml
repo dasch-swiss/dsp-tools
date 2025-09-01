@@ -14,8 +14,8 @@ nav:
           - Overview: data-model/json-project/overview.md
           - Ontologies: data-model/json-project/ontologies.md
           - Caveats: data-model/json-project/caveats.md
-      - CLI-Commands: data-model/data-model-cli.md
-      - excel2json Command: data-model/excel2json.md
+      - Command excel2json: data-model/excel2json.md
+      - Commands to Interact With a Server: data-model/data-model-cli.md
   - Working With Data:
       - XML data file: data-file/xml-data-file.md
       - xmllib documentation:

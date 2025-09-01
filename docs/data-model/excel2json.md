@@ -111,7 +111,7 @@ The expected Excel file format and the folder structure are documented
 
 
 
-With the [`excel2json`](excel2json) command, 
+With the [`excel2json`](#excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of

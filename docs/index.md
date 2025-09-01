@@ -51,6 +51,8 @@ All functionalities of DSP-TOOLS revolve around these two basic tasks.
 
 DSP-TOOLS provides the following functionalities:
 
+TODO: change this list because links will no longer exist
+
 - [`dsp-tools create`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#create) 
   creates the project with its data model(s) on a DSP server from a JSON file.
 - [`dsp-tools get`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands#get) 

@@ -3,6 +3,128 @@
 # Excel File Format to Generate a JSON Project
 
 
+## `excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous [`old-excel2json`](#old-excel2json) command.
+
+```bash
+dsp-tools excel2json excelfolder project_definition.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-folder-structure-for-excel2json).
+
+
+
+### `excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous `old-excel2lists` command.
+
+```bash
+dsp-tools excel2lists [options] excelfolder lists_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-lists-section).
+
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
+
+
+
+### `excel2resources`
+
+This command creates the "resources" section of a JSON project file from an Excel file.
+
+```bash
+dsp-tools excel2resources resources.xlsx resources_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
+
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
+
+
+
+### `excel2properties`
+
+This command creates the "properties" section of a JSON project file from an Excel file.
+
+```bash
+dsp-tools excel2properties properties.xlsx properties_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
+
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
+
+
+
+## `old-excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+It will be deprecated in favor of [`excel2json`](#excel2json) in the future.
+
+```bash
+dsp-tools old-excel2json excelfolder project_definition.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
+
+
+
+### `old-excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+It will be deprecated in favor of `excel2lists` in the future.
+
+```bash
+dsp-tools old-excel2lists [options] excelfolder lists_section.json
+```
+
+The following options are available:
+
+- `-v` | `--verbose` (optional): print more information about the progress to the console
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-lists-section-for-old-excel2json-and-old-excel2lists).
+
+
+
 With the [`excel2json`](../cli-commands.md#excel2json) command, 
 a JSON project file can be created from Excel files.
 

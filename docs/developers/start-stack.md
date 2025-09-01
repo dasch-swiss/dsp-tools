@@ -78,3 +78,44 @@ If you want to run a specific branch of DSP-API / DSP-APP, or to modify them you
 - keep them up to date with `git pull`
 - execute commands from within the repositories (`just` for DSP-API, `angular` for DSP-APP)
 - take care that the repositories don't get cluttered with old data over time
+## Before Starting: Have in Mind the Subdomains of a DSP Server
+
+DaSCH follows some conventions when setting up DSP servers. 
+Most of the commands documented on this page
+assume that you know how to address the subdomains of a DSP server.
+There are three relevant URLs you should know about:
+
+- Subdomains `admin`/`app` stand for the DSP-APP frontend that you look at in your browser
+- Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
+- Subdomain `ingest` stands for the ingest server interface (where DSP-TOOLS uploads multimedia files to)
+
+This means that for uploading data to the DSP server 
+on the domain `dasch.swiss`, 
+you have to type the following:
+
+```bash
+dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+```
+
+If the user input is not correct,
+DSP-TOOLS tries to guess the correct subdomains.
+If the provided server is any one of the following:
+
+```text
+http(s)://admin.dasch.swiss
+http(s)://app.dasch.swiss
+http(s)://api.dasch.swiss
+http(s)://ingest.dasch.swiss
+http(s)://dasch.swiss
+dasch.swiss
+```
+
+then DSP-TOOLS will treat it as `https://api.dasch.swiss`,
+and derive the ingest server URL `https://ingest.dasch.swiss` from it.
+
+This guessing feature comes with a price, though:
+
+- Only servers ending with `dasch.swiss` are supported.
+- If a server's configuration differs from the convention described above, DSP-TOOLS will fail.
+
+

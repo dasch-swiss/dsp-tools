@@ -8,40 +8,41 @@ edit_uri: blob/main/docs/
 
 nav:
   - Overview: index.md
-  - CLI commands: cli-commands.md
-  - File formats:
+  - Getting Started With a Local Stack: local-stack.md
+  - Working With the Ontology and Project: 
       - JSON project file:
-          - Overview: file-formats/json-project/overview.md
-          - Ontologies: file-formats/json-project/ontologies.md
-          - Caveats: file-formats/json-project/caveats.md
-      - XML data file: file-formats/xml-data-file.md
-      - excel2json: file-formats/excel2json.md
-      - excel2xml: file-formats/excel2xml.md
-  - excel2xml module: excel2xml-module.md
-  - Running DSP locally: start-stack.md
-  - xmllib documentation:
-      - XMLRoot: xmllib-docs/xmlroot.md
-      - Resource: xmllib-docs/resource.md
-      - DSP base resources:
-          - RegionResource: xmllib-docs/dsp-base-resources/region-resource.md
-          - LinkResource: xmllib-docs/dsp-base-resources/link-resource.md
-          - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
-          - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
-      - Permissions: xmllib-docs/permissions.md
-      - Licenses:
-          - Recommended: xmllib-docs/licenses/recommended.md
-          - Other: xmllib-docs/licenses/other.md
-      - Data Processing Functions:
-          - General Functions: xmllib-docs/general-functions.md
-          - Value Checkers: xmllib-docs/value-checkers.md
-          - Value Converters: xmllib-docs/value-converters.md
-          - Configuration Options: xmllib-docs/config-options.md
-          - Date Formats: xmllib-docs/date_formats.md
-      - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
+          - Overview: data-model/json-project/overview.md
+          - Ontologies: data-model/json-project/ontologies.md
+          - Caveats: data-model/json-project/caveats.md
+      - CLI-Commands: data-model/data-model-cli.md
+      - excel2json Command: data-model/excel2json.md
+  - Working With Data:
+      - XML data file: data-file/xml-data-file.md
+      - xmllib documentation:
+        - XMLRoot: xmllib-docs/xmlroot.md
+        - Resource: xmllib-docs/resource.md
+        - DSP base resources:
+            - RegionResource: xmllib-docs/dsp-base-resources/region-resource.md
+            - LinkResource: xmllib-docs/dsp-base-resources/link-resource.md
+            - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
+            - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
+        - Permissions: xmllib-docs/permissions.md
+        - Licenses:
+            - Recommended: xmllib-docs/licenses/recommended.md
+            - Other: xmllib-docs/licenses/other.md
+        - Data Processing Functions:
+            - General Functions: xmllib-docs/general-functions.md
+            - Value Checkers: xmllib-docs/value-checkers.md
+            - Value Converters: xmllib-docs/value-converters.md
+            - Configuration Options: xmllib-docs/config-options.md
+            - Date Formats: xmllib-docs/date_formats.md
+        - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
+      - CLI-Commands: data-file/data-file-commands.md
   - Advanced Workflows:
-      - Incremental xmlupload: special-workflows/incremental-xmlupload.md
+      - Special Workflows xmlupload: special-workflows/incremental-xmlupload.md
   - Information for developers:
       - Developers documentation: developers/index.md
+      - Running DSP locally: developers/start-stack.md
       - Architectural Decision Records: developers/decision-log.md
       - Architectural Design: developers/architecture.md
       - Dependencies, packaging & distribution: developers/packaging.md

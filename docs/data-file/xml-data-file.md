@@ -2,7 +2,7 @@
 
 # The XML File Format for Importing Data
 
-With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
+With the [`xmlupload`](./data-file-commands.md#xmlupload) command, 
 data can be imported into a DSP repository (on a DSP server) from an XML file. 
 The import file is a standard XML file as described on this page.
 After a successful upload of the data, 
@@ -61,7 +61,7 @@ permissions. There are **built-in groups** and **project specific groups**:
     - `Creator`: The user is the owner of the element (created the element).
     - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-    - can be defined in the [JSON project file](./data-model/json-project/overview.md#groups)
+    - can be defined in the [JSON project file](../data-model/json-project/overview.md#groups)
 
 
 ### Rights
@@ -89,7 +89,7 @@ The `<permissions>` element defines a _permission ID_ that can subsequently be u
 
 It is optional to define permission IDs in the XML. 
 If not defined, the project's default permissions are applied, 
-as defined in the [JSON project file](./data-model/json-project/overview.md#default_permissions). 
+as defined in the [JSON project file](../data-model/json-project/overview.md#default_permissions). 
 
 If the resources/values in your XML should have permissions 
 that are different from the project's defaults,
@@ -129,7 +129,7 @@ If a resource/value is marked as `private`,
 users who are not members of the project have no rights at all, not even view rights.
 
 In addition to the DSP built-in groups, 
-[project specific groups](./data-model/json-project/overview.md#groups) are supported as well.
+[project specific groups](../data-model/json-project/overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`:
 
 ```xml
@@ -765,7 +765,7 @@ contains a link to the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, wh
 #### `encoding` and `gui_element`
 
 `encoding` must be combined with
-`gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
+`gui_element` ([defined in the ontology](../data-model/json-project/ontologies.md#textvalue))
 as follows:
 
 | `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) |

@@ -38,7 +38,7 @@ nav:
             - Date Formats: xmllib-docs/date_formats.md
         - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
       - CLI-Commands: data-file/data-file-commands.md
-      - Deprecated excel2xml: data-model/excel2xml-module.md
+      - Deprecated excel2xml: data-file/excel2xml-module.md
   - Advanced Workflows:
       - Special Workflows xmlupload: special-workflows/incremental-xmlupload.md
   - Information for developers:

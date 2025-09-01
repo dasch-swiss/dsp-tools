@@ -4,7 +4,7 @@
 
 !!! warning
 
-    The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-docs/xmlroot.md).
+    The `excel2xml` module is deprecated in favor of the [`xmllib` library](../xmllib-docs/xmlroot.md).
 
 ## Two Use Cases - Two Approaches
 
@@ -87,12 +87,12 @@ As first children of `<knora>`, some standard permissions are added. At the end,
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
 The standard permission is `public` 
-(read more about this [here](./data-file/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
+(read more about this [here](../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
 If you don't specify it otherwise, all resources and properties get this permission. 
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
 invisible for all users except project members. [Read more about permissions 
-here](./data-file/xml-data-file.md#defining-permissions-with-the-permissions-element).
+here](../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 
 ## 4. Create List Mappings
@@ -191,7 +191,7 @@ There are several kinds of resources that can be created:
 | `VideoSegment` | `<video-segment>` | `make_video_segment()` |
 
 `<resource>` is the most frequent of them. The others are [explained 
-here](./data-file/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
+here](../data-file/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
 
@@ -296,7 +296,7 @@ segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
 Please be aware that the properties have to be provided in exactly this order. 
 It is possible to leave out optional properties, but the present ones must fit the order.
 
-See also the [documentation of the resulting XML format](./data-file/xml-data-file.md#video-segment-and-audio-segment).
+See also the [documentation of the resulting XML format](../data-file/xml-data-file.md#video-segment-and-audio-segment).
 
 
 #### Supported Boolean Formats
@@ -324,7 +324,7 @@ else:
 #### Special Characters in Text Properties
 
 Depending on the encoding of your text, special characters behave differently. 
-Please consult the systematic overview [here](./data-file/xml-data-file.md#special-characters-overview) 
+Please consult the systematic overview [here](../data-file/xml-data-file.md#special-characters-overview) 
 to fully understand the implications.
 
 

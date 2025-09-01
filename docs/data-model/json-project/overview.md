@@ -268,7 +268,8 @@ and in the [`properties.xlsx` file](../excel2json.md#the-properties-section).
 `"groups": [<group-definition>, <group-definition>,...]`
 
 The `groups` object contains **project specific** group definitions. As opposed to the 
-[**built-in** groups](../../data-file/xml-data-file.md#groups), the membership of the users to the project specific groups 
+[**built-in** groups](../../data-file/xml-data-file.md#groups), 
+the membership of the users to the project specific groups 
 can be freely chosen by the `ProjectAdmin`. A project may define several groups such as "student-assistant", 
 "editors", etc. in order to provide their members specific permissions.
 The groups that were created here are then available in the XML file in the 

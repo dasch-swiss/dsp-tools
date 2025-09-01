@@ -19,24 +19,24 @@ nav:
   - Working With Data:
       - XML data file: data-file/xml-data-file.md
       - xmllib documentation:
-        - XMLRoot: xmllib-docs/xmlroot.md
-        - Resource: xmllib-docs/resource.md
-        - DSP base resources:
-            - RegionResource: xmllib-docs/dsp-base-resources/region-resource.md
-            - LinkResource: xmllib-docs/dsp-base-resources/link-resource.md
-            - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
-            - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
-        - Permissions: xmllib-docs/permissions.md
-        - Licenses:
-            - Recommended: xmllib-docs/licenses/recommended.md
-            - Other: xmllib-docs/licenses/other.md
-        - Data Processing Functions:
-            - General Functions: xmllib-docs/general-functions.md
-            - Value Checkers: xmllib-docs/value-checkers.md
-            - Value Converters: xmllib-docs/value-converters.md
-            - Configuration Options: xmllib-docs/config-options.md
-            - Date Formats: xmllib-docs/date_formats.md
-        - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
+          - XMLRoot: xmllib-docs/xmlroot.md
+          - Resource: xmllib-docs/resource.md
+          - DSP base resources:
+              - RegionResource: xmllib-docs/dsp-base-resources/region-resource.md
+              - LinkResource: xmllib-docs/dsp-base-resources/link-resource.md
+              - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
+              - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
+          - Permissions: xmllib-docs/permissions.md
+          - Licenses:
+              - Recommended: xmllib-docs/licenses/recommended.md
+              - Other: xmllib-docs/licenses/other.md
+          - Data Processing Functions:
+              - General Functions: xmllib-docs/general-functions.md
+              - Value Checkers: xmllib-docs/value-checkers.md
+              - Value Converters: xmllib-docs/value-converters.md
+              - Configuration Options: xmllib-docs/config-options.md
+              - Date Formats: xmllib-docs/date_formats.md
+          - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
       - CLI-Commands: data-file/data-file-commands.md
       - Deprecated excel2xml: data-file/excel2xml-module.md
   - Advanced Workflows:

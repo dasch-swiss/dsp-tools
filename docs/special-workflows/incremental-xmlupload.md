@@ -51,7 +51,7 @@ it is necessary to specify the following options:
 dsp-tools upload-files -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
 
-The expected XML format is [documented here](./data-file/xml-data-file.md).
+The expected XML format is [documented here](../data-file/xml-data-file.md).
 
 
 ### `ingest-files`
@@ -142,7 +142,7 @@ dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'pa
 
 ## Incremental `xmlupload`
 
-When uploading data with the [`xmlupload`](../cli-commands.md#xmlupload) command,
+When uploading data with the [`xmlupload`](../data-file/data-file-commands.md#xmlupload) command,
 resources can reference each other with an internal ID,
 e.g. in the `<resptr>` tag.
 Once the data is in DSP,
@@ -200,7 +200,7 @@ It contains a mapping from `book_1` to `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmO
 
 As a first step, 
 a new file must be generated 
-with the [`id2iri` command](../cli-commands.md#id2iri):
+with the [`id2iri` command](../data-file/data-file-commands.md#id2iri):
 
 ```bash
 dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json

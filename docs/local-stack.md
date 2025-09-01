@@ -6,7 +6,7 @@
 With the following commands can start and stop an entire DSP Stack locally with Docker Containers.
 
 
-## `start-stack` - Start a Local Server
+## `start-stack`
 
 
 This command runs a local instance of DSP-API and DSP-APP.
@@ -47,7 +47,7 @@ More help for this command can be found [here](./developers/start-stack.md).
     login with username `root@example.com` and password `test`.
 
 
-## `stop-stack` - Stop the Local Server
+## `stop-stack`
 
 When your work is done, shut down DSP-API and DSP-APP with
 

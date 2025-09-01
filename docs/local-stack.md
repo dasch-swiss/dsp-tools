@@ -39,7 +39,7 @@ it will be possible to upload files that are up to 1 GB big.
 If a file bigger than `max_file_size` is uploaded, 
 the upload will be rejected.
 
-More help for this command can be found [here](./start-stack.md).
+More help for this command can be found [here](./developers/start-stack.md).
 
 !!! note "Login credentials for DSP-APP"
 

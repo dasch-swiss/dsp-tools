@@ -61,7 +61,7 @@ permissions. There are **built-in groups** and **project specific groups**:
     - `Creator`: The user is the owner of the element (created the element).
     - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-    - can be defined in the [JSON project file](./json-project/overview.md#groups)
+    - can be defined in the [JSON project file](./data-model/json-project/overview.md#groups)
 
 
 ### Rights
@@ -89,7 +89,7 @@ The `<permissions>` element defines a _permission ID_ that can subsequently be u
 
 It is optional to define permission IDs in the XML. 
 If not defined, the project's default permissions are applied, 
-as defined in the [JSON project file](./json-project/overview.md#default_permissions). 
+as defined in the [JSON project file](./data-model/json-project/overview.md#default_permissions). 
 
 If the resources/values in your XML should have permissions 
 that are different from the project's defaults,
@@ -129,7 +129,7 @@ If a resource/value is marked as `private`,
 users who are not members of the project have no rights at all, not even view rights.
 
 In addition to the DSP built-in groups, 
-[project specific groups](./json-project/overview.md#groups) are supported as well.
+[project specific groups](./data-model/json-project/overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`:
 
 ```xml

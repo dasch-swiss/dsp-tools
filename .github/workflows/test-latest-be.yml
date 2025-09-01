@@ -29,5 +29,5 @@ jobs:
         if: always()
         with:
           name: latest-backend-components-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0

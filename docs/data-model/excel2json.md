@@ -225,7 +225,7 @@ The sheets should be filled as follows:
 
 ## The `resources` Section
 
-With the [`excel2resources`](../cli-commands.md#excel2resources) command, 
+With the [`excel2resources`](#excel2resources) command, 
 the `resources` section used in a data model (JSON) can be created from an Excel file. 
 Only `XLSX` files are allowed. 
 The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
@@ -291,7 +291,7 @@ The expected columns are:
 
 ## The `properties` Section
 
-With the [`excel2properties`](../cli-commands.md#excel2properties) command, 
+With the [`excel2properties`](#excel2properties) command, 
 the `properties` section used in a data model (JSON) can be created from an Excel file.
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. 
 The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
@@ -448,7 +448,7 @@ The Excel sheets must have the following structure:
 
 ## The `lists` Section for `old-excel2json` and `old-excel2lists`
 
-With the [`old-excel2lists`](../cli-commands.md#old-excel2lists) command, 
+With the [`old-excel2lists`](#old-excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 

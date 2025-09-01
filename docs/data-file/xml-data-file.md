@@ -284,7 +284,7 @@ Notes:
 - The `<bitstream>` element must be the first element.
 - If a resource has a `<bitstream>` element, it cannot have a `<iiif-uri>` element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
-  can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
+  can be modified with the flag [`--imgdir`](data-file-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```text
@@ -925,7 +925,7 @@ special characters behave differently.
 There are two places where this must be taken into account:
 
 - When a string is passed to 
-  [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+  [`excel2xml.make_text_prop()`](excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,
@@ -1083,7 +1083,7 @@ There is a number of base resources and base properties from which no subclasses
 They are directly available in the XML data file. 
 Please have in mind that built-in names of the knora-base ontology
 must be used without prepended colon.  
-See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](../data-model/json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<region>`

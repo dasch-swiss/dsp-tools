@@ -78,6 +78,8 @@ If you want to run a specific branch of DSP-API / DSP-APP, or to modify them you
 - keep them up to date with `git pull`
 - execute commands from within the repositories (`just` for DSP-API, `angular` for DSP-APP)
 - take care that the repositories don't get cluttered with old data over time
+
+
 ## Before Starting: Have in Mind the Subdomains of a DSP Server
 
 DaSCH follows some conventions when setting up DSP servers. 

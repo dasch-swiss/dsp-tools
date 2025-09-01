@@ -51,7 +51,7 @@ it is necessary to specify the following options:
 dsp-tools upload-files -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
 
-The expected XML format is [documented here](./file-formats/xml-data-file.md).
+The expected XML format is [documented here](./data-file/xml-data-file.md).
 
 
 ### `ingest-files`

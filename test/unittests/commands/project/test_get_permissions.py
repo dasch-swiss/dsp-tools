@@ -555,7 +555,6 @@ def test_parse_legacy_doaps_public(
 
 
 def test_parse_legacy_doaps_unknown_pattern() -> None:
-    """Test that unknown patterns raise exception"""
     wrong_perms = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "V", "permissionCode": 16},

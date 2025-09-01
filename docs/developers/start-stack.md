@@ -31,7 +31,7 @@ Here's an overview of the two ways:
 
 ## The Simple Way: `dsp-tools start-stack`
 
-The [`start-stack`](./c../local-stack.md#start-stack) command runs Docker images 
+The [`start-stack`](../local-stack.md#start-stack) command runs Docker images 
 with the latest released versions of DSP-API and DSP-APP, 
 i.e. the versions that are running on [https://app.dasch.swiss](https://app.dasch.swiss).
 (Optionally, you can specify to run the latest development version of DSP-API, from the `main` branch.)

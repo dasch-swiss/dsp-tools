@@ -19,25 +19,6 @@ nav:
       - excel2xml: file-formats/excel2xml.md
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
-  - Special workflows:
-      - Incremental xmlupload: special-workflows/incremental-xmlupload.md
-  - Information for developers:
-      - Developers documentation: developers/index.md
-      - Architectural Decision Records: developers/decision-log.md
-      - Architectural Design: developers/architecture.md
-      - Dependencies, packaging & distribution: developers/packaging.md
-      - User data: developers/user-data.md
-      - MkDocs and markdown-link-validator: developers/mkdocs.md
-      - Code quality tools:
-          - Overview: developers/code-quality-tools/code-quality-tools.md
-          - General formatting: developers/code-quality-tools/general-formatting.md
-          - Python formatting: developers/code-quality-tools/python-formatting.md
-          - Python docstring formatting: developers/code-quality-tools/python-docstring-formatting.md
-          - Python type checking: developers/code-quality-tools/python-type-checking.md
-          - Python linting: developers/code-quality-tools/python-linting.md
-          - Security checks: developers/code-quality-tools/security.md
-          - See also: developers/code-quality-tools/python-see-also.md
-  - Changelog: changelog.md
   - xmllib documentation:
       - XMLRoot: xmllib-docs/xmlroot.md
       - Resource: xmllib-docs/resource.md
@@ -57,6 +38,25 @@ nav:
           - Configuration Options: xmllib-docs/config-options.md
           - Date Formats: xmllib-docs/date_formats.md
       - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
+  - Advanced Workflows:
+      - Incremental xmlupload: special-workflows/incremental-xmlupload.md
+  - Information for developers:
+      - Developers documentation: developers/index.md
+      - Architectural Decision Records: developers/decision-log.md
+      - Architectural Design: developers/architecture.md
+      - Dependencies, packaging & distribution: developers/packaging.md
+      - User data: developers/user-data.md
+      - MkDocs and markdown-link-validator: developers/mkdocs.md
+      - Code quality tools:
+          - Overview: developers/code-quality-tools/code-quality-tools.md
+          - General formatting: developers/code-quality-tools/general-formatting.md
+          - Python formatting: developers/code-quality-tools/python-formatting.md
+          - Python docstring formatting: developers/code-quality-tools/python-docstring-formatting.md
+          - Python type checking: developers/code-quality-tools/python-type-checking.md
+          - Python linting: developers/code-quality-tools/python-linting.md
+          - Security checks: developers/code-quality-tools/security.md
+          - See also: developers/code-quality-tools/python-see-also.md
+  - Changelog: changelog.md
 
 theme:
   name: material

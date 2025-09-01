@@ -37,12 +37,12 @@ From several DSP base resources, no subclasses can be created in a project ontol
 However, they can be used directly in the XML data file:
 
 - `LinkObj` is a resource linking together several other resources of different classes. 
-  It can be used in the XML file with the [&lt;link&gt; tag](../xml-data-file.md#link) and 
+  It can be used in the XML file with the [&lt;link&gt; tag](../../data-file/xml-data-file.md#link) and 
   has the following predefined properties:
     - `hasComment` (0-n)
     - `hasLinkTo` (1-n)
 - A `Region` resource defines a region of interest (ROI) in an image. 
-  It can be used in the XML file with the [&lt;region&gt; tag](../xml-data-file.md#region) and 
+  It can be used in the XML file with the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region) and 
   has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)

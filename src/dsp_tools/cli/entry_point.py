@@ -15,7 +15,6 @@ from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.config.logger_config import logger_config
 from dsp_tools.config.warnings_config import initialize_warnings
 from dsp_tools.error.exceptions import BaseError
@@ -79,9 +78,6 @@ def run(args: Sequence[str]) -> None:
         logger.exception(err)
         print(InternalError())
         success = False
-    finally:
-        if WARNINGS_SAVEPATH.is_file() and len(WARNINGS_SAVEPATH.read_bytes()) == 0:
-            WARNINGS_SAVEPATH.unlink()
 
     if not success:
         logger.error("Terminate without success")

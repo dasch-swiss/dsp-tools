@@ -41,6 +41,7 @@ def logger_config() -> None:
         format=text_format,
         backtrace=True,
         diagnose=True,
+        delay=True,
     )
 
     additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
@@ -52,6 +53,7 @@ def logger_config() -> None:
             diagnose=True,
             rotation=rotation_size,
             retention=2,
+            delay=True,
         )
     else:
         logger.add(
@@ -62,4 +64,5 @@ def logger_config() -> None:
             diagnose=False,
             rotation=rotation_size,
             retention=2,
+            delay=True,
         )

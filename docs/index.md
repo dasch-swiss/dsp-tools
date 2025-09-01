@@ -94,7 +94,7 @@ DSP-TOOLS provides the following functionalities:
 - [The module `excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/excel2xml-module) 
   provides helper methods that can be used in a Python script 
   to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
-- [The `xmllib` library](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/) 
+- [The `xmllib` library](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/) 
   provides helper functions that can be used in a Python script 
   to convert data from a tabular format into XML.
 - [`dsp-tools id2iri`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#id2iri)

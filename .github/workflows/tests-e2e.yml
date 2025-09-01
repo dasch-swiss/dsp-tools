@@ -28,7 +28,7 @@ jobs:
         if: always()
         with:
           name: e2e-ingest-xmlupload-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0
 
   validate-data:
@@ -45,7 +45,7 @@ jobs:
         if: always()
         with:
           name: e2e-validate-data-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0
 
   xmlupload:
@@ -62,7 +62,7 @@ jobs:
         if: always()
         with:
           name: e2e-xmlupload-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0
 
   project:
@@ -79,7 +79,7 @@ jobs:
         if: always()
         with:
           name: e2e-project-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0
 
   legacy:
@@ -100,5 +100,5 @@ jobs:
         if: always()
         with:
           name: e2e-legacy-logging.log
-          path: /home/runner/.dsp-tools/logging.log
+          path: logging.log
           compression-level: 0

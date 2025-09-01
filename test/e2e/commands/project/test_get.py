@@ -60,3 +60,7 @@ def _retrieved_project(_create_project: None, creds: ServerCredentials) -> Itera
 
 def test_get_functionality(_original_project: dict[str, Any], _retrieved_project: dict[str, Any]) -> None:  # noqa: PT019
     assert _original_project["project"]["default_permissions"] == _retrieved_project["project"]["default_permissions"]
+    assert (
+        _original_project["project"]["default_permissions_overrule"]
+        == _retrieved_project["project"]["default_permissions_overrule"]
+    )

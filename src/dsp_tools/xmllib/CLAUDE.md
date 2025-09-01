@@ -28,22 +28,26 @@ It provides a type-safe, validated approach to generating XML data that conforms
 
 #### Utilities Layer
 
-- **helpers.py**: Public utility functions for XML creation
+- **general_functions.py**: Public utility functions for XML creation
 - **value_checkers.py**: Validation functions for data types
 - **value_converters.py**: Data conversion utilities
 
 #### Internal Layer (`internal/`)
 
-- **Validation**: Type checking and input validation
-- **Serialization**: XML output generation
-- **Constants**: Constants used in several other files
+- **checkers.py**: Type checking and input validation functions
+- **input_converters.py**: Data conversion utilities for internal use
+- **Serialization**: XML output generation (`serialise_resource.py`, `serialise_values.py`, `serialise_file_value.py`)
+- **constants.py**: Constants used in several other files
+- **type_aliases.py**: Type definitions and aliases
+- **circumvent_circular_imports.py**: Place for functions that would produce a circular import error in other places
 
 ### Data Flow
 
 ```text
 Raw Data → Validation → Resource Creation → XML Serialization
     ↓           ↓              ↓               ↓
-Converters → Checkers → Models/Values → XML Output
+Input Converters → Checkers → Models/Values → XML Output
+    (internal/)   (internal/)      (models/)      (internal/)
 ```
 
 ## Key Classes and Usage Patterns

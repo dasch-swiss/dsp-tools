@@ -39,10 +39,12 @@ The two main tasks that DSP-TOOLS serves for are:
   The data model is defined in a JSON project definition file 
   which has to be transmitted to the DSP server. 
   If the DSP server is aware of the data model for your project, 
-  conforming data can be uploaded into the DSP repository. [Click here for details.](./data-model/)
+  conforming data can be uploaded into the DSP repository.
+  [Click here for details.](./data-model/json-project/overview.md)
 - **Create and upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
   Sometimes, data is added in large quantities. 
   Therefore, DSP-TOOLS allows you to perform bulk imports of your data.
   In order to do so, the data has to be described in an XML file. 
   DSP-TOOLS is able to read the XML file 
-  and upload all data to the DSP server. [Click here for details.](./data-file/)
+  and upload all data to the DSP server.
+  [Click here for details.](./data-file/xml-data-file.md)

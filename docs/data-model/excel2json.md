@@ -39,10 +39,6 @@ The following options are available:
 The expected Excel file format and the folder structure are documented 
 [here](#the-lists-section).
 
-!!! tip
-
-    The command [`excel2json`](./data-model-cli.md#excel2json) might be more convenient to use.
-
 
 
 ### `excel2resources`
@@ -59,10 +55,6 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel format is [documented here](#the-resources-section).
-
-!!! tip
-
-    The command [`excel2json`](#excel2json) might be more convenient to use.
 
 
 
@@ -223,7 +215,7 @@ The sheets should be filled as follows:
 - **Licenses**
     - At least one license IRI. This is required in order to be able to reference it in the data.
     - All the recommended licenses are listed in the template. To disable them simple delete the license from the cell.
-    - [See the JSON project definition documentation for details.](./data-model/json-project/overview.md#enabled_licenses)
+    - [See the JSON project definition documentation for details.](./json-project/overview.md#enabled_licenses)
 - **Users (Optional)** 
     - This sheet may be omitted or left empty.
     - For each user, all columns are mandatory: username, email, givenName, familyName, password, lang, role.
@@ -265,7 +257,7 @@ The expected columns are:
   i.e. the base resource class/classes that this resource class is derived from.
   Must be one of the values listed in the documentation. 
   If more than one: separated by commas. 
-- [`default_permissions_overrule`](./data-model/json-project/overview.md#default_permissions_overrule)
+- [`default_permissions_overrule`](./json-project/overview.md#default_permissions_overrule)
   (optional): If you have set this project to "public" in the `json_header.xlsx`,
   then you can still hide the resources of certain classes.
     - Use "private" on any resource class (including image classes)
@@ -344,7 +336,7 @@ The expected columns are:
   (only mandatory for lists): Some `gui_element`s need further specifications. 
   Read the documentation of the respective `object` to learn if your `gui_element` needs a `gui_attributes`.
   Form: `attr: value, attr: value`. 
-- [`default_permissions_overrule`](./data-model/json-project/overview.md#default_permissions_overrule)
+- [`default_permissions_overrule`](./json-project/overview.md#default_permissions_overrule)
   (optional): If you have set this project to "public" in the `json_header.xlsx`,
   then you can still hide certain properties.
   Use "private" to make the content of a property invisible for people outside of your project,
@@ -359,7 +351,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 ## The `lists` Section
 
-With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
+With the [`excel2lists`](#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 

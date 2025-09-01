@@ -2,7 +2,7 @@
 
 # CLI-Commands
 
-## `create` - Create a Project on a Server
+## `create`
 
 This command reads a JSON project definition (containing one or more data models)
 and creates it on a DSP server.
@@ -42,7 +42,7 @@ The expected JSON format is [documented here](./json-project/overview.md).
 
 
 
-## `get` - Download a Project from a Server
+## `get`
 
 This command retrieves a project with its data model(s) from a DSP server 
 and writes it into a JSON file. 

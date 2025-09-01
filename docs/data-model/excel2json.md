@@ -18,7 +18,7 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-folder-structure-for-excel2json).
+[here](#the-folder-structure-for-excel2json).
 
 
 
@@ -37,11 +37,11 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section).
+[here](#the-lists-section).
 
 !!! tip
 
-    The command [`excel2json`](#excel2json) might be more convenient to use.
+    The command [`excel2json`](./data-model-cli.md#excel2json) might be more convenient to use.
 
 
 
@@ -58,7 +58,7 @@ The following options are available:
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
+The expected Excel format is [documented here](#the-resources-section).
 
 !!! tip
 
@@ -79,11 +79,7 @@ The following options are available:
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
-
-!!! tip
-
-    The command [`excel2json`](#excel2json) might be more convenient to use.
+The expected Excel format is [documented here](#the-properties-section).
 
 
 
@@ -100,8 +96,6 @@ The following options are available:
 
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-
-The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
 
 
 
@@ -121,11 +115,11 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section-for-old-excel2json-and-old-excel2lists).
+[here](#the-lists-section-for-old-excel2json-and-old-excel2lists).
 
 
 
-With the [`excel2json`](../cli-commands.md#excel2json) command, 
+With the [`excel2json`](excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of

@@ -26,8 +26,8 @@ def file_with_many_resources_and_int_values(res_counter: int, value_counter: int
 
 
 def add_many_int_values(res: Resource, number_of_values: int) -> Resource:
-    for _ in range(number_of_values):
-        res.add_integer(prop_name=":testIntegerSimpleText", value=1)
+    for i in range(number_of_values):
+        res.add_integer(prop_name=":testIntegerSimpleText", value=i)
     return res
 
 

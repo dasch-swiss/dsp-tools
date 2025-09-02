@@ -7,10 +7,7 @@
 
 # DSP-TOOLS Documentation
 
-DSP-TOOLS is a Python package with a command line interface 
-that helps you interact with a DSP server. 
-A DSP server is a remote server or a local machine 
-where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. 
+## Installing `dsp-tools`
 
 To install the latest version, run:
 
@@ -31,79 +28,27 @@ pip3 install --upgrade dsp-tools
 > The most recent version of DSP-TOOLS is 
 > [![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/)
 
-The two main tasks that DSP-TOOLS serves for are:
 
-- **Create a project with its data model(s), described in a JSON file, on a DSP server**  
-  In order to archive your data on the DaSCH Service Platform, 
-  you need a data model that describes your data.
-  The data model is defined in a JSON project definition file 
-  which has to be transmitted to the DSP server. 
-  If the DSP server is aware of the data model for your project, 
-  conforming data can be uploaded into the DSP repository.
-- **Upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
-  Sometimes, data is added in large quantities. 
-  Therefore, DSP-TOOLS allows you to perform bulk imports of your data.
-  In order to do so, the data has to be described in an XML file. 
-  DSP-TOOLS is able to read the XML file 
-  and upload all data to the DSP server.
 
-All functionalities of DSP-TOOLS revolve around these two basic tasks. 
+The `dsp-tools` package provides you with functionalities in the command line 
+to interact with the [DSP-API](https://github.com/dasch-swiss/dsp-api), both remote and locally.
+Additionally, it contains the `xmllib` which helps you construct the XML file required for a mass upload.
 
-DSP-TOOLS provides the following functionalities:
 
-- [`dsp-tools create`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#create) 
-  creates the project with its data model(s) on a DSP server from a JSON file.
-- [`dsp-tools get`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands#get) 
-  reads a project with its data model(s) from 
-  a DSP server and writes it into a JSON file.
-- [`dsp-tools validate-data`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#validate-data)
-  validates an XML data file according to the ontology previously uploaded on the server.
-- [`dsp-tools xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#xmlupload) 
-  uploads data from an XML file (bulk data import)
-  and writes the mapping from internal IDs to IRIs into a local file.
-- New workflow for `xmlupload`:
-    - [`dsp-tools upload-files`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#upload-files)
-      uploads all files that are referenced in an XML file to a DSP server.
-    - [`dsp-tools ingest-files`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#ingest-files)
-      kicks off the ingest process, and retrieves the mapping CSV when it is finished.
-    - [`dsp-tools ingest-xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#ingest-xmlupload)
-      creates the resources contained in the XML file, using the mapping CSV
-- [`dsp-tools resume-xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#resume-xmlupload) 
-  resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
-- [`dsp-tools excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2json) 
-  creates an entire JSON project file from a folder with Excel files in it.
-    - [`dsp-tools excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2lists)
-      creates the "lists" section of a JSON project file from one or several Excel files. 
-      The resulting section can be integrated into a JSON project file
-      and then be uploaded to a DSP server with `dsp-tools create`.
-    - [`dsp-tools excel2resources`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2resources)
-      creates the "resources" section of a JSON project file from an Excel file. 
-      The resulting section can be integrated into a JSON project file 
-      and then be uploaded to a DSP server with `dsp-tools create`.
-    - [`dsp-tools excel2properties`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2properties)
-      creates the "properties" section of a JSON project file from an Excel file. 
-      The resulting section can be integrated into a JSON project file 
-      and then be uploaded to a DSP server with `dsp-tools create`.
-- [`dsp-tools old-excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#old-excel2json)
-  does the same as the newer `excel2json` command, but the Excel format for the `lists` section is different.
-    - [`dsp-tools old-excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#old-excel2lists)
-      does the same as the newer `excel2lists` command, but the Excel format is different.
-- [`dsp-tools excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2xml) 
-  transforms a data source to XML 
-  if it is already structured according to the DSP specifications.
-- [The module `excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/excel2xml-module) 
-  provides helper methods that can be used in a Python script 
-  to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
-- [The `xmllib` library](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/) 
-  provides helper functions that can be used in a Python script 
-  to convert data from a tabular format into XML.
-- [`dsp-tools id2iri`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#id2iri)
-  takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. 
-  The mapping has to be provided with a JSON file.
-- [`dsp-tools start-stack / stop-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
-  assist you in running a DSP stack on your local machine.
-- [`dsp-tools template`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#template)
-  creates a template repository with a minimal JSON and XML file.
-- [`dsp-tools rosetta`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#rosetta)
-  clones the most up to date rosetta repository,
-  creates the data model and uploads the data.
+## Where To Start?
+
+`dsp-tools` provides you with the following core functionalities.
+
+- **Running a Local Stack:** If you want to run your own DSP stack locally, take a look [here](./local-stack.md).
+- **Data Modelling:** There are several ways to create a data model with `dsp-tools`
+    - Take a look at the technical specification for the [JSON file](./data-model/json-project/overview.md).
+    - Or take a look at our tool to [convert Excel files into the JSON format](./data-model/excel2json.md).
+    - You can create a data model on the DSP-APP. To re-use that data model on another server 
+      you can use the CLI command described [here](./data-model/data-model-cli.md#get).
+- **Data for Mass-Upload:**
+    - If you want to create the XML file required for a mass-upload onto DSP, take a look at the [`xmllib`](./xmllib-docs/xmlroot.md).
+    - You can find an in-depth explanation of our XML file format [here](./data-file/xml-data-file.md).
+      Please note, that we recommend to use the `xmllib` library to create the file 
+      as we will ensure interoperability between the DSP-API requirements and your input.
+    - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
+      Please note, that only DaSCH employees are permitted to upload data on a production server.

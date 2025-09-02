@@ -2,7 +2,7 @@
 
 # The XML File Format for Importing Data
 
-With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
+With the [`xmlupload`](./data-file-commands.md#xmlupload) command, 
 data can be imported into a DSP repository (on a DSP server) from an XML file. 
 The import file is a standard XML file as described on this page.
 After a successful upload of the data, 
@@ -61,7 +61,7 @@ permissions. There are **built-in groups** and **project specific groups**:
     - `Creator`: The user is the owner of the element (created the element).
     - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-    - can be defined in the [JSON project file](./json-project/overview.md#groups)
+    - can be defined in the [JSON project file](../data-model/json-project/overview.md#groups)
 
 
 ### Rights
@@ -89,7 +89,7 @@ The `<permissions>` element defines a _permission ID_ that can subsequently be u
 
 It is optional to define permission IDs in the XML. 
 If not defined, the project's default permissions are applied, 
-as defined in the [JSON project file](./json-project/overview.md#default_permissions). 
+as defined in the [JSON project file](../data-model/json-project/overview.md#default_permissions). 
 
 If the resources/values in your XML should have permissions 
 that are different from the project's defaults,
@@ -129,7 +129,7 @@ If a resource/value is marked as `private`,
 users who are not members of the project have no rights at all, not even view rights.
 
 In addition to the DSP built-in groups, 
-[project specific groups](./json-project/overview.md#groups) are supported as well.
+[project specific groups](../data-model/json-project/overview.md#groups) are supported as well.
 A project specific group name has the form `project-shortname:groupname`:
 
 ```xml
@@ -284,7 +284,7 @@ Notes:
 - The `<bitstream>` element must be the first element.
 - If a resource has a `<bitstream>` element, it cannot have a `<iiif-uri>` element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
-  can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
+  can be modified with the flag [`--imgdir`](data-file-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```text
@@ -729,7 +729,7 @@ and a link to `<resource id="res_2" ...>`:
 ### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
-For details about the formatting of the text [see the ontology documentation](json-project/ontologies.md#textvalue).
+For details about the formatting of the text [see the ontology documentation](../data-model/json-project/ontologies.md#textvalue).
 
 Attributes:
 
@@ -765,7 +765,7 @@ contains a link to the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, wh
 #### `encoding` and `gui_element`
 
 `encoding` must be combined with
-`gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
+`gui_element` ([defined in the ontology](../data-model/json-project/ontologies.md#textvalue))
 as follows:
 
 | `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) |
@@ -925,7 +925,7 @@ special characters behave differently.
 There are two places where this must be taken into account:
 
 - When a string is passed to 
-  [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+  [`excel2xml.make_text_prop()`](excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,
@@ -1083,7 +1083,7 @@ There is a number of base resources and base properties from which no subclasses
 They are directly available in the XML data file. 
 Please have in mind that built-in names of the knora-base ontology
 must be used without prepended colon.  
-See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
+See also [the related part of the JSON project documentation](../data-model/json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
 ### `<region>`

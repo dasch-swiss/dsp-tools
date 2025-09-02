@@ -4,7 +4,7 @@
 
 !!! warning
 
-    The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-docs/xmlroot.md).
+    The `excel2xml` module is deprecated in favor of the [`xmllib` library](../xmllib-docs/xmlroot.md).
 
 ## Two Use Cases - Two Approaches
 
@@ -12,18 +12,14 @@ There are two kinds of Excel files that can be transformed into an XML file:
 
 | structure        | provenance | tool                    | example screenshot                                       |
 | ---------------- | ---------- | ----------------------- | -------------------------------------------------------- |
-| custom structure | customer   | module `excel2xml`      | ![](./assets/images/img-excel2xml-raw-data-category.png) |
-| DSP structure    | DSP server | CLI command `excel2xml` | ![](./assets/images/img-excel2xml-closeup.png)           |
+| custom structure | customer   | module `excel2xml`      | ![](../assets/images/img-excel2xml-raw-data-category.png) |
+| DSP structure    | DSP server | CLI command `excel2xml` | ![](../assets/images/img-excel2xml-closeup.png)           |
 
 The first use case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
 different software, so every project will deliver their data in a different structure. The screenshot is just a 
 simplified example. For this use case, it is necessary to write a Python script that transforms the data from an 
 undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-tools xmlupload`. For this, you need to
 import the module `excel2xml` into your Python script.
-
-The second use case is less frequent: In DaSCH we migrate data internally from one server to another. In this case, the 
-data already has the correct structure, and can automatically be transformed to XML. 
-This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml).
 
 **This page deals only with the first use case, the module `excel2xml`**.
 
@@ -91,12 +87,12 @@ As first children of `<knora>`, some standard permissions are added. At the end,
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
 The standard permission is `public` 
-(read more about this [here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
+(read more about this [here](../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
 If you don't specify it otherwise, all resources and properties get this permission. 
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
 invisible for all users except project members. [Read more about permissions 
-here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element).
+here](../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 
 ## 4. Create List Mappings
@@ -160,7 +156,7 @@ This happens based on string similarity.
 Please carefully check the result if there are no false matches!
 
 The column "Category" in `00A1-import-scripts/data_raw.csv` has spelling mistakes:  
-![column category](./assets/images/img-excel2xml-raw-data-category.png)
+![column category](../assets/images/img-excel2xml-raw-data-category.png)
 
 The dictionary that results if you call `create_json_excel_list_mapping()`:
 
@@ -195,7 +191,7 @@ There are several kinds of resources that can be created:
 | `VideoSegment` | `<video-segment>` | `make_video_segment()` |
 
 `<resource>` is the most frequent of them. The others are [explained 
-here](./file-formats/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
+here](../data-file/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID
 
@@ -222,7 +218,7 @@ Here's how the docstrings assist you:
     - Note: `etree._Element` is a type annotation of an underlying library. You don't have to care about it, as long as 
       you proceed as described (append the returned object to the parent resource).
 
-![docstring example](./assets/images/img-excel2xml-module-docstring.png)
+![docstring example](../assets/images/img-excel2xml-module-docstring.png)
 
 
 #### Fine-Tuning With the `PropertyElement`
@@ -300,7 +296,7 @@ segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
 Please be aware that the properties have to be provided in exactly this order. 
 It is possible to leave out optional properties, but the present ones must fit the order.
 
-See also the [documentation of the resulting XML format](./file-formats/xml-data-file.md#video-segment-and-audio-segment).
+See also the [documentation of the resulting XML format](../data-file/xml-data-file.md#video-segment-and-audio-segment).
 
 
 #### Supported Boolean Formats
@@ -328,7 +324,7 @@ else:
 #### Special Characters in Text Properties
 
 Depending on the encoding of your text, special characters behave differently. 
-Please consult the systematic overview [here](./file-formats/xml-data-file.md#special-characters-overview) 
+Please consult the systematic overview [here](../data-file/xml-data-file.md#special-characters-overview) 
 to fully understand the implications.
 
 

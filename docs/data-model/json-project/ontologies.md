@@ -270,7 +270,7 @@ These three are related as follows:
 `"object": "BooleanValue"`
 
 Represents a Boolean ("true" or "false"). 
-See the [xmlupload documentation](../xml-data-file.md#boolean-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#boolean-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -299,7 +299,7 @@ Example:
 `"object": "ColorValue"`
 
 A string representation of a color in the hexadecimal form. 
-See the [xmlupload documentation](../xml-data-file.md#color-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#color-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -329,7 +329,7 @@ Example:
 `object": "DateValue"`  
 
 Represents a date. It's a string with the format `calendar:start:end`. 
-See the [xmlupload documentation](../xml-data-file.md#date-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#date-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -358,7 +358,7 @@ Example:
 `"object": "DecimalValue"`
 
 A number with decimal point. 
-See the [xmlupload documentation](../xml-data-file.md#decimal-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#decimal-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -397,7 +397,7 @@ Example:
 `"object": "GeonameValue"`
 
 Represents a location ID of [geonames.org](https://www.geonames.org). 
-See the [xmlupload documentation](../xml-data-file.md#geoname-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#geoname-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -427,7 +427,7 @@ Example:
 `"object": "IntValue"`
 
 Represents an integer value. 
-See the [xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#integer-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -467,7 +467,7 @@ Example:
 `"object": "ListValue"`
 
 Represents a node of a (possibly hierarchical) list. 
-See the [xmlupload documentation](../xml-data-file.md#list-prop) for more information.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#list-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -598,7 +598,7 @@ Example:
 `"object": "TimeValue"`
 
 A time value represents a precise moment in time in the Gregorian calendar. See the 
-[xmlupload documentation](../xml-data-file.md#time-prop) for more information.
+[xmlupload documentation](../../data-file/xml-data-file.md#time-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -626,7 +626,7 @@ Example:
 
 `"object": "UriValue"`
 
-Represents an URI. See the [xmlupload documentation](../xml-data-file.md#uri-prop) for more information.
+Represents an URI. See the [xmlupload documentation](../../data-file/xml-data-file.md#uri-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -711,7 +711,7 @@ A property pointing to the DSP base resource class `Representation`, which is th
 classes `StillImageRepresentation`, `AudioRepresentation`, `MovingImageRepresentation`, ... Has to be used in 
 combination with `"super": ["hasRepresentation"]`. 
 This generic property can point to any type of the aforementioned representations, or to a subclass of them. See the 
-[xmlupload documentation](../xml-data-file.md#resptr-prop) for more information.
+[xmlupload documentation](../../data-file/xml-data-file.md#resptr-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -821,7 +821,7 @@ Example:
 
 This property can be attached to a `StillImageRepresentation`, together with `isPartOf`. The `seqnum` is then the page
 number of the image inside the compound object. Apart from this, `seqnum` is like an integer property. See the 
-[xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
+[xmlupload documentation](../../data-file/xml-data-file.md#integer-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -933,7 +933,7 @@ The following base resources can be used as super-resource:
 - `TextRepresentation`: A resource representing a text
 
 **File Extensions**: An overview of the supported file types per representation can be found in the 
-[xmlupload documentation](../xml-data-file.md#bitstream).
+[xmlupload documentation](../../data-file/xml-data-file.md#bitstream).
 
 
 

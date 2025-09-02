@@ -55,6 +55,8 @@ resource = xmllib.Resource.create_new(
 Once you created a `Resource` you can add values to it.
 For each value type (apart from the boolean which has no multiple option) we provide three functionalities:
 
+<!-- markdownlint-disable MD036 -->
+
 **Adding one value**
 
 ```python
@@ -78,6 +80,7 @@ resource = resource.add_integer_optional(prop_name=":hasInt", value=None)
 
 [See the documentation for all the options.](resource.md)
 
+<!-- markdownlint-enable MD036 -->
 
 ### Reformatting the Input With Conversion Functions
 

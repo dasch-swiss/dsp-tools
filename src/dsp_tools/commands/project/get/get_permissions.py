@@ -182,7 +182,7 @@ def _is_legacy_public(perms: list[dict[str, Any]]) -> bool:
         "ProjectMember"
     ):
         return False
-    
+
     # Third should be V for KnownUser
     if sorted_perms[2]["name"] != "V" or not sorted_perms[2]["additionalInformation"].endswith("KnownUser"):
         return False

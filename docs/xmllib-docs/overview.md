@@ -82,8 +82,11 @@ resource = resource.add_integer_optional(prop_name=":hasInt", value=None)
 ### Reformatting the Input With Conversion Functions
 
 We provide a number of functions to help convert your input, for example DSP requires a special format for dates.
-With a helper function you can [extract](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.find_dates_in_string) 
-or [reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) your input into the correct format.
+With a helper function you can 
+[extract](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.find_dates_in_string) 
+or 
+[reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
+your input into the correct format.
 
 ```python
 formatted_date = xmllib.value_converters.reformat_date(
@@ -121,7 +124,8 @@ but you feel that it may have generic applications and would be helpful to other
 
 ### Adding A File To a Resource
 
-In the ontology you can [specify](../data-model/json-project/ontologies.md#resource-super) that a resource should have a file attached.
+In the ontology you can 
+[specify](../data-model/json-project/ontologies.md#resource-super) that a resource should have a file attached.
 
 You can add all types of files to the resource with the following function.
 Please note that only one file or IIIF-URI (see below) are allowed per resource.
@@ -204,7 +208,9 @@ Similarly to the values, we also provide the possibility to add multiple or opti
 
 DSP has four additional resource types that can be used out of the box without defining them in the data model.
 
-- [`AudioSegmentResource`](./dsp-base-resources/audio-segment-resource.md) and [`VideoSegmentResource`](./dsp-base-resources/video-segment-resource.md) are resources that can be used to annotate a segment of an audio or video file of another resource.
+- [`AudioSegmentResource`](./dsp-base-resources/audio-segment-resource.md) and 
+  [`VideoSegmentResource`](./dsp-base-resources/video-segment-resource.md) 
+  are resources that can be used to annotate a segment of an audio or video file of another resource.
 - [`RegionResource`](./dsp-base-resources/region-resource.md) describes a region of a resource with an image file.
 - [`LinkResource`](./dsp-base-resources/link-resource.md) is a collection of links to other resources.
 

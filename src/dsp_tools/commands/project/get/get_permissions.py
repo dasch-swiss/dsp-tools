@@ -107,124 +107,99 @@ def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str:
 def _is_legacy_private_pattern(project_doaps: list[dict[str, Any]]) -> bool:
     """
     Check if DOAPs match the legacy private pattern:
-    - For group ProjectAdmin: CR ProjectAdmin|D ProjectMember
-    - For group ProjectMember: CR ProjectAdmin|D ProjectMember (may also have M)
+    - For group ProjectAdmin: ProjectAdmin CR, ProjectMember CR/M
+    - For group ProjectMember: ProjectAdmin CR, ProjectMember CR/M
 
     This was the default when dsp-api created a new project via dsp-app.
     """
-    # Must have exactly 2 DOAPs: one for ProjectAdmin, one for ProjectMember
     if len(project_doaps) != 2:
         return False
-
-    # Get DOAPs by target group
     admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
     member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
-
     if len(admin_doaps) != 1 or len(member_doaps) != 1:
         return False
-
-    # Check ProjectAdmin DOAP: should have exactly CR ProjectAdmin|D ProjectMember
-    admin_perms = admin_doaps[0]["hasPermissions"]
-    if not _check_private_permissions(admin_perms):
-        return False
-
-    # Check ProjectMember DOAP: should have CR ProjectAdmin|D ProjectMember (may also have M)
-    member_perms = member_doaps[0]["hasPermissions"]
-    if not _check_private_permissions(member_perms, allow_modify=True):
-        return False
-
-    return True
+    return all(
+        [
+            _is_legacy_private(admin_doaps[0]["hasPermissions"]),
+            _is_legacy_private(member_doaps[0]["hasPermissions"]),
+        ]
+    )
 
 
 def _is_legacy_public_pattern(project_doaps: list[dict[str, Any]]) -> bool:
     """
     Check if DOAPs match the legacy public pattern:
-    - For group ProjectAdmin: CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
-    - For group ProjectMember: CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
-
-    Creator permissions are ignored as specified in the requirements.
+    - For group ProjectAdmin: ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
+    - For group ProjectMember: ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
     """
-    # Must have exactly 2 DOAPs: one for ProjectAdmin, one for ProjectMember
     if len(project_doaps) != 2:
         return False
-
-    # Get DOAPs by target group
     admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
     member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
-
     if len(admin_doaps) != 1 or len(member_doaps) != 1:
         return False
-
-    # Check ProjectAdmin DOAP
-    admin_perms = admin_doaps[0]["hasPermissions"]
-    if not _check_public_permissions(admin_perms):
-        return False
-
-    # Check ProjectMember DOAP
-    member_perms = member_doaps[0]["hasPermissions"]
-    if not _check_public_permissions(member_perms):
-        return False
-
-    return True
+    return all(
+        [
+            _is_legacy_public(admin_doaps[0]["hasPermissions"]),
+            _is_legacy_public(member_doaps[0]["hasPermissions"]),
+        ]
+    )
 
 
-def _check_private_permissions(perms: list[dict[str, Any]], allow_modify: bool = False) -> bool:
+def _is_legacy_private(perms: list[dict[str, Any]]) -> bool:
     """
-    Check if permissions match the private pattern: CR ProjectAdmin|D ProjectMember
+    Check if permissions match the legacy private pattern: ProjectAdmin CR, ProjectMember M/D
 
     Args:
         perms: List of permission objects
-        allow_modify: If True, also allow M permissions for ProjectMember
     """
-    # Filter out any M permissions if they're for ProjectMember (allowed for legacy projects)
-    filtered_perms = []
-    for perm in perms:
-        if allow_modify and perm["name"] == "M" and perm["additionalInformation"].endswith("ProjectMember"):
-            continue  # Skip M permissions for ProjectMember
-        filtered_perms.append(perm)
-
-    # Should have exactly 2 permissions after filtering
-    if len(filtered_perms) != 2:
+    if len(perms) != 2:
         return False
 
-    # Sort by permission name for consistent checking
-    sorted_perms = sorted(filtered_perms, key=lambda x: x["name"])
+    sorted_perms = sorted(perms, key=lambda x: x.get("name", ""))
 
     # First should be CR for ProjectAdmin
     if sorted_perms[0]["name"] != "CR" or not sorted_perms[0]["additionalInformation"].endswith("ProjectAdmin"):
         return False
 
-    # Second should be D for ProjectMember
-    if sorted_perms[1]["name"] != "D" or not sorted_perms[1]["additionalInformation"].endswith("ProjectMember"):
+    # Second should be D or M for ProjectMember
+    if sorted_perms[1]["name"] not in ["D", "M"] or not sorted_perms[1]["additionalInformation"].endswith(
+        "ProjectMember"
+    ):
         return False
 
     return True
 
 
-def _check_public_permissions(perms: list[dict[str, Any]]) -> bool:
+def _is_legacy_public(perms: list[dict[str, Any]]) -> bool:
     """
     Check if permissions match the public pattern:
-    CR ProjectAdmin,Creator|D ProjectMember|V KnownUser,UnknownUser
-
-    Creator permissions are ignored as specified.
+    ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
     """
-    # Filter out Creator permissions (ignore them as specified)
-    filtered_perms = [p for p in perms if not p["additionalInformation"].endswith("Creator")]
-
     # Should have exactly 4 permissions after filtering Creator
+    filtered_perms = [p for p in perms if not p["additionalInformation"].endswith("Creator")]
     if len(filtered_perms) != 4:
         return False
 
-    # Sort by permission name for consistent checking
-    sorted_perms = sorted(filtered_perms, key=lambda x: (x["name"], x["additionalInformation"]))
+    sorted_perms = sorted(filtered_perms, key=lambda x: (x.get("name", ""), x.get("additionalInformation", "")))
 
-    # Should be: CR ProjectAdmin, D ProjectMember, V KnownUser, V UnknownUser
-    expected = [("CR", "ProjectAdmin"), ("D", "ProjectMember"), ("V", "KnownUser"), ("V", "UnknownUser")]
+    # First should be CR for ProjectAdmin
+    if sorted_perms[0]["name"] != "CR" or not sorted_perms[0]["additionalInformation"].endswith("ProjectAdmin"):
+        return False
 
-    for i, (exp_name, exp_group) in enumerate(expected):
-        perm = sorted_perms[i]
-        if perm["name"] != exp_name or not perm["additionalInformation"].endswith(exp_group):
-            return False
+    # Second should be D or M for ProjectMember
+    if sorted_perms[1]["name"] not in ["D", "M"] or not sorted_perms[1]["additionalInformation"].endswith(
+        "ProjectMember"
+    ):
+        return False
+    
+    # Third should be V for KnownUser
+    if sorted_perms[2]["name"] != "V" or not sorted_perms[2]["additionalInformation"].endswith("KnownUser"):
+        return False
+
+    # Fourth should be V for UnknownUser
+    if sorted_perms[3]["name"] != "V" or not sorted_perms[3]["additionalInformation"].endswith("UnknownUser"):
+        return False
 
     return True
 

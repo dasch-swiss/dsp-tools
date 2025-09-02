@@ -2,7 +2,7 @@
 
 ## Overview
 
-The following code shows a minimal overview how you can create an XML file for a mass import to DSP with the `xmllib`.
+The following code shows a minimal overview how you can use the `xmllib` to create an XML file for a mass import to DSP.
 
 It does not show, nor detail all the available functions and features, 
 but will give you links to the relevant and comprehensive documentation.
@@ -12,7 +12,7 @@ The core functionality that the `xmllib` provides you is as follows:
 - Classes that will help you construct the resources and add values to it.
 - Functions that help you clean and transform your input.
 - Functions that help you validate your input.
-- Configuration options where the fields are not free text, such as Permissions.
+- Configuration options such as Permissions.
 
 
 We recommend you to create the import script for your data once your data model is relatively stable,
@@ -30,7 +30,7 @@ from dsp_tools import xmllib
 
 The `XMLRoot` is the central element where you add all your resources and provides serialisation functionality.
 
-[See the documentation for details.](xmlroot.md)
+See the [documentation](./xmlroot.md) for details.
 
 ```python
 root = xmllib.XMLRoot.create_new(shortcode="0000", default_ontology="onto")
@@ -40,7 +40,7 @@ root = xmllib.XMLRoot.create_new(shortcode="0000", default_ontology="onto")
 
 Resources which were defined in the ontology JSON are created as follows.
 
-[See the documentation for details.](resource.md)
+See the [documentation](./resource.md) for details.
 
 ```python
 resource = xmllib.Resource.create_new(
@@ -78,14 +78,14 @@ otherwise the value is added.
 resource = resource.add_integer_optional(prop_name=":hasInt", value=None)
 ```
 
-[See the documentation for all the options.](resource.md)
+See the [documentation](./resource.md) for all options.
 
 <!-- markdownlint-enable MD036 -->
 
 ### Reformatting the Input With Conversion Functions
 
-We provide a number of functions to help convert your input, for example DSP requires a special format for dates 
-[reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
+We provide a number of functions to help convert your input. For example DSP requires a special format for dates. 
+[Reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
 your input into the correct format.
 
 ```python
@@ -99,15 +99,14 @@ formatted_date = xmllib.value_converters.reformat_date(
 resource = resource.add_date(prop_name=":hasDate", value=formatted_date)
 ```
 
-Find further functions to convert values [here](value-converters.md)
+Find further functions to convert values [here](./value-converters.md)
 
 
 ### Data Cleaning Functions
 
-Often times we require similar functions to process and clean the data before we can add them to the resource.
-
-For example many strings extracted from the data source, represent not one value but a list of values.
-We created the following function to clean your input.
+Oftentimes, similar data cleaning steps must be carried out again and again, before values can be added to the resource.
+For example, many strings extracted from data sources represent not one value, but a list of values.
+We provide the following function to clean your input:
 
 ```python
 input_string = "This should be\na list\nof strings."
@@ -117,18 +116,18 @@ cleaned_list = xmllib.create_list_from_input(
 )
 ```
 
-You can find this and other functions to help you process your data [here](general-functions.md).
+You can find this and other functions to help you process your data [here](./general-functions.md).
 
-Please contact us with a feature request if you cannot find a function in the list, 
-but you feel that it may have generic applications and would be helpful to other users.
+Please contact us with a feature request if you need a function that doesn't exist yet in the `xmllib`, 
+especially if you feel that it may be generic enough to be helpful for other users.
 
 ### Adding A File To a Resource
 
 In the ontology you can 
 [specify](../data-model/json-project/ontologies.md#resource-super) that a resource should have a file attached.
 
-You can add all types of files to the resource with the following function.
-Please note that only one file or IIIF-URI (see below) are allowed per resource.
+You can add a file to the resource with the following function.
+Please note that only one file (or IIIF-URI, see below) is allowed per resource.
 
 ```python
 image_resource = image_resource.add_file(
@@ -140,15 +139,17 @@ image_resource = image_resource.add_file(
 ```
 
 We require that legal information be provided for resources with files. 
-While the copyright holder and authorships are free text fields.
-All licenses referenced must be predefined, [look here for our recommended options](./licenses/recommended.md).
+While the copyright holder and authorships are free text fields,
+the license must be chosen from a predefined set.
+The recommended licenses are listed [here](./licenses/recommended.md),
+and some others are listed [here](./licenses/other.md).
 
-Please contact us if you cannot find the required license in either our recommended or [other options](./licenses/other.md).
+Please contact us if you required license is not available.
 
 ### Adding IIIF-URIs To a Resource
 
 We provide the option to add a IIIF-URI to a Resource with the super-class `StillImageRepresentation`.
-This way you can reference images that lie on other servers.
+This way you can reference images that are hosted on other servers.
 
 ```python
 resource = resource.add_iiif_uri(
@@ -166,7 +167,7 @@ Please note that the IIIF-URI must follow the official syntax specified [here](h
 It is possible to add a comment to individual values or files with the following parameter.
 
 ```python
-resource = resource.add_integer_optional(
+resource = resource.add_integer(
     prop_name=":hasInt",
     value=1,
     comment="This text is a comment on this integer.",
@@ -182,7 +183,7 @@ all the values will have the same comment.
 We recommend to specify permissions on the [project level](../data-model/json-project/overview.md#default_permissions)
 or on [individual classes and properties](../data-model/json-project/overview.md#default_permissions_overrule).
 
-However, you can over-rule the default permissions with the following designated parameter.
+However, you can overrule the default permissions with the following designated parameter.
 
 ```python
 image_resource = image_resource.add_simpletext(
@@ -192,11 +193,11 @@ image_resource = image_resource.add_simpletext(
 )
 ```
 
-[See the documentation for details.](permissions.md)
+See the [documentation](permissions.md) for details.
 
 ### Adding a Resource To the Root
 
-Once you added all the information to the resource you can add it to the root.
+Once you have added all information to the resource, you can add the resource to the root.
 
 ```python
 root = root.add_resource(resource)
@@ -229,11 +230,11 @@ region = region.add_rectangle(
 )
 ```
 
-Please consult the individual documentations, linked above for details.
+Please consult the individual documentations (linked above) for details.
 
 ### Writing the File
 
-Once you have added all the data, you can write the XML file with the following function.
+Once you have added all data, you can write the XML file with the following function.
 
 ```python
 root.write_file("data.xml")
@@ -242,11 +243,11 @@ root.write_file("data.xml")
 ## Validating Your Input
 
 When your resources are created and data is added, the `xmllib` validates your input.
-In the background we use the validation functions specified [here](value-checkers.md), 
+In the background we use the validation functions specified [here](./value-checkers.md), 
 so there is no need to check your input manually.
 
 Due to this, the `xmllib` may print a large amount of information on your terminal.
-You can configure the warning level as described [here](advanced-set-up.md#configure-warnings-level).
+You can configure the warning level as described [here](./advanced-set-up.md#configure-warnings-level).
 
 It is also possible to save the warnings into a csv file instead of the print message, 
-click [here](advanced-set-up.md#save-warnings-output-to-csv) for details.
+see [here](./advanced-set-up.md#save-warnings-output-to-csv) for details.

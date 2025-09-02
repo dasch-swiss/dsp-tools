@@ -42,13 +42,13 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
 - **Running a Local Stack:** If you want to run your own DSP stack locally, take a look [here](./local-stack.md).
 - **Data Modelling:** There are several ways to create a data model with `dsp-tools`
     - Take a look at the technical specification for the [JSON file](./data-model/json-project/overview.md).
-    - Or take a look at our tool to [convert an Excel into the JSON file](./data-model/excel2json.md).
-    - If you want to create a data model on the DSP-APP and download the file to upload onto other servers, 
-      take a look [here](./data-model/data-model-cli.md#get).
+    - Or take a look at our tool to [convert Excel files into the JSON format](./data-model/excel2json.md).
+    - You can create a data model on the DSP-APP. To re-use that data model on another server 
+      you can use the CLI command described [here](./data-model/data-model-cli.md#get).
 - **Data for Mass-Upload:**
     - If you want to create the XML file required for a mass-upload onto DSP, take a look at the [`xmllib`](./xmllib-docs/xmlroot.md).
     - You can find an in-depth explanation of our XML file format [here](./data-file/xml-data-file.md).
-      Please note, that we recommend to use the `xmllib` to create the file 
+      Please note, that we recommend to use the `xmllib` library to create the file 
       as we will ensure interoperability between the DSP-API requirements and your input.
     - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
       Please note, that only DaSCH employees are permitted to upload data on a production server.

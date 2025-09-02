@@ -8,16 +8,15 @@ edit_uri: blob/main/docs/
 
 nav:
   - Overview: index.md
-  - Getting Started With a Local Stack: local-stack.md
-  - Working With the Ontology and Project:
+  - Running a Local Stack: local-stack.md
+  - Data Modelling:
       - JSON project file:
           - Overview: data-model/json-project/overview.md
           - Ontologies: data-model/json-project/ontologies.md
           - Caveats: data-model/json-project/caveats.md
       - Command excel2json: data-model/excel2json.md
       - Commands to Interact With a Server: data-model/data-model-cli.md
-  - Working With Data:
-      - XML data file: data-file/xml-data-file.md
+  - Data for Mass-Upload:
       - xmllib documentation:
           - XMLRoot: xmllib-docs/xmlroot.md
           - Resource: xmllib-docs/resource.md
@@ -37,6 +36,7 @@ nav:
               - Configuration Options: xmllib-docs/config-options.md
               - Date Formats: xmllib-docs/date_formats.md
           - Advanced Set-Up Options: xmllib-docs/advanced-set-up.md
+      - XML data file: data-file/xml-data-file.md
       - CLI-Commands: data-file/data-file-commands.md
       - Deprecated excel2xml: data-file/excel2xml-module.md
   - Advanced Workflows:

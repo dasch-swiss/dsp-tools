@@ -45,12 +45,10 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     Otherwise, raise an exception.
     """
     # First, try to parse legacy DOAPs (multiple groups: ProjectAdmin, ProjectMember)
-    try:
-        return _parse_legacy_doaps(project_doaps)
-    except UnknownDOAPException:
-        pass  # Fall back to new-style parsing
+    if legacy_result := _parse_legacy_doaps(project_doaps):
+        return legacy_result
 
-    # Existing logic for new-style DOAPs (single ProjectMember group)
+    # Fall back to new-style parsing (single ProjectMember group)
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         raise UnknownDOAPException("The only supported target group for DOAPs is ProjectMember.")
@@ -78,7 +76,7 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     return "public"
 
 
-def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str:
+def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str | None:
     """
     Parse legacy DOAPs that target multiple groups (ProjectAdmin, ProjectMember).
     Recognizes specific patterns used before the current permission system.
@@ -87,21 +85,13 @@ def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str:
         project_doaps: DOAPs as retrieved from the server
 
     Returns:
-        "private" or "public" if a recognized legacy pattern is found
-
-    Raises:
-        UnknownDOAPException: if the DOAPs do not match any recognized legacy pattern
+        "private" or "public" if a recognized legacy pattern is found. None otherwise
     """
-    # Check for legacy private pattern
     if _is_legacy_private_pattern(project_doaps):
         return "private"
-
-    # Check for legacy public pattern
     if _is_legacy_public_pattern(project_doaps):
         return "public"
-
-    # If no known legacy pattern is found, raise exception
-    raise UnknownDOAPException("DOAPs do not match any known legacy pattern")
+    return None
 
 
 def _is_legacy_private_pattern(project_doaps: list[dict[str, Any]]) -> bool:

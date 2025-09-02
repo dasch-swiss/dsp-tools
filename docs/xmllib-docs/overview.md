@@ -84,10 +84,7 @@ resource = resource.add_integer_optional(prop_name=":hasInt", value=None)
 
 ### Reformatting the Input With Conversion Functions
 
-We provide a number of functions to help convert your input, for example DSP requires a special format for dates.
-With a helper function you can 
-[extract](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.find_dates_in_string) 
-or 
+We provide a number of functions to help convert your input, for example DSP requires a special format for dates 
 [reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
 your input into the correct format.
 

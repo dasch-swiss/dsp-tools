@@ -10,13 +10,11 @@ from .general_functions import create_non_empty_list_from_string as create_non_e
 from .general_functions import create_standoff_link_to_resource as create_standoff_link_to_resource
 from .general_functions import create_standoff_link_to_uri as create_standoff_link_to_uri
 from .general_functions import escape_reserved_xml_characters as escape_reserved_xml_characters
-from .general_functions import find_dates_in_string as find_dates_in_string
 from .general_functions import find_license_in_string as find_license_in_string
 from .general_functions import get_list_nodes_from_string_via_list_name as get_list_nodes_from_string_via_list_name
 from .general_functions import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .general_functions import make_xsd_compatible_id as make_xsd_compatible_id
 from .general_functions import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
-from .general_functions import reformat_date as reformat_date
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.date_formats import Calendar as Calendar
 from .models.date_formats import DateFormat as DateFormat
@@ -42,6 +40,8 @@ from .value_checkers import is_integer as is_integer
 from .value_checkers import is_nonempty_value as is_nonempty_value
 from .value_checkers import is_timestamp as is_timestamp
 from .value_converters import convert_to_bool_string as convert_to_bool_string
+from .value_converters import find_dates_in_string as find_dates_in_string
+from .value_converters import reformat_date as reformat_date
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags

@@ -18,6 +18,7 @@ nav:
       - Commands to Interact With a Server: data-model/data-model-cli.md
   - Data for Mass-Upload:
       - xmllib documentation:
+          - Overview: xmllib-docs/overview.md
           - XMLRoot: xmllib-docs/xmlroot.md
           - Resource: xmllib-docs/resource.md
           - DSP base resources:

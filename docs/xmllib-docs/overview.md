@@ -28,7 +28,7 @@ from dsp_tools import xmllib
 
 ### Creating the Root
 
-The `XMLRoot` is the central element where you add all your resources and provides serialisation functionality.
+The `XMLRoot` is the central element where you add all your resources.
 
 See the [documentation](./xmlroot.md) for details.
 
@@ -53,7 +53,7 @@ resource = xmllib.Resource.create_new(
 ### Adding Values to a Resource
 
 Once you created a `Resource` you can add values to it.
-For each value type (apart from the boolean which has no multiple option) we provide three functionalities:
+For each value type we provide three functionalities:
 
 <!-- markdownlint-disable MD036 -->
 
@@ -173,9 +173,6 @@ resource = resource.add_integer(
     comment="This text is a comment on this integer.",
 )
 ```
-
-Please note, that if you add a comment to values with the add multiple functions, 
-all the values will have the same comment.
 
 
 ### Specifying Permissions

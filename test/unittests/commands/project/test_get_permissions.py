@@ -347,7 +347,7 @@ def test_construct_overrule_object_limited_view_all() -> None:
         has_img_specific_class_doaps=[],
     )
     result = _construct_overrule_object(categories, {})
-    assert result == {"limited_view": "all"}  # TODO: This change is fishy
+    assert result == {"limited_view": "all"}
 
 
 def test_construct_overrule_object_limited_view_specific() -> None:

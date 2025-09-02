@@ -4,7 +4,7 @@
 
 This document describes the structure of a JSON project definition file 
 that can be uploaded to a DSP server
-with the [`create`](../../cli-commands.md#create) command.
+with the [`create`](../data-model-cli.md#create) command.
 
 A project on a DSP server is like a container for data. 
 It defines some basic metadata, the data model(s) 
@@ -216,11 +216,14 @@ Defines the permissions that will be applied to new resources/values.
 - `public`: All users can view resources/values.
 - `private`: Only ProjectMembers/ProjectAdmins can view resources/values.
 
+If you work with the Excel templates,
+this setting is available in the [`json_header.xlsx` file](../excel2json.md#the-json_headerxlsx).
+
 !!! info
 
     When creating a new resource/value via xmlupload,
     it is possible to overrule this default with `<resource permissions="something-else">`.
-    See [here](../xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
+    See [here](../../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
 
 
 ### `default_permissions_overrule`
@@ -252,6 +255,10 @@ you can define exceptions, by marking certain classes or properties as `private`
 }
 ```
 
+If you work with the Excel templates,
+these settings are available in the [`resources.xlsx` file](../excel2json.md#the-resources-section)
+and in the [`properties.xlsx` file](../excel2json.md#the-properties-section).
+
 
 
 ### `groups`
@@ -261,11 +268,12 @@ you can define exceptions, by marking certain classes or properties as `private`
 `"groups": [<group-definition>, <group-definition>,...]`
 
 The `groups` object contains **project specific** group definitions. As opposed to the 
-[**built-in** groups](../xml-data-file.md#groups), the membership of the users to the project specific groups 
+[**built-in** groups](../../data-file/xml-data-file.md#groups), 
+the membership of the users to the project specific groups 
 can be freely chosen by the `ProjectAdmin`. A project may define several groups such as "student-assistant", 
 "editors", etc. in order to provide their members specific permissions.
 The groups that were created here are then available in the XML file in the 
-[&lt;permissions&gt; element](../xml-data-file.md#defining-permissions-with-the-permissions-element).
+[&lt;permissions&gt; element](../../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 A project specific group definition has the following elements:
 

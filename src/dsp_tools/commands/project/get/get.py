@@ -42,9 +42,11 @@ def get_project(
     try:
         auth.get_token()
         con = ConnectionLive(creds.server, auth)
+        authenticated = True
     except BaseError:
-        warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
+        warnings.warn("WARNING: Missing or wrong credentials. You won't get sensitive data of this project.")
         con = ConnectionLive(creds.server)
+        authenticated = False
 
     project = _create_project(con, project_identifier)
 
@@ -53,14 +55,18 @@ def get_project(
 
     prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
 
-    default_permissions, default_permissions_overrule = get_default_permissions(auth, str(project.iri), prefixes)
-    project_obj["default_permissions"] = default_permissions
-    if default_permissions_overrule:
-        project_obj["default_permissions_overrule"] = default_permissions_overrule
+    if authenticated:
+        default_permissions, default_permissions_overrule = get_default_permissions(auth, str(project.iri), prefixes)
+        project_obj["default_permissions"] = default_permissions
+        if default_permissions_overrule:
+            project_obj["default_permissions_overrule"] = default_permissions_overrule
+    else:
+        project_obj["default_permissions"] = "Please provide credentials to retrieve the permissions of this project."
 
     project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
-    project_obj["users"] = _get_users(con, project, verbose)
+    if users := _get_users(con, project, verbose):
+        project_obj["users"] = users
 
     project_obj["lists"] = _get_lists(con, project, verbose)
 

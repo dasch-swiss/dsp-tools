@@ -4,6 +4,8 @@ from typing import TypeVar
 
 from dsp_tools.xmllib import Resource
 from dsp_tools.xmllib import XMLRoot
+from dsp_tools.xmllib import create_standoff_link_to_resource
+from dsp_tools.xmllib import create_standoff_link_to_uri
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
@@ -75,6 +77,22 @@ def _add_richtext(res: Resource, number_of_vals: int) -> Resource:
     return _add_values(res, ":testRichtext", "a", Richtext, number_of_vals)
 
 
+def _add_richtext_with_standoff_formatting(res: Resource, number_of_vals: int) -> Resource:
+    return _add_values(res, ":testRichtext", "<p>a</p>", Richtext, number_of_vals)
+
+
+def _add_richtext_with_standoff_uri(res: Resource, number_of_vals: int) -> Resource:
+    v = create_standoff_link_to_uri("https://docs.dasch.swiss/latest", "Text")
+    return _add_values(res, ":testRichtext", v, Richtext, number_of_vals)
+
+
+def _add_richtext_with_standoff_resource_link(res: Resource, number_of_vals: int) -> Resource:
+    res_ids = [f"target_{i}" for i in range(number_of_vals)]
+    vals = [create_standoff_link_to_resource(i, "Text") for i in res_ids]
+    res.add_richtext_multiple(":testRichtext", vals)
+    return res
+
+
 def _add_textarea(res: Resource, number_of_vals: int) -> Resource:
     return _add_values(res, ":testTextarea", "a", SimpleText, number_of_vals)
 
@@ -116,6 +134,8 @@ if __name__ == "__main__":
             (_add_int, "int"),
             (_add_list, "list"),
             (_add_richtext, "richtext"),
+            (_add_richtext_with_standoff_formatting, "richtext-standoff-formatting"),
+            (_add_richtext_with_standoff_uri, "richtext-standoff-uri"),
             (_add_textarea, "textarea"),
             (_add_simpletext, "simpletext"),
             (_add_time, "time"),
@@ -139,6 +159,16 @@ if __name__ == "__main__":
         link_root.add_resource_multiple(added)
         xml_name = f"res-{number_of_res}_val-{number_of_vals}_link.xml"
         link_root.write_file(file_p / xml_name)
+
+        # stand-off internal link
+        stand_off_r = XMLRoot.create_new("9999", "onto")
+        resources = [_create_one_resource(x) for x in range(number_of_res)]
+        target_res = [_create_link_target_resource(i) for i in range(number_of_vals)]
+        stand_off_r.add_resource_multiple(target_res)
+        added = [_add_richtext_with_standoff_resource_link(r, number_of_vals) for r in resources]
+        stand_off_r.add_resource_multiple(added)
+        xml_name = f"res-{number_of_res}_val-{number_of_vals}_richtext-standoff-resource-link.xml"
+        stand_off_r.write_file(file_p / xml_name)
 
         # every type once
         every_type_root = XMLRoot.create_new("9999", "onto")

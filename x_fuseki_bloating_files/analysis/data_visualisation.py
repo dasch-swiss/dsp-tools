@@ -29,27 +29,31 @@ def prepare_fuseki_multiple_uploads():
 
     plt.figure(figsize=(12, 6))
     plt.plot(df["Run"], df["DB_After"], marker="o")
-    
+
     # Calculate and annotate differences for each step
     for i in range(1, len(df)):
-        prev_size = df.iloc[i-1]["DB_After"]
+        prev_size = df.iloc[i - 1]["DB_After"]
         curr_size = df.iloc[i]["DB_After"]
-        
+
         if prev_size > 0:
             diff = curr_size - prev_size
             multiplier = curr_size / prev_size
-            
+
             # Position text between points
-            x_pos = (df.iloc[i-1]["Run"] + df.iloc[i]["Run"]) / 2
+            x_pos = (df.iloc[i - 1]["Run"] + df.iloc[i]["Run"]) / 2
             y_pos = (prev_size + curr_size) / 2
-            
+
             # Add difference and multiplier text
-            plt.annotate(f'+{diff:.1f}GB\n({multiplier:.2f}x)', 
-                        xy=(x_pos, y_pos), 
-                        ha='center', va='center',
-                        fontsize=8, fontweight='bold',
-                        bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
-    
+            plt.annotate(
+                f"+{diff:.1f}GB\n({multiplier:.2f}x)",
+                xy=(x_pos, y_pos),
+                ha="center",
+                va="center",
+                fontsize=8,
+                fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.7),
+            )
+
     plt.xlabel("Run")
     plt.ylabel("DB Size After (GB)")
     plt.title("Database Size Growth Over Multiple Uploads")
@@ -212,23 +216,23 @@ def prepare_val_res_num_increasing() -> None:
         # Calculate growth rate as multiplication factor between consecutive value steps
         growth_factors = []
         val_steps = [10, 20, 30, 40, 50]  # Define the value steps to compare
-        
+
         for j in range(len(val_steps) - 1):
             current_val = val_steps[j]
             next_val = val_steps[j + 1]
-            
+
             # Find data points for current and next value counts
             current_data = filtered_data[filtered_data["val_num"] == current_val]
             next_data = filtered_data[filtered_data["val_num"] == next_val]
-            
+
             if len(current_data) > 0 and len(next_data) > 0:
                 current_db = current_data["DB_After"].iloc[0]
                 next_db = next_data["DB_After"].iloc[0]
-                
+
                 if current_db > 0:
                     growth_factor = next_db / current_db
                     growth_factors.append(growth_factor)
-        
+
         # Average the growth factors
         growth_per_value = sum(growth_factors) / len(growth_factors) if growth_factors else 0
 
@@ -282,23 +286,23 @@ def prepare_val_res_num_increasing() -> None:
         # Calculate growth rate as multiplication factor between consecutive resource steps
         growth_factors = []
         res_steps = [10000, 20000, 30000, 40000, 50000]  # Define the resource steps to compare
-        
+
         for j in range(len(res_steps) - 1):
             current_res = res_steps[j]
             next_res = res_steps[j + 1]
-            
+
             # Find data points for current and next resource counts
             current_data = filtered_data[filtered_data["res_num"] == current_res]
             next_data = filtered_data[filtered_data["res_num"] == next_res]
-            
+
             if len(current_data) > 0 and len(next_data) > 0:
                 current_db = current_data["DB_After"].iloc[0]
                 next_db = next_data["DB_After"].iloc[0]
-                
+
                 if current_db > 0:
                     growth_factor = next_db / current_db
                     growth_factors.append(growth_factor)
-        
+
         # Average the growth factors (or use single factor if only one step)
         multiplication_factor = sum(growth_factors) / len(growth_factors) if growth_factors else 0
 

@@ -12,7 +12,7 @@ plot_dir = Path("x_fuseki_bloating_files/graphics_output")
 
 
 def prepare_fuseki_multiple_uploads():
-    f_path = f_dir / "fuseki_multiple_uploads.csv"
+    f_path = f_dir / "same_file_upload_no_reset.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
 
@@ -60,7 +60,7 @@ def prepare_fuseki_multiple_uploads():
 
 
 def prepare_fuseki_size_value_comparison() -> None:
-    f_path = f_dir / "fuseki_size_value_comparison_run1.csv"
+    f_path = f_dir / "comparison_different_values_run1.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")

@@ -1,0 +1,16 @@
+Timestamp,DB_Before,Filename,DB_After,note
+2025-08-23 23:55:55,24M,res-10000_val-13_boolean.xml,13G,
+2025-08-24 00:53:48,24M,res-10000_val-13_color.xml,15G,
+2025-08-24 01:22:30,24M,res-10000_val-13_date.xml,17G,
+2025-08-24 01:55:31,24M,res-10000_val-13_decimal.xml,15G,identical small number
+2025-08-24 02:24:11,24M,res-10000_val-13_every_type.xml,28G,
+2025-08-24 03:27:47,24M,res-10000_val-13_geoname.xml,15G,
+2025-08-24 03:56:02,24M,res-10000_val-13_int.xml,15G,identical small number
+2025-08-24 04:24:30,24M,res-10000_val-13_link.xml,28G,
+2025-08-24 04:56:09,24M,res-10000_val-13_list.xml,15G,
+2025-08-24 05:24:40,24M,res-10000_val-13_richtext.xml,21G,
+2025-08-24 05:59:09,24M,res-10000_val-13_simpletext.xml,15G,
+2025-08-24 06:27:39,24M,res-10000_val-13_textarea.xml,15G,
+2025-08-24 06:56:13,24M,res-10000_val-13_time.xml,15G,
+2025-08-24 07:25:10,24M,res-10000_val-13_uri.xml,15G,
+2025-08-22 21:14:18,18M,res-10000_val-0_no_values.xml,3.6G,

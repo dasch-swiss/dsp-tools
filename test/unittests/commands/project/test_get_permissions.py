@@ -563,8 +563,7 @@ def test_parse_legacy_doaps_unknown_pattern() -> None:
         {"forGroup": f"{USER_IRI_PREFIX}ProjectAdmin", "forProject": PROJ_IRI, "hasPermissions": wrong_perms},
         {"forGroup": f"{USER_IRI_PREFIX}ProjectMember", "forProject": PROJ_IRI, "hasPermissions": wrong_perms},
     ]
-    with pytest.raises(UnknownDOAPException, match="DOAPs do not match any known legacy pattern"):
-        _parse_legacy_doaps(unknown_doap)
+    assert _parse_legacy_doaps(unknown_doap) is None
 
 
 def test_is_legacy_private_pattern_valid(

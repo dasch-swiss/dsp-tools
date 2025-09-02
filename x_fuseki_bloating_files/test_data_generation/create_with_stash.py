@@ -49,7 +49,7 @@ if __name__ == "__main__":
             for r1, r2 in zip(res_1, res_2):
                 r = _add_richtext(r1, r2)
                 root.add_resource_multiple(r)
-            root.write_file(save_dir / f"res-{res_count}_val-12_link_{res_count}-stash.xml")
+            root.write_file(save_dir / f"res-{total_res}_val-12_link_{res_count}-stash.xml")
 
         def create_stand_off_circles():
             root = XMLRoot.create_new("9999", "onto")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             for r1, r2 in zip(res_1, res_2):
                 r = _add_link(r1, r2)
                 root.add_resource_multiple(r)
-            root.write_file(save_dir / f"res-{res_count}_val-12_richtext_{res_count}-stash.xml")
+            root.write_file(save_dir / f"res-{total_res}_val-12_richtext_{res_count}-stash.xml")
 
         create_link_circles()
         create_stand_off_circles()

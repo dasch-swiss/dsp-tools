@@ -36,6 +36,3 @@ if __name__ == "__main__":
 
     def create_stand_off_circles():
         pass
-
-    def create_richtext_with_links():
-        pass

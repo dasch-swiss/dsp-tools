@@ -10,10 +10,13 @@ but will give you links to the relevant and comprehensive documentation.
 The core functionality that the `xmllib` provides you is as follows:
 
 - Classes that will help you construct the resources and add values to it.
-- Configuration options where the fields are not free text, such as Permissions
-- Functions that help you validate your input.
 - Functions that help you clean and transform your input.
+- Functions that help you validate your input.
+- Configuration options where the fields are not free text, such as Permissions.
 
+
+We recommend you to create the import script for your data once your data model is relatively stable,
+as the construction of the code is highly dependent on the data model.
 
 ## Code Example
 
@@ -35,7 +38,7 @@ root = xmllib.XMLRoot.create_new(shortcode="0000", default_ontology="onto")
 
 ### Creating a Resource
 
-Generic resources, that is any resources but the DSP-Base Resources are created as follows.
+Resources which were defined in the ontology JSON are created as follows.
 
 [See the documentation for details.](resource.md)
 
@@ -50,10 +53,9 @@ resource = xmllib.Resource.create_new(
 ### Adding Values to a Resource
 
 Once you created a `Resource` you can add values to it.
-For each value type (apart from the boolean which has no multiple option) we provide three functionalities: 
-adding the value, adding multiple values and adding optional values.
+For each value type (apart from the boolean which has no multiple option) we provide three functionalities:
 
-**Adding a value**
+**Adding one value**
 
 ```python
 resource = resource.add_integer(prop_name=":hasInt", value=1)
@@ -67,25 +69,24 @@ resource = resource.add_integer_multiple(prop_name=":hasInt", values=[1, 2, 3])
 
 **Adding optional values**
 
-With this function we check if the input is empty, if it is the resource is returned as is otherwise the value is added.
+With this function we check if the input is empty, if it is the resource is returned as is,
+otherwise the value is added.
 
 ```python
 resource = resource.add_integer_optional(prop_name=":hasInt", value=None)
 ```
 
-[See the documentation for details.](resource.md)
+[See the documentation for all the options.](resource.md)
 
 
 ### Reformatting the Input With Conversion Functions
 
 We provide a number of functions to help convert your input, for example DSP requires a special format for dates.
-With a helper function you can [extract](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string) 
-or [reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/#xmllib.general_functions.reformat_date) your input into the correct format.
+With a helper function you can [extract](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.find_dates_in_string) 
+or [reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) your input into the correct format.
 
 ```python
-import dsp_tools.xmllib.value_converters
-
-formatted_date = dsp_tools.xmllib.value_converters.reformat_date(
+formatted_date = xmllib.value_converters.reformat_date(
     date="10.1990-11.1990",
     date_precision_separator=".",
     date_range_separator="-",
@@ -95,14 +96,116 @@ formatted_date = dsp_tools.xmllib.value_converters.reformat_date(
 resource = resource.add_date(prop_name=":hasDate", value=formatted_date)
 ```
 
-Find other functions to help you transform your input [here](value-converters.md) and [here](value-converters.md).
+Find further functions to convert values [here](value-converters.md)
+
+
+### Data Cleaning Functions
+
+Often times we require similar functions to process and clean the data before we can add them to the resource.
+
+For example many strings extracted from the data source, represent not one value but a list of values.
+We created the following function to clean your input.
+
+```python
+input_string = "This should be\na list\nof strings."
+cleaned_list = xmllib.create_list_from_input(
+    input_value=input_string,
+    separator="\n"
+)
+```
+
+You can find this and other functions to help you process your data [here](general-functions.md).
+
+Please contact us with a feature request if you cannot find a function in the list, 
+but you feel that it may have generic applications and would be helpful to other users.
+
+### Adding A File To a Resource
+
+In the ontology you can [specify](../data-model/json-project/ontologies.md#resource-super) that a resource should have a file attached.
+
+You can add all types of files to the resource with the following function.
+Please note that only one file or IIIF-URI (see below) are allowed per resource.
+
+```python
+image_resource = image_resource.add_file(
+    filename="cat.tiff",
+    license=xmllib.LicenseRecommended.CC.BY,
+    copyright_holder="Mouse University",
+    authorship=["Minnie Mouse"],
+)
+```
+
+We require that legal information be provided for resources with files. 
+While the copyright holder and authorships are free text fields.
+All licenses referenced must be predefined, [look here for our recommended options](./licenses/recommended.md).
+
+Please contact us if you cannot find the required license in either our recommended or [other options](./licenses/other.md).
+
+### Adding IIIF-URIs To a Resource
+
+We provide the option to add a IIIF-URI to a Resource with the super-class `StillImageRepresentation`.
+This way you can reference images that lie on other servers.
+
+```python
+resource = resource.add_iiif_uri(
+    iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
+    license=xmllib.LicenseRecommended.CC.BY_NC,
+    copyright_holder="Wellcome Collection",
+    authorship=["Cavanagh, Annie"]
+)
+```
+
+Please note that the IIIF-URI must follow the official syntax specified [here](https://iiif.io/api/image/3.0/#2-uri-syntax).
+
+### Adding a Comment To a Value
+
+It is possible to add a comment to individual values or files with the following parameter.
+
+```python
+resource = resource.add_integer_optional(
+    prop_name=":hasInt",
+    value=1,
+    comment="This text is a comment on this integer.",
+)
+```
+
+Please note, that if you add a comment to values with the add multiple functions, 
+all the values will have the same comment.
+
+
+### Specifying Permissions
+
+We recommend to specify permissions on the [project level](../data-model/json-project/overview.md#default_permissions)
+or on [individual classes and properties](../data-model/json-project/overview.md#default_permissions_overrule).
+
+However, you can over-rule the default permissions with the following designated parameter.
+
+```python
+image_resource = image_resource.add_simpletext(
+    prop_name=":hasRemark",
+    value="Text only visible for the project.",
+    permissions=xmllib.Permissions.PRIVATE,
+)
+```
+
+[See the documentation for details.](permissions.md)
+
+### Adding a Resource To the Root
+
+Once you added all the information to the resource you can add it to the root.
+
+```python
+root = root.add_resource(resource)
+```
+
+Similarly to the values, we also provide the possibility to add multiple or optional resources to the root.
 
 ### Creating DSP-Base Resources
 
-DSP has four additional resource types that can be used.
+DSP has four additional resource types that can be used out of the box without defining them in the data model.
 
-- [`AudioSegmentResource`](./dsp-base-resources/audio-segment-resource.md) and [`VideoSegmentResource`](./dsp-base-resources/video-segment-resource.md) are resources that can be used to annotate a segment of a Resource with an audio or video file.
-- [`RegionResource`](./dsp-base-resources/region-resource.md) describes a region of a resource with a video file.
+- [`AudioSegmentResource`](./dsp-base-resources/audio-segment-resource.md) and [`VideoSegmentResource`](./dsp-base-resources/video-segment-resource.md) are resources that can be used to annotate a segment of an audio or video file of another resource.
+- [`RegionResource`](./dsp-base-resources/region-resource.md) describes a region of a resource with an image file.
 - [`LinkResource`](./dsp-base-resources/link-resource.md) is a collection of links to other resources.
 
 These four types have pre-defined properties, 
@@ -120,4 +223,24 @@ region = region.add_rectangle(
 )
 ```
 
+Please consult the individual documentations, linked above for details.
 
+### Writing the File
+
+Once you have added all the data, you can write the XML file with the following function.
+
+```python
+root.write_file("data.xml")
+```
+
+## Validating Your Input
+
+When your resources are created and data is added, the `xmllib` validates your input.
+In the background we use the validation functions specified [here](value-checkers.md), 
+so there is no need to check your input manually.
+
+Due to this, the `xmllib` may print a large amount of information on your terminal.
+You can configure the warning level as described [here](advanced-set-up.md#configure-warnings-level).
+
+It is also possible to save the warnings into a csv file instead of the print message, 
+click [here](advanced-set-up.md#save-warnings-output-to-csv) for details.

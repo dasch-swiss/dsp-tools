@@ -9,7 +9,7 @@ edit_uri: blob/main/docs/
 nav:
   - Overview: index.md
   - Getting Started With a Local Stack: local-stack.md
-  - Working With the Ontology and Project: 
+  - Working With the Ontology and Project:
       - JSON project file:
           - Overview: data-model/json-project/overview.md
           - Ontologies: data-model/json-project/ontologies.md

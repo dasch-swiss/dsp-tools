@@ -7,10 +7,7 @@
 
 # DSP-TOOLS Documentation
 
-DSP-TOOLS is a Python package with a command line interface 
-that helps you interact with a DSP server. 
-A DSP server is a remote server or a local machine 
-where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on. 
+## Installing `dsp-tools`
 
 To install the latest version, run:
 
@@ -31,20 +28,28 @@ pip3 install --upgrade dsp-tools
 > The most recent version of DSP-TOOLS is 
 > [![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/)
 
-The two main tasks that DSP-TOOLS serves for are:
 
-- **Create a project with its data model(s), described in a JSON file, on a DSP server**  
-  In order to archive your data on the DaSCH Service Platform, 
-  you need a data model that describes your data.
-  The data model is defined in a JSON project definition file 
-  which has to be transmitted to the DSP server. 
-  If the DSP server is aware of the data model for your project, 
-  conforming data can be uploaded into the DSP repository.
-  [Click here for details.](./data-model/json-project/overview.md)
-- **Create and upload data, described in an XML file, to a DSP server that has a project with a matching data model**  
-  Sometimes, data is added in large quantities. 
-  Therefore, DSP-TOOLS allows you to perform bulk imports of your data.
-  In order to do so, the data has to be described in an XML file. 
-  DSP-TOOLS is able to read the XML file 
-  and upload all data to the DSP server.
-  [Click here for details.](./data-file/xml-data-file.md)
+
+The `dsp-tools` package provides you with functionalities in the command line 
+to interact with the [DSP-API](https://github.com/dasch-swiss/dsp-api), both remote and locally.
+Additionally, it contains the `xmllib` which helps you construct the XML file required for a mass upload.
+
+
+## Where To Start?
+
+`dsp-tools` provides you with the following core functionalities.
+
+- **Running a Local Stack:** If you want to run your own DSP stack locally, take a look [here](./local-stack.md).
+- **Data Modelling:** There are several ways to create a data model with `dsp-tools`
+    - Take a look at the technical specification for the [JSON file](./data-model/json-project/overview.md).
+    - Or take a look at our tool to [convert an Excel into the JSON file](./data-model/excel2json.md).
+    - If you want to create a data model on the DSP-APP and download the file to upload it onto other servers, 
+      take a look [here](./data-model/data-model-cli.md#get).
+- **Data for Mass-Upload:**
+    - If you want to create the XML file required for a mass-upload onto DSP, take a look at the [`xmllib`](./xmllib-docs/xmlroot.md).
+    - You can find an in-depth explanation of our XML file format [here](./data-file/xml-data-file.md) .
+      Please note, that we recommend to use the `xmllib` to create the file 
+      as we will ensure interoperability between the DSP-API requirements and your input.
+    - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
+      Please note, that only DaSCH employees are permitted to upload data on a production server.
+

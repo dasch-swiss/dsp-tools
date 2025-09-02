@@ -9,6 +9,8 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib import find_dates_in_string
+from dsp_tools.xmllib import reformat_date
 from dsp_tools.xmllib.general_functions import ListLookup
 from dsp_tools.xmllib.general_functions import clean_whitespaces_from_string
 from dsp_tools.xmllib.general_functions import create_footnote_string
@@ -18,10 +20,8 @@ from dsp_tools.xmllib.general_functions import create_non_empty_list_from_string
 from dsp_tools.xmllib.general_functions import create_standoff_link_to_resource
 from dsp_tools.xmllib.general_functions import create_standoff_link_to_uri
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
-from dsp_tools.xmllib.general_functions import find_dates_in_string
 from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.general_functions import make_xsd_compatible_id_with_uuid
-from dsp_tools.xmllib.general_functions import reformat_date
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat

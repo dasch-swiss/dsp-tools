@@ -46,7 +46,7 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
     - You can create a data model on the DSP-APP. To re-use that data model on another server 
       you can use the CLI command described [here](./data-model/data-model-cli.md#get).
 - **Data for Mass-Upload:**
-    - If you want to create the XML file required for a mass-upload onto DSP, take a look at the [`xmllib`](./xmllib-docs/xmlroot.md).
+    - If you want to create the XML file required for a mass-upload onto DSP, take a look at the [`xmllib`](./xmllib-docs/overview.md).
     - You can find an in-depth explanation of our XML file format [here](./data-file/xml-data-file.md).
       Please note, that we recommend to use the `xmllib` library to create the file 
       as we will ensure interoperability between the DSP-API requirements and your input.

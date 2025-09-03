@@ -9,6 +9,7 @@ from x_fuseki_bloating_files.analysis.data_cleaning_utils import clean_db_sizes
 
 f_dir = Path("x_fuseki_bloating_files/analysis_data")
 plot_dir = Path("x_fuseki_bloating_files/graphics_output")
+plot_dir.mkdir(parents=True, exist_ok=True)
 
 
 def prepare_fuseki_multiple_uploads():
@@ -136,7 +137,8 @@ def prepare_fuseki_size_value_comparison() -> None:
 
 
 def prepare_val_res_num_increasing() -> None:
-    f_path = f_dir / "val_res_num_increasing.csv"
+    # TODO: something is wrong with the plot
+    f_path = f_dir / "increasing_num_run1.csv"
     df = pd.read_csv(f_path)
     df = clean_db_sizes(df)
     df = add_filename_info_to_df(df, "Filename")

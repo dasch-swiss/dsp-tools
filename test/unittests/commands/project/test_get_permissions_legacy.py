@@ -63,21 +63,21 @@ def legacy_public_doap_without_creator() -> list[dict[str, Any]]:
     ]
 
 
-def testparse_legacy_doaps_private(
+def test_parse_legacy_doaps_private(
     legacy_private_doap_D: list[dict[str, Any]], legacy_private_doap_M: list[dict[str, Any]]
 ) -> None:
     assert parse_legacy_doaps(legacy_private_doap_D) == "private"
     assert parse_legacy_doaps(legacy_private_doap_M) == "private"
 
 
-def testparse_legacy_doaps_public(
+def test_parse_legacy_doaps_public(
     legacy_public_doap_with_creator: list[dict[str, Any]], legacy_public_doap_without_creator: list[dict[str, Any]]
 ) -> None:
     assert parse_legacy_doaps(legacy_public_doap_with_creator) == "public"
     assert parse_legacy_doaps(legacy_public_doap_without_creator) == "public"
 
 
-def testparse_legacy_doaps_unknown_pattern() -> None:
+def test_parse_legacy_doaps_unknown_pattern() -> None:
     wrong_perms = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "V", "permissionCode": 16},

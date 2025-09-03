@@ -30,7 +30,7 @@ def get_ports() -> ExternalContainerPorts:
 
 def _reserve_port(port: int) -> bool:
     with socket.socket() as s:
-        if s.connect_ex(("0.0.0.0", port)) == 0:
+        if s.connect_ex(("0.0.0.0", port)) == 0:  # noqa: S104
             return False
     try:
         (TESTCONTAINER_PORTS_LOCKFILES / str(port)).touch(exist_ok=False)

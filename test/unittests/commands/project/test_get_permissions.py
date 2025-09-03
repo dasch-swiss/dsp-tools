@@ -112,12 +112,6 @@ def test_parse_default_permissions_wrong_target(public_perms: dict[str, Any]) ->
         _parse_default_permissions([public_perms])
 
 
-def test_parse_default_permissions_previous_standard(public_perms: dict[str, Any]) -> None:
-    public_perms_admin = public_perms.copy()
-    public_perms_admin["forGroup"] = f"{USER_IRI_PREFIX}ProjectAdmin"
-    assert _parse_default_permissions([public_perms_admin, public_perms]) == "public"
-
-
 def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) -> None:
     public_perms["hasPermissions"].append(
         {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}

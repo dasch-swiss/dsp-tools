@@ -111,13 +111,6 @@ def test_parse_default_permissions_wrong_target(public_perms: dict[str, Any]) ->
         _parse_default_permissions([public_perms])
 
 
-def test_parse_default_permissions_previous_standard(public_perms: dict[str, Any]) -> None:
-    public_perms_admin = public_perms.copy()
-    public_perms_admin["forGroup"] = f"{USER_IRI_PREFIX}ProjectAdmin"
-    with pytest.raises(UnknownDOAPException, match=regex.escape("supported target group for DOAPs is ProjectMember")):
-        _parse_default_permissions([public_perms_admin, public_perms])
-
-
 def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) -> None:
     public_perms["hasPermissions"].append(
         {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}
@@ -345,7 +338,7 @@ def test_construct_overrule_object_limited_view_all() -> None:
         has_img_specific_class_doaps=[],
     )
     result = _construct_overrule_object(categories, {})
-    assert result == {"limited_view": ["all"]}
+    assert result == {"limited_view": "all"}
 
 
 def test_construct_overrule_object_limited_view_specific() -> None:

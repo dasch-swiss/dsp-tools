@@ -4,6 +4,7 @@ from typing import Literal
 import regex
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.commands.project.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.permissions_models import DoapCategories
 from dsp_tools.error.exceptions import UnknownDOAPException
@@ -40,9 +41,15 @@ def get_default_permissions(
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     """
-    If the DOAPs exactly match our definition of public/private, return public/private.
+    First tries to parse legacy DOAPs with multiple groups, then falls back to new-style parsing.
+    New-style parsing: If the DOAPs exactly match our definition of public/private, return public/private.
     Otherwise, raise an exception.
     """
+    # First, try to parse legacy DOAPs (multiple groups: ProjectAdmin, ProjectMember)
+    if legacy_result := parse_legacy_doaps(project_doaps):
+        return legacy_result
+
+    # Fall back to new-style parsing (single ProjectMember group)
     unsupported_groups = ("SystemAdmin", "ProjectAdmin", "Creator", "KnownUser", "UnknownUser")
     if [x for x in project_doaps if x.get("forGroup", "").endswith(unsupported_groups)]:
         raise UnknownDOAPException("The only supported target group for DOAPs is ProjectMember.")
@@ -150,10 +157,12 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories:
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
-    try:
-        _parse_default_permissions(other_doaps)
-    except UnknownDOAPException:
-        raise UnknownDOAPException("Found DOAPs that do not fit into our system") from None
+    # Only validate other_doaps if there are any
+    if other_doaps:
+        try:
+            _parse_default_permissions(other_doaps)
+        except UnknownDOAPException:
+            raise UnknownDOAPException("Found DOAPs that do not fit into our system") from None
     return DoapCategories(
         class_doaps=class_doaps,
         prop_doaps=prop_doaps,

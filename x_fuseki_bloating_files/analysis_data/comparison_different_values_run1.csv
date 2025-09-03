@@ -1,16 +1,19 @@
-Timestamp,DB_Before,Filename,DB_After,note
-2025-08-23 23:55:55,24M,res-10000_val-13_boolean.xml,13G,
-2025-08-24 00:53:48,24M,res-10000_val-13_color.xml,15G,
-2025-08-24 01:22:30,24M,res-10000_val-13_date.xml,17G,
-2025-08-24 01:55:31,24M,res-10000_val-13_decimal.xml,15G,identical small number
-2025-08-24 02:24:11,24M,res-10000_val-13_every_type.xml,28G,
-2025-08-24 03:27:47,24M,res-10000_val-13_geoname.xml,15G,
-2025-08-24 03:56:02,24M,res-10000_val-13_int.xml,15G,identical small number
-2025-08-24 04:24:30,24M,res-10000_val-13_link.xml,28G,
-2025-08-24 04:56:09,24M,res-10000_val-13_list.xml,15G,
-2025-08-24 05:24:40,24M,res-10000_val-13_richtext.xml,21G,
-2025-08-24 05:59:09,24M,res-10000_val-13_simpletext.xml,15G,
-2025-08-24 06:27:39,24M,res-10000_val-13_textarea.xml,15G,
-2025-08-24 06:56:13,24M,res-10000_val-13_time.xml,15G,
-2025-08-24 07:25:10,24M,res-10000_val-13_uri.xml,15G,
-2025-08-22 21:14:18,18M,res-10000_val-0_no_values.xml,3.6G,
+Timestamp,DB_Before,Filename,content,DB_After,note
+2025-08-23 23:55:55,24M,res-10000_val-13_boolean.xml,true,13G,
+2025-08-24 00:53:48,24M,res-10000_val-13_color.xml,#00ff00,15G,
+2025-08-24 01:22:30,24M,res-10000_val-13_date.xml,GREGORIAN:AD:0476-09-04:AD:0476-09-04,17G,
+2025-08-24 01:55:31,24M,res-10000_val-13_decimal.xml,1.1,15G,identical small number
+2025-08-24 02:24:11,24M,res-10000_val-13_every_type.xml,same as others,28G,
+2025-08-24 03:27:47,24M,res-10000_val-13_geoname.xml,1111111,15G,
+2025-08-24 03:56:02,24M,res-10000_val-13_int.xml,1,15G,identical small number
+2025-08-24 04:24:30,24M,res-10000_val-13_link.xml,resource id,28G,
+2025-08-24 04:56:09,24M,res-10000_val-13_list.xml,list  node,15G,
+2025-08-24 05:24:40,24M,res-10000_val-13_richtext.xml,a,21G,"no formatting, same text as other text value"
+2025-09-02 15:33:06,24M,res-10000_val-13_richtext-standoff-formatting.xml,<p>a</p>,25G,one tag
+2025-09-02 16:10:44,24M,res-10000_val-13_richtext-standoff-resource-link.xml,"<a class=""salsah-link"" href=""IRI:target_0:IRI"">Text</a>",46G,
+2025-09-02 17:03:43,24M,res-10000_val-13_richtext-standoff-uri.xml,"<a href=""https://docs.dasch.swiss/latest"">Text</a>",25G,
+2025-08-24 05:59:09,24M,res-10000_val-13_simpletext.xml,a,15G,
+2025-08-24 06:27:39,24M,res-10000_val-13_textarea.xml,a,15G,
+2025-08-24 06:56:13,24M,res-10000_val-13_time.xml,2019-10-23T13:45:12.01-14:00,15G,
+2025-08-24 07:25:10,24M,res-10000_val-13_uri.xml,https://dasch.swiss,15G,
+2025-08-22 21:14:18,18M,res-10000_val-0_no_values.xml,,3.6G,

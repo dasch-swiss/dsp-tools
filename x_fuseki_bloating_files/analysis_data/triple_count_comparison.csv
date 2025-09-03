@@ -1,18 +1,18 @@
-Timestamp,DB_Before,numberOfTriples_Before,http://www.w3.org/1999/02/22-rdf-syntax-ns#langString_Before,http://www.w3.org/2001/XMLSchema#boolean_Before,http://www.w3.org/2001/XMLSchema#dateTime_Before,http://www.w3.org/2001/XMLSchema#integer_Before,http://www.w3.org/2001/XMLSchema#nonNegativeInteger_Before,http://www.w3.org/2001/XMLSchema#string_Before,Filename,DB_After,numberOfTriples_After,http://www.w3.org/1999/02/22-rdf-syntax-ns#langString_After,http://www.w3.org/2001/XMLSchema#boolean_After,http://www.w3.org/2001/XMLSchema#dateTime_After,http://www.w3.org/2001/XMLSchema#integer_After,http://www.w3.org/2001/XMLSchema#nonNegativeInteger_After,http://www.w3.org/2001/XMLSchema#string_After
-2025-09-02 16:45:55,24M,3476,668,129,3,4,270,281,res-1_val-13_every_type.xml,25M,3636,668,145,19,25,270,330
-2025-09-02 16:46:30,24M,3476,668,129,3,4,270,281,res-1_val-1_boolean.xml,24M,3493,668,132,5,5,270,286
-2025-09-02 16:47:03,24M,3476,668,129,3,4,270,281,res-1_val-1_color.xml,24M,3493,668,131,5,5,270,287
-2025-09-02 16:47:37,24M,3476,668,129,3,4,270,281,res-1_val-1_date.xml,25M,3497,668,131,5,7,270,289
-2025-09-02 16:48:10,24M,3476,668,129,3,4,270,281,res-1_val-1_decimal.xml,24M,3493,668,131,5,5,270,286
-2025-09-02 16:48:44,24M,3476,668,129,3,4,270,281,res-1_val-1_geoname.xml,24M,3493,668,131,5,5,270,287
-2025-09-02 16:49:17,24M,3476,668,129,3,4,270,281,res-1_val-1_int.xml,24M,3493,668,131,5,6,270,286
-2025-09-02 16:49:51,24M,3476,668,129,3,4,270,281,res-1_val-1_link.xml,25M,3504,668,132,6,6,270,288
-2025-09-02 16:50:25,24M,3476,668,129,3,4,270,281,res-1_val-1_list.xml,24M,3493,668,131,5,5,270,286
-2025-09-02 16:50:59,24M,3476,668,129,3,4,270,281,res-1_val-1_richtext-standoff-formatting.xml,24M,3508,668,131,5,12,270,288
-2025-09-02 16:51:32,24M,3476,668,129,3,4,270,281,res-1_val-1_richtext-standoff-resource-link.xml,25M,3529,668,133,7,13,270,293
-2025-09-02 16:52:06,24M,3476,668,129,3,4,270,281,res-1_val-1_richtext-standoff-uri.xml,25M,3509,668,131,5,12,270,288
-2025-09-02 16:52:40,24M,3476,668,129,3,4,270,281,res-1_val-1_richtext.xml,24M,3501,668,131,5,9,270,287
-2025-09-02 16:53:13,24M,3476,668,129,3,4,270,281,res-1_val-1_simpletext.xml,24M,3493,668,131,5,5,270,286
-2025-09-02 16:53:47,24M,3476,668,129,3,4,270,281,res-1_val-1_textarea.xml,24M,3493,668,131,5,5,270,286
-2025-09-02 16:54:20,24M,3476,668,129,3,4,270,281,res-1_val-1_time.xml,24M,3493,668,131,6,5,270,286
-2025-09-02 16:54:54,24M,3476,668,129,3,4,270,281,res-1_val-1_uri.xml,24M,3493,668,131,5,5,270,286
+Timestamp,Filename,DB_Before,numberOfTriples_Before,http://www.w3.org/1999/02/22-rdf-syntax-ns#langString_Before,http://www.w3.org/2001/XMLSchema#boolean_Before,http://www.w3.org/2001/XMLSchema#dateTime_Before,http://www.w3.org/2001/XMLSchema#integer_Before,http://www.w3.org/2001/XMLSchema#nonNegativeInteger_Before,http://www.w3.org/2001/XMLSchema#string_Before,DB_After,numberOfTriples_After,http://www.w3.org/1999/02/22-rdf-syntax-ns#langString_After,http://www.w3.org/2001/XMLSchema#boolean_After,http://www.w3.org/2001/XMLSchema#dateTime_After,http://www.w3.org/2001/XMLSchema#integer_After,http://www.w3.org/2001/XMLSchema#nonNegativeInteger_After,http://www.w3.org/2001/XMLSchema#string_After
+2025-09-02 16:45:55,res-1_val-13_every_type.xml,24M,3476,668,129,3,4,270,281,25M,3636,668,145,19,25,270,330
+2025-09-02 16:46:30,res-1_val-1_boolean.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,132,5,5,270,286
+2025-09-02 16:47:03,res-1_val-1_color.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,287
+2025-09-02 16:47:37,res-1_val-1_date.xml,24M,3476,668,129,3,4,270,281,25M,3497,668,131,5,7,270,289
+2025-09-02 16:48:10,res-1_val-1_decimal.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,286
+2025-09-02 16:48:44,res-1_val-1_geoname.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,287
+2025-09-02 16:49:17,res-1_val-1_int.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,6,270,286
+2025-09-02 16:49:51,res-1_val-1_link.xml,24M,3476,668,129,3,4,270,281,25M,3504,668,132,6,6,270,288
+2025-09-02 16:50:25,res-1_val-1_list.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,286
+2025-09-02 16:50:59,res-1_val-1_richtext-standoff-formatting.xml,24M,3476,668,129,3,4,270,281,24M,3508,668,131,5,12,270,288
+2025-09-02 16:51:32,res-1_val-1_richtext-standoff-resource-link.xml,24M,3476,668,129,3,4,270,281,25M,3529,668,133,7,13,270,293
+2025-09-02 16:52:06,res-1_val-1_richtext-standoff-uri.xml,24M,3476,668,129,3,4,270,281,25M,3509,668,131,5,12,270,288
+2025-09-02 16:52:40,res-1_val-1_richtext.xml,24M,3476,668,129,3,4,270,281,24M,3501,668,131,5,9,270,287
+2025-09-02 16:53:13,res-1_val-1_simpletext.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,286
+2025-09-02 16:53:47,res-1_val-1_textarea.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,286
+2025-09-02 16:54:20,res-1_val-1_time.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,6,5,270,286
+2025-09-02 16:54:54,res-1_val-1_uri.xml,24M,3476,668,129,3,4,270,281,24M,3493,668,131,5,5,270,286

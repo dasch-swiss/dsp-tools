@@ -7,7 +7,6 @@ from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.project.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.project.get.get_permissions import _get_prefixed_iri
-from dsp_tools.commands.project.get.get_permissions import _is_legacy_public_pattern
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.project.get.get_permissions import _parse_legacy_doaps
 from dsp_tools.commands.project.get.get_permissions import _validate_doap_categories
@@ -565,51 +564,35 @@ def test_parse_legacy_doaps_unknown_pattern() -> None:
     assert _parse_legacy_doaps(unknown_doap) is None
 
 
-def test_is_legacy_private_pattern_valid(
-    legacy_private_doap_D: list[dict[str, Any]], legacy_private_doap_M: list[dict[str, Any]]
-) -> None:
-    """Test recognition of valid legacy private pattern"""
-    assert _parse_legacy_doaps(legacy_private_doap_D) is True
-    assert _parse_legacy_doaps(legacy_private_doap_M) is True
-    assert _is_legacy_public_pattern(legacy_private_doap_D) is False
-    assert _is_legacy_public_pattern(legacy_private_doap_M) is False
-
-
-def test_is_legacy_public_pattern_valid(
-    legacy_public_doap_with_creator: list[dict[str, Any]], legacy_public_doap_without_creator: list[dict[str, Any]]
-) -> None:
-    """Test recognition of valid legacy private pattern"""
-    assert _parse_legacy_doaps(legacy_public_doap_with_creator) is False
-    assert _parse_legacy_doaps(legacy_public_doap_without_creator) is False
-    assert _is_legacy_public_pattern(legacy_public_doap_with_creator) is True
-    assert _is_legacy_public_pattern(legacy_public_doap_without_creator) is True
-
-
 def test_is_legacy_pattern_wrong_count() -> None:
-    """Test that wrong number of DOAPs is rejected"""
-    single_doap = {
+    """Test that wrong number of DOAPs and wrong constellation of target groups is rejected"""
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+    ]
+
+    single_admin_doap = {"forGroup": f"{USER_IRI_PREFIX}ProjectAdmin", "hasPermissions": perms}
+    assert _parse_legacy_doaps([single_admin_doap]) is None
+    assert _parse_legacy_doaps([single_admin_doap, single_admin_doap]) is None
+    assert _parse_legacy_doaps([single_admin_doap, single_admin_doap, single_admin_doap]) is None
+
+    single_member_doap = {"forGroup": f"{USER_IRI_PREFIX}ProjectMember", "hasPermissions": perms}
+    assert _parse_legacy_doaps([single_member_doap]) is None
+    assert _parse_legacy_doaps([single_member_doap, single_member_doap]) is None
+    assert _parse_legacy_doaps([single_member_doap, single_member_doap, single_member_doap]) is None
+
+
+def test_parse_default_permissions_invalid_legacy_falls_back() -> None:
+    """
+    Patterns which are neither valid legacy nor valid new-style should first fall back to new-style parsing,
+    and then fail during new-style parsing
+    """
+    invalid_legacy = {
         "forGroup": f"{USER_IRI_PREFIX}ProjectAdmin",
-        "hasPermissions": [],
+        "forProject": PROJ_IRI,
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}WrongGroup", "name": "CR", "permissionCode": 16},
+        ],
     }
-    assert _parse_legacy_doaps([single_doap]) is False
-    assert _is_legacy_public_pattern([single_doap]) is False
-
-
-# def test_is_legacy_pattern_missing_group(legacy_public_admin_doap: dict[str, Any]) -> None:
-#     """Test that missing ProjectMember group is rejected"""
-#     assert _is_legacy_public_pattern([legacy_public_admin_doap]) is False
-#     assert _is_legacy_private_pattern([legacy_private_admin_doap]) is False
-
-
-# def test_parse_default_permissions_invalid_legacy_falls_back() -> None:
-#     """Test that invalid legacy patterns fall back to new-style parsing and fail appropriately"""
-#     invalid_legacy = {
-#         "forGroup": f"{USER_IRI_PREFIX}ProjectAdmin",
-#         "forProject": PROJ_IRI,
-#         "hasPermissions": [
-#             {"additionalInformation": f"{USER_IRI_PREFIX}WrongGroup", "name": "CR", "permissionCode": 16},
-#         ],
-#     }
-#     # Should fail because it's not valid legacy and also not valid new-style
-#     with pytest.raises(UnknownDOAPException):
-#         _parse_default_permissions([invalid_legacy])
+    with pytest.raises(UnknownDOAPException):
+        _parse_default_permissions([invalid_legacy])

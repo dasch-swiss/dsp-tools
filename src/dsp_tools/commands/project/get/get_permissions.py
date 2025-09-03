@@ -40,8 +40,8 @@ def get_default_permissions(
 
 def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     """
-    If the DOAPs exactly match our definition of public/private, return public/private.
     First tries to parse legacy DOAPs with multiple groups, then falls back to new-style parsing.
+    New-style parsing: If the DOAPs exactly match our definition of public/private, return public/private.
     Otherwise, raise an exception.
     """
     # First, try to parse legacy DOAPs (multiple groups: ProjectAdmin, ProjectMember)
@@ -76,64 +76,33 @@ def _parse_default_permissions(project_doaps: list[dict[str, Any]]) -> str:
     return "public"
 
 
-def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> str | None:
+def _parse_legacy_doaps(project_doaps: list[dict[str, Any]]) -> Literal["public", "private"] | None:
     """
-    Parse legacy DOAPs that target multiple groups (ProjectAdmin, ProjectMember).
-    Recognizes specific patterns used before the current permission system.
+    Check if DOAPs match one of the legacy patterns.
 
-    Args:
-        project_doaps: DOAPs as retrieved from the server
-
-    Returns:
-        "private" or "public" if a recognized legacy pattern is found. None otherwise
-    """
-    if _is_legacy_private_pattern(project_doaps):
-        return "private"
-    if _is_legacy_public_pattern(project_doaps):
-        return "public"
-    return None
-
-
-def _is_legacy_private_pattern(project_doaps: list[dict[str, Any]]) -> bool:
-    """
-    Check if DOAPs match the legacy private pattern:
+    Legacy private:
     - For group ProjectAdmin: ProjectAdmin CR, ProjectMember CR/M
     - For group ProjectMember: ProjectAdmin CR, ProjectMember CR/M
 
-    This was the default when dsp-api created a new project via dsp-app.
-    """
-    if len(project_doaps) != 2:
-        return False
-    admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
-    member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
-    if len(admin_doaps) != 1 or len(member_doaps) != 1:
-        return False
-    return all(
-        [
-            _is_legacy_private(admin_doaps[0]["hasPermissions"]),
-            _is_legacy_private(member_doaps[0]["hasPermissions"]),
-        ]
-    )
-
-
-def _is_legacy_public_pattern(project_doaps: list[dict[str, Any]]) -> bool:
-    """
-    Check if DOAPs match the legacy public pattern:
+    Legacy public:
     - For group ProjectAdmin: ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
     - For group ProjectMember: ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
     """
     if len(project_doaps) != 2:
-        return False
+        return None
     admin_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectAdmin")]
     member_doaps = [x for x in project_doaps if x.get("forGroup", "").endswith("ProjectMember")]
     if len(admin_doaps) != 1 or len(member_doaps) != 1:
-        return False
-    return all(
-        [
-            _is_legacy_public(admin_doaps[0]["hasPermissions"]),
-            _is_legacy_public(member_doaps[0]["hasPermissions"]),
-        ]
-    )
+        return None
+
+    admin_perms = admin_doaps[0]["hasPermissions"]
+    member_perms = member_doaps[0]["hasPermissions"]
+    if all([_is_legacy_private(admin_perms), _is_legacy_private(member_perms)]):
+        return "private"
+    if all([_is_legacy_public(admin_perms), _is_legacy_public(member_perms)]):
+        return "public"
+
+    return None
 
 
 def _is_legacy_private(perms: list[dict[str, Any]]) -> bool:
@@ -166,12 +135,12 @@ def _is_legacy_public(perms: list[dict[str, Any]]) -> bool:
     Check if permissions match the public pattern:
     ProjectAdmin CR, (optionally: Creator CR), ProjectMember D/M, KnownUser V, UnknownUser V
     """
-    # Should have exactly 4 permissions after filtering Creator
+    # Should have exactly 4 permissions after filtering out Creator
     filtered_perms = [p for p in perms if not p["additionalInformation"].endswith("Creator")]
     if len(filtered_perms) != 4:
         return False
 
-    sorted_perms = sorted(filtered_perms, key=lambda x: (x.get("name", ""), x.get("additionalInformation", "")))
+    sorted_perms = sorted(filtered_perms, key=lambda x: x.get("name", ""))
 
     # First should be CR for ProjectAdmin
     if sorted_perms[0]["name"] != "CR" or not sorted_perms[0]["additionalInformation"].endswith("ProjectAdmin"):
@@ -183,12 +152,12 @@ def _is_legacy_public(perms: list[dict[str, Any]]) -> bool:
     ):
         return False
 
-    # Third should be V for KnownUser
-    if sorted_perms[2]["name"] != "V" or not sorted_perms[2]["additionalInformation"].endswith("KnownUser"):
+    # Third/Fourth should be V for KnownUser
+    if sorted_perms[2]["name"] != "V" or not sorted_perms[2]["additionalInformation"].endswith("nownUser"):
         return False
 
-    # Fourth should be V for UnknownUser
-    if sorted_perms[3]["name"] != "V" or not sorted_perms[3]["additionalInformation"].endswith("UnknownUser"):
+    # Third/Fourth should be V for UnknownUser
+    if sorted_perms[3]["name"] != "V" or not sorted_perms[3]["additionalInformation"].endswith("nownUser"):
         return False
 
     return True

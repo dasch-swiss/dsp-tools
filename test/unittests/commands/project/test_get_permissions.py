@@ -7,7 +7,6 @@ from dsp_tools.commands.project.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.project.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.project.get.get_permissions import _get_prefixed_iri
-from dsp_tools.commands.project.get.get_permissions import _is_legacy_private_pattern
 from dsp_tools.commands.project.get.get_permissions import _is_legacy_public_pattern
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.project.get.get_permissions import _parse_legacy_doaps
@@ -570,8 +569,8 @@ def test_is_legacy_private_pattern_valid(
     legacy_private_doap_D: list[dict[str, Any]], legacy_private_doap_M: list[dict[str, Any]]
 ) -> None:
     """Test recognition of valid legacy private pattern"""
-    assert _is_legacy_private_pattern(legacy_private_doap_D) is True
-    assert _is_legacy_private_pattern(legacy_private_doap_M) is True
+    assert _parse_legacy_doaps(legacy_private_doap_D) is True
+    assert _parse_legacy_doaps(legacy_private_doap_M) is True
     assert _is_legacy_public_pattern(legacy_private_doap_D) is False
     assert _is_legacy_public_pattern(legacy_private_doap_M) is False
 
@@ -580,8 +579,8 @@ def test_is_legacy_public_pattern_valid(
     legacy_public_doap_with_creator: list[dict[str, Any]], legacy_public_doap_without_creator: list[dict[str, Any]]
 ) -> None:
     """Test recognition of valid legacy private pattern"""
-    assert _is_legacy_private_pattern(legacy_public_doap_with_creator) is False
-    assert _is_legacy_private_pattern(legacy_public_doap_without_creator) is False
+    assert _parse_legacy_doaps(legacy_public_doap_with_creator) is False
+    assert _parse_legacy_doaps(legacy_public_doap_without_creator) is False
     assert _is_legacy_public_pattern(legacy_public_doap_with_creator) is True
     assert _is_legacy_public_pattern(legacy_public_doap_without_creator) is True
 
@@ -592,7 +591,7 @@ def test_is_legacy_pattern_wrong_count() -> None:
         "forGroup": f"{USER_IRI_PREFIX}ProjectAdmin",
         "hasPermissions": [],
     }
-    assert _is_legacy_private_pattern([single_doap]) is False
+    assert _parse_legacy_doaps([single_doap]) is False
     assert _is_legacy_public_pattern([single_doap]) is False
 
 

@@ -37,12 +37,12 @@ From several DSP base resources, no subclasses can be created in a project ontol
 However, they can be used directly in the XML data file:
 
 - `LinkObj` is a resource linking together several other resources of different classes. 
-  It can be used in the XML file with the [&lt;link&gt; tag](../xml-data-file.md#link) and 
+  It can be used in the XML file with the [&lt;link&gt; tag](../../data-file/xml-data-file.md#link) and 
   has the following predefined properties:
     - `hasComment` (0-n)
     - `hasLinkTo` (1-n)
 - A `Region` resource defines a region of interest (ROI) in an image. 
-  It can be used in the XML file with the [&lt;region&gt; tag](../xml-data-file.md#region) and 
+  It can be used in the XML file with the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region) and 
   has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
@@ -54,16 +54,16 @@ Subclasses can be created from some of them in the project ontology.
 
 - `hasLinkTo`: a link to another resource
     - subclasses can be created from it ([hasLinkTo Property](./ontologies.md#haslinkto-property))
-    - can be used directly in the XML data file in the [&lt;link&gt; tag](../xml-data-file.md#link)
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](../../data-file/xml-data-file.md#link)
 - `hasColor`: Defines a color value. 
     - subclasses can be created from it ([ColorValue](./ontologies.md#colorvalue))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region)
 - `hasComment`: Defines a standard comment. 
     - subclasses can be created from it ([hasComment Property](./ontologies.md#hascomment-property))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region) or 
-      [&lt;link&gt; tag](../xml-data-file.md#link)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region) or 
+      [&lt;link&gt; tag](../../data-file/xml-data-file.md#link)
 - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region)
 - `isRegionOf`: A special variant of `hasLinkTo`. 
   It means that the given resource class is a region of interest in an image. 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region)

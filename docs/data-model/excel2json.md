@@ -3,7 +3,115 @@
 # Excel File Format to Generate a JSON Project
 
 
-With the [`excel2json`](../cli-commands.md#excel2json) command, 
+## `excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous [`old-excel2json`](#old-excel2json) command.
+
+```bash
+dsp-tools excel2json excelfolder project_definition.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](#the-folder-structure-for-excel2json).
+
+
+
+### `excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous `old-excel2lists` command.
+
+```bash
+dsp-tools excel2lists [options] excelfolder lists_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](#the-lists-section).
+
+
+
+### `excel2resources`
+
+This command creates the "resources" section of a JSON project file from an Excel file.
+
+```bash
+dsp-tools excel2resources resources.xlsx resources_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel format is [documented here](#the-resources-section).
+
+
+
+### `excel2properties`
+
+This command creates the "properties" section of a JSON project file from an Excel file.
+
+```bash
+dsp-tools excel2properties properties.xlsx properties_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel format is [documented here](#the-properties-section).
+
+
+
+## `old-excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+It will be deprecated in favor of [`excel2json`](#excel2json) in the future.
+
+```bash
+dsp-tools old-excel2json excelfolder project_definition.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+
+
+### `old-excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+It will be deprecated in favor of `excel2lists` in the future.
+
+```bash
+dsp-tools old-excel2lists [options] excelfolder lists_section.json
+```
+
+The following options are available:
+
+- `-v` | `--verbose` (optional): print more information about the progress to the console
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](#the-lists-section-for-old-excel2json-and-old-excel2lists).
+
+
+
+With the [`excel2json`](#excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
@@ -117,7 +225,7 @@ The sheets should be filled as follows:
 
 ## The `resources` Section
 
-With the [`excel2resources`](../cli-commands.md#excel2resources) command, 
+With the [`excel2resources`](#excel2resources) command, 
 the `resources` section used in a data model (JSON) can be created from an Excel file. 
 Only `XLSX` files are allowed. 
 The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
@@ -183,7 +291,7 @@ The expected columns are:
 
 ## The `properties` Section
 
-With the [`excel2properties`](../cli-commands.md#excel2properties) command, 
+With the [`excel2properties`](#excel2properties) command, 
 the `properties` section used in a data model (JSON) can be created from an Excel file.
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. 
 The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
@@ -243,7 +351,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 ## The `lists` Section
 
-With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
+With the [`excel2lists`](#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
@@ -340,7 +448,7 @@ The Excel sheets must have the following structure:
 
 ## The `lists` Section for `old-excel2json` and `old-excel2lists`
 
-With the [`old-excel2lists`](../cli-commands.md#old-excel2lists) command, 
+With the [`old-excel2lists`](#old-excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 

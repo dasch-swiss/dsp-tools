@@ -1,5 +1,30 @@
 # Changelog
 
+## [16.10.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.9.0...v16.10.0) (2025-09-03)
+
+
+### Enhancements
+
+* **excel2json:** guarantee sorting of labels/comments in output (DEV-5369) ([#1942](https://github.com/dasch-swiss/dsp-tools/issues/1942)) ([cda7db7](https://github.com/dasch-swiss/dsp-tools/commit/cda7db7e6659c5dcced079ae45c48ffb0fcfa62d))
+
+
+### Bug Fixes
+
+* **get:** don't crash when no credentials are given (DEV-5347) ([#1940](https://github.com/dasch-swiss/dsp-tools/issues/1940)) ([272dc59](https://github.com/dasch-swiss/dsp-tools/commit/272dc598a15f7554920aec22b16b8edd413e85ae))
+* **start-stack:** asset download on localhost broken (DEV-5362) ([#1939](https://github.com/dasch-swiss/dsp-tools/issues/1939)) ([263de95](https://github.com/dasch-swiss/dsp-tools/commit/263de959444db72a8230d8a4cd3a16a9d254c4f3))
+
+
+### Maintenance
+
+* **start-stack:** remove fuseki initialization and bump versions to 2025.09.01 (DEV-5297) ([#1937](https://github.com/dasch-swiss/dsp-tools/issues/1937)) ([6a06645](https://github.com/dasch-swiss/dsp-tools/commit/6a0664582d5200cae69d0478af87b5ddfa71700f))
+
+
+### Documentation
+
+* reorganisation documentation structure (DEV-5371) ([#1946](https://github.com/dasch-swiss/dsp-tools/issues/1946)) ([abb5407](https://github.com/dasch-swiss/dsp-tools/commit/abb5407a2b36c8e9be6f476147679c85f45e21a5))
+* **xmllib:** create overview of xmllib (DEV-5291) ([#1930](https://github.com/dasch-swiss/dsp-tools/issues/1930)) ([5a4391a](https://github.com/dasch-swiss/dsp-tools/commit/5a4391a820deb127779a6f8f63c47c61d90f6bd6))
+* **xmllib:** fix links after renaming files and update CLAUDE.md (DEV-5370) ([#1943](https://github.com/dasch-swiss/dsp-tools/issues/1943)) ([309c418](https://github.com/dasch-swiss/dsp-tools/commit/309c418bbc3388d6c6ec8bed77f56ad15fad1a1a))
+
 ## [16.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.8.0...v16.9.0) (2025-08-27)
 
 

@@ -6,6 +6,6 @@ services:
   sipi:
     image: daschswiss/knora-sipi:latest
   db:
-    image: daschswiss/apache-jena-fuseki:5.4.0
+    image: daschswiss/apache-jena-fuseki:latest
   ingest:
     image: daschswiss/dsp-ingest:latest

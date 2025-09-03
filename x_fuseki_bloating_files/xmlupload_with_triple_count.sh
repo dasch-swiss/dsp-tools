@@ -67,7 +67,7 @@ get_fuseki_size() {
 # Function to get number of triples from Fuseki
 get_triple_count() {
     local query="SELECT (COUNT(*) AS ?numberOfTriples) WHERE { ?s ?p ?o . }"
-    local response=$(curl -s -X POST "http://localhost:3030/knora-test/sparql" \
+    local response=$(curl -s -X POST "http://localhost:3030/dsp-repo/sparql" \
         -u "admin:test" \
         -H "Accept: application/sparql-results+json" \
         -H "Content-Type: application/x-www-form-urlencoded" \
@@ -98,7 +98,7 @@ get_triple_count() {
 # Function to get triple types from Fuseki
 get_triple_types() {
     local query="SELECT ?dtype (COUNT(*) AS ?count) WHERE { ?x ?y ?z. FILTER ( isLiteral(?z)) BIND(DATATYPE(?z) AS ?dtype ) } GROUP BY ?dtype"
-    local response=$(curl -s -X POST "http://localhost:3030/knora-test/sparql" \
+    local response=$(curl -s -X POST "http://localhost:3030/dsp-repo/sparql" \
         -u "admin:test" \
         -H "Accept: application/sparql-results+json" \
         -H "Content-Type: application/x-www-form-urlencoded" \

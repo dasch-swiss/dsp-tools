@@ -1,5 +1,17 @@
 # Changelog
 
+## [16.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.10.0...v16.11.0) (2025-09-05)
+
+
+### Enhancements
+
+* **get:** support legacy permissions (DOAPs) (DEV-5346) ([#1945](https://github.com/dasch-swiss/dsp-tools/issues/1945)) ([7c2804d](https://github.com/dasch-swiss/dsp-tools/commit/7c2804d1f965b5772d819d1cdf7257a694536271))
+
+
+### Bug Fixes
+
+* **xmllib:** replace usage of the deprecated `create_list_from_string` with `create_list_from_input` (DEV-5397) ([#1949](https://github.com/dasch-swiss/dsp-tools/issues/1949)) ([de0dc8c](https://github.com/dasch-swiss/dsp-tools/commit/de0dc8c48a5e6a23ff75027f92e1a1024a56815f))
+
 ## [16.10.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.9.0...v16.10.0) (2025-09-03)
 
 

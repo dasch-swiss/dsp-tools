@@ -32,4 +32,9 @@ Notes to the files
 - triple_count_comparison.csv
   - Comparing the number of triples generated per value type
   - This is to see if the triple number has a correlation
+- triple_count_comparison_5000_res.csv
+  - Comparing the number of triples generated per value type
+  - Content of the values is identical for all 13 usages.
+  - Int is 1
+  - decimal is 1.1
 - 

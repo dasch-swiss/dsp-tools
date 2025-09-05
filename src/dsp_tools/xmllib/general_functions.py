@@ -401,7 +401,7 @@ def get_list_nodes_from_string_via_list_name(
     """
     if not is_nonempty_value_internal(string_with_list_labels):
         return []
-    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    labels_list = create_list_from_input(string_with_list_labels, label_separator)
     nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
     return nodes_list
 
@@ -463,7 +463,7 @@ def get_list_nodes_from_string_via_property(
     """
     if not is_nonempty_value_internal(string_with_list_labels):
         return "", []
-    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    labels_list = create_list_from_input(string_with_list_labels, label_separator)
     list_name = ""
     nodes = []
     for lbl in labels_list:

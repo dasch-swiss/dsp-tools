@@ -541,11 +541,17 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:stillImageFileValueHasExternalUrl ;
-                    sh:datatype xsd:anyURI ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "StillImageExternalFileValue requires an external IIIF-URI"
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:stillImageFileValueHasExternalUrl ;
+                    sh:datatype xsd:anyURI ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Your IIIF-URI contains characters that are not allowed in a URI."
                   ] .
 
 api-shapes:TextFileValue_ClassShape

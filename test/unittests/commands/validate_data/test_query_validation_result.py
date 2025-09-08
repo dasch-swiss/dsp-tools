@@ -459,6 +459,22 @@ Second Line"""
         assert result.message == Literal("A stand-off link must target an existing resource.")
         assert result.input_value == URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
 
+    def test_report_invalid_datatype(
+        self, report_invalid_datatype: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_invalid_datatype
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == KNORA_API.stillImageFileValueHasExternalUrl
+        assert result.severity == SH.Violation
+        assert result.message == Literal("data-type message")
+        assert result.input_value == Literal(
+            "https://iiif.[this-is-not-allowed]/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg", datatype=XSD.anyURI
+        )
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())

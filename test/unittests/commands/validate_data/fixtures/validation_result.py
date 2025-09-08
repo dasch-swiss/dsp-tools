@@ -1436,6 +1436,46 @@ def report_standoff_link_target_is_iri(
 
 
 @pytest.fixture
+def report_invalid_datatype(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+         sh:focusNode                  <http://data/value_id_still_image_iiif_invalid_characters_in_uri>;
+         sh:resultMessage              "data-type message";
+         sh:resultPath                 knora-api:stillImageFileValueHasExternalUrl;
+         sh:resultSeverity             sh:Violation;
+         sh:sourceConstraintComponent  sh:DatatypeConstraintComponent;
+         sh:sourceShape                [] ;
+         sh:value                      "https://iiif.[this-is-not-allowed]/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"^^xsd:anyURI
+    ] .
+    """
+    data_str = f"""{PREFIXES}
+<http://data/id_still_image_iiif_invalid_characters_in_uri> a onto:TestStillImageRepresentation ;
+    rdfs:label "TestStillImageRepresentation IIIF"^^xsd:string ;
+    knora-api:hasStillImageFileValue <http://data/value_id_still_image_iiif_invalid_characters_in_uri> .
+
+<http://data/value_id_still_image_iiif_invalid_characters_in_uri> a knora-api:StillImageExternalFileValue ;
+    knora-api:hasAuthorship "Author One"^^xsd:string ;
+    knora-api:hasCopyrightHolder ""^^xsd:string ;
+    knora-api:hasLicense <http://rdfh.ch/licenses/unknown> ;
+    knora-api:stillImageFileValueHasExternalUrl "https://iiif.[this-is-not-allowed]/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"^^xsd:anyURI .
+    """  # noqa:E501
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.PatternConstraintComponent,
+        focus_node_iri=DATA.empty_label,
+        focus_node_type=ONTO.ClassWithEverything,
+        result_path=RDFS.label,
+        severity=SH.Violation,
+    )
+    return graphs, base_info
+
+
+@pytest.fixture
 def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

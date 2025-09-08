@@ -1,6 +1,11 @@
 # Notes
 
-Notes to the files
+## Open Questions
+
+- How much of a difference does compaction do?
+- 
+
+## Notes to the files
 
 - comparison_different_values_run1.csv
   - Identical values on each resource (validate is switched off)

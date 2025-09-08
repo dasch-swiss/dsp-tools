@@ -291,7 +291,7 @@
 
         <!--
         sh:sourceConstraintComponent  sh:DatatypeConstraintComponent
-        sh:detail
+        sh:detail                     -
         -->
         <resource label="TestStillImageRepresentation IIIF"
                   restype=":TestStillImageRepresentation"

@@ -288,4 +288,19 @@
             </date-prop>
         </resource>
 
+
+        <!--
+        sh:sourceConstraintComponent  sh:DatatypeConstraintComponent
+        sh:detail
+        -->
+        <resource label="TestStillImageRepresentation IIIF"
+                  restype=":TestStillImageRepresentation"
+                  id="iiif_invalid_characters_in_uri"
+        >
+            <iiif-uri license="http://rdfh.ch/licenses/unknown"
+                      copyright-holder="Copyright Holder"
+                      authorship-id="authorship_1"
+            >https://iiif.[this-is-not-allowed]/a.jp2/full/max/0/default.jpg
+            </iiif-uri>
+        </resource>
 </knora>

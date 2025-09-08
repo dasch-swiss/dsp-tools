@@ -170,7 +170,7 @@
         <iiif-uri license="http://rdfh.ch/licenses/unknown"
                   copyright-holder="Copyright Holder"
                   authorship-id="authorship_1"
-        >https://iiif.[this-is-not-allowed]/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        >https://iiif.[this-is-not-allowed]/a.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>
 

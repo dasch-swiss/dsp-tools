@@ -1466,10 +1466,10 @@ def report_invalid_datatype(onto_graph: Graph) -> tuple[Graph, ValidationResultB
     val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
-        source_constraint_component=SH.PatternConstraintComponent,
-        focus_node_iri=DATA.empty_label,
-        focus_node_type=ONTO.ClassWithEverything,
-        result_path=RDFS.label,
+        source_constraint_component=SH.DatatypeConstraintComponent,
+        focus_node_iri=DATA.id_still_image_iiif_invalid_characters_in_uri,
+        focus_node_type=ONTO.TestStillImageRepresentation,
+        result_path=KNORA_API.stillImageFileValueHasExternalUrl,
         severity=SH.Violation,
     )
     return graphs, base_info

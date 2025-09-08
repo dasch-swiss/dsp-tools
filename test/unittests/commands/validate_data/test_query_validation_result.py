@@ -459,11 +459,9 @@ Second Line"""
         assert result.message == Literal("A stand-off link must target an existing resource.")
         assert result.input_value == URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
 
-    def test_report_invalid_datatype(
-        self, report_invalid_datatype: tuple[Graph, Graph, ValidationResultBaseInfo]
-    ) -> None:
-        res, data, info = report_invalid_datatype
-        result = _query_one_without_detail(info, res, data)
+    def test_report_invalid_datatype(self, report_invalid_datatype: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        res, info = report_invalid_datatype
+        result = _query_one_without_detail(info, res, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri

@@ -120,7 +120,7 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
     TripleObjectType.BOOLEAN: XSD.boolean,
     TripleObjectType.DATETIME: XSD.dateTimeStamp,
     TripleObjectType.DECIMAL: XSD.decimal,
-    TripleObjectType.INTEGER: XSD.integer,
+    TripleObjectType.INTEGER: XSD.int,
     TripleObjectType.STRING: XSD.string,
     TripleObjectType.URI: XSD.anyURI,
     TripleObjectType.DATE_YYYY_MM_DD: XSD.date,

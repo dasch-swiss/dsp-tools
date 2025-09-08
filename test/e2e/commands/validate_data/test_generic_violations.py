@@ -473,6 +473,7 @@ def test_reformat_file_value_violation(authentication) -> None:
         ("id_document_missing", ProblemType.FILE_VALUE_MISSING),
         ("id_document_unknown", ProblemType.FILE_VALUE_MISSING),
         ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
+        ("id_still_image_iiif_invalid_characters_in_uri", ProblemType.GENERIC),
         ("id_still_image_missing", ProblemType.FILE_VALUE_MISSING),
         ("id_still_image_unknown", ProblemType.FILE_VALUE_MISSING),
         ("id_text_missing", ProblemType.FILE_VALUE_MISSING),

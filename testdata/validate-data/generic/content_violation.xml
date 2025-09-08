@@ -107,6 +107,16 @@
         </text-prop>
     </resource>
 
+    <!--
+        The datatype required for the int value is a xsd:int which has a top limit
+        (https://www.w3.org/TR/rdf11-concepts/#xsd-datatypes)
+    -->
+    <resource label="Integer too large" restype=":ClassWithEverything" id="int_too_large">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>21474836470000000</integer>
+        </integer-prop>
+    </resource>
+
     <!-- Comment on value may not be empty -->
     <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value_empty">
         <uri-prop name=":testUriValue">

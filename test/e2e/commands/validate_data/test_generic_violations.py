@@ -291,6 +291,11 @@ def test_reformat_content_violation(authentication) -> None:
         ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
         ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        (
+            "int_too_large",
+            "onto:testIntegerSimpleText",
+            "The integer must be within the range of -2'147'483'648 and 2'147'483'647.",
+        ),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),

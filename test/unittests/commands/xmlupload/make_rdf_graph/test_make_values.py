@@ -129,7 +129,7 @@ class TestMakeOneValueGraphSuccess:
         prop = ProcessedInt(1, absolute_iri("hasInteger"), "comment", None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
+        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)))
         assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
         assert next(result.subjects(ONTO.hasInteger, val)) == res_bn
         comment = next(result.objects(val, KNORA_API.valueHasComment))

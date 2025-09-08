@@ -294,7 +294,7 @@ def test_reformat_content_violation(authentication) -> None:
         (
             "int_too_large",
             "onto:testIntegerSimpleText",
-            "The integer must be within the range of negative to positive 2'147'483'647.",
+            "The integer must be within the range of -2'147'483'648 and 2'147'483'647.",
         ),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),

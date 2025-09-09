@@ -11,6 +11,7 @@ class FusekiBloatingLevel(Enum):
     NON_CRITICAL = auto()
     WARNING = auto()
     CRITICAL = auto()
+    CALCULATION_FAILURE = auto()
 
 
 @dataclass

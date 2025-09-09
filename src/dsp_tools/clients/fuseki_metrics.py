@@ -37,7 +37,6 @@ class FusekiMetrics:
                 return int(size_str)
             except (ValueError, IndexError):
                 logger.error("Could not parse size from du command output.")
-                self.communication_failure = True
                 return None
         return None
 
@@ -55,7 +54,6 @@ class FusekiMetrics:
         result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
         if result.returncode != 0:
             logger.error(f"Could not run command: {cmd}. {result_str}")
-            self.communication_failure = True
             return None
         logger.debug(f"Command output, {result_str}")
         return result.stdout.strip()

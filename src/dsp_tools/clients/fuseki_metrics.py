@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 from dataclasses import dataclass
 
@@ -16,36 +17,45 @@ class FusekiMetrics:
 
     def get_start_size(self) -> None:
         if not self.communication_failure:
-            self.size_before = self._get_size()
-        else:
-            logger.error("Could not communicate with Fuseki. No size was requested.")
+            if size := self._get_size():
+                self.size_before = size
 
     def get_end_size(self) -> None:
         if not self.communication_failure:
-            self.size_after = self._get_size()
-        else:
-            logger.error("Could not communicate with Fuseki. No size was requested.")
+            if size := self._get_size():
+                self.size_after = size
 
-    def _get_size(self) -> int:
+    def _get_size(self) -> int | None:
         if not self.container_id:
             self._get_container_id()
         cmd = f"docker exec '{self.container_id}' du -sb /fuseki 2>/dev/null | awk '{{print $1}}'"
-        result = self._run_command(cmd)
-        return int(result)
+        if result := self._run_command(cmd):
+            try:
+                return int(result)
+            except ValueError:
+                logger.error("Could not convert result to integer.")
+        return None
 
     def _get_container_id(self) -> None:
-        cmd = "docker ps --format '{{.ID}} {{.Image}}' | grep 'daschswiss/apache-jena-fuseki' | awk '{print $1}'"
+        cmd = "docker ps --format '{{.ID}} {{.Image}}'"
         if result := self._run_command(cmd):
-            self.container_id = result
+            for line in result.splitlines():
+                parts = shlex.split(line)
+                if len(parts) == 2 and "daschswiss/apache-jena-fuseki" in parts[1]:
+                    self.container_id = parts[0]
+                    return
+        logger.error("Could not find Fuseki container ID.")
+        self.communication_failure = True
 
     def _run_command(self, cmd: str) -> str | None:
-        result = subprocess.run(cmd, check=False, shell=True, capture_output=True, text=True)
-        if not result.returncode != 0:
-            logger.error(f"Could not run command: {cmd}. Result code: {result.returncode}")
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
+        if result.returncode != 0:
+            logger.error(f"Could not run command: {cmd}. {result_str}")
             self.communication_failure = True
             return None
+        logger.debug(f"Command output, {result_str}")
         return result.stdout.strip()
 
-
 f = FusekiMetrics()
-f._get_container_id()
+f.get_end_size()

@@ -50,6 +50,7 @@ class FusekiMetrics:
         logger.error("Could not find Fuseki container ID.")
 
     def _run_command(self, cmd: list[str]) -> str | None:
+        logger.debug(cmd)
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
         if result.returncode != 0:

@@ -16,7 +16,10 @@ CRITICAL_BLOATING = 20 * _1_GB_IN_BYTES
 def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
     size_diff = _analyse_fuseki_sizes(fuseki_metrics)
     bloating_level = _get_bloating_level(size_diff)
-    rounded = round(size_diff / _1_GB_IN_BYTES, 2)
+    if size_diff is not None:
+        rounded = round(size_diff / _1_GB_IN_BYTES, 2)
+    else:
+        rounded = None
     msg = (
         f"The xmlupload caused the database to use {rounded} GB memory. "
         f"Please check that your test server has enough memory for an upload. "
@@ -52,7 +55,6 @@ def _get_bloating_level(size_diff: int | None) -> FusekiBloatingLevel:
 
 
 def _analyse_fuseki_sizes(fuseki_metrics: FusekiMetrics) -> int | None:
-    all_there = True if fuseki_metrics.end_size is not None and fuseki_metrics.start_size is not None else False
-    if not all_there:
-        return None
-    return fuseki_metrics.end_size - fuseki_metrics.start_size
+    if fuseki_metrics.end_size is not None and fuseki_metrics.start_size is not None:
+        return fuseki_metrics.end_size - fuseki_metrics.start_size
+    return None

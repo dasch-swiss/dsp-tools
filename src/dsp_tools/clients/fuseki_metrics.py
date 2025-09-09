@@ -1,7 +1,7 @@
 import shlex
 import subprocess
 from dataclasses import dataclass
-
+from typing import cast
 from loguru import logger
 
 _10_GB_IN_BYTES = 10_000_000_000
@@ -28,6 +28,9 @@ class FusekiMetrics:
     def _get_size(self) -> int | None:
         if not self.container_id:
             self._get_container_id()
+        if not self.container_id:
+            logger.error("Could not retrieve container ID")
+            return None
         if result := self._run_command(["docker", "exec", self.container_id, "du", "-sb", "/fuseki"]):
             try:
                 size_str = result.split()[0]
@@ -46,7 +49,7 @@ class FusekiMetrics:
         logger.error("Could not find Fuseki container ID.")
         self.communication_failure = True
 
-    def _run_command(self, cmd: str | list[str]) -> str | None:
+    def _run_command(self, cmd: list[str]) -> str | None:
         result = subprocess.run(cmd, check=False, capture_output=True, text=True, shell=isinstance(cmd, str))
         result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
         if result.returncode != 0:

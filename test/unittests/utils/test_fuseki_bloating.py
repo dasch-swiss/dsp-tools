@@ -8,22 +8,22 @@ from dsp_tools.utils.fuseki_bloating import _get_bloating_level
 
 class TestAnalyseFusekiSizes:
     def test_both_sizes_present_returns_difference(self) -> None:
-        fuseki_metrics = FusekiMetrics(size_before=1000, size_after=2000)
+        fuseki_metrics = FusekiMetrics(start_size=1000, end_size=2000)
         result = _analyse_fuseki_sizes(fuseki_metrics)
         assert result == 1000
 
     def test_size_before_none_returns_none(self) -> None:
-        fuseki_metrics = FusekiMetrics(size_before=None, size_after=2000)
+        fuseki_metrics = FusekiMetrics(start_size=None, end_size=2000)
         result = _analyse_fuseki_sizes(fuseki_metrics)
         assert result is None
 
     def test_size_after_none_returns_none(self) -> None:
-        fuseki_metrics = FusekiMetrics(size_before=1000, size_after=None)
+        fuseki_metrics = FusekiMetrics(start_size=1000, end_size=None)
         result = _analyse_fuseki_sizes(fuseki_metrics)
         assert result is None
 
     def test_both_sizes_none_returns_none(self) -> None:
-        fuseki_metrics = FusekiMetrics(size_before=None, size_after=None)
+        fuseki_metrics = FusekiMetrics(start_size=None, end_size=None)
         result = _analyse_fuseki_sizes(fuseki_metrics)
         assert result is None
 

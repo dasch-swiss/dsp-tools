@@ -17,14 +17,14 @@ class FusekiBloatingLevel(Enum):
 @dataclass
 class FusekiMetrics:
     container_id: str | None = None
-    size_before: int | None = None
-    size_after: int | None = None
+    start_size: int | None = None
+    end_size: int | None = None
 
     def get_start_size(self) -> None:
-        self.size_before = self._get_size()
+        self.start_size = self._get_size()
 
     def get_end_size(self) -> None:
-        self.size_after = self._get_size()
+        self.end_size = self._get_size()
 
     def _get_size(self) -> int | None:
         if not self.container_id:

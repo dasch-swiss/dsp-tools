@@ -52,7 +52,7 @@ def _get_bloating_level(size_diff: int | None) -> FusekiBloatingLevel:
 
 
 def _analyse_fuseki_sizes(fuseki_metrics: FusekiMetrics) -> int | None:
-    all_there = True if fuseki_metrics.size_after is not None and fuseki_metrics.size_before is not None else False
+    all_there = True if fuseki_metrics.end_size is not None and fuseki_metrics.start_size is not None else False
     if not all_there:
         return None
-    return fuseki_metrics.size_after - fuseki_metrics.size_before
+    return fuseki_metrics.end_size - fuseki_metrics.start_size

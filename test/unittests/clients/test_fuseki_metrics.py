@@ -13,7 +13,7 @@ def test_get_start_size(mock_get_size: Mock):
     mock_get_size.return_value = 1500
     metrics = FusekiMetrics()
     metrics.get_start_size()
-    assert metrics.size_before == 1500
+    assert metrics.start_size == 1500
     mock_get_size.assert_called_once()
 
 
@@ -22,7 +22,7 @@ def test_get_end_size(mock_get_size: Mock):
     mock_get_size.return_value = 2500
     metrics = FusekiMetrics()
     metrics.get_end_size()
-    assert metrics.size_after == 2500
+    assert metrics.end_size == 2500
     mock_get_size.assert_called_once()
 
 
@@ -138,8 +138,8 @@ def test_integration_workflow_success():
         metrics.get_start_size()
         metrics.get_end_size()
         assert metrics.container_id == "abc123"
-        assert metrics.size_before == 1000
-        assert metrics.size_after == 1500
+        assert metrics.start_size == 1000
+        assert metrics.end_size == 1500
 
 
 def test_integration_workflow_no_container():
@@ -151,8 +151,8 @@ def test_integration_workflow_no_container():
         metrics.get_end_size()
 
         assert metrics.container_id is None
-        assert metrics.size_before is None
-        assert metrics.size_after is None
+        assert metrics.start_size is None
+        assert metrics.end_size is None
 
 
 def test_integration_workflow_command_failure():
@@ -168,8 +168,8 @@ def test_integration_workflow_command_failure():
         metrics.get_end_size()
 
         assert metrics.container_id == "abc123"
-        assert metrics.size_before is None
-        assert metrics.size_after is None
+        assert metrics.start_size is None
+        assert metrics.end_size is None
 
 
 if __name__ == "__main__":

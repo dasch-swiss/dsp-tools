@@ -1,11 +1,16 @@
 import shlex
 import subprocess
 from dataclasses import dataclass
+from enum import Enum
+from enum import auto
 
 from loguru import logger
 
-_10_GB_IN_BYTES = 10_000_000_000
-_20_GB_IN_BYTES = _10_GB_IN_BYTES * 2
+
+class FusekiBloatingLevel(Enum):
+    NON_CRITICAL = auto()
+    WARNING = auto()
+    CRITICAL = auto()
 
 
 @dataclass

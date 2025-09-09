@@ -1,6 +1,7 @@
 import shlex
 import subprocess
 from dataclasses import dataclass
+
 from loguru import logger
 
 _10_GB_IN_BYTES = 10_000_000_000
@@ -12,23 +13,17 @@ class FusekiMetrics:
     container_id: str | None = None
     size_before: int | None = None
     size_after: int | None = None
-    communication_failure: bool = False
 
     def get_start_size(self) -> None:
-        if not self.communication_failure:
-            if size := self._get_size():
-                self.size_before = size
+        self.size_before = self._get_size()
 
     def get_end_size(self) -> None:
-        if not self.communication_failure:
-            if size := self._get_size():
-                self.size_after = size
+        self.size_after = self._get_size()
 
     def _get_size(self) -> int | None:
         if not self.container_id:
             self._get_container_id()
         if not self.container_id:
-            logger.error("Could not retrieve container ID")
             return None
         if result := self._run_command(["docker", "exec", self.container_id, "du", "-sb", "/fuseki"]):
             try:
@@ -36,6 +31,8 @@ class FusekiMetrics:
                 return int(size_str)
             except (ValueError, IndexError):
                 logger.error("Could not parse size from du command output.")
+                self.communication_failure = True
+                return None
         return None
 
     def _get_container_id(self) -> None:
@@ -46,10 +43,9 @@ class FusekiMetrics:
                     self.container_id = parts[0]
                     return
         logger.error("Could not find Fuseki container ID.")
-        self.communication_failure = True
 
     def _run_command(self, cmd: list[str]) -> str | None:
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True, shell=isinstance(cmd, str))
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
         if result.returncode != 0:
             logger.error(f"Could not run command: {cmd}. {result_str}")

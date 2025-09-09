@@ -21,8 +21,8 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
     else:
         rounded = None
     msg = (
-        f"The xmlupload caused the database to use {rounded} GB memory. "
-        f"Please check that your test server has enough memory for an upload. "
+        f"The xmlupload caused the database to use {rounded} GB disk space. "
+        f"Please check that your test server has enough disk space for an upload. "
         f"If you have any questions contact the dsp-tools developers."
     )
     match bloating_level:

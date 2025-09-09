@@ -28,17 +28,16 @@ class FusekiMetrics:
     def _get_size(self) -> int | None:
         if not self.container_id:
             self._get_container_id()
-        cmd = f"docker exec '{self.container_id}' du -sb /fuseki 2>/dev/null | awk '{{print $1}}'"
-        if result := self._run_command(cmd):
+        if result := self._run_command(["docker", "exec", self.container_id, "du", "-sb", "/fuseki"]):
             try:
-                return int(result)
-            except ValueError:
-                logger.error("Could not convert result to integer.")
+                size_str = result.split()[0]
+                return int(size_str)
+            except (ValueError, IndexError):
+                logger.error("Could not parse size from du command output.")
         return None
 
     def _get_container_id(self) -> None:
-        cmd = "docker ps --format '{{.ID}} {{.Image}}'"
-        if result := self._run_command(cmd):
+        if result := self._run_command(["docker", "ps", "--format", "{{.ID}} {{.Image}}"]):
             for line in result.splitlines():
                 parts = shlex.split(line)
                 if len(parts) == 2 and "daschswiss/apache-jena-fuseki" in parts[1]:
@@ -47,8 +46,8 @@ class FusekiMetrics:
         logger.error("Could not find Fuseki container ID.")
         self.communication_failure = True
 
-    def _run_command(self, cmd: str) -> str | None:
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    def _run_command(self, cmd: str | list[str]) -> str | None:
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, shell=isinstance(cmd, str))
         result_str = f"Result code: {result.returncode}, Message: {result.stdout}"
         if result.returncode != 0:
             logger.error(f"Could not run command: {cmd}. {result_str}")
@@ -56,6 +55,3 @@ class FusekiMetrics:
             return None
         logger.debug(f"Command output, {result_str}")
         return result.stdout.strip()
-
-f = FusekiMetrics()
-f.get_end_size()

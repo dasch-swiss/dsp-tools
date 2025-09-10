@@ -275,7 +275,8 @@ The expected columns are:
 
 - [`Property`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): The unique identifier of the property
-    - If the property references the ontology you are working on you can enter the property name either as `:prop` or bare `prop`.
+    - If the property references the ontology you are working on 
+      you can enter the property name either as `:prop` or bare `prop`.
     - If you reference another ontology from the same project you must use the prefix of that ontology: `other-onto:prop`
     - Special case: `isPartOf` and `seqnum` are properties that can be used directly 
       without having to define them in the ontology, [see documentation](./json-project/ontologies.md#ispartof-property).

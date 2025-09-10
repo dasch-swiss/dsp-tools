@@ -275,6 +275,14 @@ The expected columns are:
 
 - [`Property`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): The unique identifier of the property
+    - If the property references the ontology you are working on 
+      you can enter the property name either as `:prop` or bare `prop`.
+    - If you reference another ontology from the same project you must use the prefix of that ontology: `other-onto:prop`
+    - Special case: `isPartOf` and `seqnum` are properties that can be used directly 
+      without having to define them in the ontology, [see documentation](./json-project/ontologies.md#ispartof-property).
+      If you add a cardinality for either of those properties you must enter them bare as written above. 
+      If your own ontology has a property called `isPartOf` and `seqnum` 
+      then you must enter them with a colon: `:isPartOf` and `:seqnum`
 - [`Cardinality`](./json-project/ontologies.md#resource-cardinalities) 
   (mandatory): Indicates how often the property may occur. The possible values are:
     - `"1"`: exactly once (mandatory one value and only one)

@@ -155,6 +155,7 @@ def test_first_class_properties() -> None:
         ":hasDeathDate",
         ":hasBibliography",
         ":hasRemarks",
+        "other-onto:hasProp",
     ]
     res_first_class_properties = [
         match.value for match in jsonpath_ng.parse("$[0].cardinalities[*].propname").find(output_from_method)
@@ -178,6 +179,7 @@ def test_cardinalities() -> None:
         "0-1",
         "1-n",
         "1-n",
+        "0-1",
     ]
     res_first_class_cardinalities = [
         match.value for match in jsonpath_ng.parse("$[0].cardinalities[*].cardinality").find(output_from_method)
@@ -222,7 +224,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
-            "    Original Error Message: ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
+            "    Original Error Message: 'fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")

@@ -1,5 +1,12 @@
 # Changelog
 
+## [16.11.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.11.0...v16.11.1) (2025-09-10)
+
+
+### Bug Fixes
+
+* **excel2json:** enable references to other ontologies in resource cardinalities (DEV-5416) ([#1954](https://github.com/dasch-swiss/dsp-tools/issues/1954)) ([0d6de05](https://github.com/dasch-swiss/dsp-tools/commit/0d6de05924c13d4a6061156e4723c79db59cfd75))
+
 ## [16.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.10.0...v16.11.0) (2025-09-10)
 
 

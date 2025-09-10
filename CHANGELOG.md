@@ -1,5 +1,24 @@
 # Changelog
 
+## [16.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.10.0...v16.11.0) (2025-09-10)
+
+
+### Enhancements
+
+* **get:** support legacy permissions (DOAPs) (DEV-5346) ([#1945](https://github.com/dasch-swiss/dsp-tools/issues/1945)) ([7c2804d](https://github.com/dasch-swiss/dsp-tools/commit/7c2804d1f965b5772d819d1cdf7257a694536271))
+* **validate-data:** ensure that integers are within the range specified for `xsd:int` (DEV-5391) ([#1951](https://github.com/dasch-swiss/dsp-tools/issues/1951)) ([0512a01](https://github.com/dasch-swiss/dsp-tools/commit/0512a01d42d12d7e085af58b1099374e42b51d47))
+
+
+### Bug Fixes
+
+* **validate-data:** implement `sh:DatatypeConstraintComponent` in validation (DEV-5387) ([#1950](https://github.com/dasch-swiss/dsp-tools/issues/1950)) ([e7d9e6c](https://github.com/dasch-swiss/dsp-tools/commit/e7d9e6c093eada592a0396e848cba58d54000381))
+* **xmllib:** replace usage of the deprecated `create_list_from_string` with `create_list_from_input` (DEV-5397) ([#1949](https://github.com/dasch-swiss/dsp-tools/issues/1949)) ([de0dc8c](https://github.com/dasch-swiss/dsp-tools/commit/de0dc8c48a5e6a23ff75027f92e1a1024a56815f))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.09.02 ([#1953](https://github.com/dasch-swiss/dsp-tools/issues/1953)) ([a0790b8](https://github.com/dasch-swiss/dsp-tools/commit/a0790b86509aca62e255279a1b6e58278119cdb1))
+
 ## [16.10.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.9.0...v16.10.0) (2025-09-03)
 
 

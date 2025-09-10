@@ -210,10 +210,9 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 
 def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
-    prop = detail_row['property'] if ":" in detail_row['property'] else f":{detail_row['property']}"
-    return ResourceCardinality(
-        prop, str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
-    )
+    prop_str = str(detail_row["property"])
+    prop = prop_str if ":" in prop_str else f":{prop_str}"
+    return ResourceCardinality(prop, str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"]))
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:

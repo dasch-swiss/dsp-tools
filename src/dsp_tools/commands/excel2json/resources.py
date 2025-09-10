@@ -211,7 +211,8 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
     prop_str = str(detail_row["property"])
-    prop = prop_str if ":" in prop_str else f":{prop_str}"
+    knora_props = ["seqnum", "isPartOf"]
+    prop = prop_str if ":" in prop_str or prop_str in knora_props else f":{prop_str}"
     return ResourceCardinality(prop, str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"]))
 
 

@@ -774,6 +774,11 @@
                                 "propname": ":hasRemarks",
                                 "cardinality": "1-n",
                                 "gui_order": 13
+                            },
+                            {
+                                "propname": "other-onto:hasProp",
+                                "cardinality": "0-1",
+                                "gui_order": 14
                             }
                         ]
                     },

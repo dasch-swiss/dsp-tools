@@ -488,8 +488,10 @@ class ResourceClass(Model):
         last_modification_date: DateTimeStamp,
         property_id: str,
         cardinality: Cardinality,
+        context: Context,
         gui_order: Optional[int] = None,
     ) -> DateTimeStamp:
+        self._context.context.update(context.context)
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(
                 con=self._con,

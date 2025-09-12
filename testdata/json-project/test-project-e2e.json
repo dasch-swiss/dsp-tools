@@ -64,6 +64,19 @@
                         "comments": {
                             "en": "This resource has a preview permission."
                         }
+                    },
+                    {
+                        "name": "ResourceWithPropFromSecondOnto",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with a property from second ontology"
+                        },
+                        "cardinalities": [
+                          {
+                              "propname": "second-onto:defaultPermissionsProp",
+                              "cardinality": "0-1"
+                          }
+                        ]
                     }
                 ]
             },
@@ -125,6 +138,19 @@
                           },
                           {
                               "propname": ":privateProp",
+                              "cardinality": "0-1"
+                          }
+                        ]
+                    },
+                    {
+                        "name": "ResourceWithPropFromFirstOnto",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with a property from first ontology"
+                        },
+                        "cardinalities": [
+                          {
+                              "propname": "e2e-testonto:hasText",
                               "cardinality": "0-1"
                           }
                         ]

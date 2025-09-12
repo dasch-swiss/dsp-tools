@@ -85,7 +85,7 @@ kick_off_compression() {
             print_warning "Compression request failed (attempt $attempt/$max_attempts): HTTP $http_code - $response_body"
         fi
         
-        sleep 10
+        sleep 20  # Increased from 10 to 20 seconds between attempts
         ((attempt++))
     done
     
@@ -98,9 +98,9 @@ wait_for_compression() {
     local task_id="$1"
     print_status "Waiting for database compression to complete (task ID: $task_id)..."
     
-    local max_wait_time=3600  # 1 hour timeout
+    local max_wait_time=7200  # Increased to 2 hours timeout
     local elapsed_time=0
-    local check_interval=30
+    local check_interval=60   # Increased from 30 to 60 seconds
     
     while [ $elapsed_time -lt $max_wait_time ]; do
         local response=$(curl -s -w "%{http_code}" \
@@ -167,18 +167,19 @@ initialize_csv() {
 # Function to wait for Fuseki to be ready
 wait_for_fuseki() {
     print_status "Waiting for Fuseki to be ready..."
-    local max_attempts=30
+    local max_attempts=60  # Increased from 30 to 60 attempts
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
         if get_fuseki_container_id > /dev/null 2>&1; then
-            # Wait a bit more for the service to be fully ready
-            sleep 5
+            # Wait longer for the service to be fully ready and stable
+            print_status "Fuseki container detected, waiting for full readiness..."
+            sleep 15  # Increased from 5 to 15 seconds
             print_status "Fuseki is ready"
             return 0
         fi
         print_status "Attempt $attempt/$max_attempts: Waiting for Fuseki..."
-        sleep 5
+        sleep 10  # Increased from 5 to 10 seconds between attempts
         ((attempt++))
     done
     
@@ -199,6 +200,10 @@ process_xml_file() {
     # Perform xmlupload with skip validation
     print_status "Starting XML upload for $filename..."
     dsp-tools xmlupload --skip-validation "$xml_file"
+    
+    # Wait for XML upload to fully complete before measuring size
+    print_status "Waiting for XML upload to fully complete..."
+    sleep 15
     
     # Get DB size after upload (before compression)
     print_status "Getting Fuseki database size after upload (before compression)..."
@@ -303,6 +308,10 @@ main() {
         # Create project
         print_status "Creating project from $PROJECT_FILE..."
         dsp-tools create "$PROJECT_FILE"
+        
+        # Wait for project creation to fully complete
+        print_status "Waiting for project creation to stabilize..."
+        sleep 10
         
         # Get DB size before XML upload
         print_status "Getting Fuseki database size before XML upload..."

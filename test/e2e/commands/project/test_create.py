@@ -200,6 +200,10 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_3["@id"] == f"{E2E_TESTONTO_PREFIX}:ResourceWithPropFromSecondOnto"
     assert res_3["rdfs:label"] == "Resource with a property from second ontology"
     cards_3 = res_3["rdfs:subClassOf"]
-    other_onto_cards = [x for x in cards_3 if "owl:onProperty" in x and not str(x["owl:onProperty"].get("@id", "")).startswith(("knora-api", "rdfs:label"))]
+    other_onto_cards = [
+        x
+        for x in cards_3
+        if "owl:onProperty" in x and not str(x["owl:onProperty"].get("@id", "")).startswith(("knora-api", "rdfs:label"))
+    ]
     assert len(other_onto_cards) == 1
-    assert other_onto_cards[0]["owl:onProperty"]["@id"] == f"second-onto:defaultPermissionsProp"
+    assert other_onto_cards[0]["owl:onProperty"]["@id"] == "second-onto:defaultPermissionsProp"

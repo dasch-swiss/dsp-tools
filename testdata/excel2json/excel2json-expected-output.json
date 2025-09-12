@@ -774,6 +774,11 @@
                                 "propname": ":hasRemarks",
                                 "cardinality": "1-n",
                                 "gui_order": 13
+                            },
+                            {
+                                "propname": "other-onto:hasProp",
+                                "cardinality": "0-1",
+                                "gui_order": 14
                             }
                         ]
                     },
@@ -1205,6 +1210,16 @@
                                 "propname": ":hasRemarks",
                                 "cardinality": "1",
                                 "gui_order": 1
+                            },
+                            {
+                                "propname": "seqnum",
+                                "cardinality": "0-1",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": "isPartOf",
+                                "cardinality": "0-1",
+                                "gui_order": 3
                             }
                         ]
                     },

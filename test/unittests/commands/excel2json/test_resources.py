@@ -160,6 +160,51 @@ def test_make_one_property() -> None:
     assert res.gui_order == 1
 
 
+def test_make_one_property_external_onto() -> None:
+    s = pd.Series(
+        {
+            "property": "other-onto:prop",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == "other-onto:prop"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
+def test_make_one_property_knora_prop() -> None:
+    s = pd.Series(
+        {
+            "property": "seqnum",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == "seqnum"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
+def test_make_one_property_own_seqnum() -> None:
+    s = pd.Series(
+        {
+            "property": ":seqnum",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == ":seqnum"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
 def test_validate_individual_class_sheets_problems() -> None:
     sheet_good = pd.DataFrame({"property": ["p1"], "cardinality": ["0-n"]})
     sheet_missing_card = pd.DataFrame({"property": ["p2", "p3"], "cardinality": [pd.NA, "1-n"]})

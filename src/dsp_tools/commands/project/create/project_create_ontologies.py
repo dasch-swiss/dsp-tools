@@ -103,7 +103,9 @@ def create_ontologies(
         if not success:
             overall_success = False
 
+    print("Add cardinalities to resource classes...")
     for ontology_definition, ontology_remote, remote_res_classes in created_ontos:
+        print(f"    Add cardinalities to resource classes of ontology {ontology_definition['name']}")
         # Add cardinalities to class
         success = _add_cardinalities_to_resource_classes(
             resclass_definitions=ontology_definition.get("resources", []),

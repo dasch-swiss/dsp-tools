@@ -18,7 +18,10 @@ This directory contains three shell scripts for analyzing Fuseki database size c
 - Performs complete DSP stack restart cycle for each XML file
 - Creates fresh project for each file
 - Records database size before and after each XML upload
-- Outputs results to `fuseki_size.csv`
+- **[NEW]** Performs database compression after each XML upload
+- **[NEW]** Monitors compression progress with timeout protection
+- **[NEW]** Records compression duration and size reduction metrics
+- Outputs results to `fuseki_size.csv` with extended compression columns
 
 ### 3. `xmlupload_with_triple_count.sh`
 **Purpose**: Enhanced version that tracks detailed triple statistics along with database size.
@@ -163,3 +166,31 @@ Add to the csv new column: numberOfTriples_Before with the result in 3353
 9. Triple number (new!) SAME AS POINT 5. now column called "numberOfTriples_After"
 10. Triple types (new!) SAME AS POINT 6. now column called "http://www.w3.org/2001/XMLSchema#integer _After"
 11. start again from 1.
+
+## Compression Implementation Status
+
+✅ **COMPLETED**: Database compression functionality has been implemented in `xmlupload_size_increase.sh`
+
+### Implementation Details
+
+The script now includes:
+- **Database compression** after each XML upload using Fuseki's compact API
+- **Progress monitoring** with task status polling (30-second intervals)
+- **Timeout protection** (1-hour maximum compression time)
+- **Enhanced CSV output** with compression metrics
+
+### New CSV Columns Added
+- `DB_After_Upload` - Database size immediately after XML upload
+- `DB_Before_Compression` - Database size before compression starts  
+- `Compression_Duration` - Time taken for compression (seconds)
+- `DB_After_Compression` - Database size after compression completes
+
+### Compression Workflow
+1. Upload XML file
+2. Measure DB size after upload
+3. **[NEW]** Initiate database compression via HTTP POST to `/$/compact/dsp-repo?deleteOld=true`
+4. **[NEW]** Poll compression task status via HTTP GET to `/$/tasks/{taskId}`
+5. **[NEW]** Measure DB size after compression completion
+6. Record all metrics to CSV
+
+The implementation uses curl commands with admin:test authentication, equivalent to the Python code provided in the original specification.

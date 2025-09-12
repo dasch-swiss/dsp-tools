@@ -55,6 +55,85 @@ get_fuseki_size() {
     echo "$size"
 }
 
+# Function to kick off database compression
+kick_off_compression() {
+    print_status "Kicking off database compression..."
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        local response=$(curl -s -w "%{http_code}" -X POST \
+            "http://localhost:3030/\$/compact/dsp-repo?deleteOld=true" \
+            -u "admin:test" \
+            --connect-timeout 30 \
+            --max-time 60 2>/dev/null)
+        
+        local http_code="${response: -3}"
+        local response_body="${response%???}"
+        
+        if [ "$http_code" = "200" ]; then
+            # Extract taskId from JSON response
+            local task_id=$(echo "$response_body" | grep -o '"taskId"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)".*/\1/')
+            if [ -n "$task_id" ]; then
+                print_status "Database compression initiated with task ID: $task_id"
+                echo "$task_id"
+                return 0
+            else
+                print_warning "Failed to extract task ID from response: $response_body"
+            fi
+        else
+            print_warning "Compression request failed (attempt $attempt/$max_attempts): HTTP $http_code - $response_body"
+        fi
+        
+        sleep 10
+        ((attempt++))
+    done
+    
+    print_error "Failed to kick off database compression after $max_attempts attempts"
+    return 1
+}
+
+# Function to wait for compression to complete
+wait_for_compression() {
+    local task_id="$1"
+    print_status "Waiting for database compression to complete (task ID: $task_id)..."
+    
+    local max_wait_time=3600  # 1 hour timeout
+    local elapsed_time=0
+    local check_interval=30
+    
+    while [ $elapsed_time -lt $max_wait_time ]; do
+        local response=$(curl -s -w "%{http_code}" \
+            "http://localhost:3030/\$/tasks/$task_id" \
+            -u "admin:test" \
+            --connect-timeout 30 \
+            --max-time 60 2>/dev/null)
+        
+        local http_code="${response: -3}"
+        local response_body="${response%???}"
+        
+        if [ "$http_code" = "200" ]; then
+            # Check if task is finished
+            local finished=$(echo "$response_body" | grep -o '"finished"[[:space:]]*:[[:space:]]*[a-z]*' | sed 's/.*:\s*//')
+            
+            if [ "$finished" = "true" ]; then
+                print_status "Database compression completed successfully"
+                return 0
+            else
+                print_status "Database compression in progress... (elapsed: ${elapsed_time}s)"
+            fi
+        else
+            print_warning "Failed to check compression status: HTTP $http_code - $response_body"
+        fi
+        
+        sleep $check_interval
+        elapsed_time=$((elapsed_time + check_interval))
+    done
+    
+    print_error "Database compression timed out after ${max_wait_time}s"
+    return 1
+}
+
 # Function to validate required files
 validate_inputs() {
     if [ ! -f "$PROJECT_FILE" ]; then
@@ -80,7 +159,7 @@ get_xml_files() {
 # Function to initialize CSV file
 initialize_csv() {
     if [ ! -f "$OUTPUT_CSV" ]; then
-        echo "Timestamp,DB_Before,Filename,DB_After" > "$OUTPUT_CSV"
+        echo "Timestamp,DB_Before,Filename,DB_After_Upload,DB_Before_Compression,Compression_Duration,DB_After_Compression" > "$OUTPUT_CSV"
         print_status "Created new CSV file: $OUTPUT_CSV"
     fi
 }
@@ -121,18 +200,58 @@ process_xml_file() {
     print_status "Starting XML upload for $filename..."
     dsp-tools xmlupload --skip-validation "$xml_file"
     
-    # Get final DB size
-    print_status "Getting Fuseki database size after upload..."
-    local db_after=$(get_fuseki_size)
+    # Get DB size after upload (before compression)
+    print_status "Getting Fuseki database size after upload (before compression)..."
+    local db_after_upload=$(get_fuseki_size)
     if [ $? -ne 0 ]; then
         print_warning "Failed to get database size after upload"
-        db_after="ERROR"
+        db_after_upload="ERROR"
     else
-        print_status "DB After: $db_after"
+        print_status "DB After Upload: $db_after_upload"
+    fi
+    
+    # Start compression process
+    local compression_start_time=$(date +%s)
+    local task_id=$(kick_off_compression)
+    local compression_success=false
+    local db_before_compression="N/A"
+    local compression_duration="ERROR"
+    local db_after_compression="ERROR"
+    
+    if [ $? -eq 0 ] && [ -n "$task_id" ]; then
+        # Get DB size before compression (should be same as after upload, but measure again for accuracy)
+        db_before_compression=$(get_fuseki_size)
+        if [ $? -ne 0 ]; then
+            print_warning "Failed to get database size before compression"
+            db_before_compression="ERROR"
+        fi
+        
+        # Wait for compression to complete
+        if wait_for_compression "$task_id"; then
+            local compression_end_time=$(date +%s)
+            compression_duration=$((compression_end_time - compression_start_time))
+            compression_success=true
+            
+            # Get DB size after compression
+            print_status "Getting Fuseki database size after compression..."
+            db_after_compression=$(get_fuseki_size)
+            if [ $? -ne 0 ]; then
+                print_warning "Failed to get database size after compression"
+                db_after_compression="ERROR"
+            else
+                print_status "DB After Compression: $db_after_compression"
+                print_status "Compression took ${compression_duration} seconds"
+            fi
+        else
+            print_error "Compression failed or timed out"
+            compression_duration="TIMEOUT"
+        fi
+    else
+        print_error "Failed to initiate compression"
     fi
     
     # Write results to CSV
-    echo "$timestamp,$initial_db_size,$filename,$db_after" >> "$OUTPUT_CSV"
+    echo "$timestamp,$initial_db_size,$filename,$db_after_upload,$db_before_compression,$compression_duration,$db_after_compression" >> "$OUTPUT_CSV"
     print_status "Results for $filename written to $OUTPUT_CSV"
     
     return 0
@@ -226,10 +345,14 @@ usage() {
     echo "  - Automatically processes all .xml files in the 'files' subdirectory"
     echo "  - Files are processed in alphabetical order"
     echo "  - Records database size before and after each XML upload"
+    echo "  - Performs database compression after each XML upload"
+    echo "  - Monitors compression progress with timeout protection"
+    echo "  - Records database size before and after compression"
     echo "  - Restarts DSP stack and creates project before processing XML files"
     echo
     echo "Output:"
-    echo "  Results are written to fuseki_size.csv with columns: Timestamp,DB_Before,Filename,DB_After"
+    echo "  Results are written to fuseki_size.csv with columns:"
+    echo "  Timestamp,DB_Before,Filename,DB_After_Upload,DB_Before_Compression,Compression_Duration,DB_After_Compression"
     echo
     echo "Note: The script must be run from a directory containing project.json and a 'files' subdirectory with XML files."
 }

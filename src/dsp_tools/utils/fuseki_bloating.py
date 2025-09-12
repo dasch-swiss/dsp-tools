@@ -26,7 +26,7 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
         f"If you have any questions contact the dsp-tools developers."
     )
     match bloating_level:
-        case FusekiBloatingLevel.NON_CRITICAL:
+        case FusekiBloatingLevel.OK:
             logger.debug(msg)
         case FusekiBloatingLevel.WARNING:
             logger.warning(msg)
@@ -49,7 +49,7 @@ def _get_bloating_level(size_diff: int | None) -> FusekiBloatingLevel:
     if size_diff is None:
         return FusekiBloatingLevel.CALCULATION_FAILURE
     if size_diff <= WARNING_BLOATING:
-        return FusekiBloatingLevel.NON_CRITICAL
+        return FusekiBloatingLevel.OK
     if size_diff <= CRITICAL_BLOATING:
         return FusekiBloatingLevel.WARNING
     return FusekiBloatingLevel.CRITICAL

@@ -35,7 +35,7 @@ class TestGetBloatingLevel:
 
     def test_small_size_returns_non_critical(self) -> None:
         result = _get_bloating_level(WARNING_BLOATING - 1000)
-        assert result == FusekiBloatingLevel.NON_CRITICAL
+        assert result == FusekiBloatingLevel.OK
 
     def test_exactly_warning_threshold_returns_warning(self) -> None:
         result = _get_bloating_level(WARNING_BLOATING + 1)

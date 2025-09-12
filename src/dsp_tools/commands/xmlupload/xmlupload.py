@@ -210,11 +210,11 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     db_metrics = None
     if clients.legal_info_client.server == "http://0.0.0.0:3333":
         db_metrics = FusekiMetrics()
-        db_metrics.get_start_size()
+        db_metrics.try_get_start_size()
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     if db_metrics is not None:
-        db_metrics.get_end_size()
+        db_metrics.try_get_end_size()
         communicate_fuseki_bloating(db_metrics)
     return _cleanup_upload(upload_state)
 

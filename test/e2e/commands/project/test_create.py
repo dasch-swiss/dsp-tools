@@ -183,7 +183,7 @@ def _check_props(props: list[dict[str, Any]]) -> None:
 
 def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert len(resclasses) == RESCLASSES_IN_E2E_TESTONTO_JSON
-    res_1, res_2 = resclasses
+    res_1, res_2, res_3 = resclasses
 
     assert res_1["@id"] == f"{E2E_TESTONTO_PREFIX}:ImageResource"
     assert res_1["rdfs:label"] == "Image Resource"
@@ -196,3 +196,10 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
 
     assert res_2["@id"] == f"{E2E_TESTONTO_PREFIX}:PDFResource"
     assert res_2["rdfs:label"] == "PDF Resource"
+
+    assert res_3["@id"] == f"{E2E_TESTONTO_PREFIX}:ResourceWithPropFromSecondOnto"
+    assert res_3["rdfs:label"] == "Resource with a property from second ontology"
+    cards_3 = res_3["rdfs:subClassOf"]
+    other_onto_cards = [x for x in cards_3 if "owl:onProperty" in x and not str(x["owl:onProperty"].get("@id", "")).startswith(("knora-api", "rdfs:label"))]
+    assert len(other_onto_cards) == 1
+    assert other_onto_cards[0]["owl:onProperty"]["@id"] == f"{E2E_TESTONTO_PREFIX}:defaultPermissionsProp"

@@ -491,9 +491,7 @@ class ResourceClass(Model):
         context: Context,
         gui_order: Optional[int] = None,
     ) -> DateTimeStamp:
-        merged_context = self._context.context
-        merged_context.update(context.context)
-        self._context.context = merged_context
+        self._context.context.update(context.context)
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(
                 con=self._con,

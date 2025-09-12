@@ -60,6 +60,7 @@ def create_ontologies(
         logger.exception(err_msg)
         project_ontologies = []
 
+    created_ontos: list[tuple[dict[str, Any], Ontology, dict[str, ResourceClass]]] = []
     for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
             onto_name=ontology_definition["name"],
@@ -98,15 +99,16 @@ def create_ontologies(
             knora_api_prefix=knora_api_prefix,
             verbose=verbose,
         )
+        created_ontos.append((ontology_definition, ontology_remote, remote_res_classes))
         if not success:
             overall_success = False
 
+    for ontology_definition, ontology_remote, remote_res_classes in created_ontos:
         # Add cardinalities to class
         success = _add_cardinalities_to_resource_classes(
             resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
             remote_res_classes=remote_res_classes,
-            last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
             verbose=verbose,
         )
@@ -421,7 +423,6 @@ def _add_cardinalities_to_resource_classes(
     resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     remote_res_classes: dict[str, ResourceClass],
-    last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
     verbose: bool,
 ) -> bool:
@@ -435,7 +436,6 @@ def _add_cardinalities_to_resource_classes(
         resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         remote_res_classes: representations of the resource classes on the DSP server
-        last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
         verbose: verbose switch
 
@@ -474,8 +474,9 @@ def _add_cardinalities_to_resource_classes(
                     property_id=qualified_propname,
                     cardinality=switcher[card_info["cardinality"]],
                     gui_order=card_info.get("gui_order"),
-                    last_modification_date=last_modification_date,
+                    last_modification_date=ontology_remote.lastModificationDate,
                 )
+                ontology_remote.lastModificationDate = last_modification_date
                 if verbose:
                     print(f"    Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
                 logger.info(f"Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
@@ -484,7 +485,5 @@ def _add_cardinalities_to_resource_classes(
                 print(f"WARNING: {err_msg}")
                 logger.exception(err_msg)
                 overall_success = False
-
-            ontology_remote.lastModificationDate = last_modification_date
 
     return overall_success

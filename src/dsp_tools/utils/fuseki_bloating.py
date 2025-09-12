@@ -32,14 +32,15 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
             logger.warning(msg)
             print(f"{BOLD_YELLOW}WARNING: {msg}{RESET_TO_DEFAULT}")
         case FusekiBloatingLevel.CRITICAL:
+            logger.warning(msg)
             print(f"{BACKGROUND_BOLD_RED}WARNING: {msg}{RESET_TO_DEFAULT}")
         case FusekiBloatingLevel.CALCULATION_FAILURE:
             msg = (
                 "The database bloating size could not be calculated. "
                 "Please contact the dsp-tools developers with your logs."
             )
-            logger.error(msg)
             print(f"{BACKGROUND_BOLD_RED}{msg}{RESET_TO_DEFAULT}")
+            logger.error(msg)
         case _:
             assert_never(bloating_level)
 

@@ -210,9 +210,10 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 
 def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
-    return ResourceCardinality(
-        f":{detail_row['property']}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
-    )
+    prop_str = str(detail_row["property"])
+    knora_props = ["seqnum", "isPartOf"]
+    prop = prop_str if ":" in prop_str or prop_str in knora_props else f":{prop_str}"
+    return ResourceCardinality(prop, str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"]))
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:

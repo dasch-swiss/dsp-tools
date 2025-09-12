@@ -265,11 +265,17 @@ api-shapes:IntValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:intValueAsInt ;
-                    sh:datatype xsd:integer ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "An IntValue requires exactly one valid integer"
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:intValueAsInt ;
+                    sh:datatype xsd:int ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The integer must be within the range of -2'147'483'648 and 2'147'483'647."
                  ] .
 
 ##############
@@ -535,11 +541,17 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:stillImageFileValueHasExternalUrl ;
-                    sh:datatype xsd:anyURI ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "StillImageExternalFileValue requires an external IIIF-URI"
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:stillImageFileValueHasExternalUrl ;
+                    sh:datatype xsd:anyURI ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Your IIIF-URI contains characters that are not allowed in a URI."
                   ] .
 
 api-shapes:TextFileValue_ClassShape

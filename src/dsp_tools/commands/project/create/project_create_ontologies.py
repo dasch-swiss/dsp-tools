@@ -112,6 +112,7 @@ def create_ontologies(
             ontology_remote=ontology_remote,
             remote_res_classes=remote_res_classes,
             knora_api_prefix=knora_api_prefix,
+            context=context,
             verbose=verbose,
         )
         if not success:
@@ -426,6 +427,7 @@ def _add_cardinalities_to_resource_classes(
     ontology_remote: Ontology,
     remote_res_classes: dict[str, ResourceClass],
     knora_api_prefix: str,
+    context: Context,
     verbose: bool,
 ) -> bool:
     """
@@ -439,14 +441,15 @@ def _add_cardinalities_to_resource_classes(
         ontology_remote: representation of the current ontology on the DSP server
         remote_res_classes: representations of the resource classes on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
+        context: the context of the current project
         verbose: verbose switch
 
     Returns:
         success status
     """
     overall_success = True
-    print("    Add cardinalities to resource classes...")
-    logger.info("Add cardinalities to resource classes...")
+    print(f"    Add cardinalities to resource classes of ontology '{ontology_remote.iri}'...")
+    logger.info(f"Add cardinalities to resource classes of ontology '{ontology_remote.iri}'...")
     switcher = {
         "1": Cardinality.C_1,
         "0-1": Cardinality.C_0_1,
@@ -477,6 +480,7 @@ def _add_cardinalities_to_resource_classes(
                     cardinality=switcher[card_info["cardinality"]],
                     gui_order=card_info.get("gui_order"),
                     last_modification_date=ontology_remote.lastModificationDate,
+                    context=context,
                 )
                 ontology_remote.lastModificationDate = last_modification_date
                 if verbose:

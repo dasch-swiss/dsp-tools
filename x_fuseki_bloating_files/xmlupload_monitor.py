@@ -178,7 +178,7 @@ class DockerClient:
             container = self.get_fuseki_container()
             
             # Execute du -sh /fuseki inside container
-            result = container.exec_run("du -sh /fuseki")
+            result = container.exec_run("du -sb /fuseki")
             if result.exit_code != 0:
                 raise DockerError(f"Failed to get database size: {result.output.decode()}")
             

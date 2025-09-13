@@ -33,7 +33,7 @@ print_error() {
 # Function to get Fuseki container ID
 get_fuseki_container_id() {
     # Try multiple possible Fuseki container patterns
-    local cid=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.2.0")
+    local cid=$(docker ps -q --filter "ancestor=daschswiss/apache-jena-fuseki:5.5.0-1")
     if [ -z "$cid" ]; then
         # Try other possible Fuseki containers
         cid=$(docker ps -q --filter "name=fuseki")

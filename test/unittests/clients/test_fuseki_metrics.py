@@ -8,7 +8,7 @@ import pytest
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 
 
-@patch.object(FusekiMetrics, "_get_size")
+@patch.object(FusekiMetrics, "_try_get_size")
 def test_get_start_size(mock_get_size: Mock):
     mock_get_size.return_value = 1500
     metrics = FusekiMetrics()
@@ -17,7 +17,7 @@ def test_get_start_size(mock_get_size: Mock):
     mock_get_size.assert_called_once()
 
 
-@patch.object(FusekiMetrics, "_get_size")
+@patch.object(FusekiMetrics, "_try_get_size")
 def test_get_end_size(mock_get_size: Mock):
     mock_get_size.return_value = 2500
     metrics = FusekiMetrics()
@@ -35,28 +35,28 @@ def test_get_size_with_container_id(mock_run_command: Mock):
     mock_run_command.assert_called_once_with(["docker", "exec", "test_container", "du", "-sb", "/fuseki"])
 
 
-@patch.object(FusekiMetrics, "_get_container_id")
+@patch.object(FusekiMetrics, "_try_get_container_id")
 @patch.object(FusekiMetrics, "_run_command")
-def test_get_size_without_container_id_success(mock_run_command: Mock, mock_get_container_id: Mock):
+def test_get_size_without_container_id_success(mock_run_command: Mock, mock_try_get_container_id: Mock):
     mock_run_command.return_value = "2048\t/fuseki"
 
     def set_container_id():
         metrics.container_id = "test_container"
 
-    mock_get_container_id.side_effect = set_container_id
+    mock_try_get_container_id.side_effect = set_container_id
     metrics = FusekiMetrics()
     metrics.container_id = None
     result = metrics._try_get_size()
-    mock_get_container_id.assert_called_once()
+    mock_try_get_container_id.assert_called_once()
     assert result == 2048
 
 
-@patch.object(FusekiMetrics, "_get_container_id")
-def test_get_size_no_container_found(mock_get_container_id: Mock):
+@patch.object(FusekiMetrics, "_try_get_container_id")
+def test_get_size_no_container_found(mock_try_get_container_id: Mock):
     metrics = FusekiMetrics()
     metrics.container_id = None
     result = metrics._try_get_size()
-    mock_get_container_id.assert_called_once()
+    mock_try_get_container_id.assert_called_once()
     assert result is None
 
 

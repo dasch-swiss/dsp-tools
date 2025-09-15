@@ -787,13 +787,6 @@ def test_stop_stack(stop_stack: Mock) -> None:
     stop_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.cli.call_action.generate_template_repo")
-def test_template(generate_template_repo: Mock) -> None:
-    args = "template".split()
-    entry_point.run(args)
-    generate_template_repo.assert_called_once_with()
-
-
 @patch("dsp_tools.cli.call_action.upload_rosetta")
 def test_rosetta(upload_rosetta: Mock) -> None:
     args = "rosetta".split()

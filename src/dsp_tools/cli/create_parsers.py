@@ -68,8 +68,6 @@ def make_parser(
 
     _add_id2iri(subparsers)
 
-    _add_create_template(subparsers)
-
     _add_rosetta(subparsers)
 
     _add_suppress_update_prompt(subparsers)
@@ -91,14 +89,6 @@ def _add_rosetta(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         name="rosetta", help="Clone the most up to data rosetta repository, create the data model and upload the data"
     )
     subparser.set_defaults(action="rosetta")
-
-
-def _add_create_template(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    # create template repo with minimal JSON and XML files
-    subparser = subparsers.add_parser(
-        name="template", help="Create a template repository with a minimal JSON and XML file"
-    )
-    subparser.set_defaults(action="template")
 
 
 def _add_stop_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:

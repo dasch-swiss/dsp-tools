@@ -316,10 +316,11 @@ def is_valid_resource_id(value: Any) -> bool:
         # result == True
         ```
     """
+    allowed_letters = "a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_"
     if is_nonempty_value(value):
         # None, etc. would not be recognised as invalid since it is converted into a string.
         return bool(
-            regex.search(r"^[a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_\d.\-]*$", str(value)),
+            regex.search(rf"^[{allowed_letters}][{allowed_letters}\d.\-]*$", str(value)),
         )
     return False
 

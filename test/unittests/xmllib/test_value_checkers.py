@@ -175,7 +175,7 @@ def test_is_link_value_wrong(val):
     assert not is_link_value(val)
 
 
-@pytest.mark.parametrize("val", ["_1", "abc_2"])
+@pytest.mark.parametrize("val", ["_1", "abc_2", "ö", "Universität", "a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_"])
 def test_is_valid_resource_id_correct(val):
     assert is_valid_resource_id(val)
 

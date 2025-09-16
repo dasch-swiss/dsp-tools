@@ -18,6 +18,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
@@ -52,6 +53,7 @@ from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.fuseki_bloating import communicate_fuseki_bloating
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
@@ -205,8 +207,15 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
     logger.debug("Start uploading data")
+    db_metrics = None
+    if clients.legal_info_client.server == "http://0.0.0.0:3333":
+        db_metrics = FusekiMetrics()
+        db_metrics.try_get_start_size()
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
+    if db_metrics is not None:
+        db_metrics.try_get_end_size()
+        communicate_fuseki_bloating(db_metrics)
     return _cleanup_upload(upload_state)
 
 

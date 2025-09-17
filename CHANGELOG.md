@@ -1,5 +1,25 @@
 # Changelog
 
+## [16.12.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.11.0...v16.12.0) (2025-09-17)
+
+
+### Enhancements
+
+* **create:** allow reusing props from another onto (DEV-5418) ([#1956](https://github.com/dasch-swiss/dsp-tools/issues/1956)) ([66aa897](https://github.com/dasch-swiss/dsp-tools/commit/66aa89768ce036391f321ec5e6f46d27b2bdbb2a))
+* remove `template` CLI command (DEV-5385) ([#1958](https://github.com/dasch-swiss/dsp-tools/issues/1958)) ([e31d07e](https://github.com/dasch-swiss/dsp-tools/commit/e31d07ecacc52b526524f922669a45b49370c3a0))
+* **xmlupload:** implement warning for large fuseki bloating on localhost (DEV-5402) ([#1952](https://github.com/dasch-swiss/dsp-tools/issues/1952)) ([00da0ef](https://github.com/dasch-swiss/dsp-tools/commit/00da0ef6da12cb0c635f0cf852e88068cf8f67be))
+
+
+### Bug Fixes
+
+* **excel2json:** enable references to other ontologies in resource cardinalities (DEV-5416) ([#1954](https://github.com/dasch-swiss/dsp-tools/issues/1954)) ([0d6de05](https://github.com/dasch-swiss/dsp-tools/commit/0d6de05924c13d4a6061156e4723c79db59cfd75))
+* **xmllib:** add missing Umlaute to `xsd:ID` regex (DEV-5382) ([#1957](https://github.com/dasch-swiss/dsp-tools/issues/1957)) ([f21ddb3](https://github.com/dasch-swiss/dsp-tools/commit/f21ddb37ce3da88193deda0cdbba868ef65ed02e))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.09.03 ([#1959](https://github.com/dasch-swiss/dsp-tools/issues/1959)) ([ae2aa31](https://github.com/dasch-swiss/dsp-tools/commit/ae2aa316b76ed533cf2ac66c12a553909c3f5130))
+
 ## [16.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.10.0...v16.11.0) (2025-09-10)
 
 

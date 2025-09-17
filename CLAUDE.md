@@ -63,7 +63,6 @@ DSP-TOOLS provides the following functionalities:
 - `dsp-tools id2iri` takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
   The mapping has to be provided with a JSON file.
 - `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
-- `dsp-tools template` creates a template repository with a minimal JSON and XML file.
 - `dsp-tools rosetta` clones the most up to date rosetta repository,
   creates the data model and uploads the data.
 

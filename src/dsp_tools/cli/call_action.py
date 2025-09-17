@@ -26,7 +26,6 @@ from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmluploa
 from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
-from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
@@ -86,8 +85,6 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_ingest_files(args)
         case "ingest-xmlupload":
             result = _call_ingest_xmlupload(args)
-        case "template":
-            result = generate_template_repo()
         case "rosetta":
             result = upload_rosetta()
         case _:

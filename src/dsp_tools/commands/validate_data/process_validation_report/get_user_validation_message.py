@@ -264,7 +264,8 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
 def _get_message_df(problems: list[InputProblem]) -> pd.DataFrame:
     problem_dicts = [_get_message_dict(x) for x in problems]
     df = pd.DataFrame.from_records(problem_dicts)
-    df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
+    sort_by = [x for x in ["Resource Type", "Resource ID", "Property"] if x in df.columns]
+    df = df.sort_values(by=sort_by)
     return df
 
 

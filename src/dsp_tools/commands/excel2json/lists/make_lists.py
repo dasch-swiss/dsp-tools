@@ -193,6 +193,7 @@ def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]
     all_lists: list[ListRoot] = []
     for sheet in sheet_list:
         all_lists.append(_make_one_list(sheet))
+    all_lists = sorted(all_lists, key=lambda x: x.id_)
     return [list_.to_dict() for list_ in all_lists]
 
 

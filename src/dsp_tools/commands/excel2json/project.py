@@ -148,7 +148,7 @@ def _validate_folder_structure_and_get_filenames(data_model_files: Path) -> tupl
     processed_files.extend(processed_onto)
     listfolder, processed_lists = _get_and_validate_list_folder(data_model_files)
     processed_files.extend(processed_lists)
-    print("The following files will be processed:")
+    print("The following files will be processed:")  # MacOS: lists.xlsx, list3.xlsx  |  GitHub: list3.xlsx, lists.xlsx
     print(*(f" - {file}" for file in processed_files), sep="\n")
     return listfolder, onto_folders
 

@@ -177,7 +177,7 @@ def _get_and_validate_list_folder(
     if not (list_dir := (data_model_files / "lists")).is_dir():
         return None, []
     processed_files = [str(file) for file in list_dir.glob("*list*.xlsx") if _non_hidden(file)]
-    return list_dir, processed_files
+    return list_dir, sorted(processed_files)
 
 
 def _non_hidden(path: Path) -> bool:

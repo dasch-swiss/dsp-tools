@@ -77,7 +77,7 @@ without anyone noticing.
   (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).
 - Python Markdown's default slugify used to strip out all Unicode chars
   (see [here](https://facelessuser.github.io/pymdown-extensions/extras/slugs/)).
-- markdown-link-validator uses [uslug](https://www.npmjs.com/package/uslug) to create the slugs 
+- markdown-link-validator uses uslug (`https://www.npmjs.com/package/uslug`) to create the slugs 
   (see [here](https://github.com/webhintio/markdown-link-validator/blob/main/src/lib/mdfile.ts)).
 - VS Code targets the CommonMark Markdown specification using the 
   [markdown-it](https://github.com/markdown-it/markdown-it) library

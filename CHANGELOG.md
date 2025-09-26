@@ -1,5 +1,18 @@
 # Changelog
 
+## [16.12.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.0...v16.12.1) (2025-09-26)
+
+
+### Bug Fixes
+
+* **excel2json:** make list sorting consistent across OS ([#1963](https://github.com/dasch-swiss/dsp-tools/issues/1963)) ([a02d434](https://github.com/dasch-swiss/dsp-tools/commit/a02d4344bdbc76fe10594ff7ea2aa9da34fbd75c))
+* **validate:** handle absent key gracefully (DEV-5428) ([#1960](https://github.com/dasch-swiss/dsp-tools/issues/1960)) ([8e0c563](https://github.com/dasch-swiss/dsp-tools/commit/8e0c563670445965e813efaaed4418549cead2c1))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.09.04 ([#1962](https://github.com/dasch-swiss/dsp-tools/issues/1962)) ([c11177c](https://github.com/dasch-swiss/dsp-tools/commit/c11177c792c956d1a44d89b8e3a996b151876c20))
+
 ## [16.12.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.11.0...v16.12.0) (2025-09-17)
 
 

@@ -46,12 +46,12 @@ jobs:
 
           branch_name=$(echo "$release_pr" | jq -r '.head.ref')
           echo "branch=$branch_name" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
-        uses: astral-sh/setup-uv@v2
+        uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
       - name: Update uv.lock and commit it

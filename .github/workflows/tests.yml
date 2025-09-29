@@ -24,7 +24,7 @@ jobs:
       - name: unittests
         run: just unittests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}

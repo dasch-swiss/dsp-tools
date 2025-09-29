@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests

@@ -73,7 +73,7 @@ class TestWithReportGraphs:
     def test_extract_identifiers_of_resource_results(
         self, every_violation_combination_once_info: tuple[ValidationReportGraphs, list[ParsedResource]]
     ) -> None:
-        report_graphs, parsed_resources = every_violation_combination_once_info
+        report_graphs, _ = every_violation_combination_once_info
         report_and_onto = report_graphs.validation_graph + report_graphs.onto_graph
         data_and_onto = report_graphs.data_graph + report_graphs.onto_graph
         result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)

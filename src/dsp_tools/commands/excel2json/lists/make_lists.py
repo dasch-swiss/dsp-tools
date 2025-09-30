@@ -132,7 +132,7 @@ def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], sheet_list: li
         df = sheet.df
         for i, row in df.iterrows():
             if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
-                df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], sheet.col_info.preferred_lang)
+                df.loc[i, "id"] = _construct_non_duplicate_id_string(row, sheet.col_info.preferred_lang)  # type: ignore[index]
         all_sheets.append(
             ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, col_info=sheet.col_info, df=df)
         )
@@ -150,8 +150,8 @@ def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, p
     """If there are duplicates in the id column, the auto_id is changed, the custom ID remains the same."""
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
-            if pd.isna(df.at[i, "id (optional)"]):
-                df.loc[i, "id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
+            if pd.isna(df.loc[i, "id (optional)"]):
+                df.loc[i, "id"] = _construct_non_duplicate_id_string(df.loc[i], preferred_language)
     return df
 
 
@@ -167,7 +167,7 @@ def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.Data
         if pd.isna(row["id (optional)"]):
             for col in column_names:
                 if pd.notna(row[col]):
-                    df.at[i, "auto_id"] = row[col]
+                    df.loc[i, "auto_id"] = row[col]  # type: ignore[index]
                     break
     df = _resolve_duplicate_ids_for_auto_id_one_df(df, preferred_language)
     return df
@@ -177,7 +177,7 @@ def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_langua
     """In case the auto_id is not unique; both auto_ids get a new ID by joining the node names of all the ancestors."""
     if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
-            df.at[i, "auto_id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
+            df.loc[i, "auto_id"] = _construct_non_duplicate_id_string(df.loc[i], preferred_language)
     return df
 
 
@@ -199,9 +199,9 @@ def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]
 
 def _make_one_list(sheet: ExcelSheet) -> ListRoot:
     node_dict = _make_list_nodes_from_df(sheet.df, sheet.col_info)
-    nodes_for_root = _add_nodes_to_parent(node_dict, sheet.df.at[0, "id"]) if node_dict else []
+    nodes_for_root = _add_nodes_to_parent(node_dict, str(sheet.df.at[0, "id"])) if node_dict else []
     return ListRoot(
-        id_=sheet.df.at[0, "id"],
+        id_=str(sheet.df.at[0, "id"]),
         labels=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.list_cols),
         nodes=nodes_for_root,
         comments=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.comment_cols),

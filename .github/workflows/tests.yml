@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
         run: just unittests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests

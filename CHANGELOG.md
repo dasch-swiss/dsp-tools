@@ -1,5 +1,15 @@
 # Changelog
 
+## [16.12.2](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.1...v16.12.2) (2025-10-01)
+
+
+### Maintenance
+
+* bump dependencies ([#1968](https://github.com/dasch-swiss/dsp-tools/issues/1968)) ([ac1a031](https://github.com/dasch-swiss/dsp-tools/commit/ac1a031b3d04a417d3c845161d1f3daf7153b01d))
+* bump gh actions versions ([#1967](https://github.com/dasch-swiss/dsp-tools/issues/1967)) ([fe1e563](https://github.com/dasch-swiss/dsp-tools/commit/fe1e56330c34d1ad52629307c3301eb2fb3ca3b6))
+* change build backend to native uv (DEV-5195) ([#1964](https://github.com/dasch-swiss/dsp-tools/issues/1964)) ([2742fc9](https://github.com/dasch-swiss/dsp-tools/commit/2742fc9f37f62156ad7b0cbef2a139cfb4dc1be3))
+* **start-stack:** bump versions to 2025.09.05 ([#1969](https://github.com/dasch-swiss/dsp-tools/issues/1969)) ([cf210e1](https://github.com/dasch-swiss/dsp-tools/commit/cf210e132b2d67012c59a2ae78f5764b378722f8))
+
 ## [16.12.1](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.0...v16.12.1) (2025-09-26)
 
 

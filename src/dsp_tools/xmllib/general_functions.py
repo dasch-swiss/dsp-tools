@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import uuid
-import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,7 +10,6 @@ from typing import Any
 import regex
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
@@ -606,47 +604,17 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
     return res
 
 
-def create_list_from_string(string: str, separator: str) -> list[str]:
+def create_list_from_string(string: str, separator: str) -> list[str]:  # noqa:ARG001
     """
-    Creates a list from a string.
-    Trailing and leading whitespaces are removed from the list items.
-
-    Args:
-        string: input string
-        separator: The character that separates the different values in the string.
-            For example, a comma or newline.
-
-    Returns:
-        The list that results from splitting the input string.
-            If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
-
-    Raises:
-        XmllibInputError: If the input value is not a string.
-
     Attention:
-        This function will be removed in the future. Use `create_list_from_input` instead.
-
-    Examples:
-        ```python
-        result = xmllib.create_list_from_string(" One/  Two\\n/", "/")
-        # result == ["One", "Two"]
-        ```
-
-        ```python
-        result = xmllib.create_list_from_string("   \\n    ", "\\n")
-        # result == []
-        ```
+        This function is deprecated, use the new function called 'create_list_from_input' instead.
     """
-    msg = (
-        "The function 'create_list_from_string' will be deleted in the future. "
-        "Use the new function called 'create_list_from_input' instead."
-    )
-    warnings.warn(DspToolsFutureWarning(msg))
-    if not isinstance(string, str):
-        raise_xmllib_input_error(
-            MessageInfo(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+    raise_xmllib_input_error(
+        MessageInfo(
+            "The function 'create_list_from_string' is deprecated. "
+            "Use the new function called 'create_list_from_input' instead."
         )
-    return [strpd for x in string.split(separator) if (strpd := x.strip())]
+    )
 
 
 def create_list_from_input(input_value: Any, separator: str) -> list[str]:

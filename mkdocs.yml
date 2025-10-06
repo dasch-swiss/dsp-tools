@@ -97,6 +97,9 @@ plugins:
             show_signature: false
             show_docstring_raises: false
             show_root_toc_entry: false
+            filters:
+              - "!create_list_from_string"
+
 
 markdown_extensions:
   - admonition

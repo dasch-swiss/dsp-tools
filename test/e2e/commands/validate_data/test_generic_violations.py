@@ -118,6 +118,12 @@ class TestWithReportGraphs:
                 SH.ClassConstraintComponent,
             ),
             (
+                URIRef("http://data/link_target_of_another_project"),
+                SH.NodeConstraintComponent,
+                BNode,
+                SH.ClassConstraintComponent,
+            ),
+            (
                 URIRef("http://data/link_to_resource_in_db"),
                 SH.NodeConstraintComponent,
                 BNode,
@@ -181,6 +187,7 @@ class TestWithReportGraphs:
             ("inexistent_license_iri", ProblemType.GENERIC),
             ("label_with_newline", ProblemType.GENERIC),
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_target_of_another_project", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
@@ -298,6 +305,11 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
+        (
+            "link_target_of_another_project",
+            "onto:testHasLinkToCardOneResource",
+            "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+        ),
         ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
         (
             "list_name_attrib_empty",
@@ -327,6 +339,11 @@ def test_reformat_content_violation(authentication) -> None:
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",
             "non_existing",
+        ),
+        (
+            "richtext_standoff_link_to_other_project",
+            "hasStandoffLinkTo",
+            "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
         ),
         (
             "simple_text_with_newlines",

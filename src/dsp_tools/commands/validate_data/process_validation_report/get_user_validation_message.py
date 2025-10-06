@@ -20,14 +20,14 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 
 
 def sort_user_problems(
-    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None
+    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None, shortcode: str
 ) -> SortedProblems:
-    iris_removed, problems_with_iris = _separate_link_value_missing_if_reference_is_an_iri(all_problems.problems)
+    iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(all_problems.problems, shortcode)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
     if duplicate_file_warnings:
         warnings.extend(duplicate_file_warnings.problems)
-    info.extend(problems_with_iris)
+    info.extend(links_level_info)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(
         unique_violations=violations,
@@ -46,26 +46,36 @@ def _separate_according_to_severity(
     return violations, warnings, info
 
 
-def _separate_link_value_missing_if_reference_is_an_iri(
-    problems: list[InputProblem],
+def _separate_resource_links_to_iris_of_own_project(
+    problems: list[InputProblem], shortcode: str
 ) -> tuple[list[InputProblem], list[InputProblem]]:
-    iris_referenced = []
-    no_iris_referenced = []
+    link_level_info = []
+    all_others = []
+    resource_iri_start = "http://rdfh.ch/"
+    project_resource_iri = f"{resource_iri_start}{shortcode}/"
     for prblm in problems:
         if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
-            no_iris_referenced.append(prblm)
+            all_others.append(prblm)
             continue
         if not prblm.input_value:
-            no_iris_referenced.append(prblm)
-        elif prblm.input_value.startswith("http://rdfh.ch/"):
+            all_others.append(prblm)
+        elif prblm.input_value.startswith(project_resource_iri):
             prblm.message = (
                 "You used an absolute IRI to reference an existing resource in the DB. "
                 "If this resource does not exist or is not of the correct type, an xmlupload will fail."
             )
-            iris_referenced.append(prblm)
+            prblm.problem_type = ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
+            link_level_info.append(prblm)
+        elif prblm.input_value.startswith(resource_iri_start):
+            prblm.message = (
+                "You used an absolute IRI to reference an existing resource of another project in the DB. "
+                "Cross-Project resource links are not permitted."
+            )
+            prblm.problem_type = ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT
+            all_others.append(prblm)
         else:
-            no_iris_referenced.append(prblm)
-    return no_iris_referenced, iris_referenced
+            all_others.append(prblm)
+    return all_others, link_level_info
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:

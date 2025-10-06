@@ -29,6 +29,8 @@ CONFIG = ValidateDataConfig(
     skip_ontology_validation=False,
 )
 
+SHORTCODE = "9999"
+
 
 @pytest.fixture(scope="module")
 def authentication(creds: ServerCredentials) -> AuthenticationClient:
@@ -42,7 +44,7 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +53,7 @@ def no_violations_with_info(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
 
 
 class TestGetCorrectValidationResult:
@@ -125,7 +127,7 @@ class TestSortedProblems:
             skip_ontology_validation=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, config)
+        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE)
         expected_res_ids = {"archive_no_legal_info", "iiif_no_legal_info", "image_no_legal_info"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)
@@ -134,8 +136,8 @@ class TestSortedProblems:
 
     def test_no_violations_with_info(self, no_violations_with_info):
         all_expected_info = [
-            ("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
-            ("richtext_with_standoff_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            ("richtext_with_standoff_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
         ]
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)

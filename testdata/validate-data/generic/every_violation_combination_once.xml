@@ -157,12 +157,23 @@
         </resource>
 
         <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
+        It is not permissible to have a resource link to a class of another project.
+        -->
+        <resource label="Target does not exist" restype=":ClassWithEverything" id="link_target_of_another_project">
+            <resptr-prop name=":testHasLinkTo">
+                <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
             It is permissible to reference resources that exist in the database but not the XML.
             This cannot be specified through SHACL and is done when sorting the user messages.
         -->
         <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
             <resptr-prop name=":testHasLinkToCardOneResource">
-                <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+                <resptr>http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA</resptr>
             </resptr-prop>
         </resource>
 

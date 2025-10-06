@@ -64,6 +64,13 @@
         </resptr-prop>
     </resource>
 
+    <!-- Link target is of another project -->
+    <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_of_another_project">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+        </resptr-prop>
+    </resource>
+
     <!-- Text may not be empty -->
     <resource label="No Content" restype=":ClassWithEverything" id="empty_text_rich">
         <text-prop name=":testRichtext">
@@ -103,6 +110,15 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 This is a text with <a class="salsah-link" href="IRI:non_existing:IRI">standoff</a>.
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- The target of the stand-off link is a resource from another project. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_to_other_project">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">standoff</a>.
             </text>
         </text-prop>
     </resource>

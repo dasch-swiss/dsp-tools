@@ -162,13 +162,21 @@ def missing_legal_warning() -> InputProblem:
 
 
 def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch, missing_legal_warning):
+    references_iri_of_another_project = InputProblem(
+        problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
+        res_id="references_iri_of_another_project",
+        res_type="onto:Class",
+        prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
+        input_value="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+    )
     references_iri = InputProblem(
         problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
         res_id="references_iri",
         res_type="onto:Class",
         prop_name="onto:hasProp",
         severity=Severity.VIOLATION,
-        input_value="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+        input_value="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA",
     )
     inexistent_license_iri = InputProblem(
         problem_type=ProblemType.GENERIC,
@@ -190,17 +198,26 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
     )
     result = sort_user_problems(
         AllProblems(
-            [duplicate_value, link_value_type_mismatch, references_iri, inexistent_license_iri, missing_legal_warning],
+            [
+                references_iri_of_another_project,
+                duplicate_value,
+                link_value_type_mismatch,
+                references_iri,
+                inexistent_license_iri,
+                missing_legal_warning,
+            ],
             [],
         ),
         duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
         shortcode="9999",
     )
-    assert len(result.unique_violations) == 3
-    assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
-    assert len(result.user_warnings) == 2
+    unique_violations_expected = {"res_id", "inexistent_license_iri", "references_iri_of_another_project"}
+    unique_warnings_expected = {None, "image_no_legal_info"}
+    assert len(result.unique_violations) == len(unique_violations_expected)
+    assert set([x.res_id for x in result.unique_violations]) == unique_violations_expected
+    assert len(result.user_warnings) == len(unique_warnings_expected)
     warning_ids = {x.res_id for x in result.user_warnings}
-    assert warning_ids == {None, "image_no_legal_info"}
+    assert warning_ids == unique_warnings_expected
     assert len(result.user_info) == 1
     assert result.user_info[0].res_id == "references_iri"
     assert not result.unexpected_shacl_validation_components

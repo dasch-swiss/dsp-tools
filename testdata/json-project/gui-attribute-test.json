@@ -1,0 +1,193 @@
+{
+    "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0999",
+        "shortname": "gui-test",
+        "longname": "Test project for gui-attributes",
+        "descriptions": {
+            "en": "Test project for gui-attributes"
+        },
+        "keywords": [
+            "validate"
+        ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/cc-by-nc-4.0",
+            "http://rdfh.ch/licenses/unknown",
+            "http://rdfh.ch/licenses/ai-generated"
+        ],
+        "default_permissions": "public",
+        "ontologies": [
+            {
+                "name": "onto",
+                "label": "Ontology",
+                "properties": [
+                    {
+                        "name": "testColor",
+                        "super": [
+                            "hasColor"
+                        ],
+                        "object": "ColorValue",
+                        "labels": {
+                            "en": "testColor"
+                        },
+                        "gui_element": "Colorpicker",
+                        "gui_attributes": {
+                            "ncolors": 1
+                        }
+                    },
+                    {
+                        "name": "testDecimalSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": {
+                            "en": "testDecimalSimpleText"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 2,
+                            "size": 2
+                        }
+                    },
+                    {
+                        "name": "testDecimalSpinbox",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": {
+                            "en": "testDecimalSpinbox"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "min": 1.0,
+                            "max": 3.0
+                        }
+                    },
+                    {
+                        "name": "testIntegerSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "testIntegerSimpleText"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 2,
+                            "size": 2
+                        }
+                    },
+                    {
+                        "name": "testIntegerSpinbox",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "testIntegerSpinbox"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "min": 1,
+                            "max": 3
+                        }
+                    },
+                    {
+                        "name": "testSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "testSimpleText"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 3,
+                            "size": 3
+                        }
+                    },
+                    {
+                        "name": "testTextarea",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "testTextarea"
+                        },
+                        "gui_element": "Textarea",
+                        "gui_attributes": {
+                            "cols": 1,
+                            "rows": 1,
+                            "width": "200%",
+                            "wrap": "hard"
+                        }
+                    },
+                    {
+                        "name": "testUriValue",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "testUriValue"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 3,
+                            "size": 3
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "ResCls",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Cls"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":testColor",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testDecimalSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testDecimalSpinbox",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testIntegerSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testIntegerSpinbox",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testTextarea",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":testUriValue",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

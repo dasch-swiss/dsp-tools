@@ -9,7 +9,7 @@
     <!-- 5 Violations -->
 
     <!-- 'testBoolean' cardinality 1 -->
-    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1_violation"/>
+    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1_missing"/>
 
     <!-- This class does not have a cardinality for the property -->
     <resource label="Int card does not exist" restype=":CardOneResource" id="prop_does_not_have_card">
@@ -33,7 +33,7 @@
     </resource>
 
     <!-- 'testGeoname' cardinality 1-n -->
-    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="min_card_violation">
+    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="card_inexistent_for_prop">
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>prop_does_not_have_card</resptr>
         </resptr-prop>

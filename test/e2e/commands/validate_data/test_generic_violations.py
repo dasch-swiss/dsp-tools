@@ -113,13 +113,13 @@ class TestWithReportGraphs:
                 SH.ClassConstraintComponent,
             ),
             (
-                URIRef("http://data/link_target_wrong_class"),
+                URIRef("http://data/link_target_of_another_project"),
                 SH.NodeConstraintComponent,
                 BNode,
                 SH.ClassConstraintComponent,
             ),
             (
-                URIRef("http://data/link_target_of_another_project"),
+                URIRef("http://data/link_target_wrong_class"),
                 SH.NodeConstraintComponent,
                 BNode,
                 SH.ClassConstraintComponent,

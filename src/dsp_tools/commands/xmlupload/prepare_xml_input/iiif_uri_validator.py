@@ -29,7 +29,6 @@ class IIIFUriValidator:
                 uri=uri,
                 regex_has_passed=regex_has_passed,
                 raised_exception_name=response.__class__.__name__,
-                original_text=str(response),
             )
         match response.ok, regex_has_passed:
             case True, True:
@@ -39,7 +38,6 @@ class IIIFUriValidator:
                     uri=uri,
                     regex_has_passed=regex_has_passed,
                     status_code=response.status_code,
-                    original_text=response.text,
                 )
 
     def _make_network_call(self, uri: str) -> requests.Response | Exception:

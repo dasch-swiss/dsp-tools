@@ -29,7 +29,6 @@ class IIIFUriProblem:
     regex_has_passed: bool
     status_code: int | None = None
     raised_exception_name: str | None = None
-    original_text: str | None = None
 
     def get_msg(self) -> str:
         """Get a message describing the problem with the IIIF URI."""
@@ -43,24 +42,20 @@ class IIIFUriProblem:
         elif self.status_code is not None:
             msg.extend(self._bad_status_code_msg())
         else:
-            msg.extend(self._exception_msg())
+            msg.append(self._exception_msg())
         return list_separator.join(msg)
 
-    def _exception_msg(self) -> list[str]:
-        return [
-            f"An error occurred during the network call: {self.raised_exception_name}",
-            f"Error message: {self.original_text}",
-        ]
+    def _exception_msg(self) -> str:
+        return f"An error occurred during the network call: {self.raised_exception_name}"
 
     def _bad_status_code_msg(self) -> list[str]:
         return [
             "The server did not respond as expected.",
-            f"Status code: {self.status_code}",
-            f"Response text: {self.original_text}",
+            f"Status code: {self.status_code}"
         ]
 
     def _good_status_code_bad_regex_msg(self) -> list[str]:
         return [
-            "The URI is correct and the server responded as expected.",
+            "Although the IIIF-server responded as expected, this URI did not pass validation.",
             "Please contact the dsp-tools development team with this information.",
         ]

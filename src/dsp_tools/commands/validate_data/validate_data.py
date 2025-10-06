@@ -108,7 +108,7 @@ def validate_parsed_resources(
         auth=auth,
         shortcode=shortcode,
     )
-    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config)
+    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config, shortcode)
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -139,6 +139,7 @@ def _validate_data(
     used_iris: set[str],
     parsed_resources: list[ParsedResource],
     config: ValidateDataConfig,
+    shortcode: str,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     # Check if unknown classes are used
@@ -167,7 +168,7 @@ def _validate_data(
             )
             return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings)
+    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode)
     return ValidateDataResult(False, sorted_problems, report)
 
 

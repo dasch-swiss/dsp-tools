@@ -187,7 +187,7 @@ class TestWithReportGraphs:
             ("inexistent_license_iri", ProblemType.GENERIC),
             ("label_with_newline", ProblemType.GENERIC),
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
-            ("link_target_of_another_project", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_target_of_another_project", ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),

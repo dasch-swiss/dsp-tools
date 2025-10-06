@@ -112,5 +112,6 @@ class ProblemType(StrEnum):
     VALUE_TYPE_MISMATCH = "Value Type Mismatch"
     INPUT_REGEX = "Wrong Format of Input"
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"
+    LINK_TARGET_OF_ANOTHER_PROJECT = "Linked Resource Type Mismatch"
     INEXISTENT_LINKED_RESOURCE = "Linked Resource does not exist"
     DUPLICATE_VALUE = "Your input is duplicated"

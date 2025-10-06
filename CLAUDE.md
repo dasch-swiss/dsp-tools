@@ -55,7 +55,6 @@ DSP-TOOLS provides the following functionalities:
   does the same as the newer `excel2json` command, but the Excel format for the `lists` section is different.
     - `dsp-tools old-excel2lists`
       does the same as the newer `excel2lists` command, but the Excel format is different.
-- `dsp-tools excel2xml` transforms a data source to XML if it is already structured according to the DSP specifications.
 - The module `excel2xml` provides helper methods that can be used in a Python script
   to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
 - The `xmllib` library provides helper functions that can be used in a Python script

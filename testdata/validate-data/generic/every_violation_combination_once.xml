@@ -40,13 +40,15 @@
         sh:sourceConstraintComponent  sh:MaxCountConstraintComponent
         sh:detail                     -
         -->
+        <resource label="Int card does not exist" restype=":CardOneResource" id="target_card_one_1"/>
+        <resource label="Int card does not exist" restype=":CardOneResource" id="target_card_one_2"/>
         <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="card_max_violation">
             <boolean-prop name=":testBoolean">
                 <boolean>true</boolean>
             </boolean-prop>
             <resptr-prop name=":testHasLinkToCardOneResource">
-                <resptr>id_closed_constraint</resptr>
-                <resptr>id_card_one</resptr>
+                <resptr>target_card_one_1</resptr>
+                <resptr>target_card_one_2</resptr>
             </resptr-prop>
             <geoname-prop name=":testGeoname">
                 <geoname>111111</geoname>

@@ -23,37 +23,37 @@
         </color-prop>
     </resource>
 
-    <resource label="testDecimalSimpleText" restype=":testDecimalSimpleText" id="testDecimalSimpleText">
+    <resource label="testDecimalSimpleText" restype=":ResCls" id="testDecimalSimpleText">
         <decimal-prop name=":testDecimalSimpleText">
             <decimal>10000.0</decimal>
         </decimal-prop>
     </resource>
 
-    <resource label="testDecimalSpinbox" restype=":testDecimalSpinbox" id="testDecimalSpinbox">
+    <resource label="testDecimalSpinbox" restype=":ResCls" id="testDecimalSpinbox">
         <decimal-prop name=":testDecimalSpinbox">
             <decimal>100000.0</decimal>
         </decimal-prop>
     </resource>
 
-    <resource label="testIntegerSimpleText" restype=":testIntegerSimpleText" id="testIntegerSimpleText">
+    <resource label="testIntegerSimpleText" restype=":ResCls" id="testIntegerSimpleText">
         <integer-prop name=":testIntegerSimpleText">
             <integer>100000</integer>
         </integer-prop>
     </resource>
 
-    <resource label="testIntegerSpinbox" restype=":testIntegerSpinbox" id="testIntegerSpinbox">
+    <resource label="testIntegerSpinbox" restype=":ResCls" id="testIntegerSpinbox">
         <integer-prop name=":testIntegerSpinbox">
             <integer>1000000</integer>
         </integer-prop>
     </resource>
 
-    <resource label="testSimpleText" restype=":testSimpleText" id="testSimpleText">
+    <resource label="testSimpleText" restype=":ResCls" id="testSimpleText">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">Too long text</text>
         </text-prop>
     </resource>
 
-    <resource label="testTextarea" restype=":testTextarea" id="testTextarea">
+    <resource label="testTextarea" restype=":ResCls" id="testTextarea">
         <text-prop name=":testTextarea">
             <text encoding="utf8">
                 No idea what this should
@@ -63,7 +63,7 @@
         </text-prop>
     </resource>
 
-    <resource label="testUriValue" restype=":testUriValue" id="testUriValue">
+    <resource label="testUriValue" restype=":ResCls" id="testUriValue">
         <uri-prop name=":testUriValue">
             <uri>https://docs.dasch.swiss/latest/DSP-TOOLS/</uri>
         </uri-prop>

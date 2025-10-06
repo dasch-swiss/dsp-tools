@@ -398,8 +398,8 @@ def test_reformat_cardinality_violation(authentication) -> None:
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
-        ("card_inexistent_for_prop", ProblemType.MIN_CARD),
         ("card_1_missing", ProblemType.MIN_CARD),
+        ("card_inexistent_for_prop", ProblemType.MIN_CARD),
         ("is_super_prop_no_card", ProblemType.NON_EXISTING_CARD),
         ("max_card_violation", ProblemType.MAX_CARD),
         ("prop_does_not_have_card", ProblemType.NON_EXISTING_CARD),
@@ -510,7 +510,7 @@ def test_reformat_file_value_violation(authentication) -> None:
         ("id_video_missing", ProblemType.FILE_VALUE_MISSING),
         ("id_video_unknown", ProblemType.FILE_VALUE_MISSING),
         ("id_wrong_file_type", ProblemType.FILE_VALUE_MISSING),
-        ("license_iri_inexistent", ProblemType.GENERIC),
+        ("inexistent_license_iri", ProblemType.GENERIC),
         ("license_not_enabled", ProblemType.GENERIC),
         ("unknown_authorship_id", ProblemType.INPUT_REGEX),
     ]

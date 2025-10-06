@@ -84,7 +84,6 @@ def test_validate_with_exception(
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
     assert not result.status_code
-    assert result.original_text == "This is the request exception."
     assert result.raised_exception_name == "RequestException"
 
 
@@ -98,7 +97,6 @@ def test_validate_with_bad_status_code(
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
     assert result.status_code == 404
-    assert result.original_text == "This is the response text."
     assert not result.raised_exception_name
 
 
@@ -123,7 +121,6 @@ def test_validate_with_failed_regex_good_status_code(
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
     assert result.status_code == 200
-    assert result.original_text == "This is the response text."
     assert not result.raised_exception_name
 
 

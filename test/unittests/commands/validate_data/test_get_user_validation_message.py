@@ -309,7 +309,7 @@ def test_separate_link_value_missing_if_reference_is_an_iri(inexistent_linked_re
     inexistent_resource_id_in_link = next(iter(x for x in result.unique_violations if x.res_id == "res_id"))
     assert inexistent_resource_id_in_link.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
     assert result.user_info[0].res_id == "references_iri"
-    assert result.user_info[0].problem_type == ProblemType.LINK_TARGET_IS_IRI
+    assert result.user_info[0].problem_type == ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
 
 
 class TestUserMessages:

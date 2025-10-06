@@ -22,9 +22,7 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 def sort_user_problems(
     all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None, shortcode: str
 ) -> SortedProblems:
-    iris_removed, links_level_info = _separate_link_value_missing_if_reference_is_an_iri(
-        all_problems.problems, shortcode
-    )
+    iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(all_problems.problems, shortcode)
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
     if duplicate_file_warnings:
@@ -48,7 +46,7 @@ def _separate_according_to_severity(
     return violations, warnings, info
 
 
-def _separate_link_value_missing_if_reference_is_an_iri(
+def _separate_resource_links_to_iris_of_own_project(
     problems: list[InputProblem], shortcode: str
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     link_level_info = []
@@ -66,7 +64,7 @@ def _separate_link_value_missing_if_reference_is_an_iri(
                 "You used an absolute IRI to reference an existing resource in the DB. "
                 "If this resource does not exist or is not of the correct type, an xmlupload will fail."
             )
-            prblm.problem_type = ProblemType.LINK_TARGET_IS_IRI
+            prblm.problem_type = ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
             link_level_info.append(prblm)
         elif prblm.input_value.startswith(resource_iri_start):
             prblm.message = (

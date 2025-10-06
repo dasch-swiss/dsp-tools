@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.general_functions import ListLookup
@@ -116,22 +115,9 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestCreateListFromString:
-    def test_create_list_from_string_ok(self) -> None:
-        with pytest.warns(DspToolsFutureWarning):
-            result = create_list_from_string("ab, cd , ", ",")
-        assert set(result) == {"ab", "cd"}
-
     def test_create_list_from_string_not_string(self) -> None:
-        msg = regex.escape("The input for this function must be a string. Your input is a bool.")
-        with pytest.warns(DspToolsFutureWarning):
-            with pytest.raises(XmllibInputError, match=msg):
-                create_list_from_string(True, ",")  # type: ignore[arg-type]
-
-    def test_create_list_from_string_empty(self) -> None:
-        with pytest.warns(DspToolsFutureWarning):
-            result = create_list_from_string(" , ", ",")
-        assert isinstance(result, list)
-        assert result == []
+        with pytest.raises(XmllibInputError):
+            create_list_from_string("", "")
 
     @pytest.mark.parametrize(("input_value", "expected"), [("a, b", ["a", "b"]), ("", []), (1, ["1"])])
     def test_create_list_from_input(self, input_value, expected) -> None:

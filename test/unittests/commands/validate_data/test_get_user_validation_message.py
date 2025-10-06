@@ -194,6 +194,7 @@ def test_sort_user_problems_with_iris(duplicate_value, link_value_type_mismatch,
             [],
         ),
         duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
+        shortcode="9999",
     )
     assert len(result.unique_violations) == 3
     assert set([x.res_id for x in result.unique_violations]) == {"res_id", "inexistent_license_iri"}
@@ -228,6 +229,7 @@ def test_sort_user_problems_with_duplicate(duplicate_value, link_value_type_mism
             [UnexpectedComponent("sh:unexpected"), UnexpectedComponent("sh:unexpected")],
         ),
         duplicate_file_warnings=None,
+        shortcode="9999",
     )
     assert len(result.unique_violations) == 3
     assert not result.user_info
@@ -252,7 +254,7 @@ def test_sort_user_problems_different_props():
         severity=Severity.VIOLATION,
         expected="This property requires a TextValue",
     )
-    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_warnings=None)
+    result = sort_user_problems(AllProblems([one, two], []), duplicate_file_warnings=None, shortcode="9999")
     assert len(result.unique_violations) == 2
     assert not result.user_info
     assert not result.unexpected_shacl_validation_components

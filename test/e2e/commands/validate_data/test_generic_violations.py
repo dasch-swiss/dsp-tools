@@ -45,6 +45,7 @@ CONFIG = ValidateDataConfig(
     is_on_prod_server=False,
     skip_ontology_validation=False,
 )
+SHORTCODE = "9999"
 
 
 @pytest.fixture(scope="module")
@@ -210,7 +211,7 @@ class TestWithReportGraphs:
         expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
-        sorted_problems = sort_user_problems(result, duplicate_files)
+        sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
         alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
@@ -236,7 +237,7 @@ class TestWithReportGraphs:
 def test_check_for_unknown_resource_classes(authentication) -> None:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
     assert not result.no_problems
     problems = result.problems
     assert isinstance(problems, UnknownClassesInData)
@@ -248,7 +249,7 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
 def test_reformat_content_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
     msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
     expected_info_tuples = [
         (
@@ -390,7 +391,7 @@ def test_reformat_content_violation(authentication) -> None:
 def test_reformat_cardinality_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
         ("id_card_one", ProblemType.MIN_CARD),
@@ -417,7 +418,7 @@ def test_reformat_cardinality_violation(authentication) -> None:
 def test_reformat_value_type_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
@@ -456,7 +457,7 @@ def test_reformat_value_type_violation(authentication) -> None:
 def test_reformat_unique_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_ids = [
         "identical_values_LinkValue",
@@ -483,7 +484,7 @@ def test_reformat_unique_value_violation(authentication) -> None:
 def test_reformat_file_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_violation = [
         ("authorship_with_newline", ProblemType.GENERIC),
@@ -527,7 +528,7 @@ def test_reformat_file_value_violation(authentication) -> None:
 def test_reformat_dsp_inbuilt_violation(authentication) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
         ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),

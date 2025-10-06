@@ -66,6 +66,7 @@ def _separate_link_value_missing_if_reference_is_an_iri(
                 "You used an absolute IRI to reference an existing resource in the DB. "
                 "If this resource does not exist or is not of the correct type, an xmlupload will fail."
             )
+            prblm.problem_type = ProblemType.LINK_TARGET_IS_IRI
             link_level_info.append(prblm)
         elif prblm.input_value.startswith(resource_iri_start):
             prblm.message = (

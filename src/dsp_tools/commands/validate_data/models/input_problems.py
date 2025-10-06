@@ -113,5 +113,6 @@ class ProblemType(StrEnum):
     INPUT_REGEX = "Wrong Format of Input"
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"
     LINK_TARGET_OF_ANOTHER_PROJECT = "Linked Resource is from another project"
+    LINK_TARGET_IS_IRI = "Linked Resource is an IRI"
     INEXISTENT_LINKED_RESOURCE = "Linked Resource does not exist"
     DUPLICATE_VALUE = "Your input is duplicated"

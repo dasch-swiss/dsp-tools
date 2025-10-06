@@ -208,7 +208,7 @@ class TestWithReportGraphs:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
         ]
-        expected_info = [("link_to_resource_in_db", ProblemType.INEXISTENT_LINKED_RESOURCE)]
+        expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE)
@@ -379,6 +379,8 @@ def test_reformat_content_violation(authentication) -> None:
         elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
             assert one_result.input_value == expected_info[2]
         elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
+            assert one_result.input_value == expected_info[2]
+        elif one_result.problem_type == ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT:
             assert one_result.input_value == expected_info[2]
         else:
             nev: Never = cast(Never, one_result.problem_type)

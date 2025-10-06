@@ -52,15 +52,15 @@ def _separate_link_value_missing_if_reference_is_an_iri(
     problems: list[InputProblem], shortcode: str
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     link_level_info = []
-    level_error = []
+    all_others = []
     resource_iri_start = "http://rdfh.ch/"
     project_resource_iri = f"{resource_iri_start}{shortcode}/"
     for prblm in problems:
         if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
-            level_error.append(prblm)
+            all_others.append(prblm)
             continue
         if not prblm.input_value:
-            level_error.append(prblm)
+            all_others.append(prblm)
         elif prblm.input_value.startswith(project_resource_iri):
             prblm.message = (
                 "You used an absolute IRI to reference an existing resource in the DB. "
@@ -73,10 +73,10 @@ def _separate_link_value_missing_if_reference_is_an_iri(
                 "Cross-Project resource links are not permitted."
             )
             prblm.problem_type = ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT
-            level_error.append(prblm)
+            all_others.append(prblm)
         else:
-            level_error.append(prblm)
-    return level_error, link_level_info
+            all_others.append(prblm)
+    return all_others, link_level_info
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:

@@ -396,11 +396,11 @@ def test_reformat_cardinality_violation(authentication) -> None:
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
-        ("id_card_one", ProblemType.MIN_CARD),
-        ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
-        ("id_max_card", ProblemType.MAX_CARD),
-        ("id_min_card", ProblemType.MIN_CARD),
-        ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
+        ("card_1_violation", ProblemType.MIN_CARD),
+        ("is_super_prop_no_card", ProblemType.NON_EXISTING_CARD),
+        ("max_card_violation", ProblemType.MAX_CARD),
+        ("min_card_violation", ProblemType.MIN_CARD),
+        ("prop_does_not_have_card", ProblemType.NON_EXISTING_CARD),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)

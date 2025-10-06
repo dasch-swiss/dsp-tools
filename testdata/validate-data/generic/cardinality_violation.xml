@@ -9,23 +9,23 @@
     <!-- 5 Violations -->
 
     <!-- 'testBoolean' cardinality 1 -->
-    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
+    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1_violation"/>
 
     <!-- This class does not have a cardinality for the property -->
-    <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
+    <resource label="Int card does not exist" restype=":CardOneResource" id="prop_does_not_have_card">
         <integer-prop name=":testIntegerSimpleText">
             <integer>1</integer>
         </integer-prop>
     </resource>
 
     <!-- 'testDecimalSimpleText' max cardinality 1 -->
-    <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
+    <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="max_card_violation">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
         <resptr-prop name=":testHasLinkToCardOneResource">
-            <resptr>id_closed_constraint</resptr>
-            <resptr>id_card_one</resptr>
+            <resptr>prop_does_not_have_card</resptr>
+            <resptr>card_1_violation</resptr>
         </resptr-prop>
         <geoname-prop name=":testGeoname">
             <geoname>111111</geoname>
@@ -33,9 +33,9 @@
     </resource>
 
     <!-- 'testGeoname' cardinality 1-n -->
-    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="id_min_card">
+    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="min_card_violation">
         <resptr-prop name=":testHasLinkToCardOneResource">
-            <resptr>id_closed_constraint</resptr>
+            <resptr>prop_does_not_have_card</resptr>
         </resptr-prop>
     </resource>
 
@@ -44,7 +44,7 @@
         The sub-property 'testSubDate1' has a cardinality.
         It is not allowed to use the super-property without an explicit cardinality.
     -->
-    <resource label="Super property without cardinality" restype=":ClassWithEverything" id="super_prop_no_card">
+    <resource label="Super property without cardinality" restype=":ClassWithEverything" id="is_super_prop_no_card">
         <date-prop name=":testSuperDate">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>

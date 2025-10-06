@@ -132,9 +132,9 @@ A DSP stack can be started with the command
 Tests can be run in three different ways:
 
 - Run all tests in a given folder: `pytest test/unittests`.
-- Run only the tests inside a single file: `pytest test/unittests/test_excel2xml.py`.
+- Run only the tests inside a single file: `pytest test/unittests/cli/test_helper_functions.py`.
 - Run only the test for a single method: 
-  `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`.
+  `pytest test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.

@@ -658,20 +658,6 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.excel2xml", return_value=("foo", "bar"))
-def test_excel2xml(excel2xml: Mock) -> None:
-    excel_file = "filename.xlsx"
-    shortcode = "1234"
-    onto = "someonto"
-    args = f"excel2xml {excel_file} {shortcode} {onto}".split()
-    entry_point.run(args)
-    excel2xml.assert_called_once_with(
-        datafile=excel_file,
-        shortcode=shortcode,
-        default_ontology=onto,
-    )
-
-
 @patch("dsp_tools.cli.call_action._check_docker_health")
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)

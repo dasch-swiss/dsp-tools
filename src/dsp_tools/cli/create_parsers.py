@@ -64,8 +64,6 @@ def make_parser(
 
     _add_excel2properties(subparsers)
 
-    _add_excel2xml(subparsers)
-
     _add_id2iri(subparsers)
 
     _add_rosetta(subparsers)
@@ -129,17 +127,6 @@ def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     )
     subparser.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
     subparser.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
-
-
-def _add_excel2xml(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    subparser = subparsers.add_parser(
-        name="excel2xml",
-        help="Create an XML file from an Excel/CSV file that is already structured according to the DSP specifications",
-    )
-    subparser.set_defaults(action="excel2xml")
-    subparser.add_argument("data_source", help="path to the CSV or XLS(X) file containing the data")
-    subparser.add_argument("project_shortcode", help="shortcode of the project that this data belongs to")
-    subparser.add_argument("ontology_name", help="name of the ontology that this data belongs to")
 
 
 def _add_excel2properties(subparsers: _SubParsersAction[ArgumentParser]) -> None:

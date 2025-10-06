@@ -25,7 +25,7 @@
         </boolean-prop>
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>prop_does_not_have_card</resptr>
-            <resptr>card_1_violation</resptr>
+            <resptr>card_1_missing</resptr>
         </resptr-prop>
         <geoname-prop name=":testGeoname">
             <geoname>111111</geoname>

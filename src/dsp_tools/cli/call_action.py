@@ -13,7 +13,6 @@ from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.project import old_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
-from dsp_tools.commands.excel2xml.excel2xml_cli import excel2xml
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
@@ -71,8 +70,6 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_excel2properties(args)
         case "id2iri":
             result = _call_id2iri(args)
-        case "excel2xml":
-            result = _call_excel2xml(args)
         case "start-stack":
             result = _call_start_stack(args)
         case "stop-stack":
@@ -112,15 +109,6 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
         )
     )
     return stack_handler.start_stack()
-
-
-def _call_excel2xml(args: argparse.Namespace) -> bool:
-    success, _ = excel2xml(
-        datafile=args.data_source,
-        shortcode=args.project_shortcode,
-        default_ontology=args.ontology_name,
-    )
-    return success
 
 
 def _call_id2iri(args: argparse.Namespace) -> bool:

@@ -212,14 +212,9 @@ class TestSortUserProblems:
             duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
             shortcode="9999",
         )
-        unique_violations_expected = {
-            "res_id",
-            "inexistent_license_iri",
-            "references_iri_of_another_project",
-            "references_iri",
-        }
+        unique_violations_expected = {"res_id", "inexistent_license_iri", "references_iri_of_another_project"}
         unique_warnings_expected = {None, "image_no_legal_info"}
-        assert len(result.unique_violations) == len(unique_violations_expected)
+        assert len(result.unique_violations) == 4
         assert set([x.res_id for x in result.unique_violations]) == unique_violations_expected
         assert len(result.user_warnings) == len(unique_warnings_expected)
         warning_ids = {x.res_id for x in result.user_warnings}

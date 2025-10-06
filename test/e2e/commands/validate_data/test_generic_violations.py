@@ -66,7 +66,7 @@ def every_violation_combination_once_info(
 
 class TestWithReportGraphs:
     """
-    These tests, focus confirm that the larger steps from the validate-data function behave as expected.
+    The focus of these tests is to confirm that the larger steps from the validate-data function behave as expected.
     Because of this, the code flow has to be copied from the primary calling function.
     It is not possible to test these steps properly without a stack.
     """
@@ -86,9 +86,6 @@ class TestWithReportGraphs:
         # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
         # and consequently how we must query for it.
         expected_info = [
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/card_1_missing"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/card_inexistent_for_prop"), DASH.ClosedByTypesConstraintComponent, None, None),
             (URIRef("http://data/card_max_violation"), SH.MaxCountConstraintComponent, None, None),
@@ -100,9 +97,6 @@ class TestWithReportGraphs:
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/identical_values"), SH.SPARQLConstraintComponent, None, None),
             (URIRef("http://data/iiif_invalid_characters_in_uri"), SH.DatatypeConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/label_empty"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/label_with_newline"), DASH.SingleLineConstraintComponent, None, None),
             (URIRef("http://data/license_iri_inexistent"), SH.InConstraintComponent, None, None),
@@ -137,6 +131,12 @@ class TestWithReportGraphs:
                 SH.InConstraintComponent,
             ),
             (URIRef("http://data/missing_seqnum"), DASH.CoExistsWithConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -149,7 +149,9 @@ class TestWithReportGraphs:
             (URIRef("http://data/video_segment_wrong_bounds"), SH.MinInclusiveConstraintComponent, None, None),
             (URIRef("http://data/video_segment_wrong_bounds"), SH.MinExclusiveConstraintComponent, None, None),
         ]
-        assert len(result) == len(expected_info)
+        sorted_ids = [x.focus_node_iri for x in result_sorted]
+        expected_ids = [x[0] for x in expected_info]
+        assert sorted_ids == expected_ids
         for result_info, expected in zip(result_sorted, expected_info):
             assert result_info.focus_node_iri == expected[0]
             if result_info.focus_node_iri == URIRef("http://data/video_segment_wrong_bounds"):
@@ -201,12 +203,12 @@ class TestWithReportGraphs:
         ]
         expected_warnings = [
             (None, ProblemType.FILE_DUPLICATE),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
         ]
         expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT)]
         result = reformat_validation_graph(report)

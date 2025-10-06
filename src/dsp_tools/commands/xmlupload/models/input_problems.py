@@ -49,10 +49,7 @@ class IIIFUriProblem:
         return f"An error occurred during the network call: {self.raised_exception_name}"
 
     def _bad_status_code_msg(self) -> list[str]:
-        return [
-            "The server did not respond as expected.",
-            f"Status code: {self.status_code}"
-        ]
+        return ["The server did not respond as expected.", f"Status code: {self.status_code}"]
 
     def _good_status_code_bad_regex_msg(self) -> list[str]:
         return [

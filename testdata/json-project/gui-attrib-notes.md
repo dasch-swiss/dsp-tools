@@ -1,5 +1,8 @@
 # Which GUI-Attributes have an effect
 
+The following GUI-Attributes have no discernible effect.
+
+It was possible to upload "erroneous" data through the API and the APP.
 
 ## Color
 
@@ -9,11 +12,6 @@
         "ncolors": 1
     }
 ```
-
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
 
 
 
@@ -27,11 +25,6 @@
     }
 ```
 
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
-
 
 
 ## Decimal - Spinbox
@@ -44,11 +37,6 @@
     }
 ```
 
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
-
 
 ## Integer - Simple Text
 
@@ -59,11 +47,6 @@
         "size": 2
     }
 ```
-
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
 
 
 ## Integer - Spinbox
@@ -76,11 +59,6 @@
     }
 ```
 
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
-
 
 ## SimpleText
 
@@ -92,13 +70,10 @@
     }
 ```
 
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
-
 
 ## Textarea
+
+Note: It is not actually clear to me what effect these attributes should have.
 
 ```json
     "gui_element": "Textarea",
@@ -110,11 +85,6 @@
     }
 ```
 
-- Behaviour API
-  - 
-- Behaviour APP
-  - 
-
 
 ## UriValue
 
@@ -125,8 +95,3 @@
         "size": 3
     }
 ```
-
-- Behaviour API
-  - 
-- Behaviour APP
-  - 

@@ -63,6 +63,14 @@
         </text-prop>
     </resource>
 
+    <resource label="testTextarea" restype=":ResCls" id="testTextareaLong">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">
+                Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long, Long
+            </text>
+        </text-prop>
+    </resource>
+
     <resource label="testUriValue" restype=":ResCls" id="testUriValue">
         <uri-prop name=":testUriValue">
             <uri>https://docs.dasch.swiss/latest/DSP-TOOLS/</uri>

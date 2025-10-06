@@ -9,7 +9,7 @@
     <!-- 16 Violations -->
 
     <!-- label may not be empty -->
-    <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+    <resource label=" " restype=":ClassWithEverything" id="label_empty"/>
 
     <!-- label may not contain newlines -->
     <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
@@ -36,7 +36,7 @@
     </resource>
 
     <!-- node exists but wrong list used -->
-    <resource label="List from another list is used" restype=":ClassWithEverything" id="wrong_list_used">
+    <resource label="List from another list is used" restype=":ClassWithEverything" id="list_wrong_list_name">
         <list-prop list="secondList" name=":testListProp">
             <list>l2n1</list>
         </list-prop>
@@ -72,21 +72,21 @@
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="No Content" restype=":ClassWithEverything" id="empty_text_rich">
+    <resource label="No Content" restype=":ClassWithEverything" id="richtext_empty">
         <text-prop name=":testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="No Content" restype=":ClassWithEverything" id="empty_text_simple">
+    <resource label="No Content" restype=":ClassWithEverything" id="textarea_empty">
         <text-prop name=":testTextarea">
             <text encoding="utf8"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not only consist of whitespace characters -->
-    <resource label="Only newline and spaces" restype=":ClassWithEverything" id="text_only_whitespace_simple">
+    <resource label="Only newline and spaces" restype=":ClassWithEverything" id="textarea_only_whitespace">
         <text-prop name=":testTextarea">
             <text encoding="utf8">
 

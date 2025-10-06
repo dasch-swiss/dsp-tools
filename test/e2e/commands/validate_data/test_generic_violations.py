@@ -295,15 +295,13 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
-        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
-        ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
-        ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
         (
             "int_too_large",
             "onto:testIntegerSimpleText",
             "The integer must be within the range of -2'147'483'648 and 2'147'483'647.",
         ),
+        ("label_empty", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         (
@@ -337,6 +335,15 @@ def test_reformat_content_violation(authentication) -> None:
             ),
         ),
         (
+            "list_wrong_list_name",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
+        (
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",
             "non_existing",
@@ -351,15 +358,8 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSimpleText",
             "The value must be a non-empty string without newlines.",
         ),
-        ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-        (
-            "wrong_list_used",
-            "onto:testListProp",
-            (
-                "A valid node from the list 'firstList' must be used with this property "
-                "(input displayed in format 'listName / NodeName')."
-            ),
-        ),
+        ("textarea_empty", "onto:testTextarea", "The value must be a non-empty string"),
+        ("textarea_only_whitespace", "onto:testTextarea", "The value must be a non-empty string"),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)

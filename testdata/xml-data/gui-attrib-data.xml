@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd" shortcode="0999"
+       default-ontology="onto">
+
+    <permissions id="public">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="private">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <resource label="testColor" restype=":ResCls" id="testColor">
+        <color-prop name=":testColor">
+            <color>#00ff00</color>
+            <color>#00ff01</color>
+        </color-prop>
+    </resource>
+
+    <resource label="testDecimalSimpleText" restype=":testDecimalSimpleText" id="testDecimalSimpleText">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>10000.0</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="testDecimalSpinbox" restype=":testDecimalSpinbox" id="testDecimalSpinbox">
+        <decimal-prop name=":testDecimalSpinbox">
+            <decimal>100000.0</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="testIntegerSimpleText" restype=":testIntegerSimpleText" id="testIntegerSimpleText">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>100000</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="testIntegerSpinbox" restype=":testIntegerSpinbox" id="testIntegerSpinbox">
+        <integer-prop name=":testIntegerSpinbox">
+            <integer>1000000</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="testSimpleText" restype=":testSimpleText" id="testSimpleText">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Too long text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="testTextarea" restype=":testTextarea" id="testTextarea">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">
+                No idea what this should
+                display.
+                Let's see!
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="testUriValue" restype=":testUriValue" id="testUriValue">
+        <uri-prop name=":testUriValue">
+            <uri>https://docs.dasch.swiss/latest/DSP-TOOLS/</uri>
+        </uri-prop>
+    </resource>
+
+</knora>

@@ -3,10 +3,10 @@
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_ids_if_found
 from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
+from dsp_tools.commands.xmlupload.richtext_id2iri import replace_ids_if_found
 from dsp_tools.error.exceptions import Id2IriReplacementError
 
 RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
@@ -63,12 +63,12 @@ class TestReplaceIdIfFound:
             'Next sentence <a class="salsah-link" href="r2_iri">r2_id</a> now finished. '
             f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
         )
-        result, not_found = _replace_ids_if_found(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
+        result, not_found = replace_ids_if_found(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
         assert result == expected
         assert not not_found
 
     def test_no_ids(self, iri_resolver):
-        result, not_found = _replace_ids_if_found(TXT_NO_LINKS, iri_resolver)
+        result, not_found = replace_ids_if_found(TXT_NO_LINKS, iri_resolver)
         assert result == TXT_NO_LINKS
         assert not not_found
 
@@ -81,7 +81,7 @@ class TestReplaceIdIfFound:
             'Start Text <a class="salsah-link" href="IRI:not_in_lookup:IRI">txt</a> end text. '
             'Next sentence <a class="salsah-link" href="r1_iri">r1_id</a> now finished.'
         )
-        result, not_found = _replace_ids_if_found(txt, iri_resolver)
+        result, not_found = replace_ids_if_found(txt, iri_resolver)
         assert result == expected
         assert not_found == {"not_in_lookup"}
 

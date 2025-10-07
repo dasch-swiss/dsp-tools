@@ -658,11 +658,7 @@ In addition, there is another complete example of a JSON project file here:
               "en": "Firstname",
               "de": "Vorname"
             },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 24,
-              "maxlength": 32
-            }
+            "gui_element": "SimpleText"
           },
           {
             "name": "lastname",
@@ -675,11 +671,7 @@ In addition, there is another complete example of a JSON project file here:
               "en": "Lastname",
               "de": "Nachname"
             },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 24,
-              "maxlength": 64
-            }
+            "gui_element": "SimpleText"
           },
           {
             "name": "member",
@@ -703,11 +695,7 @@ In addition, there is another complete example of a JSON project file here:
               "en": "Name",
               "de": "Name"
             },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 64,
-              "maxlength": 64
-            }
+            "gui_element": "SimpleText"
           },
           {
             "name": "orgtype",

@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Any
 from typing import Union
+from typing import cast
 
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import JSONFileParsingError
@@ -35,7 +36,8 @@ def parse_json_file(filepath: Path) -> dict[str, Any]:
         raise UserFilepathNotFoundError(f"The json file '{filepath}' you provided cannot be found.")
     with open(filepath, encoding="utf-8") as f:
         try:
-            return json.load(f)
+            loaded = json.load(f)
+            return cast(dict[str, Any], loaded)
         except json.JSONDecodeError as e:
             msg = f"The input file '{filepath}' cannot be parsed to a JSON object."
             raise JSONFileParsingError(msg) from e

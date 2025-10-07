@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def"
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver

@@ -94,15 +94,15 @@ class TestSortedProblems:
             (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
             (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif
             # each type of missing legal info (authorship, copyright, license) produces one violation
-            ("archive_no_legal_info", ProblemType.GENERIC),
-            ("archive_no_legal_info", ProblemType.GENERIC),
-            ("archive_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("iiif_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
+            ("no_legal_info_archive", ProblemType.GENERIC),
+            ("no_legal_info_archive", ProblemType.GENERIC),
+            ("no_legal_info_archive", ProblemType.GENERIC),
+            ("no_legal_info_iiif", ProblemType.GENERIC),
+            ("no_legal_info_iiif", ProblemType.GENERIC),
+            ("no_legal_info_iiif", ProblemType.GENERIC),
+            ("no_legal_info_image_file", ProblemType.GENERIC),
+            ("no_legal_info_image_file", ProblemType.GENERIC),
+            ("no_legal_info_image_file", ProblemType.GENERIC),
         ]
         sorted_problems = no_violations_with_warnings_do_not_ignore_duplicate_files.problems
         assert isinstance(sorted_problems, SortedProblems)
@@ -128,7 +128,7 @@ class TestSortedProblems:
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
         result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE)
-        expected_res_ids = {"archive_no_legal_info", "iiif_no_legal_info", "image_no_legal_info"}
+        expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}

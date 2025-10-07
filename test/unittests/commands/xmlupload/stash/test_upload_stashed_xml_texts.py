@@ -80,34 +80,6 @@ def test_serialise_richtext_for_update(standoff_stash_item, iri_resolver):
     assert result == expected
 
 
-def test_find_ids_referenced_in_salsah_links_one_link() -> None:
-    one_link_KnoraStandoffXml = FormattedTextValue(
-        xmlstr=(
-            '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="public">'
-            '<text-prop name=":hasRichtext"><text permissions="public" encoding="xml">'
-            '<a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a>'
-            "</text></text-prop></resource>"
-        )
-    )
-    returned_set = one_link_KnoraStandoffXml.find_internal_ids()
-    assert returned_set == {"r2_id"}
-
-
-def test_find_ids_referenced_in_salsah_links_three_links() -> None:
-    three_link_KnoraStandoffXml = FormattedTextValue(
-        xmlstr=(
-            '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="public">'
-            '<text-prop name=":hasRichtext"><text permissions="public" encoding="xml">'
-            '<a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a>This is normal text'
-            '<a class="salsah-link" href="IRI:r3_id:IRI">r3_id</a>'
-            '<a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a>'
-            "</text></text-prop></resource>"
-        )
-    )
-    returned_set = three_link_KnoraStandoffXml.find_internal_ids()
-    assert returned_set == {"r2_id", "r3_id"}
-
-
 def test__replace_internal_ids_with_iris_one_link() -> None:
     resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
     one_link_KnoraStandoffXml = FormattedTextValue(

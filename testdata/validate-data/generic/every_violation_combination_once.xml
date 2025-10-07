@@ -34,19 +34,19 @@
         sh:sourceConstraintComponent  sh:PatternConstraintComponent
         sh:detail                     -
         -->
-        <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+        <resource label=" " restype=":ClassWithEverything" id="label_empty"/>
 
         <!--
         sh:sourceConstraintComponent  sh:MaxCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
+        <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="card_max_violation">
             <boolean-prop name=":testBoolean">
                 <boolean>true</boolean>
             </boolean-prop>
             <resptr-prop name=":testHasLinkToCardOneResource">
-                <resptr>id_closed_constraint</resptr>
-                <resptr>id_card_one</resptr>
+                <resptr>card_inexistent_for_prop</resptr>
+                <resptr>card_1_missing</resptr>
             </resptr-prop>
             <geoname-prop name=":testGeoname">
                 <geoname>111111</geoname>
@@ -57,19 +57,19 @@
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
+        <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1_missing"/>
 
         <!--
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_missing_file_value"/>
+        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="file_value_missing"/>
 
         <!--
         sh:sourceConstraintComponent  dash:ClosedByTypesConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
+        <resource label="Int card does not exist" restype=":CardOneResource" id="card_inexistent_for_prop">
             <integer-prop name=":testIntegerSimpleText">
                 <integer>1</integer>
             </integer-prop>
@@ -181,10 +181,10 @@
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:ClassConstraintComponent
         -->
-        <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
+        <resource label="Link Prop" restype=":ClassWithEverything" id="target_res"/>
         <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_wrong_class">
             <resptr-prop name=":testHasLinkToCardOneResource">
-                <resptr>id_9_target</resptr>
+                <resptr>target_res</resptr>
             </resptr-prop>
         </resource>
 
@@ -215,7 +215,7 @@
         sh:sourceConstraintComponent  sh:InConstraintComponent
         sh:detail                     -
         -->
-        <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
+        <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="license_iri_inexistent">
             <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
                        copyright-holder="DaSCH"
                        authorship-id="authorship_1"
@@ -237,7 +237,7 @@
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
+        <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="no_legal_info_bitstream">
             <bitstream>bitstream_no_legal_info.mp4</bitstream>
         </resource>
 
@@ -245,7 +245,7 @@
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="no_legal_info_image">
             <bitstream>this/is/filepath/file.jp2</bitstream>
         </resource>
 

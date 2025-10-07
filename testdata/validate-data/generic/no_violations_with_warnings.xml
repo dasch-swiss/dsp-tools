@@ -16,16 +16,16 @@
     Missing Legal Info will produce a warning. This is allowed on a test server but not on prod
     -->
 
-    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="archive_no_legal_info">
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="no_legal_info_archive">
         <bitstream>bitstream_no_legal_info.tar</bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="no_legal_info_iiif">
         <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
     </resource>
 
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
-        <bitstream>image_no_legal_info.jp2</bitstream>
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="no_legal_info_image_file">
+        <bitstream>no_legal_info_image_file.jp2</bitstream>
     </resource>
 
 

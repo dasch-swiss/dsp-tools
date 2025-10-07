@@ -66,7 +66,7 @@ def every_violation_combination_once_info(
 
 class TestWithReportGraphs:
     """
-    These tests, focus confirm that the larger steps from the validate-data function behave as expected.
+    The focus of these tests is to confirm that the larger steps from the validate-data function behave as expected.
     Because of this, the code flow has to be copied from the primary calling function.
     It is not possible to test these steps properly without a stack.
     """
@@ -86,26 +86,20 @@ class TestWithReportGraphs:
         # If we changed a SHACL shape this may influence whether a result does or does not have a BNode
         # and consequently how we must query for it.
         expected_info = [
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/bitstream_no_legal_info"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/card_1_missing"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/card_inexistent_for_prop"), DASH.ClosedByTypesConstraintComponent, None, None),
+            (URIRef("http://data/card_max_violation"), SH.MaxCountConstraintComponent, None, None),
             (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
             (URIRef("http://data/date_month_does_not_exist"), SH.OrConstraintComponent, None, None),
             (URIRef("http://data/date_range_first_is_ce_second_bce"), DASH.CoExistsWithConstraintComponent, None, None),
             (URIRef("http://data/date_range_wrong_yyyy"), SH.LessThanOrEqualsConstraintComponent, None, None),
-            (URIRef("http://data/empty_label"), SH.PatternConstraintComponent, None, None),
+            (URIRef("http://data/file_value_missing"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/geoname_not_number"), SH.PatternConstraintComponent, None, None),
-            (URIRef("http://data/id_card_one"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/id_closed_constraint"), DASH.ClosedByTypesConstraintComponent, None, None),
-            (URIRef("http://data/id_max_card"), SH.MaxCountConstraintComponent, None, None),
-            (URIRef("http://data/id_missing_file_value"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/identical_values"), SH.SPARQLConstraintComponent, None, None),
             (URIRef("http://data/iiif_invalid_characters_in_uri"), SH.DatatypeConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/image_no_legal_info"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/inexistent_license_iri"), SH.InConstraintComponent, None, None),
+            (URIRef("http://data/label_empty"), SH.PatternConstraintComponent, None, None),
             (URIRef("http://data/label_with_newline"), DASH.SingleLineConstraintComponent, None, None),
+            (URIRef("http://data/license_iri_inexistent"), SH.InConstraintComponent, None, None),
             (
                 URIRef("http://data/link_target_non_existent"),
                 SH.NodeConstraintComponent,
@@ -137,6 +131,12 @@ class TestWithReportGraphs:
                 SH.InConstraintComponent,
             ),
             (URIRef("http://data/missing_seqnum"), DASH.CoExistsWithConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_bitstream"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -149,7 +149,9 @@ class TestWithReportGraphs:
             (URIRef("http://data/video_segment_wrong_bounds"), SH.MinInclusiveConstraintComponent, None, None),
             (URIRef("http://data/video_segment_wrong_bounds"), SH.MinExclusiveConstraintComponent, None, None),
         ]
-        assert len(result) == len(expected_info)
+        sorted_ids = [x.focus_node_iri for x in result_sorted]
+        expected_ids = [x[0] for x in expected_info]
+        assert sorted_ids == expected_ids
         for result_info, expected in zip(result_sorted, expected_info):
             assert result_info.focus_node_iri == expected[0]
             if result_info.focus_node_iri == URIRef("http://data/video_segment_wrong_bounds"):
@@ -173,20 +175,20 @@ class TestWithReportGraphs:
         report, parsed_resources = every_violation_combination_once_info
         assert not report.conforms
         expected_violations = [
+            ("card_1_missing", ProblemType.MIN_CARD),
+            ("card_inexistent_for_prop", ProblemType.NON_EXISTING_CARD),
+            ("card_max_violation", ProblemType.MAX_CARD),
             ("date_month_does_not_exist", ProblemType.GENERIC),
             ("date_month_does_not_exist", ProblemType.GENERIC),
             ("date_range_first_is_ce_second_bce", ProblemType.GENERIC),
             ("date_range_wrong_yyyy", ProblemType.GENERIC),
-            ("empty_label", ProblemType.INPUT_REGEX),
+            ("file_value_missing", ProblemType.FILE_VALUE_MISSING),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
-            ("id_card_one", ProblemType.MIN_CARD),
-            ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
-            ("id_max_card", ProblemType.MAX_CARD),
-            ("id_missing_file_value", ProblemType.FILE_VALUE_MISSING),
             ("identical_values", ProblemType.DUPLICATE_VALUE),
             ("iiif_invalid_characters_in_uri", ProblemType.GENERIC),
-            ("inexistent_license_iri", ProblemType.GENERIC),
+            ("label_empty", ProblemType.INPUT_REGEX),
             ("label_with_newline", ProblemType.GENERIC),
+            ("license_iri_inexistent", ProblemType.GENERIC),
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("link_target_of_another_project", ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
@@ -201,12 +203,12 @@ class TestWithReportGraphs:
         ]
         expected_warnings = [
             (None, ProblemType.FILE_DUPLICATE),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
-            ("image_no_legal_info", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_bitstream", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
+            ("no_legal_info_image", ProblemType.GENERIC),
         ]
         expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT)]
         result = reformat_validation_graph(report)
@@ -295,15 +297,13 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
-        ("empty_label", "rdfs:label", "The label must be a non-empty string without newlines."),
-        ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
-        ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
         (
             "int_too_large",
             "onto:testIntegerSimpleText",
             "The integer must be within the range of -2'147'483'648 and 2'147'483'647.",
         ),
+        ("label_empty", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         (
@@ -337,6 +337,15 @@ def test_reformat_content_violation(authentication) -> None:
             ),
         ),
         (
+            "list_wrong_list_name",
+            "onto:testListProp",
+            (
+                "A valid node from the list 'firstList' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+        ),
+        ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
+        (
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",
             "non_existing",
@@ -351,15 +360,8 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSimpleText",
             "The value must be a non-empty string without newlines.",
         ),
-        ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-        (
-            "wrong_list_used",
-            "onto:testListProp",
-            (
-                "A valid node from the list 'firstList' must be used with this property "
-                "(input displayed in format 'listName / NodeName')."
-            ),
-        ),
+        ("textarea_empty", "onto:testTextarea", "The value must be a non-empty string"),
+        ("textarea_only_whitespace", "onto:testTextarea", "The value must be a non-empty string"),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)
@@ -396,11 +398,11 @@ def test_reformat_cardinality_violation(authentication) -> None:
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_tuples = [
-        ("id_card_one", ProblemType.MIN_CARD),
-        ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
-        ("id_max_card", ProblemType.MAX_CARD),
-        ("id_min_card", ProblemType.MIN_CARD),
-        ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
+        ("card_1_missing", ProblemType.MIN_CARD),
+        ("card_inexistent_for_prop", ProblemType.MIN_CARD),
+        ("is_super_prop_no_card", ProblemType.NON_EXISTING_CARD),
+        ("max_card_violation", ProblemType.MAX_CARD),
+        ("prop_does_not_have_card", ProblemType.NON_EXISTING_CARD),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)
@@ -489,28 +491,28 @@ def test_reformat_file_value_violation(authentication) -> None:
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
     expected_info_violation = [
+        ("archive_missing", ProblemType.FILE_VALUE_MISSING),
+        ("archive_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("audio_missing", ProblemType.FILE_VALUE_MISSING),
+        ("audio_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("authorship_id_unknown", ProblemType.INPUT_REGEX),
         ("authorship_with_newline", ProblemType.GENERIC),
+        ("copyright_holder_empty", ProblemType.INPUT_REGEX),
         ("copyright_holder_with_newline", ProblemType.GENERIC),
-        ("empty_copyright_holder", ProblemType.INPUT_REGEX),
-        ("empty_license", ProblemType.GENERIC),
-        ("id_archive_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_archive_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_audio_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_audio_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_document_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_document_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
-        ("id_still_image_iiif_invalid_characters_in_uri", ProblemType.GENERIC),
-        ("id_still_image_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_still_image_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_text_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_text_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_video_missing", ProblemType.FILE_VALUE_MISSING),
-        ("id_video_unknown", ProblemType.FILE_VALUE_MISSING),
-        ("id_wrong_file_type", ProblemType.FILE_VALUE_MISSING),
-        ("inexistent_license_iri", ProblemType.GENERIC),
+        ("document_missing", ProblemType.FILE_VALUE_MISSING),
+        ("document_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("license_empty", ProblemType.GENERIC),
+        ("license_iri_inexistent", ProblemType.GENERIC),
         ("license_not_enabled", ProblemType.GENERIC),
-        ("unknown_authorship_id", ProblemType.INPUT_REGEX),
+        ("resource_without_representation_has_file", ProblemType.FILE_VALUE_PROHIBITED),
+        ("still_image_iiif_invalid_characters_in_uri", ProblemType.GENERIC),
+        ("still_image_missing", ProblemType.FILE_VALUE_MISSING),
+        ("still_image_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("text_missing", ProblemType.FILE_VALUE_MISSING),
+        ("text_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("video_missing", ProblemType.FILE_VALUE_MISSING),
+        ("video_unknown", ProblemType.FILE_VALUE_MISSING),
+        ("wrong_file_type", ProblemType.FILE_VALUE_MISSING),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)

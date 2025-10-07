@@ -33,7 +33,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
 
 def parse_json_file(filepath: Path) -> dict[str, Any]:
     if not filepath.exists():
-        raise UserFilepathNotFoundError(f"The json file '{filepath}' you provided cannot be found.")
+        raise UserFilepathNotFoundError(filepath)
     with open(filepath, encoding="utf-8") as f:
         try:
             loaded = json.load(f)

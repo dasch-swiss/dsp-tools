@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -15,6 +16,8 @@ from dsp_tools.commands.project.create.project_validate import _identify_problem
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import JSONFileParsingError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
@@ -136,14 +139,18 @@ def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> No
     assert sorted(errors) == sorted(expected_errors)
 
 
-def test_parse_json_input() -> None:
-    invalid = [
-        ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"),
-        ("testdata/xml-data/test-data-systematic.xml", r"cannot be parsed to a JSON object"),
-    ]
-    for inv, err_msg in invalid:
-        with pytest.raises(BaseError, match=err_msg):
-            parse_json_input(inv)
+def test_parse_json_input_file_not_found() -> None:
+    err_msg = regex.escape("The provided filepath does not exist: foo/bar")
+    with pytest.raises(UserFilepathNotFoundError, match=err_msg):
+        parse_json_input(Path("foo/bar"))
+
+
+def test_parse_json_input_invalid_file() -> None:
+    err_msg = regex.escape(
+        "The input file 'testdata/xml-data/test-data-systematic.xml' cannot be parsed to a JSON object."
+    )
+    with pytest.raises(JSONFileParsingError, match=err_msg):
+        parse_json_input("testdata/xml-data/test-data-systematic.xml")
 
 
 def test_check_for_duplicate_resources() -> None:

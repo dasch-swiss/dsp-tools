@@ -148,11 +148,7 @@ but in most cases it doesn't make sense to omit them.)
     "de": "ID der Schule",
     "fr": "ID de l'école"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "size": 32,
-    "maxlength": 128
-  }
+  "gui_element": "SimpleText"
 }
 ```
 
@@ -304,8 +300,7 @@ See the [xmlupload documentation](../../data-file/xml-data-file.md#color-prop) f
 *gui_elements / gui_attributes*:
 
 - `Colorpicker`: The only GUI element for colors. It's used to choose a color.
-    - *gui_attributes*:
-        - `ncolors: integer` (optional): Number of colors the color picker should present.
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -363,13 +358,9 @@ See the [xmlupload documentation](../../data-file/xml-data-file.md#decimal-prop)
 *gui_elements / gui_attributes*:
 
 - `Spinbox`: Provides a Spinbox to select a decimal value.
-    - *gui_attributes*:
-        - `max: decimal` (optional): maximal value
-        - `min: decimal` (optional): minimal value
+    - *gui_attributes*: No attributes
 - `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*:
-        - `maxlength: integer` (optional): maximum number of characters accepted
-        - `size: integer` (optional): size of the input field
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -383,11 +374,7 @@ Example:
   "labels": {
     "en": "Decimal number"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "SimpleText"
 }
 ```
 
@@ -433,13 +420,9 @@ See the [xmlupload documentation](../../data-file/xml-data-file.md#integer-prop)
 
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
-    - *gui_attributes*:
-        - `max: decimal` (optional): Maximal value
-        - `min: decimal` (optional): Minimal value
+    - *gui_attributes*: No attributes
 - `SimpleText`: A simple text entry box (one line only). 
-    - *gui_attributes*:
-        - `maxlength: integer` (optional): The maximum number of characters accepted
-        - `size: integer` (optional): The size of the input field
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -453,11 +436,7 @@ Example:
   "labels": {
     "en": "Integer"
   },
-  "gui_element": "Spinbox",
-  "gui_attributes": {
-    "max": 10.0,
-    "min": 0.0
-  }
+  "gui_element": "Spinbox"
 }
 ```
 
@@ -535,15 +514,9 @@ A short overview how to choose the most suitable `TextValue` type for a particul
 *gui_elements / gui_attributes*:
 
 - `SimpleText`: one-line text entry box (for text **without** markup)
-    - *gui_attributes*:
-        - `maxlength: integer` (optional): maximal length (number of characters accepted)
-        - `size: integer` (optional): size (width) of widget
+    - *gui_attributes*: No attributes
 - `Textarea`: multiline text entry box (for text **without** markup)
-    - *gui_attributes*:
-        - `cols: integer` (optional): number of columns of the textarea
-        - `rows: integer` (optional): number of rows of the textarea
-        - `width: percent` (optional): width of the textarea on the screen
-        - `wrap: soft|hard` (optional): wrapping of text
+    - *gui_attributes*: No attributes
 - `Richtext`: multiline rich-text editor (for text **with** markup)
     - *gui_attributes*: No attributes
 
@@ -559,11 +532,7 @@ Example:
   "labels": {
     "en": "Title"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "SimpleText"
 }
 ```
 
@@ -631,9 +600,7 @@ Represents an URI. See the [xmlupload documentation](../../data-file/xml-data-fi
 *gui_elements / gui_attributes*:
 
 - `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*:
-        - `maxlength: integer` (optional): The maximum number of characters accepted
-        - `size: integer` (optional): The size of the input field
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -647,11 +614,7 @@ Example:
   "labels": {
     "en": "URI"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
-  }
+  "gui_element": "SimpleText"
 }
 ```
 
@@ -683,8 +646,7 @@ The syntax how to refer to these different groups of resources is described [her
 *gui_elements / gui_attributes*:
 
 - `Searchbox`: The only GUI element for *hasLinkTo*. Allows searching resources by entering the target resource name.
-    - *gui_attributes*:
-        - `numprops: integer` (optional): Number of search results to be displayed
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -717,9 +679,7 @@ This generic property can point to any type of the aforementioned representation
 
 - `Searchbox`: Allows searching resources that have super class `Representation` 
   by entering at least 3 characters into a searchbox.
-    - *gui_attributes*:
-        - `numprops: integer` (optional): While dynamically displaying the search result,
-          the number of properties that should be displayed.
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -758,8 +718,7 @@ The example below shows both possibilities.
 *gui_elements / gui_attributes*:
 
 - `Searchbox`: The only GUI element for *isPartOf*. Allows searching resources by entering the target resource name.
-    - *gui_attributes*:
-        - `numprops: integer` (optional): Number of search results to be displayed
+    - *gui_attributes*: No attributes
 
 Example:
 
@@ -827,13 +786,9 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
-    - *gui_attributes*:
-        - `max: decimal` (optional): Maximal value
-        - `min: decimal` (optional): Minimal value
+    - *gui_attributes*: No attributes
 - `SimpleText`: A simple text entry box (one line only). 
-    - *gui_attributes*:
-        - `maxlength: integer` (optional): The maximum number of characters accepted
-        - `size: integer` (optional): The size of the input field
+    - *gui_attributes*: No attributes
 
 Example: See the [`isPartOf` Property](#ispartof-property) above.
 

@@ -47,7 +47,12 @@ class TestReplaceAllIds:
             file_value=None,
             migration_metadata=None,
         )
-        msg = regex.escape("afs")
+        msg = regex.escape(
+            "You provided a file to replace IDs referenced in links and richtext "
+            "with IRIs of previously uploaded resources. "
+            "This means that the new XML file must not contain IDs that were previously used.\n"
+            "The following ID(s) are both in the id2iri mapping and the new data: r1_id"
+        )
         with pytest.raises(DuplicateIdsInXmlAndId2IriMapping, match=msg):
             _replace_all_ids_with_iris([res], iri_resolver)
 

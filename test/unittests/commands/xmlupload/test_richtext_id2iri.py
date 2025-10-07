@@ -87,12 +87,12 @@ class TestReplaceIdIfFound:
 
 
 class TestReplaceOneId:
-    def test_one_link(self, iri_resolver):
+    def test_one_link(self):
         expected = 'Start Text <a class="salsah-link" href="r1_iri">r1_id</a> end text.'
         result = _replace_one_id(TXT_ONE_ID, "r1_id", "r1_iri")
         assert result == expected
 
-    def test_three_links_two_resources(self, iri_resolver):
+    def test_three_links_two_resources(self):
         expected = (
             'Start text <a class="salsah-link" href="r1_iri">r1_id</a>This is normal text. '
             'Next sentence <a class="salsah-link" href="IRI:r3_id:IRI">r3_id</a> now finished. '
@@ -101,7 +101,7 @@ class TestReplaceOneId:
         result = _replace_one_id(TXT_THREE_LINKS_TWO_RES, "r1_id", "r1_iri")
         assert result == expected
 
-    def test_with_iris_and_ids(self, iri_resolver):
+    def test_with_iris_and_ids(self):
         expected = (
             'Start text <a class="salsah-link" href="r1_iri">r1_id</a>This is normal text. '
             'Next sentence <a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a> now finished. '

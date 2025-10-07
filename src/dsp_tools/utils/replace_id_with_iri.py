@@ -3,6 +3,7 @@ from pathlib import Path
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_ids_if_found
+from dsp_tools.error.exceptions import DuplicateIdsInXmlAndId2IriMapping
 from dsp_tools.utils.json_parsing import parse_json_file
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -12,7 +13,23 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 def use_id2iri_mapping_to_replace_ids(resources: list[ParsedResource], id2iri_file: Path) -> list[ParsedResource]:
     lookup = parse_json_file(id2iri_file)
     iri_lookup = IriResolver(lookup)
+    new_ids = {x.res_id for x in resources}
+    _raise_error_if_resource_ids_are_reused(new_ids, set(iri_lookup.lookup.keys()))
     return _replace_all_ids_with_iris(resources, iri_lookup)
+
+
+def _raise_error_if_resource_ids_are_reused(
+    resources_ids_from_xml: set[str], resource_ids_from_mapping: set[str]
+) -> None:
+    overlap = resources_ids_from_xml.intersection(resource_ids_from_mapping)
+    if overlap:
+        msg = (
+            "You provided a file to replace IDs referenced in links and "
+            "richtext with IRIs of previously uploaded resources."
+            "This means that the new XML file must not contain IDs that were previously used. "
+            f"The following ID(s) are both in the id2iri mapping and the new data: {', '.join(overlap)}"
+        )
+        raise DuplicateIdsInXmlAndId2IriMapping(msg)
 
 
 def _replace_all_ids_with_iris(resources: list[ParsedResource], iri_lookup: IriResolver) -> list[ParsedResource]:

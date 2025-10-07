@@ -101,6 +101,13 @@ class Id2IriReplacementError(BaseError):
     """Represents an error raised if an internal ID could not be found in the Id2Iri mapping."""
 
 
+class DuplicateIdsInXmlAndId2IriMapping(InputError):
+    """
+    Represents an error raised if a resource ID that is in the Id2Iri mapping
+    is also used as a resource id in the new data.
+    """
+
+
 class XmlUploadInterruptedError(XmlUploadError):
     """Represents an error raised when the xmlupload was interrupted."""
 

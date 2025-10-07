@@ -28,7 +28,7 @@ def _raise_error_if_resource_ids_are_reused(
     overlap = resources_ids_from_xml.intersection(resource_ids_from_mapping)
     if overlap:
         msg = (
-            "You provided a file to replace IDs referenced in links and "
+            "You provided a id2iri mapping file to replace IDs referenced in links and "
             "richtext with IRIs of previously uploaded resources. "
             "This means that the new XML file must not contain IDs that were previously used.\n"
             f"The following ID(s) are both in the id2iri mapping and the new data: {', '.join(overlap)}"

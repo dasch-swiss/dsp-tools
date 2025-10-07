@@ -4,11 +4,6 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.error.exceptions import Id2IriReplacementError
 
 
-def replace_internal_ids_with_iris_if_found(richtext_str: str, iri_resolver: IriResolver) -> str:
-    richtext_str, _ = _replace_ids_if_found(richtext_str, iri_resolver)
-    return richtext_str
-
-
 def prepare_richtext_string_for_upload(richtext_str: str, iri_resolver: IriResolver) -> str:
     richtext_str, ids_not_found = _replace_ids_if_found(richtext_str, iri_resolver)
     if ids_not_found:

@@ -3,8 +3,8 @@
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.richtext_id2iri import _find_internal_ids
 from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
+from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_internal_ids_with_iris_if_found
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_internal_ids_with_iris_in_richtext_raises
 from dsp_tools.error.exceptions import Id2IriReplacementError
@@ -108,16 +108,16 @@ class TestReplaceOneId:
 
 class TestFindInternalIDs:
     def test_one_link(self):
-        result = _find_internal_ids(TXT_ONE_ID)
+        result = find_internal_ids(TXT_ONE_ID)
         assert result == {"r1_id"}
 
     def test_three_links_two_resources(self):
-        result = _find_internal_ids(TXT_THREE_LINKS_TWO_RES)
+        result = find_internal_ids(TXT_THREE_LINKS_TWO_RES)
         assert result == {"r1_id", "r3_id"}
 
     def test_with_iris_and_ids(self):
-        result = _find_internal_ids(TXT_THREE_LINKS_WITH_IRIS_AND_IDS)
+        result = find_internal_ids(TXT_THREE_LINKS_WITH_IRIS_AND_IDS)
         assert result == {"r1_id", "r2_id"}
 
     def test_no_links(self):
-        assert not _find_internal_ids(TXT_NO_LINKS)
+        assert not find_internal_ids(TXT_NO_LINKS)

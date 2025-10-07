@@ -37,6 +37,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
+from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
 from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
 from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
@@ -234,7 +235,7 @@ def _get_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Proce
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        resource_references=transformed_value.find_internal_ids(),
+        resource_references=find_internal_ids(transformed_value.xmlstr),
         value_uuid=str(uuid4()),
     )
     return richtext

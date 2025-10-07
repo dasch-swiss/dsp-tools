@@ -3,10 +3,10 @@
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_ids_if_found
 from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
-from dsp_tools.commands.xmlupload.richtext_id2iri import replace_internal_ids_with_iris_if_found
 from dsp_tools.error.exceptions import Id2IriReplacementError
 
 RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
@@ -34,19 +34,21 @@ def iri_resolver() -> IriResolver:
     return IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
 
 
-class TestReplaceIdRaises:
+class TestReplaceIdForUpload:
     def test_with_iris_and_ids(self, iri_resolver):
         expected = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n<text>'
             'Start text <a class="salsah-link" href="r1_iri">r1_id</a>This is normal text. '
             'Next sentence <a class="salsah-link" href="r2_iri">r2_id</a> now finished. '
-            f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
+            f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.</text>'
         )
         result = prepare_richtext_string_for_upload(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
         assert result == expected
 
     def test_no_ids(self, iri_resolver):
         result = prepare_richtext_string_for_upload(TXT_NO_LINKS, iri_resolver)
-        assert result == TXT_NO_LINKS
+        expected = f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{TXT_NO_LINKS}</text>'
+        assert result == expected
 
     def test_raises(self, iri_resolver):
         txt = 'Start Text <a class="salsah-link" href="IRI:not_in_lookup:IRI">txt</a> end text.'
@@ -61,12 +63,14 @@ class TestReplaceIdIfFound:
             'Next sentence <a class="salsah-link" href="r2_iri">r2_id</a> now finished. '
             f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
         )
-        result = replace_internal_ids_with_iris_if_found(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
+        result, not_found = _replace_ids_if_found(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
         assert result == expected
+        assert not not_found
 
     def test_no_ids(self, iri_resolver):
-        result = replace_internal_ids_with_iris_if_found(TXT_NO_LINKS, iri_resolver)
+        result, not_found = _replace_ids_if_found(TXT_NO_LINKS, iri_resolver)
         assert result == TXT_NO_LINKS
+        assert not not_found
 
     def test_not_in_lookup(self, iri_resolver):
         txt = (
@@ -77,8 +81,9 @@ class TestReplaceIdIfFound:
             'Start Text <a class="salsah-link" href="IRI:not_in_lookup:IRI">txt</a> end text. '
             'Next sentence <a class="salsah-link" href="r1_iri">r1_id</a> now finished.'
         )
-        result = replace_internal_ids_with_iris_if_found(txt, iri_resolver)
+        result, not_found = _replace_ids_if_found(txt, iri_resolver)
         assert result == expected
+        assert not_found == {"not_in_lookup"}
 
 
 class TestReplaceOneId:

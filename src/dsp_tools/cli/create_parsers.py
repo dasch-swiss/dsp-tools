@@ -66,8 +66,6 @@ def make_parser(
 
     _add_id2iri(subparsers)
 
-    _add_rosetta(subparsers)
-
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -80,13 +78,6 @@ def _add_suppress_update_prompt(subparsers: _SubParsersAction[ArgumentParser]) -
     )
     for sp in subparsers.choices.values():
         sp.add_argument("--suppress-update-prompt", action="store_true", help=outdated_help_text)
-
-
-def _add_rosetta(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    subparser = subparsers.add_parser(
-        name="rosetta", help="Clone the most up to data rosetta repository, create the data model and upload the data"
-    )
-    subparser.set_defaults(action="rosetta")
 
 
 def _add_stop_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:

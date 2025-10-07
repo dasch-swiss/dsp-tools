@@ -773,13 +773,6 @@ def test_stop_stack(stop_stack: Mock) -> None:
     stop_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.cli.call_action.upload_rosetta")
-def test_rosetta(upload_rosetta: Mock) -> None:
-    args = "rosetta".split()
-    entry_point.run(args)
-    upload_rosetta.assert_called_once_with()
-
-
 @patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")

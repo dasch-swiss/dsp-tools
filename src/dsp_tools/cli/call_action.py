@@ -22,7 +22,6 @@ from dsp_tools.commands.project.create.project_create_lists import create_only_l
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
-from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.validate_data.validate_data import validate_data
@@ -82,8 +81,6 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_ingest_files(args)
         case "ingest-xmlupload":
             result = _call_ingest_xmlupload(args)
-        case "rosetta":
-            result = upload_rosetta()
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

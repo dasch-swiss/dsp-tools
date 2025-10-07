@@ -57,6 +57,10 @@ class UserFilepathNotFoundError(InputError):
         super().__init__(msg)
 
 
+class JSONFileParsingError(InputError):
+    """This error should be raised if the user provided input file cannot be parsed."""
+
+
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 

@@ -35,7 +35,7 @@ def iri_resolver() -> IriResolver:
 class TestReplaceOneIDs:
     def test_one_link(self, iri_resolver):
         expected = 'Start Text <a class="salsah-link" href="r1_iri">r1_id</a> end text.'
-        result = _replace_one_id(TXT_ONE_ID, "r2_id", iri_resolver)
+        result = _replace_one_id(TXT_ONE_ID, "r1_id", iri_resolver)
         assert result == expected
 
     def test_three_links_two_resources(self, iri_resolver):
@@ -64,7 +64,7 @@ class TestReplaceOneIDs:
 class TestFindInternalIDs:
     def test_one_link(self):
         result = _find_internal_ids(TXT_ONE_ID)
-        assert result == {"r2_id"}
+        assert result == {"r1_id"}
 
     def test_three_links_two_resources(self):
         result = _find_internal_ids(TXT_THREE_LINKS_TWO_RES)

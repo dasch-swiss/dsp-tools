@@ -57,6 +57,10 @@ class UserFilepathNotFoundError(InputError):
         super().__init__(msg)
 
 
+class JSONFileParsingError(InputError):
+    """This error should be raised if the user provided input file cannot be parsed."""
+
+
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
@@ -95,6 +99,13 @@ class XmlInputConversionError(BaseError):
 
 class Id2IriReplacementError(BaseError):
     """Represents an error raised if an internal ID could not be found in the Id2Iri mapping."""
+
+
+class DuplicateIdsInXmlAndId2IriMapping(InputError):
+    """
+    Represents an error raised if a resource ID that is in the Id2Iri mapping
+    is also used as a resource id in the new data.
+    """
 
 
 class XmlUploadInterruptedError(XmlUploadError):

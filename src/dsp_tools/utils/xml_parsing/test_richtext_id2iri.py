@@ -4,6 +4,8 @@ import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import _find_internal_ids
+from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
+from dsp_tools.error.exceptions import Id2IriReplacementError
 
 RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
 
@@ -30,18 +32,47 @@ def iri_resolver() -> IriResolver:
     return IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
 
 
+class TestReplaceOneIDs:
+    def test_one_link(self, iri_resolver):
+        expected = 'Start Text <a class="salsah-link" href="r1_iri">r1_id</a> end text.'
+        result = _replace_one_id(TXT_ONE_ID, "r2_id", iri_resolver)
+        assert result == expected
+
+    def test_three_links_two_resources(self, iri_resolver):
+        expected = (
+            'Start text <a class="salsah-link" href="r1_iri">r1_id</a>This is normal text. '
+            'Next sentence <a class="salsah-link" href="IRI:r3_id:IRI">r3_id</a> now finished. '
+            'Last <a class="salsah-link" href="r1_iri">r1_id</a>.'
+        )
+        result = _replace_one_id(TXT_THREE_LINKS_TWO_RES, "r1_id", iri_resolver)
+        assert result == expected
+
+    def test_with_iris_and_ids(self, iri_resolver):
+        expected = (
+            'Start text <a class="salsah-link" href="r1_iri">r1_id</a>This is normal text. '
+            'Next sentence <a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a> now finished. '
+            f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
+        )
+        result = _replace_one_id(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, "r1_id", iri_resolver)
+        assert result == expected
+
+    def test_raises(self, iri_resolver):
+        with pytest.raises(Id2IriReplacementError):
+            _replace_one_id(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, "not_in_lookup", iri_resolver)
+
+
 class TestFindInternalIDs:
     def test_one_link(self):
-        returned_set = _find_internal_ids(TXT_ONE_ID)
-        assert returned_set == {"r2_id"}
+        result = _find_internal_ids(TXT_ONE_ID)
+        assert result == {"r2_id"}
 
     def test_three_links_two_resources(self):
-        returned_set = _find_internal_ids(TXT_THREE_LINKS_TWO_RES)
-        assert returned_set == {"r1_id", "r3_id"}
+        result = _find_internal_ids(TXT_THREE_LINKS_TWO_RES)
+        assert result == {"r1_id", "r3_id"}
 
     def test_with_iris_and_ids(self):
-        returned_set = _find_internal_ids(TXT_THREE_LINKS_WITH_IRIS_AND_IDS)
-        assert returned_set == {"r1_id", "r2_id"}
+        result = _find_internal_ids(TXT_THREE_LINKS_WITH_IRIS_AND_IDS)
+        assert result == {"r1_id", "r2_id"}
 
     def test_no_links(self):
         assert not _find_internal_ids(TXT_NO_LINKS)

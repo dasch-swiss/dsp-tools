@@ -93,6 +93,10 @@ class XmlInputConversionError(BaseError):
     """Represents an error raised in the context of the xmlupload."""
 
 
+class Id2IriReplacementError(BaseError):
+    """Represents an error raised if an internal ID could not be found in the Id2Iri mapping."""
+
+
 class XmlUploadInterruptedError(XmlUploadError):
     """Represents an error raised when the xmlupload was interrupted."""
 

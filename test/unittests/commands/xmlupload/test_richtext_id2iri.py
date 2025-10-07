@@ -102,7 +102,7 @@ class TestReplaceOneId:
             'Next sentence <a class="salsah-link" href="IRI:r2_id:IRI">r2_id</a> now finished. '
             f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
         )
-        result = _replace_one_id(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, "r1_id", "r1_id")
+        result = _replace_one_id(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, "r1_id", "r1_iri")
         assert result == expected
 
 

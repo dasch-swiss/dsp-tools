@@ -8,7 +8,7 @@ def prepare_richtext_string_for_upload(richtext_str: str, iri_resolver: IriResol
     richtext_str, ids_not_found = _replace_ids_if_found(richtext_str, iri_resolver)
     if ids_not_found:
         raise Id2IriReplacementError(
-            f"Some internal IDs of the following richtext could not be resolved to an IRI: {richtext}"
+            f"Some internal IDs of the following richtext could not be resolved to an IRI: {richtext_str}"
         )
     return _richtext_as_xml(richtext_str)
 

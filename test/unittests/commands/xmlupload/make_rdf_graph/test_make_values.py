@@ -340,6 +340,9 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
         resource_references=set("nonExisingReference"),
         value_uuid=str(uuid4()),
     )
-    err_str = regex.escape("Internal ID(s) in richtext 'nonExisingReference' could not be resolved to an IRI")
+    err_str = regex.escape(
+        "Some internal IDs of the following richtext could not be resolved to an IRI: "
+        'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
+    )
     with pytest.raises(Id2IriReplacementError, match=err_str):
         _make_one_value_graph(prop, res_bn, lookups)

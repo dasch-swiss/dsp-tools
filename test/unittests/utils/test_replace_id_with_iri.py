@@ -2,8 +2,10 @@ import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.utils.replace_id_with_iri import _process_link_value
+from dsp_tools.utils.replace_id_with_iri import _process_one_resource
 from dsp_tools.utils.replace_id_with_iri import _process_richtext_value
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
@@ -19,10 +21,37 @@ def iri_resolver() -> IriResolver:
 
 class TestReplaceIdsWithIris:
     def test_with_values(self, iri_resolver):
-        pass
+        orig_list_val = ("list", "node")
+        link_val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.LINK_VALUE, None, None)
+        list_val = ParsedValue(HAS_PROP, orig_list_val, KnoraValueType.LIST_VALUE, "public", "cmt")
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[list_val, link_val],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _process_one_resource(res, iri_resolver)
+        assert len(result.values) == 2
+        returned_list = next(iter([x for x in result.values if x.value_type == KnoraValueType.LIST_VALUE]))
+        assert returned_list.value == orig_list_val
+        returned_link = next(iter([x for x in result.values if x.value_type == KnoraValueType.LINK_VALUE]))
+        assert returned_link.value == "r1_iri"
 
     def test_no_replacement(self, iri_resolver):
-        pass
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _process_one_resource(res, iri_resolver)
+        assert not result.values
 
 
 class TestProcessLinkValue:

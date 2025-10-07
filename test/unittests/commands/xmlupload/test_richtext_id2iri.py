@@ -5,8 +5,8 @@ import pytest
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
+from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_internal_ids_with_iris_if_found
-from dsp_tools.commands.xmlupload.richtext_id2iri import replace_internal_ids_with_iris_in_richtext_raises
 from dsp_tools.error.exceptions import Id2IriReplacementError
 
 RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
@@ -41,17 +41,17 @@ class TestReplaceIdRaises:
             'Next sentence <a class="salsah-link" href="r2_iri">r2_id</a> now finished. '
             f'This is with an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
         )
-        result = replace_internal_ids_with_iris_in_richtext_raises(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
+        result = prepare_richtext_string_for_upload(TXT_THREE_LINKS_WITH_IRIS_AND_IDS, iri_resolver)
         assert result == expected
 
     def test_no_ids(self, iri_resolver):
-        result = replace_internal_ids_with_iris_in_richtext_raises(TXT_NO_LINKS, iri_resolver)
+        result = prepare_richtext_string_for_upload(TXT_NO_LINKS, iri_resolver)
         assert result == TXT_NO_LINKS
 
     def test_raises(self, iri_resolver):
         txt = 'Start Text <a class="salsah-link" href="IRI:not_in_lookup:IRI">txt</a> end text.'
         with pytest.raises(Id2IriReplacementError):
-            replace_internal_ids_with_iris_in_richtext_raises(txt, iri_resolver)
+            prepare_richtext_string_for_upload(txt, iri_resolver)
 
 
 class TestReplaceIdIfFound:

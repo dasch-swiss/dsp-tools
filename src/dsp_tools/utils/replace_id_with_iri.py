@@ -51,6 +51,7 @@ def _process_one_resource(res: ParsedResource, iri_lookup: IriResolver) -> Parse
 
 
 def _process_link_value(val: ParsedValue, iri_lookup: IriResolver) -> ParsedValue:
+    # later code deals with cases when it is not a string, we can safely ignore this here
     if isinstance(val.value, str):
         if found := iri_lookup.get(val.value):
             val.value = found
@@ -58,6 +59,7 @@ def _process_link_value(val: ParsedValue, iri_lookup: IriResolver) -> ParsedValu
 
 
 def _process_richtext_value(val: ParsedValue, iri_lookup: IriResolver) -> ParsedValue:
+    # later code deals with cases when it is not a string, we can safely ignore this here
     if isinstance(val.value, str):
         replaced, _ = replace_ids_if_found(val.value, iri_lookup)
         val.value = replaced

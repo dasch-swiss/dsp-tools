@@ -13,7 +13,9 @@ def replace_internal_ids_with_iris_in_richtext_raises(richtext_str: str, iri_res
 
 def _replace_ids_raises(txt: str, ids_used: set[str], iri_resolver: IriResolver) -> str:
     for id_ in ids_used:
-        txt = _replace_one_id(txt, id_, iri_resolver)
+        if not (iri_found := iri_resolver.get(id_)):
+            raise Id2IriReplacementError(f"Internal ID '{id_}' could not be resolved to an IRI")
+        txt = _replace_one_id(txt, id_, iri_found)
     return txt
 
 
@@ -26,18 +28,13 @@ def replace_internal_ids_with_iris_if_found(richtext_str: str, iri_resolver: Iri
 
 def _replace_ids_if_found(txt: str, ids_used: set[str], iri_resolver: IriResolver) -> str:
     for id_ in ids_used:
-        try:
-            txt = _replace_one_id(txt, id_, iri_resolver)
-        except Id2IriReplacementError:
-            continue
+        if iri_found := iri_resolver.get(id_):
+            txt = _replace_one_id(txt, id_, iri_found)
     return txt
 
 
-def _replace_one_id(txt: str, id_: str, iri_resolver: IriResolver) -> str:
-    if iri := iri_resolver.get(id_):
-        return txt.replace(f'href="IRI:{id_}:IRI"', f'href="{iri}"')
-    else:
-        raise Id2IriReplacementError(f"Internal ID '{id_}' could not be resolved to an IRI")
+def _replace_one_id(txt: str, id_: str, iri: str) -> str:
+    return txt.replace(f'href="IRI:{id_}:IRI"', f'href="{iri}"')
 
 
 def _find_internal_ids(txt: str) -> set[str]:

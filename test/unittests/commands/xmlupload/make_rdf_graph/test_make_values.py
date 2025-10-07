@@ -31,6 +31,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import Id2IriReplacementError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
@@ -339,6 +340,6 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
         resource_references=set("nonExisingReference"),
         value_uuid=str(uuid4()),
     )
-    err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
-    with pytest.raises(BaseError, match=err_str):
+    err_str = regex.escape("Internal ID(s) in richtext 'nonExisingReference' could not be resolved to an IRI")
+    with pytest.raises(Id2IriReplacementError, match=err_str):
         _make_one_value_graph(prop, res_bn, lookups)

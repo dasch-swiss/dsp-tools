@@ -30,7 +30,7 @@ def assert_is_string(value: InputTypes) -> str:
         case str() as s:
             return s
         case FormattedTextValue() as xml:
-            raise XmlInputConversionError(f"Expected string value, but got XML value: {xml.as_xml()}")
+            raise XmlInputConversionError(f"Expected string value, but got XML value: {xml.xmlstr}")
         case tuple():
             raise XmlInputConversionError(f"Expected string value, but got tuple value: {value}")
         case None:
@@ -47,7 +47,7 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
                 raise XmlInputConversionError(f"Expected tuple with two elements but got {value}")
             return t
         case FormattedTextValue() as xml:
-            raise XmlInputConversionError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
+            raise XmlInputConversionError(f"Expected tuple value, but got XML value: {xml.xmlstr}")
         case str():
             raise XmlInputConversionError(f"Expected tuple value, but got string value: {value}")
         case None:

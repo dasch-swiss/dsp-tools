@@ -30,6 +30,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -255,8 +256,7 @@ def make_richtext_value_graph(
         Graph
     """
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=RICHTEXT_PROP_TYPE_INFO, res_node=res_node)
-    xml_with_iris = val.value.with_iris(iri_resolver)
-    val_str = xml_with_iris.as_xml()
+    val_str = prepare_richtext_string_for_upload(val.value.xmlstr, iri_resolver)
     g.add((val_node, RICHTEXT_PROP_TYPE_INFO.knora_prop, Literal(val_str, datatype=XSD.string)))
     g.add((val_node, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
     return g

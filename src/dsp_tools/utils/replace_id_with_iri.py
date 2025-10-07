@@ -13,9 +13,13 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 def use_id2iri_mapping_to_replace_ids(resources: list[ParsedResource], id2iri_file: Path) -> list[ParsedResource]:
     lookup = parse_json_file(id2iri_file)
     iri_lookup = IriResolver(lookup)
+    return _replace_all_ids_with_iris(resources, iri_lookup)
+
+
+def _replace_all_ids_with_iris(resources: list[ParsedResource], iri_lookup: IriResolver) -> list[ParsedResource]:
     new_ids = {x.res_id for x in resources}
     _raise_error_if_resource_ids_are_reused(new_ids, set(iri_lookup.lookup.keys()))
-    return _replace_all_ids_with_iris(resources, iri_lookup)
+    return [_process_one_resource(r, iri_lookup) for r in resources]
 
 
 def _raise_error_if_resource_ids_are_reused(
@@ -30,10 +34,6 @@ def _raise_error_if_resource_ids_are_reused(
             f"The following ID(s) are both in the id2iri mapping and the new data: {', '.join(overlap)}"
         )
         raise DuplicateIdsInXmlAndId2IriMapping(msg)
-
-
-def _replace_all_ids_with_iris(resources: list[ParsedResource], iri_lookup: IriResolver) -> list[ParsedResource]:
-    return [_process_one_resource(r, iri_lookup) for r in resources]
 
 
 def _process_one_resource(res: ParsedResource, iri_lookup: IriResolver) -> ParsedResource:

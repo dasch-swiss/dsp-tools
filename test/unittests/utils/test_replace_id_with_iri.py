@@ -1,10 +1,13 @@
 # mypy: disable-error-code="no-untyped-def"
 import pytest
+import regex
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.error.exceptions import DuplicateIdsInXmlAndId2IriMapping
 from dsp_tools.utils.replace_id_with_iri import _process_link_value
 from dsp_tools.utils.replace_id_with_iri import _process_one_resource
 from dsp_tools.utils.replace_id_with_iri import _process_richtext_value
+from dsp_tools.utils.replace_id_with_iri import _replace_all_ids_with_iris
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
@@ -18,6 +21,35 @@ RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
 @pytest.fixture
 def iri_resolver() -> IriResolver:
     return IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
+
+
+class TestReplaceAllIds:
+    def test_all_good(self, iri_resolver):
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _replace_all_ids_with_iris([res], iri_resolver)
+        assert len(result) == 1
+
+    def test_duplicate_ids(self, iri_resolver):
+        res = ParsedResource(
+            res_id="r1_id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        msg = regex.escape("afs")
+        with pytest.raises(DuplicateIdsInXmlAndId2IriMapping, match=msg):
+            _replace_all_ids_with_iris([res], iri_resolver)
 
 
 class TestReplaceIdsWithIris:

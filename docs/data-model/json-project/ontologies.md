@@ -238,7 +238,7 @@ These three are related as follows:
 
 - `object` (required) is used to define the data type of the value that the property will store. 
 - `gui_element` (required) depends on the value of `object`.
-- `gui_attributes` (optional) depends on the value of `gui_element`.
+- `gui_attributes` only required by the `gui_element` `List`.
 
 #### Overview
 
@@ -268,10 +268,9 @@ These three are related as follows:
 Represents a Boolean ("true" or "false"). 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#boolean-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Checkbox`: The only GUI element for boolean values: a box to check or uncheck
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -297,10 +296,9 @@ Example:
 A string representation of a color in the hexadecimal form. 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#color-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Colorpicker`: The only GUI element for colors. It's used to choose a color.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -326,10 +324,9 @@ Example:
 Represents a date. It's a string with the format `calendar:start:end`. 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#date-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Date`: The only GUI element for *DateValue*. A date picker GUI.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -355,12 +352,10 @@ Example:
 A number with decimal point. 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#decimal-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Spinbox`: Provides a Spinbox to select a decimal value.
-    - *gui_attributes*: No attributes
 - `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -386,11 +381,10 @@ Example:
 Represents a location ID of [geonames.org](https://www.geonames.org). 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#geoname-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Geonames`: The only GUI element for *GeonameValue*. A dropdown to select a geonames.org location, either by ID if 
   digits are typed in, or by name if letters are typed in.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -416,13 +410,11 @@ Example:
 Represents an integer value. 
 See the [xmlupload documentation](../../data-file/xml-data-file.md#integer-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
-    - *gui_attributes*: No attributes
-- `SimpleText`: A simple text entry box (one line only). 
-    - *gui_attributes*: No attributes
+- `SimpleText`: A simple text entry box (one line only).
 
 Example:
 
@@ -451,12 +443,9 @@ See the [xmlupload documentation](../../data-file/xml-data-file.md#list-prop) fo
 *gui_elements / gui_attributes*:
 
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node.
-    - *gui_attributes*:
-        - `hlist: list-name` (required): 
+    - *gui_attributes (required)*:
+        - `hlist: list-name`: 
           The name of a list defined in the [`lists` section](./overview.md#lists).
-- `Radio` and `Pulldown` are allowed, too, 
-  but they don't have a different behavior than `List`. 
-  It is recommended to use `List`.
 
 
 Example:
@@ -511,14 +500,11 @@ A short overview how to choose the most suitable `TextValue` type for a particul
         - If your original text contains mark-up other than the DSP standard, it must either be removed or converted.
 
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `SimpleText`: one-line text entry box (for text **without** markup)
-    - *gui_attributes*: No attributes
 - `Textarea`: multiline text entry box (for text **without** markup)
-    - *gui_attributes*: No attributes
 - `Richtext`: multiline rich-text editor (for text **with** markup)
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -569,10 +555,9 @@ Example:
 A time value represents a precise moment in time in the Gregorian calendar. See the 
 [xmlupload documentation](../../data-file/xml-data-file.md#time-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `TimeStamp`: A GUI element for *TimeValue* which contains a date picker and a time picker.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -597,10 +582,9 @@ Example:
 
 Represents an URI. See the [xmlupload documentation](../../data-file/xml-data-file.md#uri-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -643,10 +627,9 @@ from `hasLinkTo`. There are different groups of resource classes that can be the
 
 The syntax how to refer to these different groups of resources is described [here](./caveats.md#referencing-ontologies).
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Searchbox`: The only GUI element for *hasLinkTo*. Allows searching resources by entering the target resource name.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -675,11 +658,10 @@ combination with `"super": ["hasRepresentation"]`.
 This generic property can point to any type of the aforementioned representations, or to a subclass of them. See the 
 [xmlupload documentation](../../data-file/xml-data-file.md#resptr-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Searchbox`: Allows searching resources that have super class `Representation` 
   by entering at least 3 characters into a searchbox.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -715,10 +697,9 @@ can be used to derive a custom property from them,
 or they can be used directly as cardinalities in a resource. 
 The example below shows both possibilities.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Searchbox`: The only GUI element for *isPartOf*. Allows searching resources by entering the target resource name.
-    - *gui_attributes*: No attributes
 
 Example:
 
@@ -782,13 +763,11 @@ This property can be attached to a `StillImageRepresentation`, together with `is
 number of the image inside the compound object. Apart from this, `seqnum` is like an integer property. See the 
 [xmlupload documentation](../../data-file/xml-data-file.md#integer-prop) for more information.
 
-*gui_elements / gui_attributes*:
+*gui_elements*:
 
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
-    - *gui_attributes*: No attributes
 - `SimpleText`: A simple text entry box (one line only). 
-    - *gui_attributes*: No attributes
 
 Example: See the [`isPartOf` Property](#ispartof-property) above.
 

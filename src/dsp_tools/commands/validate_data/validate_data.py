@@ -38,7 +38,6 @@ from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
-from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
@@ -51,7 +50,7 @@ def validate_data(
     ignore_duplicate_files_warning: bool,
     save_graphs: bool,
     skip_ontology_validation: bool,
-    id2iri_replacement_with_file: str | None,
+    id2iri_replacement_file: str | None,
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -62,7 +61,7 @@ def validate_data(
         ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
         save_graphs: if this flag is set, all the graphs will be saved in a folder
         skip_ontology_validation: skip the ontology validation
-        id2iri_replacement_with_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -85,9 +84,8 @@ def validate_data(
     parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
         file=filepath,
         api_url=auth.server,
+        id2iri_replacement_file=id2iri_replacement_file,
     )
-    if id2iri_replacement_with_file:
-        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_with_file))
     return validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,

@@ -30,6 +30,6 @@ def test_systematic(api_url: str) -> None:
         ignore_duplicate_files_warning=False,
         save_graphs=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
     assert no_violations

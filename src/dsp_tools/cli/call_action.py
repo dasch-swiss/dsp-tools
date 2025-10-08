@@ -186,7 +186,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_with_file=args.id2iri_replacement_with_file,
+        id2iri_replacement_file=args.id2iri_replacement_with_file,
     )
 
 
@@ -234,7 +234,7 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_with_file=args.id2iri_replacement_with_file,
+        id2iri_replacement_file=args.id2iri_replacement_with_file,
     )
 
 

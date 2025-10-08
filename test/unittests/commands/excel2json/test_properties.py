@@ -140,12 +140,6 @@ def test_unpack_gui_attributes() -> None:
         assert e2j._unpack_gui_attributes(attribute_str=original) == expected
 
 
-def test_search_convert_numbers() -> None:
-    test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
-    for original, expected in test_dict.items():
-        assert e2j._search_convert_numbers_in_str(value_str=original) == expected
-
-
 def test_get_gui_attribute() -> None:
     original_df = pd.DataFrame({"gui_attributes": [pd.NA, "max=1.4, min:1.2", "hlist:", "234345", "hlist: languages,"]})
     assert e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2) is None

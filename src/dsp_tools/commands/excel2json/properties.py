@@ -35,6 +35,7 @@ from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidGuiAttributeError
 from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -208,7 +209,7 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProble
 
 
 def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bool]] | None:
-    mandatory_attributes = ["Spinbox", "List"]
+    mandatory_attributes = ["List"]
     mandatory_check = col_must_or_not_empty_based_on_other_col(
         df=df,
         substring_list=mandatory_attributes,
@@ -216,7 +217,18 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         check_empty_colname="gui_attributes",
         must_have_value=True,
     )
-    no_attributes = ["Checkbox", "Date", "Geonames", "Richtext", "TimeStamp"]
+    no_attributes = [
+        "Checkbox",
+        "Colorpicker",
+        "Date",
+        "Spinbox",
+        "Geonames",
+        "SimpleText",
+        "Textarea",
+        "Richtext",
+        "TimeStamp",
+        "Searchbox",
+    ]
     no_attribute_check = col_must_or_not_empty_based_on_other_col(
         df=df,
         substring_list=no_attributes,
@@ -269,33 +281,27 @@ def _get_gui_attribute(
 ) -> GuiAttributes | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):
         return None
-    # If the attribute is not in the correct format, a called function may raise an InputError
     try:
-        return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
-    except InputError:
+        return _unpack_gui_attributes(attribute_str=df_row["gui_attributes"])
+    except InvalidGuiAttributeError:
         return InvalidExcelContentProblem(
-            expected_content="attribute1: value, attribute2: value (no attribute key may be duplicated)",
+            expected_content="The only valid gui-attribute is 'hlist' for the gui-element 'List'.",
             actual_content=df_row["gui_attributes"],
             excel_position=PositionInExcel(column="gui_attributes", row=row_num),
         )
 
 
-def _format_gui_attribute(attribute_str: str) -> GuiAttributes:
-    attribute_dict = _unpack_gui_attributes(attribute_str=attribute_str)
-    return GuiAttributes(
-        {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
-    )
-
-
-def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
+def _unpack_gui_attributes(attribute_str: str) -> GuiAttributes:
+    err_msg = "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
     gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
-    gui_attrib = {}
-    for attrib in gui_list:
-        attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attrib)
-        if attrib_key in gui_attrib:
-            raise InputError("Duplicate gui attribute")
-        gui_attrib[attrib_key] = attrib_val
-    return gui_attrib
+    if not gui_list:
+        return GuiAttributes({})
+    if len(gui_list) > 1:
+        raise InvalidGuiAttributeError(err_msg)
+    attrib_key, attrib_val = _extract_information_from_single_gui_attribute(gui_list.pop(0))
+    if attrib_key != "hlist":
+        raise InvalidGuiAttributeError(err_msg)
+    return GuiAttributes({attrib_key: attrib_val})
 
 
 def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[str, str]:
@@ -303,15 +309,6 @@ def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[
     if found := regex.search(attrib_format, attribute_str):
         return found.group(1), found.group(2)
     raise InputError("Invalid gui attribute")
-
-
-def _search_convert_numbers_in_str(value_str: str) -> str | int | float:
-    if regex.search(r"^\d+$", value_str):
-        return int(value_str)
-    elif regex.search(r"^\d+\.\d+$", value_str):
-        return float(value_str)
-    else:
-        return value_str
 
 
 def _validate_properties_section_in_json(

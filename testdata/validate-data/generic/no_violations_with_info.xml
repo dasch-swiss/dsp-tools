@@ -39,7 +39,7 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text with
-                <a class="salsah-link" href="id_in_mapping">stand off</a>
+                <a class="salsah-link" href="IRI:id_in_mapping:IRI">stand off</a>
                 to resource in DB.
             </text>
         </text-prop>

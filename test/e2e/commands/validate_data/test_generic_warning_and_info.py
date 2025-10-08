@@ -138,9 +138,9 @@ class TestSortedProblems:
     def test_no_violations_with_info(self, no_violations_with_info):
         all_expected_info = [
             ("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
-            ("link_to_resource_from_id2_iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            ("link_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("richtext_with_standoff_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
-            ("richtext_with_standoff_to_resource_from_id2_iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            ("richtext_with_standoff_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
         ]
         sorted_problems = no_violations_with_info.problems
         assert isinstance(sorted_problems, SortedProblems)

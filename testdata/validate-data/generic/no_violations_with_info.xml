@@ -29,13 +29,13 @@
     </resource>
 
     <!-- It is permissible to reference resources from an id2iri mapping. -->
-    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_from_id2_iri_mapping">
+    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_from_id2iri_mapping">
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>id_in_mapping</resptr>
         </resptr-prop>
     </resource>
 
-    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_from_id2_iri_mapping">
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_from_id2iri_mapping">
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text with

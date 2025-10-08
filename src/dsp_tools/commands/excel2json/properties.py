@@ -292,15 +292,12 @@ def _get_gui_attribute(
 
 
 def _unpack_gui_attributes(attribute_str: str) -> GuiAttributes:
-    err_msg = "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
-    gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
-    if not gui_list:
+    attribute_str = attribute_str.strip()
+    if not attribute_str:
         return GuiAttributes({})
-    if len(gui_list) > 1:
-        raise InvalidGuiAttributeError(err_msg)
-    attrib_key, attrib_val = _extract_information_from_single_gui_attribute(gui_list.pop(0))
+    attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attribute_str)
     if attrib_key != "hlist":
-        raise InvalidGuiAttributeError(err_msg)
+        raise InvalidGuiAttributeError("The only valid gui-attribute is 'hlist' for the gui-element 'List'.")
     return GuiAttributes({attrib_key: attrib_val})
 
 

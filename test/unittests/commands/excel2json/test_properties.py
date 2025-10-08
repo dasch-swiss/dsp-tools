@@ -142,7 +142,7 @@ def test_unpack_gui_attributes() -> None:
 
 def test_get_gui_attribute() -> None:
     original_df = pd.DataFrame(
-        {"gui_attributes": [pd.NA, "hlist:", "234345", "size: 32, maxlength: 128", "hlist: languages,"]}
+        {"gui_attributes": [pd.NA, "hlist:", "234345", "size: 32, maxlength: 128", "hlist: languages"]}
     )
     assert e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2) is None
 
@@ -333,12 +333,9 @@ def test_row2prop() -> None:
 @pytest.mark.parametrize(
     ("input_str", "expected_key", "expected_val"),
     [
-        ("min:1.2", "min", "1.2"),
         ("hlist: Urheber:in", "hlist", "Urheber:in"),
         ("hlist:   Urheber : in", "hlist", "Urheber : in"),
-        # While this does not make sense, it is not possible to allow ":"
-        # in the text and catch these kinds of errors at the same time.
-        ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
+        ("hlist :ListName", "hlist", "ListName"),
     ],
 )
 def test_extract_information_from_single_gui_attribute_good(

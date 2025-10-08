@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -54,6 +55,7 @@ from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.fuseki_bloating import communicate_fuseki_bloating
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
@@ -92,8 +94,49 @@ def xmlupload(
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    if config.id2iri_replacement_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(config.id2iri_replacement_file))
 
     is_on_prod_like_server = is_prod_like_server(creds.server)
+
+    validation_ok = _handle_validation(
+        parsed_resources=parsed_resources,
+        lookups=lookups,
+        config=config,
+        is_on_prod_like_server=is_on_prod_like_server,
+        auth=auth,
+        input_file=input_file,
+    )
+    if not validation_ok:
+        return False
+
+    check_if_bitstreams_exist(root, imgdir)
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+
+    if not is_on_prod_like_server:
+        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
+
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+
+    sorted_resources, stash = get_stash_and_upload_order(processed_resources)
+    state = UploadState(
+        pending_resources=sorted_resources,
+        pending_stash=stash,
+        config=config,
+    )
+
+    return execute_upload(clients, state)
+
+
+def _handle_validation(
+    parsed_resources: list[ParsedResource],
+    lookups: XmlReferenceLookups,
+    config: UploadConfig,
+    is_on_prod_like_server: bool,
+    auth: AuthenticationClient,
+    input_file: Path,
+) -> bool:
     validation_should_be_skipped = config.skip_validation
     if is_on_prod_like_server and config.skip_validation:
         msg = (
@@ -126,7 +169,7 @@ def xmlupload(
             parsed_resources=parsed_resources,
             authorship_lookup=lookups.authorships,
             permission_ids=list(lookups.permissions.keys()),
-            shortcode=shortcode,
+            shortcode=config.shortcode,
             config=ValidateDataConfig(
                 input_file,
                 save_graph_dir=None,
@@ -141,24 +184,7 @@ def xmlupload(
             return False
     else:
         logger.debug("SHACL validation was skipped.")
-
-    check_if_bitstreams_exist(root, imgdir)
-    if not config.skip_iiif_validation:
-        validate_iiif_uris(root)
-
-    if not is_on_prod_like_server:
-        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
-
-    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
-
-    sorted_resources, stash = get_stash_and_upload_order(processed_resources)
-    state = UploadState(
-        pending_resources=sorted_resources,
-        pending_stash=stash,
-        config=config,
-    )
-
-    return execute_upload(clients, state)
+    return True
 
 
 def _get_live_clients(

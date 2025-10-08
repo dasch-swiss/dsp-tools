@@ -102,9 +102,13 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
         creds=creds,
         imgdir=".",
         config=UploadConfig(
-            skip_iiif_validation=False,
             interrupt_after=None,
+            skip_iiif_validation=False,
+            skip_validation=False,
+            skip_ontology_validation=False,
+            ignore_duplicate_files_warning=False,
             validation_severity=ValidationSeverity.INFO,
+            id2iri_replacement_file=None,
         ),
     )
 
@@ -272,6 +276,27 @@ def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: Mock) -> None:
+    xml_file = "filename.xml"
+    id_2_iri = "id2iri.json"
+    args = f"xmlupload --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(xml_file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(id2iri_replacement_file=id_2_iri),
+    )
+
+
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -286,6 +311,7 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -305,6 +331,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
         creds=creds,
         ignore_duplicate_files_warning=True,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -323,6 +350,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -343,6 +371,7 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -363,6 +392,7 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -381,6 +411,27 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=True,
+        id2iri_replacement_file=None,
+    )
+
+
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action.validate_data")
+def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_docker: Mock) -> None:
+    xml_file = "filename.xml"
+    id_2_iri = "id2iri.json"
+    args = f"validate-data --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(
+        filepath=Path(xml_file),
+        save_graphs=False,
+        creds=creds,
+        ignore_duplicate_files_warning=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=id_2_iri,
     )
 
 
@@ -494,6 +545,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
         interrupt_after=None,
         skip_validation=False,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -516,6 +568,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         interrupt_after=None,
         skip_validation=True,
         skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -532,7 +585,12 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=1, skip_validation=False, skip_ontology_validation=False
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=1,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=None,
     )
 
 
@@ -551,7 +609,35 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
         dsp_ingest_url=server.replace("api", "ingest"),
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False, skip_ontology_validation=False
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=None,
+    )
+
+
+@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, check_docker: Mock) -> None:
+    xml_file = Path("filename.xml")
+    id_2_iri = "id2iri.json"
+    args = f"ingest-xmlupload --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=id_2_iri,
     )
 
 

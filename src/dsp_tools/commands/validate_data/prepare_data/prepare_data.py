@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -23,13 +24,15 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 
 
 def get_info_and_parsed_resources_from_file(
-    file: Path, api_url: str
+    file: Path, api_url: str, id2iri_replacement_file: str | None
 ) -> tuple[list[ParsedResource], str, dict[str, list[str]], list[str]]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
     authorship_lookup = get_authorship_lookup(root)
     permission_ids = [perm.attrib["id"] for perm in root.findall("permissions")]
     parsed_resources = get_parsed_resources(root, api_url)
+    if id2iri_replacement_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_file))
     return parsed_resources, shortcode, authorship_lookup, permission_ids
 
 

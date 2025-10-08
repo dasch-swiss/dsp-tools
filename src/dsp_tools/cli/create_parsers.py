@@ -238,6 +238,10 @@ def _add_ingest_xmlupload(
     subparser.add_argument("xml_file", help="path to XML file containing the data")
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
     subparser.add_argument("--skip-ontology-validation", action="store_true", help="skip the ontology validation")
+    subparser.add_argument(
+        "--id2iri-replacement-with-file",
+        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+    )
 
 
 def _add_xmlupload(
@@ -275,6 +279,10 @@ def _add_xmlupload(
         help="Which severity level of validation message should be printed out",
         default="info",
     )
+    subparser.add_argument(
+        "--id2iri-replacement-with-file",
+        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+    )
 
 
 def _add_validate_data(
@@ -297,7 +305,10 @@ def _add_validate_data(
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
-
+    subparser.add_argument(
+        "--id2iri-replacement-with-file",
+        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+    )
     subparser.add_argument(
         "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."
     )

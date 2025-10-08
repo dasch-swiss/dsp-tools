@@ -50,6 +50,7 @@ def validate_data(
     ignore_duplicate_files_warning: bool,
     save_graphs: bool,
     skip_ontology_validation: bool,
+    id2iri_replacement_file: str | None,
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -60,6 +61,7 @@ def validate_data(
         ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
         save_graphs: if this flag is set, all the graphs will be saved in a folder
         skip_ontology_validation: skip the ontology validation
+        id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -82,6 +84,7 @@ def validate_data(
     parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
         file=filepath,
         api_url=auth.server,
+        id2iri_replacement_file=id2iri_replacement_file,
     )
     return validate_parsed_resources(
         parsed_resources=parsed_resources,

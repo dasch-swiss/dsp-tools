@@ -32,6 +32,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -41,6 +42,7 @@ def ingest_xmlupload(
     interrupt_after: int | None = None,
     skip_validation: bool = False,
     skip_ontology_validation: bool = False,
+    id2iri_replacement_file: str | None = None,
 ) -> bool:
     """
     This function reads an XML file
@@ -56,6 +58,7 @@ def ingest_xmlupload(
         interrupt_after: if set, the upload will be interrupted after this number of resources
         skip_validation: skip the SHACL validation
         skip_ontology_validation: skip the ontology validation
+        id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -80,6 +83,9 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    if id2iri_replacement_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_file))
+
     validation_should_be_skipped = skip_validation
     is_on_prod_like_server = is_prod_like_server(creds.server)
     if is_on_prod_like_server and config.skip_validation:

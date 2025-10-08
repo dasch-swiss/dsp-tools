@@ -55,6 +55,7 @@ class UploadConfig:
     skip_ontology_validation: bool = False
     ignore_duplicate_files_warning: bool = False
     validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
+    id2iri_replacement_file: str | None = None
 
     def with_server_info(
         self,

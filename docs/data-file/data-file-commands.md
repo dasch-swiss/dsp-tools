@@ -21,6 +21,8 @@ The following options are available:
 - `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once
 - `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
   This is intended for projects that are already on the production server
+- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
+  (links and stand-off links inside richtext) by IRIs provided in this mapping file
 - `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
   This is primarily intended for development use.
 
@@ -80,6 +82,8 @@ The following options are available:
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
+  (links and stand-off links inside richtext) by IRIs provided in this mapping file
 - `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
 - `--skip-validation` (optional): skip the SHACL schema validation
 - `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once

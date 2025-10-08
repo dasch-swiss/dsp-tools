@@ -1,5 +1,34 @@
 # Changelog
 
+## [17.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.2...v17.0.0) (2025-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove `rosetta` CLI command (DEV-5384) ([#1978](https://github.com/dasch-swiss/dsp-tools/issues/1978))
+* **exce2xml:** remove `excel2xml` CLI command (DEV-5386) ([#1975](https://github.com/dasch-swiss/dsp-tools/issues/1975))
+* **xmllib:** raise error when using `create_list_from_string` (DEV-5253) ([#1973](https://github.com/dasch-swiss/dsp-tools/issues/1973))
+
+### Enhancements
+
+* add functionality to replace ids with iris from mapping dynamically (DEV-5473) ([#1980](https://github.com/dasch-swiss/dsp-tools/issues/1980)) ([4aec235](https://github.com/dasch-swiss/dsp-tools/commit/4aec2350a9d104ba6b6c13d2345aa0098859bb63))
+* **exce2xml:** remove `excel2xml` CLI command (DEV-5386) ([#1975](https://github.com/dasch-swiss/dsp-tools/issues/1975)) ([4dff27f](https://github.com/dasch-swiss/dsp-tools/commit/4dff27f559b4c096ff9900aa7488987e9c2d6427))
+* remove `rosetta` CLI command (DEV-5384) ([#1978](https://github.com/dasch-swiss/dsp-tools/issues/1978)) ([33274db](https://github.com/dasch-swiss/dsp-tools/commit/33274db7dbe6a2a080a3c1de88ad9d49c6faeb8e))
+* **validate-data:** prevent cross-project resource links (DEV-5450) ([#1970](https://github.com/dasch-swiss/dsp-tools/issues/1970)) ([a50dcbf](https://github.com/dasch-swiss/dsp-tools/commit/a50dcbfe9534db07b588a44eef138ded1e1fafd7))
+* **xmllib:** raise error when using `create_list_from_string` (DEV-5253) ([#1973](https://github.com/dasch-swiss/dsp-tools/issues/1973)) ([68b8e7b](https://github.com/dasch-swiss/dsp-tools/commit/68b8e7b9bae29bb9c6dac2d2571674d74f7fe625))
+* **xmlupload:** remove HTML 404 response text during IIIF-URI validation (DEV-5436) ([#1972](https://github.com/dasch-swiss/dsp-tools/issues/1972)) ([46a2492](https://github.com/dasch-swiss/dsp-tools/commit/46a2492ac4733ff2627654f9e2842ed61d662dd0))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2025.10.01 ([#1983](https://github.com/dasch-swiss/dsp-tools/issues/1983)) ([d28dc7f](https://github.com/dasch-swiss/dsp-tools/commit/d28dc7f64e0b100c3b9d7369cbab4c2976791997))
+* **xmlupload:** replace internal ids with iris in formatted text value (DEV-5469) ([#1979](https://github.com/dasch-swiss/dsp-tools/issues/1979)) ([353f778](https://github.com/dasch-swiss/dsp-tools/commit/353f7782d6e889f1f2678f46b4f2690cf9fd9f16))
+
+
+### Documentation
+
+* remove gui-attributes that have no effect in the APP from the documentation (DEV-5476) ([#1981](https://github.com/dasch-swiss/dsp-tools/issues/1981)) ([c3d2a72](https://github.com/dasch-swiss/dsp-tools/commit/c3d2a7278e44b24fec4602a464d2b3f6790f2849))
+
 ## [16.12.2](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.1...v16.12.2) (2025-10-01)
 
 

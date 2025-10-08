@@ -114,6 +114,8 @@ The following options are available:
 - `--skip-validation` (optional): skip the SHACL schema validation
 - `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
   This is intended for projects that are already on the production server
+- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
+  (links and stand-off links inside richtext) by IRIs provided in this mapping file
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 

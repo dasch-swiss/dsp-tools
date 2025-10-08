@@ -59,7 +59,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
-def xmlupload(
+def xmlupload(  # noqa: PLR0912 (too many branches)
     input_file: Path,
     creds: ServerCredentials,
     imgdir: str,

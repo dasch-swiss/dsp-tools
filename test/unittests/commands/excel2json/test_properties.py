@@ -144,24 +144,24 @@ def test_get_gui_attribute() -> None:
     original_df = pd.DataFrame(
         {"gui_attributes": [pd.NA, "hlist:", "234345", "size: 32, maxlength: 128", "hlist: languages"]}
     )
-    assert e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2) is None
+    assert e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=1) is None
 
-    res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=4)
+    res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=2)
     assert isinstance(res_1, InvalidExcelContentProblem)
     assert res_1.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
-    assert res_1.excel_position.row == 4
+    assert res_1.excel_position.row == 2
     assert res_1.actual_content == "hlist:"
 
-    res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=5)
+    res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=3)
     assert isinstance(res_2, InvalidExcelContentProblem)
     assert res_2.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
-    assert res_2.excel_position.row == 5
+    assert res_2.excel_position.row == 3
     assert res_2.actual_content == "234345"
 
-    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=5)
+    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=4)
     assert isinstance(res_3, InvalidExcelContentProblem)
     assert res_3.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
-    assert res_3.excel_position.row == 5
+    assert res_3.excel_position.row == 4
     assert res_3.actual_content == "size: 32, maxlength: 128"
 
     expected_dict = {"hlist": "languages"}

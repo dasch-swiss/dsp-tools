@@ -93,7 +93,7 @@ def test_do_property_excel_compliance_problems() -> None:
             ],
             "object": ["object_1", "object_2", "object_3", pd.NA, "object_5", "object_6", "object_7", pd.NA],
             "gui_element": ["Simple", "Searchbox", "Date", "Date", pd.NA, "List", pd.NA, pd.NA],
-            "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "gui_attributes": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     expected_msg = regex.escape(
@@ -132,7 +132,6 @@ def test_rename_deprecated_hlist() -> None:
 
 def test_unpack_gui_attributes() -> None:
     test_dict = {
-        "maxlength:1, size:32": {"maxlength": "1", "size": "32"},
         "hlist: languages": {"hlist": "languages"},
         "hlist: special:character": {"hlist": "special:character"},
     }
@@ -141,26 +140,31 @@ def test_unpack_gui_attributes() -> None:
 
 
 def test_get_gui_attribute() -> None:
-    original_df = pd.DataFrame({"gui_attributes": [pd.NA, "max=1.4, min:1.2", "hlist:", "234345", "hlist: languages,"]})
+    original_df = pd.DataFrame(
+        {"gui_attributes": [pd.NA, "hlist:", "234345", "size: 32, maxlength: 128", "hlist: languages,"]}
+    )
     assert e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2) is None
 
-    res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=3)
+    res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=4)
     assert isinstance(res_1, InvalidExcelContentProblem)
-    assert res_1.excel_position.row == 3
-    assert res_1.actual_content == "max=1.4, min:1.2"
+    assert res_1.expected_content == "asdfg"
+    assert res_1.excel_position.row == 4
+    assert res_1.actual_content == "hlist:"
 
-    res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=4)
+    res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=5)
     assert isinstance(res_2, InvalidExcelContentProblem)
-    assert res_2.excel_position.row == 4
-    assert res_2.actual_content == "hlist:"
+    assert res_2.expected_content == "asdfg"
+    assert res_2.excel_position.row == 5
+    assert res_2.actual_content == "234345"
 
-    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=5)
+    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=5)
     assert isinstance(res_3, InvalidExcelContentProblem)
+    assert res_3.expected_content == "asdfg"
     assert res_3.excel_position.row == 5
-    assert res_3.actual_content == "234345"
+    assert res_3.actual_content == "size: 32, maxlength: 128"
 
     expected_dict = {"hlist": "languages"}
-    returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
+    returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=6)
     assert isinstance(returned_dict, GuiAttributes)
     assert expected_dict == returned_dict.serialise()
 
@@ -169,7 +173,7 @@ def test_check_compliance_gui_attributes_all_good() -> None:
     original_df = pd.DataFrame(
         {
             "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
-            "gui_attributes": ["Spinbox_attr", "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "gui_attributes": [pd.NA, "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     assert not e2j._check_compliance_gui_attributes(df=original_df)
@@ -182,7 +186,7 @@ def test_check_compliance_gui_attributes() -> None:
             "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
         }
     )
-    expected_dict = {"gui_attributes": [False, True, False, False, False, False, True]}
+    expected_dict = {"gui_attributes": [True, True, False, False, False, False, True]}
     returned_dict = e2j._check_compliance_gui_attributes(df=original_df)
     assert returned_dict
     casted_dict = {"gui_attributes": list(returned_dict["gui_attributes"])}
@@ -270,7 +274,7 @@ def test_row2prop() -> None:
             "subject": ["subject_1", "subject_2", pd.NA],
             "object": ["object_1", "object_2", "object_3"],
             "gui_element": ["Simple", "Date", "List"],
-            "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: Urheber:in"],
+            "gui_attributes": [pd.NA, pd.NA, "hlist: Urheber:in"],
         }
     )
     returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0)
@@ -294,7 +298,6 @@ def test_row2prop() -> None:
             "it": "comment_it_1",
             "rm": "comment_rm_1",
         },
-        "gui_attributes": {"size": 32, "maxlength": 128},
     }
     assert isinstance(returned_prop, OntoProperty)
     assert expected_dict == returned_prop.serialise()

@@ -25,6 +25,11 @@ def test_systematic(api_url: str) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
     creds = ServerCredentials("root@example.com", "test", api_url)
     no_violations = validate_data(
-        file, creds, ignore_duplicate_files_warning=False, save_graphs=False, skip_ontology_validation=False
+        file,
+        creds,
+        ignore_duplicate_files_warning=False,
+        save_graphs=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
     assert no_violations

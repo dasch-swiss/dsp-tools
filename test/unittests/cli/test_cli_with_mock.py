@@ -331,6 +331,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
         creds=creds,
         ignore_duplicate_files_warning=True,
         skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -349,6 +350,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -369,6 +371,7 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -389,6 +392,7 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -407,6 +411,7 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=True,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -563,6 +568,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         interrupt_after=None,
         skip_validation=True,
         skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -579,7 +585,12 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=1, skip_validation=False, skip_ontology_validation=False
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=1,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 
@@ -598,7 +609,12 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
         dsp_ingest_url=server.replace("api", "ingest"),
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file, creds=creds, interrupt_after=None, skip_validation=False, skip_ontology_validation=False
+        xml_file=xml_file,
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_with_file=None,
     )
 
 

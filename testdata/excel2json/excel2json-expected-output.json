@@ -409,11 +409,7 @@
                         "comments": {
                             "de": "only German"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "min": 0.0,
-                            "max": 100.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasBirthDate",
@@ -500,10 +496,7 @@
                             "it": "Gemeinsame Normdatei",
                             "rm": "Rumantsch"
                         },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "size": 100
-                        }
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasColor",
@@ -539,11 +532,7 @@
                             "de": "Dezimalzahl",
                             "fr": "Chiffre décimale"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "min": 0.0,
-                            "max": 100.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasTime",
@@ -622,10 +611,7 @@
                         "labels": {
                             "en": "Links to a region of an image"
                         },
-                        "gui_element": "Searchbox",
-                        "gui_attributes": {
-                            "numprops": 1
-                        }
+                        "gui_element": "Searchbox"
                     },
                     {
                         "name": "hasLinkToImage",

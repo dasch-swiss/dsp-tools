@@ -70,7 +70,7 @@ class LanguageDict:
 
 @dataclass
 class GuiAttributes:
-    gui_attributes: dict[str, int | str | float]
+    gui_attributes: dict[str, str]
 
-    def serialise(self) -> dict[str, int | str | float]:
+    def serialise(self) -> dict[str, str]:
         return self.gui_attributes

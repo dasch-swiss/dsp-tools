@@ -11,7 +11,8 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContent
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.error.exceptions import InputError, InvalidGuiAttributeError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidGuiAttributeError
 
 
 def test_rename_deprecated_lang_cols() -> None:

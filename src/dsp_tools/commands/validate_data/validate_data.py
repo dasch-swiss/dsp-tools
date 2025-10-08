@@ -38,6 +38,7 @@ from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
@@ -85,6 +86,8 @@ def validate_data(
         file=filepath,
         api_url=auth.server,
     )
+    if id2iri_replacement_with_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_with_file))
     return validate_parsed_resources(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,

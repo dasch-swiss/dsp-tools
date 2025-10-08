@@ -27,6 +27,7 @@ PRIVATE_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:Project
 RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
 SPECIAL_CHARACTERS_STRING = "àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+XML_ESCAPED_SPECIAL_CHAR_STRING = r"àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
 
 
 @pytest.fixture(scope="module")
@@ -382,19 +383,11 @@ class TestTextParsing:
         assert returned_str == expected_str
 
     def test_richtext_res_with_escaped_chars_in_footnote(self, g_text_parsing, onto_iri_9999):
-        """
-        Currently, DSP-API doesn't create this value correctly,
-        see [DEV-4796](https://linear.app/dasch/issue/DEV-4796).
-        This test succeeds currently, but as soon as the bug is fixed, it will fail.
-        The correct API response would be `href=&quot;` instead of `href=\\&quot;`.
-        This is also true for the single apostrophe in the following two tests.
-        Use this ticket to fix the tests: https://linear.app/dasch/issue/DEV-4878/add-footnote-parsing-test-in-xmlupload
-        """
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_with_escaped_chars_in_footnote", prop_iri)
         expected_str = (
             f"{RICHTEXT_XML_DECLARATION}<text>"
-            f'Text <footnote content="Text &lt;a href=\\&quot;https://www.google.com/\\&quot;&gt;Google&lt;/a&gt;"/> '
+            rf'Text <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/> '
             f"end text</text>"
         )
         assert returned_str == expected_str
@@ -402,16 +395,14 @@ class TestTextParsing:
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
-        wrongly_escaped_special_char_string = r"àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{wrongly_escaped_special_char_string}</text>"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{XML_ESCAPED_SPECIAL_CHAR_STRING}</text>"
         assert returned_str == expected_str
 
     def test_special_characters_in_footnote(self, g_text_parsing, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
-        wrongly_escaped_special_char_string = r"àéèêëôûç äöüß _-\&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
         expected_str = (
-            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{wrongly_escaped_special_char_string}"/> '
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{XML_ESCAPED_SPECIAL_CHAR_STRING}"/> '
             f"end text</text>"
         )
         assert returned_str == expected_str

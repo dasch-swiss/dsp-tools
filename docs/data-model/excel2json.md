@@ -341,9 +341,8 @@ The expected columns are:
   Depends on the value of `object`: 
   Read the documentation of the respective `object` to learn which `gui_element` can be used.
 - [`gui_attributes`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
-  (only mandatory for lists): Some `gui_element`s need further specifications. 
-  Read the documentation of the respective `object` to learn if your `gui_element` needs a `gui_attributes`.
-  Form: `attr: value, attr: value`. 
+  (only mandatory for lists): The `gui_element` `List` requires the attribute `hlist`. 
+  Form: `hlist: value`. 
 - [`default_permissions_overrule`](./json-project/overview.md#default_permissions_overrule)
   (optional): If you have set this project to "public" in the `json_header.xlsx`,
   then you can still hide certain properties.

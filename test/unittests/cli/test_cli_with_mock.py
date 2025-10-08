@@ -108,7 +108,7 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
             skip_ontology_validation=False,
             ignore_duplicate_files_warning=False,
             validation_severity=ValidationSeverity.INFO,
-            id2iri_replacement_with_file=None,
+            id2iri_replacement_file=None,
         ),
     )
 
@@ -292,7 +292,7 @@ def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: M
         input_file=Path(xml_file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(id2iri_replacement_with_file=id_2_iri),
+        config=UploadConfig(id2iri_replacement_file=id_2_iri),
     )
 
 
@@ -311,7 +311,7 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -331,7 +331,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
         creds=creds,
         ignore_duplicate_files_warning=True,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -350,7 +350,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -371,7 +371,7 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -392,7 +392,7 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -411,7 +411,7 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=True,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -431,7 +431,7 @@ def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_d
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=id_2_iri,
+        id2iri_replacement_file=id_2_iri,
     )
 
 
@@ -545,7 +545,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
         interrupt_after=None,
         skip_validation=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -568,7 +568,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         interrupt_after=None,
         skip_validation=True,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -590,7 +590,7 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         interrupt_after=1,
         skip_validation=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -614,7 +614,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
         interrupt_after=None,
         skip_validation=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=None,
+        id2iri_replacement_file=None,
     )
 
 
@@ -637,7 +637,7 @@ def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, c
         interrupt_after=None,
         skip_validation=False,
         skip_ontology_validation=False,
-        id2iri_replacement_with_file=id_2_iri,
+        id2iri_replacement_file=id_2_iri,
     )
 
 

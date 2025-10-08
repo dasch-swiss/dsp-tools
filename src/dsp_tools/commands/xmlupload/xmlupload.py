@@ -94,9 +94,9 @@ def xmlupload(
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-    if config.id2iri_replacement_with_file:
+    if config.id2iri_replacement_file:
         parsed_resources = use_id2iri_mapping_to_replace_ids(
-            parsed_resources, Path(config.id2iri_replacement_with_file)
+            parsed_resources, Path(config.id2iri_replacement_file)
         )
 
     is_on_prod_like_server = is_prod_like_server(creds.server)

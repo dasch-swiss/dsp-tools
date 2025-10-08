@@ -27,6 +27,7 @@ PRIVATE_PERMISSIONS = Literal("CR knora-admin:ProjectAdmin|D knora-admin:Project
 RICHTEXT_XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
 SPECIAL_CHARACTERS_STRING = "àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+XML_ESCAPED_SPECIAL_CHAR_STRING = r"àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
 
 
 @pytest.fixture(scope="module")
@@ -394,16 +395,14 @@ class TestTextParsing:
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)
-        wrongly_escaped_special_char_string = r"àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
-        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{wrongly_escaped_special_char_string}</text>"
+        expected_str = f"{RICHTEXT_XML_DECLARATION}<text>{XML_ESCAPED_SPECIAL_CHAR_STRING}</text>"
         assert returned_str == expected_str
 
     def test_special_characters_in_footnote(self, g_text_parsing, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_special_chars_in_footnote", prop_iri)
-        wrongly_escaped_special_char_string = r"àéèêëôûç äöüß _-&apos;()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
         expected_str = (
-            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{wrongly_escaped_special_char_string}"/> '
+            f'{RICHTEXT_XML_DECLARATION}<text>Text <footnote content="{XML_ESCAPED_SPECIAL_CHAR_STRING}"/> '
             f"end text</text>"
         )
         assert returned_str == expected_str

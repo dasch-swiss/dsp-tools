@@ -11,7 +11,7 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContent
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InputError, InvalidGuiAttributeError
 
 
 def test_rename_deprecated_lang_cols() -> None:
@@ -136,7 +136,7 @@ def test_unpack_gui_attributes() -> None:
         "hlist: special:character": {"hlist": "special:character"},
     }
     for original, expected in test_dict.items():
-        assert e2j._unpack_gui_attributes(attribute_str=original) == expected
+        assert e2j._unpack_gui_attributes(attribute_str=original).serialise() == expected
 
 
 def test_get_gui_attribute() -> None:
@@ -147,24 +147,24 @@ def test_get_gui_attribute() -> None:
 
     res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=4)
     assert isinstance(res_1, InvalidExcelContentProblem)
-    assert res_1.expected_content == "asdfg"
+    assert res_1.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
     assert res_1.excel_position.row == 4
     assert res_1.actual_content == "hlist:"
 
     res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=5)
     assert isinstance(res_2, InvalidExcelContentProblem)
-    assert res_2.expected_content == "asdfg"
+    assert res_2.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
     assert res_2.excel_position.row == 5
     assert res_2.actual_content == "234345"
 
-    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=5)
+    res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=5)
     assert isinstance(res_3, InvalidExcelContentProblem)
-    assert res_3.expected_content == "asdfg"
+    assert res_3.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
     assert res_3.excel_position.row == 5
     assert res_3.actual_content == "size: 32, maxlength: 128"
 
     expected_dict = {"hlist": "languages"}
-    returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=6)
+    returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
     assert isinstance(returned_dict, GuiAttributes)
     assert expected_dict == returned_dict.serialise()
 
@@ -253,7 +253,7 @@ def test_row2prop_duplicate_attrib_key_problem() -> None:
     invalid = res.problems[0]
     assert isinstance(invalid, InvalidExcelContentProblem)
     assert invalid.actual_content == "max:1.4 , max:1.2"
-    assert invalid.expected_content == "attribute1: value, attribute2: value (no attribute key may be duplicated)"
+    assert invalid.expected_content == "The only valid gui-attribute is 'hlist' for the gui-element 'List'."
 
 
 def test_row2prop() -> None:
@@ -350,7 +350,7 @@ def test_extract_information_from_single_gui_attribute_good(
 
 @pytest.mark.parametrize("input_str", ["hlist:", "234345"])
 def test_extract_information_from_single_gui_attribute_raises(input_str: str) -> None:
-    with pytest.raises(InputError):
+    with pytest.raises(InvalidGuiAttributeError):
         e2j._extract_information_from_single_gui_attribute(input_str)
 
 

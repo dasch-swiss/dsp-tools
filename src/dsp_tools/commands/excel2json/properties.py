@@ -308,7 +308,7 @@ def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[
     attrib_format = r"(\S+)\s*:\s*(.+)"
     if found := regex.search(attrib_format, attribute_str):
         return found.group(1), found.group(2)
-    raise InputError("Invalid gui attribute")
+    raise InvalidGuiAttributeError("Invalid gui attribute")
 
 
 def _validate_properties_section_in_json(

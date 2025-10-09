@@ -15,6 +15,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.get.get import get_project
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -73,7 +74,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             xml_file=str(second_xml_file_orig),
             json_file=str(mapping_file),
         )
-        mapping_file.unlink()
         self.assertTrue(success)
 
         second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
@@ -84,6 +84,29 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
+        self.assertTrue(success)
+
+        self._test_xml_upload_with_id2iri_flag(mapping_file)
+        mapping_file.unlink()
+
+    def _test_xml_upload_with_id2iri_flag(self, id2iri_mapping_file: Path) -> None:
+        """
+        Test if an XML file can be uploaded with the --id2iri-replacement-with-file flag.
+
+        This test assumes that test_xml_upload_incremental has already run,
+        which uploads test-data-systematic.xml containing the resource 'test_thing_with_iri_1'.
+        We then upload test-data-systematic-with-id2iri.xml which references that resource
+        using the id2iri mapping file.
+        """
+        second_xml_file = Path("testdata/xml-data/test-data-systematic-with-id2iri.xml")
+
+        config = UploadConfig(id2iri_replacement_file=str(id2iri_mapping_file))
+        success = xmlupload(
+            input_file=second_xml_file,
+            creds=self.creds,
+            imgdir=self.imgdir,
+            config=config,
+        )
         self.assertTrue(success)
 
     def test_get_project(self) -> None:

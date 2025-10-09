@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4123"
+       default-ontology="testonto">
+
+    <resource label="pointing_to_one_with_IRI_from_mapping"
+              restype=":TestThing"
+              id="pointing_to_one_with_IRI_from_mapping">
+        <text-prop name="testonto:hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <resptr-prop name=":hasTestThing2">
+            <resptr>test_thing_with_iri_1</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

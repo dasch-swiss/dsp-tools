@@ -37,10 +37,12 @@ def test_project_systematic_file() -> Path:
     """Fixture providing paths to test files."""
     return Path("testdata/json-project/test-project-systematic.json")
 
+
 @pytest.fixture(scope="module")
 def imgdir() -> Path:
     """Fixture providing paths to test files."""
     return Path(".")
+
 
 @pytest.fixture(scope="module")
 def test_data_systematic_file() -> Path:
@@ -104,13 +106,11 @@ def test_2_xml_upload_incremental(
     assert list(test_directories["cwd"].glob("stashed_*_properties_*.txt")) == []
     assert success
 
-    _test_xml_upload_with_id2iri_flag(mapping_file, creds, test_files)
+    _test_xml_upload_with_id2iri_flag(mapping_file, creds, imgdir)
     mapping_file.unlink()
 
 
-def _test_xml_upload_with_id2iri_flag(
-    id2iri_mapping_file: Path, creds: ServerCredentials, test_files: dict[str, Path]
-) -> None:
+def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials, imgdir: Path) -> None:
     """
     Test if an XML file can be uploaded with the --id2iri-replacement-with-file flag.
 
@@ -125,14 +125,14 @@ def _test_xml_upload_with_id2iri_flag(
     success = xmlupload(
         input_file=second_xml_file,
         creds=creds,
-        imgdir=str(test_files["imgdir"]),
+        imgdir=str(imgdir),
         config=config,
     )
     assert success
 
 
 def test_3_get_project(
-    creds: ServerCredentials, test_files: dict[str, Path], test_directories: dict[str, Path]
+    creds: ServerCredentials, test_project_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
     """
     Retrieve the systematic JSON project file with the "get" command,
@@ -147,7 +147,7 @@ def test_3_get_project(
     )
     assert success
 
-    project_original = _get_original_project(test_files["test_project_systematic_file"])
+    project_original = _get_original_project(test_project_systematic_file)
     with open(out_file, encoding="utf-8") as f:
         project_returned = json.load(f)
 

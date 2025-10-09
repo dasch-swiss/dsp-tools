@@ -19,10 +19,6 @@ from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
-# NOTE: These tests must be run with a fresh DSP stack.
-# The DSP stack must be restarted between full test runs.
-# Tests are ordered and stateful: test_1_create_project → test_2_xml_upload_incremental → test_3_get_project
-
 
 @pytest.fixture(scope="module")
 def creds() -> ServerCredentials:
@@ -55,7 +51,8 @@ def test_directories() -> Generator[dict[str, Path], None, None]:
         f.unlink()
 
 
-def test_1_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
+@pytest.mark.order(1)
+def test_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
     success = create_project(
         project_file_as_path_or_parsed=test_project_systematic_file.absolute(),
         creds=creds,
@@ -64,7 +61,8 @@ def test_1_create_project(creds: ServerCredentials, test_project_systematic_file
     assert success
 
 
-def test_2_get_project(
+@pytest.mark.order(2)
+def test_get_project(
     creds: ServerCredentials, test_project_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
     """
@@ -455,7 +453,8 @@ def _get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
     return max(candidates, key=lambda item: item.stat().st_ctime)
 
 
-def test_3_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_file: Path) -> None:
+@pytest.mark.order(3)
+def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_file: Path) -> None:
     success = xmlupload(
         input_file=test_data_systematic_file,
         creds=creds,
@@ -497,13 +496,14 @@ def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCr
     assert success
 
 
-def test_4_compare_license_after_data_upload(
+@pytest.mark.order(4)
+def test_compare_license_after_data_upload(
     creds: ServerCredentials, test_project_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
     """
     Some of the assets are missing legal information.
-    Because of this the licence "unknown" will be enabled during the xmlupload, meaning that now we have
-    one license more than the original file.
+    Because of this the licence "unknown" will be enabled during the xmlupload,
+    meaning that now we have one licence more than the original file.
     """
     out_file = test_directories["testdata_tmp"] / "_test-project-systematic.json"
     success = get_project(

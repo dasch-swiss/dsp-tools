@@ -87,6 +87,7 @@ dev = [
     "viztracer",
     "vulture",
     "yamllint",
+    "pytest-order",
 ]
 
 

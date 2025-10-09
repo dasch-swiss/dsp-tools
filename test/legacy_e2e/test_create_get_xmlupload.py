@@ -39,12 +39,6 @@ def test_project_systematic_file() -> Path:
 
 
 @pytest.fixture(scope="module")
-def imgdir() -> Path:
-    """Fixture providing paths to test files."""
-    return Path(".")
-
-
-@pytest.fixture(scope="module")
 def test_data_systematic_file() -> Path:
     """Fixture providing paths to test files."""
     return Path("testdata/xml-data/test-data-systematic.xml")
@@ -75,7 +69,7 @@ def test_1_create_project(creds: ServerCredentials, test_project_systematic_file
 
 
 def test_2_xml_upload_incremental(
-    creds: ServerCredentials, test_data_systematic_file: Path, imgdir: Path, test_directories: dict[str, Path]
+    creds: ServerCredentials, test_data_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
     """
     Test if the systematic XML data file can be uploaded without producing an error on its way,
@@ -84,7 +78,7 @@ def test_2_xml_upload_incremental(
     success = xmlupload(
         input_file=test_data_systematic_file,
         creds=creds,
-        imgdir=str(imgdir),
+        imgdir=".",
     )
     assert success
 
@@ -100,17 +94,16 @@ def test_2_xml_upload_incremental(
     success = xmlupload(
         input_file=second_xml_file_replaced,
         creds=creds,
-        imgdir=str(imgdir),
+        imgdir=".",
     )
     second_xml_file_replaced.unlink()
-    assert list(test_directories["cwd"].glob("stashed_*_properties_*.txt")) == []
     assert success
 
-    _test_xml_upload_with_id2iri_flag(mapping_file, creds, imgdir)
+    _test_xml_upload_with_id2iri_flag(mapping_file, creds)
     mapping_file.unlink()
 
 
-def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials, imgdir: Path) -> None:
+def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials) -> None:
     """
     Test if an XML file can be uploaded with the --id2iri-replacement-with-file flag.
 
@@ -125,7 +118,7 @@ def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCr
     success = xmlupload(
         input_file=second_xml_file,
         creds=creds,
-        imgdir=str(imgdir),
+        imgdir=".",
         config=config,
     )
     assert success

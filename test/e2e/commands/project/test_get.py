@@ -12,13 +12,6 @@ from dsp_tools.commands.project.get.get import get_project
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
-################################################################################
-# NOTE
-# This is still quite minimal.
-# More thorough testing is done in test/legacy_e2e/test_create_get_xmlupload.py.
-# In the future, the legacy tests should be migrated to this file.
-################################################################################
-
 TESTFILE_PATH = Path("testdata/json-project/test-project-e2e.json")
 PROJECT_SHORTCODE = "4125"
 

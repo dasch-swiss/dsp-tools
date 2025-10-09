@@ -495,3 +495,30 @@ def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCr
         config=config,
     )
     assert success
+
+
+def test_4_compare_license_after_data_upload(
+    creds: ServerCredentials, test_project_systematic_file: Path, test_directories: dict[str, Path]
+) -> None:
+    """
+    Some of the assets are missing legal information.
+    Because of this the licence "unknown" will be enabled during the xmlupload, meaning that now we have
+    one license more than the original file.
+    """
+    out_file = test_directories["testdata_tmp"] / "_test-project-systematic.json"
+    success = get_project(
+        project_identifier="systematic-tp",
+        outfile_path=str(out_file),
+        creds=creds,
+        verbose=True,
+    )
+    assert success
+
+    project_original = _get_original_project(test_project_systematic_file)
+    with open(out_file, encoding="utf-8") as f:
+        project_returned = json.load(f)
+
+    orig_licenses = set(project_original["project"]["enabled_licenses"])
+    orig_licenses.add("http://rdfh.ch/licenses/unknown")
+    ret_licenses = set(project_returned["project"]["enabled_licenses"])
+    assert ret_licenses == orig_licenses

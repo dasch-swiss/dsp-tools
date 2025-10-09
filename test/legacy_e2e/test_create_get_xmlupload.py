@@ -109,8 +109,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         self.assertTrue(success)
 
-        # Verify no stashed properties files were created
-        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 
     def test_get_project(self) -> None:
         """

@@ -26,7 +26,6 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 @pytest.fixture(scope="module")
 def creds() -> ServerCredentials:
-    """Fixture providing server credentials."""
     return ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
@@ -34,13 +33,11 @@ def creds() -> ServerCredentials:
 
 @pytest.fixture(scope="module")
 def test_project_systematic_file() -> Path:
-    """Fixture providing paths to test files."""
     return Path("testdata/json-project/test-project-systematic.json")
 
 
 @pytest.fixture(scope="module")
 def test_data_systematic_file() -> Path:
-    """Fixture providing paths to test files."""
     return Path("testdata/xml-data/test-data-systematic.xml")
 
 
@@ -59,7 +56,6 @@ def test_directories() -> Generator[dict[str, Path], None, None]:
 
 
 def test_1_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
-    """Test if the systematic JSON project file can be uploaded without producing an error on its way"""
     success = create_project(
         project_file_as_path_or_parsed=test_project_systematic_file.absolute(),
         creds=creds,
@@ -71,10 +67,6 @@ def test_1_create_project(creds: ServerCredentials, test_project_systematic_file
 def test_2_xml_upload_incremental(
     creds: ServerCredentials, test_data_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
-    """
-    Test if the systematic XML data file can be uploaded without producing an error on its way,
-    and if the 'id2iri' replacement works, so that the 2nd upload works.
-    """
     success = xmlupload(
         input_file=test_data_systematic_file,
         creds=creds,
@@ -104,14 +96,6 @@ def test_2_xml_upload_incremental(
 
 
 def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials) -> None:
-    """
-    Test if an XML file can be uploaded with the --id2iri-replacement-with-file flag.
-
-    This test assumes that test_xml_upload_incremental has already run,
-    which uploads test-data-systematic.xml containing the resource 'test_thing_with_iri_1'.
-    We then upload test-data-systematic-with-id2iri.xml which references that resource
-    using the id2iri mapping file.
-    """
     second_xml_file = Path("testdata/xml-data/test-data-systematic-with-id2iri.xml")
 
     config = UploadConfig(id2iri_replacement_file=str(id2iri_mapping_file))
@@ -511,14 +495,5 @@ def _remove_onto_names_in_original_resources(
 
 
 def _get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
-    """
-    Find the most recently created file that matches a glob pattern.
-
-    Args:
-        glob_pattern: glob pattern, either absolute or relative to the cwd of the caller
-
-    Returns:
-        the most recently created file that matches the glob pattern
-    """
     candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
     return max(candidates, key=lambda item: item.stat().st_ctime)

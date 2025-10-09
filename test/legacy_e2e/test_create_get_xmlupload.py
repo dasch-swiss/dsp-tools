@@ -109,7 +109,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         self.assertTrue(success)
 
-
     def test_get_project(self) -> None:
         """
         Retrieve the systematic JSON project file with the "get" command,

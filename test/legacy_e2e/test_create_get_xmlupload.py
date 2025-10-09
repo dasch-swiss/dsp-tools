@@ -64,51 +64,7 @@ def test_1_create_project(creds: ServerCredentials, test_project_systematic_file
     assert success
 
 
-def test_2_xml_upload_incremental(
-    creds: ServerCredentials, test_data_systematic_file: Path, test_directories: dict[str, Path]
-) -> None:
-    success = xmlupload(
-        input_file=test_data_systematic_file,
-        creds=creds,
-        imgdir=".",
-    )
-    assert success
-
-    mapping_file = _get_most_recent_glob_match("id2iri_*.json")
-    second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-    success = id2iri(
-        xml_file=str(second_xml_file_orig),
-        json_file=str(mapping_file),
-    )
-    assert success
-
-    second_xml_file_replaced = _get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
-    success = xmlupload(
-        input_file=second_xml_file_replaced,
-        creds=creds,
-        imgdir=".",
-    )
-    second_xml_file_replaced.unlink()
-    assert success
-
-    _test_xml_upload_with_id2iri_flag(mapping_file, creds)
-    mapping_file.unlink()
-
-
-def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials) -> None:
-    second_xml_file = Path("testdata/xml-data/test-data-systematic-with-id2iri.xml")
-
-    config = UploadConfig(id2iri_replacement_file=str(id2iri_mapping_file))
-    success = xmlupload(
-        input_file=second_xml_file,
-        creds=creds,
-        imgdir=".",
-        config=config,
-    )
-    assert success
-
-
-def test_3_get_project(
+def test_2_get_project(
     creds: ServerCredentials, test_project_systematic_file: Path, test_directories: dict[str, Path]
 ) -> None:
     """
@@ -497,3 +453,45 @@ def _remove_onto_names_in_original_resources(
 def _get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
     candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
     return max(candidates, key=lambda item: item.stat().st_ctime)
+
+
+def test_3_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_file: Path) -> None:
+    success = xmlupload(
+        input_file=test_data_systematic_file,
+        creds=creds,
+        imgdir=".",
+    )
+    assert success
+
+    mapping_file = _get_most_recent_glob_match("id2iri_*.json")
+    second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
+    success = id2iri(
+        xml_file=str(second_xml_file_orig),
+        json_file=str(mapping_file),
+    )
+    assert success
+
+    second_xml_file_replaced = _get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
+    success = xmlupload(
+        input_file=second_xml_file_replaced,
+        creds=creds,
+        imgdir=".",
+    )
+    second_xml_file_replaced.unlink()
+    assert success
+
+    _test_xml_upload_with_id2iri_flag(mapping_file, creds)
+    mapping_file.unlink()
+
+
+def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials) -> None:
+    second_xml_file = Path("testdata/xml-data/test-data-systematic-with-id2iri.xml")
+
+    config = UploadConfig(id2iri_replacement_file=str(id2iri_mapping_file))
+    success = xmlupload(
+        input_file=second_xml_file,
+        creds=creds,
+        imgdir=".",
+        config=config,
+    )
+    assert success

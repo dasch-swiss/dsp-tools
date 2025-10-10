@@ -1,5 +1,27 @@
 # Changelog
 
+## [18.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v17.0.0...v18.0.0) (2025-10-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985))
+
+### Enhancements
+
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985)) ([dc69b79](https://github.com/dasch-swiss/dsp-tools/commit/dc69b79a942cd7bc4a781eb5ab591c9ee899e85f))
+* integrate id2iri replacement functionality in `xmlupload` and `validate-data` (DEV-5201) ([#1982](https://github.com/dasch-swiss/dsp-tools/issues/1982)) ([4dbee13](https://github.com/dasch-swiss/dsp-tools/commit/4dbee13f692215f1437d5f5f9023fba5fd8ea961))
+
+
+### Bug Fixes
+
+* **create:** better error message if default_permissions is missing in the JSON file (DEV-5479) ([#1991](https://github.com/dasch-swiss/dsp-tools/issues/1991)) ([d7866cb](https://github.com/dasch-swiss/dsp-tools/commit/d7866cb5f9e14ee99f251515600f48a1f8a78a24))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 6 updates ([#1984](https://github.com/dasch-swiss/dsp-tools/issues/1984)) ([01a6ea5](https://github.com/dasch-swiss/dsp-tools/commit/01a6ea5fd6b2fcd6b7d6fb75236cd719d290c903))
+
 ## [17.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.2...v17.0.0) (2025-10-08)
 
 

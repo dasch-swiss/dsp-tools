@@ -375,10 +375,15 @@ def _add_property_classes_to_remote_ontology(
             if verbose:
                 print(f"    Created property class '{prop_class['name']}'")
             logger.info(f"Created property class '{prop_class['name']}'")
-        except BaseError:
-            err_msg = f"Unable to create property class '{prop_class['name']}'."
+        except BaseError as err:
+            err_msg = f"Unable to create property class '{prop_class['name']}'"
+            if found := regex.search(
+                r"Entity .+ refers to entity (.+), which is in a non-shared ontology that belongs to another project",
+                err.message,
+            ):
+                err_msg += f", because it refers to a class of another project: '{found.group(1)}'."
             print(f"WARNING: {err_msg}")
-            logger.exception(f"Unable to create property class '{prop_class['name']}'.")
+            logger.exception(err_msg)
             overall_success = False
 
     return last_modification_date, overall_success

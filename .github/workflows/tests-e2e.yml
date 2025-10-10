@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: project
+      - name: create-get-xmlupload
         run: just e2e-test-create-get-xmlupload
       - name: make logging file available
         uses: actions/upload-artifact@v4

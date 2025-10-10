@@ -3,6 +3,7 @@ import glob
 import json
 import shutil
 from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 from typing import Optional
@@ -18,12 +19,25 @@ from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
+from test.e2e.setup_testcontainers.setup import get_containers
 
 
 @pytest.fixture(scope="module")
-def creds() -> ServerCredentials:
+def container_ports() -> Iterator[ExternalContainerPorts]:
+    """Start all containers, yield ports, stop containers at module end"""
+    with get_containers() as metadata:
+        yield metadata.ports
+
+
+@pytest.fixture(scope="module")
+def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
+    """Returns credentials for connecting to the DSP server"""
     return ServerCredentials(
-        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+        "root@example.com",
+        "test",
+        f"http://0.0.0.0:{container_ports.api}",
+        f"http://0.0.0.0:{container_ports.ingest}",
     )
 
 

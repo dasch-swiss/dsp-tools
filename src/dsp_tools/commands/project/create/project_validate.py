@@ -67,6 +67,9 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.ValidationError as err:
+        # Check for the specific case of missing 'default_permissions'
+        if "'default_permissions' is a required property" in err.message:
+            raise BaseError("You forgot to specify the 'default_permissions'") from None
         # Check for the specific case of private permissions with overrule
         if (
             "should not be valid under {'required': ['default_permissions_overrule']}" in err.message

@@ -367,13 +367,17 @@ def _create_users(
                     f"    User with the user name '{user_name}' could not be created "
                     f"as no password is specified and no default password is saved in a .env file."
                 )
+                overall_success = False
+                continue
+            else:
+                pw = str(default_pw)
         user_local = User(
             con=con,
             username=user_name,
             email=json_user_definition["email"],
             givenName=json_user_definition["givenName"],
             familyName=json_user_definition["familyName"],
-            password=json_user_definition["password"],
+            password=pw,
             status=bool(json_user_definition.get("status", True)),
             lang=json_user_definition.get("lang", "en"),
             in_projects=project_info,

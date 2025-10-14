@@ -7,13 +7,8 @@ from rdflib import URIRef
 
 
 @dataclass
-class ResourceCardinalities:
-    res_iri: URIRef
-    cards: list[Cardinality]
-
-
-@dataclass
 class Cardinality:
+    res_iri: URIRef
     on_property: URIRef
     cardinality: CardinalityRestriction
 

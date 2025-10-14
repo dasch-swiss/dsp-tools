@@ -14,5 +14,5 @@ class OntologyClient(Protocol):
     project_shortcode: str
     authentication_client: AuthenticationClient
 
-    def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal:
+    def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal | None:
         """Add cardinalities to an existing resource class."""

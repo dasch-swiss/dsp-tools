@@ -40,7 +40,7 @@
         "email": "alice@dasch.swiss",
         "givenName": "Alice Pleasance",
         "familyName": "Liddell",
-        "password": "alice4322",
+        "password": null,
         "lang": "en",
         "status": true,
         "projects": [
@@ -53,7 +53,7 @@
         "email": "caterpillar@dasch.swiss",
         "givenName": "Caterpillar",
         "familyName": "Wonderland",
-        "password": "alice7652",
+        "password": null,
         "lang": "de",
         "status": true,
         "projects": [

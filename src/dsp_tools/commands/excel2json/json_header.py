@@ -180,7 +180,7 @@ def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
 def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if not len(df) > 0:
         return None
-    columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
+    columns = ["username", "email", "givenname", "familyname", "lang", "role"]
     if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
     if missing_vals := find_missing_required_values(df, columns):
@@ -307,6 +307,8 @@ def _extract_users(df: pd.DataFrame) -> Users:
 
 def _extract_one_user(row: pd.Series[str]) -> User:
     isProjectAdmin = row["role"].lower() == "projectadmin"
+    if pd.isna("password"):
+        pass
     return User(
         username=row["username"],
         email=row["email"],

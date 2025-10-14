@@ -24,11 +24,17 @@ jobs:
         uses: ./.github/actions/setup
       - name: Check if env var is set
         run: |
+          echo "Checking environment variables..."
+          echo "DSP_TOOLS_TESTING: $DSP_TOOLS_TESTING"
+          echo "NODE_ENV: $NODE_ENV"
           if [ -z "$DSP_USER_PASSWORD" ]; then
             echo "DSP_USER_PASSWORD is NOT set"
+            echo "Secret value from context: ${{ secrets.DSP_USER_PASSWORD }}"
+            echo "Secret exists (non-empty check): ${{ secrets.DSP_USER_PASSWORD != '' }}"
           else
             echo "DSP_USER_PASSWORD is set (length: ${#DSP_USER_PASSWORD})"
           fi
+          env | grep -i dsp || echo "No DSP variables found in environment"
       - name: ingest-xmlupload
         run: just e2e-test-ingest-xmlupload
       - name: make logging file available

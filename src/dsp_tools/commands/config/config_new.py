@@ -17,7 +17,7 @@ def _prompt_for_config_id() -> str | None:
         Config ID string, or None if invalid
     """
     print(
-        "\nYou can create a new configuration for one server, user, password and both project create and data upload."
+        "\nYou can create a new configuration for the create and xmlupload commands."
     )
     print("Please enter an ID for the config object, it may only contain alpha-numeric characters and the characters")
     print('"-" and "_"')

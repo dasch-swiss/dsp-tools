@@ -10,14 +10,13 @@ permissions:
   contents: read
   pull-requests: read
 
-env:
-  NODE_ENV: github-actions
-  DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
-  DSP_TOOLS_TESTING: true
-
 jobs:
   ingest-xmlupload:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
@@ -42,6 +41,10 @@ jobs:
 
   validate-data:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
@@ -59,6 +62,10 @@ jobs:
 
   xmlupload:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
@@ -76,6 +83,10 @@ jobs:
 
   project:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
@@ -93,6 +104,10 @@ jobs:
 
   create-get-xmlupload:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
@@ -110,6 +125,10 @@ jobs:
 
   legacy:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: github-actions
+      DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+      DSP_TOOLS_TESTING: true
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5

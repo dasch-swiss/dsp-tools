@@ -11,6 +11,7 @@ permissions:
   pull-requests: read
 
 env:
+  NODE_ENV: github-actions
   DSP_TOOLS_TESTING: true
 
 jobs:

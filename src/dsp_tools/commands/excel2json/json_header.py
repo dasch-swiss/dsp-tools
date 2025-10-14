@@ -307,14 +307,14 @@ def _extract_users(df: pd.DataFrame) -> Users:
 
 def _extract_one_user(row: pd.Series[str]) -> User:
     isProjectAdmin = row["role"].lower() == "projectadmin"
-    if pd.isna("password"):
-        pass
+    if pw := pd.isna("password"):
+        pw = "null"
     return User(
         username=row["username"],
         email=row["email"],
         givenName=row["givenname"],
         familyName=row["familyname"],
-        password=row["password"],
+        password=pw,
         lang=row["lang"],
         isProjectAdmin=isProjectAdmin,
     )

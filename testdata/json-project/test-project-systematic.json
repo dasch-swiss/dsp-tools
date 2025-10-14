@@ -101,7 +101,7 @@
                 "email": "tester.projectadmin@test.org",
                 "givenName": "Tester",
                 "familyName": "Project Admin",
-                "password": null,
+                "password": "test0815",
                 "lang": "de",
                 "projects": [
                     ":admin"

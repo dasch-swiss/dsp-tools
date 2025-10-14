@@ -31,6 +31,7 @@ To get started quickly, without reading the details, just execute these commands
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
 - `brew install just parallel yamlfmt`
+- `echo DSP_USER_PASSWORD="pw" >> .env` (required variable for e2e tests)
 
 The remainder of this README explains these commands in more detail.
 
@@ -112,6 +113,15 @@ This will trigger actions that create a release on GitHub and on PyPI.
 The tests of this repository 
 are partially written in the [unittest](https://docs.python.org/3/library/unittest.html) framework,
 and partially in the [pytest](https://docs.pytest.org) framework.
+
+Please note that the end-2-end tests require a default password in a local `.env` file.
+The password itself is not relevant.
+
+Example `.env` content:
+
+```
+DSP_USER_PASSWORD="password"
+```
 
 The following are self-contained and can be run without further requirements:
 

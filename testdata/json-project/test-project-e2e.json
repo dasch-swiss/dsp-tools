@@ -24,6 +24,20 @@
                 "e2e-testonto:ImageResource"
             ]
         },
+        "users": [
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": null,
+                "lang": "de",
+                "projects": [
+                    ":admin"
+                ],
+                "status": true
+            }
+        ],
         "ontologies": [
             {
                 "name": "e2e-testonto",

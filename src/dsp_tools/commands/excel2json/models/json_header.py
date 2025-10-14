@@ -119,12 +119,12 @@ class User:
     email: str
     givenName: str
     familyName: str
-    password: str
+    password: str | None
     lang: str
     isProjectAdmin: bool
 
     def to_dict(self) -> dict[str, Any]:
-        usr_dict = {
+        usr_dict: dict[str, Any] = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,

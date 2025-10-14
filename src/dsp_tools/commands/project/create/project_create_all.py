@@ -1,10 +1,12 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
+import os
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
+from dotenv import load_dotenv
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
@@ -28,6 +30,8 @@ from dsp_tools.error.exceptions import InvalidInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.json_parsing import parse_json_input
+
+load_dotenv()
 
 
 def create_project(  # noqa: PLR0915 (too many statements)
@@ -354,9 +358,18 @@ def _create_users(
             continue
 
         # create the user
+        user_name = json_user_definition["username"]
+        pw = json_user_definition["password"]
+        if not pw:
+            default_pw = os.getenv("DSP_USER_PASSWORD")
+            if not default_pw:
+                print(
+                    f"    User with the user name '{user_name}' could not be created "
+                    f"as no password is specified and no default password is saved in a .env file."
+                )
         user_local = User(
             con=con,
-            username=json_user_definition["username"],
+            username=user_name,
             email=json_user_definition["email"],
             givenName=json_user_definition["givenName"],
             familyName=json_user_definition["familyName"],

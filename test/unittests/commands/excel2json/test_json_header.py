@@ -560,7 +560,7 @@ class TestUsers:
         assert result.email == "caterpillar@dasch.swiss"
         assert result.givenName == "Caterpillar"
         assert result.familyName == "Wonderland"
-        assert result.password == "alice7652"
+        assert result.password == "null"
         assert result.lang == "de"
         assert result.isProjectAdmin
 

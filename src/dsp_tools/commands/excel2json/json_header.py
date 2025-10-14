@@ -180,10 +180,11 @@ def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
 def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if not len(df) > 0:
         return None
-    columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
-    if missing_cols := check_contains_required_columns(df, set(columns)):
+    required_columns = ["username", "email", "givenname", "password", "familyname", "lang", "role"]
+    if missing_cols := check_contains_required_columns(df, set(required_columns)):
         return ExcelSheetProblem("users", [missing_cols])
-    if missing_vals := find_missing_required_values(df, columns):
+    required_values = ["username", "email", "givenname", "familyname", "lang", "role"]
+    if missing_vals := find_missing_required_values(df, required_values):
         return ExcelSheetProblem("users", [MissingValuesProblem(missing_vals)])
     problems: list[Problem] = []
     for i, row in df.iterrows():
@@ -307,12 +308,14 @@ def _extract_users(df: pd.DataFrame) -> Users:
 
 def _extract_one_user(row: pd.Series[str]) -> User:
     isProjectAdmin = row["role"].lower() == "projectadmin"
+    if pd.isna(pw := row["password"]):
+        pw = None
     return User(
         username=row["username"],
         email=row["email"],
         givenName=row["givenname"],
         familyName=row["familyname"],
-        password=row["password"],
+        password=pw,
         lang=row["lang"],
         isProjectAdmin=isProjectAdmin,
     )

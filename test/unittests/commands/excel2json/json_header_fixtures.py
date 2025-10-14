@@ -136,7 +136,7 @@ def users_good() -> pd.DataFrame:
             "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss", "white.rabbit@dasch.swiss"],
             "givenname": ["Alice Pleasance", "Caterpillar", "White"],
             "familyname": ["Liddell", "Wonderland", "Rabbit"],
-            "password": ["alice4322", "alice7652", "alice8711"],
+            "password": [pd.NA, pd.NA, "alice8711"],
             "lang": ["en", "de", "fr"],
             "role": ["projectadmin", "projectadmin", "projectmember"],
         }
@@ -195,7 +195,7 @@ def user_good() -> pd.Series[str]:
             "email": "alice@dasch.swiss",
             "givenname": "Alice Pleasance",
             "familyname": "Liddell",
-            "password": "alice7652",
+            "password": pd.NA,
             "lang": "en",
             "role": "projectadmin",
         }

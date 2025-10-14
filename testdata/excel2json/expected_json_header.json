@@ -40,7 +40,7 @@
         "email": "alice@dasch.swiss",
         "givenName": "Alice Pleasance",
         "familyName": "Liddell",
-        "password": "alice4322",
+        "password": null,
         "lang": "en",
         "status": true,
         "projects": [
@@ -65,7 +65,7 @@
         "email": "white.rabbit@dasch.swiss",
         "givenName": "White",
         "familyName": "Rabbit",
-        "password": "alice8711",
+        "password": null,
         "lang": "fr",
         "status": true,
         "projects": [

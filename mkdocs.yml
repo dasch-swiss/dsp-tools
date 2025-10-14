@@ -41,7 +41,8 @@ nav:
       - CLI-Commands: data-file/data-file-commands.md
       - Deprecated excel2xml: data-file/excel2xml-module.md
   - Advanced Workflows:
-      - Special Workflows xmlupload: special-workflows/incremental-xmlupload.md
+      - Special Workflows xmlupload: special-workflows/workflow-xmlupload.md
+      - .env Options: special-workflows/env-set-up.md
   - Information for developers:
       - Developers documentation: developers/index.md
       - Running DSP locally: developers/start-stack.md

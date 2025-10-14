@@ -1,12 +1,12 @@
-from typing import Protocol
 
 from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.ontology_client import OntologyClient
 
 
-class OntologyClient(Protocol):
+class OntologyClientLive(OntologyClient):
     """
     Protocol class/interface for the ontology endpoint in the API.
     """

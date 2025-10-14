@@ -1,4 +1,3 @@
-
 from rdflib import Graph
 from rdflib import Literal
 

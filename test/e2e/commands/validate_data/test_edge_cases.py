@@ -164,7 +164,7 @@ def test_validate_ontology_violation(authentication) -> None:
         ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
         ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
     ]
-    sorted_problems = sorted(all_problems.problems, key=lambda x: x.resource_iri)
+    sorted_problems = sorted(all_problems.problems, key=lambda x: x.res_iri)
     assert len(all_problems.problems) == len(expected_results)
     for one_result, expected in zip(sorted_problems, expected_results):
         assert one_result.res_iri == expected[0]

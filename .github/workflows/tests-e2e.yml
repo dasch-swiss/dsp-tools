@@ -12,6 +12,7 @@ permissions:
 
 env:
   NODE_ENV: github-actions
+  DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
   DSP_TOOLS_TESTING: true
 
 jobs:

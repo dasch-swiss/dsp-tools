@@ -1,15 +1,21 @@
+from dataclasses import dataclass
 from typing import Any
 
 import requests
+from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
+from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -18,9 +24,10 @@ TIMEOUT = 60
 HTTP_LACKING_PERMISSIONS = 403
 
 
+@dataclass
 class OntologyClientLive(OntologyClient):
     """
-    Protocol class/interface for the ontology endpoint in the API.
+    Client for the ontology endpoint in the API.
     """
 
     server: str
@@ -30,10 +37,23 @@ class OntologyClientLive(OntologyClient):
     def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal | None:
         url = f"{self.authentication_client.server}/v2/ontologies/cardinalities"
         serialised = serialise_json(cardinality_graph)
-        response = self._post_and_log_request(url, serialised)
-        if not response.ok:
-            pass  # TODO implement
-        return _parse_last_modification_date(response.text)
+        logger.debug("POST resource cardinalities to ontology")
+        try:
+            response = self._post_and_log_request(url, serialised)
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
+        if response.ok:
+            return _parse_last_modification_date(response.text)
+        if response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only a project or system administrator can add cardinalities to resource classes. "
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
 
     def _post_and_log_request(self, url: str, data: list[dict[str, Any]] | dict[str, Any]) -> Response:
         headers = {
@@ -55,4 +75,7 @@ class OntologyClientLive(OntologyClient):
 def _parse_last_modification_date(response_text: str) -> Literal | None:
     g = Graph()
     g.parse(data=response_text, format="json-ld")
-    return next(g.objects(predicate=KNORA_API.lastModificationDate), None)
+    result = next(g.objects(predicate=KNORA_API.lastModificationDate), None)
+    if isinstance(result, Literal):
+        return result
+    return None

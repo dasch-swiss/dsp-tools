@@ -7,6 +7,7 @@ from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
@@ -26,12 +27,13 @@ class OntologyClientLive(OntologyClient):
     project_shortcode: str
     authentication_client: AuthenticationClient
 
-    def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal:
+    def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal | None:
         url = f"{self.authentication_client.server}/v2/ontologies/cardinalities"
         serialised = serialise_json(cardinality_graph)
         response = self._post_and_log_request(url, serialised)
         if not response.ok:
             pass  # TODO implement
+        return _parse_last_modification_date(response.text)
 
     def _post_and_log_request(self, url: str, data: list[dict[str, Any]] | dict[str, Any]) -> Response:
         headers = {
@@ -48,3 +50,9 @@ class OntologyClientLive(OntologyClient):
         )
         log_response(response)
         return response
+
+
+def _parse_last_modification_date(response_text: str) -> Literal | None:
+    g = Graph()
+    g.parse(data=response_text, format="json-ld")
+    return next(g.objects(predicate=KNORA_API.lastModificationDate), None)

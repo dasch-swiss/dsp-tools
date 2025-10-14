@@ -93,7 +93,7 @@ def _get_one_problem(val_g: Graph, result_bn: SubjectObjectTypeAlias) -> Ontolog
 
 
 def get_msg_str_ontology_validation_violation(onto_violations: OntologyValidationProblem) -> str:
-    probs = sorted(onto_violations.problems, key=lambda x: x.res_iri)
+    probs = sorted(onto_violations.problems, key=lambda x: x.resource_iri)
 
     def get_resource_msg(res: OntologyResourceProblem) -> str:
         return f"Resource Class: {res.res_iri} | Problem: {res.msg}"

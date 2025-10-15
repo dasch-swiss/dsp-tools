@@ -1,8 +1,20 @@
 # Architectural Design
 
-## Parsing JSON Files and Transformations for `create`
+## Code Flow For the `create` Command
 
 ### Overview
+
+The JSON schema validation takes over a lot of validation, 
+therefore there are only minimal errors we may encounter a successful validation, 
+primarily relating to inexistent references to other objects that can be caused by typos.
+
+If the user provided incorrect input we do not try and extrapolate a fix but communicate the problem precisely
+so that the user may easily fix it themselves.
+
+We aim for a fast-fail approach before we begin with the upload.
+If we have upload failures during the upload we will not stopp the entire process but continue to create as much of
+the project and ontologies as possible. 
+The upload failures should be communicated at the end of an upload in a precise and user-friendly message.
 
 ```mermaid
 ---
@@ -53,20 +65,20 @@ stateDiagram-v2
 
 Within one project we have several dependencies that dictate the upload order.
 
-While the Groups, Users and Lists and Cardinalities to do not have to be sorted "within",
+While the Groups, Users, Lists and Cardinalities to do not have to be sorted "within",
 the order of Classes and Properties are relevant as they may have dependencies on others.
 
-The first column is the object type we are looking at,
-the other columns indicate which other object type and how they may depend on.
+The following table contains the possible dependencies, the first column is the object type we are looking at,
+the other columns indicate how they may depend on other object types.
 
-| Object Type | Lists           | Classes                           | Properties            | Group     | Users |
-|-------------|-----------------|-----------------------------------|-----------------------|-----------|-------|
-| List        |                 |                                   |                       |           |       |
-| Class       |                 | super-classes                     |                       |           |       |
-| Properties  | list properties | object / subject class constraint | super-properties      |           |       |
-| Cardinality |                 | existence of class                | existence of property |           |       |
-| Group       |                 |                                   |                       |           |       |
-| Users       |                 |                                   |                       | if custom |       |
+| Object Type     | List            | Class                             | Propery                 | Group     | User |
+|-----------------|-----------------|-----------------------------------|-------------------------|-----------|------|
+| **List**        |                 |                                   |                         |           |      |
+| **Class**       |                 | super-classes                     |                         |           |      |
+| **Property**    | list properties | object / subject class constraint | super-properties        |           |      |
+| **Cardinality** |                 | cardinality on class              | cardinality on property |           |      |
+| **Group**       |                 |                                   |                         |           |      |
+| **User**        |                 |                                   |                         | if custom |      |
 
 Note, that one project may have more than one ontology,
 in that case it is permissible to reference classes and properties from the other ontologies.
@@ -92,35 +104,36 @@ stateDiagram-v2
     processedProj --> crProj
     crProj --> [*]: project creation error
     crProj --> crGr
-    crGr --> crUser
-    crUser --> collErr
-    crUser --> crLists
-    crLists --> collErr
-    crLists --> crCls
-    crCls --> collErr
-    crCls --> crProp
-    crProp --> collErr
-    crProp --> crCards
-    crCards --> collErr
-    crCards --> upFini
+    crGr --> crUser: continue
+    crUser --> collErr: add to
+    crUser --> crLists: continue
+    crLists --> collErr: add to
+    crLists --> crCls: continue
+    crCls --> collErr: add to
+    crCls --> crProp: continue
+    crProp --> collErr: add to
+    crProp --> crCards: continue
+    crCards --> collErr: add to
+    crCards --> upFini: continue
     upFini --> printErr: with errors
-    collErr --> printErr
+    collErr --> printErr: continue
     upFini --> printSucc: no errors
 ```
 
-### Upload Mechanism
+Unless the upload stopped which is indicated by a circle, 
+a failure in a previous step does not prevent the upload of the next object categories.
+The following section explains how we deal with dependencies that were not created.
 
-Users, properties and classes may depend on the existence of other classes and properties.
-If these dependencies were not successfully created, we do not need to try and upload it and generate additional errors.
+### Dependency Checks During an Upload
 
-See the table above for the dependencies one object type may have and which checks are required.
+Properties, Classes and Cardinalities may depend on the existence of other Classes, Properties and Lists.
+If these dependencies were not successfully created, we do not need to an upload and generate additional errors.
 
-To minimise unnecessary HTTP calls and error messages,
-we will check if the dependencies were created before an upload in the following process.
+See the table above for the dependencies one object type may have, and consequently which checks are required.
 
 ```mermaid
 ---
-title: Upload Mechanism
+title: Upload Mechanism of a Single Object
 ---
 stateDiagram-v2
     state "Processing one Object" as preUp

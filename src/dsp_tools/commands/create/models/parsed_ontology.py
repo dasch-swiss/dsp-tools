@@ -18,7 +18,10 @@ class ParsedOntology:
 
 @dataclass
 class ParsedClass:
-    info: dict[str, Any]
+    name: str
+    labels: dict[str, str]
+    comments: dict[str, str]
+    supers: list[str]
 
 
 @dataclass

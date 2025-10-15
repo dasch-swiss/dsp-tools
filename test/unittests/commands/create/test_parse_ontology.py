@@ -2,16 +2,26 @@
 
 from unittests.commands.create.fixtures import ONTO_PREFIX
 
+from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalities
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
+from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 
 
-class TestParseOntology: ...
+class TestParseOntology:
+    def test_good(self, project, prefixes):
+        result = parse_ontology(project, prefixes)
+        assert isinstance(result, ParsedOntology)
+
+    def test_fail(self, project, prefixes):
+        result = parse_ontology(project, prefixes)
+        assert isinstance(result, CollectedProblems)
 
 
 class TestParseProperties:

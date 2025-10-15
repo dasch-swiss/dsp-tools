@@ -37,7 +37,7 @@ stateDiagram-v2
 
     state sortingDeps {
         parsedProj2 --> [*]: dependencies could not be resolved
-        parsedProj2 --> processedProj1: finding dependencies<br/> generating upload order
+        parsedProj2 --> processedProj1: finding dependencies<br/>generating upload order
         processedProj1 --> processedProj2
     }
 
@@ -49,25 +49,26 @@ stateDiagram-v2
     }
 ```
 
-## Upload Order to API
+### Upload Order to API
 
 Within one project we have several dependencies that dictate the upload order.
 
-They are as follows:
+While the Groups, Users and Lists and Cardinalities to do not have to be sorted "within",
+the order of Classes and Properties are relevant as they may have dependencies on others.
+
+The first column is the object type we are looking at,
+the other columns indicate which other object type and how they may depend on.
 
 | Object Type | Lists           | Classes                           | Properties            | Group     | Users |
 |-------------|-----------------|-----------------------------------|-----------------------|-----------|-------|
-| List        | -               | -                                 | -                     | -         | -     |
-| Class       | -               | super-classes                     | -                     | -         | -     |
-| Properties  | list properties | object / subject class constraint | super-properties      | -         | -     |
-| Cardinality | -               | existence of class                | existence of property |           |       |
-| Group       | -               | -                                 | -                     | -         | -     |
-| Users       | -               | -                                 | -                     | if custom | -     |
+| List        |                 |                                   |                       |           |       |
+| Class       |                 | super-classes                     |                       |           |       |
+| Properties  | list properties | object / subject class constraint | super-properties      |           |       |
+| Cardinality |                 | existence of class                | existence of property |           |       |
+| Group       |                 |                                   |                       |           |       |
+| Users       |                 |                                   |                       | if custom |       |
 
-While the Groups, Users and Lists and Cardinalities to do not have to be sorted "within", 
-the order of classes and properties are relevant as they may have dependencies on others.
-
-Note, that one project may have more than one ontology, 
+Note, that one project may have more than one ontology,
 in that case it is permissible to reference classes and properties from the other ontologies.
 Therefore, we need to handle the classes of all ontologies first, before we may move on to the properties.
 
@@ -107,7 +108,7 @@ stateDiagram-v2
     upFini --> printSucc: no errors
 ```
 
-## Upload Mechanism
+### Upload Mechanism
 
 Users, properties and classes may depend on the existence of other classes and properties.
 If these dependencies were not successfully created, we do not need to try and upload it and generate additional errors.

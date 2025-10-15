@@ -1,4 +1,4 @@
-## `create` Command
+# `create` Command
 
 The JSON schema validation takes over a lot of validation,
 therefore there are only minimal errors we may encounter after a successful validation,
@@ -57,7 +57,7 @@ stateDiagram-v2
     }
 ```
 
-### Upload Order to API
+## Upload Order to API
 
 Within one project we have several dependencies that dictate the upload order.
 
@@ -120,10 +120,11 @@ Unless the upload stopped (which is indicated by a circle),
 a failure in a previous step does not prevent the upload of the next object categories.
 The following section explains how we deal with dependencies that were not created.
 
-### Dependency Checks During an Upload
+## Dependency Checks During an Upload
 
 Properties, Classes and Cardinalities may depend on the existence of other Classes, Properties and Lists.
-If the dependencies of an object were not successfully created, we should not upload the object and generate additional errors.
+If the dependencies of an object were not successfully created, we should not upload the object and generate additional
+errors.
 
 See the table above for the dependencies one object type may have, and consequently which checks are required.
 

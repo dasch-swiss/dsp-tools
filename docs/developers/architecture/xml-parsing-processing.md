@@ -1,6 +1,12 @@
-# Parsing XML Files and Transformations for `xmlupload` and `validate-data`
+# XML File Parsing and Processing for `xmlupload` and `validate-data`
 
-## Overview
+The `ParsedResource` is the internal Python representation of our data XML file.
+In order to keep breaking changes minimal when changes to the XML are required 
+all processes that interact with the XML file should use the `ParsedResource` as its starting point.
+
+## Parsing XML Files and Transformations
+
+### Overview
 
 ```mermaid
 ---
@@ -39,7 +45,7 @@ stateDiagram-v2
     }
 ```
 
-## Parsing XML Files
+### Parsing XML Files in Detail
 
 <!-- markdownlint-disable MD013 -->
 
@@ -89,42 +95,13 @@ stateDiagram-v2
 
 <!-- markdownlint-enable MD013 -->
 
-## From `ParsedResource` to `ProcessedResource` in `xmlupload`
 
-```mermaid
----
-title: Transformations from ParsedResource for xmlupload
----
-stateDiagram-v2
-    state "Process Resource" as processedres
-    state "Process Value" as processedationval
-    state "Process FileValues" as processedfile
-    state "ParsedValue" as parsedval
-    state "ParsedResource" as parsedres
-    state "ProcessedValue" as valdes
-    state "Continue" as cont
-    parsedres --> processedfile
-    parsedres --> processedationval
-    parsedres --> processedres
-    state processedres {
-        ParsedResource --> Permissions: resolve permissions
-    }
-    state processedationval {
-        parsedval --> valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
-    }
-    state processedfile {
-        ParsedFileValue --> ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
-    }
-    processedres --> ProcessedResource: return result
-    processedationval --> ProcessedResource: return result
-    processedfile --> ProcessedResource: return result
-    ProcessedResource --> cont: success
-    ProcessedResource --> [*]: unexpected transformation failure
-```
+## `validate-data`
 
-# `validate-data` Validation Logic
+`validate-data` has a specific process as in some cases 
+the success of a previous step is required for subsequent validations.
 
-## Validation Process
+### Validation Process
 
 ```mermaid
 stateDiagram-v2
@@ -156,7 +133,7 @@ stateDiagram-v2
     dataSH --> warning: problems
 ```
 
-## Determine Validation Success
+### Determine Validation Success
 
 The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
 
@@ -169,3 +146,43 @@ Prod like servers include prod, ls-prod, stage, and rdu-stage.
 | INFO    | success           | success                |
 | WARNING | success           | failure                |
 | ERROR   | failure           | failure                |
+
+
+## `xmlupload`
+
+The `xmlupload` requires validation and transformation before we can send an upload request.
+The Python class `ProcessedResource` has a completely correct state, e.g. all the types are correct, etc.
+and is used to create the graph for the upload.
+
+### From `ParsedResource` to `ProcessedResource`
+
+```mermaid
+---
+title: Transformations from ParsedResource for xmlupload
+---
+stateDiagram-v2
+    state "Process Resource" as processedres
+    state "Process Value" as processedationval
+    state "Process FileValues" as processedfile
+    state "ParsedValue" as parsedval
+    state "ParsedResource" as parsedres
+    state "ProcessedValue" as valdes
+    state "Continue" as cont
+    parsedres --> processedfile
+    parsedres --> processedationval
+    parsedres --> processedres
+    state processedres {
+        ParsedResource --> Permissions: resolve permissions
+    }
+    state processedationval {
+        parsedval --> valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
+    }
+    state processedfile {
+        ParsedFileValue --> ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
+    }
+    processedres --> ProcessedResource: return result
+    processedationval --> ProcessedResource: return result
+    processedfile --> ProcessedResource: return result
+    ProcessedResource --> cont: success
+    ProcessedResource --> [*]: unexpected transformation failure
+```

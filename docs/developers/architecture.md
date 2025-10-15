@@ -1,5 +1,70 @@
 # Architectural Design
 
+## Parsing JSON Files and Transformations for `create`
+
+### Overview
+
+```mermaid
+---
+title: Overview of Code Flow for create
+---
+stateDiagram-v2
+state "JSON Schema Validation" as val
+state "JSON File" as jsonFile1
+state "JSON File" as jsonFile2
+
+state "JSON into Python representation" as jsonPy
+state "ParsedProject" as parsedProj1
+state "ParsedProject" as parsedProj2
+
+state "Sorting Dependencies" as sortingDeps
+state "ProcessedProject" as processedProj1
+
+state "Upload" as upload
+state "ProcessedProject" as processedProj2
+state "Create Project" as crProj
+state "Create Groups" as crGr
+state "Creade Users" as crUser
+state "Create Lists" as crLists
+state "Create Ontology & Classes" as crCls
+state "Create Properties" as crProp
+state "Create Cardinalities" as crCards
+
+state "Collected Creation Errors" as collErr
+
+[*]-->val
+state val {
+    jsonFile1-->jsonFile2: success
+    jsonFile1-->[*]: error
+}
+
+state jsonPy {
+}   jsonFile2-->[*]: IRI resolving error
+    jsonFile2-->parsedProj1: IRI resolving
+
+state sortingDeps {
+    parsedProj2-->[*]: dependencies could not be resolved
+    parsedProj2-->processedProj1: finding dependencies<br/> generating upload order
+}
+
+state upload {
+    processedProj1-->crProj
+    crProj-->[*]: project creation error
+    crProj-->crGr
+    crGr-->collErr: collect errors
+    crGr-->crUser
+    crUser-->collErr: collect errors
+    crUser-->crLists
+    crLists-->collErr: collect errors
+    crCls-->collErr: collect errors
+    crCls-->crProp
+    crProp-->collErr: collect errors
+    crProp-->crCards
+    crCards-->collErr: collect errors
+}
+```
+
+
 ## Parsing XML Files and Transformations for `xmlupload` and `validate-data`
 
 ### Overview

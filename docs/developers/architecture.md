@@ -4,7 +4,6 @@
 
 ### Overview
 
-
 ```mermaid
 ---
 title: Overview of Code Flow for create
@@ -56,9 +55,11 @@ state upload {
 }
 ```
 
+## Upload Order to API
+
 ```mermaid
 ---
-title: Upload
+title: Upload Order
 ---
 stateDiagram-v2
 
@@ -92,10 +93,47 @@ state "Print Success Message" as printSucc
     upFini-->printErr: with errors
     collErr-->printErr
     upFini-->printSucc: no errors
-
-
 ```
 
+
+## Upload Mechanism
+
+Users, properties and classes may depend on the existence of other classes and properties.
+If these dependencies were not successfully created, we do not need to try and upload it and generate additional errors.
+
+```mermaid
+---
+title: Upload Mechanism
+---
+stateDiagram-v2
+
+state "Processing one Object" as preUp
+state "Object" as preObj
+state "dependency failed" as checkFail1
+state "FailureCollection" as checkFail2
+state "dependency exists" as checkSucc
+
+state "Upload" as upload
+state "Object" as upObj
+state "Failure" as upFail
+state "Success" as upSucc
+state "FailureCollection" as upFailColl
+state "SuccessCollection" as upSuccColl
+
+state preUp {
+    preObj-->checkFail1: dependencies in failures
+    checkFail1-->checkFail2: add to failures
+    preObj --> checkSucc: dependencies successfully uploaded
+    checkSucc --> upload: continue upload
+}
+
+state upload {
+    upObj --> upFail: upload failed
+    upFail --> upFailColl: add
+    upObj --> upSucc: upload success
+    upSucc --> upSuccColl: add
+}
+```
 
 ## Parsing XML Files and Transformations for `xmlupload` and `validate-data`
 

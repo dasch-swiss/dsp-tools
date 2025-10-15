@@ -1,5 +1,7 @@
 # `create` Command
 
+## Overview
+
 The JSON schema validation takes over a lot of validation,
 therefore there are only minimal errors we may encounter after a successful validation,
 primarily relating to inexistent references to other objects that can be caused by typos.
@@ -123,8 +125,8 @@ The following section explains how we deal with dependencies that were not creat
 ## Dependency Checks During an Upload
 
 Properties, Classes and Cardinalities may depend on the existence of other Classes, Properties and Lists.
-If the dependencies of an object were not successfully created, we should not upload the object and generate additional
-errors.
+If the dependencies of an object were not successfully created,
+we should not attempt to upload the object and generate additional errors.
 
 See the table above for the dependencies one object type may have, and consequently which checks are required.
 

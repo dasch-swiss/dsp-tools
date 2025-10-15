@@ -1,10 +1,10 @@
 # XML File Parsing and Processing for `xmlupload` and `validate-data`
 
+## Parsing XML Files and Transformations
+
 The `ParsedResource` is the internal Python representation of our data XML file.
 In order to keep breaking changes minimal when changes to the XML are required 
 all processes that interact with the XML file should use the `ParsedResource` as its starting point.
-
-## Parsing XML Files and Transformations
 
 ### Overview
 

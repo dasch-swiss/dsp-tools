@@ -27,8 +27,7 @@ class TestParseOntology:
 class TestParseProperties:
     def test_good(self):
         prop = {"detail": "to-be-implemented"}
-        resources = {"properties": [prop]}
-        parsed, problems = _parse_properties(resources)
+        parsed, problems = _parse_properties([prop])
         assert len(parsed) == 1
         assert not problems
 
@@ -36,8 +35,7 @@ class TestParseProperties:
 class TestParseClasses:
     def test_good(self):
         cls = {"detail": "to-be-implemented"}
-        resources = {"resources": [cls]}
-        parsed, problems = _parse_classes(resources)
+        parsed, problems = _parse_classes([cls])
         assert len(parsed) == 1
         assert not problems
 

@@ -21,16 +21,16 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     pass
 
 
-def _parse_properties(properties_json: dict[str, Any]) -> tuple[list[ParsedProperty], list[InputProblem]]:
-    pass
+def _parse_properties(properties_list: list[dict[str, Any]]) -> tuple[list[ParsedProperty], list[InputProblem]]:
+    return [ParsedProperty(x) for x in properties_list], []
 
 
-def _parse_classes(classes_json: dict[str, Any]) -> tuple[list[ParsedClass], list[InputProblem]]:
-    pass
+def _parse_classes(classes_list: list[dict[str, Any]]) -> tuple[list[ParsedClass], list[InputProblem]]:
+    return [ParsedClass(x) for x in classes_list], []
 
 
 def _parse_cardinalities(
-    classes_json: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
+    classes_list: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> tuple[list[ParsedClassCardinalities], list[InputProblem]]:
     pass
 

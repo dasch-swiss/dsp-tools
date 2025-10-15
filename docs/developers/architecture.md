@@ -51,6 +51,21 @@ stateDiagram-v2
 
 ## Upload Order to API
 
+Within one project we have several dependencies that dictate the upload order.
+
+They are as follows:
+
+| Object Type | Lists           | Classes                           | Properties            | Group     | Users |
+|-------------|-----------------|-----------------------------------|-----------------------|-----------|-------|
+| List        | -               | -                                 | -                     | -         | -     |
+| Class       | -               | super-classes                     | -                     | -         | -     |
+| Properties  | list properties | object / subject class constraint | super-properties      | -         | -     |
+| Cardinality | -               | existence of class                | existence of property |           |       |
+| Group       | -               | -                                 | -                     | -         | -     |
+| Users       | -               | -                                 | -                     | if custom | -     |
+
+
+
 ```mermaid
 ---
 title: Upload Order
@@ -92,16 +107,7 @@ stateDiagram-v2
 Users, properties and classes may depend on the existence of other classes and properties.
 If these dependencies were not successfully created, we do not need to try and upload it and generate additional errors.
 
-The dependencies are as follows:
-
-| Object Type | Lists           | Classes                           | Properties            | Group     | Users |
-|-------------|-----------------|-----------------------------------|-----------------------|-----------|-------|
-| List        | -               | -                                 | -                     | -         | -     |
-| Class       | -               | super-classes                     | -                     | -         | -     |
-| Properties  | list properties | object / subject class constraint | super-properties      | -         | -     |
-| Cardinality | -               | existence of class                | existence of property |           |       |
-| Group       | -               | -                                 | -                     | -         | -     |
-| Users       | -               | -                                 | -                     | if custom | -     |
+See the table above for the dependencies one object type may have and which checks are required.
 
 To minimise unnecessary HTTP calls and error messages,
 we will check if the dependencies were created before an upload in the following process.

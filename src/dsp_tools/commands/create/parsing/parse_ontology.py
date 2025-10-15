@@ -32,9 +32,18 @@ def _parse_classes(classes_list: list[dict[str, Any]]) -> tuple[list[ParsedClass
 
 
 def _parse_cardinalities(
-    classes_list: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
+    classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> tuple[list[ParsedClassCardinalities], list[InputProblem]]:
-    pass
+    parsed = []
+    failures = []
+    for c in classes_list:
+        if c.get("cardinalities"):
+            result = _parse_one_class_cardinality(c, current_onto_prefix, prefixes)
+            if isinstance(result, ParsedClassCardinalities):
+                parsed.append(result)
+            else:
+                failures.extend(result)
+    return parsed, failures
 
 
 def _parse_one_class_cardinality(

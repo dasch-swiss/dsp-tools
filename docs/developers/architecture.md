@@ -64,7 +64,12 @@ They are as follows:
 | Group       | -               | -                                 | -                     | -         | -     |
 | Users       | -               | -                                 | -                     | if custom | -     |
 
+While the Groups, Users and Lists and Cardinalities to do not have to be sorted "within", 
+the order of classes and properties are relevant as they may have dependencies on others.
 
+Note, that one project may have more than one ontology, 
+in that case it is permissible to reference classes and properties from the other ontologies.
+Therefore, we need to handle the classes of all ontologies first, before we may move on to the properties.
 
 ```mermaid
 ---

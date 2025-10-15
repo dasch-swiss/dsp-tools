@@ -11,6 +11,9 @@ class ParsedOntology:
     name: str
     label: str
     comment: str
+    classes: list[ParsedClass]
+    properties: list[ParsedProperty]
+    cardinalities: list[ParsedClassCardinalities]
 
 
 @dataclass
@@ -26,17 +29,18 @@ class ParsedProperty:
 @dataclass
 class ParsedClassCardinalities:
     class_iri: str
+    cards: list[ParsedPropertyCardinality]
 
 
 @dataclass
 class ParsedPropertyCardinality:
     propname: str
-    cardinality: str
-    gui_order: int
+    cardinality: Cardinality
+    gui_order: int | None
 
 
 class Cardinality(Enum):
     C_0_1 = auto()
     C_1 = auto()
-    C_1_N = auto()
     C_0_N = auto()
+    C_1_N = auto()

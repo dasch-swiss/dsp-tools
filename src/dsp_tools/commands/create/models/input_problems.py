@@ -17,7 +17,10 @@ class InputProblem:
 
 
 class ProblemType(StrEnum):
-    PREFIX_COULD_NOT_BE_RESOLVED = "The prefix used is not defined in the 'prefix' section of the file, nor does it belong to one of the project ontologies."
+    PREFIX_COULD_NOT_BE_RESOLVED = (
+        "The prefix used is not defined in the 'prefix' section of the file, "
+        "nor does it belong to one of the project ontologies."
+    )
 
 
 class ProblemHeader(StrEnum):

@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
 from unittests.commands.create.fixtures import KNORA_API
 from unittests.commands.create.fixtures import ONTO_PREFIX
@@ -27,6 +29,6 @@ class TestResolvePrefix:
             "inexistent:Cls",
         ],
     )
-    def test_fail(self, prefixed_iri, expected, prefixes):
+    def test_fail(self, prefixed_iri, prefixes):
         result = resolve_prefix(prefixed_iri, ONTO_PREFIX, prefixes)
         assert result is None

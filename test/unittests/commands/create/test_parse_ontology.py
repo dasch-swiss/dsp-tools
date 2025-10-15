@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def"
 
 from unittests.commands.create.fixtures import ONTO_PREFIX
 
@@ -23,7 +24,7 @@ class TestParseProperties:
 
 
 class TestParseClasses:
-    def test_good(self, prefixes):
+    def test_good(self):
         cls = {"detail": "to-be-implemented"}
         resources = {"resources": [cls]}
         parsed, problems = _parse_classes(resources)

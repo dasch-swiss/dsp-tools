@@ -1,9 +1,13 @@
-from typing import Any
 from pathlib import Path
+from typing import Any
+
+from loguru import logger
+
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
-from loguru import logger
-from dsp_tools.commands.create.models.parsed_project import ParsedProject, ParsedProjectMetadata
+
 
 def parse_project(project_file_as_path_or_parsed: str | Path | dict[str, Any]) -> ParsedProject:
     project_json = _parse_and_validate(project_file_as_path_or_parsed)
@@ -19,5 +23,3 @@ def _parse_and_validate(project_file_as_path_or_parsed: str | Path | dict[str, A
 
 def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
     pass
-
-

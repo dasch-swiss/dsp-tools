@@ -19,8 +19,17 @@ CARDINALITY_MAPPER = {
 }
 
 
-def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> ParsedOntology | CollectedProblems:
-    pass
+def parse_ontology(
+    ontology_json: dict[str, Any], prefixes: dict[str, str], onto_start: str
+) -> ParsedOntology | CollectedProblems:
+    current_onto = f"{onto_start}{ontology_json['name']}/v2#"
+    fails = []
+    props, prop_fails = _parse_properties(ontology_json["properties"])
+    fails.extend(prop_fails)
+    classes, cls_fail = _parse_classes(ontology_json["resources"])
+    fails.extend(cls_fail)
+    cards, card_fail = _parse_cardinalities(ontology_json["resources"], current_onto, prefixes)
+    fails.extend(card_fail)
 
 
 def _parse_properties(properties_list: list[dict[str, Any]]) -> tuple[list[ParsedProperty], list[InputProblem]]:

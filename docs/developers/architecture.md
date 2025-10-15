@@ -4,11 +4,13 @@
 
 ### Overview
 
+
 ```mermaid
 ---
 title: Overview of Code Flow for create
 ---
 stateDiagram-v2
+
 state "JSON Schema Validation" as val
 state "JSON File" as jsonFile1
 state "JSON File" as jsonFile2
@@ -22,46 +24,76 @@ state "ProcessedProject" as processedProj1
 
 state "Upload" as upload
 state "ProcessedProject" as processedProj2
+state "Upload all Information" as uploadAll
+
+state "Collected Creation Errors" as collErr
+state "Print Upload Failures Message" as printErr
+state "Print Success Message" as printSucc
+
+[*] --> val
+state val {
+    jsonFile1 --> [*]: error
+    jsonFile1 --> jsonFile2: success
+}
+
+state jsonPy {
+    jsonFile2 --> [*]: IRI resolving error
+    jsonFile2 --> parsedProj1: IRI resolving
+    parsedProj1-->parsedProj2
+} 
+
+state sortingDeps {
+    parsedProj2 --> [*]: dependencies could not be resolved
+    parsedProj2 --> processedProj1: finding dependencies<br/> generating upload order
+    processedProj1-->processedProj2
+}
+
+state upload {
+    processedProj2 --> uploadAll: upload all information
+    uploadAll --> collErr: collect errors on the way
+    collErr --> printErr: print all error messages
+    uploadAll --> printSucc: print success message
+}
+```
+
+```mermaid
+---
+title: Upload
+---
+stateDiagram-v2
+
+state "ProcessedProject" as processedProj
 state "Create Project" as crProj
 state "Create Groups" as crGr
-state "Creade Users" as crUser
+state "Create Users" as crUser
 state "Create Lists" as crLists
 state "Create Ontology & Classes" as crCls
 state "Create Properties" as crProp
 state "Create Cardinalities" as crCards
-
+state "Upload Finished" as upFini
 state "Collected Creation Errors" as collErr
+state "Print Upload Failures Message" as printErr
+state "Print Success Message" as printSucc
 
-[*]-->val
-state val {
-    jsonFile1-->jsonFile2: success
-    jsonFile1-->[*]: error
-}
+    processedProj --> crProj
+    crProj --> [*]: project creation error
+    crProj --> crGr
+    crGr --> crUser
+    crUser --> collErr
+    crUser --> crLists
+    crLists --> collErr
+    crLists-->crCls
+    crCls --> collErr
+    crCls --> crProp
+    crProp --> collErr
+    crProp --> crCards
+    crCards --> collErr
+    crCards-->upFini
+    upFini-->printErr: with errors
+    collErr-->printErr
+    upFini-->printSucc: no errors
 
-state jsonPy {
-}   jsonFile2-->[*]: IRI resolving error
-    jsonFile2-->parsedProj1: IRI resolving
 
-state sortingDeps {
-    parsedProj2-->[*]: dependencies could not be resolved
-    parsedProj2-->processedProj1: finding dependencies<br/> generating upload order
-}
-
-state upload {
-    processedProj1-->crProj
-    crProj-->[*]: project creation error
-    crProj-->crGr
-    crGr-->collErr: collect errors
-    crGr-->crUser
-    crUser-->collErr: collect errors
-    crUser-->crLists
-    crLists-->collErr: collect errors
-    crCls-->collErr: collect errors
-    crCls-->crProp
-    crProp-->collErr: collect errors
-    crProp-->crCards
-    crCards-->collErr: collect errors
-}
 ```
 
 

@@ -47,7 +47,9 @@ nav:
       - Developers documentation: developers/index.md
       - Running DSP locally: developers/start-stack.md
       - Architectural Decision Records: developers/decision-log.md
-      - Architectural Design: developers/architecture.md
+      - Architectural Design:
+          - XML Parsing and Processing: developers/architecture/xml-parsing-processing.md
+          - Create Command: developers/architecture/create-command.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md

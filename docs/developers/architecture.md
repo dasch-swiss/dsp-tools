@@ -2,10 +2,8 @@
 
 ## Code Flow For the `create` Command
 
-### Overview
-
-The JSON schema validation takes over a lot of validation, 
-therefore there are only minimal errors we may encounter a successful validation, 
+The JSON schema validation takes over a lot of validation,
+therefore there are only minimal errors we may encounter a successful validation,
 primarily relating to inexistent references to other objects that can be caused by typos.
 
 If the user provided incorrect input we do not try and extrapolate a fix but communicate the problem precisely
@@ -13,7 +11,7 @@ so that the user may easily fix it themselves.
 
 We aim for a fast-fail approach before we begin with the upload.
 If we have upload failures during the upload we will not stopp the entire process but continue to create as much of
-the project and ontologies as possible. 
+the project and ontologies as possible.
 The upload failures should be communicated at the end of an upload in a precise and user-friendly message.
 
 ```mermaid
@@ -120,7 +118,7 @@ stateDiagram-v2
     upFini --> printSucc: no errors
 ```
 
-Unless the upload stopped which is indicated by a circle, 
+Unless the upload stopped which is indicated by a circle,
 a failure in a previous step does not prevent the upload of the next object categories.
 The following section explains how we deal with dependencies that were not created.
 

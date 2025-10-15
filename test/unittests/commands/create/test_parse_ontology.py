@@ -1,12 +1,10 @@
-import pytest
+
+from unittests.commands.create.fixtures import ONTO_PREFIX
 
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-
-ONTO_PREFIX = "http://0.0.0.0:3333/ontology/8888/onto/v2#"
-
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalities
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
@@ -72,29 +70,3 @@ class TestParseCardinalities:
         assert isinstance(result, InputProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
-
-
-class TestResolvePrefix:
-    @pytest.mark.parametrize(
-        "prefixed_iri",
-        [
-            "",
-            "",
-            "",
-            "",
-        ],
-    )
-    def test_good(self, prefixed_iri, prefixes):
-        pass
-
-    @pytest.mark.parametrize(
-        "prefixed_iri",
-        [
-            "",
-            "",
-            "",
-            "",
-        ],
-    )
-    def test_fail(self, prefixed_iri, prefixes):
-        pass

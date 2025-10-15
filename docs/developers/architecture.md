@@ -9,50 +9,44 @@
 title: Overview of Code Flow for create
 ---
 stateDiagram-v2
+    state "JSON Schema Validation" as val
+    state "JSON File" as jsonFile1
+    state "JSON File" as jsonFile2
+    state "JSON into Python representation" as jsonPy
+    state "ParsedProject" as parsedProj1
+    state "ParsedProject" as parsedProj2
+    state "Sorting Dependencies" as sortingDeps
+    state "ProcessedProject" as processedProj1
+    state "Upload" as upload
+    state "ProcessedProject" as processedProj2
+    state "Upload all Information" as uploadAll
+    state "Collected Creation Errors" as collErr
+    state "Print Upload Failures Message" as printErr
+    state "Print Success Message" as printSucc
+    [*] --> val
+    state val {
+        jsonFile1 --> [*]: error
+        jsonFile1 --> jsonFile2: success
+    }
 
-state "JSON Schema Validation" as val
-state "JSON File" as jsonFile1
-state "JSON File" as jsonFile2
+    state jsonPy {
+        jsonFile2 --> [*]: IRI resolving error
+        jsonFile2 --> parsedProj1: IRI resolving
+        parsedProj1 --> parsedProj2
+    }
 
-state "JSON into Python representation" as jsonPy
-state "ParsedProject" as parsedProj1
-state "ParsedProject" as parsedProj2
+    state sortingDeps {
+        parsedProj2 --> [*]: dependencies could not be resolved
+        parsedProj2 --> processedProj1: finding dependencies<br/> generating upload order
+        processedProj1 --> processedProj2
+    }
 
-state "Sorting Dependencies" as sortingDeps
-state "ProcessedProject" as processedProj1
-
-state "Upload" as upload
-state "ProcessedProject" as processedProj2
-state "Upload all Information" as uploadAll
-
-state "Collected Creation Errors" as collErr
-state "Print Upload Failures Message" as printErr
-state "Print Success Message" as printSucc
-
-[*] --> val
-state val {
-    jsonFile1 --> [*]: error
-    jsonFile1 --> jsonFile2: success
-}
-
-state jsonPy {
-    jsonFile2 --> [*]: IRI resolving error
-    jsonFile2 --> parsedProj1: IRI resolving
-    parsedProj1-->parsedProj2
-} 
-
-state sortingDeps {
-    parsedProj2 --> [*]: dependencies could not be resolved
-    parsedProj2 --> processedProj1: finding dependencies<br/> generating upload order
-    processedProj1-->processedProj2
-}
-
-state upload {
-    processedProj2 --> uploadAll: upload all information
-    uploadAll --> collErr: collect errors on the way
-    collErr --> printErr: print all error messages
-    uploadAll --> printSucc: print success message
-}
+    state upload {
+        processedProj2 --> uploadAll: upload all information
+        uploadAll --> collErr: collect errors on the way
+        collErr --> printErr: print all error messages
+        uploadAll --> printSucc: print success message
+    }
 ```
 
 ## Upload Order to API
@@ -62,20 +56,18 @@ state upload {
 title: Upload Order
 ---
 stateDiagram-v2
-
-state "ProcessedProject" as processedProj
-state "Create Project" as crProj
-state "Create Groups" as crGr
-state "Create Users" as crUser
-state "Create Lists" as crLists
-state "Create Ontology & Classes" as crCls
-state "Create Properties" as crProp
-state "Create Cardinalities" as crCards
-state "Upload Finished" as upFini
-state "Collected Creation Errors" as collErr
-state "Print Upload Failures Message" as printErr
-state "Print Success Message" as printSucc
-
+    state "ProcessedProject" as processedProj
+    state "Create Project" as crProj
+    state "Create Groups" as crGr
+    state "Create Users" as crUser
+    state "Create Lists" as crLists
+    state "Create Ontology & Classes" as crCls
+    state "Create Properties" as crProp
+    state "Create Cardinalities" as crCards
+    state "Upload Finished" as upFini
+    state "Collected Creation Errors" as collErr
+    state "Print Upload Failures Message" as printErr
+    state "Print Success Message" as printSucc
     processedProj --> crProj
     crProj --> [*]: project creation error
     crProj --> crGr
@@ -83,56 +75,67 @@ state "Print Success Message" as printSucc
     crUser --> collErr
     crUser --> crLists
     crLists --> collErr
-    crLists-->crCls
+    crLists --> crCls
     crCls --> collErr
     crCls --> crProp
     crProp --> collErr
     crProp --> crCards
     crCards --> collErr
-    crCards-->upFini
-    upFini-->printErr: with errors
-    collErr-->printErr
-    upFini-->printSucc: no errors
+    crCards --> upFini
+    upFini --> printErr: with errors
+    collErr --> printErr
+    upFini --> printSucc: no errors
 ```
-
 
 ## Upload Mechanism
 
 Users, properties and classes may depend on the existence of other classes and properties.
 If these dependencies were not successfully created, we do not need to try and upload it and generate additional errors.
 
+The dependencies are as follows:
+
+| Object Type | Lists           | Classes                           | Properties            | Group     | Users |
+|-------------|-----------------|-----------------------------------|-----------------------|-----------|-------|
+| List        | -               | -                                 | -                     | -         | -     |
+| Class       | -               | super-classes                     | -                     | -         | -     |
+| Properties  | list properties | object / subject class constraint | super-properties      | -         | -     |
+| Cardinality | -               | existence of class                | existence of property |           |       |
+| Group       | -               | -                                 | -                     | -         | -     |
+| Users       | -               | -                                 | -                     | if custom | -     |
+
+To minimise unnecessary HTTP calls and error messages,
+we will check if the dependencies were created before an upload in the following process.
+
 ```mermaid
 ---
 title: Upload Mechanism
 ---
 stateDiagram-v2
+    state "Processing one Object" as preUp
+    state "Object" as preObj
+    state "dependency failed" as checkFail1
+    state "FailureCollection" as checkFail2
+    state "dependency exists" as checkSucc
+    state "Upload" as upload
+    state "Object" as upObj
+    state "Failure" as upFail
+    state "Success" as upSucc
+    state "FailureCollection" as upFailColl
+    state "SuccessCollection" as upSuccColl
 
-state "Processing one Object" as preUp
-state "Object" as preObj
-state "dependency failed" as checkFail1
-state "FailureCollection" as checkFail2
-state "dependency exists" as checkSucc
+    state preUp {
+        preObj --> checkFail1: dependencies in failures
+        checkFail1 --> checkFail2: add to failures
+        preObj --> checkSucc: dependencies successfully uploaded
+        checkSucc --> upload: continue upload
+    }
 
-state "Upload" as upload
-state "Object" as upObj
-state "Failure" as upFail
-state "Success" as upSucc
-state "FailureCollection" as upFailColl
-state "SuccessCollection" as upSuccColl
-
-state preUp {
-    preObj-->checkFail1: dependencies in failures
-    checkFail1-->checkFail2: add to failures
-    preObj --> checkSucc: dependencies successfully uploaded
-    checkSucc --> upload: continue upload
-}
-
-state upload {
-    upObj --> upFail: upload failed
-    upFail --> upFailColl: add
-    upObj --> upSucc: upload success
-    upSucc --> upSuccColl: add
-}
+    state upload {
+        upObj --> upFail: upload failed
+        upFail --> upFailColl: add
+        upObj --> upSucc: upload success
+        upSucc --> upSuccColl: add
+    }
 ```
 
 ## Parsing XML Files and Transformations for `xmlupload` and `validate-data`
@@ -144,38 +147,36 @@ state upload {
 title: Overview of Code Flow for xmlupload and validate-data
 ---
 stateDiagram-v2
-
-state "etree Root" as eroot1
-state "etree Root" as eroot2
-state "etree Root" as eroot3
-state "Root Modifications" as rootwork
-state "etree Into Python Representation" as pywork
-state "CLI: xmlupload" as processed
-state "ParsedResource" as parsedres1
-state "ParsedResource" as parsedres2
-state "ParsedResource" as parsedres3
-state "ProcessedResource" as Processedres
-state "CLI: validate-data" as valdata
-
-[*]-->eroot1
-state rootwork {
-    eroot1-->eroot2: xsd validation success
-    eroot1-->[*]: xsd validation error raised
-}
-eroot2-->pywork
-state pywork {
-    eroot3-->parsedres1: processed representation
-}
-pywork-->processed
-state processed {
-    valdata-->[*]: validation failure
-    valdata-->parsedres2: validation success
-    parsedres2-->Processedres: resolve data
-}
-pywork-->valdata
-state valdata {
-    parsedres3-->RdfLikeResource: processing
-}
+    state "etree Root" as eroot1
+    state "etree Root" as eroot2
+    state "etree Root" as eroot3
+    state "Root Modifications" as rootwork
+    state "etree Into Python Representation" as pywork
+    state "CLI: xmlupload" as processed
+    state "ParsedResource" as parsedres1
+    state "ParsedResource" as parsedres2
+    state "ParsedResource" as parsedres3
+    state "ProcessedResource" as Processedres
+    state "CLI: validate-data" as valdata
+    [*] --> eroot1
+    state rootwork {
+        eroot1 --> eroot2: xsd validation success
+        eroot1 --> [*]: xsd validation error raised
+    }
+    eroot2 --> pywork
+    state pywork {
+        eroot3 --> parsedres1: processed representation
+    }
+    pywork --> processed
+    state processed {
+        valdata --> [*]: validation failure
+        valdata --> parsedres2: validation success
+        parsedres2 --> Processedres: resolve data
+    }
+    pywork --> valdata
+    state valdata {
+        parsedres3 --> RdfLikeResource: processing
+    }
 ```
 
 ### Parsing XML Files
@@ -187,49 +188,46 @@ state valdata {
 title: Parsing of XML File and Transformations Into ParsedResource
 ---
 stateDiagram-v2
-state "Transform etree Root" as eroot
-state "Transform etree Root Into Python Representation" as transpy
-state "Resource etree" as resetree1
-state "ParsedResource" as respars
-state "Value etree" as valtree
-state "IIIF/bitstream etree" as filetree
-state "ParsedValue" as valpars
-state "ParsedFileValue" as filepars
-state "Transform Value" as transval
-state "Transform FileValue" as transfile
-
-[*]-->r1: Parse file
-
-r4-->transpy
+    state "Transform etree Root" as eroot
+    state "Transform etree Root Into Python Representation" as transpy
+    state "Resource etree" as resetree1
+    state "ParsedResource" as respars
+    state "Value etree" as valtree
+    state "IIIF/bitstream etree" as filetree
+    state "ParsedValue" as valpars
+    state "ParsedFileValue" as filepars
+    state "Transform Value" as transval
+    state "Transform FileValue" as transfile
+    [*] --> r1: Parse file
+    r4 --> transpy
     state eroot {
         state "etree root" as r1
         state "etree root" as r2
         state "etree root" as r3
         state "etree root" as r4
-        r1-->r2: Remove Comments
-        r2-->[*]: xsd validation failure
-        r2-->r3: xsd validation success
-        r3-->r4: make localnames
+        r1 --> r2: Remove Comments
+        r2 --> [*]: xsd validation failure
+        r2 --> r3: xsd validation success
+        r3 --> r4: make localnames
     }
     state transpy {
-        resetree1-->transval: extract values
-        resetree1-->transfile: extract file or iiif
-        resetree1-->respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
+        resetree1 --> transval: extract values
+        resetree1 --> transfile: extract file or iiif
+        resetree1 --> respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
 
         state transval {
-            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>resolve value type to Python Class<br/><br/>strip whitespaces from content
+            valtree --> valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>resolve value type to Python Class<br/><br/>strip whitespaces from content
         }
-        transval-->respars: add to resource
+        transval --> respars: add to resource
 
         state transfile {
-            filetree-->filepars: resolve file type<br/><br/>strip whitespaces from content
+            filetree --> filepars: resolve file type<br/><br/>strip whitespaces from content
         }
-        transfile-->respars: add to resource
+        transfile --> respars: add to resource
     }
 ```
 
 <!-- markdownlint-enable MD013 -->
-
 
 ### From `ParsedResource` to `ProcessedResource` in `xmlupload`
 
@@ -238,32 +236,30 @@ r4-->transpy
 title: Transformations from ParsedResource for xmlupload
 ---
 stateDiagram-v2
-
-state "Process Resource" as processedres
-state "Process Value" as processedationval
-state "Process FileValues" as processedfile
-state "ParsedValue" as parsedval
-state "ParsedResource" as parsedres
-state "ProcessedValue" as valdes
-state "Continue" as cont
-
-parsedres-->processedfile
-parsedres-->processedationval
-parsedres-->processedres
-state processedres {
-    ParsedResource-->Permissions: resolve permissions
-}
-state processedationval {
-    parsedval-->valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
-}
-state processedfile {
-    ParsedFileValue-->ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
-}
-processedres-->ProcessedResource: return result
-processedationval-->ProcessedResource: return result
-processedfile-->ProcessedResource: return result
-ProcessedResource--> cont: success
-ProcessedResource-->[*]: unexpected transformation failure
+    state "Process Resource" as processedres
+    state "Process Value" as processedationval
+    state "Process FileValues" as processedfile
+    state "ParsedValue" as parsedval
+    state "ParsedResource" as parsedres
+    state "ProcessedValue" as valdes
+    state "Continue" as cont
+    parsedres --> processedfile
+    parsedres --> processedationval
+    parsedres --> processedres
+    state processedres {
+        ParsedResource --> Permissions: resolve permissions
+    }
+    state processedationval {
+        parsedval --> valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
+    }
+    state processedfile {
+        ParsedFileValue --> ProcessedFileValue: resolve permissions<br/><br/>resolve metadata
+    }
+    processedres --> ProcessedResource: return result
+    processedationval --> ProcessedResource: return result
+    processedfile --> ProcessedResource: return result
+    ProcessedResource --> cont: success
+    ProcessedResource --> [*]: unexpected transformation failure
 ```
 
 ## `validate-data` Validation Logic
@@ -272,20 +268,18 @@ ProcessedResource-->[*]: unexpected transformation failure
 
 ```mermaid
 stateDiagram-v2
-
-state "XSD validation" as XSD
-state "<b>STOP<b>" as stopXSD
-state "Check for Unknown Classes<br>(Python Logic)" as unknownCls
-state "<b>STOP<b>" as stopUnknown
-state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
-state "<b>STOP<b>" as ontoViolation
-state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
-state "Check for Duplicate Filepaths<br>(Python Logic)" as duplicFile
-state "severity: WARNING" as warning
-state "severity: INFO" as info
-state "severity: ERROR" as err
-state "Data Validation<br>(SHACL-CLI)" as dataSH
-
+    state "XSD validation" as XSD
+    state "<b>STOP<b>" as stopXSD
+    state "Check for Unknown Classes<br>(Python Logic)" as unknownCls
+    state "<b>STOP<b>" as stopUnknown
+    state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
+    state "<b>STOP<b>" as ontoViolation
+    state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
+    state "Check for Duplicate Filepaths<br>(Python Logic)" as duplicFile
+    state "severity: WARNING" as warning
+    state "severity: INFO" as info
+    state "severity: ERROR" as err
+    state "Data Validation<br>(SHACL-CLI)" as dataSH
     [*] --> XSD
     XSD --> stopXSD: validation failure
     XSD --> unknownCls: success
@@ -306,7 +300,7 @@ state "Data Validation<br>(SHACL-CLI)" as dataSH
 
 The validation success, i.e. if an `xmlupload` would be possible and is allowed to continue, is dependent on the server.
 
-Some validation problems are allowed on test environments (including localhost), 
+Some validation problems are allowed on test environments (including localhost),
 while the "prod-like" servers are stricter.
 Prod like servers include prod, ls-prod, stage, and rdu-stage.
 

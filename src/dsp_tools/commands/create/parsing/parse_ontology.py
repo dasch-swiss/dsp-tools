@@ -21,31 +21,27 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     pass
 
 
-def _parse_properties(
-    properties_json: dict[str, Any], onto_iri: str, prefixes: dict[str, str]
-) -> tuple[list[ParsedProperty], list[InputProblem]]:
+def _parse_properties(properties_json: dict[str, Any]) -> tuple[list[ParsedProperty], list[InputProblem]]:
     pass
 
 
-def _parse_classes(
-    classes_json: dict[str, Any], onto_iri: str, prefixes: dict[str, str]
-) -> tuple[list[ParsedClass], list[InputProblem]]:
+def _parse_classes(classes_json: dict[str, Any]) -> tuple[list[ParsedClass], list[InputProblem]]:
     pass
 
 
 def _parse_cardinalities(
-    classes_json: dict[str, Any], onto_iri: str, prefixes: dict[str, str]
+    classes_json: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> tuple[list[ParsedClassCardinalities], list[InputProblem]]:
     pass
 
 
 def _parse_one_class_cardinality(
-    cls_json: dict[str, Any], onto_iri: str, prefixes: dict[str, str]
+    cls_json: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedClassCardinalities | list[InputProblem]:
     pass
 
 
 def _parse_one_cardinality(
-    card_json: dict[str, str], onto_iri: str, prefixes: dict[str, str]
+    card_json: dict[str, str], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedPropertyCardinality | InputProblem:
     pass

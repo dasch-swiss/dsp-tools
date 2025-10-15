@@ -41,6 +41,12 @@ class TestParseClasses:
 
 
 class TestParseCardinalities:
+    def test_parse_one_class_cardinality_with_cards(self):
+        pass
+
+    def test_parse_one_class_cardinality_no_cards(self):
+        pass
+
     def test_0_1(self, prefixes):
         card = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}
         result = _parse_cardinalities(card, ONTO_PREFIX, prefixes)

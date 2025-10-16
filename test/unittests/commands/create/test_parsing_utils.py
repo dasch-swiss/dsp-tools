@@ -3,8 +3,32 @@
 import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
+
+EXTERNAL_PREFIXES = {
+    "wrong-ending": "http://wrong-ending.org/onto",
+    "with-slash": "http://with-slash.org/onto/",
+    "with-hashtag": "http://with-hashtag.org/onto#",
+}
+
+
+class TestPrefixLookup:
+    def test_with_prefixes(self):
+        project_json = {
+            "prefixes": EXTERNAL_PREFIXES,
+            "project": {"shortcode": "8888", "ontologies": [{"name": "onto"}]},
+        }
+        expected = {}
+        result = create_prefix_lookup(project_json, "http://0.0.0.0:3333")
+        assert result == expected
+
+    def test_without_prefixes(self):
+        project_json = {"project": {"shortcode": "8888", "ontologies": [{"name": "onto1"}, {"name": "onto2"}]}}
+        expected = {}
+        result = create_prefix_lookup(project_json, "http://0.0.0.0:3333")
+        assert result == expected
 
 
 class TestResolveToAbsoluteIri:

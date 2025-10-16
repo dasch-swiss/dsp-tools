@@ -22,22 +22,51 @@ CARDINALITY_MAPPER = {
 def parse_ontology(
     ontology_json: dict[str, Any], prefixes: dict[str, str], onto_start: str
 ) -> ParsedOntology | CollectedProblems:
-    current_onto = f"{onto_start}{ontology_json['name']}/v2#"
+    onto_name = ontology_json["name"]
+    current_onto = prefixes[onto_name]
     fails = []
-    props, prop_fails = _parse_properties(ontology_json["properties"])
+    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes)
     fails.extend(prop_fails)
-    classes, cls_fail = _parse_classes(ontology_json["resources"])
+    classes, cls_fail = _parse_classes(ontology_json["resources"], current_onto, prefixes)
     fails.extend(cls_fail)
     cards, card_fail = _parse_cardinalities(ontology_json["resources"], current_onto, prefixes)
     fails.extend(card_fail)
+    if fails:
+        return CollectedProblems(f"During the parsing of the ontology '{onto_name}' the following errors occurred:", fails)
+    return ParsedOntology(
+        name=onto_name,
+        label=ontology_json["label"],
+        comment=ontology_json["comment"],
+        classes=classes,
+        properties=props,
+        cardinalities=cards
+    )
 
 
-def _parse_properties(properties_list: list[dict[str, Any]]) -> tuple[list[ParsedProperty], list[InputProblem]]:
-    return [ParsedProperty(x) for x in properties_list], []
+def _parse_properties(
+    properties_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
+) -> tuple[list[ParsedProperty], list[InputProblem]]:
+    parsed = []
+    failures = []
+    for prop in properties_list:
+        if not (resolved := resolve_prefix(prop["name"], current_onto_prefix, prefixes)):
+            failures.append(InputProblem(prop["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
+        else:
+            parsed.append(ParsedProperty(resolved, prop))
+    return parsed, failures
 
 
-def _parse_classes(classes_list: list[dict[str, Any]]) -> tuple[list[ParsedClass], list[InputProblem]]:
-    return [ParsedClass(x) for x in classes_list], []
+def _parse_classes(
+    classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
+) -> tuple[list[ParsedClass], list[InputProblem]]:
+    parsed = []
+    failures = []
+    for cls in classes_list:
+        if not (resolved := resolve_prefix(cls["name"], current_onto_prefix, prefixes)):
+            failures.append(InputProblem(cls["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
+        else:
+            parsed.append(ParsedClass(resolved, cls))
+    return parsed, failures
 
 
 def _parse_cardinalities(

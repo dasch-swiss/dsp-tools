@@ -45,4 +45,5 @@ class ParsedUser:
 
 @dataclass
 class ParsedList:
+    name: str
     info: dict[str, Any]

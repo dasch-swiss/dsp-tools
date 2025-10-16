@@ -18,11 +18,13 @@ class ParsedOntology:
 
 @dataclass
 class ParsedClass:
+    name: str
     info: dict[str, Any]
 
 
 @dataclass
 class ParsedProperty:
+    name: str
     info: dict[str, Any]
 
 

@@ -6,7 +6,7 @@ from enum import StrEnum
 
 @dataclass
 class CollectedProblems:
-    header: ProblemHeader
+    header: str
     problems: list[InputProblem]
 
 
@@ -22,6 +22,3 @@ class ProblemType(StrEnum):
         "nor does it belong to one of the project ontologies."
     )
 
-
-class ProblemHeader(StrEnum):
-    JSON_PARSING = "During the parsing of the JSON file, the following problem(s) occurred."

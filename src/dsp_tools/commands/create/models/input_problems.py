@@ -21,4 +21,3 @@ class ProblemType(StrEnum):
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."
     )
-

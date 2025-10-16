@@ -19,9 +19,7 @@ CARDINALITY_MAPPER = {
 }
 
 
-def parse_ontology(
-    ontology_json: dict[str, Any], prefixes: dict[str, str], onto_start: str
-) -> ParsedOntology | CollectedProblems:
+def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> ParsedOntology | CollectedProblems:
     onto_name = ontology_json["name"]
     current_onto = prefixes[onto_name]
     fails = []
@@ -32,14 +30,16 @@ def parse_ontology(
     cards, card_fail = _parse_cardinalities(ontology_json["resources"], current_onto, prefixes)
     fails.extend(card_fail)
     if fails:
-        return CollectedProblems(f"During the parsing of the ontology '{onto_name}' the following errors occurred:", fails)
+        return CollectedProblems(
+            f"During the parsing of the ontology '{onto_name}' the following errors occurred:", fails
+        )
     return ParsedOntology(
         name=onto_name,
         label=ontology_json["label"],
         comment=ontology_json["comment"],
         classes=classes,
         properties=props,
-        cardinalities=cards
+        cardinalities=cards,
     )
 
 

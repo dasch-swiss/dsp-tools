@@ -1,10 +1,10 @@
 # mypy: disable-error-code="no-untyped-def"
 
 import pytest
-from unittests.commands.create.fixtures import KNORA_API
-from unittests.commands.create.fixtures import ONTO_PREFIX
 
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefix
+from test.unittests.commands.create.fixtures import KNORA_API
+from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 
 class TestResolvePrefix:

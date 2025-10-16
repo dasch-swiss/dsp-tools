@@ -1,8 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
 
-from unittests.commands.create.fixtures import KNORA_API
-from unittests.commands.create.fixtures import ONTO_PREFIX
-
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -13,6 +10,8 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
+from test.unittests.commands.create.fixtures import KNORA_API
+from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 
 class TestParseOntology:
@@ -59,7 +58,7 @@ class TestParseCardinalities:
         pass
 
     def test_0_1(self, prefixes):
-        card = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}
+        card: dict[str, str | int] = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedPropertyCardinality)
         assert result.propname == f"{ONTO_PREFIX}testBoolean"
@@ -67,7 +66,7 @@ class TestParseCardinalities:
         assert result.gui_order == 0
 
     def test_1(self, prefixes):
-        card = {"propname": "onto:testBoolean", "cardinality": "1", "gui_order": 3}
+        card: dict[str, str | int] = {"propname": "onto:testBoolean", "cardinality": "1", "gui_order": 3}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedPropertyCardinality)
         assert result.propname == f"{ONTO_PREFIX}testBoolean"
@@ -75,7 +74,7 @@ class TestParseCardinalities:
         assert result.gui_order == 3
 
     def test_0_n(self, prefixes):
-        card = {"propname": ":testBoolean", "cardinality": "0-n"}
+        card: dict[str, str | int] = {"propname": ":testBoolean", "cardinality": "0-n"}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedPropertyCardinality)
         assert result.propname == f"{ONTO_PREFIX}testBoolean"
@@ -83,7 +82,7 @@ class TestParseCardinalities:
         assert result.gui_order is None
 
     def test_1_n(self, prefixes):
-        card = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
+        card: dict[str, str | int] = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedPropertyCardinality)
         assert result.propname == f"{KNORA_API}seqnum"
@@ -91,7 +90,7 @@ class TestParseCardinalities:
         assert result.gui_order == 2
 
     def test_fail(self, prefixes):
-        card = {"propname": "inexistent:prefix", "cardinality": "1-n", "gui_order": 2}
+        card: dict[str, str | int] = {"propname": "inexistent:prefix", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)
         assert isinstance(result, InputProblem)
         assert result.problematic_object == "inexistent:prefix"

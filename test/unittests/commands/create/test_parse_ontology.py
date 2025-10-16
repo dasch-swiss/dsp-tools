@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -12,7 +13,6 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinal
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_class_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from test.unittests.commands.create.fixtures import KNORA_API
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 

@@ -5,10 +5,10 @@ from typing import Any
 
 import pytest
 
+from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.utils.json_parsing import parse_json_file
 
 ONTO_PREFIX = "http://0.0.0.0:3333/ontology/8888/onto/v2#"
-KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
 
 
 @pytest.fixture

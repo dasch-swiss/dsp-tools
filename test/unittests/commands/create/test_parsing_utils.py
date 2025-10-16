@@ -2,8 +2,8 @@
 
 import pytest
 
+from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefix
-from test.unittests.commands.create.fixtures import KNORA_API
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 

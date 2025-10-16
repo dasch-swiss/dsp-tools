@@ -3,7 +3,7 @@
 import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API
-from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefixed_iri
+from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 
@@ -20,7 +20,7 @@ class TestResolvePrefix:
         ],
     )
     def test_good(self, prefixed_iri, expected, prefixes):
-        result = resolve_prefixed_iri(prefixed_iri, ONTO_PREFIX, prefixes)
+        result = resolve_to_absolute_iri(prefixed_iri, ONTO_PREFIX, prefixes)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -30,5 +30,5 @@ class TestResolvePrefix:
         ],
     )
     def test_fail(self, prefixed_iri, prefixes):
-        result = resolve_prefixed_iri(prefixed_iri, ONTO_PREFIX, prefixes)
+        result = resolve_to_absolute_iri(prefixed_iri, ONTO_PREFIX, prefixes)
         assert result is None

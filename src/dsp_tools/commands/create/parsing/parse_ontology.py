@@ -10,7 +10,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefixed_iri
+from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 
 CARDINALITY_MAPPER = {
     "0-1": Cardinality.C_0_1,
@@ -98,7 +98,7 @@ def _parse_one_cardinality(
     card_json: dict[str, str | int], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedPropertyCardinality | InputProblem:
     prp_name = cast(str, card_json["propname"])
-    if not (resolved := resolve_prefixed_iri(prp_name, current_onto_prefix, prefixes)):
+    if not (resolved := resolve_to_absolute_iri(prp_name, current_onto_prefix, prefixes)):
         return InputProblem(prp_name, ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
     gui = cast(int | None, card_json.get("gui_order"))
     return ParsedPropertyCardinality(

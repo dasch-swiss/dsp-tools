@@ -2,7 +2,7 @@ from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.utils.data_formats.uri_util import is_uri
 
 
-def resolve_prefixed_iri(prefixed: str, current_onto: str, prefix_lookup: dict[str, str]) -> str | None:
+def resolve_to_absolute_iri(prefixed: str, current_onto: str, prefix_lookup: dict[str, str]) -> str | None:
     if is_uri(prefixed):
         return prefixed
     if prefixed.startswith(":"):

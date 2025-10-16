@@ -12,6 +12,40 @@ ONTO_PREFIX = "http://0.0.0.0:3333/ontology/8888/onto/v2#"
 
 
 @pytest.fixture
+def project_json_systematic() -> dict[str, Any]:
+    """Load the systematic test project which has groups, users, and permissions_overrule"""
+    return parse_json_file(Path("testdata/json-project/test-project-systematic.json"))
+
+
+@pytest.fixture
+def project_json_create() -> dict[str, Any]:
+    """Load the create-project.json which has lists but no groups/users"""
+    return parse_json_file(Path("testdata/json-project/create-project.json"))
+
+
+@pytest.fixture
+def minimal_project_json() -> dict[str, Any]:
+    """Minimal valid project JSON for testing edge cases"""
+    return {
+        "shortcode": "9999",
+        "shortname": "minimal",
+        "longname": "Minimal Test Project",
+        "descriptions": {"en": "A minimal project"},
+        "keywords": ["test"],
+        "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
+        "default_permissions": "public",
+        "ontologies": [
+            {
+                "name": "minimal-onto",
+                "label": "Minimal Ontology",
+                "properties": [],
+                "resources": [],
+            }
+        ],
+    }
+
+
+@pytest.fixture
 def prefixes() -> dict[str, str]:
     return {
         "foaf": "http://xmlns.com/foaf/0.1/",
@@ -24,10 +58,5 @@ def prefixes() -> dict[str, str]:
 
 
 @pytest.fixture
-def project() -> dict[str, Any]:
-    return parse_json_file(Path("testdata/json-project/create-project.json"))
-
-
-@pytest.fixture
-def onto_json(project):
-    return project["project"]["ontologies"][0]
+def onto_json(project_json_create):
+    return project_json_create["project"]["ontologies"][0]

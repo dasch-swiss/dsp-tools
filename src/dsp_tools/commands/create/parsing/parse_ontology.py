@@ -36,7 +36,7 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     return ParsedOntology(
         name=onto_name,
         label=ontology_json["label"],
-        comment=ontology_json["comment"],
+        comment=ontology_json.get("comment"),
         classes=classes,
         properties=props,
         cardinalities=cards,

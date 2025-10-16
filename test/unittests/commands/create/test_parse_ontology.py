@@ -27,9 +27,10 @@ class TestParseOntology:
             "properties": [],
             "resources": [
                 {
-                    "name": "inexistent:TestArchiveRepresentation",
+                    "name": "TestArchiveRepresentation",
                     "super": "ArchiveRepresentation",
                     "labels": {"en": "ArchiveRepresentation"},
+                    "cardinalities": [{"propname": "inexistent:testSimpleText", "cardinality": "0-n"}],
                 }
             ],
         }

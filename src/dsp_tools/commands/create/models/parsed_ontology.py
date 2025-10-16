@@ -10,7 +10,7 @@ from typing import Any
 class ParsedOntology:
     name: str
     label: str
-    comment: str
+    comment: str | None
     classes: list[ParsedClass]
     properties: list[ParsedProperty]
     cardinalities: list[ParsedClassCardinalities]

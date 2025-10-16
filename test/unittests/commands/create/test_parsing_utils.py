@@ -20,13 +20,23 @@ class TestPrefixLookup:
             "prefixes": EXTERNAL_PREFIXES,
             "project": {"shortcode": "8888", "ontologies": [{"name": "onto"}]},
         }
-        expected = {}
+        expected = {
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "onto": "http://0.0.0.0:3333/ontology/8888/onto/v2#",
+            "with-hashtag": "http://with-hashtag.org/onto#",
+            "with-slash": "http://with-slash.org/onto/",
+            "wrong-ending": "http://wrong-ending.org/onto/",
+        }
         result = create_prefix_lookup(project_json, "http://0.0.0.0:3333")
         assert result == expected
 
     def test_without_prefixes(self):
         project_json = {"project": {"shortcode": "8888", "ontologies": [{"name": "onto1"}, {"name": "onto2"}]}}
-        expected = {}
+        expected = {
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "onto1": "http://0.0.0.0:3333/ontology/8888/onto1/v2#",
+            "onto2": "http://0.0.0.0:3333/ontology/8888/onto2/v2#",
+        }
         result = create_prefix_lookup(project_json, "http://0.0.0.0:3333")
         assert result == expected
 

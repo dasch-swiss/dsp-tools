@@ -23,7 +23,8 @@ def create_prefix_lookup(project_json: dict[str, Any], api_url: str) -> dict[str
     defined_prefixes = project_json.get("prefixes", {})
     defined_prefixes = _correct_external_prefix(defined_prefixes)
     shortcode = project_json["project"]["shortcode"]
-    for onto in project_json["ontologies"]:
+    defined_prefixes["knora-api"] = KNORA_API
+    for onto in project_json["project"]["ontologies"]:
         onto_name = onto["name"]
         defined_prefixes[onto_name] = _make_dsp_ontology_prefix(api_url, shortcode, onto_name)
     return defined_prefixes

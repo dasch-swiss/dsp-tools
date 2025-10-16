@@ -3,6 +3,8 @@
 import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.constants import SALSAH_GUI
+from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
@@ -11,7 +13,7 @@ EXTERNAL_PREFIXES = {
     "wrong-ending": "http://wrong-ending.org/onto",
     "with-slash": "http://with-slash.org/onto/",
     "with-hashtag": "http://with-hashtag.org/onto#",
-}
+} | UNIVERSAL_PREFIXES
 
 
 class TestPrefixLookup:
@@ -21,7 +23,8 @@ class TestPrefixLookup:
             "project": {"shortcode": "8888", "ontologies": [{"name": "onto"}]},
         }
         expected = {
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "knora-api": KNORA_API,
+            "salsah-gui": SALSAH_GUI,
             "onto": "http://0.0.0.0:3333/ontology/8888/onto/v2#",
             "with-hashtag": "http://with-hashtag.org/onto#",
             "with-slash": "http://with-slash.org/onto/",
@@ -33,7 +36,8 @@ class TestPrefixLookup:
     def test_without_prefixes(self):
         project_json = {"project": {"shortcode": "8888", "ontologies": [{"name": "onto1"}, {"name": "onto2"}]}}
         expected = {
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "knora-api": KNORA_API,
+            "salsah-gui": SALSAH_GUI,
             "onto1": "http://0.0.0.0:3333/ontology/8888/onto1/v2#",
             "onto2": "http://0.0.0.0:3333/ontology/8888/onto2/v2#",
         }

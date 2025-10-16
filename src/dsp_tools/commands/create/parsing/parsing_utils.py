@@ -1,7 +1,7 @@
 from dsp_tools.commands.create.constants import KNORA_API
 
 
-def resolve_prefix(prefixed: str, current_onto: str, prefix_lookup: dict[str, str]) -> str | None:
+def resolve_prefixed_iri(prefixed: str, current_onto: str, prefix_lookup: dict[str, str]) -> str | None:
     if prefixed.startswith(":"):
         return f"{current_onto}{prefixed.lstrip(':')}"
     segments = prefixed.split(":", maxsplit=1)

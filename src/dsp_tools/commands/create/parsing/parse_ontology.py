@@ -9,7 +9,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefix
+from dsp_tools.commands.create.parsing.parsing_utils import resolve_prefixed_iri
 
 CARDINALITY_MAPPER = {
     "0-1": Cardinality.C_0_1,
@@ -49,7 +49,7 @@ def _parse_properties(
     parsed = []
     failures = []
     for prop in properties_list:
-        if not (resolved := resolve_prefix(prop["name"], current_onto_prefix, prefixes)):
+        if not (resolved := resolve_prefixed_iri(prop["name"], current_onto_prefix, prefixes)):
             failures.append(InputProblem(prop["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
         else:
             parsed.append(ParsedProperty(resolved, prop))
@@ -62,7 +62,7 @@ def _parse_classes(
     parsed = []
     failures = []
     for cls in classes_list:
-        if not (resolved := resolve_prefix(cls["name"], current_onto_prefix, prefixes)):
+        if not (resolved := resolve_prefixed_iri(cls["name"], current_onto_prefix, prefixes)):
             failures.append(InputProblem(cls["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
         else:
             parsed.append(ParsedClass(resolved, cls))
@@ -104,7 +104,7 @@ def _parse_one_class_cardinality(
 def _parse_one_cardinality(
     card_json: dict[str, str | int], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedPropertyCardinality | InputProblem:
-    if not (resolved := resolve_prefix(card_json["propname"], current_onto_prefix, prefixes)):
+    if not (resolved := resolve_prefixed_iri(card_json["propname"], current_onto_prefix, prefixes)):
         return InputProblem(card_json["propname"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
     return ParsedPropertyCardinality(
         propname=resolved,

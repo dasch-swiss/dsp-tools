@@ -76,7 +76,7 @@ class TestParseCardinalities:
         assert len(parsed) == 1
         assert len(failures) == 0
         result = parsed.pop(0)
-        assert result.class_iri == f"{KNORA_API}TestArchiveRepresentation"
+        assert result.class_iri == f"{ONTO_PREFIX}TestArchiveRepresentation"
         assert len(result.cards) == 1
 
     def test_parse_cardinalities_no_cards(self, prefixes):
@@ -100,8 +100,9 @@ class TestParseCardinalities:
         assert len(parsed) == 0
         assert len(failures) == 1
         result = failures.pop(0)
-        assert isinstance(result, list)
-        assert len(result) == 1
+        assert isinstance(result, InputProblem)
+        assert result.problematic_object == "inexistent:testSimpleText"
+        assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
     def test_0_1(self, prefixes):
         card = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}

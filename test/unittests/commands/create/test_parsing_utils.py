@@ -7,7 +7,7 @@ from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_
 from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 
-class TestResolvePrefix:
+class TestResolveToAbsoluteIri:
     @pytest.mark.parametrize(
         ("prefixed_iri", "expected"),
         [

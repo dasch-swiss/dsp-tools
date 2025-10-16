@@ -44,28 +44,22 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
 
 
 def _parse_properties(
-    properties_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
+    properties_list: list[dict[str, Any]], current_onto_prefix: str
 ) -> tuple[list[ParsedProperty], list[InputProblem]]:
     parsed = []
     failures = []
     for prop in properties_list:
-        if not (resolved := resolve_prefixed_iri(prop["name"], current_onto_prefix, prefixes)):
-            failures.append(InputProblem(prop["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
-        else:
-            parsed.append(ParsedProperty(resolved, prop))
+        parsed.append(ParsedProperty(f"{current_onto_prefix}{prop['name']}", prop))
     return parsed, failures
 
 
 def _parse_classes(
-    classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
+    classes_list: list[dict[str, Any]], current_onto_prefix: str
 ) -> tuple[list[ParsedClass], list[InputProblem]]:
     parsed = []
     failures = []
     for cls in classes_list:
-        if not (resolved := resolve_prefixed_iri(cls["name"], current_onto_prefix, prefixes)):
-            failures.append(InputProblem(cls["name"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED))
-        else:
-            parsed.append(ParsedClass(resolved, cls))
+        parsed.append(ParsedClass(f"{current_onto_prefix}{cls['name']}", cls))
     return parsed, failures
 
 

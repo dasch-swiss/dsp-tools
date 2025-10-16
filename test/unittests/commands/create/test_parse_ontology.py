@@ -40,7 +40,7 @@ class TestParseOntology:
 
 
 class TestParseProperties:
-    def test_good(self, prefixes):
+    def test_good(self):
         prop = {
             "name": "testGeoname",
             "super": ["hasValue"],
@@ -48,19 +48,19 @@ class TestParseProperties:
             "labels": {"en": "Test Geoname"},
             "gui_element": "Geonames",
         }
-        parsed, problems = _parse_properties([prop], ONTO_PREFIX, prefixes)
+        parsed, problems = _parse_properties([prop], ONTO_PREFIX)
         assert len(parsed) == 1
         assert not problems
 
 
 class TestParseClasses:
-    def test_good(self, prefixes):
+    def test_good(self):
         cls = {
             "name": "TestArchiveRepresentation",
             "super": "ArchiveRepresentation",
             "labels": {"en": "ArchiveRepresentation"},
         }
-        parsed, problems = _parse_classes([cls], ONTO_PREFIX, prefixes)
+        parsed, problems = _parse_classes([cls], ONTO_PREFIX)
         assert len(parsed) == 1
         assert not problems
 

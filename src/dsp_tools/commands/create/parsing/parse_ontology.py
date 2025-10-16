@@ -32,7 +32,7 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     fails.extend(card_fail)
     if fails:
         return CollectedProblems(
-            f"During the parsing of the ontology '{onto_name}' the following errors occurred:", fails
+            f"During the parsing of the ontology '{onto_name}' the following errors occurred", fails
         )
     return ParsedOntology(
         name=onto_name,

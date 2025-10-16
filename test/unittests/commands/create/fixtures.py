@@ -48,7 +48,7 @@ def minimal_failing_project() -> dict[str, Any]:
             "default_permissions": "public",
             "ontologies": [
                 {
-                    "name": "test-onto",
+                    "name": "onto",
                     "label": "Test Ontology",
                     "properties": [
                         {

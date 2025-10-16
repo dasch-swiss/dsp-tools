@@ -118,8 +118,8 @@ class TestParseAllOntologies:
 
     def test_parse_all_ontologies_systematic(self, minimal_failing_project, prefixes):
         ontos, failures = _parse_all_ontologies(minimal_failing_project["project"], prefixes)
-        assert len(ontos) == 1
+        assert len(ontos) == 0
         assert len(failures) == 1
         onto_fail = failures.pop(0)
-        assert onto_fail.header == "asdf"
+        assert onto_fail.header == "During the parsing of the ontology 'onto' the following errors occurred"
         assert len(onto_fail.problems) == 1

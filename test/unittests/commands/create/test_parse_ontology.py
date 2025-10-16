@@ -5,7 +5,6 @@ from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
-from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalities
@@ -87,12 +86,8 @@ class TestParseCardinalities:
             "labels": {"en": "ArchiveRepresentation"},
         }
         parsed, failures = _parse_cardinalities([cls], ONTO_PREFIX, prefixes)
-        assert len(parsed) == 1
+        assert len(parsed) == 0
         assert len(failures) == 0
-        result = parsed.pop(0)
-        assert isinstance(result, ParsedClassCardinalities)
-        assert result.class_iri == f"{KNORA_API}TestArchiveRepresentation"
-        assert len(result.cards) == 0
 
     def test_parse_cardinalities_failure(self, prefixes):
         cls = {
@@ -102,9 +97,9 @@ class TestParseCardinalities:
             "cardinalities": [{"propname": "inexistent:testSimpleText", "cardinality": "0-n"}],
         }
         parsed, failures = _parse_cardinalities([cls], ONTO_PREFIX, prefixes)
-        assert len(parsed) == 1
-        assert len(failures) == 0
-        result = parsed.pop(0)
+        assert len(parsed) == 0
+        assert len(failures) == 1
+        result = failures.pop(0)
         assert isinstance(result, list)
         assert len(result) == 1
 

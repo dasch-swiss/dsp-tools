@@ -11,7 +11,7 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
+
 
 class TestParseProject:
     def test_parse_project_success(self, project_json_systematic):
@@ -31,9 +31,10 @@ class TestParseProject:
         assert len(result.groups) == 3
         assert len(result.users) == 7
 
-    def test_parse_project_failure(self):
-        pass
-        # TODO: implement a failure route
+    def test_parse_project_failure(self, minimal_failing_project):
+        result = parse_project(minimal_failing_project, "http://0.0.0.0:3333")
+        assert isinstance(result, list)
+        assert len(result) == 1
 
 
 class TestParseMetadata:
@@ -110,13 +111,15 @@ class TestParseLists:
 
 
 class TestParseAllOntologies:
-    def test_parse_all_ontologies_create_project(self, project_json_create):
-        prefix_lookup = create_prefix_lookup(project_json_create, "http://0.0.0.0:3333")
-        ontos, failures = _parse_all_ontologies(project_json_create["project"], prefix_lookup)
+    def test_parse_all_ontologies_create_project(self, project_json_create, prefixes):
+        ontos, failures = _parse_all_ontologies(project_json_create["project"], prefixes)
         assert len(ontos) == 3
         assert len(failures) == 0
 
-    def test_parse_all_ontologies_systematic(self):
-        pass
-        # TODO: implement a failure route
-
+    def test_parse_all_ontologies_systematic(self, minimal_failing_project, prefixes):
+        ontos, failures = _parse_all_ontologies(minimal_failing_project["project"], prefixes)
+        assert len(ontos) == 1
+        assert len(failures) == 1
+        onto_fail = failures.pop(0)
+        assert onto_fail.header == "asdf"
+        assert len(onto_fail.problems) == 1

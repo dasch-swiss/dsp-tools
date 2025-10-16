@@ -22,6 +22,45 @@ def project_json_create() -> dict[str, Any]:
 
 
 @pytest.fixture
+def minimal_failing_project() -> dict[str, Any]:
+    return {
+        "prefixes": {},
+        "project": {
+            "shortcode": "9999",
+            "shortname": "fail-test",
+            "longname": "Failure Test Project",
+            "descriptions": {"en": "Test project for failures"},
+            "keywords": ["test"],
+            "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
+            "default_permissions": "public",
+            "ontologies": [
+                {
+                    "name": "test-onto",
+                    "label": "Test Ontology",
+                    "properties": [
+                        {
+                            "name": "testProp",
+                            "super": ["hasValue"],
+                            "object": "TextValue",
+                            "labels": {"en": "Test Property"},
+                            "gui_element": "SimpleText",
+                        }
+                    ],
+                    "resources": [
+                        {
+                            "name": "TestResource",
+                            "super": "Resource",
+                            "labels": {"en": "Test Resource"},
+                            "cardinalities": [{"propname": "invalid:nonExistentProp", "cardinality": "1"}],
+                        }
+                    ],
+                }
+            ],
+        },
+    }
+
+
+@pytest.fixture
 def minimal_project_json() -> dict[str, Any]:
     return {
         "shortcode": "9999",

@@ -13,11 +13,32 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_users
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 
+class TestParseProject:
+    def test_parse_project_success(self, project_json_systematic):
+        result = parse_project(project_json_systematic, "http://0.0.0.0:3333")
+        assert isinstance(result, ParsedProject)
+        assert isinstance(result.prefixes, dict)
+        assert isinstance(result.project_metadata, ParsedProjectMetadata)
+        assert isinstance(result.permissions, ParsedPermissions)
+        assert isinstance(result.groups, list)
+        assert isinstance(result.users, list)
+        assert isinstance(result.lists, list)
+        assert isinstance(result.ontologies, list)
+        assert result.project_metadata.shortcode == "4123"
+        assert result.project_metadata.shortname == "systematic-tp"
+        assert len(result.ontologies) == 2
+        assert len(result.lists) == 2
+        assert len(result.groups) == 3
+        assert len(result.users) == 7
+
+    def test_parse_project_failure(self):
+        pass
+        # TODO: implement a failure route
+
 
 class TestParseMetadata:
     def test_parse_metadata_complete(self, project_json_systematic):
         result = _parse_metadata(project_json_systematic["project"])
-
         assert isinstance(result, ParsedProjectMetadata)
         assert result.shortcode == "4123"
         assert result.shortname == "systematic-tp"
@@ -99,25 +120,3 @@ class TestParseAllOntologies:
         pass
         # TODO: implement a failure route
 
-
-class TestParseProject:
-    def test_parse_project_success(self, project_json_systematic):
-        result = parse_project(project_json_systematic, "http://0.0.0.0:3333")
-        assert isinstance(result, ParsedProject)
-        assert isinstance(result.prefixes, dict)
-        assert isinstance(result.project_metadata, ParsedProjectMetadata)
-        assert isinstance(result.permissions, ParsedPermissions)
-        assert isinstance(result.groups, list)
-        assert isinstance(result.users, list)
-        assert isinstance(result.lists, list)
-        assert isinstance(result.ontologies, list)
-        assert result.project_metadata.shortcode == "4123"
-        assert result.project_metadata.shortname == "systematic-tp"
-        assert len(result.ontologies) == 2
-        assert len(result.lists) == 2
-        assert len(result.groups) == 3
-        assert len(result.users) == 7
-
-    def test_parse_project_failure(self):
-        pass
-        # TODO: implement a failure route

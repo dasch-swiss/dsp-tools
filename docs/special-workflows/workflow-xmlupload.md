@@ -227,3 +227,6 @@ In such a case, proceed as follows:
 4. Replace the internal IDs and remove the created resources with: 
    `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json`
 5. Upload the outputted XML file with `dsp-tools xmlupload data_replaced_[timestamp].xml`
+
+
+

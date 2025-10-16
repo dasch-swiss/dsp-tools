@@ -132,7 +132,8 @@ def excel2json(
     overall_success, project = _create_project_json(data_model_files, onto_folders, listfolder)
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:
-        json.dump(project, f, indent=4, ensure_ascii=False)
+        dump_str = json.dumps(project, indent=4, ensure_ascii=False)
+        f.write(dump_str)
 
     print(f"JSON project file successfully saved at {path_to_output_file}")
 

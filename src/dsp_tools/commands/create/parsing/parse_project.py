@@ -3,6 +3,7 @@ from typing import Any
 
 from loguru import logger
 
+from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedList
@@ -16,10 +17,15 @@ from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
-def parse_project(project_file_as_path_or_parsed: str | Path | dict[str, Any], server: str) -> ParsedProject:
+def parse_project(
+    project_file_as_path_or_parsed: str | Path | dict[str, Any], server: str
+) -> ParsedProject | list[CollectedProblems]:
     complete_json = _parse_and_validate(project_file_as_path_or_parsed)
     prefix_lookup = create_prefix_lookup(complete_json, server)
     project_json = complete_json["project"]
+    ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)
+    if failures:
+        return failures
     return ParsedProject(
         prefixes=prefix_lookup,
         project_metadata=_parse_metadata(project_json),
@@ -27,7 +33,7 @@ def parse_project(project_file_as_path_or_parsed: str | Path | dict[str, Any], s
         groups=_parse_groups(project_json),
         users=_parse_users(project_json),
         lists=_parse_lists(project_json),
-        ontologies=_parse_all_ontologies(project_json, prefix_lookup),
+        ontologies=ontologies,
     )
 
 
@@ -75,5 +81,15 @@ def _parse_lists(project_json: dict[str, Any]) -> list[ParsedList]:
     return [ParsedList(x["name"], x) for x in found]
 
 
-def _parse_all_ontologies(project_json: dict[str, Any], prefix_lookup: dict[str, str]) -> list[ParsedOntology]:
-    return [parse_ontology(o, prefix_lookup) for o in project_json["ontologies"]]
+def _parse_all_ontologies(
+    project_json: dict[str, Any], prefix_lookup: dict[str, str]
+) -> tuple[list[ParsedOntology], list[CollectedProblems]]:
+    ontos = []
+    failures = []
+    for o in project_json["ontologies"]:
+        result = parse_ontology(o, prefix_lookup)
+        if isinstance(result, ParsedOntology):
+            ontos.append(result)
+        else:
+            failures.append(result)
+    return ontos, failures

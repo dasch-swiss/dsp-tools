@@ -13,19 +13,16 @@ ONTO_PREFIX = "http://0.0.0.0:3333/ontology/8888/onto/v2#"
 
 @pytest.fixture
 def project_json_systematic() -> dict[str, Any]:
-    """Load the systematic test project which has groups, users, and permissions_overrule"""
     return parse_json_file(Path("testdata/json-project/test-project-systematic.json"))
 
 
 @pytest.fixture
 def project_json_create() -> dict[str, Any]:
-    """Load the create-project.json which has lists but no groups/users"""
     return parse_json_file(Path("testdata/json-project/create-project.json"))
 
 
 @pytest.fixture
 def minimal_project_json() -> dict[str, Any]:
-    """Minimal valid project JSON for testing edge cases"""
     return {
         "shortcode": "9999",
         "shortname": "minimal",

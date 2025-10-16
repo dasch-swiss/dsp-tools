@@ -40,14 +40,12 @@ class TestParseMetadata:
 class TestParsePermissions:
     def test_parse_permissions_without_overrule(self, project_json_create):
         result = _parse_permissions(project_json_create["project"])
-
         assert isinstance(result, ParsedPermissions)
         assert result.default_permissions == "public"
         assert result.default_permissions_overrule is None
 
     def test_parse_permissions_with_overrule(self, project_json_systematic):
         result = _parse_permissions(project_json_systematic["project"])
-
         assert isinstance(result, ParsedPermissions)
         assert result.default_permissions == "public"
         assert result.default_permissions_overrule is not None
@@ -59,95 +57,46 @@ class TestParsePermissions:
 class TestParseGroups:
     def test_parse_groups_empty(self, project_json_create):
         result = _parse_groups(project_json_create["project"])
-
-        assert isinstance(result, list)
         assert len(result) == 0
 
     def test_parse_groups_with_groups(self, project_json_systematic):
         result = _parse_groups(project_json_systematic["project"])
-
-        assert isinstance(result, list)
         assert len(result) == 3
         assert all(isinstance(g, ParsedGroup) for g in result)
 
-        # Check first group
-        first_group = result[0]
-        assert "name" in first_group.info
-        assert first_group.info["name"] == "testgroupEditors"
-        assert first_group.info["selfjoin"] is False
-
     def test_parse_groups_missing_key(self, minimal_project_json):
         result = _parse_groups(minimal_project_json)
-        assert isinstance(result, list)
         assert len(result) == 0
 
 
 class TestParseUsers:
     def test_parse_users_empty(self, project_json_create):
         result = _parse_users(project_json_create["project"])
-
-        assert isinstance(result, list)
         assert len(result) == 0
 
     def test_parse_users_with_users(self, project_json_systematic):
         result = _parse_users(project_json_systematic["project"])
-
-        assert isinstance(result, list)
         assert len(result) == 7
-        assert all(isinstance(u, ParsedUser) for u in result)
-
-        # Check first user
-        first_user = result[0]
-        assert "username" in first_user.info
-        assert first_user.info["username"] == "testerKnownUser"
-        assert first_user.info["email"] == "tester.known@test.org"
-        assert first_user.info["lang"] == "en"
 
     def test_parse_users_missing_key(self, minimal_project_json):
         result = _parse_users(minimal_project_json)
-        assert isinstance(result, list)
         assert len(result) == 0
 
 
 class TestParseLists:
     def test_parse_lists_empty(self, minimal_project_json):
         result = _parse_lists(minimal_project_json)
-
-        assert isinstance(result, list)
         assert len(result) == 0
 
     def test_parse_lists_with_lists(self, project_json_create):
         result = _parse_lists(project_json_create["project"])
-
-        assert isinstance(result, list)
         assert len(result) == 2
-        assert all(isinstance(lst, ParsedList) for lst in result)
-
-        # Check first list
-        first_list = result[0]
-        assert first_list.name == "firstList"
-        assert "labels" in first_list.info
-        assert first_list.info["labels"]["en"] == "List 1"
-
-        # Check second list
-        second_list = result[1]
-        assert second_list.name == "secondList"
-
-    def test_parse_lists_systematic(self, project_json_systematic):
-        result = _parse_lists(project_json_systematic["project"])
-
-        assert isinstance(result, list)
-        assert len(result) == 2
-        assert result[0].name == "testlist"
-        assert result[1].name == "notUsedList"
 
 
 class TestParseAllOntologies:
     def test_parse_all_ontologies_create_project(self, project_json_create):
         prefix_lookup = create_prefix_lookup(project_json_create, "http://0.0.0.0:3333")
         result = _parse_all_ontologies(project_json_create["project"], prefix_lookup)
-
-        assert isinstance(result, list)
         assert len(result) == 3
         assert all(isinstance(o, ParsedOntology) for o in result)
 

@@ -23,9 +23,9 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     onto_name = ontology_json["name"]
     current_onto = prefixes[onto_name]
     fails = []
-    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes)
+    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto)
     fails.extend(prop_fails)
-    classes, cls_fail = _parse_classes(ontology_json["resources"], current_onto, prefixes)
+    classes, cls_fail = _parse_classes(ontology_json["resources"], current_onto)
     fails.extend(cls_fail)
     cards, card_fail = _parse_cardinalities(ontology_json["resources"], current_onto, prefixes)
     fails.extend(card_fail)

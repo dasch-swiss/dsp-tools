@@ -70,7 +70,7 @@ def _parse_classes(
 
 
 def _parse_cardinalities(
-    classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
+    classes_list: list[dict[str, str | int]], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> tuple[list[ParsedClassCardinalities], list[InputProblem]]:
     parsed = []
     failures = []
@@ -85,7 +85,7 @@ def _parse_cardinalities(
 
 
 def _parse_one_class_cardinality(
-    cls_json: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
+    cls_json: dict[str, str | int], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedClassCardinalities | list[InputProblem]:
     failures = []
     parsed = []
@@ -102,7 +102,7 @@ def _parse_one_class_cardinality(
 
 
 def _parse_one_cardinality(
-    card_json: dict[str, str], current_onto_prefix: str, prefixes: dict[str, str]
+    card_json: dict[str, str | int], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedPropertyCardinality | InputProblem:
     if not (resolved := resolve_prefix(card_json["propname"], current_onto_prefix, prefixes)):
         return InputProblem(card_json["propname"], ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)

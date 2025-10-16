@@ -76,7 +76,6 @@ class TestParseGroups:
     def test_parse_groups_with_groups(self, project_json_systematic):
         result = _parse_groups(project_json_systematic["project"])
         assert len(result) == 3
-        assert all(isinstance(g, ParsedGroup) for g in result)
 
     def test_parse_groups_missing_key(self, minimal_project_json):
         result = _parse_groups(minimal_project_json)

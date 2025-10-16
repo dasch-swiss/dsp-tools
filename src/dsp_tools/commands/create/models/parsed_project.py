@@ -11,7 +11,7 @@ class ParsedProject:
     prefixes: dict[str, str]
     project_metadata: ParsedProjectMetadata
     permissions: ParsedPermissions
-    groups: list[ParsedGroups]
+    groups: list[ParsedGroup]
     users: list[ParsedUser]
     lists: list[ParsedList]
     ontologies: list[ParsedOntology]
@@ -30,11 +30,11 @@ class ParsedProjectMetadata:
 @dataclass
 class ParsedPermissions:
     default_permissions: str
-    default_permissions_overrule: dict[str, Any]
+    default_permissions_overrule: dict[str, Any] | None
 
 
 @dataclass
-class ParsedGroups:
+class ParsedGroup:
     info: dict[str, Any]
 
 

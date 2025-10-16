@@ -4,10 +4,12 @@ from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
+from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_class_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from test.unittests.commands.create.fixtures import KNORA_API
@@ -51,11 +53,39 @@ class TestParseClasses:
 
 
 class TestParseCardinalities:
-    def test_parse_one_class_cardinality_with_cards(self):
-        pass
+    def test_parse_one_class_cardinality_with_cards(self, prefixes):
+        cls = {
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
+            "labels": {"en": "ArchiveRepresentation"},
+            "cardinalities": [{"propname": ":testSimpleText", "cardinality": "0-n"}],
+        }
+        result = _parse_one_class_cardinality(cls, ONTO_PREFIX, prefixes)
+        assert isinstance(result, ParsedClassCardinalities)
+        assert result.class_iri == f"{KNORA_API}TestArchiveRepresentation"
+        assert len(result.cards) == 1
 
-    def test_parse_one_class_cardinality_no_cards(self):
-        pass
+    def test_parse_one_class_cardinality_no_cards(self, prefixes):
+        cls = {
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
+            "labels": {"en": "ArchiveRepresentation"},
+        }
+        result = _parse_one_class_cardinality(cls, ONTO_PREFIX, prefixes)
+        assert isinstance(result, ParsedClassCardinalities)
+        assert result.class_iri == f"{KNORA_API}TestArchiveRepresentation"
+        assert len(result.cards) == 0
+
+    def test_parse_one_class_cardinality_failure(self, prefixes):
+        cls = {
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
+            "labels": {"en": "ArchiveRepresentation"},
+            "cardinalities": [{"propname": "inexistent:testSimpleText", "cardinality": "0-n"}],
+        }
+        result = _parse_one_class_cardinality(cls, ONTO_PREFIX, prefixes)
+        assert isinstance(result, list)
+        assert len(result) == 1
 
     def test_0_1(self, prefixes):
         card: dict[str, str | int] = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}

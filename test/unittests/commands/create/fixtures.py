@@ -85,7 +85,7 @@ def minimal_project_json() -> dict[str, Any]:
         "default_permissions": "public",
         "ontologies": [
             {
-                "name": "minimal-onto",
+                "name": "onto",
                 "label": "Minimal Ontology",
                 "properties": [],
                 "resources": [],

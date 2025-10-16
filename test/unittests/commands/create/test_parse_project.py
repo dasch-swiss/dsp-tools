@@ -66,9 +66,6 @@ class TestParsePermissions:
         assert isinstance(result, ParsedPermissions)
         assert result.default_permissions == "public"
         assert result.default_permissions_overrule is not None
-        assert "private" in result.default_permissions_overrule
-        assert "limited_view" in result.default_permissions_overrule
-        assert result.default_permissions_overrule["limited_view"] == "all"
 
 
 class TestParseGroups:

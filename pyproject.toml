@@ -203,5 +203,6 @@ exclude = [
     "src/dsp_tools/error/xmllib_warnings_util.py",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
+    "src/dsp_tools/commands/create/", # to be ignored to enable small steps untill the intensive work is completed
 ]
 sort_by_size = true  # sort unused classes and functions by size 

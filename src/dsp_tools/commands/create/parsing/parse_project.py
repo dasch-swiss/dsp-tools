@@ -24,7 +24,7 @@ def parse_project(
     return _parse_project(complete_json, api_url)
 
 
-def _parse_project(complete_json: dict[str, Any], api_url) -> ParsedProject | list[CollectedProblems]:
+def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject | list[CollectedProblems]:
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)

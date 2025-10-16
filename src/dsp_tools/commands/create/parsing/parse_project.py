@@ -10,13 +10,14 @@ from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def parse_project(project_file_as_path_or_parsed: str | Path | dict[str, Any], server: str) -> ParsedProject:
     project_json = _parse_and_validate(project_file_as_path_or_parsed)
-    prefix_lookup = _create_prefix_lookup(project_json, server)
+    prefix_lookup = create_prefix_lookup(project_json, server)
     ontos = _parse_all_ontologies(project_json, prefix_lookup)
     return ParsedProject(
         prefixes=prefix_lookup,
@@ -35,10 +36,6 @@ def _parse_and_validate(project_file_as_path_or_parsed: str | Path | dict[str, A
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
     return project_json
-
-
-def _create_prefix_lookup(project_json: dict[str, Any], server: str) -> dict[str, str]:
-    pass
 
 
 def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:

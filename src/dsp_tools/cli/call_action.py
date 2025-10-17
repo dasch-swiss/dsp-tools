@@ -6,6 +6,9 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.config import config_info
+from dsp_tools.commands.config import config_list
+from dsp_tools.commands.config import config_new
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -81,6 +84,12 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_ingest_files(args)
         case "ingest-xmlupload":
             result = _call_ingest_xmlupload(args)
+        case "config-new":
+            result = config_new()
+        case "config-list":
+            result = config_list()
+        case "config-info":
+            result = config_info(args.config_id)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

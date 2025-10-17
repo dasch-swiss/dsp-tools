@@ -66,6 +66,8 @@ def make_parser(
 
     _add_id2iri(subparsers)
 
+    _add_config(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -384,3 +386,29 @@ def _add_create(
     )
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     subparser.add_argument("project_definition", help="path to the JSON project file")
+
+
+def _add_config(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    """Add config command with subcommands for managing configuration profiles."""
+    config_parser = subparsers.add_parser(
+        name="config",
+        help="Manage configuration profiles for create and xmlupload commands",
+    )
+    config_subparsers = config_parser.add_subparsers(
+        title="Config subcommands",
+        dest="config_action",
+        required=True,
+    )
+
+    # config new
+    new_parser = config_subparsers.add_parser("new", help="Create a new configuration")
+    new_parser.set_defaults(action="config-new")
+
+    # config list
+    list_parser = config_subparsers.add_parser("list", help="List all configurations")
+    list_parser.set_defaults(action="config-list")
+
+    # config info
+    info_parser = config_subparsers.add_parser("info", help="Show configuration details")
+    info_parser.add_argument("config_id", help="ID of the configuration to display")
+    info_parser.set_defaults(action="config-info")

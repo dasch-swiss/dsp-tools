@@ -1,5 +1,37 @@
 # Changelog
 
+## [18.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v17.0.0...v18.0.0) (2025-10-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985))
+
+### Enhancements
+
+* **create:** allow default user passwords through an .env file (DEV-5496) ([#1995](https://github.com/dasch-swiss/dsp-tools/issues/1995)) ([f42da0c](https://github.com/dasch-swiss/dsp-tools/commit/f42da0c5e778005eb2f0efd6d83d58bbfe06a51d))
+* **create:** disallow properties that reference a class from another project (DEV-5449) ([#1992](https://github.com/dasch-swiss/dsp-tools/issues/1992)) ([125cd2c](https://github.com/dasch-swiss/dsp-tools/commit/125cd2c63507604050b52cbb51df91d326cee2ca))
+* **excel2json:** allow null values for user passwords (DEV-5495) ([#1996](https://github.com/dasch-swiss/dsp-tools/issues/1996)) ([3a3bbfc](https://github.com/dasch-swiss/dsp-tools/commit/3a3bbfcff4fea8e1736a21ad2bb4a544163f9576))
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985)) ([dc69b79](https://github.com/dasch-swiss/dsp-tools/commit/dc69b79a942cd7bc4a781eb5ab591c9ee899e85f))
+* integrate id2iri replacement functionality in `xmlupload` and `validate-data` (DEV-5201) ([#1982](https://github.com/dasch-swiss/dsp-tools/issues/1982)) ([4dbee13](https://github.com/dasch-swiss/dsp-tools/commit/4dbee13f692215f1437d5f5f9023fba5fd8ea961))
+
+
+### Bug Fixes
+
+* **create:** better error message if default_permissions is missing in the JSON file (DEV-5479) ([#1991](https://github.com/dasch-swiss/dsp-tools/issues/1991)) ([d7866cb](https://github.com/dasch-swiss/dsp-tools/commit/d7866cb5f9e14ee99f251515600f48a1f8a78a24))
+
+
+### Maintenance
+
+* **create:** make models for `ParsedProject` (DEV-5505) ([#1999](https://github.com/dasch-swiss/dsp-tools/issues/1999)) ([995c0a7](https://github.com/dasch-swiss/dsp-tools/commit/995c0a7c95366b31414670bfb56960786de52e75))
+* **deps:** bump all dependencies ([#1993](https://github.com/dasch-swiss/dsp-tools/issues/1993)) ([2b5c51c](https://github.com/dasch-swiss/dsp-tools/commit/2b5c51c006a98df1e032616352210ff6079fbab1))
+* **deps:** bump the all-dependencies group across 1 directory with 6 updates ([#1984](https://github.com/dasch-swiss/dsp-tools/issues/1984)) ([01a6ea5](https://github.com/dasch-swiss/dsp-tools/commit/01a6ea5fd6b2fcd6b7d6fb75236cd719d290c903))
+
+
+### Documentation
+
+* new architecural design of the `create` command (DEV-5506) ([#1998](https://github.com/dasch-swiss/dsp-tools/issues/1998)) ([ba16373](https://github.com/dasch-swiss/dsp-tools/commit/ba16373b2da15da3eb8419b04fa7a7b2957255f0))
+
 ## [17.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.2...v17.0.0) (2025-10-08)
 
 

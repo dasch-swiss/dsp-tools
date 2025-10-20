@@ -1,13 +1,13 @@
 # mypy: disable-error-code="no-untyped-def"
 
 import pytest
+from unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
-from test.unittests.commands.create.fixtures import ONTO_PREFIX
 
 EXTERNAL_PREFIXES = {
     "wrong-ending": "http://wrong-ending.org/onto",

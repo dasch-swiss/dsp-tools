@@ -12,7 +12,7 @@ from rdflib import URIRef
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.models.rdf_ontology import RdfCardinalityRestriction
 from dsp_tools.commands.create.models.rdf_ontology import RdfResourceCardinality
-from dsp_tools.commands.create.serialisation.cardinalities import _add_one_cardinality
+from dsp_tools.commands.create.serialisation.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.serialisation.cardinalities import _make_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.cardinalities import _make_one_cardinality_graph
 from dsp_tools.commands.create.serialisation.cardinalities import add_all_cardinalities
@@ -145,7 +145,7 @@ class TestAddOneCardinality:
             cardinality=cardinality,
         )
 
-        result = _add_one_cardinality(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = _add_cardinalities_for_one_class(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
 
         assert result == LAST_MODIFICATION_DATE
         mock_client.post_resource_cardinalities.assert_called_once()
@@ -162,7 +162,7 @@ class TestAddOneCardinality:
             cardinality=cardinality,
         )
 
-        _add_one_cardinality(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        _add_cardinalities_for_one_class(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
 
         # Verify that client was called with a Graph
         call_args = mock_client.post_resource_cardinalities.call_args
@@ -183,7 +183,7 @@ class TestAddOneCardinality:
             on_property=PROP_IRI,
             cardinality=cardinality,
         )
-        result = _add_one_cardinality(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = _add_cardinalities_for_one_class(resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
         assert result is None
 
 

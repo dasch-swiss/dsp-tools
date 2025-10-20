@@ -15,12 +15,14 @@ class CreateProblem:
     problematic_object: str
     problem: ProblemType
 
+
 @dataclass
-class InputProblem(CreateProblem):...
+class InputProblem(CreateProblem): ...
 
 
 @dataclass
 class UploadProblem(CreateProblem): ...
+
 
 class ProblemType(StrEnum):
     PREFIX_COULD_NOT_BE_RESOLVED = (

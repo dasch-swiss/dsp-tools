@@ -5,9 +5,12 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from dsp_tools.commands.create.models.input_problems import InputProblem, UploadProblem, ProblemType, CollectedProblems
+
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.constants import SALSAH_GUI_NAMESPACE
+from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.serialisation.mappers import PARSED_CARDINALITY_TO_RDF
@@ -22,7 +25,9 @@ def add_all_cardinalities(
 ) -> CollectedProblems | None:
     problems = []
     for c in cardinalities:
-        last_modification_date, creation_problems = _add_cardinalities_for_one_class(c, onto_iri, last_modification_date, onto_client)
+        last_modification_date, creation_problems = _add_cardinalities_for_one_class(
+            c, onto_iri, last_modification_date, onto_client
+        )
         problems.extend(creation_problems)
     if not problems:
         return None
@@ -36,10 +41,14 @@ def _add_cardinalities_for_one_class(
     onto_client: OntologyClient,
 ) -> tuple[Literal, list[InputProblem]]:
     res_iri = URIRef(resource_card.class_iri)
+    problems = []
     for one_card in resource_card.cards:
-        new_mod_date = _add_one_cardinality(one_card, res_iri, onto_iri, last_modification_date, onto_client)
-        if new_mod_date:
-            last_modification_date = new_mod_date
+        last_modification_date, problem = _add_one_cardinality(
+            one_card, res_iri, onto_iri, last_modification_date, onto_client
+        )
+        if problem:
+            problems.append(problem)
+    return last_modification_date, problems
 
 
 def _add_one_cardinality(
@@ -48,10 +57,14 @@ def _add_one_cardinality(
     onto_iri: URIRef,
     last_modification_date: Literal,
     onto_client: OntologyClient,
-) -> tuple[Literal, InputProblem]:
+) -> tuple[Literal, InputProblem | None]:
     card_g = _make_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
     new_mod_date = onto_client.post_resource_cardinalities(card_g)
-
+    if not new_mod_date:
+        return last_modification_date, InputProblem(
+            f"{res_iri!s} / {card.propname}", ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        )
+    return new_mod_date, None
 
 
 def _make_cardinality_graph_for_request(

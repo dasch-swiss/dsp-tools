@@ -7,13 +7,13 @@ from rdflib import URIRef
 
 
 @dataclass
-class ResourceCardinality:
+class RdfResourceCardinality:
     resource_iri: URIRef
     on_property: URIRef
-    cardinality: CardinalityRestriction
+    cardinality: RdfCardinalityRestriction
 
 
 @dataclass
-class CardinalityRestriction:
+class RdfCardinalityRestriction:
     owl_property: URIRef
     cardinality_value: Literal

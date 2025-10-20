@@ -10,8 +10,8 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
-from dsp_tools.commands.project.create.models.ontology import CardinalityRestriction
-from dsp_tools.commands.project.create.models.ontology import ResourceCardinality
+from dsp_tools.commands.project.create.models.rdf_ontology import RdfCardinalityRestriction
+from dsp_tools.commands.project.create.models.rdf_ontology import RdfResourceCardinality
 from dsp_tools.commands.project.create.ontology.cardinalities import _add_one_cardinality
 from dsp_tools.commands.project.create.ontology.cardinalities import _make_cardinality_graph_for_request
 from dsp_tools.commands.project.create.ontology.cardinalities import _make_one_cardinality_graph
@@ -29,9 +29,9 @@ class TestMakeOneCardinalityGraph:
     """Tests for _make_one_cardinality_graph function"""
 
     def test_creates_correct_graph_structure_with_cardinality_1(self) -> None:
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -58,9 +58,9 @@ class TestMakeOneCardinalityGraph:
         assert (bn, OWL.onProperty, PROP_IRI) in result_graph
 
     def test_creates_correct_graph_with_max_cardinality(self) -> None:
-        cardinality = CardinalityRestriction(OWL.maxCardinality, Literal(1))
+        cardinality = RdfCardinalityRestriction(OWL.maxCardinality, Literal(1))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -75,9 +75,9 @@ class TestMakeOneCardinalityGraph:
         assert (bn, OWL.maxCardinality, Literal(1)) in result_graph
 
     def test_creates_correct_graph_with_min_cardinality(self) -> None:
-        cardinality = CardinalityRestriction(OWL.minCardinality, Literal(0))
+        cardinality = RdfCardinalityRestriction(OWL.minCardinality, Literal(0))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -94,9 +94,9 @@ class TestMakeOneCardinalityGraph:
 
 class TestMakeCardinalityGraphForRequest:
     def test_combines_base_graph_and_cardinality(self) -> None:
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -118,8 +118,8 @@ class TestMakeCardinalityGraphForRequest:
         assert (bn, OWL.onProperty, PROP_IRI) in result_graph
 
     def test_graph_has_correct_total_triples(self) -> None:
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
-        resource_card = ResourceCardinality(
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -137,9 +137,9 @@ class TestAddOneCardinality:
         """Test that the function calls the client and returns the last modification date"""
         mock_client = Mock(spec=OntologyClient)
         mock_client.post_resource_cardinalities.return_value = LAST_MODIFICATION_DATE
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -154,9 +154,9 @@ class TestAddOneCardinality:
         """Test that the function passes a graph with correct structure to the client"""
         mock_client = Mock(spec=OntologyClient)
         mock_client.post_resource_cardinalities.return_value = LAST_MODIFICATION_DATE
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
 
-        resource_card = ResourceCardinality(
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -177,8 +177,8 @@ class TestAddOneCardinality:
         """Test that the function returns None when the client returns None (error case)"""
         mock_client = Mock(spec=OntologyClient)
         mock_client.post_resource_cardinalities.return_value = None
-        cardinality = CardinalityRestriction(OWL.cardinality, Literal(1))
-        resource_card = ResourceCardinality(
+        cardinality = RdfCardinalityRestriction(OWL.cardinality, Literal(1))
+        resource_card = RdfResourceCardinality(
             resource_iri=RESOURCE_IRI,
             on_property=PROP_IRI,
             cardinality=cardinality,
@@ -193,10 +193,10 @@ class TestAddAllCardinalities:
         mock_client.post_resource_cardinalities.return_value = LAST_MODIFICATION_DATE
 
         cardinalities = [
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=RESOURCE_IRI,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.cardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.cardinality, Literal(1)),
             )
         ]
         result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
@@ -212,20 +212,20 @@ class TestAddAllCardinalities:
             Literal("2025-10-14T14:02:00.000000Z"),
         ]
         cardinalities = [
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource1,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.cardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.cardinality, Literal(1)),
             ),
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource2,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.maxCardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.maxCardinality, Literal(1)),
             ),
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource3,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.minCardinality, Literal(0)),
+                cardinality=RdfCardinalityRestriction(OWL.minCardinality, Literal(0)),
             ),
         ]
         result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
@@ -241,20 +241,20 @@ class TestAddAllCardinalities:
             Literal("2025-10-14T14:02:00.000000Z"),
         ]
         cardinalities = [
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource1,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.cardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.cardinality, Literal(1)),
             ),
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource2,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.maxCardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.maxCardinality, Literal(1)),
             ),
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=ONTO.Resource3,
                 on_property=PROP_IRI,
-                cardinality=CardinalityRestriction(OWL.minCardinality, Literal(0)),
+                cardinality=RdfCardinalityRestriction(OWL.minCardinality, Literal(0)),
             ),
         ]
         result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
@@ -275,15 +275,15 @@ class TestAddAllCardinalities:
         mock_client.post_resource_cardinalities.side_effect = capture_graph
 
         cardinalities = [
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=URIRef("http://example.org/onto#Resource1"),
                 on_property=URIRef("http://example.org/onto#hasText"),
-                cardinality=CardinalityRestriction(OWL.cardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.cardinality, Literal(1)),
             ),
-            ResourceCardinality(
+            RdfResourceCardinality(
                 resource_iri=URIRef("http://example.org/onto#Resource2"),
                 on_property=URIRef("http://example.org/onto#hasValue"),
-                cardinality=CardinalityRestriction(OWL.maxCardinality, Literal(1)),
+                cardinality=RdfCardinalityRestriction(OWL.maxCardinality, Literal(1)),
             ),
         ]
 

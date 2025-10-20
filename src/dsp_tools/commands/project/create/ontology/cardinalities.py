@@ -7,12 +7,12 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
-from dsp_tools.commands.project.create.models.ontology import ResourceCardinality
+from dsp_tools.commands.project.create.models.rdf_ontology import RdfResourceCardinality
 from dsp_tools.commands.project.create.ontology.ontology import make_ontology_base_graph
 
 
 def add_all_cardinalities(
-    cardinalities: list[ResourceCardinality],
+    cardinalities: list[RdfResourceCardinality],
     onto_iri: URIRef,
     last_modification_date: Literal,
     onto_client: OntologyClient,
@@ -28,21 +28,24 @@ def add_all_cardinalities(
 
 
 def _add_one_cardinality(
-    resource_card: ResourceCardinality, onto_iri: URIRef, last_modification_date: Literal, onto_client: OntologyClient
+    resource_card: RdfResourceCardinality,
+    onto_iri: URIRef,
+    last_modification_date: Literal,
+    onto_client: OntologyClient,
 ) -> Literal | None:
     card_g = _make_cardinality_graph_for_request(resource_card, onto_iri, last_modification_date)
     return onto_client.post_resource_cardinalities(card_g)
 
 
 def _make_cardinality_graph_for_request(
-    resource_card: ResourceCardinality, onto_iri: URIRef, last_modification_date: Literal
+    resource_card: RdfResourceCardinality, onto_iri: URIRef, last_modification_date: Literal
 ) -> Graph:
     g = make_ontology_base_graph(onto_iri, last_modification_date)
     g += _make_one_cardinality_graph(resource_card)
     return g
 
 
-def _make_one_cardinality_graph(card: ResourceCardinality) -> Graph:
+def _make_one_cardinality_graph(card: RdfResourceCardinality) -> Graph:
     g = Graph()
     bn_card = BNode()
     g.add((card.resource_iri, RDFS.subClassOf, bn_card))

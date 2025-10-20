@@ -3,7 +3,6 @@ from unittest.mock import Mock
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
-from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -17,12 +16,12 @@ from dsp_tools.commands.create.serialisation.cardinalities import _make_cardinal
 from dsp_tools.commands.create.serialisation.cardinalities import _make_one_cardinality_graph
 from dsp_tools.commands.create.serialisation.cardinalities import add_all_cardinalities
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from test.unittests.commands.create.serialisation.fixtures import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.serialisation.fixtures import ONTO
 from test.unittests.commands.create.serialisation.fixtures import ONTO_IRI
 
 RESOURCE_IRI = ONTO.Resource
 PROP_IRI = ONTO.hasText
-LAST_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", XSD.dateTimeStamp)
 
 
 class TestMakeOneCardinalityGraph:

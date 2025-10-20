@@ -7,6 +7,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.commands.create.constants import SALSAH_GUI_NAMESPACE
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.serialisation.mappers import PARSED_CARDINALITY_TO_RDF
@@ -69,4 +70,6 @@ def _make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef
     g.add((bn_card, RDF.type, OWL.Restriction))
     g.add((bn_card, card_info.owl_property, card_info.cardinality_value))
     g.add((bn_card, OWL.onProperty, URIRef(card.propname)))
+    if card.gui_order is not None:
+        g.add((bn_card, SALSAH_GUI_NAMESPACE.guiOrder, Literal(card.gui_order)))
     return g

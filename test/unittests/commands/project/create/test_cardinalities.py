@@ -10,12 +10,12 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
-from dsp_tools.commands.project.create.models.rdf_ontology import RdfCardinalityRestriction
-from dsp_tools.commands.project.create.models.rdf_ontology import RdfResourceCardinality
-from dsp_tools.commands.project.create.ontology.cardinalities import _add_one_cardinality
-from dsp_tools.commands.project.create.ontology.cardinalities import _make_cardinality_graph_for_request
-from dsp_tools.commands.project.create.ontology.cardinalities import _make_one_cardinality_graph
-from dsp_tools.commands.project.create.ontology.cardinalities import add_all_cardinalities
+from dsp_tools.commands.create.models.rdf_ontology import RdfCardinalityRestriction
+from dsp_tools.commands.create.models.rdf_ontology import RdfResourceCardinality
+from dsp_tools.commands.create.serialisation.cardinalities import _add_one_cardinality
+from dsp_tools.commands.create.serialisation.cardinalities import _make_cardinality_graph_for_request
+from dsp_tools.commands.create.serialisation.cardinalities import _make_one_cardinality_graph
+from dsp_tools.commands.create.serialisation.cardinalities import add_all_cardinalities
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.project.create.fixtures import ONTO
 from test.unittests.commands.project.create.fixtures import ONTO_IRI

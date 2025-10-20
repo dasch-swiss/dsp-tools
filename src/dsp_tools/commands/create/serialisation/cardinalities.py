@@ -7,8 +7,8 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
-from dsp_tools.commands.project.create.models.rdf_ontology import RdfResourceCardinality
-from dsp_tools.commands.project.create.ontology.ontology import make_ontology_base_graph
+from dsp_tools.commands.create.models.rdf_ontology import RdfResourceCardinality
+from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 
 
 def add_all_cardinalities(

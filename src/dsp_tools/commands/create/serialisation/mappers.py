@@ -1,7 +1,7 @@
 from rdflib import OWL
 from rdflib import Literal
 
-from dsp_tools.commands.project.create.models.rdf_ontology import RdfCardinalityRestriction
+from dsp_tools.commands.create.models.rdf_ontology import RdfCardinalityRestriction
 
 JSON_CARDINALITY_TO_RDFLIB = {
     "1": RdfCardinalityRestriction(OWL.cardinality, Literal(1)),

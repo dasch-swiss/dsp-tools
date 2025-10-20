@@ -5,6 +5,7 @@ import requests
 from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import URIRef
 from requests import ReadTimeout
 from requests import Response
 
@@ -34,8 +35,29 @@ class OntologyClientLive(OntologyClient):
     project_shortcode: str
     authentication_client: AuthenticationClient
 
+    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> str:
+        url = f"{self.server}/v2/ontologies/metadata"
+        header = {"X-Knora-Accept-Project": project_iri}
+        logger.debug("GET ontology metadata")
+        try:
+            response = self._post_and_log_request(url, {}, header)
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
+        if response.ok:
+            return _parse_last_modification_date(response.text, URIRef(onto_iri))
+        if response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only a project or system administrator can add cardinalities to resource classes. "
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
+
     def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal | None:
-        url = f"{self.authentication_client.server}/v2/ontologies/cardinalities"
+        url = f"{self.server}/v2/ontologies/cardinalities"
         serialised = serialise_json(cardinality_graph)
         logger.debug("POST resource cardinalities to ontology")
         try:
@@ -55,12 +77,17 @@ class OntologyClientLive(OntologyClient):
                 f"Please consult 'warnings.log' for details."
             )
 
-    def _post_and_log_request(self, url: str, data: list[dict[str, Any]] | dict[str, Any]) -> Response:
-        headers = {
+    def _post_and_log_request(
+        self, url: str, data: list[dict[str, Any]] | dict[str, Any] | None, headers: dict[str, str] | None = None
+    ) -> Response:
+        generic_headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
+        data_dict = {"data": data} if data else None
+        if headers:
+            generic_headers.update(headers)
+        params = RequestParameters("POST", url, TIMEOUT, data_dict, headers)
         log_request(params)
         response = requests.post(
             url=params.url,
@@ -72,10 +99,10 @@ class OntologyClientLive(OntologyClient):
         return response
 
 
-def _parse_last_modification_date(response_text: str) -> Literal | None:
+def _parse_last_modification_date(response_text: str, onto_iri: URIRef | None = None) -> Literal | None:
     g = Graph()
     g.parse(data=response_text, format="json-ld")
-    result = next(g.objects(predicate=KNORA_API.lastModificationDate), None)
+    result = next(g.objects(subject=onto_iri, predicate=KNORA_API.lastModificationDate), None)
     if isinstance(result, Literal):
         return result
     return None

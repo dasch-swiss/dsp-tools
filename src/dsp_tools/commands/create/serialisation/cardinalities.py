@@ -5,7 +5,7 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-
+from dsp_tools.commands.create.models.input_problems import InputProblem, UploadProblem, ProblemType, CollectedProblems
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.constants import SALSAH_GUI_NAMESPACE
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
@@ -19,15 +19,14 @@ def add_all_cardinalities(
     onto_iri: URIRef,
     last_modification_date: Literal,
     onto_client: OntologyClient,
-) -> bool:
-    success = True
+) -> CollectedProblems | None:
+    problems = []
     for c in cardinalities:
-        result = _add_cardinalities_for_one_class(c, onto_iri, last_modification_date, onto_client)
-        if result is not None:
-            last_modification_date = result
-        else:
-            success = False
-    return success
+        last_modification_date, creation_problems = _add_cardinalities_for_one_class(c, onto_iri, last_modification_date, onto_client)
+        problems.extend(creation_problems)
+    if not problems:
+        return None
+    return CollectedProblems("The following problems occurred when adding cardinalities", problems)
 
 
 def _add_cardinalities_for_one_class(
@@ -35,7 +34,7 @@ def _add_cardinalities_for_one_class(
     onto_iri: URIRef,
     last_modification_date: Literal,
     onto_client: OntologyClient,
-) -> Literal | None:
+) -> tuple[Literal, list[InputProblem]]:
     res_iri = URIRef(resource_card.class_iri)
     for one_card in resource_card.cards:
         new_mod_date = _add_one_cardinality(one_card, res_iri, onto_iri, last_modification_date, onto_client)
@@ -49,9 +48,10 @@ def _add_one_cardinality(
     onto_iri: URIRef,
     last_modification_date: Literal,
     onto_client: OntologyClient,
-) -> Literal | None:
+) -> tuple[Literal, InputProblem]:
     card_g = _make_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
-    return onto_client.post_resource_cardinalities(card_g)
+    new_mod_date = onto_client.post_resource_cardinalities(card_g)
+
 
 
 def _make_cardinality_graph_for_request(

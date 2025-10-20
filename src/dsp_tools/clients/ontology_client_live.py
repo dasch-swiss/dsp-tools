@@ -13,6 +13,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.request_utils import RequestParameters
@@ -35,7 +36,7 @@ class OntologyClientLive(OntologyClient):
     project_shortcode: str
     authentication_client: AuthenticationClient
 
-    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> str:
+    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         url = f"{self.server}/v2/ontologies/metadata"
         header = {"X-Knora-Accept-Project": project_iri}
         logger.debug("GET ontology metadata")
@@ -44,7 +45,13 @@ class OntologyClientLive(OntologyClient):
         except (TimeoutError, ReadTimeout) as err:
             log_and_raise_timeouts(err)
         if response.ok:
-            return _parse_last_modification_date(response.text, URIRef(onto_iri))
+            date = _parse_last_modification_date(response.text, URIRef(onto_iri))
+            if not date:
+                raise InternalError(
+                    f"Could not find the last modification date of the ontology '{onto_iri}' "
+                    f"in the response: {response.text}"
+                )
+            return date
         if response.status_code == HTTP_LACKING_PERMISSIONS:
             raise BadCredentialsError(
                 "Only a project or system administrator can add cardinalities to resource classes. "

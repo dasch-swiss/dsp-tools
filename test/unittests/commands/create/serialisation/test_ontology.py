@@ -1,4 +1,3 @@
-
 from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 from test.unittests.commands.create.serialisation.fixtures import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.serialisation.fixtures import ONTO_IRI

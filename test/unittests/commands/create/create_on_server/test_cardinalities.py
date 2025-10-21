@@ -3,9 +3,6 @@ from unittest.mock import Mock
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
-from unittests.commands.create.constants import LAST_MODIFICATION_DATE
-from unittests.commands.create.constants import ONTO
-from unittests.commands.create.constants import ONTO_IRI
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
@@ -17,6 +14,9 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
+from test.unittests.commands.create.constants import ONTO
+from test.unittests.commands.create.constants import ONTO_IRI
 
 RESOURCE_IRI = ONTO.Resource
 PROP_IRI = ONTO.hasText

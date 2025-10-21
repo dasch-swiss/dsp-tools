@@ -3,6 +3,7 @@ from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
@@ -16,7 +17,7 @@ def add_all_cardinalities(
     last_modification_date: Literal,
     onto_client: OntologyClient,
 ) -> CollectedProblems | None:
-    problems = []
+    problems: list[CreateProblem] = []
     for c in cardinalities:
         last_modification_date, creation_problems = _add_cardinalities_for_one_class(
             c, onto_iri, last_modification_date, onto_client

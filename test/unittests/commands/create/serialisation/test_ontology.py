@@ -2,9 +2,6 @@ from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import Literal
-from unittests.commands.create.constants import LAST_MODIFICATION_DATE
-from unittests.commands.create.constants import ONTO
-from unittests.commands.create.constants import ONTO_IRI
 
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
@@ -12,6 +9,9 @@ from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinali
 from dsp_tools.commands.create.serialisation.ontology import make_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
+from test.unittests.commands.create.constants import ONTO
+from test.unittests.commands.create.constants import ONTO_IRI
 
 RESOURCE_IRI = ONTO.Resource
 PROP_IRI = ONTO.hasText

@@ -2,7 +2,7 @@ from typing import Any
 from typing import cast
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
@@ -46,7 +46,7 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
 
 def _parse_properties(
     properties_list: list[dict[str, Any]], current_onto_prefix: str
-) -> tuple[list[ParsedProperty], list[InputProblem]]:
+) -> tuple[list[ParsedProperty], list[CreateProblem]]:
     parsed = []
     for prop in properties_list:
         parsed.append(ParsedProperty(f"{current_onto_prefix}{prop['name']}", prop))
@@ -55,7 +55,7 @@ def _parse_properties(
 
 def _parse_classes(
     classes_list: list[dict[str, Any]], current_onto_prefix: str
-) -> tuple[list[ParsedClass], list[InputProblem]]:
+) -> tuple[list[ParsedClass], list[CreateProblem]]:
     parsed = []
     for cls in classes_list:
         parsed.append(ParsedClass(f"{current_onto_prefix}{cls['name']}", cls))
@@ -64,7 +64,7 @@ def _parse_classes(
 
 def _parse_cardinalities(
     classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
-) -> tuple[list[ParsedClassCardinalities], list[InputProblem]]:
+) -> tuple[list[ParsedClassCardinalities], list[CreateProblem]]:
     parsed = []
     failures = []
     for c in classes_list:
@@ -79,7 +79,7 @@ def _parse_cardinalities(
 
 def _parse_one_class_cardinality(
     cls_json: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
-) -> ParsedClassCardinalities | list[InputProblem]:
+) -> ParsedClassCardinalities | list[CreateProblem]:
     failures = []
     parsed = []
     for c in cls_json["cardinalities"]:
@@ -96,10 +96,10 @@ def _parse_one_class_cardinality(
 
 def _parse_one_cardinality(
     card_json: dict[str, str | int], current_onto_prefix: str, prefixes: dict[str, str]
-) -> ParsedPropertyCardinality | InputProblem:
+) -> ParsedPropertyCardinality | CreateProblem:
     prp_name = cast(str, card_json["propname"])
     if not (resolved := resolve_to_absolute_iri(prp_name, current_onto_prefix, prefixes)):
-        return InputProblem(prp_name, ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
+        return CreateProblem(prp_name, ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
     gui = cast(int | None, card_json.get("gui_order"))
     return ParsedPropertyCardinality(
         propname=resolved,

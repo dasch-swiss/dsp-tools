@@ -8,20 +8,20 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
+from dsp_tools.commands.create.create_on_server.cardinalities import _make_cardinality_graph_for_request
+from dsp_tools.commands.create.create_on_server.cardinalities import _make_one_cardinality_graph
+from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.serialisation.cardinalities import _add_one_cardinality
-from dsp_tools.commands.create.serialisation.cardinalities import _make_cardinality_graph_for_request
-from dsp_tools.commands.create.serialisation.cardinalities import _make_one_cardinality_graph
-from dsp_tools.commands.create.serialisation.cardinalities import add_all_cardinalities
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from test.unittests.commands.create.serialisation.fixtures import LAST_MODIFICATION_DATE
-from test.unittests.commands.create.serialisation.fixtures import ONTO
-from test.unittests.commands.create.serialisation.fixtures import ONTO_IRI
+from test.unittests.commands.create.create_on_server.fixtures import LAST_MODIFICATION_DATE
+from test.unittests.commands.create.create_on_server.fixtures import ONTO
+from test.unittests.commands.create.create_on_server.fixtures import ONTO_IRI
 
 RESOURCE_IRI = ONTO.Resource
 PROP_IRI = ONTO.hasText

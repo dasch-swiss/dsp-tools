@@ -8,13 +8,13 @@ from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.constants import SALSAH_GUI_NAMESPACE
+from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
+from dsp_tools.commands.create.create_on_server.ontology import make_ontology_base_graph
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.serialisation.mappers import PARSED_CARDINALITY_TO_RDF
-from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 
 
 def add_all_cardinalities(

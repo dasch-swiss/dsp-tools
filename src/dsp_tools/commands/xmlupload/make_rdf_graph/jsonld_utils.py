@@ -12,7 +12,7 @@ def serialise_jsonld_for_resource(rdf_graph: Graph) -> dict[str, Any]:
 
 def _frame_graph_for_resource(serialised_json: list[dict[str, Any]]) -> dict[str, Any]:
     """
-    The result of the create_on_server is a list.
+    The result of the serialisation is a list.
     Although the API would accept that, our connection has the payload typed as `dict[str, Any]`.
     If the typing of the connection was changed or a different class was used, this step can be removed.
 

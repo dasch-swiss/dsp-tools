@@ -166,7 +166,6 @@ class TestOntologyClientLive:
     def test_post_and_log_request_uses_correct_url(
         self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Test that _post_and_log_request uses the correct URL"""
         captured_url: str | None = None
 
         def mock_post(url: str, *_args: object, **_kwargs: object) -> Response:
@@ -191,7 +190,6 @@ class TestOntologyClientLive:
 
 class TestParseLastModificationDate:
     def test_parse_valid_response(self) -> None:
-        """Test parsing a valid JSON-LD response with lastModificationDate"""
         response_text = json.dumps(
             {
                 "@context": {
@@ -210,7 +208,6 @@ class TestParseLastModificationDate:
         assert result == LAST_MODIFICATION_DATE
 
     def test_parse_response_without_modification_date(self) -> None:
-        """Test parsing a response without lastModificationDate returns None"""
         response_text = json.dumps(
             {
                 "@context": {

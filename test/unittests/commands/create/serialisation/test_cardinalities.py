@@ -9,8 +9,8 @@ from rdflib import Literal
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
@@ -140,7 +140,7 @@ class TestAddOneCardinality:
             property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client
         )
         assert result_date == LAST_MODIFICATION_DATE
-        assert isinstance(problem, InputProblem)
+        assert isinstance(problem, UploadProblem)
         assert problem.problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
         assert problem.problematic_object == f"{RESOURCE_IRI!s} / {PROP_IRI!s}"
 

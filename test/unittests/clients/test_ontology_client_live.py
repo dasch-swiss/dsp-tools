@@ -29,7 +29,7 @@ ONTO_IRI = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")
 TEST_RES_IRI = ONTO.TestResource
 TEST_PROP_IRI = ONTO.hasText
 
-LAST_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", XSD.dateTimeStamp)
+LAST_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
 
 
 @pytest.fixture

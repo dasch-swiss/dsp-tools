@@ -53,10 +53,7 @@ class OntologyClientLive(OntologyClient):
                 )
             return date
         if response.status_code == HTTP_LACKING_PERMISSIONS:
-            raise BadCredentialsError(
-                "Only a project or system administrator can add cardinalities to resource classes. "
-                "Your permissions are insufficient for this action."
-            )
+            raise BadCredentialsError("You do not have sufficient credentials to retrieve ontology metadata.")
         else:
             raise BaseError(
                 f"An unexpected response with the status code {response.status_code} was received from the API. "

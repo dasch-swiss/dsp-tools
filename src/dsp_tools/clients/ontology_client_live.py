@@ -13,8 +13,7 @@ from requests import Response
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.request_utils import RequestParameters
@@ -46,7 +45,7 @@ class OntologyClientLive(OntologyClient):
         if response.ok:
             date = _parse_last_modification_date(response.text, URIRef(onto_iri))
             if not date:
-                raise InternalError(
+                raise UnexpectedApiResponseError(
                     f"Could not find the last modification date of the ontology '{onto_iri}' "
                     f"in the response: {response.text}"
                 )
@@ -54,7 +53,7 @@ class OntologyClientLive(OntologyClient):
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You do not have sufficient credentials to retrieve ontology metadata.")
         else:
-            raise BaseError(
+            raise UnexpectedApiResponseError(
                 f"An unexpected response with the status code {response.status_code} was received from the API. "
                 f"Please consult 'warnings.log' for details."
             )
@@ -75,7 +74,7 @@ class OntologyClientLive(OntologyClient):
                 "Your permissions are insufficient for this action."
             )
         else:
-            raise BaseError(
+            raise UnexpectedApiResponseError(
                 f"An unexpected response with the status code {response.status_code} was received from the API. "
                 f"Please consult 'warnings.log' for details."
             )

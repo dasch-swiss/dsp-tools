@@ -8,11 +8,11 @@ import requests
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.cli.call_action import _check_local_api_health
+from dsp_tools.cli.call_action import _check_api_health
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.error.exceptions import LocalDspApiNotReachableError
+from dsp_tools.error.exceptions import DspApiNotReachableError
 
 EXIT_CODE_TWO = 2
 
@@ -910,7 +910,7 @@ def test_check_api_health_success(mock_get: Mock) -> None:
     mock_get.return_value = mock_response
 
     # Should not raise any exception
-    _check_local_api_health()
+    _check_api_health()
     mock_get.assert_called_once_with("http://0.0.0.0:3333/health", timeout=2)
 
 
@@ -922,8 +922,8 @@ def test_check_api_health_not_healthy(mock_get: Mock) -> None:
     mock_response.status_code = 503
     mock_get.return_value = mock_response
 
-    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
-        _check_local_api_health()
+    with pytest.raises(DspApiNotReachableError) as exc_info:
+        _check_api_health()
 
     assert "DSP API is not healthy" in str(exc_info.value)
     assert "503" in str(exc_info.value)
@@ -935,8 +935,8 @@ def test_check_api_health_connection_error(mock_get: Mock) -> None:
     """Test that _check_api_health raises LocalDspApiNotReachableError when API is not reachable."""
     mock_get.side_effect = requests.exceptions.ConnectionError("Connection refused")
 
-    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
-        _check_local_api_health()
+    with pytest.raises(DspApiNotReachableError) as exc_info:
+        _check_api_health()
 
     assert "DSP API is not reachable" in str(exc_info.value)
     assert "start-stack" in str(exc_info.value)
@@ -948,8 +948,8 @@ def test_check_api_health_timeout(mock_get: Mock) -> None:
     """Test that _check_api_health raises LocalDspApiNotReachableError when API times out."""
     mock_get.side_effect = requests.exceptions.Timeout("Request timed out")
 
-    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
-        _check_local_api_health()
+    with pytest.raises(DspApiNotReachableError) as exc_info:
+        _check_api_health()
 
     assert "DSP API is not reachable" in str(exc_info.value)
     mock_get.assert_called_once_with("http://0.0.0.0:3333/health", timeout=2)

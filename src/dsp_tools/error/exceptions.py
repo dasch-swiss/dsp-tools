@@ -53,7 +53,7 @@ class DockerNotReachableError(BaseError):
         super().__init__(msg)
 
 
-class LocalDspApiNotReachableError(BaseError):
+class DspApiNotReachableError(BaseError):
     """This error is raised when the DSP-API could not be reached on localhost."""
 
 

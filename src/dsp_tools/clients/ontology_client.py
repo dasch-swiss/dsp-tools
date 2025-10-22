@@ -11,7 +11,7 @@ class OntologyClient(Protocol):
     Protocol class/interface for the ontology endpoint in the API.
     """
 
-    project_shortcode: str
+    server: str
     authentication_client: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> str:

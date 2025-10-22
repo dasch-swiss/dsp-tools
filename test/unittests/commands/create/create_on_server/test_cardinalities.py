@@ -7,8 +7,8 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
-from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
@@ -91,7 +91,7 @@ class TestAddAllCardinalities:
                 ],
             )
         ]
-        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
+        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
         assert result is None
         assert onto_client_ok.post_resource_cardinalities.call_count == 1
 
@@ -135,7 +135,7 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
         assert result is None
         assert mock_client.post_resource_cardinalities.call_count == 3
 
@@ -179,7 +179,7 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 1
         assert mock_client.post_resource_cardinalities.call_count == 3
@@ -217,7 +217,7 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
 
         assert result is None
         assert len(passed_graphs) == 2

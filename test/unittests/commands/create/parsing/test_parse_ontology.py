@@ -2,7 +2,7 @@
 
 from dsp_tools.commands.create.constants import KNORA_API
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
@@ -101,7 +101,7 @@ class TestParseCardinalities:
         assert len(parsed) == 0
         assert len(failures) == 1
         result = failures.pop(0)
-        assert isinstance(result, InputProblem)
+        assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:testSimpleText"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
@@ -140,6 +140,6 @@ class TestParseCardinalities:
     def test_fail(self, prefixes):
         card = {"propname": "inexistent:prefix", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
-        assert isinstance(result, InputProblem)
+        assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED

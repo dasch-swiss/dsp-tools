@@ -1,5 +1,6 @@
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
 from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_errors import XmllibInternalError
@@ -32,3 +33,5 @@ XmllibInternalError()
 XmllibFileNotFoundError()
 
 serialise_json()
+
+UnexpectedApiResponseError()

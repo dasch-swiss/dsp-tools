@@ -91,7 +91,7 @@ class OntologyClientLive(OntologyClient):
         data_dict = {"data": data} if data else None
         if headers:
             generic_headers.update(headers)
-        params = RequestParameters("POST", url, TIMEOUT, data_dict, headers)
+        params = RequestParameters("POST", url, TIMEOUT, data_dict, generic_headers)
         log_request(params)
         response = requests.post(
             url=params.url,

@@ -2,6 +2,7 @@ import json
 from unittest.mock import Mock
 
 import pytest
+import regex
 import requests
 from rdflib import OWL
 from rdflib import RDF
@@ -101,11 +102,12 @@ class TestOntologyClientLive:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(BadCredentialsError) as exc_info:
+        expected = regex.escape(
+            "Only a project or system administrator can add cardinalities to resource classes. "
+            "Your permissions are insufficient for this action."
+        )
+        with pytest.raises(BadCredentialsError, match=expected):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
-
-        assert "administrator" in str(exc_info.value).lower()
-        assert "permissions" in str(exc_info.value).lower()
 
     def test_post_resource_cardinalities_server_error(
         self, ontology_client: OntologyClientLive, sample_cardinality_graph: Graph, monkeypatch: pytest.MonkeyPatch

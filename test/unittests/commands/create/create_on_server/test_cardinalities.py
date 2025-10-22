@@ -1,5 +1,6 @@
 from unittest.mock import Mock
 
+import pytest
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
@@ -21,34 +22,39 @@ from test.unittests.commands.create.constants import ONTO_IRI
 RESOURCE_IRI = ONTO.Resource
 PROP_IRI = ONTO.hasText
 
+NEW_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
+
+
+@pytest.fixture
+def onto_client_ok() -> Mock:
+    mock_client = Mock(spec=OntologyClient)
+    new_mod_date = NEW_MODIFICATION_DATE
+    mock_client.post_resource_cardinalities.return_value = new_mod_date
+    return mock_client
+
 
 class TestAddOneCardinality:
-    def test_calls_client_and_returns_modification_date(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
-        new_mod_date = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
-        mock_client.post_resource_cardinalities.return_value = new_mod_date
+    def test_calls_client_and_returns_modification_date(self, onto_client_ok) -> None:
         property_card = ParsedPropertyCardinality(
             propname=str(PROP_IRI),
             cardinality=Cardinality.C_1,
             gui_order=None,
         )
         result_date, problems = _add_one_cardinality(
-            property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client
+            property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok
         )
-        assert result_date == new_mod_date
+        assert result_date == NEW_MODIFICATION_DATE
         assert problems is None
-        mock_client.post_resource_cardinalities.assert_called_once()
+        onto_client_ok.post_resource_cardinalities.assert_called_once()
 
-    def test_passes_correct_graph_to_client(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
-        mock_client.post_resource_cardinalities.return_value = LAST_MODIFICATION_DATE
+    def test_passes_correct_graph_to_client(self, onto_client_ok) -> None:
         property_card = ParsedPropertyCardinality(
             propname=str(PROP_IRI),
             cardinality=Cardinality.C_1,
             gui_order=None,
         )
-        _add_one_cardinality(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
-        call_args = mock_client.post_resource_cardinalities.call_args
+        _add_one_cardinality(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
+        call_args = onto_client_ok.post_resource_cardinalities.call_args
         passed_graph = call_args[0][0]
         assert isinstance(passed_graph, Graph)
 
@@ -71,10 +77,7 @@ class TestAddOneCardinality:
 
 
 class TestAddAllCardinalities:
-    def test_adds_single_cardinality_successfully(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
-        mock_client.post_resource_cardinalities.return_value = LAST_MODIFICATION_DATE
-
+    def test_adds_single_cardinality_successfully(self, onto_client_ok) -> None:
         cardinalities = [
             ParsedClassCardinalities(
                 class_iri=str(RESOURCE_IRI),
@@ -87,9 +90,9 @@ class TestAddAllCardinalities:
                 ],
             )
         ]
-        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
+        result = add_all_cardinalities(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
         assert result is None
-        assert mock_client.post_resource_cardinalities.call_count == 1
+        assert onto_client_ok.post_resource_cardinalities.call_count == 1
 
     def test_adds_multiple_cardinalities_successfully(self) -> None:
         mock_client = Mock(spec=OntologyClient)

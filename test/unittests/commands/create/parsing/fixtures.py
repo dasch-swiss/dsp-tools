@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.utils.json_parsing import parse_json_file
 
 ONTO_PREFIX = "http://0.0.0.0:3333/ontology/8888/onto/v2#"
@@ -18,7 +18,7 @@ def prefixes() -> dict[str, str]:
         "externalOnto": "http://otherOntology.com/onto/",
         "foaf": "http://xmlns.com/foaf/0.1/",
         "in-built": "http://0.0.0.0:3333/ontology/8888/in-built/v2#",
-        "knora-api": KNORA_API,
+        "knora-api": KNORA_API_STR,
         "onto": ONTO_PREFIX,
         "second-onto": "http://0.0.0.0:3333/ontology/8888/second-onto/v2#",
     }

@@ -2,12 +2,12 @@
 
 import pytest
 
-from dsp_tools.commands.create.constants import KNORA_API
-from dsp_tools.commands.create.constants import SALSAH_GUI
+from dsp_tools.commands.create.constants import KNORA_API_STR
+from dsp_tools.commands.create.constants import SALSAH_GUI_STR
 from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
-from test.unittests.commands.create.fixtures import ONTO_PREFIX
+from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 EXTERNAL_PREFIXES = {
     "wrong-ending": "http://wrong-ending.org/onto",
@@ -23,8 +23,8 @@ class TestPrefixLookup:
             "project": {"shortcode": "8888", "ontologies": [{"name": "onto"}]},
         }
         expected = {
-            "knora-api": KNORA_API,
-            "salsah-gui": SALSAH_GUI,
+            "knora-api": KNORA_API_STR,
+            "salsah-gui": SALSAH_GUI_STR,
             "onto": "http://0.0.0.0:3333/ontology/8888/onto/v2#",
             "with-hashtag": "http://with-hashtag.org/onto#",
             "with-slash": "http://with-slash.org/onto/",
@@ -36,8 +36,8 @@ class TestPrefixLookup:
     def test_without_prefixes(self):
         project_json = {"project": {"shortcode": "8888", "ontologies": [{"name": "onto1"}, {"name": "onto2"}]}}
         expected = {
-            "knora-api": KNORA_API,
-            "salsah-gui": SALSAH_GUI,
+            "knora-api": KNORA_API_STR,
+            "salsah-gui": SALSAH_GUI_STR,
             "onto1": "http://0.0.0.0:3333/ontology/8888/onto1/v2#",
             "onto2": "http://0.0.0.0:3333/ontology/8888/onto2/v2#",
         }
@@ -49,12 +49,12 @@ class TestResolveToAbsoluteIri:
     @pytest.mark.parametrize(
         ("prefixed_iri", "expected"),
         [
-            ("hasValue", f"{KNORA_API}hasValue"),
-            ("knora-api:hasValue", f"{KNORA_API}hasValue"),
+            ("hasValue", f"{KNORA_API_STR}hasValue"),
+            ("knora-api:hasValue", f"{KNORA_API_STR}hasValue"),
             ("onto:testBool", f"{ONTO_PREFIX}testBool"),
             (":testBool", f"{ONTO_PREFIX}testBool"),
             ("http://purl.org/dc/terms/title", "http://purl.org/dc/terms/title"),
-            (f"{KNORA_API}hasValue", f"{KNORA_API}hasValue"),
+            (f"{KNORA_API_STR}hasValue", f"{KNORA_API_STR}hasValue"),
         ],
     )
     def test_good(self, prefixed_iri, expected, prefixes):

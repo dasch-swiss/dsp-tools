@@ -1,8 +1,8 @@
 # mypy: disable-error-code="no-untyped-def"
 
-from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
@@ -12,7 +12,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from test.unittests.commands.create.fixtures import ONTO_PREFIX
+from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
 class TestParseOntology:
@@ -101,7 +101,7 @@ class TestParseCardinalities:
         assert len(parsed) == 0
         assert len(failures) == 1
         result = failures.pop(0)
-        assert isinstance(result, InputProblem)
+        assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:testSimpleText"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
@@ -133,13 +133,13 @@ class TestParseCardinalities:
         card = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{KNORA_API}seqnum"
+        assert result.propname == f"{KNORA_API_STR}seqnum"
         assert result.cardinality == Cardinality.C_1_N
         assert result.gui_order == 2
 
     def test_fail(self, prefixes):
         card = {"propname": "inexistent:prefix", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
-        assert isinstance(result, InputProblem)
+        assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED

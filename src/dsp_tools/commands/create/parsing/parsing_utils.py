@@ -2,7 +2,7 @@ from typing import Any
 
 import regex
 
-from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.utils.data_formats.uri_util import is_uri
 
@@ -14,7 +14,7 @@ def resolve_to_absolute_iri(prefixed: str, current_onto: str, prefix_lookup: dic
         return f"{current_onto}{prefixed.lstrip(':')}"
     segments = prefixed.split(":", maxsplit=1)
     if len(segments) == 1:
-        return f"{KNORA_API}{segments[0]}"
+        return f"{KNORA_API_STR}{segments[0]}"
     if not (found := prefix_lookup.get(segments[0])):
         return None
     return f"{found}{segments[1]}"

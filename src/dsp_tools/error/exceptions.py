@@ -65,6 +65,10 @@ class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
 
 
+class UnexpectedApiResponseError(BaseError):
+    """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
+
+
 class UserFilepathNotFoundError(InputError):
     """This error is raised if a filepath from the user does not exist."""
 

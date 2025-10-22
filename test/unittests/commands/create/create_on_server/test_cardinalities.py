@@ -9,18 +9,21 @@ from rdflib import Literal
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
 
 RESOURCE_IRI = ONTO.Resource
+RES_1 = str(ONTO.Resource1)
+RES_2 = str(ONTO.Resource2)
+RES_3 = str(ONTO.Resource3)
 PROP_IRI = ONTO.hasText
 
 NEW_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
@@ -32,6 +35,11 @@ def onto_client_ok() -> Mock:
     new_mod_date = NEW_MODIFICATION_DATE
     mock_client.post_resource_cardinalities.return_value = new_mod_date
     return mock_client
+
+
+@pytest.fixture
+def created_iri_collection() -> CreatedIriCollection:
+    return CreatedIriCollection(classes={str(RESOURCE_IRI), RES_1, RES_2, RES_3}, properties={str(PROP_IRI)})
 
 
 class TestAddOneCardinality:
@@ -78,7 +86,7 @@ class TestAddOneCardinality:
 
 
 class TestAddAllCardinalities:
-    def test_adds_single_cardinality_successfully(self, onto_client_ok) -> None:
+    def test_adds_single_cardinality_successfully(self, onto_client_ok, created_iri_collection) -> None:
         cardinalities = [
             ParsedClassCardinalities(
                 class_iri=str(RESOURCE_IRI),
@@ -91,11 +99,13 @@ class TestAddAllCardinalities:
                 ],
             )
         ]
-        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
-        assert result is None
+        result = _add_all_cardinalities_for_one_onto(
+            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, created_iri_collection
+        )
+        assert len(result) == 0
         assert onto_client_ok.post_resource_cardinalities.call_count == 1
 
-    def test_adds_multiple_cardinalities_successfully(self) -> None:
+    def test_adds_multiple_cardinalities_successfully(self, created_iri_collection) -> None:
         mock_client = Mock(spec=OntologyClient)
         # Return different modification dates for each call
         mock_client.post_resource_cardinalities.side_effect = [
@@ -105,7 +115,7 @@ class TestAddAllCardinalities:
         ]
         cardinalities = [
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource1),
+                class_iri=RES_1,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -115,7 +125,7 @@ class TestAddAllCardinalities:
                 ],
             ),
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource2),
+                class_iri=RES_2,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -125,7 +135,7 @@ class TestAddAllCardinalities:
                 ],
             ),
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource3),
+                class_iri=RES_3,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -135,11 +145,13 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
-        assert result is None
+        result = _add_all_cardinalities_for_one_onto(
+            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+        )
+        assert len(result) == 0
         assert mock_client.post_resource_cardinalities.call_count == 3
 
-    def test_handles_partial_failure(self) -> None:
+    def test_handles_partial_failure(self, created_iri_collection) -> None:
         mock_client = Mock(spec=OntologyClient)
         # Second call returns None (failure)
         mock_client.post_resource_cardinalities.side_effect = [
@@ -149,7 +161,7 @@ class TestAddAllCardinalities:
         ]
         cardinalities = [
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource1),
+                class_iri=RES_1,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -159,7 +171,7 @@ class TestAddAllCardinalities:
                 ],
             ),
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource2),
+                class_iri=RES_2,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -169,7 +181,7 @@ class TestAddAllCardinalities:
                 ],
             ),
             ParsedClassCardinalities(
-                class_iri=str(ONTO.Resource3),
+                class_iri=RES_3,
                 cards=[
                     ParsedPropertyCardinality(
                         propname=str(PROP_IRI),
@@ -179,12 +191,13 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
-        assert isinstance(result, CollectedProblems)
-        assert len(result.problems) == 1
+        result = _add_all_cardinalities_for_one_onto(
+            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+        )
+        assert len(result) == 1
         assert mock_client.post_resource_cardinalities.call_count == 3
 
-    def test_updates_modification_date_between_calls(self) -> None:
+    def test_updates_modification_date_between_calls(self, created_iri_collection) -> None:
         mock_client = Mock(spec=OntologyClient)
         passed_graphs = []
 
@@ -217,9 +230,10 @@ class TestAddAllCardinalities:
                 ],
             ),
         ]
-        result = _add_all_cardinalities_for_one_onto(cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client)
-
-        assert result is None
+        result = _add_all_cardinalities_for_one_onto(
+            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+        )
+        assert len(result) == 0
         assert len(passed_graphs) == 2
 
         # First graph should have initial modification date

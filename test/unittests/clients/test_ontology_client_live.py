@@ -19,7 +19,6 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client_live import OntologyClientLive
 from dsp_tools.clients.ontology_client_live import _parse_last_modification_date
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
@@ -121,10 +120,8 @@ class TestOntologyClientLive:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(BaseError) as exc_info:
-            ontology_client.post_resource_cardinalities(sample_cardinality_graph)
-
-        assert "500" in str(exc_info.value)
+        result = ontology_client.post_resource_cardinalities(sample_cardinality_graph)
+        assert result is None
 
     def test_post_resource_cardinalities_timeout(
         self, ontology_client: OntologyClientLive, sample_cardinality_graph: Graph, monkeypatch: pytest.MonkeyPatch

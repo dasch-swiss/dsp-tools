@@ -12,7 +12,7 @@ from dsp_tools.cli.call_action import _check_local_api_health
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import LocalDspApiNotReachableError
 
 EXIT_CODE_TWO = 2
 
@@ -26,7 +26,7 @@ def test_invalid_arguments() -> None:
     assert ex.value.code == EXIT_CODE_TWO
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
 def test_lists_validate(validate_lists: Mock, check_docker: Mock) -> None:
     file = "filename.json"
@@ -35,7 +35,7 @@ def test_lists_validate(validate_lists: Mock, check_docker: Mock) -> None:
     validate_lists.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.create_only_lists")
 def test_lists_create(create_lists: Mock, check_docker: Mock) -> None:
     create_lists.return_value = ({}, True)
@@ -49,7 +49,7 @@ def test_lists_create(create_lists: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_project")
 def test_project_validate(validate_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
@@ -58,7 +58,7 @@ def test_project_validate(validate_project: Mock, check_docker: Mock) -> None:
     validate_project.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.create_project")
 def test_project_create(create_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
@@ -72,7 +72,7 @@ def test_project_create(create_project: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.get_project")
 def test_project_get(get_project: Mock, check_docker: Mock) -> None:
     file = "filename.json"
@@ -88,7 +88,7 @@ def test_project_get(get_project: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -116,7 +116,7 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
 def test_xmlupload_validate(validate_xml: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -125,7 +125,7 @@ def test_xmlupload_validate(validate_xml: Mock, check_docker: Mock) -> None:
     validate_xml.assert_called_once_with(Path(file))
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -146,7 +146,7 @@ def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -167,7 +167,7 @@ def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -188,7 +188,7 @@ def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -212,7 +212,7 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_do
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -236,7 +236,7 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_dock
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -261,7 +261,7 @@ def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock)
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -278,7 +278,7 @@ def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = "filename.xml"
@@ -299,7 +299,7 @@ def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: M
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -318,7 +318,7 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -338,7 +338,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -399,7 +399,7 @@ def test_validate_data_other_creds(validate_data: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -418,7 +418,7 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_docker: Mock) -> None:
     xml_file = "filename.xml"
@@ -438,7 +438,7 @@ def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_d
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
 def test_resume_xmlupload_default(resume_xmlupload: Mock, check_docker: Mock) -> None:
     args = "resume-xmlupload".split()
@@ -452,7 +452,7 @@ def test_resume_xmlupload_default(resume_xmlupload: Mock, check_docker: Mock) ->
     resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
 def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock, check_docker: Mock) -> None:
     args = "resume-xmlupload --skip-first-resource".split()
@@ -466,7 +466,7 @@ def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock, check_dock
     resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=True)
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.upload_files")
 def test_upload_files_localhost(upload_files: Mock, check_docker: Mock) -> None:
     file = "filename.xml"
@@ -498,7 +498,7 @@ def test_upload_files_remote(upload_files: Mock) -> None:
     upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_and_stack_health_if_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_files")
 def test_ingest_files_localhost(ingest_files: Mock, check_docker: Mock) -> None:
     shortcode = "1234"
@@ -530,7 +530,7 @@ def test_ingest_files_remote(ingest_files: Mock) -> None:
     ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
@@ -552,7 +552,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
@@ -575,7 +575,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
@@ -621,7 +621,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, check_docker: Mock) -> None:
     xml_file = Path("filename.xml")
@@ -862,7 +862,7 @@ def test_stop_stack(stop_stack: Mock) -> None:
     stop_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -872,7 +872,7 @@ def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock
     xmlupload.assert_called_once()
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -882,7 +882,7 @@ def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock, c
     xmlupload.assert_called_once()
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -892,7 +892,7 @@ def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock, che
     xmlupload.assert_called_once()
 
 
-@patch("dsp_tools.cli.call_action._check_docker_health_if_on_localhost")
+@patch("dsp_tools.cli.call_action._check_docker_but_stack_only_when_on_localhost")
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -916,13 +916,13 @@ def test_check_api_health_success(mock_get: Mock) -> None:
 
 @patch("requests.get")
 def test_check_api_health_not_healthy(mock_get: Mock) -> None:
-    """Test that _check_api_health raises InputError when API returns non-OK status."""
+    """Test that _check_api_health raises LocalDspApiNotReachableError when API returns non-OK status."""
     mock_response = Mock()
     mock_response.ok = False
     mock_response.status_code = 503
     mock_get.return_value = mock_response
 
-    with pytest.raises(InputError) as exc_info:
+    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
         _check_local_api_health()
 
     assert "DSP API is not healthy" in str(exc_info.value)
@@ -932,10 +932,10 @@ def test_check_api_health_not_healthy(mock_get: Mock) -> None:
 
 @patch("requests.get")
 def test_check_api_health_connection_error(mock_get: Mock) -> None:
-    """Test that _check_api_health raises InputError when API is not reachable."""
+    """Test that _check_api_health raises LocalDspApiNotReachableError when API is not reachable."""
     mock_get.side_effect = requests.exceptions.ConnectionError("Connection refused")
 
-    with pytest.raises(InputError) as exc_info:
+    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
         _check_local_api_health()
 
     assert "DSP API is not reachable" in str(exc_info.value)
@@ -945,10 +945,10 @@ def test_check_api_health_connection_error(mock_get: Mock) -> None:
 
 @patch("requests.get")
 def test_check_api_health_timeout(mock_get: Mock) -> None:
-    """Test that _check_api_health raises InputError when API times out."""
+    """Test that _check_api_health raises LocalDspApiNotReachableError when API times out."""
     mock_get.side_effect = requests.exceptions.Timeout("Request timed out")
 
-    with pytest.raises(InputError) as exc_info:
+    with pytest.raises(LocalDspApiNotReachableError) as exc_info:
         _check_local_api_health()
 
     assert "DSP API is not reachable" in str(exc_info.value)

@@ -2,6 +2,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
+import requests
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
@@ -27,8 +28,12 @@ from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.error.exceptions import DockerNotReachableError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import LocalDspApiNotReachableError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
+
+LOCALHOST_API = "http://0.0.0.0:3333"
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (too many branches)
@@ -41,20 +46,36 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
     Raises:
         BaseError: from the called function
         InputError: from the called function
+        DockerNotReachableError: from the called function
+        LocalDspApiNotReachableError: from the called function
         unexpected errors from the called methods and underlying libraries
 
     Returns:
         success status
     """
     match args.action:
+        # commands with Docker / API interactions
+        case "start-stack":
+            result = _call_start_stack(args)
+        case "stop-stack":
+            result = _call_stop_stack()
         case "create":
             result = _call_create(args)
-        case "xmlupload":
-            result = _call_xmlupload(args)
+        case "get":
+            result = _call_get(args)
         case "validate-data":
             result = _call_validate_data(args)
+        case "xmlupload":
+            result = _call_xmlupload(args)
         case "resume-xmlupload":
             result = _call_resume_xmlupload(args)
+        case "upload-files":
+            result = _call_upload_files(args)
+        case "ingest-files":
+            result = _call_ingest_files(args)
+        case "ingest-xmlupload":
+            result = _call_ingest_xmlupload(args)
+        # commands that do not require docker
         case "excel2json":
             result = _call_excel2json(args)
         case "old-excel2json":
@@ -69,18 +90,6 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_excel2properties(args)
         case "id2iri":
             result = _call_id2iri(args)
-        case "start-stack":
-            result = _call_start_stack(args)
-        case "stop-stack":
-            result = _call_stop_stack()
-        case "get":
-            result = _call_get(args)
-        case "upload-files":
-            result = _call_upload_files(args)
-        case "ingest-files":
-            result = _call_ingest_files(args)
-        case "ingest-xmlupload":
-            result = _call_ingest_xmlupload(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")
@@ -164,7 +173,7 @@ def _call_old_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_upload_files(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_and_stack_health_if_on_localhost(args.server)
     return upload_files(
         xml_file=Path(args.xml_file),
         creds=_get_creds(args),
@@ -173,12 +182,12 @@ def _call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def _call_ingest_files(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_and_stack_health_if_on_localhost(args.server)
     return ingest_files(creds=_get_creds(args), shortcode=args.shortcode)
 
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_but_stack_only_when_on_localhost(args.server)
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=Path(args.xml_file),
@@ -191,7 +200,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_but_stack_only_when_on_localhost(args.server)
     if args.validate_only:
         success = parse_and_validate_xml_file(Path(args.xmlfile))
         print("The XML file is syntactically correct.")
@@ -227,7 +236,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_but_stack_only_when_on_localhost(args.server)
     return validate_data(
         filepath=Path(args.xmlfile),
         creds=_get_creds(args),
@@ -239,7 +248,8 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    # this does not need docker if not on localhost, as does not need to validate
+    _check_docker_and_stack_health_if_on_localhost(args.server)
     return resume_xmlupload(
         creds=_get_creds(args),
         skip_first_resource=args.skip_first_resource,
@@ -247,7 +257,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_get(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_and_stack_health_if_on_localhost(args.server)
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
@@ -257,7 +267,7 @@ def _call_get(args: argparse.Namespace) -> bool:
 
 
 def _call_create(args: argparse.Namespace) -> bool:
-    _check_docker_health_if_on_localhost(args.server)
+    _check_docker_and_stack_health_if_on_localhost(args.server)
     success = False
     match args.lists_only, args.validate_only:
         case True, True:
@@ -289,11 +299,41 @@ def _get_creds(args: argparse.Namespace) -> ServerCredentials:
     )
 
 
-def _check_docker_health_if_on_localhost(api_url: str) -> None:
-    if api_url == "http://0.0.0.0:3333":
+def _check_docker_and_stack_health_if_on_localhost(api_url: str) -> None:
+    if api_url == LOCALHOST_API:
         _check_docker_health()
+        _check_local_api_health()
+
+
+def _check_docker_but_stack_only_when_on_localhost(api_url: str) -> None:
+    # validate always needs docker running
+    _check_docker_health()
+    if api_url == LOCALHOST_API:
+        _check_local_api_health()
 
 
 def _check_docker_health() -> None:
     if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
-        raise InputError("Docker is not running properly. Please start Docker and try again.")
+        raise DockerNotReachableError()
+
+
+def _check_local_api_health() -> None:
+    health_url = f"{LOCALHOST_API}/health"
+    try:
+        response = requests.get(health_url, timeout=2)
+        if not response.ok:
+            msg = (
+                f"DSP API is not healthy (returned status {response.status_code}). "
+                f"Please check your DSP stack or restart it."
+            )
+            logger.error(msg)
+            raise LocalDspApiNotReachableError(msg)
+        logger.debug(f"DSP API health check passed: {health_url}")
+    except requests.exceptions.RequestException as e:
+        logger.error(e)
+        msg = (
+            "DSP API is not reachable. "
+            "Please ensure that a stack is running or run 'dsp-tools start-stack' to start it."
+        )
+        logger.error(msg)
+        raise LocalDspApiNotReachableError(msg) from None

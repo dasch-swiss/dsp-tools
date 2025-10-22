@@ -69,3 +69,5 @@ jobs:
         run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests
+      - name: stop stack
+        run: uv run dsp-tools stop-stack

@@ -1,6 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
 
-from dsp_tools.commands.create.constants import KNORA_API
+from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -133,7 +133,7 @@ class TestParseCardinalities:
         card = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{KNORA_API}seqnum"
+        assert result.propname == f"{KNORA_API_STR}seqnum"
         assert result.cardinality == Cardinality.C_1_N
         assert result.gui_order == 2
 

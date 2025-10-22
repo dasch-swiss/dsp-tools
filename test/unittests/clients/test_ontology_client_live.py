@@ -21,6 +21,7 @@ from dsp_tools.clients.ontology_client_live import OntologyClientLive
 from dsp_tools.clients.ontology_client_live import _parse_last_modification_date
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentTimeOutError
+from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
@@ -135,6 +136,31 @@ class TestOntologyClientLive:
         with pytest.raises(PermanentTimeOutError):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
+    def test_post_resource_cardinalities_unexpected_response_missing_date(
+        self, ontology_client: OntologyClientLive, sample_cardinality_graph: Graph, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        api_response = json.dumps(
+            {
+                "@context": {
+                    "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                },
+                "rdfs:label": "Test ontology",
+            }
+        )
+        mock_response = Mock(spec=Response)
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_response.text = api_response
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+
+        expected = regex.escape(f"Could not find the last modification date in the response: {api_response}")
+        with pytest.raises(UnexpectedApiResponseError, match=expected):
+            ontology_client.post_resource_cardinalities(sample_cardinality_graph)
+
     def test_post_and_log_request_creates_correct_headers(
         self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -184,6 +210,87 @@ class TestOntologyClientLive:
         ontology_client._post_and_log_request(test_url, test_data)
 
         assert captured_url == test_url
+
+    def test_get_last_modification_date_success(
+        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_response = Mock(spec=Response)
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_response.text = json.dumps(
+            {
+                "@context": {
+                    "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                    "xsd": "http://www.w3.org/2001/XMLSchema#",
+                },
+                "@id": str(ONTO_IRI),
+                "knora-api:lastModificationDate": {
+                    "@value": str(LAST_MODIFICATION_DATE),
+                    "@type": "xsd:dateTimeStamp",
+                },
+            }
+        )
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+
+        result = ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
+        assert result == LAST_MODIFICATION_DATE
+
+    def test_get_last_modification_date_missing_date(
+        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Response is OK but missing lastModificationDate
+        mock_response = Mock(spec=Response)
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_response.text = json.dumps(
+            {
+                "@context": {
+                    "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                },
+                "@id": str(ONTO_IRI),
+                "rdfs:label": "Test ontology",
+            }
+        )
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+
+        expected = regex.escape(f"Could not find the last modification date of the ontology '{ONTO_IRI}'")
+        with pytest.raises(UnexpectedApiResponseError, match=expected):
+            ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
+
+    def test_get_last_modification_date_unexpected_status_code(
+        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_response = Mock(spec=Response)
+        mock_response.ok = False
+        mock_response.status_code = 404
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+
+        expected = regex.escape("An unexpected response with the status code 404 was received from the API.")
+        with pytest.raises(UnexpectedApiResponseError, match=expected):
+            ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
+
+    def test_get_last_modification_date_timeout(
+        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> None:
+            raise ReadTimeout("Connection timed out")
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+
+        with pytest.raises(PermanentTimeOutError):
+            ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
 
 class TestParseLastModificationDate:

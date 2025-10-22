@@ -98,6 +98,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
 
 
 def _call_stop_stack() -> bool:
+    _check_docker_health()
     stack_handler = StackHandler(StackConfiguration())
     return stack_handler.stop_stack()
 
@@ -333,7 +334,7 @@ def _check_local_api_health() -> None:
         logger.error(e)
         msg = (
             "DSP API is not reachable. "
-            "Please ensure that a stack is running or run 'dsp-tools start-stack' to start it."
+            "Please ensure that the stack is running correctly or execute 'dsp-tools start-stack' to start it."
         )
         logger.error(msg)
         raise LocalDspApiNotReachableError(msg) from None

@@ -81,7 +81,8 @@ class OntologyClientLive(OntologyClient):
         else:
             logger.error(
                 f"During cardinality creation an unexpected response with the status code {response.status_code} "
-                f"was received from the API.")
+                f"was received from the API."
+            )
             return None
 
     def _post_and_log_request(

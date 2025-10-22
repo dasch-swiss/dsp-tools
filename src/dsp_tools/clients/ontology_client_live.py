@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from http import HTTPStatus
 from typing import Any
 
 import requests
@@ -22,8 +23,6 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT = 60
-
-HTTP_LACKING_PERMISSIONS = 403
 
 
 @dataclass
@@ -52,7 +51,7 @@ class OntologyClientLive(OntologyClient):
                     f"in the response: {response.text}"
                 )
             return date
-        if response.status_code == HTTP_LACKING_PERMISSIONS:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You do not have sufficient credentials to retrieve ontology metadata.")
         else:
             raise BaseError(
@@ -70,7 +69,7 @@ class OntologyClientLive(OntologyClient):
             log_and_raise_timeouts(err)
         if response.ok:
             return _parse_last_modification_date(response.text)
-        if response.status_code == HTTP_LACKING_PERMISSIONS:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."

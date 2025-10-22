@@ -45,6 +45,18 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
+class DockerNotReachableError(BaseError):
+    """This error is raised when docker is not running."""
+
+    def __init__(self) -> None:
+        msg = "Docker is not running properly. Please start Docker and try again."
+        super().__init__(msg)
+
+
+class DspApiNotReachableError(BaseError):
+    """This error is raised when the DSP-API could not be reached on localhost."""
+
+
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 

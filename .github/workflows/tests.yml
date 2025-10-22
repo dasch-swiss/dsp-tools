@@ -63,7 +63,11 @@ jobs:
         uses: actions/checkout@v5
       - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
+      - name: start stack
+        run: uv run dsp-tools start-stack --no-prune --with-test-data
       - name: distribution tests
         run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests
+      - name: stop stack
+        run: uv run dsp-tools stop-stack

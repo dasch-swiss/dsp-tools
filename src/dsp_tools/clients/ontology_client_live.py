@@ -67,17 +67,22 @@ class OntologyClientLive(OntologyClient):
         except (TimeoutError, ReadTimeout) as err:
             log_and_raise_timeouts(err)
         if response.ok:
-            return _parse_last_modification_date(response.text)
+            date = _parse_last_modification_date(response.text)
+            if not date:
+                raise UnexpectedApiResponseError(
+                    f"Could not find the last modification date in the response: {response.text}"
+                )
+            return date
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
         else:
-            raise UnexpectedApiResponseError(
-                f"An unexpected response with the status code {response.status_code} was received from the API. "
-                f"Please consult 'warnings.log' for details."
-            )
+            logger.error(
+                f"During cardinality creation an unexpected response with the status code {response.status_code} "
+                f"was received from the API.")
+            return None
 
     def _post_and_log_request(
         self, url: str, data: list[dict[str, Any]] | dict[str, Any] | None, headers: dict[str, str] | None = None

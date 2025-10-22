@@ -203,6 +203,9 @@ exclude = [
     "src/dsp_tools/error/xmllib_warnings_util.py",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
-    "src/dsp_tools/commands/create/", # to be ignored to enable small steps untill the intensive work is completed
+    # to enable small PRs the following files and directories are to be ignored until `create` is completely refactored
+    "src/dsp_tools/commands/create/",
+    "src/dsp_tools/clients/ontology_client_live.py",
+    "src/dsp_tools/clients/ontology_client.py",
 ]
 sort_by_size = true  # sort unused classes and functions by size 

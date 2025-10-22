@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+import regex
 import requests
 
 from dsp_tools.cli import entry_point
@@ -909,7 +910,6 @@ def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock, 
 
 @patch("requests.get")
 def test_check_api_health_success(mock_get: Mock) -> None:
-    """Test that _check_api_health succeeds when API returns OK status."""
     mock_response = Mock()
     mock_response.ok = True
     mock_get.return_value = mock_response
@@ -921,42 +921,36 @@ def test_check_api_health_success(mock_get: Mock) -> None:
 
 @patch("requests.get")
 def test_check_api_health_not_healthy(mock_get: Mock) -> None:
-    """Test that _check_api_health raises LocalDspApiNotReachableError when API returns non-OK status."""
     mock_response = Mock()
     mock_response.ok = False
     mock_response.status_code = 503
     mock_get.return_value = mock_response
 
-    with pytest.raises(DspApiNotReachableError) as exc_info:
+    expected_msg = regex.escape("asdfsafd")
+    with pytest.raises(DspApiNotReachableError, match=expected_msg):
         _check_api_health("http://0.0.0.0:3333")
-
-    assert "DSP API is not healthy" in str(exc_info.value)
-    assert "503" in str(exc_info.value)
     mock_get.assert_called_once_with("http://0.0.0.0:3333/health", timeout=2)
 
 
 @patch("requests.get")
 def test_check_api_health_connection_error(mock_get: Mock) -> None:
-    """Test that _check_api_health raises LocalDspApiNotReachableError when API is not reachable."""
     mock_get.side_effect = requests.exceptions.ConnectionError("Connection refused")
 
-    with pytest.raises(DspApiNotReachableError) as exc_info:
+    expected_msg = regex.escape("asdfsafd")
+    with pytest.raises(DspApiNotReachableError, match=expected_msg):
         _check_api_health("http://0.0.0.0:3333")
 
-    assert "DSP API is not reachable" in str(exc_info.value)
-    assert "start-stack" in str(exc_info.value)
     mock_get.assert_called_once_with("http://0.0.0.0:3333/health", timeout=2)
 
 
 @patch("requests.get")
 def test_check_api_health_timeout(mock_get: Mock) -> None:
-    """Test that _check_api_health raises LocalDspApiNotReachableError when API times out."""
     mock_get.side_effect = requests.exceptions.Timeout("Request timed out")
 
-    with pytest.raises(DspApiNotReachableError) as exc_info:
+    expected_msg = regex.escape("asdfsafd")
+    with pytest.raises(DspApiNotReachableError, match=expected_msg):
         _check_api_health("http://0.0.0.0:3333")
 
-    assert "DSP API is not reachable" in str(exc_info.value)
     mock_get.assert_called_once_with("http://0.0.0.0:3333/health", timeout=2)
 
 

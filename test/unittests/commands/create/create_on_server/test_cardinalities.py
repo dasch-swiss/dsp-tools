@@ -210,24 +210,12 @@ class TestAddAllCardinalities:
 
         cardinalities = [
             ParsedClassCardinalities(
-                class_iri="http://example.org/onto#Resource1",
-                cards=[
-                    ParsedPropertyCardinality(
-                        propname="http://example.org/onto#hasText",
-                        cardinality=Cardinality.C_1,
-                        gui_order=None,
-                    )
-                ],
+                class_iri=RES_1,
+                cards=[ParsedPropertyCardinality(propname=PROP_IRI, cardinality=Cardinality.C_1, gui_order=None)],
             ),
             ParsedClassCardinalities(
-                class_iri="http://example.org/onto#Resource2",
-                cards=[
-                    ParsedPropertyCardinality(
-                        propname="http://example.org/onto#hasValue",
-                        cardinality=Cardinality.C_0_1,
-                        gui_order=None,
-                    )
-                ],
+                class_iri=RES_2,
+                cards=[ParsedPropertyCardinality(propname=PROP_IRI, cardinality=Cardinality.C_0_1, gui_order=None)],
             ),
         ]
         result = _add_all_cardinalities_for_one_onto(

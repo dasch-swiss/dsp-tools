@@ -53,7 +53,7 @@ def _add_all_cardinalities_for_one_onto(
     for c in cardinalities:
         # we do not inform about classes failures here, as it will have been done upstream
         if c.class_iri not in created_iris.classes:
-            logger.info(f"CARDINALITY: Class '{c.class_iri}' not in successes, no cardinalities added.")
+            logger.warning(f"CARDINALITY: Class '{c.class_iri}' not in successes, no cardinalities added.")
             continue
         last_modification_date, creation_problems = _add_cardinalities_for_one_class(
             resource_card=c,
@@ -77,7 +77,7 @@ def _add_cardinalities_for_one_class(
     problems = []
     for one_card in resource_card.cards:
         if one_card.propname not in successful_props:
-            logger.info(f"CARDINALITY: Property '{one_card.propname}' not in successes, no cardinality added.")
+            logger.warning(f"CARDINALITY: Property '{one_card.propname}' not in successes, no cardinality added.")
             continue
         last_modification_date, problem = _add_one_cardinality(
             one_card, res_iri, onto_iri, last_modification_date, onto_client

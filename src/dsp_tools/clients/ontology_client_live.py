@@ -38,7 +38,7 @@ class OntologyClientLive(OntologyClient):
         header = {"X-Knora-Accept-Project": project_iri}
         logger.debug("GET ontology metadata")
         try:
-            response = self._post_and_log_request(url, {}, header)
+            response = self._get_and_log_request(url, header)
         except (TimeoutError, ReadTimeout) as err:
             log_and_raise_timeouts(err)
         if response.ok:
@@ -85,15 +85,12 @@ class OntologyClientLive(OntologyClient):
             return None
 
     def _post_and_log_request(
-        self, url: str, data: list[dict[str, Any]] | dict[str, Any] | None, headers: dict[str, str] | None = None
+        self,
+        url: str,
+        data: list[dict[str, Any]] | dict[str, Any] | None,
+        headers: dict[str, str] | None = None,
     ) -> Response:
-        generic_headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
-        }
-        data_dict = {"data": data} if data else None
-        if headers:
-            generic_headers.update(headers)
+        data_dict, generic_headers = self._prepare_request(data, headers)
         params = RequestParameters("POST", url, TIMEOUT, data_dict, generic_headers)
         log_request(params)
         response = requests.post(
@@ -104,6 +101,35 @@ class OntologyClientLive(OntologyClient):
         )
         log_response(response)
         return response
+
+    def _get_and_log_request(
+        self,
+        url: str,
+        headers: dict[str, str] | None = None,
+    ) -> Response:
+        generic_headers, _ = self._prepare_request({}, headers)
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=generic_headers)
+        log_request(params)
+        response = requests.get(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+        log_response(response)
+        return response
+
+    def _prepare_request(
+        self, data: list[dict[str, Any]] | dict[str, Any] | None, headers: dict[str, str] | None
+    ) -> tuple[dict[str, list[dict[str, Any]] | dict[str, Any]] | None, dict[str, str]]:
+        generic_headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+        }
+        data_dict = {"data": data} if data else None
+        if headers:
+            generic_headers.update(headers)
+        return data_dict, generic_headers
 
 
 def _parse_last_modification_date(response_text: str, onto_iri: URIRef | None = None) -> Literal | None:

@@ -5,6 +5,7 @@ import regex
 from loguru import logger
 
 from dsp_tools.clients.connection import Connection
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import Cardinality
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
@@ -15,7 +16,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection, ProjectIriLookup
 
 def create_ontologies(
     con: Connection,
@@ -25,6 +26,8 @@ def create_ontologies(
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
+    parsed_ontologies: list[ParsedOntology],
+project_iri_lookup: ProjectIriLookup
 ) -> bool:
     """
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
@@ -39,6 +42,8 @@ def create_ontologies(
         ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
+        parsed_ontologies: parsed ontologies
+        project_iri_lookup: lookup for IRIs
 
     Raises:
         InputError: if an error occurs during the creation of an ontology.

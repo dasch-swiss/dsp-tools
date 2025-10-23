@@ -70,7 +70,7 @@ class RequestParameters:
     def __post_init__(self) -> None:
         self.data_serialized = self._serialize_payload(self.data)
 
-    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+    def _serialize_payload(self, payload: dict[str, Any] | list[dict[str, Any]] | None) -> bytes | None:
         # If data is not encoded as bytes, issues can occur with non-ASCII characters,
         # where the content-length of the request will turn out to be different from the actual length.
         return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
@@ -90,7 +90,7 @@ class RequestParameters:
 
 def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None = None) -> None:
     """Logs the request."""
-    dumpobj = {
+    dumpobj: dict[str, Any] = {
         "method": params.method,
         "url": params.url,
         "timeout": params.timeout,
@@ -103,8 +103,9 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
     dumpobj["headers"] = sanitize_headers(headers_to_log)
     if params.data:
         data = params.data.copy()
-        if "password" in data:
-            data["password"] = "***"
+        if isinstance(data, dict):
+            if "password" in data:
+                data["password"] = "***"
         dumpobj["data"] = data
     if params.files:
         dumpobj["files"] = [x.file_name for x in params.files.files]

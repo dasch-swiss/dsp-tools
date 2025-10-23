@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
 
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri

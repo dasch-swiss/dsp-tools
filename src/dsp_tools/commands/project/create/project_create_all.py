@@ -4,6 +4,7 @@ of the project, the creation of groups, users, lists, resource classes, properti
 import os
 from pathlib import Path
 from typing import Any
+from typing import cast
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -13,6 +14,8 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
@@ -35,7 +38,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 load_dotenv()
 
 
-def create_project(  # noqa: PLR0915 (too many statements)
+def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
     verbose: bool = False,
@@ -72,6 +75,10 @@ def create_project(  # noqa: PLR0915 (too many statements)
 
     # includes validation
     parsed_project = parse_project(project_file_as_path_or_parsed, creds.server)
+    if not isinstance(parsed_project, ParsedProject):
+        for problem in parsed_project:
+            print_problem_collection(problem)
+        return False
 
     # required for the legacy code
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
@@ -89,7 +96,8 @@ def create_project(  # noqa: PLR0915 (too many statements)
         project_definition=legacy_project.metadata,
         con=con,
     )
-    project_iri_lookup = ProjectIriLookup(project_remote.iri)
+    project_iri = cast(str, project_remote.iri)
+    project_iri_lookup = ProjectIriLookup(project_iri)
     if not success:
         overall_success = False
 

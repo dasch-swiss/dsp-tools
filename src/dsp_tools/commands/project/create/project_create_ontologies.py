@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Optional
+from typing import cast
 
 import regex
 from loguru import logger
@@ -395,7 +396,8 @@ def _add_property_classes_to_remote_ontology(
             if verbose:
                 print(f"    Created property class '{prop_class['name']}'")
             logger.info(f"Created property class '{prop_class['name']}'")
-            property_successes.add(prop_class_created.iri)
+            prop_iri = cast(str, prop_class_created.iri)
+            property_successes.add(prop_iri)
         except BaseError as err:
             err_msg = f"Unable to create property class '{prop_class['name']}'"
             if found := regex.search(

@@ -125,7 +125,7 @@ class OntologyClientLive(OntologyClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        data_dict = {"data": data} if data else None
+        data_dict = data if data else None
         if headers:
             generic_headers.update(headers)
         return data_dict, generic_headers

@@ -62,7 +62,7 @@ class RequestParameters:
     method: Literal["POST", "GET", "PUT", "DELETE"]
     url: str
     timeout: int
-    data: dict[str, Any] | None = None
+    data: dict[str, Any] | list[dict[str, Any]] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
     files: PostFiles | None = None

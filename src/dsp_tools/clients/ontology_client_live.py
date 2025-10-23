@@ -31,7 +31,6 @@ class OntologyClientLive(OntologyClient):
     """
 
     server: str
-    project_shortcode: str
     authentication_client: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:

@@ -4,6 +4,7 @@ from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.clients.ontology_client_live import OntologyClientLive
+from dsp_tools.commands.create.communicate_problems import make_prefixed_iri
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -97,6 +98,7 @@ def _add_one_cardinality(
     new_mod_date = onto_client.post_resource_cardinalities(card_g)
     if not new_mod_date:
         return last_modification_date, UploadProblem(
-            f"{res_iri!s} / {card.propname}", ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+            f"{make_prefixed_iri(str(res_iri))} / {make_prefixed_iri(card.propname)}",
+            ProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
         )
     return new_mod_date, None

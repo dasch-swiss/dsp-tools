@@ -1,3 +1,4 @@
+import regex
 from loguru import logger
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
@@ -16,3 +17,10 @@ def print_problem_collection(problem_collection: CollectedProblems) -> None:
 def _create_individual_problem_strings(problems: list[CreateProblem]) -> str:
     str_list = [f"{p.problematic_object}: {p.problem!s}" for p in problems]
     return "\n    - ".join(str_list)
+
+
+def make_prefixed_iri(iri: str) -> str:
+    dsp_iri_re = r".+\/(.+?)\/v2#(.+)$"
+    if not (found := regex.search(dsp_iri_re, iri)):
+        return iri
+    return f"{found.groups(1)}:{found.groups(2)}"

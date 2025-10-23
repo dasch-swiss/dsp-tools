@@ -4,7 +4,6 @@ from rdflib import URIRef
 
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.clients.ontology_client_live import OntologyClientLive
-from dsp_tools.commands.create.communicate_problems import make_prefixed_iri
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -15,6 +14,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardi
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import make_cardinality_graph_for_request
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 
 
 def add_all_cardinalities(
@@ -97,8 +97,8 @@ def _add_one_cardinality(
     card_g = make_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
     new_mod_date = onto_client.post_resource_cardinalities(card_g)
     if not new_mod_date:
-        prefixed_cls = make_prefixed_iri(str(res_iri))
-        prefixed_prop = make_prefixed_iri(card.propname)
+        prefixed_cls = from_dsp_iri_to_prefixed_iri(str(res_iri))
+        prefixed_prop = from_dsp_iri_to_prefixed_iri(card.propname)
         return last_modification_date, UploadProblem(
             f"{prefixed_cls} / {prefixed_prop}",
             ProblemType.CARDINALITY_COULD_NOT_BE_ADDED,

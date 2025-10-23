@@ -477,12 +477,6 @@ class ResourceClass(Model):
     def has_properties(self) -> dict[str, HasProperty]:
         return self._has_properties
 
-    def getProperty(self, property_id: str) -> Optional[HasProperty]:
-        if self._has_properties is None:
-            return None
-        else:
-            return self._has_properties.get(self._context.get_prefixed_iri(property_id))
-
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> ResourceClass:
         if isinstance(json_obj, list):

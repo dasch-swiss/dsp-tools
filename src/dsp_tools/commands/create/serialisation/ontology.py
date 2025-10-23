@@ -31,6 +31,7 @@ def _make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef
     card_info = PARSED_CARDINALITY_TO_RDF[card.cardinality]
     g = Graph()
     bn_card = BNode()
+    g.add((res_iri, RDF.type, OWL.Class))
     g.add((res_iri, RDFS.subClassOf, bn_card))
     g.add((bn_card, RDF.type, OWL.Restriction))
     g.add((bn_card, card_info.owl_property, card_info.cardinality_value))

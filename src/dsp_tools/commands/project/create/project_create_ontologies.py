@@ -15,7 +15,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
-
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 
 def create_ontologies(
     con: Connection,
@@ -47,7 +47,7 @@ def create_ontologies(
     Returns:
         True if everything went smoothly, False otherwise
     """
-
+    success_collection = CreatedIriCollection()
     overall_success = True
 
     print("Create ontologies...")
@@ -85,11 +85,12 @@ def create_ontologies(
             last_modification_date=ontology_remote.lastModificationDate,
             verbose=verbose,
         )
+        success_collection.classes.update(set(remote_res_classes.keys()))
         if not success:
             overall_success = False
 
         # add the property classes to the remote ontology
-        last_modification_date, success = _add_property_classes_to_remote_ontology(
+        last_modification_date, success, property_successes = _add_property_classes_to_remote_ontology(
             onto_name=ontology_definition["name"],
             property_definitions=ontology_definition.get("properties", []),
             ontology_remote=ontology_remote,
@@ -99,6 +100,7 @@ def create_ontologies(
             knora_api_prefix=knora_api_prefix,
             verbose=verbose,
         )
+        success_collection.properties.update(property_successes)
         created_ontos.append((ontology_definition, ontology_remote, remote_res_classes))
         if not success:
             overall_success = False
@@ -297,7 +299,7 @@ def _add_property_classes_to_remote_ontology(
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
     verbose: bool,
-) -> tuple[DateTimeStamp, bool]:
+) -> tuple[DateTimeStamp, bool, set[str]]:
     """
     Creates the property classes defined in the "properties" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
@@ -317,6 +319,7 @@ def _add_property_classes_to_remote_ontology(
     Returns:
         a tuple consisting of the last modification date of the ontology, and the success status
     """
+    property_successes = set()
     overall_success = True
     print("    Create property classes...")
     logger.info("Create property classes...")
@@ -370,11 +373,12 @@ def _add_property_classes_to_remote_ontology(
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,
         )
         try:
-            last_modification_date, _ = prop_class_local.create(last_modification_date)
+            last_modification_date, prop_class_created = prop_class_local.create(last_modification_date)
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"    Created property class '{prop_class['name']}'")
             logger.info(f"Created property class '{prop_class['name']}'")
+            property_successes.add(prop_class_created.iri)
         except BaseError as err:
             err_msg = f"Unable to create property class '{prop_class['name']}'"
             if found := regex.search(
@@ -386,7 +390,7 @@ def _add_property_classes_to_remote_ontology(
             logger.exception(err_msg)
             overall_success = False
 
-    return last_modification_date, overall_success
+    return last_modification_date, overall_success, property_successes
 
 
 def _sort_prop_classes(

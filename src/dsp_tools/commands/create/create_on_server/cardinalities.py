@@ -38,7 +38,7 @@ def add_all_cardinalities(
             )
             all_problems.extend(problems)
     if all_problems:
-        return CollectedProblems("During the cardinality creation the following problems occurred", all_problems)
+        return CollectedProblems("During the cardinality creation the following problems occurred:", all_problems)
     return None
 
 

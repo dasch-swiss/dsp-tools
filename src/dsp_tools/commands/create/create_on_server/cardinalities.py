@@ -97,8 +97,10 @@ def _add_one_cardinality(
     card_g = make_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
     new_mod_date = onto_client.post_resource_cardinalities(card_g)
     if not new_mod_date:
+        prefixed_cls = make_prefixed_iri(str(res_iri))
+        prefixed_prop = make_prefixed_iri(card.propname)
         return last_modification_date, UploadProblem(
-            f"{make_prefixed_iri(str(res_iri))} / {make_prefixed_iri(card.propname)}",
+            f"{prefixed_cls} / {prefixed_prop}",
             ProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
         )
     return new_mod_date, None

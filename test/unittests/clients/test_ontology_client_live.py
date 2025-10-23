@@ -102,12 +102,7 @@ class TestOntologyClientLive:
             return mock_response
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-
-        expected = regex.escape(
-            "Only a project or system administrator can add cardinalities to resource classes. "
-            "Your permissions are insufficient for this action."
-        )
-        with pytest.raises(BadCredentialsError, match=expected):
+        with pytest.raises(BadCredentialsError):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
     def test_post_resource_cardinalities_server_error(

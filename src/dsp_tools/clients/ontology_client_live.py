@@ -107,13 +107,12 @@ class OntologyClientLive(OntologyClient):
         url: str,
         headers: dict[str, str] | None = None,
     ) -> Response:
-        generic_headers, _ = self._prepare_request({}, headers)
+        _, generic_headers = self._prepare_request({}, headers)
         params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=generic_headers)
         log_request(params)
         response = requests.get(
             url=params.url,
             headers=params.headers,
-            data=params.data_serialized,
             timeout=params.timeout,
         )
         log_response(response)

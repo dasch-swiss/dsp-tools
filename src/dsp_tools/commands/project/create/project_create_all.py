@@ -144,6 +144,7 @@ def create_project(  # noqa: PLR0915 (too many statements)
         verbose=verbose,
         parsed_ontologies=parsed_project.ontologies,
         project_iri_lookup=project_iri_lookup,
+        auth=auth,
     )
     if not success:
         overall_success = False

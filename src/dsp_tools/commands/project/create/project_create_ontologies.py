@@ -4,8 +4,14 @@ from typing import Optional
 import regex
 from loguru import logger
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.ontology_client_live import OntologyClientLive
+from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import Cardinality
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
@@ -16,7 +22,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection, ProjectIriLookup
+
 
 def create_ontologies(
     con: Connection,
@@ -27,7 +33,8 @@ def create_ontologies(
     project_remote: Project,
     verbose: bool,
     parsed_ontologies: list[ParsedOntology],
-project_iri_lookup: ProjectIriLookup
+    project_iri_lookup: ProjectIriLookup,
+    auth: AuthenticationClient,
 ) -> bool:
     """
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
@@ -44,6 +51,7 @@ project_iri_lookup: ProjectIriLookup
         verbose: verbose switch
         parsed_ontologies: parsed ontologies
         project_iri_lookup: lookup for IRIs
+        auth: Authentication Client
 
     Raises:
         InputError: if an error occurs during the creation of an ontology.
@@ -53,6 +61,8 @@ project_iri_lookup: ProjectIriLookup
         True if everything went smoothly, False otherwise
     """
     success_collection = CreatedIriCollection()
+    onto_client = OntologyClientLive(auth.server, auth)
+
     overall_success = True
 
     print("Create ontologies...")
@@ -64,6 +74,9 @@ project_iri_lookup: ProjectIriLookup
         print("WARNING: {err_msg}")
         logger.exception(err_msg)
         project_ontologies = []
+
+    for existing_onto in project_ontologies:
+        project_iri_lookup.add_onto(existing_onto.name, existing_onto.iri)
 
     created_ontos: list[tuple[dict[str, Any], Ontology, dict[str, ResourceClass]]] = []
     for ontology_definition in ontology_definitions:
@@ -80,6 +93,8 @@ project_iri_lookup: ProjectIriLookup
         if not ontology_remote:
             overall_success = False
             continue
+        else:
+            project_iri_lookup.add_onto(ontology_remote.name, ontology_remote.iri)
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
@@ -111,17 +126,15 @@ project_iri_lookup: ProjectIriLookup
             overall_success = False
 
     print("Add cardinalities to resource classes...")
-    for ontology_definition, ontology_remote, remote_res_classes in created_ontos:
-        success = _add_cardinalities_to_resource_classes(
-            resclass_definitions=ontology_definition.get("resources", []),
-            ontology_remote=ontology_remote,
-            remote_res_classes=remote_res_classes,
-            knora_api_prefix=knora_api_prefix,
-            context=context,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
+    problems = add_all_cardinalities(
+        ontologies=parsed_ontologies,
+        project_iri_lookup=project_iri_lookup,
+        created_iris=success_collection,
+        onto_client=onto_client,
+    )
+    if problems:
+        overall_success = False
+        print_problem_collection(problems)
 
     return overall_success
 

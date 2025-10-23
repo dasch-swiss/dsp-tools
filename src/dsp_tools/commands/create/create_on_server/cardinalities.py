@@ -2,7 +2,6 @@ from loguru import logger
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.clients.ontology_client_live import OntologyClientLive
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
@@ -21,10 +20,9 @@ def add_all_cardinalities(
     ontologies: list[ParsedOntology],
     project_iri_lookup: ProjectIriLookup,
     created_iris: CreatedIriCollection,
-    auth: AuthenticationClient,
+    onto_client: OntologyClientLive,
 ) -> CollectedProblems | None:
     all_problems = []
-    onto_client = OntologyClientLive(auth.server, auth)
     for onto in ontologies:
         onto_iri = project_iri_lookup.onto_iris.get(onto.name)
         # we do not inform about onto failures here, as it will have been done upstream

@@ -6,8 +6,8 @@
   },
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
   "project": {
-    "shortcode": "8888",
-    "shortname": "test",
+    "shortcode": "0002",
+    "shortname": "create",
     "longname": "Test project for create",
     "descriptions": {
       "en": "Test project for create"

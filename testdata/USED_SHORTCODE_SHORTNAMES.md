@@ -11,8 +11,8 @@ All the shortcodes for invalid projects start with an `F`
 
 | Shortcode | Shortname          | File Path                                                                 | Where                         |
 |-----------|--------------------|---------------------------------------------------------------------------|-------------------------------|
-| 0001      | e2e-ingest         | testdata/dsp-ingest-data/e2e-sample-project/project-e2e-ingest.json       | `ingest-xmlupload`            |
-| 8888      | test               | testdata/json-project/create-project.json                                 | `create`                      |
+| 0001      | e2e-ingest         | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project.json       | `ingest-xmlupload`            |
+| 0002      | test               | testdata/json-project/create-project.json                                 | `create`                      |
 | 0001      | list-lookup        | testdata/json-project/test-list-lookup.json                               | `xmllib` integration          |
 | 4125      | e2e-tp             | testdata/json-project/test-project-e2e.json                               | `get`                         |
 | 4124      | limited-view-tp    | testdata/json-project/test-project-limited-view.json                      | NEVER!                        |

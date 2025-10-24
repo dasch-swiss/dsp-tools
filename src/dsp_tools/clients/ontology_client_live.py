@@ -118,8 +118,8 @@ class OntologyClientLive(OntologyClient):
         return response
 
     def _prepare_request(
-        self, data: list[dict[str, Any]] | dict[str, Any] | None, headers: dict[str, str] | None
-    ) -> tuple[list[dict[str, Any]] | dict[str, Any] | None | None, dict[str, str]]:
+        self, data: dict[str, Any] | None, headers: dict[str, str] | None
+    ) -> tuple[dict[str, Any] | None, dict[str, str]]:
         generic_headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",

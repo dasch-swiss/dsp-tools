@@ -477,39 +477,6 @@ class ResourceClass(Model):
     def has_properties(self) -> dict[str, HasProperty]:
         return self._has_properties
 
-    def getProperty(self, property_id: str) -> Optional[HasProperty]:
-        if self._has_properties is None:
-            return None
-        else:
-            return self._has_properties.get(self._context.get_prefixed_iri(property_id))
-
-    def addProperty(
-        self,
-        last_modification_date: DateTimeStamp,
-        property_id: str,
-        cardinality: Cardinality,
-        context: Context,
-        gui_order: Optional[int] = None,
-    ) -> DateTimeStamp:
-        self._context.context.update(context.context)
-        if self._has_properties.get(property_id) is None:
-            latest_modification_date, resclass = HasProperty(
-                con=self._con,
-                context=self._context,
-                ontology_id=self._ontology_id,
-                property_id=property_id,
-                resclass_id=self.iri,
-                cardinality=cardinality,
-                gui_order=gui_order,
-            ).create(last_modification_date)
-            hp = resclass.getProperty(property_id)
-            hp.ontology_id = self._context.iri_from_prefix(self._ontology_id)
-            hp.resclass_id = self._iri
-            self._has_properties[hp.property_id] = hp
-            return latest_modification_date
-        else:
-            raise BaseError("Property already has cardinality in this class! " + property_id)
-
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> ResourceClass:
         if isinstance(json_obj, list):

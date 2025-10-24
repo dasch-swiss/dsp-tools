@@ -27,9 +27,10 @@ def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
     )
 
 
-@pytest.fixture
-def ok_response():
-    return [
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_client):  # noqa: ARG001
+    expected_data = [
         {
             "resourceClassIri": "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource",
             "resourceIri": "http://rdfh.ch/4124/bPs-3bjqSr2uIJFGO3Joyw",
@@ -40,36 +41,26 @@ def ok_response():
             "resourceCreationDate": "2025-10-24T14:25:05.092534796Z",
         }
     ]
-
-
-@pytest.fixture
-def non_ok_response():
-    return {"message": "Project with shortcode 9999 not found."}
-
-
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_ok(log_request, log_response, metadata_client, ok_response):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = True
     mock_response.status_code = 200
-    mock_response.json.return_value = ok_response
+    mock_response.json.return_value = expected_data
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
     assert response_type == MetadataResponse.METADATA_RETRIVAL_OK
-    assert data == ok_response
+    assert data == expected_data
 
 
 @patch("dsp_tools.clients.metadata_client_live.log_response")
 @patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client, non_ok_response):  # noqa: ARG001
+def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 403
-    mock_response.text = non_ok_response
+    mock_response.text = {"message": "Project with shortcode 9999 not found."}
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response

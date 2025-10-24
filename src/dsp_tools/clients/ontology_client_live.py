@@ -56,7 +56,7 @@ class OntologyClientLive(OntologyClient):
                 f"Please consult 'warnings.log' for details."
             )
 
-    def post_resource_cardinalities(self, cardinality_graph: Any) -> Literal | None:
+    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
 
         logger.debug("POST resource cardinalities to ontology")

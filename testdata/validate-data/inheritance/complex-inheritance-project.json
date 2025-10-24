@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
   "project": {
     "shortcode": "9990",
-    "shortname": "test-inheritance",
+    "shortname": "complex-inheritance",
     "longname": "Test project for validate-data with complex inheritance",
     "descriptions": {
       "en": "Test project for validate-data with complex inheritance"

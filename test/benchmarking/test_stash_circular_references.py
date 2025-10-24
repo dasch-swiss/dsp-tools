@@ -13,7 +13,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 
 
 def test_get_length_ok_resources() -> None:
-    test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references.xml"))
+    test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references-0002.xml"))
     parsed_resources = get_parsed_resources(test_root, "https://namespace.ch/")
     permissions_lookup = {"public": Permissions()}
     xml_lookups = XmlReferenceLookups(permissions_lookup, {}, authorships={})

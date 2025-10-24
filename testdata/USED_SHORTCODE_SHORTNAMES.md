@@ -3,7 +3,8 @@
 Shortcodes and shortnames must be unique in DSP.
 
 We have many different projects in our test data.
-This is an inventory of the used shortcodes and shortnames for projects that are used for e2e tests with a running stack.
+This is an inventory of the used shortcodes and shortnames for projects 
+that are primarily used for e2e tests with a running stack.
 
 All the shortcodes for invalid projects start with an `F`
 

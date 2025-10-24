@@ -46,24 +46,26 @@ def ontology_client(mock_auth_client: Mock) -> OntologyClientLive:
 @pytest.fixture
 def sample_cardinality_graph() -> dict[str, object]:
     return {
-        "@id": str(TEST_RES_IRI),
-        "@type": "owl:Class",
-        "rdfs:subClassOf": {
-            "@type": "owl:Restriction",
-            "owl:cardinality": 1,
-            "owl:onProperty": {"@id": str(TEST_PROP_IRI)},
-        },
-        "@context": {
-            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "owl": "http://www.w3.org/2002/07/owl#",
-            "xsd": "http://www.w3.org/2001/XMLSchema#",
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-        },
-        "knora-api:lastModificationDate": {
-            "@value": str(LAST_MODIFICATION_DATE),
-            "@type": "xsd:dateTimeStamp",
-        },
+        "@id": "http://0.0.0.0:3333/ontology/4124/testonto/v2",
+        "@type": ["http://www.w3.org/2002/07/owl#Ontology"],
+        "http://api.knora.org/ontology/knora-api/v2#lastModificationDate": [
+            {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": str(LAST_MODIFICATION_DATE)}
+        ],
+        "@graph": [
+            {
+                "@id": str(TEST_RES_IRI),
+                "@type": ["http://www.w3.org/2002/07/owl#Class"],
+                "http://www.w3.org/2000/01/rdf-schema#subClassOf": [{"@id": "_:N114b29af852e4ae59f5500d94e4db2f2"}],
+            },
+            {
+                "@id": "_:N114b29af852e4ae59f5500d94e4db2f2",
+                "@type": ["http://www.w3.org/2002/07/owl#Restriction"],
+                "http://www.w3.org/2002/07/owl#maxCardinality": [
+                    {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 1}
+                ],
+                "http://www.w3.org/2002/07/owl#onProperty": [{"@id": str(TEST_PROP_IRI)}],
+            },
+        ],
     }
 
 

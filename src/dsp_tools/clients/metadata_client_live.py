@@ -30,9 +30,12 @@ class MetadataClientLive(MetadataClient):
                 headers=params.headers,
                 timeout=params.timeout,
             )
-            log_response(response, include_response_content=False)
             if response.ok:
+                # we log the response separately because if it was successful it will be too big
+                log_response(response, include_response_content=False)
                 return MetadataResponse.METADATA_RETRIVAL_OK, response.json()
+            # here the response text is important
+            log_response(response)
             return MetadataResponse.METADATA_RETRIVAL_NON_OK, []
         except Exception as err:  # noqa: BLE001 (blind exception)
             logger.error(err)

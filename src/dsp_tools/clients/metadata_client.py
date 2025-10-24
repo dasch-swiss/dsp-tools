@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 from typing import Protocol
@@ -11,6 +12,7 @@ class MetadataResponse(Enum):
     METADATA_RETRIVAL_NON_OK = auto()
 
 
+@dataclass
 class MetadataClient(Protocol):
     """
     Protocol class/interface for the metadata endpoint in the API.

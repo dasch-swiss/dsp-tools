@@ -19,7 +19,7 @@ All the shortcodes for invalid projects start with an `F`
 | 0001      | list-lookup         | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
 | 4124      | minimal-tp          | testdata/json-project/minimal-project.json                                | `create`                      |
 | 4123      | systematic-tp       | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |
-| 0009      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project.json     | `validate-data `              |
+| 9991      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project.json     | `validate-data `              |
 | 9999      | feature-complete    | testdata/validate-data/generic/feature-complete-project.json              | `validate-data `, `xmlupload` |
 | 0011      | complex-inheritance | testdata/validate-data/inheritance/complex-inheritance-project.json       | `validate-data `              |
 | 0012      | special-characters  | testdata/validate-data/special_characters/special-characters-project.json | `validate-data `              |

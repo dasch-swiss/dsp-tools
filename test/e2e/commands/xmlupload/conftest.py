@@ -45,7 +45,7 @@ def second_onto_iri_9999(creds) -> str:
 
 @pytest.fixture(scope="module")
 def create_generic_project_9999(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
+    assert create_project(Path("testdata/validate-data/generic/feature-complete-project.json"), creds)
 
 
 @pytest.fixture(scope="module")

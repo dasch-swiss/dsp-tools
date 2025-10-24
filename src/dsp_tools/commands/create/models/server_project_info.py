@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from dataclasses import field
 
+from dsp_tools.commands.create.constants import KNORA_API_STR
+
 
 @dataclass
 class ProjectIriLookup:
@@ -18,3 +20,6 @@ class ProjectIriLookup:
 class CreatedIriCollection:
     classes: set[str] = field(default_factory=set)
     properties: set[str] = field(default_factory=set)
+
+    def __post_init__(self) -> None:
+        self.properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})

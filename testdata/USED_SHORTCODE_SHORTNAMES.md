@@ -12,13 +12,13 @@ All the shortcodes for invalid projects start with an `F`
 | Shortcode | Shortname           | File Path                                                                 | Where                         |
 |-----------|---------------------|---------------------------------------------------------------------------|-------------------------------|
 | 4126      | e2e-ingest-tp       | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project.json       | `ingest-xmlupload`            |
-| 0002      | circular-reference  | testdata/json-project/circular-reference-project.json                     | required for an XML           |
-| 8888      | create              | testdata/json-project/create-project.json                                 | `create`                      |
-| 0004      | generic-e2e         | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |
-| 0005      | limited-view        | testdata/json-project/limited-view-project.json                           | NEVER!                        |
-| 0006      | list-lookup         | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
-| 0007      | minimal             | testdata/json-project/minimal-project.json                                | `create`                      |
-| 4123      | systematic          | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |
+| 0700      | circular-reference  | testdata/json-project/circular-reference-project.json                     | required for an XML           |
+| 8888      | test                | testdata/json-project/create-project.json                                 | `create`                      |
+| 4125      | e2e-tp              | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |
+| 4124      | limited-view-tp     | testdata/json-project/limited-view-project.json                           | NEVER!                        |
+| 0001      | list-lookup         | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
+| 4124      | minimal-tp          | testdata/json-project/minimal-project.json                                | `create`                      |
+| 4123      | systematic-tp       | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |
 | 0009      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project.json     | `validate-data `              |
 | 9999      | feature-complete    | testdata/validate-data/generic/feature-complete-project.json              | `validate-data `, `xmlupload` |
 | 0011      | complex-inheritance | testdata/validate-data/inheritance/complex-inheritance-project.json       | `validate-data `              |

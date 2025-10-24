@@ -86,7 +86,7 @@ class OntologyClientLive(OntologyClient):
     def _post_and_log_request(
         self,
         url: str,
-        data: list[dict[str, Any]] | dict[str, Any] | None,
+        data: dict[str, Any] | None,
         headers: dict[str, str] | None = None,
     ) -> Response:
         data_dict, generic_headers = self._prepare_request(data, headers)

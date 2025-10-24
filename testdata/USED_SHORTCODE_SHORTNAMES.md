@@ -21,8 +21,8 @@ File naming conventions:
 | 0002      | circular-reference  | testdata/json-project/circular-reference-project-0002.json                | required for an XML           |
 | 0003      | create              | testdata/json-project/create-project-0003.json                            | `create`                      |
 | 4125      | e2e-tp              | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |
-| 4127      | limited-view-tp     | testdata/json-project/limited-view-project.json                           | NEVER!                        |
-| 0006      | list-lookup         | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
+| 0005      | limited-view        | testdata/json-project/limited-view-project-0005.json                      | NEVER!                        |
+| 0006      | list-lookup         | testdata/json-project/list-lookup-project-0006.json                       | `xmllib` integration          |
 | 4124      | minimal-tp          | testdata/json-project/minimal-project.json                                | `create`                      |
 | 4123      | systematic-tp       | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |
 | 9991      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project.json     | `validate-data `              |

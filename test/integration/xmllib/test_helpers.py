@@ -9,7 +9,7 @@ from dsp_tools.xmllib.general_functions import ListLookup
 @pytest.fixture
 def list_lookup_en() -> ListLookup:
     with warnings.catch_warnings(record=True) as caught_warnings:
-        lst = ListLookup.create_new("testdata/json-project/list-lookup-project.json", "en", "default")
+        lst = ListLookup.create_new("testdata/json-project/list-lookup-project-0006.json", "en", "default")
     assert len(caught_warnings) == 0
     return lst
 
@@ -17,7 +17,7 @@ def list_lookup_en() -> ListLookup:
 @pytest.fixture
 def list_lookup_de() -> ListLookup:
     with warnings.catch_warnings(record=True) as caught_warnings:
-        lst = ListLookup.create_new("testdata/json-project/list-lookup-project.json", "de", "default")
+        lst = ListLookup.create_new("testdata/json-project/list-lookup-project-0006.json", "de", "default")
     assert len(caught_warnings) == 1
     return lst
 

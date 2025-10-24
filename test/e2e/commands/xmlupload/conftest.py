@@ -99,7 +99,7 @@ def second_onto_iri_4125(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def create_4125_e2e_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/test-project-e2e.json"), creds)
+    assert create_project(Path("testdata/json-project/generic-e2e-project.json"), creds)
 
 
 @pytest.fixture(scope="module")

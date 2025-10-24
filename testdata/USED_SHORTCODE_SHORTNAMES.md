@@ -26,11 +26,11 @@ this is an inventory of the used shortcodes and names for projects that are used
 
 | Shortcode | Shortname           | File Path                                                              | Where    |
 |-----------|---------------------|------------------------------------------------------------------------|----------|
-| 1233      | circular-onto       | testdata/invalid-testdata/json-project/circular-ontology.json          | `create` |
-| 4124      | minimal-tp          | testdata/invalid-testdata/json-project/duplicate-listnames.json        | `create` |
-| 4124      | minimal-tp          | testdata/invalid-testdata/json-project/duplicate-property.json         | `create` |
-| 4124      | minimal-tp          | testdata/invalid-testdata/json-project/duplicate-resource.json         | `create` |
-| 4124      | invalid-super-prop  | testdata/invalid-testdata/json-project/invalid-super-property.json     | `create` |
-| 4123      | nonexisting-card    | testdata/invalid-testdata/json-project/nonexisting-cardinality.json    | `create` |
-| 4123      | nonexist-super-prop | testdata/invalid-testdata/json-project/nonexisting-super-property.json | `create` |
-| 4123      | nonexist-super-res  | testdata/invalid-testdata/json-project/nonexisting-super-resource.json | `create` |
+| F001      | circular-onto       | testdata/invalid-testdata/json-project/circular-ontology.json          | `create` |
+| F002      | duplicate-listnames | testdata/invalid-testdata/json-project/duplicate-listnames.json        | `create` |
+| F003      | duplicate-property  | testdata/invalid-testdata/json-project/duplicate-property.json         | `create` |
+| F004      | duplicate-resource  | testdata/invalid-testdata/json-project/duplicate-resource.json         | `create` |
+| F005      | invalid-super-prop  | testdata/invalid-testdata/json-project/invalid-super-property.json     | `create` |
+| F006      | nonexisting-card    | testdata/invalid-testdata/json-project/nonexisting-cardinality.json    | `create` |
+| F007      | nonexist-super-prop | testdata/invalid-testdata/json-project/nonexisting-super-property.json | `create` |
+| F008      | nonexist-super-res  | testdata/invalid-testdata/json-project/nonexisting-super-resource.json | `create` |

@@ -72,7 +72,7 @@ def _xmlupload_text_parsing_9999(create_generic_project_9999: None, creds: Serve
     Then it can happen that they try to save the id2iri mapping at the same time,
     which fails, because the id2iri mapping is named after the shortcode and the timestamp.
     """
-    absolute_xml_path = Path("testdata/xml-data/generic_project_text_parsing-9999.xml").absolute()
+    absolute_xml_path = Path("testdata/xml-data/parsing-special-characters-in-richtext-9999.xml").absolute()
     original_cwd = Path.cwd()
     with TemporaryDirectory() as tmpdir:
         with pytest.MonkeyPatch.context() as m:

@@ -60,7 +60,7 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     # validate the project definition against the schema
     with (
         importlib.resources.files("dsp_tools")
-        .joinpath("resources/schema/project.json")
+        .joinpath("resources/schema/feature-complete-project.json")
         .open(encoding="utf-8") as schema_file
     ):
         project_schema = json.load(schema_file)

@@ -13,7 +13,7 @@ from dsp_tools.commands.project.create.project_create_lists import create_only_l
 
 class TestCreateLists(unittest.TestCase):
     creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
-    test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
+    test_project_minimal_file = Path("testdata/json-project/minimal-project.json")
 
     def test_create_lists(self) -> None:
         """

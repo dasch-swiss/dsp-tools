@@ -56,6 +56,22 @@ def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_
 
 @patch("dsp_tools.clients.metadata_client_live.log_response")
 @patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_client):  # noqa: ARG001
+    mock_response = Mock(spec=Response)
+    mock_response.ok = True
+    mock_response.status_code = 200
+    mock_response.json.return_value = []
+
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("4124")
+
+    assert response_type == MetadataResponse.METADATA_RETRIVAL_OK
+    assert data == []
+
+
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False

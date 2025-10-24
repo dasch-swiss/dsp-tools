@@ -28,7 +28,7 @@ File naming conventions:
 | 0009      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json | `validate-data `              |
 | 9999      | test                | testdata/validate-data/generic/feature-complete-project.json               | `validate-data `, `xmlupload` |
 | 0011      | complex-inheritance | testdata/validate-data/inheritance/complex-inheritance-project.json        | `validate-data `              |
-| 0002      | special             | testdata/validate-data/special_characters/special-characters-project.json  | `validate-data `              |
+| 0012      | special             | testdata/validate-data/special_characters/special-characters-project.json  | `validate-data `              |
 
 ## Invalid Projects
 

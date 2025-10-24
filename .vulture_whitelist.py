@@ -1,3 +1,5 @@
+from dsp_tools.clients.metadata_client import MetadataClient
+from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
@@ -37,3 +39,6 @@ serialise_json()
 from_dsp_iri_to_prefixed_iri()
 
 UnexpectedApiResponseError()
+
+MetadataClient().get_resource_metadata()
+MetadataClientLive.get_resource_metadata()

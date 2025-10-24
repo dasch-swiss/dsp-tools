@@ -11,9 +11,6 @@
             "minimal"
         ],
         "default_permissions": "public",
-        "enabled_licenses": [
-            "http://rdfh.ch/licenses/public-domain"
-        ],
         "ontologies": [
             {
                 "name": "testonto",

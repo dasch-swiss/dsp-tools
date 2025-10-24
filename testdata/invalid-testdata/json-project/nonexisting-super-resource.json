@@ -1,7 +1,7 @@
 {
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "4123",
+        "shortcode": "F008",
         "shortname": "nonexist-super-res",
         "longname": "nonexisting-super-resource-project",
         "descriptions": {

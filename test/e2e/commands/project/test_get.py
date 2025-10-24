@@ -12,7 +12,7 @@ from dsp_tools.commands.project.get.get import get_project
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
-TESTFILE_PATH = Path("testdata/json-project/generic-e2e-project.json")
+TESTFILE_PATH = Path("testdata/json-project/generic-e2e-project-4125.json")
 PROJECT_SHORTCODE = "4125"
 
 

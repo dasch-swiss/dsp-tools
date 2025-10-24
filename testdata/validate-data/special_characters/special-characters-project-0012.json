@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
   "project": {
-    "shortcode": "0002",
-    "shortname": "special",
+    "shortcode": "0012",
+    "shortname": "special-characters",
     "longname": "Test project for validate-data with special characters",
     "descriptions": {
       "en": "Test project for validate-data with special characters"

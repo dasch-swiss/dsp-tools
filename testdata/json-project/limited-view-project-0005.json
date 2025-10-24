@@ -1,8 +1,8 @@
 {
   "$schema": "../../src/dsp_tools/resources/schema/project.json",
   "project": {
-    "shortcode": "4127",
-    "shortname": "limited-view-tp",
+    "shortcode": "0005",
+    "shortname": "limited-view",
     "longname": "limited view project",
     "descriptions": {
       "en": "A project to test limited view"

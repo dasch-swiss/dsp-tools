@@ -24,16 +24,16 @@ CONFIG = ValidateDataConfig(
     is_on_prod_server=False,
     skip_ontology_validation=False,
 )
-SHORTCODE_SPECIAL_CHAR = "0002"
-SHORTCODE_INHERITANCE = "9990"
-SHORTCODE_ERRONEOUS_ONTO = "9991"
+SHORTCODE_SPECIAL_CHAR_0012 = "0012"
+SHORTCODE_INHERITANCE_0011 = "0011"
+SHORTCODE_ERRONEOUS_ONTO_0009 = "0009"
 
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/special_characters/special-characters-project.json"), creds)
-    assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project.json"), creds)
-    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project.json"), creds)
+    assert create_project(Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds)
+    assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds)
+    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
 
 
 @pytest.fixture(scope="module")
@@ -44,18 +44,18 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_special_characters_correct(authentication: AuthenticationClient) -> None:
-    file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
+    file = Path("testdata/validate-data/special_characters/special_characters_correct-0012.xml")
 
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR_0012)
     assert result.no_problems
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_special_characters_violation(authentication) -> None:
-    file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
+    file = Path("testdata/validate-data/special_characters/special_characters_violation-0012.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR_0012)
     assert not result.no_problems
     expected_tuples = [
         (
@@ -112,17 +112,17 @@ def test_reformat_special_characters_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient) -> None:
-    file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
+    file = Path("testdata/validate-data/inheritance/inheritance_correct-0011.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE_0011)
     assert result.no_problems
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_inheritance_violation(authentication) -> None:
-    file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
+    file = Path("testdata/validate-data/inheritance/inheritance_violation-0011.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE_0011)
     assert not result.no_problems
     expected_results = [
         ("ResourceSubCls1", {"onto:hasText0"}),
@@ -145,9 +145,9 @@ def test_reformat_inheritance_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation(authentication) -> None:
-    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO_0009)
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
@@ -173,7 +173,7 @@ def test_validate_ontology_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation_skip_ontology_validation(authentication) -> None:
-    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     config_skip_onto_val = ValidateDataConfig(
         xml_file=Path(),
@@ -183,7 +183,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
         is_on_prod_server=False,
         skip_ontology_validation=True,
     )
-    result = _validate_data(graphs, used_iris, parsed_resources, config_skip_onto_val, SHORTCODE_ERRONEOUS_ONTO)
+    result = _validate_data(graphs, used_iris, parsed_resources, config_skip_onto_val, SHORTCODE_ERRONEOUS_ONTO_0009)
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, SortedProblems)

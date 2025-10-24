@@ -23,7 +23,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 
 @pytest.fixture
 def tp_systematic() -> dict[str, Any]:
-    tp_systematic_file = "testdata/json-project/systematic-project.json"
+    tp_systematic_file = "testdata/json-project/systematic-project-4123.json"
     with open(tp_systematic_file, encoding="utf-8") as json_file:
         tp_systematic: dict[str, Any] = json.load(json_file)
     return tp_systematic
@@ -147,10 +147,10 @@ def test_parse_json_input_file_not_found() -> None:
 
 def test_parse_json_input_invalid_file() -> None:
     err_msg = regex.escape(
-        "The input file 'testdata/xml-data/test-data-systematic.xml' cannot be parsed to a JSON object."
+        "The input file 'testdata/xml-data/test-data-systematic-4123.xml' cannot be parsed to a JSON object."
     )
     with pytest.raises(JSONFileParsingError, match=err_msg):
-        parse_json_input("testdata/xml-data/test-data-systematic.xml")
+        parse_json_input("testdata/xml-data/test-data-systematic-4123.xml")
 
 
 def test_check_for_duplicate_resources() -> None:

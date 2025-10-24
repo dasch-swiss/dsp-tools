@@ -12,15 +12,12 @@ All the shortcodes for invalid projects start with an `F`
 | Shortcode | Shortname          | File Path                                                                 | Where                         |
 |-----------|--------------------|---------------------------------------------------------------------------|-------------------------------|
 | 0001      | e2e-ingest         | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project.json       | `ingest-xmlupload`            |
-| 0002      | test               | testdata/json-project/create-project.json                                 | `create`                      |
-| 0003      | list-lookup        | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
+| 0002      | create             | testdata/json-project/create-project.json                                 | `create`                      |
 | 0004      | generic-e2e        | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |
 | 4124      | limited-view       | testdata/json-project/limited-view-project.json                           | NEVER!                        |
+| 0003      | list-lookup        | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
 | 4124      | minimal            | testdata/json-project/minimal-project.json                                | `create`                      |
 | 4123      | systematic         | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |
-
-
-
 | 9991      | erroneous-ontology | testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json | `validate-data `              |
 | 9999      | test               | testdata/validate-data/generic/project.json                               | `validate-data `, `xmlupload` |
 | 9990      | test-inheritance   | testdata/validate-data/inheritance/project_inheritance.json               | `validate-data `              |

@@ -58,7 +58,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 def every_violation_combination_once_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> tuple[ValidationReportGraphs, list[ParsedResource]]:
-    file = Path("testdata/validate-data/core-validation/every_violation_combination_once.xml")
+    file = Path("testdata/validate-data/core_validation/every_violation_combination_once.xml")
     graphs, _, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     g = get_validation_report(graphs, shacl_validator)
     return g, parsed_resources
@@ -237,7 +237,7 @@ class TestWithReportGraphs:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_check_for_unknown_resource_classes(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/unknown_classes.xml")
+    file = Path("testdata/validate-data/core_validation/unknown_classes.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
     assert not result.no_problems
@@ -249,7 +249,7 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_content_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/content_violation.xml")
+    file = Path("testdata/validate-data/core_validation/content_violation.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
     msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
@@ -393,7 +393,7 @@ def test_reformat_content_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_cardinality_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/cardinality_violation.xml")
+    file = Path("testdata/validate-data/core_validation/cardinality_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
@@ -420,7 +420,7 @@ def test_reformat_cardinality_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_value_type_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/value_type_violation.xml")
+    file = Path("testdata/validate-data/core_validation/value_type_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
@@ -459,7 +459,7 @@ def test_reformat_value_type_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_unique_value_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/unique_value_violation.xml")
+    file = Path("testdata/validate-data/core_validation/unique_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
@@ -486,7 +486,7 @@ def test_reformat_unique_value_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_file_value_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/file_value_violation.xml")
+    file = Path("testdata/validate-data/core_validation/file_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems
@@ -530,7 +530,7 @@ def test_reformat_file_value_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_reformat_dsp_inbuilt_violation(authentication) -> None:
-    file = Path("testdata/validate-data/core-validation/dsp_inbuilt_violation.xml")
+    file = Path("testdata/validate-data/core_validation/dsp_inbuilt_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
     assert not result.no_problems

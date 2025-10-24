@@ -7,7 +7,7 @@ import pytest
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.metadata_client import MetadataResponse
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 
 
@@ -50,7 +50,7 @@ def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
-    assert response_type == MetadataResponse.METADATA_RETRIVAL_OK
+    assert response_type == MetadataRetrieval.SUCCESS
     assert data == expected_data
 
 
@@ -66,7 +66,7 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
-    assert response_type == MetadataResponse.METADATA_RETRIVAL_OK
+    assert response_type == MetadataRetrieval.SUCCESS
     assert data == []
 
 
@@ -82,7 +82,7 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("9999")
 
-    assert response_type == MetadataResponse.METADATA_RETRIVAL_NON_OK
+    assert response_type == MetadataRetrieval.FAILURE
     assert data == []
 
 
@@ -92,5 +92,5 @@ def test_get_resource_metadata_error_raised(log_request, metadata_client):  # no
         get_mock.side_effect = Exception("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
 
-    assert response_type == MetadataResponse.METADATA_RETRIVAL_ERROR
+    assert response_type == MetadataRetrieval.FAILURE
     assert data == []

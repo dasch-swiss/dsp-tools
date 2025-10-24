@@ -31,7 +31,7 @@ def project_json_systematic() -> dict[str, Any]:
 
 @pytest.fixture
 def project_json_create() -> dict[str, Any]:
-    return parse_json_file(Path("testdata/json-project/create-project.json"))
+    return parse_json_file(Path("testdata/json-project/create-project-0003.json"))
 
 
 @pytest.fixture

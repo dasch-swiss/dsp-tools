@@ -42,7 +42,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 def no_violations_with_warnings_do_not_ignore_duplicate_files(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
-    file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
+    file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
 
@@ -51,8 +51,8 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 def no_violations_with_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
-    xml_file = Path("testdata/validate-data/generic/no_violations_with_info.xml")
-    id2iri_file = "testdata/validate-data/generic/no_violations_with_info_id2iri.json"
+    xml_file = Path("testdata/validate-data/core_validation/no_violations_with_info.xml")
+    id2iri_file = "testdata/validate-data/core_validation/no_violations_with_info_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
     return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
 
@@ -118,7 +118,7 @@ class TestSortedProblems:
 
     def test_no_violations_with_warnings_problems_ignore_duplicates(self, authentication):
         # This only tests if the duplicates were ignored, the details of the result is tested separately
-        file = Path("testdata/validate-data/generic/no_violations_with_warnings.xml")
+        file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
         config = ValidateDataConfig(
             xml_file=Path(),
             save_graph_dir=None,

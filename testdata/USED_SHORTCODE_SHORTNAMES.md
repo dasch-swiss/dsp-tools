@@ -26,7 +26,7 @@ File naming conventions:
 | 4124      | minimal-tp          | testdata/json-project/minimal-project-4124.json                            | `create`                      |
 | 4123      | systematic-tp       | testdata/json-project/systematic-project-4123.json                         | `create`, `xmlupload`         |
 | 0009      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json | `validate-data `              |
-| 9999      | test                | testdata/validate-data/generic/feature-complete-project.json               | `validate-data `, `xmlupload` |
+| 9999      | test                | testdata/validate-data/core_validation/core-validation-project-9999.json   | `validate-data `, `xmlupload` |
 | 0011      | complex-inheritance | testdata/validate-data/inheritance/complex-inheritance-project-0011.json   | `validate-data `              |
 | 0012      | special-characters  | testdata/validate-data/special_characters/special-characters-project.json  | `validate-data `              |
 

@@ -1,7 +1,7 @@
 {
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "1233",
+        "shortcode": "F001",
         "shortname": "circular-onto",
         "longname": "circular-onto-project",
         "descriptions": {

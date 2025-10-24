@@ -1,8 +1,8 @@
 {
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "4124",
-        "shortname": "minimal-tp",
+        "shortcode": "F002",
+        "shortname": "duplicate-listnames",
         "longname": "minimal test project",
         "descriptions": {
             "en": "A minimal test project"

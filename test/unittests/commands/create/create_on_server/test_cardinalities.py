@@ -10,6 +10,7 @@ from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
+from dsp_tools.commands.create.create_on_server.cardinalities import _serialise_card
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
@@ -55,41 +56,6 @@ class TestAddOneCardinality:
         assert result_date == NEW_MODIFICATION_DATE
         assert problems is None
         onto_client_ok.post_resource_cardinalities.assert_called_once()
-
-    def test_passes_correct_graph_to_client(self, onto_client_ok) -> None:
-        property_card = ParsedPropertyCardinality(
-            propname=str(PROP_IRI),
-            cardinality=Cardinality.C_1,
-            gui_order=None,
-        )
-        _add_one_cardinality(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
-        call_args = onto_client_ok.post_resource_cardinalities.call_args
-        passed_graph = call_args[0][0]
-        expected = {
-            "@id": "http://0.0.0.0:3333/ontology/9999/onto/v2",
-            "@type": ["http://www.w3.org/2002/07/owl#Ontology"],
-            "http://api.knora.org/ontology/knora-api/v2#lastModificationDate": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
-            ],
-            "@graph": [
-                {
-                    "@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",
-                    "@type": ["http://www.w3.org/2002/07/owl#Class"],
-                    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [{"@id": "_:N7757ff7e7c7143a2b3b59ca6ba5813f7"}],
-                },
-                {
-                    "@id": "_:N7757ff7e7c7143a2b3b59ca6ba5813f7",
-                    "@type": ["http://www.w3.org/2002/07/owl#Restriction"],
-                    "http://www.w3.org/2002/07/owl#cardinality": [
-                        {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 1}
-                    ],
-                    "http://www.w3.org/2002/07/owl#onProperty": [
-                        {"@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#hasText"}
-                    ],
-                },
-            ],
-        }
-        assert passed_graph == expected
 
     def test_returns_problem_when_client_returns_none(self) -> None:
         mock_client = Mock(spec=OntologyClient)
@@ -202,7 +168,7 @@ class TestAddCardinalitiesForOneClass:
         assert len(problems) == 1
         assert isinstance(problems[0], UploadProblem)
         assert problems[0].problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
-        assert prop_2 in problems[0].problematic_object
+        assert problems[0].problematic_object == "onto:Resource / onto:hasNumber"
         assert mock_client.post_resource_cardinalities.call_count == 3
 
     def test_handles_empty_cardinality_list(self, onto_client_ok) -> None:
@@ -405,7 +371,51 @@ class TestAddAllCardinalities:
         assert len(first_graph_dates["@graph"]) == 2
 
         # Second graph should have updated modification date from first response
-        assert first_graph_dates["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
-        mod_date = next(iter(first_graph_dates["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"]))
-        assert mod_date["@value"] == '2025-10-14T14:01:00.000000Z'
-        assert len(first_graph_dates["@graph"]) == 2
+        second_graph_dates = passed_graphs[1]
+        assert second_graph_dates["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+        mod_date = next(iter(second_graph_dates["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"]))
+        assert mod_date["@value"] == "2025-10-14T14:01:00.000000Z"
+        assert len(second_graph_dates["@graph"]) == 2
+
+
+def test_serialise_card():
+    property_card = ParsedPropertyCardinality(
+        propname=str(PROP_IRI),
+        cardinality=Cardinality.C_1,
+        gui_order=None,
+    )
+    serialised = _serialise_card(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE)
+
+    # Check ontology-level properties
+    assert serialised["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+    assert serialised["@type"] == ["http://www.w3.org/2002/07/owl#Ontology"]
+    assert serialised["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"] == [
+        {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
+    ]
+
+    # Check graph contains exactly 2 nodes
+    assert len(serialised["@graph"]) == 2
+
+    # Find the resource and restriction nodes
+    resource_node = next(
+        n for n in serialised["@graph"] if n["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource"
+    )
+    restriction_nodes = [n for n in serialised["@graph"] if n["@id"].startswith("_:")]
+
+    # Verify resource node structure
+    assert resource_node["@type"] == ["http://www.w3.org/2002/07/owl#Class"]
+    assert len(resource_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"]) == 1
+    blank_node_id = resource_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"][0]["@id"]
+    assert blank_node_id.startswith("_:")
+
+    # Verify restriction node structure
+    assert len(restriction_nodes) == 1
+    restriction_node = restriction_nodes[0]
+    assert restriction_node["@id"] == blank_node_id
+    assert restriction_node["@type"] == ["http://www.w3.org/2002/07/owl#Restriction"]
+    assert restriction_node["http://www.w3.org/2002/07/owl#cardinality"] == [
+        {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 1}
+    ]
+    assert restriction_node["http://www.w3.org/2002/07/owl#onProperty"] == [
+        {"@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#hasText"}
+    ]

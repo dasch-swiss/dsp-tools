@@ -1,3 +1,5 @@
+from typing import Any
+
 from loguru import logger
 from rdflib import Literal
 from rdflib import URIRef
@@ -96,12 +98,8 @@ def _add_one_cardinality(
     last_modification_date: Literal,
     onto_client: OntologyClient,
 ) -> tuple[Literal, UploadProblem | None]:
-    onto_g = make_ontology_base_graph(onto_iri, last_modification_date)
-    onto_serialised = next(iter(serialise_json(onto_g)))
-    card_g = _make_one_cardinality_graph(card, res_iri)
-    card_serialised = serialise_json(card_g)
-    onto_serialised["@graph"] = card_serialised
-    new_mod_date = onto_client.post_resource_cardinalities(onto_serialised)
+    card_serialised = _serialise_card(card, res_iri, onto_iri, last_modification_date)
+    new_mod_date = onto_client.post_resource_cardinalities(card_serialised)
     if not new_mod_date:
         prefixed_cls = from_dsp_iri_to_prefixed_iri(str(res_iri))
         prefixed_prop = from_dsp_iri_to_prefixed_iri(card.propname)
@@ -110,3 +108,14 @@ def _add_one_cardinality(
             ProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
         )
     return new_mod_date, None
+
+
+def _serialise_card(
+    card: ParsedPropertyCardinality, res_iri: URIRef, onto_iri: URIRef, last_modification_date: Literal
+) -> dict[str, Any]:
+    onto_g = make_ontology_base_graph(onto_iri, last_modification_date)
+    onto_serialised = next(iter(serialise_json(onto_g)))
+    card_g = _make_one_cardinality_graph(card, res_iri)
+    card_serialised = serialise_json(card_g)
+    onto_serialised["@graph"] = card_serialised
+    return onto_serialised

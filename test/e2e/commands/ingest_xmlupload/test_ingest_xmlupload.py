@@ -56,7 +56,9 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/dsp-ingest-data/e2e-sample-project/project.json"), creds, verbose=True)
+    assert create_project(
+        Path("testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project.json"), creds, verbose=True
+    )
 
 
 @pytest.mark.usefixtures("_create_project")

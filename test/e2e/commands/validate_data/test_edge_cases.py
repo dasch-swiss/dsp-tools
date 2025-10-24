@@ -31,9 +31,9 @@ SHORTCODE_ERRONEOUS_ONTO = "9991"
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)
-    assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), creds)
-    assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), creds)
+    assert create_project(Path("testdata/validate-data/special_characters/special-characters-project.json"), creds)
+    assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project.json"), creds)
+    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project.json"), creds)
 
 
 @pytest.fixture(scope="module")

@@ -12,7 +12,7 @@ from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 
 @pytest.fixture(scope="module")
 def create_project_systematic(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/test-project-systematic.json"), creds)
+    assert create_project(Path("testdata/json-project/systematic-project.json"), creds)
 
 
 @pytest.fixture(scope="module")

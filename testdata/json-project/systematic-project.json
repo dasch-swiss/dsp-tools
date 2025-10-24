@@ -7,7 +7,7 @@
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4123",
-        "shortname": "systematic-tp",
+        "shortname": "systematic",
         "longname": "systematic test project",
         "descriptions": {
             "en": "A systematic test project",

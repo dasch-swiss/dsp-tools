@@ -12,7 +12,7 @@ All the shortcodes for invalid projects start with an `F`
 
 | Shortcode | Shortname           | File Path                                                                 | Where                         |
 |-----------|---------------------|---------------------------------------------------------------------------|-------------------------------|
-| 4126      | e2e-ingest-tp       | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project.json       | `ingest-xmlupload`            |
+| 0001      | e2e-ingest-tp       | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json  | `ingest-xmlupload`            |
 | 0700      | circular-reference  | testdata/json-project/circular-reference-project.json                     | required for an XML           |
 | 8888      | test                | testdata/json-project/create-project.json                                 | `create`                      |
 | 4125      | e2e-tp              | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |

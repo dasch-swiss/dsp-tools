@@ -1,7 +1,7 @@
 {
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "4126",
+        "shortcode": "0001",
         "shortname": "e2e-ingest-tp",
         "longname": "e2e ingest test project",
         "descriptions": {

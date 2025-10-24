@@ -1,7 +1,7 @@
 {
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "0001",
+        "shortcode": "0006",
         "shortname": "list-lookup",
         "longname": "Project to create list node lookups",
         "descriptions": {

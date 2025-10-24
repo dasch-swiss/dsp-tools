@@ -56,7 +56,7 @@ def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
         longname=project_json["longname"],
         descriptions=project_json["descriptions"],
         keywords=project_json["keywords"],
-        enabled_licenses=project_json["enabled_licenses"],
+        enabled_licenses=project_json.get("enabled_licenses", []),
     )
 
 

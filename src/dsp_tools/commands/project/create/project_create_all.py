@@ -4,6 +4,7 @@ of the project, the creation of groups, users, lists, resource classes, properti
 import os
 from pathlib import Path
 from typing import Any
+from typing import cast
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -13,11 +14,14 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
+from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
-from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
@@ -34,7 +38,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 load_dotenv()
 
 
-def create_project(  # noqa: PLR0915 (too many statements)
+def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
     verbose: bool = False,
@@ -69,38 +73,41 @@ def create_project(  # noqa: PLR0915 (too many statements)
     knora_api_prefix = "knora-api:"
     overall_success = True
 
+    # includes validation
+    parsed_project = parse_project(project_file_as_path_or_parsed, creds.server)
+    if not isinstance(parsed_project, ParsedProject):
+        for problem in parsed_project:
+            print_problem_collection(problem)
+        return False
+
+    # required for the legacy code
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-
     context = Context(project_json.get("prefixes", {}))
-
-    # validate against JSON schema
-    validate_project(project_json)
-    print("    JSON project file is syntactically correct and passed validation.")
-    logger.info("JSON project file is syntactically correct and passed validation.")
-
-    project = parse_project_json(project_json)
+    legacy_project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
+    info_str = f"Create project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode})..."
     print(info_str)
     logger.info(info_str)
     project_remote, success = _create_project_on_server(
-        project_definition=project.metadata,
+        project_definition=legacy_project.metadata,
         con=con,
     )
+    project_iri = cast(str, project_remote.iri)
+    project_iri_lookup = ProjectIriLookup(project_iri)
     if not success:
         overall_success = False
 
     # create the lists
     names_and_iris_of_list_nodes: dict[str, Any] = {}
-    if project.lists:
+    if legacy_project.lists:
         print("Create lists...")
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=project.lists,
+            lists_to_create=legacy_project.lists,
             con=con,
             project_remote=project_remote,
         )
@@ -109,24 +116,24 @@ def create_project(  # noqa: PLR0915 (too many statements)
 
     # create the groups
     current_project_groups: dict[str, Group] = {}
-    if project.groups:
+    if legacy_project.groups:
         print("Create groups...")
         logger.info("Create groups...")
         current_project_groups, success = _create_groups(
             con=con,
-            groups=project.groups,
+            groups=legacy_project.groups,
             project=project_remote,
         )
         if not success:
             overall_success = False
 
     # create or update the users
-    if project.users:
+    if legacy_project.users:
         print("Create users...")
         logger.info("Create users...")
         success = _create_users(
             con=con,
-            users_section=project.users,
+            users_section=legacy_project.users,
             current_project_groups=current_project_groups,
             current_project=project_remote,
             verbose=verbose,
@@ -140,9 +147,12 @@ def create_project(  # noqa: PLR0915 (too many statements)
         context=context,
         knora_api_prefix=knora_api_prefix,
         names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
-        ontology_definitions=project.ontologies,
+        ontology_definitions=legacy_project.ontologies,
         project_remote=project_remote,
         verbose=verbose,
+        parsed_ontologies=parsed_project.ontologies,
+        project_iri_lookup=project_iri_lookup,
+        auth=auth,
     )
     if not success:
         overall_success = False
@@ -151,9 +161,9 @@ def create_project(  # noqa: PLR0915 (too many statements)
     perm_client = PermissionsClient(auth, str(project_remote.iri))
     success = create_default_permissions(
         perm_client,
-        project.metadata.default_permissions,
-        project.metadata.default_permissions_overrule,
-        project.metadata.shortcode,
+        legacy_project.metadata.default_permissions,
+        legacy_project.metadata.default_permissions_overrule,
+        legacy_project.metadata.shortcode,
     )
     if not success:
         overall_success = False
@@ -161,15 +171,15 @@ def create_project(  # noqa: PLR0915 (too many statements)
     # final steps
     if overall_success:
         msg = (
-            f"Successfully created project '{project.metadata.shortname}' "
-            f"({project.metadata.shortcode}) with all its ontologies. "
+            f"Successfully created project '{legacy_project.metadata.shortname}' "
+            f"({legacy_project.metadata.shortcode}) with all its ontologies. "
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
-            f"The project '{project.metadata.shortname}' ({project.metadata.shortcode}) "
+            f"The project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode}) "
             f"with its ontologies could be created, "
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )

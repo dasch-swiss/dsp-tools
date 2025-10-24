@@ -3,7 +3,7 @@
 Shortcodes and shortnames must be unique in DSP.
 
 We have many different projects in our test data.
-This is an inventory of the used shortcodes and shortnames for projects 
+This is an inventory of the used shortcodes and shortnames for projects
 that are primarily used for e2e tests with a running stack.
 
 All the shortcodes for invalid projects start with an `F`
@@ -16,7 +16,7 @@ All the shortcodes for invalid projects start with an `F`
 | 0700      | circular-reference  | testdata/json-project/circular-reference-project.json                     | required for an XML           |
 | 8888      | test                | testdata/json-project/create-project.json                                 | `create`                      |
 | 4125      | e2e-tp              | testdata/json-project/generic-e2e-project.json                            | `create`, `get`, `xmlupload`  |
-| 4124      | limited-view-tp     | testdata/json-project/limited-view-project.json                           | NEVER!                        |
+| 4127      | limited-view-tp     | testdata/json-project/limited-view-project.json                           | NEVER!                        |
 | 0001      | list-lookup         | testdata/json-project/list-lookup-project.json                            | `xmllib` integration          |
 | 4124      | minimal-tp          | testdata/json-project/minimal-project.json                                | `create`                      |
 | 4123      | systematic-tp       | testdata/json-project/systematic-project.json                             | `create`, `xmlupload`         |

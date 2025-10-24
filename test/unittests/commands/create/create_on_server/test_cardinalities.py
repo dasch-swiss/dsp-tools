@@ -16,7 +16,6 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
@@ -66,7 +65,31 @@ class TestAddOneCardinality:
         _add_one_cardinality(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok)
         call_args = onto_client_ok.post_resource_cardinalities.call_args
         passed_graph = call_args[0][0]
-        assert isinstance(passed_graph, Graph)
+        expected = {
+            "@id": "http://0.0.0.0:3333/ontology/9999/onto/v2",
+            "@type": ["http://www.w3.org/2002/07/owl#Ontology"],
+            "http://api.knora.org/ontology/knora-api/v2#lastModificationDate": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
+            ],
+            "@graph": [
+                {
+                    "@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",
+                    "@type": ["http://www.w3.org/2002/07/owl#Class"],
+                    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [{"@id": "_:N7757ff7e7c7143a2b3b59ca6ba5813f7"}],
+                },
+                {
+                    "@id": "_:N7757ff7e7c7143a2b3b59ca6ba5813f7",
+                    "@type": ["http://www.w3.org/2002/07/owl#Restriction"],
+                    "http://www.w3.org/2002/07/owl#cardinality": [
+                        {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 1}
+                    ],
+                    "http://www.w3.org/2002/07/owl#onProperty": [
+                        {"@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#hasText"}
+                    ],
+                },
+            ],
+        }
+        assert passed_graph == expected
 
     def test_returns_problem_when_client_returns_none(self) -> None:
         mock_client = Mock(spec=OntologyClient)
@@ -83,7 +106,7 @@ class TestAddOneCardinality:
         assert result_date == LAST_MODIFICATION_DATE
         assert isinstance(problem, UploadProblem)
         assert problem.problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
-        assert problem.problematic_object == f"{RESOURCE_IRI!s} / {PROP_IRI!s}"
+        assert problem.problematic_object == "onto:Resource / onto:hasText"
 
 
 class TestAddCardinalitiesForOneClass:
@@ -375,11 +398,14 @@ class TestAddAllCardinalities:
         assert len(passed_graphs) == 2
 
         # First graph should have initial modification date
-        first_graph_dates = list(passed_graphs[0].objects(ONTO_IRI, KNORA_API.lastModificationDate))
-        assert len(first_graph_dates) == 1
-        assert str(first_graph_dates[0]) == "2025-10-14T13:00:00.000000Z"
+        first_graph_dates = passed_graphs[0]
+        assert first_graph_dates["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+        mod_date = next(iter(first_graph_dates["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"]))
+        assert mod_date["@value"] == str(LAST_MODIFICATION_DATE)
+        assert len(first_graph_dates["@graph"]) == 2
 
         # Second graph should have updated modification date from first response
-        second_graph_dates = list(passed_graphs[1].objects(ONTO_IRI, KNORA_API.lastModificationDate))
-        assert len(second_graph_dates) == 1
-        assert str(second_graph_dates[0]) == "2025-10-14T14:01:00.000000Z"
+        assert first_graph_dates["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+        mod_date = next(iter(first_graph_dates["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"]))
+        assert mod_date["@value"] == '2025-10-14T14:01:00.000000Z'
+        assert len(first_graph_dates["@graph"]) == 2

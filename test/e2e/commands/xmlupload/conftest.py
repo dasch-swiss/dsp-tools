@@ -45,7 +45,7 @@ def second_onto_iri_9999(creds) -> str:
 
 @pytest.fixture(scope="module")
 def create_generic_project_9999(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/generic/feature-complete-project.json"), creds)
+    assert create_project(Path("testdata/validate-data/core-validation/feature-complete-project.json"), creds)
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +56,7 @@ def _xmlupload_minimal_correct_9999(create_generic_project_9999, creds) -> None:
     Then it can happen that they try to save the id2iri mapping at the same time,
     which fails, because the id2iri mapping is named after the shortcode and the timestamp.
     """
-    absolute_xml_path = Path("testdata/validate-data/generic/minimal_correct.xml").absolute()
+    absolute_xml_path = Path("testdata/validate-data/core-validation/minimal_correct.xml").absolute()
     original_cwd = Path.cwd()
     with TemporaryDirectory() as tmpdir:
         with pytest.MonkeyPatch.context() as m:
@@ -99,7 +99,7 @@ def second_onto_iri_4125(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def create_4125_e2e_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/generic-e2e-project-4125.json"), creds)
+    assert create_project(Path("testdata/json-project/core-validation-e2e-project-4125.json"), creds)
 
 
 @pytest.fixture(scope="module")

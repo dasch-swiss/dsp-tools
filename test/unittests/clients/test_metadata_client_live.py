@@ -1,12 +1,14 @@
 # mypy: disable-error-code="no-untyped-def"
 
 from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.metadata_client import MetadataClient
+from dsp_tools.clients.metadata_client import MetadataResponse
+from dsp_tools.clients.metadata_client_live import MetadataClientLive
 
 
 @pytest.fixture
@@ -18,8 +20,8 @@ def mock_auth_client() -> Mock:
 
 
 @pytest.fixture
-def metadata_client(mock_auth_client: Mock) -> MetadataClient:
-    return MetadataClient(
+def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
+    return MetadataClientLive(
         server="http://0.0.0.0:3333",
         authentication_client=mock_auth_client,
     )
@@ -45,19 +47,43 @@ def non_ok_response():
     return {"message": "Project with shortcode 9999 not found."}
 
 
-def test_get_resource_metadata_ok(metadata_client, ok_response):
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_ok(log_request, log_response, metadata_client, ok_response):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = True
     mock_response.status_code = 200
-    mock_response.text = ok_response
+    mock_response.json.return_value = ok_response
+
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("4124")
+
+    assert response_type == MetadataResponse.METADATA_RETRIVAL_OK
+    assert data == ok_response
 
 
-def test_get_resource_metadata_non_ok(metadata_client, non_ok_response):
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client, non_ok_response):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 403
     mock_response.text = non_ok_response
 
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("9999")
 
-def test_get_resource_metadata_error_raised(metadata_client):
-    pass
+    assert response_type == MetadataResponse.METADATA_RETRIVAL_NON_OK
+    assert data == []
+
+
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_error_raised(log_request, metadata_client):  # noqa: ARG001
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.side_effect = Exception("Connection error")
+        response_type, data = metadata_client.get_resource_metadata("4124")
+
+    assert response_type == MetadataResponse.METADATA_RETRIVAL_ERROR
+    assert data == []

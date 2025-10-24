@@ -30,7 +30,7 @@ class TestMakeOneCardinalityGraph:
             gui_order=None,
         )
         result_graph = _make_one_cardinality_graph(property_card, RESOURCE_IRI)
-        assert len(result_graph) == 4
+        assert len(result_graph) == 5
         blank_nodes = list(result_graph.objects(RESOURCE_IRI, RDFS.subClassOf))
         assert len(blank_nodes) == 1
         bn = blank_nodes[0]
@@ -69,6 +69,7 @@ class TestMakeCardinalityGraphForRequest:
         result_graph = make_cardinality_graph_for_request(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE)
         assert (ONTO_IRI, RDF.type, OWL.Ontology) in result_graph
         assert (ONTO_IRI, KNORA_API.lastModificationDate, LAST_MODIFICATION_DATE) in result_graph
+        assert (RESOURCE_IRI, RDF.type, OWL.Class) in result_graph
         blank_nodes = list(result_graph.objects(RESOURCE_IRI, RDFS.subClassOf))
         assert len(blank_nodes) == 1
         bn = blank_nodes[0]
@@ -84,5 +85,5 @@ class TestMakeCardinalityGraphForRequest:
         )
         result_graph = make_cardinality_graph_for_request(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE)
         ontology_graph_triples = 2
-        cardinality_graph_triples = 4
+        cardinality_graph_triples = 5
         assert len(result_graph) == ontology_graph_triples + cardinality_graph_triples

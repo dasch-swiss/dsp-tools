@@ -13,8 +13,10 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.commands.create.serialisation.ontology import make_cardinality_graph_for_request
+from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinality_graph
+from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
+from dsp_tools.utils.rdflib_utils import serialise_json
 
 
 def add_all_cardinalities(
@@ -94,8 +96,12 @@ def _add_one_cardinality(
     last_modification_date: Literal,
     onto_client: OntologyClient,
 ) -> tuple[Literal, UploadProblem | None]:
-    card_g = make_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
-    new_mod_date = onto_client.post_resource_cardinalities(card_g)
+    onto_g = make_ontology_base_graph(onto_iri, last_modification_date)
+    onto_serialised = next(iter(serialise_json(onto_g)))
+    card_g = _make_one_cardinality_graph(card, res_iri)
+    card_serialised = serialise_json(card_g)
+    onto_serialised["@graph"] = card_serialised
+    new_mod_date = onto_client.post_resource_cardinalities(onto_serialised)
     if not new_mod_date:
         prefixed_cls = from_dsp_iri_to_prefixed_iri(str(res_iri))
         prefixed_prop = from_dsp_iri_to_prefixed_iri(card.propname)

@@ -15,7 +15,6 @@ from dsp_tools.clients.ontology_client import OntologyClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
@@ -57,12 +56,12 @@ class OntologyClientLive(OntologyClient):
                 f"Please consult 'warnings.log' for details."
             )
 
-    def post_resource_cardinalities(self, cardinality_graph: Graph) -> Literal | None:
+    def post_resource_cardinalities(self, cardinality_graph: Any) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
-        serialised = serialise_json(cardinality_graph)
+
         logger.debug("POST resource cardinalities to ontology")
         try:
-            response = self._post_and_log_request(url, serialised)
+            response = self._post_and_log_request(url, cardinality_graph)
         except (TimeoutError, ReadTimeout) as err:
             log_and_raise_timeouts(err)
         if response.ok:

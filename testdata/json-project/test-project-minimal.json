@@ -11,6 +11,9 @@
             "minimal"
         ],
         "default_permissions": "public",
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/public-domain"
+        ],
         "ontologies": [
             {
                 "name": "testonto",
@@ -34,7 +37,13 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Minimal Resource"
-                        }
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-1"
+                            }
+                        ]
                     }
                 ]
             }

@@ -20,7 +20,7 @@ File naming conventions:
 | 0001      | e2e-ingest          | testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json   | `ingest-xmlupload`            |
 | 0002      | circular-reference  | testdata/json-project/circular-reference-project-0002.json                 | required for an XML           |
 | 0003      | create              | testdata/json-project/create-project-0003.json                             | `create`                      |
-| 4125      | e2e-tp              | testdata/json-project/generic-e2e-project.json                             | `create`, `get`, `xmlupload`  |
+| 4125      | e2e-tp              | testdata/json-project/generic-e2e-project-4125.json                        | `create`, `get`, `xmlupload`  |
 | 0005      | limited-view        | testdata/json-project/limited-view-project-0005.json                       | NEVER!                        |
 | 0006      | list-lookup         | testdata/json-project/list-lookup-project-0006.json                        | `xmllib` integration          |
 | 4124      | minimal-tp          | testdata/json-project/minimal-project.json                                 | `create`                      |

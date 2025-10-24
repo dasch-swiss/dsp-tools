@@ -26,14 +26,14 @@ CONFIG = ValidateDataConfig(
 )
 SHORTCODE_SPECIAL_CHAR = "0002"
 SHORTCODE_INHERITANCE = "9990"
-SHORTCODE_ERRONEOUS_ONTO = "9991"
+SHORTCODE_ERRONEOUS_ONTO_0009 = "0009"
 
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/validate-data/special_characters/special-characters-project.json"), creds)
     assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project.json"), creds)
-    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project.json"), creds)
+    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
 
 
 @pytest.fixture(scope="module")
@@ -145,9 +145,9 @@ def test_reformat_inheritance_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation(authentication) -> None:
-    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO_0009)
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
@@ -173,7 +173,7 @@ def test_validate_ontology_violation(authentication) -> None:
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation_skip_ontology_validation(authentication) -> None:
-    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     config_skip_onto_val = ValidateDataConfig(
         xml_file=Path(),
@@ -183,7 +183,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
         is_on_prod_server=False,
         skip_ontology_validation=True,
     )
-    result = _validate_data(graphs, used_iris, parsed_resources, config_skip_onto_val, SHORTCODE_ERRONEOUS_ONTO)
+    result = _validate_data(graphs, used_iris, parsed_resources, config_skip_onto_val, SHORTCODE_ERRONEOUS_ONTO_0009)
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, SortedProblems)

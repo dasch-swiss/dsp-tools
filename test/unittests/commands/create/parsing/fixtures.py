@@ -26,7 +26,7 @@ def prefixes() -> dict[str, str]:
 
 @pytest.fixture
 def project_json_systematic() -> dict[str, Any]:
-    return parse_json_file(Path("testdata/json-project/systematic-project.json"))
+    return parse_json_file(Path("testdata/json-project/systematic-project-4123.json"))
 
 
 @pytest.fixture

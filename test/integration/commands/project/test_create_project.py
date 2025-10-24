@@ -23,7 +23,7 @@ from dsp_tools.utils.json_parsing import parse_json_input
 
 @pytest.fixture
 def tp_systematic() -> dict[str, Any]:
-    tp_systematic_file = "testdata/json-project/systematic-project.json"
+    tp_systematic_file = "testdata/json-project/systematic-project-4123.json"
     with open(tp_systematic_file, encoding="utf-8") as json_file:
         tp_systematic: dict[str, Any] = json.load(json_file)
     return tp_systematic

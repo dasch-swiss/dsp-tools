@@ -17,8 +17,8 @@ class TestCliDepsResources(unittest.TestCase):
         - The CLI call from another working directory tests if the files in 'src/dsp_tools/resources' are accessible.
     """
 
-    test_project_systematic_file = Path("testdata/json-project/systematic-project.json")
-    test_project_minimal_file = Path("testdata/json-project/minimal-project.json")
+    test_project_systematic_file = Path("testdata/json-project/systematic-project-4123.json")
+    test_project_minimal_file = Path("testdata/json-project/minimal-project-4124.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal-4124.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")

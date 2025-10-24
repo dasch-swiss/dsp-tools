@@ -62,7 +62,7 @@ def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
         "    Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed."
     )
     with pytest.raises(InputError, match=expected):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag-4124.xml")
 
 
 def test_validate_xml_data_duplicate_iri() -> None:
@@ -72,7 +72,7 @@ def test_validate_xml_data_duplicate_iri() -> None:
         "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'."
     )
     with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-iri-4124.xml")
 
 
 def test_validate_xml_duplicate_ark() -> None:
@@ -82,7 +82,7 @@ def test_validate_xml_duplicate_ark() -> None:
         "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'."
     )
     with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-ark-4124.xml")
 
 
 def test_validate_xml_empty_label() -> None:
@@ -92,7 +92,7 @@ def test_validate_xml_empty_label() -> None:
         "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
     )
     with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label-4124.xml")
 
 
 def test_validate_xml_invalid_characters_in_resptr() -> None:
@@ -102,7 +102,7 @@ def test_validate_xml_invalid_characters_in_resptr() -> None:
         "is not accepted by the pattern "
     )
     with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resptr-characters.xml")
+        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resptr-characters-4124.xml")
 
 
 def test_beautify_err_msg() -> None:
@@ -113,7 +113,7 @@ def test_beautify_err_msg() -> None:
         r"The function make_xsd_compatible_id\(\) assists you in creating IDs\."
     )
     with pytest.raises(InputError, match=_match):
-        parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id.xml")
+        parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id-4124.xml")
 
 
 class TestReformatErrorMessage:

@@ -43,7 +43,7 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 @pytest.fixture(scope="module")
 def test_project_systematic_file() -> Path:
-    return Path("testdata/json-project/systematic-project.json")
+    return Path("testdata/json-project/systematic-project-4123.json")
 
 
 @pytest.fixture(scope="module")

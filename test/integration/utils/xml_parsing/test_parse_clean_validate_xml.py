@@ -14,7 +14,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_valid
 
 @pytest.fixture
 def data_systematic_unclean() -> Path:
-    return Path("testdata/xml-data/test-data-systematic.xml")
+    return Path("testdata/xml-data/test-data-systematic-4123.xml")
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def _clean_resulting_tree(tree: etree._Element) -> str:
 
 def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_unclean: Path) -> None:
     from_tree = parse_and_clean_xml_file(data_systematic_unclean)
-    from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
+    from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic-4123.xml"))
     cleaned_from_file = _clean_resulting_tree(from_file)
     cleaned_from_tree = _clean_resulting_tree(from_tree)
     assert cleaned_from_file == cleaned_from_tree, (
@@ -49,11 +49,11 @@ def test_comment_removal(data_systematic_unclean: Path, data_systematic_cleaned:
 
 
 def test_validate_xml_data_systematic() -> None:
-    assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-systematic.xml")
+    assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-systematic-4123.xml")
 
 
 def test_validate_xml_data_minimal() -> None:
-    assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-minimal.xml")
+    assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-minimal-4124.xml")
 
 
 def test_validate_xml_invalid_resource_tag_line_twelve() -> None:

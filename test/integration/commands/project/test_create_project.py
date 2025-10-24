@@ -147,10 +147,10 @@ def test_parse_json_input_file_not_found() -> None:
 
 def test_parse_json_input_invalid_file() -> None:
     err_msg = regex.escape(
-        "The input file 'testdata/xml-data/test-data-systematic.xml' cannot be parsed to a JSON object."
+        "The input file 'testdata/xml-data/test-data-systematic-4123.xml' cannot be parsed to a JSON object."
     )
     with pytest.raises(JSONFileParsingError, match=err_msg):
-        parse_json_input("testdata/xml-data/test-data-systematic.xml")
+        parse_json_input("testdata/xml-data/test-data-systematic-4123.xml")
 
 
 def test_check_for_duplicate_resources() -> None:

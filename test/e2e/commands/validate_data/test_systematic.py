@@ -22,7 +22,7 @@ def api_url(container_ports: ExternalContainerPorts) -> str:
 
 @pytest.mark.usefixtures("create_project_systematic")
 def test_systematic(api_url: str) -> None:
-    file = Path("testdata/xml-data/test-data-systematic.xml")
+    file = Path("testdata/xml-data/test-data-systematic-4123.xml")
     creds = ServerCredentials("root@example.com", "test", api_url)
     no_violations = validate_data(
         file,

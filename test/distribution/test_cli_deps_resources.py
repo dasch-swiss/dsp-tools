@@ -19,7 +19,7 @@ class TestCliDepsResources(unittest.TestCase):
 
     test_project_systematic_file = Path("testdata/json-project/systematic-project.json")
     test_project_minimal_file = Path("testdata/json-project/minimal-project.json")
-    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
+    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal-4124.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
 

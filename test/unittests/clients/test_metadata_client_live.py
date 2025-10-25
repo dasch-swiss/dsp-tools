@@ -76,7 +76,7 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 403
-    mock_response.text = {"message": "Project with shortcode 9999 not found."}
+    mock_response.text = {"message": "Some message from the API."}
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response

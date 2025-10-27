@@ -77,11 +77,13 @@ def with_iri_references(
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
     success, metadata = iri_reference_upload
     assert success == MetadataRetrieval.SUCCESS
-    assert len(metadata) == 1
-    res = metadata.pop(0)
-    assert res["resourceIri"] == "http://rdfh.ch/9999/iri-from-resource-in-db"
-    res_type = f"{authentication.server}/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting"
-    assert res["resourceClassIri"] == res_type
+    assert len(metadata) == 2
+    res_1 = next(x for x in metadata if x["resourceIri"] == "http://rdfh.ch/9999/iri-from-resource-in-db")
+    res_1_type = f"{authentication.server}/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting"
+    assert res_1["resourceClassIri"] == res_1_type
+    res_2 = next(x for x in metadata if x["resourceIri"] == "http://rdfh.ch/9999/resource-in-id2iri-mapping")
+    res_2_type = f"{authentication.server}/ontology/9999/onto/v2#ClassWithEverything"
+    assert res_2["resourceClassIri"] == res_2_type
 
 
 class TestGetCorrectValidationResult:
@@ -166,8 +168,13 @@ class TestSortedProblems:
         all_expected_info = [
             ("link_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("richtext_with_standoff_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("richtext_with_standoff_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            (
+                "richtext_with_standoff_to_resource_in_db_which_does_not_exist",
+                ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT,
+            ),
         ]
         sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)

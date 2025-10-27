@@ -21,4 +21,10 @@
         </boolean-prop>
     </resource>
 
+    <resource label="resource_in_db_referenced_in_mapping"
+              restype=":ClassWithEverything"
+              id="resource_in_db_referenced_in_mapping"
+              iri="http://rdfh.ch/9999/resource-in-id2iri-mapping"
+    />
+
 </knora>

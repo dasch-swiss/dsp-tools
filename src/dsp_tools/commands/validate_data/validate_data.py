@@ -104,7 +104,7 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    rdf_graphs, used_iris, metadata_retrieval_success = prepare_data_for_validation_from_parsed_resource(
+    rdf_graphs, used_iris, _ = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,

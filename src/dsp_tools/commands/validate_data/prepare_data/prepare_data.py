@@ -2,7 +2,9 @@ import importlib.resources
 from pathlib import Path
 
 from loguru import logger
+from rdflib import RDF
 from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
@@ -114,6 +116,8 @@ def _create_graphs(
     api_card_shapes.parse(str(api_card_path))
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + api_card_shapes
+    resources_in_db = _make_resource_in_db_graph(proj_info.resource_iris_in_db)
+    resources_in_db = _bind_prefixes_to_graph(resources_in_db, onto_iris)
     data_rdf = _bind_prefixes_to_graph(data_rdf, onto_iris)
     ontologies = _bind_prefixes_to_graph(ontologies, onto_iris)
     card_shapes = _bind_prefixes_to_graph(card_shapes, onto_iris)
@@ -125,6 +129,7 @@ def _create_graphs(
         cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
         knora_api=knora_api,
+        resources_in_db_graph=resources_in_db,
     )
 
 
@@ -158,3 +163,10 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
     license_info = legal_client.get_licenses_of_a_project()
     iris = [x["id"] for x in license_info]
     return EnabledLicenseIris(iris)
+
+
+def _make_resource_in_db_graph(resources_in_db: list[InfoForResourceInDB]) -> Graph:
+    g = Graph()
+    for r in resources_in_db:
+        g.add((URIRef(r.res_iri), RDF.type, URIRef(r.res_type)))
+    return g

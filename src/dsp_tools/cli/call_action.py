@@ -185,10 +185,10 @@ def _call_old_excel2json(args: argparse.Namespace) -> bool:
 
 def _call_upload_files(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
-    xml_p = Path(args.xml_file)
-    _check_filepath_exists(xml_p)
+    xml_path = Path(args.xml_file)
+    _check_filepath_exists(xml_path)
     return upload_files(
-        xml_file=xml_p,
+        xml_file=xml_path,
         creds=_get_creds(args),
         imgdir=Path(args.imgdir),
     )
@@ -201,11 +201,11 @@ def _call_ingest_files(args: argparse.Namespace) -> bool:
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
-    xml_p = Path(args.xml_file)
-    _check_filepath_exists(xml_p)
+    xml_path = Path(args.xml_file)
+    _check_filepath_exists(xml_path)
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
-        xml_file=xml_p,
+        xml_file=xml_path,
         creds=_get_creds(args),
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
@@ -216,13 +216,13 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
-    xml_p = Path(args.xmlfile)
-    _check_filepath_exists(xml_p)
+    xml_path = Path(args.xmlfile)
+    _check_filepath_exists(xml_path)
     id_2_iri_file = args.id2iri_replacement_with_file
     if id_2_iri_file:
         _check_filepath_exists(Path(id_2_iri_file))
     if args.validate_only:
-        success = parse_and_validate_xml_file(xml_p)
+        success = parse_and_validate_xml_file(xml_path)
         print("The XML file is syntactically correct.")
         return success
     else:
@@ -240,7 +240,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                     f"is not part of the allowed values: info, warning, error."
                 )
         return xmlupload(
-            input_file=xml_p,
+            input_file=xml_path,
             creds=_get_creds(args),
             imgdir=args.imgdir,
             config=UploadConfig(
@@ -257,10 +257,10 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
-    xml_p = Path(args.xmlfile)
-    _check_filepath_exists(xml_p)
+    xml_path = Path(args.xmlfile)
+    _check_filepath_exists(xml_path)
     return validate_data(
-        filepath=xml_p,
+        filepath=xml_path,
         creds=_get_creds(args),
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,

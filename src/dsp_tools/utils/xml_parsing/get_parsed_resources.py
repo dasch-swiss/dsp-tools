@@ -5,6 +5,7 @@ from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -15,7 +16,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
-    api_url = _convert_api_url_for_correct_iri_namespace_construction(api_url)
+    api_url = convert_api_url_for_correct_iri_namespace_construction(api_url)
     iri_lookup = _create_from_local_name_to_absolute_iri_lookup(root, api_url)
     all_res: list[ParsedResource] = []
     for res in root.iterdescendants(tag="resource"):

@@ -66,12 +66,22 @@ def iri_reference_upload(create_generic_project, authentication) -> tuple[Metada
 
 @pytest.fixture(scope="module")
 def with_iri_references(
-    create_generic_project, authentication, shacl_validator: ShaclCliValidator
+    create_generic_project, iri_reference_upload, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
     id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
     return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+
+
+def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
+    success, metadata = iri_reference_upload
+    assert success == MetadataRetrieval.SUCCESS
+    assert len(metadata) == 1
+    res = metadata.pop(0)
+    assert res["resourceIri"] == "http://rdfh.ch/9999/iri-from-resource-in-db"
+    res_type = f"{authentication.server}/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting"
+    assert res["resourceClassIri"] == res_type
 
 
 class TestGetCorrectValidationResult:

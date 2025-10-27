@@ -310,6 +310,19 @@ class TestLinkValue:
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
         assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
+    def test_corr_with_iri(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
+            "http://rdfh.ch/9999/resource-iri",
+            KnoraValueType.LINK_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == URIRef("http://rdfh.ch/9999/resource-iri")
+
     def test_none(self):
         val = RdfLikeValue(
             "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []

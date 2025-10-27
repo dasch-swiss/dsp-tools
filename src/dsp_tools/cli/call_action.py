@@ -131,7 +131,7 @@ def _call_id2iri(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2properties(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     _, _, success = excel2properties(
         excelfile=args.excelfile,
         path_to_output_file=args.properties_section,
@@ -140,7 +140,7 @@ def _call_excel2properties(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2resources(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     _, _, success = excel2resources(
         excelfile=args.excelfile,
         path_to_output_file=args.resources_section,
@@ -149,7 +149,7 @@ def _call_excel2resources(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2lists(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     _, success = old_excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -159,7 +159,7 @@ def _call_old_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2lists(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     _, success = excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -168,7 +168,7 @@ def _call_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2json(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     return excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
@@ -176,7 +176,7 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2json(args: argparse.Namespace) -> bool:
-    _check_directory_exists(args.excelfolder)
+    _check_directory_exists(Path(args.excelfolder))
     return old_excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,

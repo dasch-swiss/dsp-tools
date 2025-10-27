@@ -84,7 +84,6 @@ markdownlint:
     ghcr.io/igorshubovych/markdownlint-cli:v0.45.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
-    --ignore README.md \
     "**/*.md"
 
 

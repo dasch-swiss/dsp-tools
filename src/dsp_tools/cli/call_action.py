@@ -31,6 +31,8 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import DockerNotReachableError
 from dsp_tools.error.exceptions import DspApiNotReachableError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserDirectoryNotFoundError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 LOCALHOST_API = "http://0.0.0.0:3333"
@@ -119,6 +121,8 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
 
 
 def _call_id2iri(args: argparse.Namespace) -> bool:
+    _check_filepath_exists(args.xmlfile)
+    _check_filepath_exists(args.mapping)
     return id2iri(
         xml_file=args.xmlfile,
         json_file=args.mapping,
@@ -127,6 +131,7 @@ def _call_id2iri(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2properties(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     _, _, success = excel2properties(
         excelfile=args.excelfile,
         path_to_output_file=args.properties_section,
@@ -135,6 +140,7 @@ def _call_excel2properties(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2resources(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     _, _, success = excel2resources(
         excelfile=args.excelfile,
         path_to_output_file=args.resources_section,
@@ -143,6 +149,7 @@ def _call_excel2resources(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2lists(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     _, success = old_excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -152,6 +159,7 @@ def _call_old_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2lists(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     _, success = excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -160,6 +168,7 @@ def _call_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2json(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     return excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
@@ -167,6 +176,7 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2json(args: argparse.Namespace) -> bool:
+    _check_directory_exists(args.excelfolder)
     return old_excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
@@ -175,8 +185,10 @@ def _call_old_excel2json(args: argparse.Namespace) -> bool:
 
 def _call_upload_files(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
+    xml_p = Path(args.xml_file)
+    _check_filepath_exists(xml_p)
     return upload_files(
-        xml_file=Path(args.xml_file),
+        xml_file=xml_p,
         creds=_get_creds(args),
         imgdir=Path(args.imgdir),
     )
@@ -189,9 +201,11 @@ def _call_ingest_files(args: argparse.Namespace) -> bool:
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
+    xml_p = Path(args.xml_file)
+    _check_filepath_exists(xml_p)
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
-        xml_file=Path(args.xml_file),
+        xml_file=xml_p,
         creds=_get_creds(args),
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
@@ -202,8 +216,13 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
+    xml_p = Path(args.xmlfile)
+    _check_filepath_exists(xml_p)
+    id_2_iri_file = args.id2iri_replacement_with_file
+    if id_2_iri_file:
+        _check_filepath_exists(Path(id_2_iri_file))
     if args.validate_only:
-        success = parse_and_validate_xml_file(Path(args.xmlfile))
+        success = parse_and_validate_xml_file(xml_p)
         print("The XML file is syntactically correct.")
         return success
     else:
@@ -221,7 +240,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                     f"is not part of the allowed values: info, warning, error."
                 )
         return xmlupload(
-            input_file=Path(args.xmlfile),
+            input_file=xml_p,
             creds=_get_creds(args),
             imgdir=args.imgdir,
             config=UploadConfig(
@@ -231,15 +250,17 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
                 validation_severity=severity,
                 skip_ontology_validation=args.skip_ontology_validation,
-                id2iri_replacement_file=args.id2iri_replacement_with_file,
+                id2iri_replacement_file=id_2_iri_file,
             ),
         )
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
     _check_health_with_docker(args.server)
+    xml_p = Path(args.xmlfile)
+    _check_filepath_exists(xml_p)
     return validate_data(
-        filepath=Path(args.xmlfile),
+        filepath=xml_p,
         creds=_get_creds(args),
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
@@ -259,6 +280,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_get(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
+    _check_directory_exists(Path(args.project_definition).parent)
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
@@ -269,6 +291,7 @@ def _call_get(args: argparse.Namespace) -> bool:
 
 def _call_create(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
+    _check_filepath_exists(args.project_definition)
     success = False
     match args.lists_only, args.validate_only:
         case True, True:
@@ -340,3 +363,13 @@ def _check_api_health(api_url: str) -> None:
             msg = "The DSP-API responded with a request exception. Please contact the DaSCH engineering team for help."
         logger.error(msg)
         raise DspApiNotReachableError(msg) from None
+
+
+def _check_filepath_exists(file_path: Path) -> None:
+    if not file_path.exists():
+        raise UserFilepathNotFoundError(file_path)
+
+
+def _check_directory_exists(dir_path: Path) -> None:
+    if not dir_path.is_dir():
+        raise UserDirectoryNotFoundError(dir_path)

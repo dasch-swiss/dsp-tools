@@ -121,8 +121,8 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
 
 
 def _call_id2iri(args: argparse.Namespace) -> bool:
-    _check_filepath_exists(args.xmlfile)
-    _check_filepath_exists(args.mapping)
+    _check_filepath_exists(Path(args.xmlfile))
+    _check_filepath_exists(Path(args.mapping))
     return id2iri(
         xml_file=args.xmlfile,
         json_file=args.mapping,
@@ -131,7 +131,7 @@ def _call_id2iri(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2properties(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    _check_filepath_exists(Path(args.excelfile))
     _, _, success = excel2properties(
         excelfile=args.excelfile,
         path_to_output_file=args.properties_section,
@@ -140,7 +140,7 @@ def _call_excel2properties(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2resources(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    _check_filepath_exists(Path(args.excelfile))
     _, _, success = excel2resources(
         excelfile=args.excelfile,
         path_to_output_file=args.resources_section,
@@ -291,7 +291,7 @@ def _call_get(args: argparse.Namespace) -> bool:
 
 def _call_create(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
-    _check_filepath_exists(args.project_definition)
+    _check_filepath_exists(Path(args.project_definition))
     success = False
     match args.lists_only, args.validate_only:
         case True, True:

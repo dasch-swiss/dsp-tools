@@ -14,7 +14,7 @@ This document is intended for developers who want to work with the code of DSP-T
 > [!NOTE]
 > This technical document was written as a guide for developers.
 > For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS).
-
+ 
 > [!TIP]
 > This README contains basic information for getting started. 
 > More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
@@ -119,7 +119,7 @@ The password itself is not relevant.
 
 Example `.env` content:
 
-```
+```text
 DSP_USER_PASSWORD="password"
 ```
 

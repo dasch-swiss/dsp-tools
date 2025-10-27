@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!--
+        This file contains a resource that must be uploaded before references_to_iri_in_db.xml
+        as it contains the resource that is referenced there.
+    -->
+
+    <resource label="resource_in_db"
+              restype=":ClassInheritedCardinalityOverwriting"
+              id="resource_in_db"
+              iri="http://rdfh.ch/9999/iri-from-resource-in-db"
+    >
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+</knora>

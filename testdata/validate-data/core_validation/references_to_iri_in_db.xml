@@ -7,14 +7,14 @@
        default-ontology="onto">
 
     <!--
-    These resources will produce a validation message of level info.
-    This is allowed on test servers and on prod.
+    These resources reference resource IRIs.
+    If they exist in the database then they should not produce an error.
+    Otherwise, they must produce a violation.
     -->
 
-    <!-- It is permissible to reference resources that exist in the database but not the XML. -->
-    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_in_db">
+    <resource label="Link" restype=":ClassWithEverything" id="link_to_resource_in_db">
         <resptr-prop name=":testHasLinkToCardOneResource">
-            <resptr>http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA</resptr>
+            <resptr>http://rdfh.ch/9999/iri-from-resource-in-db</resptr>
         </resptr-prop>
     </resource>
 
@@ -22,14 +22,31 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text with
-                <a class="salsah-link" href="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA">stand off</a>
+                <a class="salsah-link" href="http://rdfh.ch/9999/iri-from-resource-in-db">stand off</a>
+                to resource in DB.
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- These resources reference an IRI which does not exist in the database -->
+    <resource label="Link" restype=":ClassWithEverything" id="link_to_resource_in_db_which_does_not_exist">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>http://rdfh.ch/9999/resource-does-not-exist</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_in_db_which_does_not_exist">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text with
+                <a class="salsah-link" href="http://rdfh.ch/9999/resource-does-not-exist">stand off</a>
                 to resource in DB.
             </text>
         </text-prop>
     </resource>
 
     <!-- It is permissible to reference resources from an id2iri mapping. -->
-    <resource label="Link Prop To Existing Resource" restype=":ClassWithEverything" id="link_to_resource_from_id2iri_mapping">
+    <resource label="Link" restype=":ClassWithEverything" id="link_to_resource_from_id2iri_mapping">
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>id_in_mapping</resptr>
         </resptr-prop>

@@ -51,8 +51,8 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 def no_violations_with_info(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
-    xml_file = Path("testdata/validate-data/core_validation/no_violations_with_info.xml")
-    id2iri_file = "testdata/validate-data/core_validation/no_violations_with_info_id2iri.json"
+    xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
+    id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
     return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
 

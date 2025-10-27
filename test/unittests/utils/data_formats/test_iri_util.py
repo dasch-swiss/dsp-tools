@@ -50,14 +50,14 @@ def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
 
 
 @pytest.mark.parametrize(
-    ("api_url"),
+    ("api_url", "fixed_api"),
     [
-        (HTTPS_API_URL),
-        (LOCALHOST_URL),
+        (HTTPS_API_URL, HTTP_API_URL),
+        (LOCALHOST_URL, LOCALHOST_URL),
     ],
 )
-def test_make_dsp_ontology_prefix(api_url):
-    expected = f"{api_url}/ontology/9999/onto/v2#"
+def test_make_dsp_ontology_prefix(api_url, fixed_api):
+    expected = f"{fixed_api}/ontology/9999/onto/v2#"
     assert make_dsp_ontology_prefix(api_url, "9999", "onto") == expected
 
 

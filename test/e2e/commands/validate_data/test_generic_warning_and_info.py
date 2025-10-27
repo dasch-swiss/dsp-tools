@@ -9,12 +9,16 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _validate_data
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.error.exceptions import InputError
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument
@@ -48,7 +52,20 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 
 
 @pytest.fixture(scope="module")
-def no_violations_with_info(
+def iri_reference_upload(create_generic_project, authentication) -> tuple[MetadataRetrieval, list[dict[str, str]]]:
+    success = xmlupload(
+        Path("testdata/validate-data/core_validation/references_to_iri_in_db_referenced_resource.xml"),
+        ServerCredentials(authentication.email, authentication.password, authentication.server),
+        ".",
+    )
+    if not success:
+        raise InputError("Xmlupload dependency not successful.")
+    meta_client = MetadataClientLive(authentication.server, authentication)
+    return meta_client.get_resource_metadata("9999")
+
+
+@pytest.fixture(scope="module")
+def with_iri_references(
     create_generic_project, authentication, shacl_validator: ShaclCliValidator
 ) -> ValidateDataResult:
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
@@ -73,17 +90,17 @@ class TestGetCorrectValidationResult:
         result = _get_validation_status(sorted_problems, is_on_prod=True)
         assert result is False
 
-    def test_no_violations_with_info_not_on_prod(self, no_violations_with_info):
+    def test_no_violations_with_info_not_on_prod(self, with_iri_references):
         # this boolean carries the information if there are problems of any severity level,
         # but not if the validation will pass
-        assert not no_violations_with_info.no_problems
-        sorted_problems = no_violations_with_info.problems
+        assert not with_iri_references.no_problems
+        sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)
         result = _get_validation_status(sorted_problems, is_on_prod=False)
         assert result is True
 
-    def test_no_violations_with_info_on_prod(self, no_violations_with_info):
-        sorted_problems = no_violations_with_info.problems
+    def test_no_violations_with_info_on_prod(self, with_iri_references):
+        sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)
         result = _get_validation_status(sorted_problems, is_on_prod=True)
         assert result is True
@@ -135,14 +152,14 @@ class TestSortedProblems:
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}
         assert warnings_ids == expected_res_ids
 
-    def test_no_violations_with_info(self, no_violations_with_info):
+    def test_no_violations_with_info(self, with_iri_references):
         all_expected_info = [
             ("link_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("richtext_with_standoff_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("richtext_with_standoff_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
         ]
-        sorted_problems = no_violations_with_info.problems
+        sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)
         sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert not sorted_problems.unique_violations

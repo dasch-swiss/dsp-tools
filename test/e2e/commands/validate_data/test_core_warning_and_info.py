@@ -166,11 +166,7 @@ class TestSortedProblems:
 
     def test_no_violations_with_info(self, with_iri_references):
         all_expected_info = [
-            ("link_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
-            ("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
-            ("richtext_with_standoff_to_resource_from_id2iri_mapping", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
-            ("richtext_with_standoff_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             (
                 "richtext_with_standoff_to_resource_in_db_which_does_not_exist",
                 ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT,

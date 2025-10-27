@@ -16,6 +16,7 @@ class SHACLValidationReport:
 class ProjectDataFromApi:
     all_lists: list[OneList]
     enabled_licenses: EnabledLicenseIris
+    resource_iris_in_db: list[InfoForResourceInDB]
 
 
 @dataclass
@@ -50,3 +51,9 @@ class SHACLListInfo:
 @dataclass
 class EnabledLicenseIris:
     enabled_licenses: list[str]
+
+
+@dataclass
+class InfoForResourceInDB:
+    res_iri: str
+    res_type: str

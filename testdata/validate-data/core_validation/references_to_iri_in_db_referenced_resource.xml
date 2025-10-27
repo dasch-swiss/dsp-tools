@@ -7,8 +7,8 @@
        default-ontology="onto">
 
     <!--
-        This file contains a resource that must be uploaded before references_to_iri_in_db.xml
-        as it contains the resource that is referenced there.
+        This file contains resources that must be uploaded before references_to_iri_in_db.xml
+        as it contains references to these IRIs.
     -->
 
     <resource label="resource_in_db"

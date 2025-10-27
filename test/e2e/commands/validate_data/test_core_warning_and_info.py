@@ -54,7 +54,7 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 @pytest.fixture(scope="module")
 def iri_reference_upload(create_generic_project, authentication) -> tuple[MetadataRetrieval, list[dict[str, str]]]:
     success = xmlupload(
-        Path("testdata/validate-data/core_validation/references_to_iri_in_db_referenced_resource.xml"),
+        Path("testdata/validate-data/core_validation/references_to_iri_in_db_referenced_resources.xml"),
         ServerCredentials(authentication.email, authentication.password, authentication.server),
         ".",
     )

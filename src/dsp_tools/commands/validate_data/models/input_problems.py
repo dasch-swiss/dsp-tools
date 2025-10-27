@@ -114,5 +114,6 @@ class ProblemType(StrEnum):
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"
     LINK_TARGET_OF_ANOTHER_PROJECT = "Linked Resource is from another project"
     LINK_TARGET_IS_IRI_OF_PROJECT = "Linked resource is an IRI of the project"
+    LINK_TARGET_NOT_FOUND_IN_DB = "Linked resource is an IRI and could not be found in the database."
     INEXISTENT_LINKED_RESOURCE = "Linked Resource does not exist"
     DUPLICATE_VALUE = "Your input is duplicated"

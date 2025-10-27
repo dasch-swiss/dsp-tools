@@ -3,6 +3,7 @@ from collections import defaultdict
 import pandas as pd
 
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -20,9 +21,14 @@ PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALU
 
 
 def sort_user_problems(
-    all_problems: AllProblems, duplicate_file_warnings: DuplicateFileWarning | None, shortcode: str
+    all_problems: AllProblems,
+    duplicate_file_warnings: DuplicateFileWarning | None,
+    shortcode: str,
+    metadata_success: MetadataRetrieval,
 ) -> SortedProblems:
-    iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(all_problems.problems, shortcode)
+    iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(
+        all_problems.problems, shortcode, metadata_success
+    )
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
     if duplicate_file_warnings:
@@ -47,35 +53,57 @@ def _separate_according_to_severity(
 
 
 def _separate_resource_links_to_iris_of_own_project(
-    problems: list[InputProblem], shortcode: str
+    problems: list[InputProblem], shortcode: str, metadata_success: MetadataRetrieval
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     link_level_info = []
     all_others = []
-    resource_iri_start = "http://rdfh.ch/"
-    project_resource_iri = f"{resource_iri_start}{shortcode}/"
     for prblm in problems:
         if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
             all_others.append(prblm)
-            continue
-        if not prblm.input_value:
-            all_others.append(prblm)
-        elif prblm.input_value.startswith(project_resource_iri):
-            prblm.message = (
-                "You used an absolute IRI to reference an existing resource in the DB. "
-                "If this resource does not exist or is not of the correct type, an xmlupload will fail."
-            )
-            prblm.problem_type = ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
-            link_level_info.append(prblm)
-        elif prblm.input_value.startswith(resource_iri_start):
-            prblm.message = (
-                "You used an absolute IRI to reference an existing resource of another project in the DB. "
-                "Cross-Project resource links are not permitted."
-            )
-            prblm.problem_type = ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT
+        elif not prblm.input_value:
             all_others.append(prblm)
         else:
-            all_others.append(prblm)
+            is_violation, triaged_problem = _determined_link_value_message_and_level(prblm, shortcode, metadata_success)
+            if is_violation:
+                all_others.append(triaged_problem)
+            else:
+                link_level_info.append(triaged_problem)
     return all_others, link_level_info
+
+
+def _determined_link_value_message_and_level(
+    problem: InputProblem, shortcode: str, metadata_success: MetadataRetrieval
+) -> tuple[bool, InputProblem]:
+    is_violation = True
+    resource_iri_start = "http://rdfh.ch/"
+    project_resource_iri = f"{resource_iri_start}{shortcode}/"
+    if problem.input_value.startswith(project_resource_iri):
+        # case IRI and matches those of the projects itself
+        if metadata_success == MetadataRetrieval.SUCCESS:
+            # if metadata was sucessfully retrieved, then the IRI is wrong
+            problem.problem_type = ProblemType.LINK_TARGET_NOT_FOUND_IN_DB
+            problem.message = (
+                "You used an absolute IRI to reference an existing resource in the DB. "
+                "We could not find a reference to this resource in the database."
+            )
+            return is_violation, problem
+        # if we could not retrieve the metadata, then we cannot verify if it exists or not, so it is only an info
+        problem.problem_type = ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
+        problem.message = (
+            "You used an absolute IRI to reference an existing resource in the DB. "
+            "If this resource does not exist or is not of the correct type, an xmlupload will fail."
+        )
+        return not is_violation, problem
+    if problem.input_value.startswith(resource_iri_start):
+        # case IRI, but does not contain the shortcode of the project
+        problem.message = (
+            "You used an absolute IRI to reference an existing resource of another project in the DB. "
+            "Cross-Project resource links are not permitted."
+        )
+        problem.problem_type = ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT
+        return is_violation, problem
+    # all other cases, it is not an IRI and must be an internal ID that does not exist in the XML
+    return is_violation, problem
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputProblem]:

@@ -164,7 +164,7 @@ class TestSortedProblems:
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}
         assert warnings_ids == expected_res_ids
 
-    def test_no_violations_with_info(self, with_iri_references):
+    def test_with_iri_references(self, with_iri_references):
         all_expected_info = [
             ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             (

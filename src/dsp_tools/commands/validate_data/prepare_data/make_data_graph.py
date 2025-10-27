@@ -51,7 +51,7 @@ def _make_one_value(val: RdfLikeValue, res_iri: URIRef) -> Graph:
         if link_val.startswith("http://rdfh.ch/"):
             triple_object: Literal | URIRef = URIRef(link_val)
         else:
-            triple_object: Literal | URIRef = DATA[link_val]
+            triple_object = DATA[link_val]
     else:
         triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
     g.add((val_iri, prop_type_info.knora_prop, triple_object))

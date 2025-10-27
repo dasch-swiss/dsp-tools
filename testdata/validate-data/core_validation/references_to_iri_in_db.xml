@@ -48,7 +48,7 @@
     <!-- It is permissible to reference resources from an id2iri mapping. -->
     <resource label="Link" restype=":ClassWithEverything" id="link_to_resource_from_id2iri_mapping">
         <resptr-prop name=":testHasLinkTo">
-            <resptr>id_in_mapping</resptr>
+            <resptr>resource_in_db_referenced_in_mapping</resptr>
         </resptr-prop>
     </resource>
 
@@ -56,7 +56,7 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 Text with
-                <a class="salsah-link" href="IRI:id_in_mapping:IRI">stand off</a>
+                <a class="salsah-link" href="IRI:resource_in_db_referenced_in_mapping:IRI">stand off</a>
                 to resource in DB.
             </text>
         </text-prop>

@@ -310,6 +310,19 @@ class TestLinkValue:
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
         assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
+    def test_corr_with_iri(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
+            "http://rdfh.ch/9999/resource-iri",
+            KnoraValueType.LINK_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == URIRef("http://rdfh.ch/9999/resource-iri")
+
     def test_none(self):
         val = RdfLikeValue(
             "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []
@@ -361,6 +374,21 @@ class TestRichtextValue:
         bn = next(val_g.objects(RES_IRI, ONTO.testRichtext))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
         assert next(val_g.objects(bn, KNORA_API.textValueAsXml)) == Literal("rich text", datatype=XSD.string)
+
+    def test_corr_with_standoff(self):
+        standoff_iri = "http://rdfh.ch/9999/resource-iri"
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext",
+            "rich text",
+            KnoraValueType.RICHTEXT_VALUE,
+            [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, standoff_iri, TripleObjectType.IRI)],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 4
+        bn = next(val_g.objects(RES_IRI, ONTO.testRichtext))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
+        assert next(val_g.objects(bn, KNORA_API.textValueAsXml)) == Literal("rich text", datatype=XSD.string)
+        assert next(val_g.objects(bn, KNORA_API.hasStandoffLinkTo)) == URIRef(standoff_iri)
 
 
 class TestTimeValue:

@@ -23,6 +23,7 @@ class RDFGraphs:
     cardinality_shapes: Graph
     content_shapes: Graph
     knora_api: Graph
+    resources_in_db_graph: Graph
 
 
 @dataclass

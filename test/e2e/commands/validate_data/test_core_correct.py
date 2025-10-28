@@ -9,7 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -26,7 +26,7 @@ CONFIG = ValidateDataConfig(
     do_not_request_resource_metadata_from_db=False,
 )
 SHORTCODE = "9999"
-METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
+METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 
 @pytest.fixture(scope="module")

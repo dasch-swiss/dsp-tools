@@ -2,7 +2,7 @@
 
 import pytest
 
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -15,7 +15,7 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import _shorten_input
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 
-METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
+METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 
 @pytest.fixture
@@ -314,7 +314,7 @@ def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_f
         AllProblems([inexistent_linked_resource, references_iri_of_another_project, references_iri], []),
         duplicate_file_warnings=None,
         shortcode="9999",
-        metadata_success=MetadataRetrieval.FAILURE,
+        metadata_success=ExistingResourcesRetrieved.FALSE,
     )
     assert len(result.unique_violations) == 2
     assert len(result.user_warnings) == 0

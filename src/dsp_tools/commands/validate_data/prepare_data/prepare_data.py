@@ -8,7 +8,7 @@ from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
@@ -48,7 +48,7 @@ def prepare_data_for_validation_from_parsed_resource(
     auth: AuthenticationClient,
     shortcode: str,
     do_not_request_resource_metadata_from_db: bool,
-) -> tuple[RDFGraphs, set[str], MetadataRetrieval]:
+) -> tuple[RDFGraphs, set[str], ExistingResourcesRetrieved]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info, metadata_retrieval_success = _get_project_specific_information_from_api(
         auth, shortcode, do_not_request_resource_metadata_from_db
@@ -70,12 +70,12 @@ def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
 
 def _get_project_specific_information_from_api(
     auth: AuthenticationClient, shortcode: str, do_not_request_resource_metadata_from_db: bool
-) -> tuple[ProjectDataFromApi, MetadataRetrieval]:
+) -> tuple[ProjectDataFromApi, ExistingResourcesRetrieved]:
     list_client = ListClient(auth.server, shortcode)
     all_lists = list_client.get_lists()
     enabled_licenses = _get_license_iris(shortcode, auth)
     if do_not_request_resource_metadata_from_db:
-        retrieval_status = MetadataRetrieval.FAILURE
+        retrieval_status = ExistingResourcesRetrieved.FALSE
         formatted_metadata: list[InfoForResourceInDB] = []
     else:
         retrieval_status, formatted_metadata = _get_metadata_info(auth, shortcode)
@@ -84,7 +84,7 @@ def _get_project_specific_information_from_api(
 
 def _get_metadata_info(
     auth: AuthenticationClient, shortcode: str
-) -> tuple[MetadataRetrieval, list[InfoForResourceInDB]]:
+) -> tuple[ExistingResourcesRetrieved, list[InfoForResourceInDB]]:
     metadata_client = MetadataClientLive(auth.server, auth)
     retrieval_status, metadata = metadata_client.get_resource_metadata(shortcode)
     formatted_metadata = [InfoForResourceInDB(x["resourceIri"], x["resourceClassIri"]) for x in metadata]

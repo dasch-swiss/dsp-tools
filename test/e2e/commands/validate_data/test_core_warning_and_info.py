@@ -9,7 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -35,7 +35,7 @@ CONFIG = ValidateDataConfig(
 )
 
 SHORTCODE = "9999"
-METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
+METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 
 @pytest.fixture(scope="module")
@@ -54,7 +54,9 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 
 
 @pytest.fixture(scope="module")
-def iri_reference_upload(create_generic_project, authentication) -> tuple[MetadataRetrieval, list[dict[str, str]]]:
+def iri_reference_upload(
+    create_generic_project, authentication
+) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
     success = xmlupload(
         Path("testdata/validate-data/core_validation/references_to_iri_in_db_referenced_resources.xml"),
         ServerCredentials(authentication.email, authentication.password, authentication.server),
@@ -78,7 +80,7 @@ def with_iri_references(
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
     success, metadata = iri_reference_upload
-    assert success == MetadataRetrieval.SUCCESS
+    assert success == ExistingResourcesRetrieved.TRUE
     assert len(metadata) == 2
     res_1 = next(x for x in metadata if x["resourceIri"] == "http://rdfh.ch/9999/iri-from-resource-in-db")
     res_1_type = f"{authentication.server}/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting"

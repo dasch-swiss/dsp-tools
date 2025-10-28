@@ -3,7 +3,7 @@ from collections import defaultdict
 import pandas as pd
 
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -24,7 +24,7 @@ def sort_user_problems(
     all_problems: AllProblems,
     duplicate_file_warnings: DuplicateFileWarning | None,
     shortcode: str,
-    metadata_success: MetadataRetrieval,
+    metadata_success: ExistingResourcesRetrieved,
 ) -> SortedProblems:
     iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(
         all_problems.problems, shortcode, metadata_success
@@ -53,7 +53,7 @@ def _separate_according_to_severity(
 
 
 def _separate_resource_links_to_iris_of_own_project(
-    problems: list[InputProblem], shortcode: str, metadata_success: MetadataRetrieval
+    problems: list[InputProblem], shortcode: str, metadata_success: ExistingResourcesRetrieved
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     link_level_info = []
     all_others = []
@@ -70,7 +70,7 @@ def _separate_resource_links_to_iris_of_own_project(
 
 
 def _determined_link_value_message_and_level(
-    problem: InputProblem, shortcode: str, metadata_success: MetadataRetrieval
+    problem: InputProblem, shortcode: str, metadata_success: ExistingResourcesRetrieved
 ) -> tuple[bool, InputProblem]:
     is_violation = True
     resource_iri_start = "http://rdfh.ch/"
@@ -79,7 +79,7 @@ def _determined_link_value_message_and_level(
         return is_violation, problem
     if problem.input_value.startswith(project_resource_iri):
         # case IRI and matches those of the projects itself
-        if metadata_success == MetadataRetrieval.SUCCESS:
+        if metadata_success == ExistingResourcesRetrieved.TRUE:
             # if metadata was sucessfully retrieved, then the IRI is wrong
             problem.problem_type = ProblemType.LINK_TARGET_NOT_FOUND_IN_DB
             problem.message = (

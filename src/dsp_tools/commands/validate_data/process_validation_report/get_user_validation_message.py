@@ -60,8 +60,6 @@ def _separate_resource_links_to_iris_of_own_project(
     for prblm in problems:
         if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
             all_others.append(prblm)
-        elif not prblm.input_value:
-            all_others.append(prblm)
         else:
             is_violation, triaged_problem = _determined_link_value_message_and_level(prblm, shortcode, metadata_success)
             if is_violation:
@@ -77,6 +75,8 @@ def _determined_link_value_message_and_level(
     is_violation = True
     resource_iri_start = "http://rdfh.ch/"
     project_resource_iri = f"{resource_iri_start}{shortcode}/"
+    if not problem.input_value:
+        return is_violation, problem
     if problem.input_value.startswith(project_resource_iri):
         # case IRI and matches those of the projects itself
         if metadata_success == MetadataRetrieval.SUCCESS:

@@ -9,6 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -24,6 +25,7 @@ CONFIG = ValidateDataConfig(
     skip_ontology_validation=False,
 )
 SHORTCODE = "9999"
+METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
 
 
 @pytest.fixture(scope="module")
@@ -36,7 +38,9 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 def test_minimal_correct(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/minimal_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    validation_result = _validate_data(
+        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
@@ -46,7 +50,9 @@ def test_minimal_correct(authentication) -> None:
 def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/cardinality_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    validation_result = _validate_data(
+        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
@@ -56,7 +62,9 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator)
 def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/content_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    validation_result = _validate_data(
+        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
@@ -66,7 +74,9 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
 def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/file_value_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    validation_result = _validate_data(
+        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
@@ -76,7 +86,9 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
 def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/dsp_inbuilt_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    validation_result = _validate_data(
+        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs

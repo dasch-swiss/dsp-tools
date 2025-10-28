@@ -34,6 +34,7 @@ CONFIG = ValidateDataConfig(
 )
 
 SHORTCODE = "9999"
+METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
 
 
 @pytest.fixture(scope="module")
@@ -48,7 +49,7 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 @pytest.fixture(scope="module")
@@ -71,7 +72,7 @@ def with_iri_references(
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
     id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
@@ -157,7 +158,7 @@ class TestSortedProblems:
             skip_ontology_validation=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE)
+        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)

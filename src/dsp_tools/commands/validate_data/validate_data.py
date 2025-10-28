@@ -10,6 +10,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -104,14 +105,16 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    rdf_graphs, used_iris, _ = prepare_data_for_validation_from_parsed_resource(
+    rdf_graphs, used_iris, metadata_retrieval_success = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
     )
-    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config, shortcode)
+    validation_result = _validate_data(
+        rdf_graphs, used_iris, parsed_resources, config, shortcode, metadata_retrieval_success
+    )
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -143,6 +146,7 @@ def _validate_data(
     parsed_resources: list[ParsedResource],
     config: ValidateDataConfig,
     shortcode: str,
+    metadata_retrieval_success: MetadataRetrieval,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     # Check if unknown classes are used
@@ -171,7 +175,7 @@ def _validate_data(
             )
             return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode)
+    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, metadata_retrieval_success)
     return ValidateDataResult(False, sorted_problems, report)
 
 

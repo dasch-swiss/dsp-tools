@@ -36,7 +36,7 @@ class ValidationSeverity(Enum):
 
 
 @dataclass
-class PathsToValidate:
+class PathDependencies:
     required_files: list[Path] = field(default_factory=list)
     required_directories: list[Path] = field(default_factory=list)
 
@@ -45,4 +45,4 @@ class PathsToValidate:
 class NetworkDependencies:
     api_url: str
     requires_docker: bool
-    requires_local_stack: bool
+    requires_api: bool

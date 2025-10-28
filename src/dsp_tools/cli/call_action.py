@@ -9,7 +9,7 @@ from dsp_tools.cli.utils import _check_docker_health
 from dsp_tools.cli.utils import _check_filepath_exists
 from dsp_tools.cli.utils import _check_health_with_docker
 from dsp_tools.cli.utils import _check_health_with_docker_on_localhost
-from dsp_tools.cli.utils import _get_creds
+from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -186,14 +186,14 @@ def _call_upload_files(args: argparse.Namespace) -> bool:
     _check_filepath_exists(xml_path)
     return upload_files(
         xml_file=xml_path,
-        creds=_get_creds(args),
+        creds=get_creds(args),
         imgdir=Path(args.imgdir),
     )
 
 
 def _call_ingest_files(args: argparse.Namespace) -> bool:
     _check_health_with_docker_on_localhost(args.server)
-    return ingest_files(creds=_get_creds(args), shortcode=args.shortcode)
+    return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
@@ -203,7 +203,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
-        creds=_get_creds(args),
+        creds=get_creds(args),
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
@@ -239,7 +239,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 )
         return xmlupload(
             input_file=xml_path,
-            creds=_get_creds(args),
+            creds=get_creds(args),
             imgdir=args.imgdir,
             config=UploadConfig(
                 interrupt_after=interrupt_after,
@@ -260,7 +260,7 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
     _check_filepath_exists(xml_path)
     return validate_data(
         filepath=xml_path,
-        creds=_get_creds(args),
+        creds=get_creds(args),
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
@@ -273,7 +273,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
     _check_health_with_docker_on_localhost(args.server)
     return resume_xmlupload(
-        creds=_get_creds(args),
+        creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,
     )
 
@@ -284,7 +284,7 @@ def _call_get(args: argparse.Namespace) -> bool:
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
-        creds=_get_creds(args),
+        creds=get_creds(args),
         verbose=args.verbose,
     )
 
@@ -300,7 +300,7 @@ def _call_create(args: argparse.Namespace) -> bool:
         case True, False:
             _, success = create_only_lists(
                 project_file_as_path_or_parsed=args.project_definition,
-                creds=_get_creds(args),
+                creds=get_creds(args),
             )
         case False, True:
             success = validate_project(args.project_definition)
@@ -308,7 +308,7 @@ def _call_create(args: argparse.Namespace) -> bool:
         case False, False:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
-                creds=_get_creds(args),
+                creds=get_creds(args),
                 verbose=args.verbose,
             )
     return success

@@ -5,6 +5,8 @@ from pathlib import Path
 import requests
 from loguru import logger
 
+from dsp_tools.cli.args import NetworkDependencies
+from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.error.exceptions import DockerNotReachableError
 from dsp_tools.error.exceptions import DspApiNotReachableError
@@ -12,6 +14,48 @@ from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 LOCALHOST_API = "http://0.0.0.0:3333"
+
+
+def get_creds(args: argparse.Namespace) -> ServerCredentials:
+    return ServerCredentials(
+        server=args.server,
+        user=args.user,
+        password=args.password,
+        dsp_ingest_url=args.dsp_ingest_url,
+    )
+
+
+def check_input_dependencies(
+    *, paths: PathDependencies | None = None, network_dependencies: NetworkDependencies | None = None
+) -> None:
+    if paths:
+        _check_paths(paths)
+    if network_dependencies:
+        _check_network_health(network_dependencies)
+
+
+def _check_paths(paths: PathDependencies) -> None:
+    for f_path in paths.required_files:
+        _check_filepath_exists(f_path)
+    for dir_path in paths.required_directories:
+        _check_directory_exists(dir_path)
+
+
+def _check_filepath_exists(file_path: Path) -> None:
+    if not file_path.exists():
+        raise UserFilepathNotFoundError(file_path)
+
+
+def _check_directory_exists(dir_path: Path) -> None:
+    if not dir_path.is_dir():
+        raise UserDirectoryNotFoundError(dir_path)
+
+
+def _check_network_health(network_dependencies: NetworkDependencies) -> None:
+    if network_dependencies.requires_docker:
+        _check_docker_health()
+    if network_dependencies.requires_api:
+        _check_api_health(network_dependencies.api_url)
 
 
 def _check_docker_health() -> None:
@@ -42,25 +86,6 @@ def _check_api_health(api_url: str) -> None:
             msg = "The DSP-API responded with a request exception. Please contact the DaSCH engineering team for help."
         logger.error(msg)
         raise DspApiNotReachableError(msg) from None
-
-
-def _check_filepath_exists(file_path: Path) -> None:
-    if not file_path.exists():
-        raise UserFilepathNotFoundError(file_path)
-
-
-def _check_directory_exists(dir_path: Path) -> None:
-    if not dir_path.is_dir():
-        raise UserDirectoryNotFoundError(dir_path)
-
-
-def _get_creds(args: argparse.Namespace) -> ServerCredentials:
-    return ServerCredentials(
-        server=args.server,
-        user=args.user,
-        password=args.password,
-        dsp_ingest_url=args.dsp_ingest_url,
-    )
 
 
 def _check_health_with_docker_on_localhost(api_url: str) -> None:

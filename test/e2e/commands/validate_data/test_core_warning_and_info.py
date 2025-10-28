@@ -156,10 +156,10 @@ class TestSortedProblems:
 
     def test_with_iri_references(self, with_iri_references):
         all_expected_violations = [
-            ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+            ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             (
                 "richtext_with_standoff_to_resource_in_db_which_does_not_exist",
-                ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT,
+                ProblemType.LINK_TARGET_NOT_FOUND_IN_DB,
             ),
         ]
         sorted_problems = with_iri_references.problems

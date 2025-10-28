@@ -62,4 +62,28 @@
         </text-prop>
     </resource>
 
+
+    <!-- It is permissible to reference IRIs that are declared in the same file. -->
+    <resource label="Link Target"
+              restype=":ClassInheritedCardinality"
+              id="id_resource_with_iri"
+              iri="http://rdfh.ch/9999/this-iri-is-declared-in-the-xml"
+    />
+
+    <resource label="Link" restype=":ClassWithEverything" id="link_to_resource_declared_in_file">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>http://rdfh.ch/9999/this-iri-is-declared-in-the-xml</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_with_standoff_to_resource_declared_in_file">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text with
+                <a class="salsah-link" href="http://rdfh.ch/9999/this-iri-is-declared-in-the-xml">stand off</a>
+                to resource in DB.
+            </text>
+        </text-prop>
+    </resource>
+
 </knora>

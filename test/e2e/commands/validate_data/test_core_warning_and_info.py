@@ -103,21 +103,6 @@ class TestGetCorrectValidationResult:
         result = _get_validation_status(sorted_problems, is_on_prod=True)
         assert result is False
 
-    def test_no_violations_with_info_not_on_prod(self, with_iri_references):
-        # this boolean carries the information if there are problems of any severity level,
-        # but not if the validation will pass
-        assert not with_iri_references.no_problems
-        sorted_problems = with_iri_references.problems
-        assert isinstance(sorted_problems, SortedProblems)
-        result = _get_validation_status(sorted_problems, is_on_prod=False)
-        assert result is True
-
-    def test_no_violations_with_info_on_prod(self, with_iri_references):
-        sorted_problems = with_iri_references.problems
-        assert isinstance(sorted_problems, SortedProblems)
-        result = _get_validation_status(sorted_problems, is_on_prod=True)
-        assert result is True
-
 
 class TestSortedProblems:
     def test_no_violations_with_warnings_problems(self, no_violations_with_warnings_do_not_ignore_duplicate_files):
@@ -166,7 +151,7 @@ class TestSortedProblems:
         assert warnings_ids == expected_res_ids
 
     def test_with_iri_references(self, with_iri_references):
-        all_expected_info = [
+        all_expected_violations = [
             ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
             (
                 "richtext_with_standoff_to_resource_in_db_which_does_not_exist",
@@ -175,14 +160,14 @@ class TestSortedProblems:
         ]
         sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)
-        sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
-        assert not sorted_problems.unique_violations
+        sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+        assert len(sorted_problems.unique_violations) == len(all_expected_violations)
         assert not sorted_problems.user_warnings
-        assert len(sorted_problems.user_info) == len(all_expected_info)
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
-        for one_result, expected_info in zip(sorted_info, all_expected_info):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
+        for one_result, expected_violation in zip(sorted_violations, all_expected_violations):
+            assert one_result.problem_type == expected_violation[1]
+            assert one_result.res_id == expected_violation[0]
 
 
 if __name__ == "__main__":

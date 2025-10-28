@@ -194,6 +194,7 @@ class TestWithReportGraphs:
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("link_target_of_another_project", ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("link_to_resource_in_db", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
             ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -212,16 +213,14 @@ class TestWithReportGraphs:
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
         ]
-        expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
-        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert len(sorted_problems.user_info) == len(expected_info)
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):
@@ -230,9 +229,6 @@ class TestWithReportGraphs:
         for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_w[1]
             assert one_result.res_id == expected_w[0]
-        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
-            assert one_result.problem_type == expected_i[1]
-            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 

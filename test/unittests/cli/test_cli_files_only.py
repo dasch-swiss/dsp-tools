@@ -1,6 +1,8 @@
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import pytest
+
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 
@@ -101,3 +103,7 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
         json_file=ID_2_IRI_JSON_PATH,
         remove_resource_if_id_in_mapping=True,
     )
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

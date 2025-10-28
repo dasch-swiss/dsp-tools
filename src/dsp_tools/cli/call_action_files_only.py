@@ -13,7 +13,7 @@ from dsp_tools.commands.id2iri import id2iri
 
 
 def call_id2iri(args: argparse.Namespace) -> bool:
-    check_path_dependencies(PathDependencies([Path(args.xmlfile, Path(args.mapping))]))
+    check_path_dependencies(PathDependencies([Path(args.xmlfile), Path(args.mapping)]))
     return id2iri(
         xml_file=args.xmlfile,
         json_file=args.mapping,

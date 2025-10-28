@@ -113,6 +113,7 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
             ignore_duplicate_files_warning=False,
             validation_severity=ValidationSeverity.INFO,
             id2iri_replacement_file=None,
+            do_not_request_resource_metadata_from_db=False,
         ),
     )
 
@@ -305,6 +306,7 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -324,6 +326,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
         ignore_duplicate_files_warning=True,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -342,6 +345,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -363,6 +367,7 @@ def test_validate_data_other_server(validate_data: Mock, check_docker: Mock) -> 
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -384,6 +389,7 @@ def test_validate_data_other_creds(validate_data: Mock, check_docker: Mock) -> N
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -402,6 +408,7 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=True,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -420,6 +427,26 @@ def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_d
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=ID_2_IRI_JSON_PATH,
+        do_not_request_resource_metadata_from_db=False,
+    )
+
+
+@patch("dsp_tools.cli.call_action._check_health_with_docker")
+@patch("dsp_tools.cli.call_action.validate_data")
+def test_validate_data_do_not_request_resource_metadata_from_db(validate_data: Mock, check_docker: Mock) -> None:
+    args = f"validate-data {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+    )
+    validate_data.assert_called_once_with(
+        filepath=Path(DATA_XML_PATH),
+        save_graphs=False,
+        creds=creds,
+        ignore_duplicate_files_warning=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=True,
     )
 
 
@@ -533,6 +560,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -555,6 +583,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         skip_validation=True,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -576,6 +605,7 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -600,6 +630,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock, check_docker: Mock) -> 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -621,6 +652,29 @@ def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, c
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=ID_2_IRI_JSON_PATH,
+        do_not_request_resource_metadata_from_db=False,
+    )
+
+
+@patch("dsp_tools.cli.call_action._check_health_with_docker")
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_do_not_request_resource_metadata_from_db(ingest_xmlupload: Mock, check_docker: Mock) -> None:
+    args = f"ingest-xmlupload {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_xmlupload.assert_called_once_with(
+        xml_file=Path(DATA_XML_PATH),
+        creds=creds,
+        interrupt_after=None,
+        skip_validation=False,
+        skip_ontology_validation=False,
+        id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=True,
     )
 
 
@@ -870,6 +924,34 @@ def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock, 
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()
+
+
+@patch("dsp_tools.cli.call_action._check_health_with_docker")
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_do_not_request_resource_metadata_from_db(xmlupload: Mock, check_docker: Mock) -> None:
+    args = f"xmlupload {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(DATA_XML_PATH),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(
+            interrupt_after=None,
+            skip_iiif_validation=False,
+            skip_validation=False,
+            skip_ontology_validation=False,
+            ignore_duplicate_files_warning=False,
+            validation_severity=ValidationSeverity.INFO,
+            id2iri_replacement_file=None,
+            do_not_request_resource_metadata_from_db=True,
+        ),
+    )
 
 
 @patch("requests.get")

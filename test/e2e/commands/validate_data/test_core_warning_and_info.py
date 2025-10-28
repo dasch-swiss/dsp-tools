@@ -9,7 +9,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -31,9 +31,11 @@ CONFIG = ValidateDataConfig(
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
     skip_ontology_validation=False,
+    do_not_request_resource_metadata_from_db=False,
 )
 
 SHORTCODE = "9999"
+METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 
 @pytest.fixture(scope="module")
@@ -48,11 +50,13 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 @pytest.fixture(scope="module")
-def iri_reference_upload(create_generic_project, authentication) -> tuple[MetadataRetrieval, list[dict[str, str]]]:
+def iri_reference_upload(
+    create_generic_project, authentication
+) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
     success = xmlupload(
         Path("testdata/validate-data/core_validation/references_to_iri_in_db_referenced_resources.xml"),
         ServerCredentials(authentication.email, authentication.password, authentication.server),
@@ -71,12 +75,12 @@ def with_iri_references(
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
     id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
     success, metadata = iri_reference_upload
-    assert success == MetadataRetrieval.SUCCESS
+    assert success == ExistingResourcesRetrieved.TRUE
     assert len(metadata) == 2
     res_1 = next(x for x in metadata if x["resourceIri"] == "http://rdfh.ch/9999/iri-from-resource-in-db")
     res_1_type = f"{authentication.server}/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting"
@@ -101,21 +105,6 @@ class TestGetCorrectValidationResult:
         assert isinstance(sorted_problems, SortedProblems)
         result = _get_validation_status(sorted_problems, is_on_prod=True)
         assert result is False
-
-    def test_no_violations_with_info_not_on_prod(self, with_iri_references):
-        # this boolean carries the information if there are problems of any severity level,
-        # but not if the validation will pass
-        assert not with_iri_references.no_problems
-        sorted_problems = with_iri_references.problems
-        assert isinstance(sorted_problems, SortedProblems)
-        result = _get_validation_status(sorted_problems, is_on_prod=False)
-        assert result is True
-
-    def test_no_violations_with_info_on_prod(self, with_iri_references):
-        sorted_problems = with_iri_references.problems
-        assert isinstance(sorted_problems, SortedProblems)
-        result = _get_validation_status(sorted_problems, is_on_prod=True)
-        assert result is True
 
 
 class TestSortedProblems:
@@ -155,33 +144,34 @@ class TestSortedProblems:
             ignore_duplicate_files_warning=True,
             is_on_prod_server=False,
             skip_ontology_validation=False,
+            do_not_request_resource_metadata_from_db=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE)
+        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}
         assert warnings_ids == expected_res_ids
 
-    def test_no_violations_with_info(self, with_iri_references):
-        all_expected_info = [
-            ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT),
+    def test_with_iri_references(self, with_iri_references):
+        all_expected_violations = [
+            ("link_to_resource_in_db_which_does_not_exist", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             (
                 "richtext_with_standoff_to_resource_in_db_which_does_not_exist",
-                ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT,
+                ProblemType.LINK_TARGET_NOT_FOUND_IN_DB,
             ),
         ]
         sorted_problems = with_iri_references.problems
         assert isinstance(sorted_problems, SortedProblems)
-        sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
-        assert not sorted_problems.unique_violations
+        sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
+        assert len(sorted_problems.unique_violations) == len(all_expected_violations)
         assert not sorted_problems.user_warnings
-        assert len(sorted_problems.user_info) == len(all_expected_info)
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
-        for one_result, expected_info in zip(sorted_info, all_expected_info):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
+        for one_result, expected_violation in zip(sorted_violations, all_expected_violations):
+            assert one_result.problem_type == expected_violation[1]
+            assert one_result.res_id == expected_violation[0]
 
 
 if __name__ == "__main__":

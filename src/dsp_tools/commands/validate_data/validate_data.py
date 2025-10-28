@@ -10,6 +10,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -51,6 +52,7 @@ def validate_data(
     save_graphs: bool,
     skip_ontology_validation: bool,
     id2iri_replacement_file: str | None,
+    do_not_request_resource_metadata_from_db: bool,
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -62,6 +64,7 @@ def validate_data(
         save_graphs: if this flag is set, all the graphs will be saved in a folder
         skip_ontology_validation: skip the ontology validation
         id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        do_not_request_resource_metadata_from_db: true if no metadata for existing resources should be requested
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -78,6 +81,7 @@ def validate_data(
         ignore_duplicate_files_warning=ignore_duplicate_files_warning,
         is_on_prod_server=is_prod_like_server(creds.server),
         skip_ontology_validation=skip_ontology_validation,
+        do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
 
@@ -104,14 +108,17 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    rdf_graphs, used_iris, _ = prepare_data_for_validation_from_parsed_resource(
+    rdf_graphs, used_iris, existing_resources_retrieved = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
+        do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
     )
-    validation_result = _validate_data(rdf_graphs, used_iris, parsed_resources, config, shortcode)
+    validation_result = _validate_data(
+        rdf_graphs, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
+    )
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -143,6 +150,7 @@ def _validate_data(
     parsed_resources: list[ParsedResource],
     config: ValidateDataConfig,
     shortcode: str,
+    existing_resources_retrieved: ExistingResourcesRetrieved,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     # Check if unknown classes are used
@@ -171,7 +179,7 @@ def _validate_data(
             )
             return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode)
+    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, existing_resources_retrieved)
     return ValidateDataResult(False, sorted_problems, report)
 
 

@@ -25,6 +25,7 @@ class ValidateDataConfig:
     ignore_duplicate_files_warning: bool
     is_on_prod_server: bool
     skip_ontology_validation: bool
+    do_not_request_resource_metadata_from_db: bool
 
 
 class ValidationSeverity(Enum):

@@ -6,9 +6,9 @@ from typing import Protocol
 from dsp_tools.clients.authentication_client import AuthenticationClient
 
 
-class MetadataRetrieval(Enum):
-    SUCCESS = auto()
-    FAILURE = auto()
+class ExistingResourcesRetrieved(Enum):
+    TRUE = auto()
+    FALSE = auto()
 
 
 @dataclass
@@ -20,5 +20,5 @@ class MetadataClient(Protocol):
     server: str
     authentication_client: AuthenticationClient
 
-    def get_resource_metadata(self, shortcode: str) -> tuple[MetadataRetrieval, list[dict[str, str]]]:
+    def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
         """Get all resource metadata from one project."""

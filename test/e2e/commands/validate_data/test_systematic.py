@@ -31,5 +31,6 @@ def test_systematic(api_url: str) -> None:
         save_graphs=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=True,
     )
     assert no_violations

@@ -52,9 +52,7 @@ def _check_directory_exists(dir_path: Path) -> None:
 
 
 def check_network_health(network_requirements: NetworkRequirements) -> None:
-    if network_requirements.api_url == LOCALHOST_API:
-        check_docker_health()
-    elif network_requirements.always_requires_docker:
+    if network_requirements.api_url == LOCALHOST_API or network_requirements.always_requires_docker:
         check_docker_health()
     _check_api_health(network_requirements.api_url)
 
@@ -87,15 +85,3 @@ def _check_api_health(api_url: str) -> None:
             msg = "The DSP-API responded with a request exception. Please contact the DaSCH engineering team for help."
         logger.error(msg)
         raise DspApiNotReachableError(msg) from None
-
-
-def _check_health_with_docker_on_localhost(api_url: str) -> None:
-    if api_url == LOCALHOST_API:
-        check_docker_health()
-    _check_api_health(api_url)
-
-
-def _check_health_with_docker(api_url: str) -> None:
-    # validate always needs docker running
-    check_docker_health()
-    _check_api_health(api_url)

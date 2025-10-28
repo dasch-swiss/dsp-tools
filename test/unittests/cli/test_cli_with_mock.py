@@ -668,7 +668,7 @@ def test_ingest_xmlupload_do_not_request_resource_metadata_from_db(ingest_xmlupl
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=DATA_XML_PATH,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=None,
         skip_validation=False,

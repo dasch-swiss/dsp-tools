@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
 from pathlib import Path
 
@@ -32,3 +33,15 @@ class ValidationSeverity(Enum):
     ERROR = 3
     WARNING = 2
     INFO = 1
+
+
+@dataclass
+class PathDependencies:
+    required_files: list[Path] = field(default_factory=list)
+    required_directories: list[Path] = field(default_factory=list)
+
+
+@dataclass
+class NetworkRequirements:
+    api_url: str
+    always_requires_docker: bool = False

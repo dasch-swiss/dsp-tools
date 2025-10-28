@@ -75,7 +75,7 @@ def _get_project_specific_information_from_api(
     all_lists = list_client.get_lists()
     enabled_licenses = _get_license_iris(shortcode, auth)
     if do_not_request_resource_metadata_from_db:
-        retrieval_status = MetadataRetrieval.SUCCESS
+        retrieval_status = MetadataRetrieval.FAILURE
         formatted_metadata: list[InfoForResourceInDB] = []
     else:
         retrieval_status, formatted_metadata = _get_metadata_info(auth, shortcode)

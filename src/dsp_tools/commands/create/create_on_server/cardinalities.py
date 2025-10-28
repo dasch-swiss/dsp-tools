@@ -4,8 +4,8 @@ from loguru import logger
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.clients.ontology_client import OntologyClient
-from dsp_tools.clients.ontology_client_live import OntologyClientLive
+from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
@@ -25,7 +25,7 @@ def add_all_cardinalities(
     ontologies: list[ParsedOntology],
     project_iri_lookup: ProjectIriLookup,
     created_iris: CreatedIriCollection,
-    onto_client: OntologyClientLive,
+    onto_client: OntologyCreateClientLive,
 ) -> CollectedProblems | None:
     all_problems = []
     for onto in ontologies:
@@ -50,7 +50,7 @@ def _add_all_cardinalities_for_one_onto(
     cardinalities: list[ParsedClassCardinalities],
     onto_iri: URIRef,
     last_modification_date: Literal,
-    onto_client: OntologyClient,
+    onto_client: OntologyCreateClient,
     created_iris: CreatedIriCollection,
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
@@ -74,7 +74,7 @@ def _add_cardinalities_for_one_class(
     resource_card: ParsedClassCardinalities,
     onto_iri: URIRef,
     last_modification_date: Literal,
-    onto_client: OntologyClient,
+    onto_client: OntologyCreateClient,
     successful_props: set[str],
 ) -> tuple[Literal, list[UploadProblem]]:
     res_iri = URIRef(resource_card.class_iri)
@@ -96,7 +96,7 @@ def _add_one_cardinality(
     res_iri: URIRef,
     onto_iri: URIRef,
     last_modification_date: Literal,
-    onto_client: OntologyClient,
+    onto_client: OntologyCreateClient,
 ) -> tuple[Literal, UploadProblem | None]:
     card_serialised = _serialise_card(card, res_iri, onto_iri, last_modification_date)
     new_mod_date = onto_client.post_resource_cardinalities(card_serialised)

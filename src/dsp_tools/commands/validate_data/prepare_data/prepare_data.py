@@ -8,14 +8,15 @@ from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.list_client import OneList
+from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
-from dsp_tools.commands.validate_data.api_clients import ListClient
-from dsp_tools.commands.validate_data.api_clients import OntologyClient
+from dsp_tools.clients.ontology_clients import OntologyGetClient
+from dsp_tools.clients.ontology_clients_live import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
-from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
@@ -68,8 +69,8 @@ def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
 def _get_project_specific_information_from_api(
     auth: AuthenticationClient, shortcode: str
 ) -> tuple[ProjectDataFromApi, MetadataRetrieval]:
-    list_client = ListClient(auth.server, shortcode)
-    all_lists = list_client.get_lists()
+    list_client = ListGetClientLive(auth.server, shortcode)
+    all_lists = list_client.get_all_lists_and_nodes()
     enabled_licenses = _get_license_iris(shortcode, auth)
     retrieval_status, formatted_metadata = _get_metadata_info(auth, shortcode)
     return ProjectDataFromApi(all_lists, enabled_licenses, formatted_metadata), retrieval_status
@@ -100,7 +101,7 @@ def _create_graphs(
     permission_ids: list[str],
 ) -> RDFGraphs:
     logger.debug("Create all graphs.")
-    onto_client = OntologyClient(auth.server, shortcode)
+    onto_client = OntologyGetClientLive(auth.server, shortcode)
     ontologies, onto_iris = _get_project_ontos(onto_client)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
@@ -147,7 +148,7 @@ def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
     return g
 
 
-def _get_project_ontos(onto_client: OntologyClient) -> tuple[Graph, list[str]]:
+def _get_project_ontos(onto_client: OntologyGetClient) -> tuple[Graph, list[str]]:
     logger.debug("Get project ontologies from server.")
     all_ontos, onto_iris = onto_client.get_ontologies()
     onto_g = Graph()

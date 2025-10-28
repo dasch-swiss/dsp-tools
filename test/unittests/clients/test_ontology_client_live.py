@@ -12,8 +12,8 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.ontology_client_live import OntologyClientLive
-from dsp_tools.clients.ontology_client_live import _parse_last_modification_date
+from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_clients_live import _parse_last_modification_date
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
@@ -36,8 +36,8 @@ def mock_auth_client() -> Mock:
 
 
 @pytest.fixture
-def ontology_client(mock_auth_client: Mock) -> OntologyClientLive:
-    return OntologyClientLive(
+def ontology_client(mock_auth_client: Mock) -> OntologyCreateClientLive:
+    return OntologyCreateClientLive(
         server="http://0.0.0.0:3333",
         authentication_client=mock_auth_client,
     )
@@ -72,7 +72,7 @@ def sample_cardinality_graph() -> dict[str, object]:
 class TestOntologyClientLive:
     def test_post_resource_cardinalities_success(
         self,
-        ontology_client: OntologyClientLive,
+        ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -103,7 +103,7 @@ class TestOntologyClientLive:
 
     def test_post_resource_cardinalities_forbidden(
         self,
-        ontology_client: OntologyClientLive,
+        ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -120,7 +120,7 @@ class TestOntologyClientLive:
 
     def test_post_resource_cardinalities_server_error(
         self,
-        ontology_client: OntologyClientLive,
+        ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -138,7 +138,7 @@ class TestOntologyClientLive:
 
     def test_post_resource_cardinalities_timeout(
         self,
-        ontology_client: OntologyClientLive,
+        ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -152,7 +152,7 @@ class TestOntologyClientLive:
 
     def test_post_resource_cardinalities_unexpected_response_missing_date(
         self,
-        ontology_client: OntologyClientLive,
+        ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -179,7 +179,7 @@ class TestOntologyClientLive:
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
     def test_post_and_log_request_creates_correct_headers(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         captured_kwargs: dict[str, object] = {}
 
@@ -205,7 +205,7 @@ class TestOntologyClientLive:
         assert headers["Authorization"] == "Bearer test-token-123"
 
     def test_post_and_log_request_uses_correct_url(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         captured_url: str | None = None
 
@@ -229,7 +229,7 @@ class TestOntologyClientLive:
         assert captured_url == test_url
 
     def test_get_last_modification_date_success(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = True
@@ -257,7 +257,7 @@ class TestOntologyClientLive:
         assert result == LAST_MODIFICATION_DATE
 
     def test_get_last_modification_date_missing_date(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         # Response is OK but missing lastModificationDate
         mock_response = Mock(spec=Response)
@@ -283,7 +283,7 @@ class TestOntologyClientLive:
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
     def test_get_last_modification_date_unexpected_status_code(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = False
@@ -299,7 +299,7 @@ class TestOntologyClientLive:
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
     def test_get_last_modification_date_timeout(
-        self, ontology_client: OntologyClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         def mock_get_and_log_request(*_args: object, **_kwargs: object) -> None:
             raise ReadTimeout("Connection timed out")

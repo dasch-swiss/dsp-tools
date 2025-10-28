@@ -1,7 +1,7 @@
 import pytest
 
-from dsp_tools.commands.validate_data.models.api_responses import OneList
-from dsp_tools.commands.validate_data.models.api_responses import OneNode
+from dsp_tools.clients.list_client import OneList
+from dsp_tools.clients.list_client import OneNode
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
@@ -32,7 +32,7 @@ NEW_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.date
 
 @pytest.fixture
 def onto_client_ok() -> Mock:
-    mock_client = Mock(spec=OntologyClient)
+    mock_client = Mock(spec=OntologyCreateClientLive)
     new_mod_date = NEW_MODIFICATION_DATE
     mock_client.post_resource_cardinalities.return_value = new_mod_date
     return mock_client
@@ -58,7 +58,7 @@ class TestAddOneCardinality:
         onto_client_ok.post_resource_cardinalities.assert_called_once()
 
     def test_returns_problem_when_client_returns_none(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         mock_client.post_resource_cardinalities.return_value = None
 
         property_card = ParsedPropertyCardinality(
@@ -96,7 +96,7 @@ class TestAddCardinalitiesForOneClass:
         assert onto_client_ok.post_resource_cardinalities.call_count == 1
 
     def test_adds_multiple_cardinalities_successfully(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
             Literal("2025-10-14T14:01:00.000000Z", datatype=XSD.dateTimeStamp),
@@ -142,7 +142,7 @@ class TestAddCardinalitiesForOneClass:
         assert onto_client_ok.post_resource_cardinalities.call_count == 2
 
     def test_handles_partial_failure(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         # Second call returns None (failure)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
@@ -200,7 +200,7 @@ class TestAddCardinalitiesForOneClass:
         assert onto_client_ok.post_resource_cardinalities.call_count == 0
 
     def test_updates_modification_date_sequentially(self) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
             Literal("2025-10-14T14:01:00.000000Z", datatype=XSD.dateTimeStamp),
@@ -243,7 +243,7 @@ class TestAddAllCardinalities:
         assert onto_client_ok.post_resource_cardinalities.call_count == 1
 
     def test_adds_multiple_cardinalities_successfully(self, created_iri_collection) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         # Return different modification dates for each call
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
@@ -289,7 +289,7 @@ class TestAddAllCardinalities:
         assert mock_client.post_resource_cardinalities.call_count == 3
 
     def test_handles_partial_failure(self, created_iri_collection) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         # Second call returns None (failure)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
@@ -335,7 +335,7 @@ class TestAddAllCardinalities:
         assert mock_client.post_resource_cardinalities.call_count == 3
 
     def test_updates_modification_date_between_calls(self, created_iri_collection) -> None:
-        mock_client = Mock(spec=OntologyClient)
+        mock_client = Mock(spec=OntologyCreateClientLive)
         passed_graphs = []
 
         def capture_graph(graph: Graph) -> Literal:

@@ -71,7 +71,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     required_files = [xml_path]
     id2iri_file = args.id2iri_replacement_with_file
     if id2iri_file:
-        required_files.append(id2iri_file)
+        required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, network_requirements)
@@ -89,12 +89,11 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def call_xmlupload(args: argparse.Namespace) -> bool:
-    xml_path = Path(args.xml_file)
+    xml_path = Path(args.xmlfile)
     required_files = [xml_path]
     id2iri_file = args.id2iri_replacement_with_file
     if id2iri_file:
-        id2iri_file = Path(id2iri_file)
-        required_files.append(id2iri_file)
+        required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, network_requirements)
@@ -135,12 +134,11 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def call_validate_data(args: argparse.Namespace) -> bool:
-    xml_path = Path(args.xml_file)
+    xml_path = Path(args.xmlfile)
     required_files = [xml_path]
     id2iri_file = args.id2iri_replacement_with_file
     if id2iri_file:
-        id2iri_file = Path(id2iri_file)
-        required_files.append(id2iri_file)
+        required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, network_requirements)

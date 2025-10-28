@@ -248,24 +248,24 @@
             "gui_element": "Richtext"
           },
           {
-            "name": "testHasLinkToKnoraResource",
+            "name": "testHasLinkToClassMixedCard",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":ClassMixedCard",
+            "labels": {
+              "en": "testHasLinkToClassMixedCard"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasLinkTo",
             "super": [
               "hasLinkTo"
             ],
             "object": "Resource",
             "labels": {
-              "en": "Test In-built hasLinkTo"
-            },
-            "gui_element": "Searchbox"
-          },
-          {
-            "name": "testHasLinkToCardOneResource",
-            "super": [
-              "hasLinkTo"
-            ],
-            "object": ":CardOneResource",
-            "labels": {
-              "en": "testHasLinkToCardOneResource"
+              "en": "testHasLinkTo"
             },
             "gui_element": "Searchbox"
           },
@@ -392,7 +392,7 @@
                 "gui_order": 15
               },
               {
-                "propname": ":testHasLinkToCardOneResource",
+                "propname": ":testHasLinkToClassMixedCard",
                 "cardinality": "0-n",
                 "gui_order": 16
               },
@@ -443,12 +443,12 @@
             "cardinalities": [
               {
                 "propname": ":testBoolean",
-                "cardinality": "0-1",
+                "cardinality": "1",
                 "gui_order": 0
               },
               {
-                "propname": ":testHasLinkToResourceNoGuiOrder",
-                "cardinality": "1",
+                "propname": ":testHasLinkTo",
+                "cardinality": "0-1",
                 "gui_order": 1
               },
               {

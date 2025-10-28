@@ -31,6 +31,7 @@ CONFIG = ValidateDataConfig(
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
     skip_ontology_validation=False,
+    do_not_request_resource_metadata_from_db=False,
 )
 
 SHORTCODE = "9999"
@@ -141,6 +142,7 @@ class TestSortedProblems:
             ignore_duplicate_files_warning=True,
             is_on_prod_server=False,
             skip_ontology_validation=False,
+            do_not_request_resource_metadata_from_db=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
         result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)

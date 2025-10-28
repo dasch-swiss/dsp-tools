@@ -24,6 +24,7 @@ CONFIG = ValidateDataConfig(
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
     skip_ontology_validation=False,
+    do_not_request_resource_metadata_from_db=False,
 )
 SHORTCODE_SPECIAL_CHAR_0012 = "0012"
 SHORTCODE_INHERITANCE_0011 = "0011"
@@ -194,6 +195,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
         ignore_duplicate_files_warning=False,
         is_on_prod_server=False,
         skip_ontology_validation=True,
+        do_not_request_resource_metadata_from_db=False,
     )
     result = _validate_data(
         graphs,

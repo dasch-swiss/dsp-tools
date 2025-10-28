@@ -43,6 +43,7 @@ def ingest_xmlupload(
     skip_validation: bool = False,
     skip_ontology_validation: bool = False,
     id2iri_replacement_file: str | None = None,
+    do_not_request_resource_metadata_from_db: bool = False,
 ) -> bool:
     """
     This function reads an XML file
@@ -59,6 +60,8 @@ def ingest_xmlupload(
         skip_validation: skip the SHACL validation
         skip_ontology_validation: skip the ontology validation
         id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        do_not_request_resource_metadata_from_db: if true do not request metadata information from the api
+                                                  for existing resources
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -115,6 +118,7 @@ def ingest_xmlupload(
                 ignore_duplicate_files_warning=True,
                 is_on_prod_server=is_on_prod_like_server,
                 skip_ontology_validation=skip_ontology_validation,
+                do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,
             ),
             auth=auth,
         )

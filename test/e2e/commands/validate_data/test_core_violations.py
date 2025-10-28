@@ -45,6 +45,7 @@ CONFIG = ValidateDataConfig(
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
     skip_ontology_validation=False,
+    do_not_request_resource_metadata_from_db=False,
 )
 SHORTCODE = "9999"
 METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS

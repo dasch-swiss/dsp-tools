@@ -242,6 +242,11 @@ def _add_ingest_xmlupload(
         "--id2iri-replacement-with-file",
         help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
     )
+    subparser.add_argument(
+        "--do-not-request-resource-metadata-from-db",
+        action="store_true",
+        help="do not request resource information from the db to include in validation",
+    )
 
 
 def _add_xmlupload(
@@ -280,6 +285,11 @@ def _add_xmlupload(
         default="info",
     )
     subparser.add_argument(
+        "--do-not-request-resource-metadata-from-db",
+        action="store_true",
+        help="do not request resource information from the db to include in validation",
+    )
+    subparser.add_argument(
         "--id2iri-replacement-with-file",
         help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
     )
@@ -308,6 +318,11 @@ def _add_validate_data(
     subparser.add_argument(
         "--id2iri-replacement-with-file",
         help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+    )
+    subparser.add_argument(
+        "--do-not-request-resource-metadata-from-db",
+        action="store_true",
+        help="do not request resource information from the db to include in validation",
     )
     subparser.add_argument(
         "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."

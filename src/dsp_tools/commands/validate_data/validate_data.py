@@ -52,6 +52,7 @@ def validate_data(
     save_graphs: bool,
     skip_ontology_validation: bool,
     id2iri_replacement_file: str | None,
+    do_not_request_resource_metadata_from_db: bool,
 ) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
@@ -63,6 +64,7 @@ def validate_data(
         save_graphs: if this flag is set, all the graphs will be saved in a folder
         skip_ontology_validation: skip the ontology validation
         id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        do_not_request_resource_metadata_from_db: true if no metadata for existing resources should be requested
 
     Returns:
         True if no errors that impede an xmlupload were found.
@@ -79,6 +81,7 @@ def validate_data(
         ignore_duplicate_files_warning=ignore_duplicate_files_warning,
         is_on_prod_server=is_prod_like_server(creds.server),
         skip_ontology_validation=skip_ontology_validation,
+        do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,
     )
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
 

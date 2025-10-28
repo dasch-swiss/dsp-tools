@@ -113,6 +113,7 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
             ignore_duplicate_files_warning=False,
             validation_severity=ValidationSeverity.INFO,
             id2iri_replacement_file=None,
+            do_not_request_resource_metadata_from_db=False,
         ),
     )
 
@@ -316,6 +317,7 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -336,6 +338,7 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
         ignore_duplicate_files_warning=True,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -355,6 +358,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -377,6 +381,7 @@ def test_validate_data_other_server(validate_data: Mock, check_docker: Mock) -> 
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -399,6 +404,7 @@ def test_validate_data_other_creds(validate_data: Mock, check_docker: Mock) -> N
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -418,6 +424,7 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=True,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -438,6 +445,7 @@ def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_d
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=id_2_iri,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -554,6 +562,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -577,6 +586,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         skip_validation=True,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -599,6 +609,7 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -624,6 +635,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock, check_docker: Mock) -> 
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=None,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 
@@ -647,6 +659,7 @@ def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, c
         skip_validation=False,
         skip_ontology_validation=False,
         id2iri_replacement_file=id_2_iri,
+        do_not_request_resource_metadata_from_db=False,
     )
 
 

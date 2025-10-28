@@ -2,6 +2,7 @@
 
 import pytest
 
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -13,6 +14,8 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 )
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import _shorten_input
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
+
+METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
 
 
 @pytest.fixture
@@ -162,7 +165,9 @@ def missing_legal_warning() -> InputProblem:
 
 
 class TestSortUserProblems:
-    def test_sort_user_problems_with_iris(self, duplicate_value, link_value_type_mismatch, missing_legal_warning):
+    def test_sort_user_problems_with_iris_metadata_retrieval_success(
+        self, duplicate_value, link_value_type_mismatch, missing_legal_warning
+    ):
         references_iri_of_another_project = InputProblem(
             problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
             res_id="references_iri_of_another_project",
@@ -211,16 +216,21 @@ class TestSortUserProblems:
             ),
             duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
             shortcode="9999",
+            metadata_success=METADATA_RETRIEVAL_SUCCESS,
         )
-        unique_violations_expected = {"res_id", "inexistent_license_iri", "references_iri_of_another_project"}
+        unique_violations_expected = {
+            "res_id",
+            "inexistent_license_iri",
+            "references_iri_of_another_project",
+            "references_iri",
+        }
         unique_warnings_expected = {None, "image_no_legal_info"}
-        assert len(result.unique_violations) == 4
+        assert len(result.unique_violations) == 5
         assert set([x.res_id for x in result.unique_violations]) == unique_violations_expected
         assert len(result.user_warnings) == len(unique_warnings_expected)
         warning_ids = {x.res_id for x in result.user_warnings}
         assert warning_ids == unique_warnings_expected
-        assert len(result.user_info) == 1
-        assert result.user_info[0].res_id == "references_iri"
+        assert not result.user_info
         assert not result.unexpected_shacl_validation_components
 
     def test_sort_user_problems_with_duplicate(self, duplicate_value, link_value_type_mismatch):
@@ -247,6 +257,7 @@ class TestSortUserProblems:
             ),
             duplicate_file_warnings=None,
             shortcode="9999",
+            metadata_success=METADATA_RETRIEVAL_SUCCESS,
         )
         assert len(result.unique_violations) == 3
         assert not result.user_info
@@ -270,14 +281,19 @@ class TestSortUserProblems:
             severity=Severity.VIOLATION,
             expected="This property requires a TextValue",
         )
-        result = sort_user_problems(AllProblems([one, two], []), duplicate_file_warnings=None, shortcode="9999")
+        result = sort_user_problems(
+            AllProblems([one, two], []),
+            duplicate_file_warnings=None,
+            shortcode="9999",
+            metadata_success=METADATA_RETRIEVAL_SUCCESS,
+        )
         assert len(result.unique_violations) == 2
         assert not result.user_info
         assert not result.unexpected_shacl_validation_components
         assert [x.res_id for x in result.unique_violations] == ["res_id", "res_id"]
 
 
-def test_separate_link_value_missing_if_reference_is_an_iri(inexistent_linked_resource):
+def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_failure(inexistent_linked_resource):
     references_iri_of_another_project = InputProblem(
         problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
         res_id="references_iri_of_another_project",
@@ -298,6 +314,7 @@ def test_separate_link_value_missing_if_reference_is_an_iri(inexistent_linked_re
         AllProblems([inexistent_linked_resource, references_iri_of_another_project, references_iri], []),
         duplicate_file_warnings=None,
         shortcode="9999",
+        metadata_success=MetadataRetrieval.FAILURE,
     )
     assert len(result.unique_violations) == 2
     assert len(result.user_warnings) == 0
@@ -310,6 +327,42 @@ def test_separate_link_value_missing_if_reference_is_an_iri(inexistent_linked_re
     assert inexistent_resource_id_in_link.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
     assert result.user_info[0].res_id == "references_iri"
     assert result.user_info[0].problem_type == ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
+
+
+def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_success(inexistent_linked_resource):
+    references_iri_of_another_project = InputProblem(
+        problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
+        res_id="references_iri_of_another_project",
+        res_type="onto:Class",
+        prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
+        input_value="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+    )
+    references_iri = InputProblem(
+        problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
+        res_id="references_iri",
+        res_type="onto:Class",
+        prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
+        input_value="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA",
+    )
+    result = sort_user_problems(
+        AllProblems([inexistent_linked_resource, references_iri_of_another_project, references_iri], []),
+        duplicate_file_warnings=None,
+        shortcode="9999",
+        metadata_success=METADATA_RETRIEVAL_SUCCESS,
+    )
+    assert len(result.unique_violations) == 3
+    assert len(result.user_warnings) == 0
+    assert len(result.user_info) == 0
+    other_project_link = next(
+        iter(x for x in result.unique_violations if x.res_id == "references_iri_of_another_project")
+    )
+    assert other_project_link.problem_type == ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT
+    inexistent_resource_id_in_link = next(iter(x for x in result.unique_violations if x.res_id == "res_id"))
+    assert inexistent_resource_id_in_link.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
+    other_project_link = next(iter(x for x in result.unique_violations if x.res_id == "references_iri"))
+    assert other_project_link.problem_type == ProblemType.LINK_TARGET_NOT_FOUND_IN_DB
 
 
 class TestUserMessages:

@@ -15,6 +15,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import MetadataRetrieval
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -46,6 +47,7 @@ CONFIG = ValidateDataConfig(
     skip_ontology_validation=False,
 )
 SHORTCODE = "9999"
+METADATA_RETRIEVAL_SUCCESS = MetadataRetrieval.SUCCESS
 
 
 @pytest.fixture(scope="module")
@@ -213,7 +215,7 @@ class TestWithReportGraphs:
         expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
-        sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE)
+        sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
         alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))

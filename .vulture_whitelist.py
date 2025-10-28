@@ -1,3 +1,4 @@
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
@@ -34,9 +35,13 @@ XmllibInputError()
 XmllibInternalError()
 XmllibFileNotFoundError()
 
-serialise_json()
+# functions used in the new `create` code, can be removed once the `create` directory is not ignored by vulture any more
 
+serialise_json()
 UnexpectedApiResponseError()
 
 from_dsp_iri_to_prefixed_iri()
 make_dsp_ontology_prefix()
+
+OntologyCreateClientLive().get_last_modification_date()
+OntologyCreateClientLive().post_resource_cardinalities()

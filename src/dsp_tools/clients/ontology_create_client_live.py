@@ -11,7 +11,7 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.ontology_client import OntologyClient
+from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
@@ -24,7 +24,7 @@ TIMEOUT = 60
 
 
 @dataclass
-class OntologyClientLive(OntologyClient):
+class OntologyCreateClientLive(OntologyCreateClient):
     """
     Client for the ontology endpoint in the API.
     """

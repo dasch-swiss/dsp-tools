@@ -6,9 +6,9 @@ from rdflib import Literal
 from dsp_tools.clients.authentication_client import AuthenticationClient
 
 
-class OntologyClient(Protocol):
+class OntologyCreateClient(Protocol):
     """
-    Protocol class/interface for the ontology endpoint in the API.
+    Protocol class/interface to create / update the ontology through the API.
     """
 
     server: str
@@ -19,3 +19,18 @@ class OntologyClient(Protocol):
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         """Add cardinalities to an existing resource class."""
+
+
+class OntologyGetClient(Protocol):
+    """
+    Protocol class/interface to get ontologies from the API.
+    """
+
+    api_url: str
+    shortcode: str
+
+    def get_knora_api(self) -> str:
+        """Get the knora-api ontology."""
+
+    def get_ontologies(self) -> tuple[list[str], list[str]]:
+        """Get all project ontologies."""

@@ -8,7 +8,7 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
 
-from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.clients.list_client import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import PropertyTypeAlias

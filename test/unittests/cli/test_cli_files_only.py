@@ -10,7 +10,7 @@ EXCEL_FOLDER = "testdata/excel2json/excel2json_files"
 EXCEL_FILE_PATH = "testdata/excel2json/excel2json_files/lists/list3.xlsx"
 
 
-@patch("dsp_tools.cli.call_action.excel2json")
+@patch("dsp_tools.cli.call_action_files_only.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     out_file = f"{EXCEL_FOLDER}/filename.json"
     args = f"excel2json {EXCEL_FOLDER} {out_file}".split()
@@ -21,7 +21,7 @@ def test_excel2json(excel2json: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.excel2lists")
+@patch("dsp_tools.cli.call_action_files_only.excel2lists")
 def test_excel2lists(excel2lists: Mock) -> None:
     excel2lists.return_value = ([], True)
     out_file = "filename.json"
@@ -33,7 +33,7 @@ def test_excel2lists(excel2lists: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.excel2resources")
+@patch("dsp_tools.cli.call_action_files_only.excel2resources")
 def test_excel2resources(excel2resources: Mock) -> None:
     excel2resources.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
     out_file = "filename.json"
@@ -45,7 +45,7 @@ def test_excel2resources(excel2resources: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.excel2properties")
+@patch("dsp_tools.cli.call_action_files_only.excel2properties")
 def test_excel2properties(excel2properties: Mock) -> None:
     excel2properties.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
     out_file = "filename.json"
@@ -57,7 +57,7 @@ def test_excel2properties(excel2properties: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.old_excel2json")
+@patch("dsp_tools.cli.call_action_files_only.old_excel2json")
 def test_old_excel2json(old_excel2json: Mock) -> None:
     out_file = "filename.json"
     args = f"old-excel2json {EXCEL_FOLDER} {out_file}".split()
@@ -68,7 +68,7 @@ def test_old_excel2json(old_excel2json: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.old_excel2lists")
+@patch("dsp_tools.cli.call_action_files_only.old_excel2lists")
 def test_old_excel2lists(old_excel2lists: Mock) -> None:
     old_excel2lists.return_value = ([], True)
     out_file = "filename.json"
@@ -81,7 +81,7 @@ def test_old_excel2lists(old_excel2lists: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.id2iri")
+@patch("dsp_tools.cli.call_action_files_only.id2iri")
 def test_id2iri_default(id2iri: Mock) -> None:
     args = f"id2iri {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
@@ -92,7 +92,7 @@ def test_id2iri_default(id2iri: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.id2iri")
+@patch("dsp_tools.cli.call_action_files_only.id2iri")
 def test_id2iri_remove_resources(id2iri: Mock) -> None:
     args = f"id2iri --remove-resources {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)

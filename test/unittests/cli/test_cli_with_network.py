@@ -459,7 +459,7 @@ class TestValidateData:
 
 
 class TestResumeXmlupload:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.resume_xmlupload")
     def test_resume_xmlupload_default(self, resume_xmlupload: Mock, check_docker: Mock) -> None:
         args = "resume-xmlupload".split()
@@ -472,7 +472,7 @@ class TestResumeXmlupload:
         entry_point.run(args)
         resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.resume_xmlupload")
     def test_resume_xmlupload_skip_first_resource(self, resume_xmlupload: Mock, check_docker: Mock) -> None:
         args = "resume-xmlupload --skip-first-resource".split()
@@ -516,7 +516,7 @@ class TestIngestUploads:
         )
         upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_files")
     def test_ingest_files_localhost(self, ingest_files: Mock, check_docker: Mock) -> None:
         shortcode = "1234"

@@ -3,12 +3,16 @@ from pathlib import Path
 
 from loguru import logger
 
+from dsp_tools.cli.args import NetworkRequirements
+from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import _check_directory_exists
-from dsp_tools.cli.utils import _check_docker_health
 from dsp_tools.cli.utils import _check_filepath_exists
 from dsp_tools.cli.utils import _check_health_with_docker
 from dsp_tools.cli.utils import _check_health_with_docker_on_localhost
+from dsp_tools.cli.utils import check_docker_health
+from dsp_tools.cli.utils import check_input_dependencies
+from dsp_tools.cli.utils import check_path_dependencies
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
@@ -97,13 +101,13 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
 
 
 def _call_stop_stack() -> bool:
-    _check_docker_health()
+    check_docker_health()
     stack_handler = StackHandler(StackConfiguration())
     return stack_handler.stop_stack()
 
 
 def _call_start_stack(args: argparse.Namespace) -> bool:
-    _check_docker_health()
+    check_docker_health()
     stack_handler = StackHandler(
         StackConfiguration(
             max_file_size=args.max_file_size,
@@ -118,8 +122,7 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
 
 
 def _call_id2iri(args: argparse.Namespace) -> bool:
-    _check_filepath_exists(Path(args.xmlfile))
-    _check_filepath_exists(Path(args.mapping))
+    check_path_dependencies(PathDependencies([Path(args.xmlfile, Path(args.mapping))]))
     return id2iri(
         xml_file=args.xmlfile,
         json_file=args.mapping,
@@ -128,7 +131,7 @@ def _call_id2iri(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2properties(args: argparse.Namespace) -> bool:
-    _check_filepath_exists(Path(args.excelfile))
+    check_path_dependencies(PathDependencies([Path(args.excelfile)]))
     _, _, success = excel2properties(
         excelfile=args.excelfile,
         path_to_output_file=args.properties_section,
@@ -137,7 +140,7 @@ def _call_excel2properties(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2resources(args: argparse.Namespace) -> bool:
-    _check_filepath_exists(Path(args.excelfile))
+    check_path_dependencies(PathDependencies([Path(args.excelfile)]))
     _, _, success = excel2resources(
         excelfile=args.excelfile,
         path_to_output_file=args.resources_section,
@@ -146,7 +149,7 @@ def _call_excel2resources(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2lists(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    check_path_dependencies(PathDependencies(required_directories=[Path(args.excelfolder)]))
     _, success = old_excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -156,7 +159,7 @@ def _call_old_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2lists(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    check_path_dependencies(PathDependencies(required_directories=[Path(args.excelfolder)]))
     _, success = excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
@@ -165,7 +168,7 @@ def _call_excel2lists(args: argparse.Namespace) -> bool:
 
 
 def _call_excel2json(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    check_path_dependencies(PathDependencies(required_directories=[Path(args.excelfolder)]))
     return excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
@@ -173,7 +176,7 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_old_excel2json(args: argparse.Namespace) -> bool:
-    _check_directory_exists(Path(args.excelfolder))
+    check_path_dependencies(PathDependencies(required_directories=[Path(args.excelfolder)]))
     return old_excel2json(
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
@@ -181,13 +184,15 @@ def _call_old_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_upload_files(args: argparse.Namespace) -> bool:
-    _check_health_with_docker_on_localhost(args.server)
     xml_path = Path(args.xml_file)
-    _check_filepath_exists(xml_path)
+    image_dir = Path(args.imgdir)
+    network_requirements = NetworkRequirements(api_url=args.server)
+    path_requirements = PathDependencies([xml_path], required_directories=[image_dir])
+    check_input_dependencies(paths=path_requirements, network_dependencies=network_requirements)
     return upload_files(
         xml_file=xml_path,
         creds=get_creds(args),
-        imgdir=Path(args.imgdir),
+        imgdir=image_dir,
     )
 
 

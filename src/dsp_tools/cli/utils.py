@@ -5,7 +5,7 @@ from pathlib import Path
 import requests
 from loguru import logger
 
-from dsp_tools.cli.args import NetworkDependencies
+from dsp_tools.cli.args import NetworkRequirements
 from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.error.exceptions import DockerNotReachableError
@@ -26,15 +26,15 @@ def get_creds(args: argparse.Namespace) -> ServerCredentials:
 
 
 def check_input_dependencies(
-    *, paths: PathDependencies | None = None, network_dependencies: NetworkDependencies | None = None
+    *, paths: PathDependencies | None = None, network_dependencies: NetworkRequirements | None = None
 ) -> None:
     if paths:
-        _check_paths(paths)
+        check_path_dependencies(paths)
     if network_dependencies:
-        _check_network_health(network_dependencies)
+        check_network_health(network_dependencies)
 
 
-def _check_paths(paths: PathDependencies) -> None:
+def check_path_dependencies(paths: PathDependencies) -> None:
     for f_path in paths.required_files:
         _check_filepath_exists(f_path)
     for dir_path in paths.required_directories:
@@ -51,14 +51,15 @@ def _check_directory_exists(dir_path: Path) -> None:
         raise UserDirectoryNotFoundError(dir_path)
 
 
-def _check_network_health(network_dependencies: NetworkDependencies) -> None:
-    if network_dependencies.requires_docker:
-        _check_docker_health()
-    if network_dependencies.requires_api:
-        _check_api_health(network_dependencies.api_url)
+def check_network_health(network_requirements: NetworkRequirements) -> None:
+    if network_requirements.api_url == LOCALHOST_API:
+        check_docker_health()
+    elif network_requirements.always_requires_docker:
+        check_docker_health()
+    _check_api_health(network_requirements.api_url)
 
 
-def _check_docker_health() -> None:
+def check_docker_health() -> None:
     if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
         raise DockerNotReachableError()
 
@@ -90,11 +91,11 @@ def _check_api_health(api_url: str) -> None:
 
 def _check_health_with_docker_on_localhost(api_url: str) -> None:
     if api_url == LOCALHOST_API:
-        _check_docker_health()
+        check_docker_health()
     _check_api_health(api_url)
 
 
 def _check_health_with_docker(api_url: str) -> None:
     # validate always needs docker running
-    _check_docker_health()
+    check_docker_health()
     _check_api_health(api_url)

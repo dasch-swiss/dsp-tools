@@ -42,7 +42,6 @@ class PathDependencies:
 
 
 @dataclass
-class NetworkDependencies:
+class NetworkRequirements:
     api_url: str
-    requires_docker: bool
-    requires_api: bool
+    always_requires_docker: bool = False

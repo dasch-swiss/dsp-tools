@@ -28,4 +28,4 @@ class ListGetClient(Protocol):
     shortcode: str
 
     def get_all_lists_and_nodes(self) -> list[OneList]:
-        """Get all lists and it's nodes from a project."""
+        """Get all lists and its nodes from a project."""

@@ -517,7 +517,7 @@ def test_ingest_files_localhost(ingest_files: Mock, check_docker: Mock) -> None:
     ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
 
-@patch("dsp_tools.cli.utils.check_network_health")
+@patch("dsp_tools.cli.call_action_with_network.check_network_health")
 @patch("dsp_tools.cli.call_action_with_network.ingest_files")
 def test_ingest_files_remote(ingest_files: Mock, check_docker: Mock) -> None:
     shortcode = "1234"

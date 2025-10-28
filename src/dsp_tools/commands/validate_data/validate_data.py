@@ -114,6 +114,7 @@ def validate_parsed_resources(
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
+        do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
     )
     validation_result = _validate_data(
         rdf_graphs, used_iris, parsed_resources, config, shortcode, metadata_retrieval_success

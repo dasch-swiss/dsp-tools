@@ -47,9 +47,12 @@ def prepare_data_for_validation_from_parsed_resource(
     permission_ids: list[str],
     auth: AuthenticationClient,
     shortcode: str,
+    do_not_request_resource_metadata_from_db: bool,
 ) -> tuple[RDFGraphs, set[str], MetadataRetrieval]:
     used_iris = {x.res_type for x in parsed_resources}
-    proj_info, metadata_retrieval_success = _get_project_specific_information_from_api(auth, shortcode)
+    proj_info, metadata_retrieval_success = _get_project_specific_information_from_api(
+        auth, shortcode, do_not_request_resource_metadata_from_db
+    )
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
     rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
@@ -66,12 +69,16 @@ def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
 
 
 def _get_project_specific_information_from_api(
-    auth: AuthenticationClient, shortcode: str
+    auth: AuthenticationClient, shortcode: str, do_not_request_resource_metadata_from_db: bool
 ) -> tuple[ProjectDataFromApi, MetadataRetrieval]:
     list_client = ListClient(auth.server, shortcode)
     all_lists = list_client.get_lists()
     enabled_licenses = _get_license_iris(shortcode, auth)
-    retrieval_status, formatted_metadata = _get_metadata_info(auth, shortcode)
+    if do_not_request_resource_metadata_from_db:
+        retrieval_status = MetadataRetrieval.SUCCESS
+        formatted_metadata: list[InfoForResourceInDB] = []
+    else:
+        retrieval_status, formatted_metadata = _get_metadata_info(auth, shortcode)
     return ProjectDataFromApi(all_lists, enabled_licenses, formatted_metadata), retrieval_status
 
 

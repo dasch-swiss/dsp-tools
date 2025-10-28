@@ -19,5 +19,6 @@ def prepare_data_for_validation_from_file(
         permission_ids=permission_ids,
         auth=auth,
         shortcode=shortcode,
+        do_not_request_resource_metadata_from_db=False,
     )
     return graphs, used_iris, parsed_resources

@@ -26,7 +26,7 @@ def get_creds(args: argparse.Namespace) -> ServerCredentials:
 
 
 def check_input_dependencies(
-    *, paths: PathDependencies | None = None, network_dependencies: NetworkRequirements | None = None
+    paths: PathDependencies | None = None, network_dependencies: NetworkRequirements | None = None
 ) -> None:
     if paths:
         check_path_dependencies(paths)

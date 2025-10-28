@@ -6,12 +6,9 @@ from loguru import logger
 from dsp_tools.cli.args import NetworkRequirements
 from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.cli.utils import _check_directory_exists
-from dsp_tools.cli.utils import _check_filepath_exists
-from dsp_tools.cli.utils import _check_health_with_docker
-from dsp_tools.cli.utils import _check_health_with_docker_on_localhost
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
+from dsp_tools.cli.utils import check_network_health
 from dsp_tools.cli.utils import check_path_dependencies
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
@@ -188,7 +185,8 @@ def _call_upload_files(args: argparse.Namespace) -> bool:
     image_dir = Path(args.imgdir)
     network_requirements = NetworkRequirements(api_url=args.server)
     path_requirements = PathDependencies([xml_path], required_directories=[image_dir])
-    check_input_dependencies(paths=path_requirements, network_dependencies=network_requirements)
+    check_input_dependencies(path_requirements, network_requirements)
+
     return upload_files(
         xml_file=xml_path,
         creds=get_creds(args),
@@ -197,14 +195,20 @@ def _call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def _call_ingest_files(args: argparse.Namespace) -> bool:
-    _check_health_with_docker_on_localhost(args.server)
+    check_network_health(NetworkRequirements(api_url=args.server))
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
-    _check_health_with_docker(args.server)
     xml_path = Path(args.xml_file)
-    _check_filepath_exists(xml_path)
+    required_files = [xml_path]
+    id2iri_file = args.id2iri_replacement_with_file
+    if id2iri_file:
+        required_files.append(id2iri_file)
+    network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
+    path_deps = PathDependencies(required_files)
+    check_input_dependencies(path_deps, network_requirements)
+
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
@@ -212,18 +216,22 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=args.id2iri_replacement_with_file,
+        id2iri_replacement_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
-    _check_health_with_docker(args.server)
-    xml_path = Path(args.xmlfile)
-    _check_filepath_exists(xml_path)
-    id_2_iri_file = args.id2iri_replacement_with_file
-    if id_2_iri_file:
-        _check_filepath_exists(Path(id_2_iri_file))
+    xml_path = Path(args.xml_file)
+    required_files = [xml_path]
+    id2iri_file = args.id2iri_replacement_with_file
+    if id2iri_file:
+        id2iri_file = Path(id2iri_file)
+        required_files.append(id2iri_file)
+    network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
+    path_deps = PathDependencies(required_files, [Path(args.imgdir)])
+    check_input_dependencies(path_deps, network_requirements)
+
     if args.validate_only:
         success = parse_and_validate_xml_file(xml_path)
         print("The XML file is syntactically correct.")
@@ -254,29 +262,36 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 validation_severity=severity,
                 skip_ontology_validation=args.skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
-                id2iri_replacement_file=id_2_iri_file,
+                id2iri_replacement_file=id2iri_file,
             ),
         )
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    _check_health_with_docker(args.server)
-    xml_path = Path(args.xmlfile)
-    _check_filepath_exists(xml_path)
+    xml_path = Path(args.xml_file)
+    required_files = [xml_path]
+    id2iri_file = args.id2iri_replacement_with_file
+    if id2iri_file:
+        id2iri_file = Path(id2iri_file)
+        required_files.append(id2iri_file)
+    network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
+    path_deps = PathDependencies(required_files)
+    check_input_dependencies(path_deps, network_requirements)
+
     return validate_data(
         filepath=xml_path,
         creds=get_creds(args),
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=args.id2iri_replacement_with_file,
+        id2iri_replacement_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    _check_health_with_docker_on_localhost(args.server)
+    check_network_health(NetworkRequirements(args.server))
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,
@@ -284,8 +299,10 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_get(args: argparse.Namespace) -> bool:
-    _check_health_with_docker_on_localhost(args.server)
-    _check_directory_exists(Path(args.project_definition).parent)
+    network_dependencies = NetworkRequirements(args.server)
+    path_dependencies = PathDependencies(required_directories=[Path(args.project_definition).parent])
+    check_input_dependencies(path_dependencies, network_dependencies)
+
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
@@ -295,8 +312,10 @@ def _call_get(args: argparse.Namespace) -> bool:
 
 
 def _call_create(args: argparse.Namespace) -> bool:
-    _check_health_with_docker_on_localhost(args.server)
-    _check_filepath_exists(Path(args.project_definition))
+    network_dependencies = NetworkRequirements(args.server)
+    path_dependencies = PathDependencies([Path(args.project_definition)])
+    check_input_dependencies(path_dependencies, network_dependencies)
+
     success = False
     match args.lists_only, args.validate_only:
         case True, True:

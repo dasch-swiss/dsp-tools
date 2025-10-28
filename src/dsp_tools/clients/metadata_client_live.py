@@ -33,6 +33,7 @@ class MetadataClientLive(MetadataClient):
             if response.ok:
                 # we log the response separately because if it was successful it will be too big
                 log_response(response, include_response_content=False)
+                logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
                 return MetadataRetrieval.SUCCESS, response.json()
             # here the response text is important
             log_response(response)

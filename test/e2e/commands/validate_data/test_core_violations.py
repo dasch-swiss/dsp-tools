@@ -15,6 +15,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -44,8 +45,10 @@ CONFIG = ValidateDataConfig(
     ignore_duplicate_files_warning=False,
     is_on_prod_server=False,
     skip_ontology_validation=False,
+    do_not_request_resource_metadata_from_db=False,
 )
 SHORTCODE = "9999"
+METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 
 @pytest.fixture(scope="module")
@@ -192,6 +195,7 @@ class TestWithReportGraphs:
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("link_target_of_another_project", ProblemType.LINK_TARGET_OF_ANOTHER_PROJECT),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("link_to_resource_in_db", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
             ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
@@ -210,16 +214,14 @@ class TestWithReportGraphs:
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
         ]
-        expected_info = [("link_to_resource_in_db", ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT)]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
-        sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE)
+        sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
-        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert len(sorted_problems.user_info) == len(expected_info)
+        assert not sorted_problems.user_info
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):
@@ -228,9 +230,6 @@ class TestWithReportGraphs:
         for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_w[1]
             assert one_result.res_id == expected_w[0]
-        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
-            assert one_result.problem_type == expected_i[1]
-            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 
@@ -239,7 +238,7 @@ class TestWithReportGraphs:
 def test_check_for_unknown_resource_classes(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/unknown_classes.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     problems = result.problems
     assert isinstance(problems, UnknownClassesInData)
@@ -251,7 +250,7 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
 def test_reformat_content_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/content_violation.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
     expected_info_tuples = [
         (
@@ -395,7 +394,7 @@ def test_reformat_content_violation(authentication) -> None:
 def test_reformat_cardinality_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/cardinality_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("card_1_missing", ProblemType.MIN_CARD),
@@ -422,7 +421,7 @@ def test_reformat_cardinality_violation(authentication) -> None:
 def test_reformat_value_type_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/value_type_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
@@ -461,7 +460,7 @@ def test_reformat_value_type_violation(authentication) -> None:
 def test_reformat_unique_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/unique_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_ids = [
         "identical_values_LinkValue",
@@ -488,7 +487,7 @@ def test_reformat_unique_value_violation(authentication) -> None:
 def test_reformat_file_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/file_value_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_violation = [
         ("archive_missing", ProblemType.FILE_VALUE_MISSING),
@@ -532,7 +531,7 @@ def test_reformat_file_value_violation(authentication) -> None:
 def test_reformat_dsp_inbuilt_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/dsp_inbuilt_violation.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),

@@ -177,6 +177,7 @@ def _handle_validation(
                 ignore_duplicate_files_warning=ignore_duplicates,
                 is_on_prod_server=is_on_prod_like_server,
                 skip_ontology_validation=config.skip_ontology_validation,
+                do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
             ),
             auth=auth,
         )

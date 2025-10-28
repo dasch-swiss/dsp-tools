@@ -211,6 +211,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
         id2iri_replacement_file=args.id2iri_replacement_with_file,
+        do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
 
@@ -250,6 +251,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
                 ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
                 validation_severity=severity,
                 skip_ontology_validation=args.skip_ontology_validation,
+                do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
                 id2iri_replacement_file=id_2_iri_file,
             ),
         )
@@ -266,6 +268,7 @@ def _call_validate_data(args: argparse.Namespace) -> bool:
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
         id2iri_replacement_file=args.id2iri_replacement_with_file,
+        do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
 

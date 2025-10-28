@@ -8,6 +8,7 @@ import requests
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: ARG001 Unused function argument
@@ -77,7 +78,12 @@ def _xmlupload_text_parsing_9999(create_generic_project_9999: None, creds: Serve
     with TemporaryDirectory() as tmpdir:
         with pytest.MonkeyPatch.context() as m:
             m.chdir(tmpdir)
-            assert xmlupload(absolute_xml_path, creds, str(original_cwd))
+            assert xmlupload(
+                absolute_xml_path,
+                creds,
+                str(original_cwd),
+                config=UploadConfig(do_not_request_resource_metadata_from_db=True),
+            )
 
 
 @pytest.fixture(scope="module")

@@ -4,6 +4,7 @@ import regex
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
+from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.data_formats.uri_util import is_uri
 
 
@@ -27,7 +28,7 @@ def create_prefix_lookup(project_json: dict[str, Any], api_url: str) -> dict[str
     shortcode = project_json["project"]["shortcode"]
     for onto in project_json["project"]["ontologies"]:
         onto_name = onto["name"]
-        defined_prefixes[onto_name] = _make_dsp_ontology_prefix(api_url, shortcode, onto_name)
+        defined_prefixes[onto_name] = make_dsp_ontology_prefix(api_url, shortcode, onto_name)
     return defined_prefixes
 
 
@@ -37,7 +38,3 @@ def _correct_external_prefix(prefixes: dict[str, str]) -> dict[str, str]:
             continue
         prefixes[prfx] = f"{namespace}/"
     return prefixes
-
-
-def _make_dsp_ontology_prefix(api_url: str, shortcode: str, onto_name: str) -> str:
-    return f"{api_url}/ontology/{shortcode}/{onto_name}/v2#"

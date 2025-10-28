@@ -13,7 +13,7 @@ def prepare_data_for_validation_from_file(
     parsed_resources, shortcode, authorship_lookup, permission_ids = get_info_and_parsed_resources_from_file(
         file=filepath, api_url=auth.server, id2iri_replacement_file=id2iri_path
     )
-    graphs, used_iris = prepare_data_for_validation_from_parsed_resource(
+    graphs, used_iris, _ = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,

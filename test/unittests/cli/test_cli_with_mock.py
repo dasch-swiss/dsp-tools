@@ -19,6 +19,12 @@ EXIT_CODE_TWO = 2
 
 # ruff: noqa: ARG001 Unused function argument
 
+PROJECT_JSON_PATH = "testdata/json-project/systematic-project-4123.json"
+ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
+DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
+EXCEL_FOLDER = "testdata/excel2json/excel2json_files"
+EXCEL_FILE_PATH = "testdata/excel2json/excel2json_files/lists/list3.xlsx"
+
 
 def test_invalid_arguments() -> None:
     args = "invalid".split()
@@ -30,22 +36,20 @@ def test_invalid_arguments() -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
 def test_lists_validate(validate_lists: Mock, check_docker: Mock) -> None:
-    file = "filename.json"
-    args = f"create --lists-only --validate-only {file}".split()
+    args = f"create --lists-only --validate-only {PROJECT_JSON_PATH}".split()
     entry_point.run(args)
-    validate_lists.assert_called_once_with(file)
+    validate_lists.assert_called_once_with(PROJECT_JSON_PATH)
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.create_only_lists")
 def test_lists_create(create_lists: Mock, check_docker: Mock) -> None:
     create_lists.return_value = ({}, True)
-    file = "filename.json"
-    args = f"create --lists-only {file}".split()
+    args = f"create --lists-only {PROJECT_JSON_PATH}".split()
     creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_lists.assert_called_once_with(
-        project_file_as_path_or_parsed=file,
+        project_file_as_path_or_parsed=PROJECT_JSON_PATH,
         creds=creds,
     )
 
@@ -53,21 +57,19 @@ def test_lists_create(create_lists: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.validate_project")
 def test_project_validate(validate_project: Mock, check_docker: Mock) -> None:
-    file = "filename.json"
-    args = f"create --validate-only {file}".split()
+    args = f"create --validate-only {PROJECT_JSON_PATH}".split()
     entry_point.run(args)
-    validate_project.assert_called_once_with(file)
+    validate_project.assert_called_once_with(PROJECT_JSON_PATH)
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.create_project")
 def test_project_create(create_project: Mock, check_docker: Mock) -> None:
-    file = "filename.json"
-    args = f"create {file}".split()
+    args = f"create {PROJECT_JSON_PATH}".split()
     creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_project.assert_called_once_with(
-        project_file_as_path_or_parsed=file,
+        project_file_as_path_or_parsed=PROJECT_JSON_PATH,
         creds=creds,
         verbose=False,
     )
@@ -76,14 +78,13 @@ def test_project_create(create_project: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.get_project")
 def test_project_get(get_project: Mock, check_docker: Mock) -> None:
-    file = "filename.json"
     project = "shortname"
-    args = f"get --project {project} {file}".split()
+    args = f"get --project {project} {PROJECT_JSON_PATH}".split()
     creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     get_project.assert_called_once_with(
         project_identifier=project,
-        outfile_path=file,
+        outfile_path=PROJECT_JSON_PATH,
         creds=creds,
         verbose=False,
     )
@@ -92,8 +93,7 @@ def test_project_get(get_project: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload {file}".split()
+    args = f"xmlupload {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -102,7 +102,7 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(
@@ -120,18 +120,16 @@ def test_xmlupload_default(xmlupload: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
 def test_xmlupload_validate(validate_xml: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload --validate-only {file}".split()
+    args = f"xmlupload --validate-only {DATA_XML_PATH}".split()
     entry_point.run(args)
-    validate_xml.assert_called_once_with(Path(file))
+    validate_xml.assert_called_once_with(Path(DATA_XML_PATH))
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     no_validation = "--no-iiif-uri-validation"
-    args = f"xmlupload {no_validation} {file}".split()
+    args = f"xmlupload {no_validation} {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -140,7 +138,7 @@ def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=True),
@@ -150,9 +148,8 @@ def test_xmlupload_no_iiif(xmlupload: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     no_validation = "--skip-validation"
-    args = f"xmlupload {no_validation} {file}".split()
+    args = f"xmlupload {no_validation} {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -161,7 +158,7 @@ def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(skip_validation=True),
@@ -171,9 +168,8 @@ def test_xmlupload_skip_validation(xmlupload: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     ignore_duplicate_files = "--ignore-duplicate-files-warning"
-    args = f"xmlupload {ignore_duplicate_files} {file}".split()
+    args = f"xmlupload {ignore_duplicate_files} {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -182,7 +178,7 @@ def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(ignore_duplicate_files_warning=True),
@@ -192,8 +188,7 @@ def test_xmlupload_ignore_duplicate_files_warning(xmlupload: Mock, check_docker:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload {file} --validation-severity warning".split()
+    args = f"xmlupload {DATA_XML_PATH} --validation-severity warning".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -202,7 +197,7 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_do
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(
@@ -216,8 +211,7 @@ def test_xmlupload_default_validation_severity_warning(xmlupload: Mock, check_do
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload {file} --validation-severity error".split()
+    args = f"xmlupload {DATA_XML_PATH} --validation-severity error".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -226,7 +220,7 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_dock
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(
@@ -240,8 +234,7 @@ def test_xmlupload_default_validation_severity_error(xmlupload: Mock, check_dock
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload {file} --skip-ontology-validation".split()
+    args = f"xmlupload {DATA_XML_PATH} --skip-ontology-validation".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -250,7 +243,7 @@ def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock)
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
         config=UploadConfig(
@@ -265,8 +258,7 @@ def test_xmlupload_skip_ontology_validation(xmlupload: Mock, check_docker: Mock)
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"xmlupload --interrupt-after=1 {file}".split()
+    args = f"xmlupload --interrupt-after=1 {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -275,16 +267,14 @@ def test_xmlupload_interrupt_after(xmlupload: Mock, check_docker: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(file), creds=creds, imgdir=".", config=UploadConfig(interrupt_after=1)
+        input_file=Path(DATA_XML_PATH), creds=creds, imgdir=".", config=UploadConfig(interrupt_after=1)
     )
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = "filename.xml"
-    id_2_iri = "id2iri.json"
-    args = f"xmlupload --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    args = f"xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -293,24 +283,23 @@ def test_xmlupload_id2iri_replacement_with_file(xmlupload: Mock, check_docker: M
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=Path(xml_file),
+        input_file=Path(DATA_XML_PATH),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(id2iri_replacement_file=id_2_iri),
+        config=UploadConfig(id2iri_replacement_file=ID_2_IRI_JSON_PATH),
     )
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file}".split()
+    args = f"validate-data {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=False,
@@ -322,15 +311,14 @@ def test_validate_data_default(validate_data: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     ignore_duplicate_files = "--ignore-duplicate-files-warning"
-    args = f"validate-data {ignore_duplicate_files} {file}".split()
+    args = f"validate-data {ignore_duplicate_files} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=True,
@@ -342,14 +330,13 @@ def test_validate_data_ignore_duplicate_files(validate_data: Mock, check_docker:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file} --save-graphs".split()
+    args = f"validate-data {DATA_XML_PATH} --save-graphs".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=True,
         creds=creds,
         ignore_duplicate_files_warning=False,
@@ -361,8 +348,7 @@ def test_validate_data_save_graph(validate_data: Mock, check_docker: Mock) -> No
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_other_server(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file} -s https://api.dasch.swiss".split()
+    args = f"validate-data {DATA_XML_PATH} -s https://api.dasch.swiss".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com",
@@ -371,7 +357,7 @@ def test_validate_data_other_server(validate_data: Mock, check_docker: Mock) -> 
         dsp_ingest_url="https://ingest.dasch.swiss",
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=False,
@@ -383,17 +369,16 @@ def test_validate_data_other_server(validate_data: Mock, check_docker: Mock) -> 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_other_creds(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     server = "https://api.test.dasch.swiss"
     user = "first-name.second-name@dasch.swiss"
     password = "foobar"
-    args = f"validate-data {file} --server={server} --user {user} --password={password}".split()
+    args = f"validate-data {DATA_XML_PATH} --server={server} --user {user} --password={password}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=False,
@@ -405,14 +390,13 @@ def test_validate_data_other_creds(validate_data: Mock, check_docker: Mock) -> N
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"validate-data {file} --skip-ontology-validation".split()
+    args = f"validate-data {DATA_XML_PATH} --skip-ontology-validation".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=False,
@@ -424,20 +408,18 @@ def test_validate_data_skip_ontology_validation(validate_data: Mock, check_docke
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.validate_data")
 def test_validate_data_id2iri_replacement_with_file(validate_data: Mock, check_docker: Mock) -> None:
-    xml_file = "filename.xml"
-    id_2_iri = "id2iri.json"
-    args = f"validate-data --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    args = f"validate-data --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     validate_data.assert_called_once_with(
-        filepath=Path(xml_file),
+        filepath=Path(DATA_XML_PATH),
         save_graphs=False,
         creds=creds,
         ignore_duplicate_files_warning=False,
         skip_ontology_validation=False,
-        id2iri_replacement_file=id_2_iri,
+        id2iri_replacement_file=ID_2_IRI_JSON_PATH,
     )
 
 
@@ -472,8 +454,7 @@ def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock, check_dock
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.upload_files")
 def test_upload_files_localhost(upload_files: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
-    args = f"upload-files {file}".split()
+    args = f"upload-files {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -481,17 +462,16 @@ def test_upload_files_localhost(upload_files: Mock, check_docker: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+    upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
 @patch("dsp_tools.cli.call_action.upload_files")
 def test_upload_files_remote(upload_files: Mock, check_docker: Mock) -> None:
-    file = "filename.xml"
     server = "https://api.test.dasch.swiss"
     user = "first-name.second-name@dasch.swiss"
     password = "foobar"
-    args = f"upload-files --server={server} --user {user} --password={password} {file}".split()
+    args = f"upload-files --server={server} --user {user} --password={password} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server=server,
@@ -499,7 +479,7 @@ def test_upload_files_remote(upload_files: Mock, check_docker: Mock) -> None:
         password=password,
         dsp_ingest_url=server.replace("api", "ingest"),
     )
-    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+    upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
 
 @patch("dsp_tools.cli.call_action._check_health_with_docker_on_localhost")
@@ -538,8 +518,7 @@ def test_ingest_files_remote(ingest_files: Mock, check_docker: Mock) -> None:
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = Path("filename.xml")
-    args = f"ingest-xmlupload {xml_file}".split()
+    args = f"ingest-xmlupload {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -548,7 +527,7 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=None,
         skip_validation=False,
@@ -560,9 +539,8 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock, check_docker: Mock) 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = Path("filename.xml")
     skip_validation = "--skip-validation"
-    args = f"ingest-xmlupload {skip_validation} {xml_file}".split()
+    args = f"ingest-xmlupload {skip_validation} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -571,7 +549,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=None,
         skip_validation=True,
@@ -583,8 +561,7 @@ def test_ingest_xmlupload_skip_validation(ingest_xmlupload: Mock, check_docker: 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = Path("filename.xml")
-    args = f"ingest-xmlupload --interrupt-after=1 {xml_file}".split()
+    args = f"ingest-xmlupload --interrupt-after=1 {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -593,7 +570,7 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=1,
         skip_validation=False,
@@ -605,11 +582,10 @@ def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock, check_docker: 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_remote(ingest_xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = Path("filename.xml")
     server = "https://api.test.dasch.swiss"
     user = "first-name.second-name@dasch.swiss"
     password = "foobar"
-    args = f"ingest-xmlupload --server={server} --user {user} --password={password} {xml_file}".split()
+    args = f"ingest-xmlupload --server={server} --user {user} --password={password} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server=server,
@@ -618,7 +594,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock, check_docker: Mock) -> 
         dsp_ingest_url=server.replace("api", "ingest"),
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=None,
         skip_validation=False,
@@ -630,9 +606,7 @@ def test_ingest_xmlupload_remote(ingest_xmlupload: Mock, check_docker: Mock) -> 
 @patch("dsp_tools.cli.call_action._check_health_with_docker")
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, check_docker: Mock) -> None:
-    xml_file = Path("filename.xml")
-    id_2_iri = "id2iri.json"
-    args = f"ingest-xmlupload --id2iri-replacement-with-file {id_2_iri} {xml_file}".split()
+    args = f"ingest-xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
     entry_point.run(args)
     creds = ServerCredentials(
         server="http://0.0.0.0:3333",
@@ -641,23 +615,22 @@ def test_ingest_xmlupload_id2iri_replacement_with_file(ingest_xmlupload: Mock, c
         dsp_ingest_url="http://0.0.0.0:3340",
     )
     ingest_xmlupload.assert_called_once_with(
-        xml_file=xml_file,
+        xml_file=Path(DATA_XML_PATH),
         creds=creds,
         interrupt_after=None,
         skip_validation=False,
         skip_ontology_validation=False,
-        id2iri_replacement_file=id_2_iri,
+        id2iri_replacement_file=ID_2_IRI_JSON_PATH,
     )
 
 
 @patch("dsp_tools.cli.call_action.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
-    folder = "folder"
-    out_file = "filename.json"
-    args = f"excel2json {folder} {out_file}".split()
+    out_file = f"{EXCEL_FOLDER}/filename.json"
+    args = f"excel2json {EXCEL_FOLDER} {out_file}".split()
     entry_point.run(args)
     excel2json.assert_called_once_with(
-        data_model_files=folder,
+        data_model_files=EXCEL_FOLDER,
         path_to_output_file=out_file,
     )
 
@@ -665,12 +638,11 @@ def test_excel2json(excel2json: Mock) -> None:
 @patch("dsp_tools.cli.call_action.excel2lists")
 def test_excel2lists(excel2lists: Mock) -> None:
     excel2lists.return_value = ([], True)
-    file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"excel2lists {file} {out_file}".split()
+    args = f"excel2lists {EXCEL_FOLDER} {out_file}".split()
     entry_point.run(args)
     excel2lists.assert_called_once_with(
-        excelfolder=file,
+        excelfolder=EXCEL_FOLDER,
         path_to_output_file=out_file,
     )
 
@@ -678,12 +650,11 @@ def test_excel2lists(excel2lists: Mock) -> None:
 @patch("dsp_tools.cli.call_action.excel2resources")
 def test_excel2resources(excel2resources: Mock) -> None:
     excel2resources.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
-    file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"excel2resources {file} {out_file}".split()
+    args = f"excel2resources {EXCEL_FILE_PATH} {out_file}".split()
     entry_point.run(args)
     excel2resources.assert_called_once_with(
-        excelfile=file,
+        excelfile=EXCEL_FILE_PATH,
         path_to_output_file=out_file,
     )
 
@@ -691,24 +662,22 @@ def test_excel2resources(excel2resources: Mock) -> None:
 @patch("dsp_tools.cli.call_action.excel2properties")
 def test_excel2properties(excel2properties: Mock) -> None:
     excel2properties.return_value = ([], PermissionsOverrulesUnprefixed([], []), True)
-    file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"excel2properties {file} {out_file}".split()
+    args = f"excel2properties {EXCEL_FILE_PATH} {out_file}".split()
     entry_point.run(args)
     excel2properties.assert_called_once_with(
-        excelfile=file,
+        excelfile=EXCEL_FILE_PATH,
         path_to_output_file=out_file,
     )
 
 
 @patch("dsp_tools.cli.call_action.old_excel2json")
 def test_old_excel2json(old_excel2json: Mock) -> None:
-    folder = "folder"
     out_file = "filename.json"
-    args = f"old-excel2json {folder} {out_file}".split()
+    args = f"old-excel2json {EXCEL_FOLDER} {out_file}".split()
     entry_point.run(args)
     old_excel2json.assert_called_once_with(
-        data_model_files=folder,
+        data_model_files=EXCEL_FOLDER,
         path_to_output_file=out_file,
     )
 
@@ -716,12 +685,11 @@ def test_old_excel2json(old_excel2json: Mock) -> None:
 @patch("dsp_tools.cli.call_action.old_excel2lists")
 def test_old_excel2lists(old_excel2lists: Mock) -> None:
     old_excel2lists.return_value = ([], True)
-    file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"old-excel2lists {file} {out_file}".split()
+    args = f"old-excel2lists {EXCEL_FOLDER} {out_file}".split()
     entry_point.run(args)
     old_excel2lists.assert_called_once_with(
-        excelfolder=file,
+        excelfolder=EXCEL_FOLDER,
         path_to_output_file=out_file,
         verbose=False,
     )
@@ -729,26 +697,22 @@ def test_old_excel2lists(old_excel2lists: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action.id2iri")
 def test_id2iri_default(id2iri: Mock) -> None:
-    xml_file = "filename.xml"
-    json_file = "filename.json"
-    args = f"id2iri {xml_file} {json_file}".split()
+    args = f"id2iri {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=xml_file,
-        json_file=json_file,
+        xml_file=DATA_XML_PATH,
+        json_file=ID_2_IRI_JSON_PATH,
         remove_resource_if_id_in_mapping=False,
     )
 
 
 @patch("dsp_tools.cli.call_action.id2iri")
 def test_id2iri_remove_resources(id2iri: Mock) -> None:
-    xml_file = "filename.xml"
-    json_file = "filename.json"
-    args = f"id2iri --remove-resources {xml_file} {json_file}".split()
+    args = f"id2iri --remove-resources {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=xml_file,
-        json_file=json_file,
+        xml_file=DATA_XML_PATH,
+        json_file=ID_2_IRI_JSON_PATH,
         remove_resource_if_id_in_mapping=True,
     )
 
@@ -872,7 +836,7 @@ def test_stop_stack(stop_stack: Mock) -> None:
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
-    args = "xmlupload --user=testuser data.xml".split()
+    args = f"xmlupload --user=testuser {DATA_XML_PATH}".split()
     entry_point.run(args)
     check_version.assert_called_once()
     xmlupload.assert_called_once()
@@ -882,7 +846,7 @@ def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
-    args = "xmlupload --suppress-update-prompt --user=testuser data.xml".split()
+    args = f"xmlupload --suppress-update-prompt --user=testuser {DATA_XML_PATH}".split()
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()
@@ -892,7 +856,7 @@ def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock, c
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
-    args = "xmlupload --user=testuser --suppress-update-prompt data.xml".split()
+    args = f"xmlupload --user=testuser --suppress-update-prompt {DATA_XML_PATH}".split()
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()
@@ -902,7 +866,7 @@ def test_suppress_update_prompt_middle(check_version: Mock, xmlupload: Mock, che
 @patch("dsp_tools.cli.call_action.xmlupload")
 @patch("dsp_tools.cli.entry_point._check_version")
 def test_suppress_update_prompt_rightmost(check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
-    args = "xmlupload --user=testuser data.xml --suppress-update-prompt".split()
+    args = f"xmlupload --user=testuser {DATA_XML_PATH} --suppress-update-prompt".split()
     entry_point.run(args)
     check_version.assert_not_called()
     xmlupload.assert_called_once()

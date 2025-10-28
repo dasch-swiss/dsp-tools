@@ -1,5 +1,3 @@
-from dsp_tools.clients.metadata_client import MetadataClient
-from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
@@ -10,6 +8,7 @@ from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.data_formats.date_util import is_full_date
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
+from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.data_formats.shared import check_notna
 from dsp_tools.utils.rdflib_utils import serialise_json
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_emit_user_message
@@ -36,9 +35,8 @@ XmllibInternalError()
 XmllibFileNotFoundError()
 
 serialise_json()
-from_dsp_iri_to_prefixed_iri()
 
 UnexpectedApiResponseError()
 
-MetadataClient().get_resource_metadata()
-MetadataClientLive.get_resource_metadata()
+from_dsp_iri_to_prefixed_iri()
+make_dsp_ontology_prefix()

@@ -19,3 +19,12 @@ def from_dsp_iri_to_prefixed_iri(iri: str) -> str:
     if not (found := regex.search(dsp_iri_re, iri)):
         return iri
     return f"{found.group(1)}:{found.group(2)}"
+
+
+def make_dsp_ontology_prefix(api_url: str, shortcode: str, onto_name: str) -> str:
+    api_fixed = convert_api_url_for_correct_iri_namespace_construction(api_url)
+    return f"{api_fixed}/ontology/{shortcode}/{onto_name}/v2#"
+
+
+def convert_api_url_for_correct_iri_namespace_construction(api_url: str) -> str:
+    return regex.sub(r"^https", "http", api_url)

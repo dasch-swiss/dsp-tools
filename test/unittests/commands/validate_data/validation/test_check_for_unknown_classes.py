@@ -37,7 +37,12 @@ def _get_rdf_graphs(data_graph: Graph) -> RDFGraphs:
     knora_subset = Graph()
     knora_subset.parse("testdata/validate-data/knora-api-subset.ttl")
     return RDFGraphs(
-        data=data_graph, ontos=onto_g, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=knora_subset
+        data=data_graph,
+        ontos=onto_g,
+        cardinality_shapes=Graph(),
+        content_shapes=Graph(),
+        knora_api=knora_subset,
+        resources_in_db_graph=Graph(),
     )
 
 

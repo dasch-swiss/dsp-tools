@@ -245,7 +245,9 @@ def _add_ingest_xmlupload(
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
         action="store_true",
-        help="do not request resource information from the db to include in validation",
+        help=(
+            "Do not request IRIs of existing resources from the db (references to existing resources won't be checked)"
+        ),
     )
 
 
@@ -287,7 +289,9 @@ def _add_xmlupload(
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
         action="store_true",
-        help="do not request resource information from the db to include in validation",
+        help=(
+            "Do not request IRIs of existing resources from the db (references to existing resources won't be checked)"
+        ),
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
@@ -322,7 +326,9 @@ def _add_validate_data(
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
         action="store_true",
-        help="do not request resource information from the db to include in validation",
+        help=(
+            "Do not request IRIs of existing resources from the db (references to existing resources won't be checked)"
+        ),
     )
     subparser.add_argument(
         "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."

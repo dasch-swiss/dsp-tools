@@ -77,6 +77,14 @@ class UserFilepathNotFoundError(InputError):
         super().__init__(msg)
 
 
+class UserDirectoryNotFoundError(InputError):
+    """This error is raised if a directory from the user does not exist."""
+
+    def __init__(self, directory: str | Path) -> None:
+        msg = f"The provided directory does not exist: {directory}"
+        super().__init__(msg)
+
+
 class JSONFileParsingError(InputError):
     """This error should be raised if the user provided input file cannot be parsed."""
 

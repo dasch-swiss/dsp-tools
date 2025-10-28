@@ -69,9 +69,10 @@ darglint:
 
 
 # Check that there are no dead links in the docs
+# links to w3.org are ignored, because for unknown reasons, they are always reported as invalid
 [no-exit-message]
 check-links:
-    markdown-link-validator ./docs -i ./assets/.+
+    markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/
 
 
 # Check the docs for ambiguous Markdown syntax that could be wrongly rendered
@@ -83,7 +84,6 @@ markdownlint:
     ghcr.io/igorshubovych/markdownlint-cli:v0.45.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
-    --ignore README.md \
     "**/*.md"
 
 

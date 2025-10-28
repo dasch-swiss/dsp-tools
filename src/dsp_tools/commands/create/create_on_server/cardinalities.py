@@ -5,7 +5,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType

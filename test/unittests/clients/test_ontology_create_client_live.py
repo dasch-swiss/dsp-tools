@@ -12,8 +12,8 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
-from dsp_tools.clients.ontology_clients_live import _parse_last_modification_date
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import UnexpectedApiResponseError

@@ -1,4 +1,4 @@
-from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import UnexpectedApiResponseError

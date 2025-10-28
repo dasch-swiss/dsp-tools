@@ -13,7 +13,7 @@ from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.clients.ontology_clients import OntologyGetClient
-from dsp_tools.clients.ontology_clients_live import OntologyGetClientLive
+from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup

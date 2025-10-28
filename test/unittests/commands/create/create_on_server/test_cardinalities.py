@@ -6,7 +6,7 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality

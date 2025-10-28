@@ -7,7 +7,7 @@ from loguru import logger
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.ontology_clients_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology

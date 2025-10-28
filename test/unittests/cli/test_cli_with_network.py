@@ -277,7 +277,7 @@ class TestXmlupload:
 
     @patch("dsp_tools.cli.utils.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
-    def test_xmlupload_do_not_request_resource_metadata_from_db(xmlupload: Mock, check_docker: Mock) -> None:
+    def test_xmlupload_do_not_request_resource_metadata_from_db(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",

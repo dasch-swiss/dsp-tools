@@ -8,10 +8,9 @@ from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client_live import ListGetClientLive
-from dsp_tools.clients.metadata_client import MetadataRetrieval
+from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
 from dsp_tools.clients.ontology_clients import OntologyGetClient
 from dsp_tools.clients.ontology_clients_live import OntologyGetClientLive

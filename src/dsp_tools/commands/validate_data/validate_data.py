@@ -108,7 +108,7 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
-    rdf_graphs, used_iris, metadata_retrieval_success = prepare_data_for_validation_from_parsed_resource(
+    rdf_graphs, used_iris, existing_resources_retrieved = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,
         permission_ids=permission_ids,
@@ -117,7 +117,7 @@ def validate_parsed_resources(
         do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
     )
     validation_result = _validate_data(
-        rdf_graphs, used_iris, parsed_resources, config, shortcode, metadata_retrieval_success
+        rdf_graphs, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
     )
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
@@ -150,7 +150,7 @@ def _validate_data(
     parsed_resources: list[ParsedResource],
     config: ValidateDataConfig,
     shortcode: str,
-    metadata_retrieval_success: ExistingResourcesRetrieved,
+    existing_resources_retrieved: ExistingResourcesRetrieved,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
     # Check if unknown classes are used
@@ -179,7 +179,7 @@ def _validate_data(
             )
             return ValidateDataResult(False, sorted_problems, report)
     reformatted = reformat_validation_graph(report)
-    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, metadata_retrieval_success)
+    sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, existing_resources_retrieved)
     return ValidateDataResult(False, sorted_problems, report)
 
 

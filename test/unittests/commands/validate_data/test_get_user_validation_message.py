@@ -216,7 +216,7 @@ class TestSortUserProblems:
             ),
             duplicate_file_warnings=DuplicateFileWarning([duplicate_file]),
             shortcode="9999",
-            metadata_success=METADATA_RETRIEVAL_SUCCESS,
+            existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
         )
         unique_violations_expected = {
             "res_id",
@@ -257,7 +257,7 @@ class TestSortUserProblems:
             ),
             duplicate_file_warnings=None,
             shortcode="9999",
-            metadata_success=METADATA_RETRIEVAL_SUCCESS,
+            existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
         )
         assert len(result.unique_violations) == 3
         assert not result.user_info
@@ -285,7 +285,7 @@ class TestSortUserProblems:
             AllProblems([one, two], []),
             duplicate_file_warnings=None,
             shortcode="9999",
-            metadata_success=METADATA_RETRIEVAL_SUCCESS,
+            existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
         )
         assert len(result.unique_violations) == 2
         assert not result.user_info
@@ -314,7 +314,7 @@ def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_f
         AllProblems([inexistent_linked_resource, references_iri_of_another_project, references_iri], []),
         duplicate_file_warnings=None,
         shortcode="9999",
-        metadata_success=ExistingResourcesRetrieved.FALSE,
+        existing_resources_retrieved=ExistingResourcesRetrieved.FALSE,
     )
     assert len(result.unique_violations) == 2
     assert len(result.user_warnings) == 0
@@ -350,7 +350,7 @@ def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_s
         AllProblems([inexistent_linked_resource, references_iri_of_another_project, references_iri], []),
         duplicate_file_warnings=None,
         shortcode="9999",
-        metadata_success=METADATA_RETRIEVAL_SUCCESS,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
     )
     assert len(result.unique_violations) == 3
     assert len(result.user_warnings) == 0

@@ -24,10 +24,10 @@ def sort_user_problems(
     all_problems: AllProblems,
     duplicate_file_warnings: DuplicateFileWarning | None,
     shortcode: str,
-    metadata_success: ExistingResourcesRetrieved,
+    existing_resources_retrieved: ExistingResourcesRetrieved,
 ) -> SortedProblems:
     iris_removed, links_level_info = _separate_resource_links_to_iris_of_own_project(
-        all_problems.problems, shortcode, metadata_success
+        all_problems.problems, shortcode, existing_resources_retrieved
     )
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
@@ -53,7 +53,7 @@ def _separate_according_to_severity(
 
 
 def _separate_resource_links_to_iris_of_own_project(
-    problems: list[InputProblem], shortcode: str, metadata_success: ExistingResourcesRetrieved
+    problems: list[InputProblem], shortcode: str, existing_resources_retrieved: ExistingResourcesRetrieved
 ) -> tuple[list[InputProblem], list[InputProblem]]:
     link_level_info = []
     all_others = []
@@ -61,7 +61,9 @@ def _separate_resource_links_to_iris_of_own_project(
         if prblm.problem_type != ProblemType.INEXISTENT_LINKED_RESOURCE:
             all_others.append(prblm)
         else:
-            is_violation, triaged_problem = _determined_link_value_message_and_level(prblm, shortcode, metadata_success)
+            is_violation, triaged_problem = _determined_link_value_message_and_level(
+                prblm, shortcode, existing_resources_retrieved
+            )
             if is_violation:
                 all_others.append(triaged_problem)
             else:
@@ -70,7 +72,7 @@ def _separate_resource_links_to_iris_of_own_project(
 
 
 def _determined_link_value_message_and_level(
-    problem: InputProblem, shortcode: str, metadata_success: ExistingResourcesRetrieved
+    problem: InputProblem, shortcode: str, existing_resources_retrieved: ExistingResourcesRetrieved
 ) -> tuple[bool, InputProblem]:
     is_violation = True
     resource_iri_start = "http://rdfh.ch/"
@@ -79,7 +81,7 @@ def _determined_link_value_message_and_level(
         return is_violation, problem
     if problem.input_value.startswith(project_resource_iri):
         # case IRI and matches those of the projects itself
-        if metadata_success == ExistingResourcesRetrieved.TRUE:
+        if existing_resources_retrieved == ExistingResourcesRetrieved.TRUE:
             # if metadata was sucessfully retrieved, then the IRI is wrong
             problem.problem_type = ProblemType.LINK_TARGET_NOT_FOUND_IN_DB
             problem.message = (

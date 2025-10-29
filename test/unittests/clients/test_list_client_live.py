@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -199,7 +200,8 @@ class TestListCreateClient:
         call_kwargs = mock_post.call_args[1]
         assert call_kwargs["url"] == f"{list_create_client.api_url}/admin/lists"
         assert call_kwargs["headers"]["Authorization"] == "Bearer test-token-123"
-        assert call_kwargs["json"] == list_info
+        # The data is serialized as bytes, so we need to decode and parse it
+        assert json.loads(call_kwargs["data"]) == list_info
 
     def test_create_new_list_forbidden(self, list_create_client: ListCreateClientLive) -> None:
         list_info = {
@@ -208,6 +210,7 @@ class TestListCreateClient:
             "labels": [{"value": "Test List", "language": "en"}],
         }
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
                 list_create_client.create_new_list(list_info)
@@ -260,7 +263,8 @@ class TestListCreateClient:
         expected_url = f"{list_create_client.api_url}/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F0001%2Fparent-iri"
         assert call_kwargs["url"] == expected_url
         assert call_kwargs["headers"]["Authorization"] == "Bearer test-token-123"
-        assert call_kwargs["json"] == node_info
+        # The data is serialized as bytes, so we need to decode and parse it
+        assert json.loads(call_kwargs["data"]) == node_info
 
     def test_add_list_node_forbidden(self, list_create_client: ListCreateClientLive) -> None:
         node_info = {

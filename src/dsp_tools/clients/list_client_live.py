@@ -15,7 +15,6 @@ from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
@@ -107,7 +106,8 @@ class ListCreateClientLive(ListCreateClient):
                 list_iri = cast(str, result["list"]["listinfo"]["id"])
                 return list_iri
             except (KeyError, ValueError) as e:
-                raise UnexpectedApiResponseError(f"Unexpected response format when creating list: {e}") from None
+                logger.error(f"Unexpected response format when creating list: {e}")
+                return None
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can create lists. "
@@ -136,7 +136,8 @@ class ListCreateClientLive(ListCreateClient):
                 node_iri = cast(str, result["nodeinfo"]["id"])
                 return node_iri
             except (KeyError, ValueError) as e:
-                raise UnexpectedApiResponseError(f"Unexpected response format when creating list: {e}") from None
+                logger.error(f"Unexpected response format when adding node: {e}")
+                return None
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can add nodes to lists. "

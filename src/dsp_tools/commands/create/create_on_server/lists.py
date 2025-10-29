@@ -1,6 +1,7 @@
 from typing import Any
 
 from loguru import logger
+from tqdm import tqdm
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.list_client import ListCreateClient
@@ -16,44 +17,56 @@ from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_lists(
     parsed_lists: list[ParsedList], shortcode: str, auth: AuthenticationClient, project_iri: str
 ) -> tuple[ListNameToIriLookup, CollectedProblems | None]:
+    print("\n" + BOLD + "Processing List Section:" + RESET_TO_DEFAULT)
     name2iri = _get_existing_lists_on_server(shortcode, auth)
+    if not parsed_lists:
+        return name2iri, None
     lists_to_create, existing_info = _filter_out_existing_lists(parsed_lists, name2iri)
     if existing_info:
         _print_existing_list_info(existing_info)
+    if not lists_to_create:
+        msg = "    All lists defined in the project are already on the server."
+        logger.warning(msg)
+        print(BOLD_CYAN + msg + RESET_TO_DEFAULT)
+        return name2iri, None
 
     create_client = ListCreateClientLive(auth.server, auth, project_iri)
+    upload_successes = []
 
     all_problems: list[CreateProblem] = []
-
-    for new_lst in lists_to_create:
+    progress_bar = tqdm(lists_to_create, desc="Create lists", dynamic_ncols=True)
+    for new_lst in progress_bar:
         list_iri, problems = _create_new_list(new_lst, create_client, project_iri)
         if list_iri is None:
             problems.extend(problems)
         else:
             name2iri.add_iri(new_lst.list_info.name, list_iri)
+            upload_successes.append(new_lst.list_info.name)
 
     create_problems = None
     if all_problems:
         create_problems = CollectedProblems("The following problems occurred during list creation:", all_problems)
-    else:
-        msg = "All lists successfully created."
+    if upload_successes:
+        msg = f"    Sucessfully created the following lists: {', '.join(upload_successes)}"
         logger.info(msg)
-        print(msg)
+        print(BOLD_GREEN + msg + RESET_TO_DEFAULT)
     return name2iri, create_problems
 
 
 def _print_existing_list_info(existing_lists: list[UserInformation]) -> None:
     lists = ", ".join([x.focus_object for x in existing_lists])
-    msg = f"The following lists already exist on the server and will be skipped: {lists}"
+    msg = f"    The following lists already exist on the server and will be skipped: {lists}"
     logger.info(msg)
-    print(BACKGROUND_BOLD_CYAN + msg + RESET_TO_DEFAULT)
+    print(BOLD_CYAN + msg + RESET_TO_DEFAULT)
 
 
 def _get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> ListNameToIriLookup:

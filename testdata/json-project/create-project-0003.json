@@ -78,17 +78,6 @@
                         }
                     }
                 ]
-            },
-            {
-                "name": "thirdListNoNodes",
-                "labels": {
-                    "en": "List 3",
-                    "de": "Liste 3"
-                },
-                "comments": {
-                    "en": "This is the third list",
-                    "de": "With two comments"
-                }
             }
         ],
         "ontologies": [

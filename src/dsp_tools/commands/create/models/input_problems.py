@@ -11,6 +11,16 @@ class CollectedProblems:
 
 
 @dataclass
+class UserInformation:
+    focus_object: str
+    msg: UserInformationMessage
+
+
+class UserInformationMessage(StrEnum):
+    LIST_EXISTS_ON_SERVER = "The list already exists on the server, therefore it is skipped entirely."
+
+
+@dataclass
 class CreateProblem:
     problematic_object: str
     problem: ProblemType
@@ -31,3 +41,5 @@ class ProblemType(StrEnum):
     )
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
+    LIST_COULD_NOT_BE_CREATED = "The list could not be created on the server."
+    LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."

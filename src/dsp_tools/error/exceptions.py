@@ -154,3 +154,11 @@ class XmlUploadListNodeNotFoundError(BaseError):
 
 class UnknownDOAPException(BaseError):
     """Class for errors that are raised if a DOAP cannot be parsed"""
+
+
+class CreateError(BaseError):
+    """Errors for the create command."""
+
+
+class ProjectNotFoundError(CreateError):
+    """Class if a project is expected to exist but could not be found."""

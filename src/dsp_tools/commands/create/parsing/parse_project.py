@@ -18,6 +18,18 @@ from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
+def parse_lists_only(
+    project_file_as_path_or_parsed: str | Path | dict[str, Any],
+) -> tuple[ParsedProjectMetadata, list[ParsedList]] | CollectedProblems:
+    complete_json = _parse_and_validate(project_file_as_path_or_parsed)
+    project_json = complete_json["project"]
+    project_metadata = _parse_metadata(project_json)
+    parsed_lists, problems = _parse_lists(project_json)
+    if isinstance(problems, CollectedProblems):
+        return problems
+    return project_metadata, parsed_lists
+
+
 def parse_project(
     project_file_as_path_or_parsed: str | Path | dict[str, Any], api_url: str
 ) -> ParsedProject | list[CollectedProblems]:

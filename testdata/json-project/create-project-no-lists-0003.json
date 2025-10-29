@@ -1,0 +1,54 @@
+{
+    "prefixes": {
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "externalOnto": "http://otherOntology.com/onto/",
+        "dcterms": "http://purl.org/dc/terms/"
+    },
+    "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0003",
+        "shortname": "create",
+        "longname": "Test project for create",
+        "descriptions": {
+            "en": "Test project for create"
+        },
+        "keywords": [
+            "create"
+        ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/cc-by-nc-4.0",
+            "http://rdfh.ch/licenses/unknown",
+            "http://rdfh.ch/licenses/ai-generated"
+        ],
+        "default_permissions": "public",
+        "ontologies": [
+            {
+                "name": "onto",
+                "label": "ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "OneResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "OneResource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

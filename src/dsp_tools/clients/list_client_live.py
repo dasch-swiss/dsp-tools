@@ -6,6 +6,7 @@ from urllib.parse import quote_plus
 
 import requests
 from loguru import logger
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -93,57 +94,43 @@ class ListCreateClientLive(ListCreateClient):
 
     def create_new_list(self, list_info: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/lists"
-        logger.debug(f"POST create new list: {list_info['name']}")
         try:
             headers = self._get_request_header()
             response = _post_and_log_request(url, list_info, headers)
-        except Exception as err:  # noqa: BLE001
-            logger.error(err)
+        except RequestException as err:
+            logger.exception(err)
             return None
         if response.ok:
-            try:
-                result = response.json()
-                list_iri = cast(str, result["list"]["listinfo"]["id"])
-                return list_iri
-            except (KeyError, ValueError) as e:
-                logger.error(f"Unexpected response format when creating list: {e}")
-                return None
+            result = response.json()
+            list_iri = cast(str, result["list"]["listinfo"]["id"])
+            return list_iri
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can create lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.error(
-            f"Failed to create list '{list_info.get('name', 'unnamed')}': "
-            f"Status {response.status_code}, {response.text}"
-        )
+        logger.exception(f"Failed to create list: '{list_info['name']}'")
         return None
 
     def add_list_node(self, node_info: dict[str, Any], parent_iri: str) -> str | None:
         encoded_parent_iri = quote_plus(parent_iri)
         url = f"{self.api_url}/admin/lists/{encoded_parent_iri}"
-        logger.debug(f"POST add list node: {node_info['name']} to parent {parent_iri}")
-
         try:
             headers = self._get_request_header()
             response = _post_and_log_request(url, node_info, headers)
-        except Exception as err:  # noqa: BLE001
+        except RequestException as err:
             logger.error(err)
             return None
         if response.ok:
-            try:
-                result = response.json()
-                node_iri = cast(str, result["nodeinfo"]["id"])
-                return node_iri
-            except (KeyError, ValueError) as e:
-                logger.error(f"Unexpected response format when adding node: {e}")
-                return None
+            result = response.json()
+            node_iri = cast(str, result["nodeinfo"]["id"])
+            return node_iri
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can add nodes to lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.error(f"Failed to add node '{node_info['name']}': Status {response.status_code}, {response.text}")
+        logger.error(f"Failed to add node: '{node_info['name']}'")
         return None
 
     def _get_request_header(self) -> dict[str, str]:

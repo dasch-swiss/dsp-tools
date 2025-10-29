@@ -171,6 +171,22 @@ class TestListClient:
         extracted = list_client._extract_list_iris(response_all_list_one_project_no_lists)
         assert not extracted
 
+    def test_reformat_one_list(self, list_client: ListGetClientLive, response_one_list: dict[str, Any]) -> None:
+        reformatted = list_client._reformat_one_list(response_one_list)
+        sorted_nodes = sorted(reformatted.nodes, key=lambda x: x.name)
+        assert reformatted.list_iri == "http://rdfh.ch/lists/9999/list1"
+        assert reformatted.list_name == "firstList"
+        names = [x.name for x in sorted_nodes]
+        assert names == ["n1", "n1.1", "n1.1.1", "n1.1.2"]
+        expected_iris = [
+            "http://rdfh.ch/lists/9999/n1",
+            "http://rdfh.ch/lists/9999/n11",
+            "http://rdfh.ch/lists/9999/n111",
+            "http://rdfh.ch/lists/9999/n112",
+        ]
+        iris = [x.iri for x in sorted_nodes]
+        assert iris == expected_iris
+
 
 class TestListCreateClient:
     def test_create_new_list_success(self, list_create_client: ListCreateClientLive) -> None:
@@ -221,18 +237,6 @@ class TestListCreateClient:
             "labels": [{"value": "Test List", "language": "en"}],
         }
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            result = list_create_client.create_new_list(list_info)
-        assert result is None
-
-    def test_create_new_list_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
-        list_info = {
-            "projectIri": PROJECT_IRI,
-            "name": "test-list",
-            "labels": [{"value": "Test List", "language": "en"}],
-        }
-        mock_response = Mock(status_code=200, ok=True, headers={})
-        mock_response.json.return_value = {"unexpected": "structure"}
-        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             result = list_create_client.create_new_list(list_info)
         assert result is None
 
@@ -298,19 +302,6 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
-        assert result is None
-
-    def test_add_list_node_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
-        node_info = {
-            "parentNodeIri": PARENT_NODE_IRI,
-            "projectIri": PROJECT_IRI,
-            "name": "test-node",
-            "labels": [{"value": "Test Node", "language": "en"}],
-        }
-        mock_response = Mock(status_code=200, ok=True, headers={})
-        mock_response.json.return_value = {"unexpected": "structure"}
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
         assert result is None

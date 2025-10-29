@@ -8,6 +8,7 @@ from dsp_tools.clients.project_client import ProjectInfoClient
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
@@ -20,6 +21,7 @@ class ProjectInfoClientLive(ProjectInfoClient):
         params = RequestParameters("GET", url, timeout)
         log_request(params)
         response = requests.get(url, timeout=timeout)
+        log_response(response)
         if response.ok:
             result = response.json()
             return cast(str, result["project"]["id"])

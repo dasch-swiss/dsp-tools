@@ -1,12 +1,15 @@
 from typing import Any
 
+from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 
 
-def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList]:
-    return [_parse_one_list(one_list) for one_list in lists]
+def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList] | CollectedProblems:
+    list_section = [_parse_one_list(one_list) for one_list in lists]
 
 
 def _parse_one_list(one_list: dict[str, Any]) -> ParsedList:

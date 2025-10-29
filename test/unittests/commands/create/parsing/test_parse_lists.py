@@ -46,7 +46,6 @@ def node_no_comments() -> dict[str, Any]:
     return {
         "name": "node_no_comments",
         "labels": {"en": "List 2", "de": "Liste 2"},
-        "comments": {"en": "This a list", "de": "With two comments"},
     }
 
 
@@ -73,9 +72,34 @@ def test_parse_node_info_no_comments(node_no_comments):
 
 def test_parse_one_list_many_children(list_many_children):
     result = _parse_one_list(list_many_children)
-    # TODO: make assertions
+    # Check list info
+    assert result.list_info.name == "firstList"
+    assert result.list_info.labels == {"en": "List 1"}
+    assert result.list_info.comments == {"en": "This is the first list"}
+    # Check top-level children
+    assert len(result.children) == 2
+    assert result.children[0].node_info.name == "l1_n1"
+    assert result.children[0].node_info.labels == {"en": "Node 1"}
+    assert result.children[1].node_info.name == "l1_n2"
+    assert result.children[1].node_info.labels == {"en": "Node 2"}
+    # Check nested children
+    assert len(result.children[0].children) == 1
+    assert result.children[0].children[0].node_info.name == "l1_n1_1"
+    assert result.children[0].children[0].node_info.labels == {"en": "Node 1.1"}
+    # Check deeply nested children
+    assert len(result.children[0].children[0].children) == 1
+    assert result.children[0].children[0].children[0].node_info.name == "l1_n1_1_1"
+    assert result.children[0].children[0].children[0].node_info.labels == {"en": "Node 1.1.1"}
+    # Check leaf nodes have no children
+    assert len(result.children[0].children[0].children[0].children) == 0
+    assert len(result.children[1].children) == 0
 
 
 def test_parse_one_list_no_children(list_no_children):
     result = _parse_one_list(list_no_children)
-    # TODO: make assertions
+    # Check list info
+    assert result.list_info.name == "ListNoNodes"
+    assert result.list_info.labels == {"en": "List 2", "de": "Liste 2"}
+    assert result.list_info.comments == {"en": "This a list", "de": "With two comments"}
+    # Check that there are no children
+    assert len(result.children) == 0

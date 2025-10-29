@@ -11,6 +11,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -82,7 +83,7 @@ def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
 def _parse_lists(project_json: dict[str, Any]) -> list[ParsedList]:
     if not (found := project_json.get("lists")):
         return []
-    return [ParsedList(x["name"], x) for x in found]
+    return parse_list_section(found)
 
 
 def _parse_all_ontologies(

@@ -102,7 +102,7 @@ class TestParseLists:
 
     def test_parse_lists_with_lists(self, project_json_create):
         result = _parse_lists(project_json_create["project"])
-        assert len(result) == 2
+        assert len(result) == 3
 
 
 class TestParseAllOntologies:

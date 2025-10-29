@@ -19,7 +19,6 @@ from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
-from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
@@ -34,13 +33,12 @@ def create_lists(
     if existing_info:
         _print_existing_list_info(existing_info)
     if not lists_to_create:
-        msg = "    All lists defined in the project are already on the server."
+        msg = "    All lists defined in the project are already on the server, no lists were uploaded."
         logger.warning(msg)
         print(BOLD_CYAN + msg + RESET_TO_DEFAULT)
         return name2iri, None
 
     create_client = ListCreateClientLive(auth.server, auth, project_iri)
-    upload_successes = []
 
     all_problems: list[CreateProblem] = []
     progress_bar = tqdm(lists_to_create, desc="    Creating lists", dynamic_ncols=True)
@@ -50,15 +48,10 @@ def create_lists(
             problems.extend(problems)
         else:
             name2iri.add_iri(new_lst.list_info.name, list_iri)
-            upload_successes.append(new_lst.list_info.name)
 
     create_problems = None
     if all_problems:
         create_problems = CollectedProblems("The following problems occurred during list creation:", all_problems)
-    if upload_successes:
-        msg = f"    Sucessfully created the following lists: {', '.join(upload_successes)}"
-        logger.info(msg)
-        print(BOLD_GREEN + msg + RESET_TO_DEFAULT)
     return name2iri, create_problems
 
 

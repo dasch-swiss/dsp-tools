@@ -113,7 +113,7 @@ def _create_node_tree(
 
     for node in nodes:
         serialised = _serialise_node(node.node_info, parent_iri, project_iri)
-        node_iri = create_client.add_list_node(serialised)
+        node_iri = create_client.add_list_node(serialised, parent_iri)
         if node_iri is None:
             problems.append(UploadProblem(node.node_info.name, ProblemType.LIST_NODE_COULD_NOT_BE_CREATED))
             continue

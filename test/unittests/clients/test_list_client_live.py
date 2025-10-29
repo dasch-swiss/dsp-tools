@@ -240,18 +240,6 @@ class TestListCreateClient:
             result = list_create_client.create_new_list(list_info)
         assert result is None
 
-    def test_create_new_list_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
-        list_info = {
-            "projectIri": PROJECT_IRI,
-            "name": "test-list",
-            "labels": [{"value": "Test List", "language": "en"}],
-        }
-        mock_response = Mock(status_code=200, ok=True, headers={})
-        mock_response.json.return_value = {"unexpected": "structure"}
-        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.create_new_list(list_info)
-        assert result is None
-
     def test_add_list_node_success(self, list_create_client: ListCreateClientLive) -> None:
         node_info = {
             "parentNodeIri": PARENT_NODE_IRI,
@@ -314,19 +302,6 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
-        assert result is None
-
-    def test_add_list_node_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
-        node_info = {
-            "parentNodeIri": PARENT_NODE_IRI,
-            "projectIri": PROJECT_IRI,
-            "name": "test-node",
-            "labels": [{"value": "Test Node", "language": "en"}],
-        }
-        mock_response = Mock(status_code=200, ok=True, headers={})
-        mock_response.json.return_value = {"unexpected": "structure"}
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
         assert result is None

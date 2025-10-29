@@ -43,7 +43,7 @@ def create_lists(
     upload_successes = []
 
     all_problems: list[CreateProblem] = []
-    progress_bar = tqdm(lists_to_create, desc="Create lists", dynamic_ncols=True)
+    progress_bar = tqdm(lists_to_create, desc="    Creating lists", dynamic_ncols=True)
     for new_lst in progress_bar:
         list_iri, problems = _create_new_list(new_lst, create_client, project_iri)
         if list_iri is None:

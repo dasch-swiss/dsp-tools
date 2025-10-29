@@ -16,9 +16,9 @@ class ProjectInfoClientLive(ProjectInfoClient):
     def get_project_iri(self, shortcode: str) -> str | None:
         url = f"{self.api_url}/admin/projects/shortcode/{shortcode}"
         timeout = 30
-        params = RequestParameters("POST", url, timeout)
+        params = RequestParameters("GET", url, timeout)
         log_request(params)
-        response = requests.post(url, timeout=timeout)
+        response = requests.get(url, timeout=timeout)
         if response.ok:
             result = response.json()
             return result["project"]["id"]

@@ -187,7 +187,7 @@ def call_create(args: argparse.Namespace) -> bool:
             success = validate_lists_section_with_schema(args.project_definition)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
-            _, success = create_lists_only(
+            success = create_lists_only(
                 project_file_as_path_or_parsed=args.project_definition,
                 creds=get_creds(args),
             )

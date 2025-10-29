@@ -40,21 +40,21 @@ def _create_lists_only(_create_project_0003: None, creds: ServerCredentials) -> 
 
 
 @pytest.fixture(scope="module")
-def _get_created_lists(_create_lists_only, creds: ServerCredentials) -> dict[str, Any]:
+def created_lists(_create_lists_only: None, creds: ServerCredentials) -> list[dict[str, Any]]:
     url = f"{creds.server}/admin/lists?projectShortcode=0003"
     response = requests.get(url, timeout=10)
     assert response.status_code == 200, f"Failed to get lists: {response.status_code} {response.text}"
-    return response.json()
+    data = response.json()
+    assert "lists" in data, f"Response missing 'lists' key: {data}"
+    return data["lists"]
 
 
-def test_all_lists_created(_get_created_lists):
-    assert "lists" in _get_created_lists, f"Response missing 'lists' key: {_get_created_lists}"
-    lists = _get_created_lists["lists"]
-    assert len(lists) == 2, f"Expected 2 lists but got {len(lists)}: {lists}"
+def test_all_lists_created(created_lists):
+    assert len(created_lists) == 2, f"Expected 2 lists but got {len(created_lists)}: {created_lists}"
 
 
-def test_list_one(_get_created_lists, creds):
-    lists = sorted(_get_created_lists, key=lambda x: x["name"])
+def test_list_one(created_lists, creds):
+    lists = sorted(created_lists, key=lambda x: x["name"])
     first_list = lists[0]
     assert first_list["name"] == "firstList", f"Expected 'firstList' but got '{first_list['name']}'"
     assert "id" in first_list, f"List missing 'id': {first_list}"
@@ -90,8 +90,9 @@ def test_list_one(_get_created_lists, creds):
         assert node["id"], f"Node has empty 'id': {node}"
 
 
-def test_list_two(_get_created_lists, creds) -> None:
-    second_list = _get_created_lists[1]
+def test_list_two(created_lists, creds) -> None:
+    lists = sorted(created_lists, key=lambda x: x["name"])
+    second_list = lists[1]
     assert second_list["name"] == "secondList", f"Expected 'secondList' but got '{second_list['name']}'"
     assert "id" in second_list, f"List missing 'id': {second_list}"
     second_list_iri = second_list["id"]

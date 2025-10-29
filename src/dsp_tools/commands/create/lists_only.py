@@ -11,7 +11,7 @@ from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.parsing.parse_project import parse_lists_only
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
@@ -25,7 +25,7 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
     if not parsed_lists:
         msg = "Your file did not contain any lists, therefore no lists were created on the server."
         logger.info(msg)
-        print(BACKGROUND_BOLD_CYAN + msg + RESET_TO_DEFAULT)
+        print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
         return True
 
     project_info = ProjectInfoClientLive(creds.server)

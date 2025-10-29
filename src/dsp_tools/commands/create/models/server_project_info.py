@@ -30,12 +30,13 @@ class CreatedIriCollection:
 class ListNameToIriLookup:
     name2iri: dict[str, str]
 
+    def check_list_exists(self, name: str) -> bool:
+        return name in self.name2iri.keys()
+
     def add_iri(self, name: str, iri: str) -> None:
-        if name in self.name2iri.keys():
+        if self.check_list_exists(name):
             raise InternalError(f"List with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
 
     def get_iri(self, name: str) -> str | None:
         return self.name2iri.get(name)
-
-

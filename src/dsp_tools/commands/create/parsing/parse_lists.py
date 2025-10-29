@@ -10,6 +10,18 @@ from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 
 def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList] | CollectedProblems:
     list_section = [_parse_one_list(one_list) for one_list in lists]
+    list_names = [parsed_list.list_info.name for parsed_list in list_section]
+    seen = set()
+    duplicates = set()
+    for name in list_names:
+        if name in seen:
+            duplicates.add(name)
+        else:
+            seen.add(name)
+    if duplicates:
+        problems = [InputProblem(problematic_object=name, problem=ProblemType.DUPLICATE_LIST_NAME) for name in duplicates]
+        return CollectedProblems(header="The following problems were found in the list section:", problems=problems)
+    return list_section
 
 
 def _parse_one_list(one_list: dict[str, Any]) -> ParsedList:

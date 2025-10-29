@@ -30,4 +30,4 @@ class ProblemType(StrEnum):
         "nor does it belong to one of the project ontologies."
     )
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
-    DUPLICATE_LIST_NAME = "You have lists in your project with the same name, his is not permitted."
+    DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."

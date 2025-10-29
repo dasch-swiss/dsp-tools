@@ -92,6 +92,10 @@ DSP-TOOLS provides the following functionalities:
 - **E2E tests (with testcontainers)**: `just e2e-tests` or `pytest -n=auto --dist=loadfile test/e2e/`
 - **Legacy E2E tests (requires running DSP stack)**: `just legacy-e2e-tests`
 - **Run specific test**: `pytest test/path/to/test.py::TestClass::test_method`
+- **Assertion format**: Use simple assertions without custom error messages.
+  Pytest provides clear output on failure without custom messages.
+    - **Correct**: `assert "id" in second_list_all_nodes[0]`
+    - **Incorrect**: `assert "id" in second_list_all_nodes[0], f"Node missing 'id': {second_list_all_nodes[0]}"`
 
 ### Development Utilities
 

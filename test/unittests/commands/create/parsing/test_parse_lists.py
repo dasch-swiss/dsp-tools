@@ -35,11 +35,12 @@ def list_many_children() -> dict[str, Any]:
 
 
 @pytest.fixture
-def list_no_children() -> dict[str, Any]:
+def list_one_child() -> dict[str, Any]:
     return {
-        "name": "ListNoNodes",
-        "labels": {"en": "List 2", "de": "Liste 2"},
-        "comments": {"en": "This a list", "de": "With two comments"},
+        "name": "secondList",
+        "labels": {"en": "List 2"},
+        "comments": {"en": "This is the second list"},
+        "nodes": [{"name": "l2_n1", "labels": {"en": "Node 1"}}],
     }
 
 
@@ -51,12 +52,12 @@ def node_no_comments() -> dict[str, Any]:
     }
 
 
-def test_parse_list_section(list_many_children, list_no_children):
-    result = parse_list_section([list_no_children, list_many_children])
+def test_parse_list_section(list_many_children, list_one_child):
+    result = parse_list_section([list_one_child, list_many_children])
     assert isinstance(result, list)
     assert len(result) == 2
     list_names = {x.list_info.name for x in result}
-    assert list_names == {"firstList", "ListNoNodes"}
+    assert list_names == {"firstList", "secondList"}
 
 
 def test_parse_list_section_identical_node_names(node_no_comments):
@@ -68,11 +69,11 @@ def test_parse_list_section_identical_node_names(node_no_comments):
     assert prblm.problem == ProblemType.DUPLICATE_LIST_NAME
 
 
-def test_parse_node_info(list_no_children):
-    result = _parse_node_info(list_no_children)
-    assert result.name == "ListNoNodes"
-    assert result.labels == list_no_children["labels"]
-    assert result.comments == list_no_children["comments"]
+def test_parse_node_info(list_many_children):
+    result = _parse_node_info(list_many_children)
+    assert result.name == "firstList"
+    assert result.labels == list_many_children["labels"]
+    assert result.comments == list_many_children["comments"]
 
 
 def test_parse_node_info_no_comments(node_no_comments):
@@ -107,11 +108,3 @@ def test_parse_one_list_many_children(list_many_children):
 
     assert len(l1_n1_1_1.children) == 0
     assert len(l1_n2.children) == 0
-
-
-def test_parse_one_list_no_children(list_no_children):
-    result = _parse_one_list(list_no_children)
-    assert result.list_info.name == "ListNoNodes"
-    assert result.list_info.labels == {"en": "List 2", "de": "Liste 2"}
-    assert result.list_info.comments == {"en": "This a list", "de": "With two comments"}
-    assert len(result.children) == 0

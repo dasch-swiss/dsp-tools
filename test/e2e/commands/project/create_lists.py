@@ -40,7 +40,7 @@ def _create_lists_only(_create_project_0003: None, creds: ServerCredentials) -> 
 
 
 @pytest.fixture(scope="module")
-def _get_created_lists(_create_lists_only, creds: ServerCredentials):
+def _get_created_lists(_create_lists_only, creds: ServerCredentials) -> dict[str, Any]:
     url = f"{creds.server}/admin/lists?projectShortcode=0003"
     response = requests.get(url, timeout=10)
     assert response.status_code == 200, f"Failed to get lists: {response.status_code} {response.text}"

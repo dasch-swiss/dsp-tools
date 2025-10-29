@@ -8,12 +8,12 @@ from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import check_network_health
 from dsp_tools.cli.utils import get_creds
+from dsp_tools.commands.create.lists_only import create_lists_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
@@ -187,7 +187,7 @@ def call_create(args: argparse.Namespace) -> bool:
             success = validate_lists_section_with_schema(args.project_definition)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
-            _, success = create_only_lists(
+            _, success = create_lists_only(
                 project_file_as_path_or_parsed=args.project_definition,
                 creds=get_creds(args),
             )

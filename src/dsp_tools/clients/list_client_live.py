@@ -5,6 +5,8 @@ from urllib.parse import quote_plus
 
 import requests
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
@@ -69,3 +71,56 @@ class ListGetClientLive(ListGetClient):
             current_nodes.append(OneNode(child["name"], child["id"]))
             if grand_child := child.get("children"):
                 self._reformat_children(grand_child, current_nodes)
+
+
+@dataclass
+class ListCreateClientLive(ListCreateClient):
+    api_url: str
+    project_iri: str
+    auth: AuthenticationClient
+
+    def create_new_list(self, list_info: dict[str, Any]) -> str | None:
+        # TODO: add project IRI to list_info
+        """Expected response:
+                {
+            "list": {
+                "children": [],
+                "listinfo": {
+                    "comments": [{ "value": "New comment", "language": "en"}],
+                    "id": "http://rdfh.ch/lists/0001/yWQEGXl53Z4C4DYJ-S2c5A",
+                    "isRootNode": true,
+                    "labels": [
+                        {
+                            "value": "New list with IRI",
+                            "language": "en"
+                        }
+                    ],
+                    "name": "a new list",
+                    "projectIri": "http://rdfh.ch/projects/0001"
+                }
+            }
+        }
+        """
+        # we return "id"
+
+    def add_list_node(self, node_info: dict[str, Any]) -> str | None:
+        # TODO: add project IRI to node_info
+        """Expected response:
+
+                {
+            "nodeinfo": {
+                "comments": [],
+                "hasRootNode": "http://rdfh.ch/lists/0001/yWQEGXl53Z4C4DYJ-S2c5A",
+                "id": "http://rdfh.ch/lists/0001/8u37MxBVMbX3XQ8-d31x6w",
+                "labels": [
+                    {
+                        "value": "New List Node",
+                        "language": "en"
+                    }
+                ],
+                "name": "a new child",
+                "position": 1
+            }
+        }
+        """
+        # we return "id"

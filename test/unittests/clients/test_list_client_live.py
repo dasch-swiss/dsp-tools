@@ -14,7 +14,6 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
-
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"
 
 

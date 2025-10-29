@@ -33,19 +33,19 @@
                 },
                 "nodes": [
                     {
-                        "name": "n1",
+                        "name": "l1_n1",
                         "labels": {
                             "en": "Node 1"
                         },
                         "nodes": [
                             {
-                                "name": "n1.1",
+                                "name": "l1_n1_1",
                                 "labels": {
                                     "en": "Node 1.1"
                                 },
                                 "nodes": [
                                     {
-                                        "name": "n1.1.1",
+                                        "name": "l1_n1_1_1",
                                         "labels": {
                                             "en": "Node 1.1.1"
                                         }
@@ -53,6 +53,12 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "name": "l1_n2",
+                        "labels": {
+                            "en": "Node 2"
+                        }
                     }
                 ]
             },
@@ -72,6 +78,17 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "thirdListNoNodes",
+                "labels": {
+                    "en": "List 3",
+                    "de": "Liste 3"
+                },
+                "comments": {
+                    "en": "This is the third list",
+                    "de": "With two comments"
+                }
             }
         ],
         "ontologies": [

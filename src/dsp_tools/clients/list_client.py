@@ -45,5 +45,5 @@ class ListCreateClient(Protocol):
     def create_new_list(self, list_info: dict[str, Any]) -> str | None:
         """Create a new list."""
 
-    def add_list_node(self, node_info: dict[str, Any]) -> str | None:
+    def add_list_node(self, node_info: dict[str, Any], parent_iri: str) -> str | None:
         """Add a list node to an existing list."""

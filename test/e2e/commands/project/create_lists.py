@@ -5,6 +5,7 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.lists_only import create_lists_only
+from dsp_tools.commands.project.create.project_create_all import create_project
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -26,7 +27,12 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 
 @pytest.fixture(scope="module")
-def _create_lists_only(creds: ServerCredentials) -> None:
+def _create_project_0003(creds: ServerCredentials) -> None:
+    assert create_project(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
+
+
+@pytest.fixture(scope="module")
+def _create_lists_only(_create_project_0003, creds: ServerCredentials) -> None:
     assert create_lists_only(Path("testdata/json-project/create-project-0003.json"), creds)
 
 

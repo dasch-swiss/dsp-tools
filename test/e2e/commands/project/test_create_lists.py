@@ -49,6 +49,11 @@ def created_lists(_create_lists_only: None, creds: ServerCredentials) -> list[di
     return data["lists"]
 
 
+@pytest.mark.usefixtures("_create_lists_only")
+def test_do_not_crash_if_lists_exist(creds: ServerCredentials):
+    assert create_lists_only(Path("testdata/json-project/create-project-0003.json"), creds)
+
+
 def test_all_lists_created(created_lists):
     assert len(created_lists) == 2, f"Expected 2 lists but got {len(created_lists)}: {created_lists}"
 

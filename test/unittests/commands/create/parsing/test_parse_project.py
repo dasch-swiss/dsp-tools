@@ -97,12 +97,14 @@ class TestParseUsers:
 
 class TestParseLists:
     def test_parse_lists_empty(self, minimal_project_json):
-        result = _parse_lists(minimal_project_json)
+        result, problems = _parse_lists(minimal_project_json)
         assert len(result) == 0
+        assert not problems
 
     def test_parse_lists_with_lists(self, project_json_create):
-        result = _parse_lists(project_json_create["project"])
+        result, problems = _parse_lists(project_json_create["project"])
         assert len(result) == 3
+        assert not problems
 
 
 class TestParseAllOntologies:

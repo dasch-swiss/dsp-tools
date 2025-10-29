@@ -2,6 +2,7 @@ from collections import Counter
 from typing import Any
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedList
@@ -14,7 +15,7 @@ def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList] | Collec
     list_names = [parsed_list.list_info.name for parsed_list in list_section]
     duplicates = {name for name, count in Counter(list_names).items() if count > 1}
     if duplicates:
-        problems = [
+        problems: list[CreateProblem] = [
             InputProblem(problematic_object=name, problem=ProblemType.DUPLICATE_LIST_NAME) for name in duplicates
         ]
         return CollectedProblems(header="The following problems were found in the list section:", problems=problems)

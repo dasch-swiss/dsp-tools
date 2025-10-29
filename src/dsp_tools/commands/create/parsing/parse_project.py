@@ -29,9 +29,9 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)
-    parsed_lists = _parse_lists(project_json)
-    if isinstance(parsed_lists, CollectedProblems):
-        failures.append(parsed_lists)
+    parsed_lists, problems = _parse_lists(project_json)
+    if isinstance(problems, CollectedProblems):
+        failures.append(problems)
     if failures:
         return failures
     return ParsedProject(
@@ -83,10 +83,13 @@ def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
     return [ParsedUser(x) for x in found]
 
 
-def _parse_lists(project_json: dict[str, Any]) -> list[ParsedList] | CollectedProblems:
+def _parse_lists(project_json: dict[str, Any]) -> tuple[list[ParsedList], CollectedProblems | None]:
     if not (found := project_json.get("lists")):
-        return []
-    return parse_list_section(found)
+        return [], None
+    result = parse_list_section(found)
+    if isinstance(result, CollectedProblems):
+        return [], result
+    return result, None
 
 
 def _parse_all_ontologies(

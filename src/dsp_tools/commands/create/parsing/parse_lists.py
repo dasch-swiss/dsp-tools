@@ -5,7 +5,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 
 
-def parse_list_section(lists: dict[str, Any]) -> list[ParsedList]:
+def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList]:
     pass
 
 

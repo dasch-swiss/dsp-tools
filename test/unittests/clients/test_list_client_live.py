@@ -171,6 +171,22 @@ class TestListClient:
         extracted = list_client._extract_list_iris(response_all_list_one_project_no_lists)
         assert not extracted
 
+    def test_reformat_one_list(self, list_client: ListGetClientLive, response_one_list: dict[str, Any]) -> None:
+        reformatted = list_client._reformat_one_list(response_one_list)
+        sorted_nodes = sorted(reformatted.nodes, key=lambda x: x.name)
+        assert reformatted.list_iri == "http://rdfh.ch/lists/9999/list1"
+        assert reformatted.list_name == "firstList"
+        names = [x.name for x in sorted_nodes]
+        assert names == ["n1", "n1.1", "n1.1.1", "n1.1.2"]
+        expected_iris = [
+            "http://rdfh.ch/lists/9999/n1",
+            "http://rdfh.ch/lists/9999/n11",
+            "http://rdfh.ch/lists/9999/n111",
+            "http://rdfh.ch/lists/9999/n112",
+        ]
+        iris = [x.iri for x in sorted_nodes]
+        assert iris == expected_iris
+
 
 class TestListCreateClient:
     def test_create_new_list_success(self, list_create_client: ListCreateClientLive) -> None:

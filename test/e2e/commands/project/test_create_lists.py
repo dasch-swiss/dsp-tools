@@ -63,18 +63,16 @@ def test_all_lists_created(created_lists):
 def test_list_one(created_lists, creds):
     lists = sorted(created_lists, key=lambda x: x["name"])
     first_list = lists[0]
-    assert first_list["name"] == "firstList", f"Expected 'firstList' but got '{first_list['name']}'"
-    assert "id" in first_list, f"List missing 'id': {first_list}"
+    assert first_list["name"] == "firstList"
+    assert "id" in first_list
     first_list_iri = first_list["id"]
 
     # request all the nodes of the list
     encoded_first_list_iri = quote_plus(first_list_iri)
     first_list_detail_response = requests.get(f"{creds.server}/admin/lists/{encoded_first_list_iri}", timeout=30)
-    assert first_list_detail_response.status_code == 200, (
-        f"Failed to get first list details: {first_list_detail_response.status_code} {first_list_detail_response.text}"
-    )
+    assert first_list_detail_response.status_code == 200
     first_list_detail = first_list_detail_response.json()
-    assert "list" in first_list_detail, f"Response missing 'list' key: {first_list_detail}"
+    assert "list" in first_list_detail
 
     first_list_info = first_list_detail["list"]["listinfo"]
     assert first_list_info["name"] == "firstList"
@@ -82,37 +80,28 @@ def test_list_one(created_lists, creds):
 
     first_list_children = first_list_detail["list"]["children"]
     first_list_all_nodes = _collect_all_nodes(first_list_children)
-    assert len(first_list_all_nodes) == 4, (
-        f"Expected 4 nodes in firstList but got {len(first_list_all_nodes)}: {first_list_all_nodes}"
-    )
+    assert len(first_list_all_nodes) == 4
 
     first_list_node_names = {node["name"] for node in first_list_all_nodes}
     expected_names = {"l1_n1", "l1_n1_1", "l1_n1_1_1", "l1_n2"}
-    assert first_list_node_names == expected_names, (
-        f"Node names don't match. Expected: {expected_names} but got: {first_list_node_names}"
-    )
-
+    assert first_list_node_names == expected_names
     for node in first_list_all_nodes:
-        assert "id" in node, f"Node missing 'id': {node}"
-        assert node["id"], f"Node has empty 'id': {node}"
+        assert node["id"]
 
 
 def test_list_two(created_lists, creds):
     lists = sorted(created_lists, key=lambda x: x["name"])
     second_list = lists[1]
-    assert second_list["name"] == "secondList", f"Expected 'secondList' but got '{second_list['name']}'"
-    assert "id" in second_list, f"List missing 'id': {second_list}"
+    assert second_list["name"] == "secondList"
+    assert "id" in second_list
     second_list_iri = second_list["id"]
 
     # request all the nodes of the list
     encoded_second_list_iri = quote_plus(second_list_iri)
     second_list_detail_response = requests.get(f"{creds.server}/admin/lists/{encoded_second_list_iri}", timeout=30)
-    assert second_list_detail_response.status_code == 200, (
-        f"Failed to get second list details: "
-        f"{second_list_detail_response.status_code} {second_list_detail_response.text}"
-    )
+    assert second_list_detail_response.status_code == 200
     second_list_detail = second_list_detail_response.json()
-    assert "list" in second_list_detail, f"Response missing 'list' key: {second_list_detail}"
+    assert "list" in second_list_detail
 
     second_list_info = second_list_detail["list"]["listinfo"]
     assert second_list_info["name"] == "secondList"
@@ -120,14 +109,10 @@ def test_list_two(created_lists, creds):
 
     second_list_children = second_list_detail["list"]["children"]
     second_list_all_nodes = _collect_all_nodes(second_list_children)
-    assert len(second_list_all_nodes) == 1, (
-        f"Expected 1 node in secondList but got {len(second_list_all_nodes)}: {second_list_all_nodes}"
-    )
+    assert len(second_list_all_nodes) == 1
 
-    assert second_list_all_nodes[0]["name"] == "l2n1", (
-        f"Expected node name 'l2n1' but got '{second_list_all_nodes[0]['name']}'"
-    )
-    assert "id" in second_list_all_nodes[0], f"Node missing 'id': {second_list_all_nodes[0]}"
+    assert second_list_all_nodes[0]["name"] == "l2n1"
+    assert "id" in second_list_all_nodes[0]
 
 
 def _collect_all_nodes(children: list[dict[str, Any]]) -> list[dict[str, Any]]:

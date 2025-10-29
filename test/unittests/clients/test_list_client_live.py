@@ -3,8 +3,13 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+import requests
+from requests import JSONDecodeError
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
 
 
@@ -104,6 +109,20 @@ def list_client(api_url: str) -> ListGetClientLive:
     return ListGetClientLive(api_url, "9999")
 
 
+@pytest.fixture
+def mock_auth() -> Mock:
+    auth = Mock(spec=AuthenticationClient)
+    auth.get_token.return_value = "test-token-123"
+    auth.server = "http://0.0.0.0:3333"
+    return auth
+
+
+@pytest.fixture
+def list_create_client(api_url: str, mock_auth: Mock) -> ListCreateClientLive:
+    project_iri = "http://rdfh.ch/projects/0001"
+    return ListCreateClientLive(api_url=api_url, project_iri=project_iri, auth=mock_auth)
+
+
 class TestListClient:
     def test_get_all_list_iris(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
@@ -164,6 +183,176 @@ class TestListClient:
         ]
         iris = [x.iri for x in sorted_nodes]
         assert iris == expected_iris
+
+
+class TestListCreateClient:
+    def test_create_new_list_success(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {
+            "list": {
+                "children": [],
+                "listinfo": {
+                    "id": "http://rdfh.ch/lists/0001/test-list-iri",
+                    "name": "test-list",
+                    "projectIri": "http://rdfh.ch/projects/0001",
+                    "labels": [{"value": "Test List", "language": "en"}],
+                    "isRootNode": True,
+                },
+            }
+        }
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
+            result = list_create_client.create_new_list(list_info)
+
+        assert result == "http://rdfh.ch/lists/0001/test-list-iri"
+        assert mock_post.call_count == 1
+        call_kwargs = mock_post.call_args[1]
+        assert call_kwargs["url"] == f"{list_create_client.api_url}/admin/lists"
+        assert call_kwargs["headers"]["Authorization"] == "Bearer test-token-123"
+        assert call_kwargs["json"] == list_info
+
+    def test_create_new_list_forbidden(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
+                list_create_client.create_new_list(list_info)
+
+    def test_create_new_list_timeout(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
+            result = list_create_client.create_new_list(list_info)
+
+        assert result is None
+
+    def test_create_new_list_server_error(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            result = list_create_client.create_new_list(list_info)
+
+        assert result is None
+
+    def test_create_new_list_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {"unexpected": "structure"}
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            result = list_create_client.create_new_list(list_info)
+
+        assert result is None
+
+    def test_add_list_node_success(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "parentNodeIri": "http://rdfh.ch/lists/0001/parent-iri",
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {
+            "nodeinfo": {
+                "id": "http://rdfh.ch/lists/0001/test-node-iri",
+                "name": "test-node",
+                "hasRootNode": "http://rdfh.ch/lists/0001/root-iri",
+                "labels": [{"value": "Test Node", "language": "en"}],
+                "position": 1,
+            }
+        }
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
+            result = list_create_client.add_list_node(node_info)
+
+        assert result == "http://rdfh.ch/lists/0001/test-node-iri"
+        assert mock_post.call_count == 1
+        call_kwargs = mock_post.call_args[1]
+        expected_url = f"{list_create_client.api_url}/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F0001%2Fparent-iri"
+        assert call_kwargs["url"] == expected_url
+        assert call_kwargs["headers"]["Authorization"] == "Bearer test-token-123"
+        assert call_kwargs["json"] == node_info
+
+    def test_add_list_node_missing_parent_iri(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        result = list_create_client.add_list_node(node_info)
+        assert result is None
+
+    def test_add_list_node_forbidden(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "parentNodeIri": "http://rdfh.ch/lists/0001/parent-iri",
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
+                list_create_client.add_list_node(node_info)
+
+    def test_add_list_node_timeout(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "parentNodeIri": "http://rdfh.ch/lists/0001/parent-iri",
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
+            result = list_create_client.add_list_node(node_info)
+
+        assert result is None
+
+    def test_add_list_node_server_error(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "parentNodeIri": "http://rdfh.ch/lists/0001/parent-iri",
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            result = list_create_client.add_list_node(node_info)
+
+        assert result is None
+
+    def test_add_list_node_malformed_response(self, list_create_client: ListCreateClientLive) -> None:
+        node_info = {
+            "parentNodeIri": "http://rdfh.ch/lists/0001/parent-iri",
+            "projectIri": "http://rdfh.ch/projects/0001",
+            "name": "test-node",
+            "labels": [{"value": "Test Node", "language": "en"}],
+        }
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {"unexpected": "structure"}
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            result = list_create_client.add_list_node(node_info)
+
+        assert result is None
 
 
 if __name__ == "__main__":

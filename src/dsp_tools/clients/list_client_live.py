@@ -1,19 +1,26 @@
 from dataclasses import dataclass
+from http import HTTPStatus
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
 
 import requests
+from loguru import logger
+from requests import ReadTimeout
+from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
+
+TIMEOUT = 30
 
 
 @dataclass
@@ -86,47 +93,133 @@ class ListCreateClientLive(ListCreateClient):
     auth: AuthenticationClient
 
     def create_new_list(self, list_info: dict[str, Any]) -> str | None:
-        # TODO: add project IRI to list_info
-        """Expected response:
-                {
-            "list": {
-                "children": [],
-                "listinfo": {
-                    "comments": [{ "value": "New comment", "language": "en"}],
-                    "id": "http://rdfh.ch/lists/0001/yWQEGXl53Z4C4DYJ-S2c5A",
-                    "isRootNode": true,
-                    "labels": [
-                        {
-                            "value": "New list with IRI",
-                            "language": "en"
-                        }
-                    ],
-                    "name": "a new list",
-                    "projectIri": "http://rdfh.ch/projects/0001"
-                }
-            }
-        }
         """
-        # we return "id"
+        Create a new list (root node) on the server.
+
+        Args:
+            list_info: Dictionary containing list information with keys:
+                - projectIri: str
+                - name: str
+                - labels: list[dict[str, str]] with "value" and "language" keys
+                - comments: list[dict[str, str]] (optional)
+
+        Returns:
+            The IRI of the newly created list, or None if creation failed.
+
+        Raises:
+            BadCredentialsError: If the user does not have sufficient permissions (HTTP 403).
+        """
+        url = f"{self.api_url}/admin/lists"
+        logger.debug(f"POST create new list: {list_info.get('name', 'unnamed')}")
+
+        try:
+            response = self._post_and_log_request(url, list_info)
+        except (TimeoutError, ReadTimeout) as err:
+            logger.error(f"Timeout while creating list '{list_info.get('name', 'unnamed')}': {err}")
+            return None
+
+        if response.ok:
+            try:
+                result = response.json()
+                list_iri = cast(str, result["list"]["listinfo"]["id"])
+                return list_iri
+            except (KeyError, ValueError) as e:
+                logger.error(f"Unexpected response format when creating list: {e}")
+                return None
+
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a project or system administrator can create lists. "
+                "Your permissions are insufficient for this action."
+            )
+
+        logger.error(
+            f"Failed to create list '{list_info.get('name', 'unnamed')}': "
+            f"Status {response.status_code}, {response.text}"
+        )
+        return None
 
     def add_list_node(self, node_info: dict[str, Any]) -> str | None:
-        # TODO: add project IRI to node_info
-        """Expected response:
-
-                {
-            "nodeinfo": {
-                "comments": [],
-                "hasRootNode": "http://rdfh.ch/lists/0001/yWQEGXl53Z4C4DYJ-S2c5A",
-                "id": "http://rdfh.ch/lists/0001/8u37MxBVMbX3XQ8-d31x6w",
-                "labels": [
-                    {
-                        "value": "New List Node",
-                        "language": "en"
-                    }
-                ],
-                "name": "a new child",
-                "position": 1
-            }
-        }
         """
-        # we return "id"
+        Add a node to an existing list.
+
+        Args:
+            node_info: Dictionary containing node information with keys:
+                - parentNodeIri: str
+                - projectIri: str
+                - name: str
+                - labels: list[dict[str, str]] with "value" and "language" keys
+                - comments: list[dict[str, str]] (optional)
+
+        Returns:
+            The IRI of the newly created node, or None if creation failed.
+
+        Raises:
+            BadCredentialsError: If the user does not have sufficient permissions (HTTP 403).
+        """
+        parent_iri = node_info.get("parentNodeIri")
+        if not parent_iri:
+            logger.error("Cannot add list node: parentNodeIri is missing")
+            return None
+
+        encoded_parent_iri = quote_plus(parent_iri)
+        url = f"{self.api_url}/admin/lists/{encoded_parent_iri}"
+        logger.debug(f"POST add list node: {node_info.get('name', 'unnamed')} to parent {parent_iri}")
+
+        try:
+            response = self._post_and_log_request(url, node_info)
+        except (TimeoutError, ReadTimeout) as err:
+            logger.error(f"Timeout while adding node '{node_info.get('name', 'unnamed')}': {err}")
+            return None
+
+        if response.ok:
+            try:
+                result = response.json()
+                node_iri = cast(str, result["nodeinfo"]["id"])
+                return node_iri
+            except (KeyError, ValueError) as e:
+                logger.error(f"Unexpected response format when adding node: {e}")
+                return None
+
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a project or system administrator can add nodes to lists. "
+                "Your permissions are insufficient for this action."
+            )
+
+        logger.error(
+            f"Failed to add node '{node_info.get('name', 'unnamed')}': Status {response.status_code}, {response.text}"
+        )
+        return None
+
+    def _post_and_log_request(
+        self,
+        url: str,
+        data: dict[str, Any],
+        headers: dict[str, str] | None = None,
+    ) -> Response:
+        """Make a POST request with authentication and logging."""
+        data_dict, generic_headers = self._prepare_request(data, headers)
+        params = RequestParameters("POST", url, TIMEOUT, data_dict, generic_headers)
+        log_request(params)
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            json=params.data,
+            timeout=params.timeout,
+        )
+        log_response(response)
+        return response
+
+    def _prepare_request(
+        self, data: dict[str, Any] | None, headers: dict[str, str] | None
+    ) -> tuple[dict[str, Any] | None, dict[str, str]]:
+        """Prepare request headers with authentication token."""
+        generic_headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        data_dict = data if data else None
+        if headers:
+            generic_headers.update(headers)
+        return data_dict, generic_headers

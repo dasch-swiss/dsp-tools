@@ -134,6 +134,7 @@ def _serialise_node(node_info: ParsedNodeInfo, parent_iri: str, project_iri: str
     }
     if node_info.comments:
         node_dict["comments"] = _convert_to_api_format(node_info.comments)
+    return node_dict
 
 
 def _convert_to_api_format(lang_dict: dict[str, str]) -> list[dict[str, str]]:

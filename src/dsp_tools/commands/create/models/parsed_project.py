@@ -45,5 +45,18 @@ class ParsedUser:
 
 @dataclass
 class ParsedList:
+    list_info: ParsedNodeInfo
+    children: list[ParsedListNode]
+
+
+@dataclass
+class ParsedNodeInfo:
     name: str
-    info: dict[str, Any]
+    labels: dict[str, str]
+    comments: dict[str, str] | None
+
+
+@dataclass
+class ParsedListNode:
+    node_info: ParsedNodeInfo
+    children: list[ParsedListNode]

@@ -36,9 +36,9 @@ class TestCreate:
         validate_lists.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils.check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.create_only_lists")
+    @patch("dsp_tools.cli.call_action_with_network.create_lists_only")
     def test_lists_create(self, create_lists: Mock, check_docker: Mock) -> None:
-        create_lists.return_value = ({}, True)
+        create_lists.return_value = True
         args = f"create --lists-only {PROJECT_JSON_PATH}".split()
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)

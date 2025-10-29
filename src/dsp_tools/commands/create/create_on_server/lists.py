@@ -42,7 +42,10 @@ def create_lists(
     create_problems = None
     if all_problems:
         create_problems = CollectedProblems("The following problems occurred during list creation:", all_problems)
-
+    else:
+        msg = "All lists successfully created."
+        logger.info(msg)
+        print(msg)
     return name2iri, create_problems
 
 

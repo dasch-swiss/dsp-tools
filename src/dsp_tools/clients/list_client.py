@@ -33,6 +33,9 @@ class ListGetClient(Protocol):
     def get_all_lists_and_nodes(self) -> list[OneList]:
         """Get all lists and its nodes from a project."""
 
+    def get_all_list_iris_and_names(self) -> dict[str, str]:
+        """Get all list names and IRIs"""
+
 
 @dataclass
 class ListCreateClient(Protocol):

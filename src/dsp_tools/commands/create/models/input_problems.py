@@ -42,4 +42,7 @@ class ProblemType(StrEnum):
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
     LIST_COULD_NOT_BE_CREATED = "The list could not be created on the server."
-    LIST_NODE_COULD_NOT_BE_CREATED = "The list node and all of its children could not be created on the server."
+    LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."
+    LIST_NODES_SKIPPED_DUE_TO_PARENT_FAILURE = (
+        "These nodes were skipped because their parent node could not be created."
+    )

@@ -29,6 +29,12 @@ class ListGetClientLive(ListGetClient):
         all_lists = [self._get_one_list(iri) for iri in all_iris]
         return [self._reformat_one_list(lst) for lst in all_lists]
 
+    def get_all_list_iris_and_names(self) -> dict[str, str]:
+        response_json = self._get_all_list_iris()
+        iris = self._extract_list_iris(response_json)
+        names = [x["name"] for x in response_json["lists"]]
+        return dict(zip(names, iris))
+
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
         timeout = 10

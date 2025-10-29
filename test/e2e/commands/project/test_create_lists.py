@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -30,17 +32,17 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 
 @pytest.fixture(scope="module")
-def _create_project_0003(creds: ServerCredentials) -> None:
+def _create_project_0003(creds: ServerCredentials):
     assert create_project(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
 
 
 @pytest.fixture(scope="module")
-def _create_lists_only(_create_project_0003: None, creds: ServerCredentials) -> None:
+def _create_lists_only(_create_project_0003: None, creds: ServerCredentials):
     assert create_lists_only(Path("testdata/json-project/create-project-0003.json"), creds)
 
 
 @pytest.fixture(scope="module")
-def created_lists(_create_lists_only: None, creds: ServerCredentials) -> list[dict[str, Any]]:
+def created_lists(_create_lists_only: None, creds: ServerCredentials):
     url = f"{creds.server}/admin/lists?projectShortcode=0003"
     response = requests.get(url, timeout=10)
     assert response.status_code == 200, f"Failed to get lists: {response.status_code} {response.text}"
@@ -95,7 +97,7 @@ def test_list_one(created_lists, creds):
         assert node["id"], f"Node has empty 'id': {node}"
 
 
-def test_list_two(created_lists, creds) -> None:
+def test_list_two(created_lists, creds):
     lists = sorted(created_lists, key=lambda x: x["name"])
     second_list = lists[1]
     assert second_list["name"] == "secondList", f"Expected 'secondList' but got '{second_list['name']}'"

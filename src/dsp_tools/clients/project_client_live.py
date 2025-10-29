@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from http import HTTPStatus
+from typing import cast
 
 import requests
 
@@ -21,7 +22,7 @@ class ProjectInfoClientLive(ProjectInfoClient):
         response = requests.get(url, timeout=timeout)
         if response.ok:
             result = response.json()
-            return result["project"]["id"]
+            return cast(str, result["project"]["id"])
         if response.status_code == HTTPStatus.NOT_FOUND:
             return None
         raise UnexpectedApiResponseError(f"Encountered unexpected API response with the code {response.status_code}")

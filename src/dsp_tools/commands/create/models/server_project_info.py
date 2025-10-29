@@ -13,9 +13,6 @@ class ProjectIriLookup:
     def add_onto(self, name: str, iri: str) -> None:
         self.onto_iris[name] = iri
 
-    def get_onto_iri(self, name: str) -> str | None:
-        return self.onto_iris.get(name)
-
 
 @dataclass
 class CreatedIriCollection:
@@ -37,6 +34,3 @@ class ListNameToIriLookup:
         if self.check_list_exists(name):
             raise InternalError(f"List with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
-
-    def get_iri(self, name: str) -> str | None:
-        return self.name2iri.get(name)

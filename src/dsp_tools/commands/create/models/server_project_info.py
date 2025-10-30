@@ -34,3 +34,6 @@ class ListNameToIriLookup:
         if self.check_list_exists(name):
             raise InternalError(f"List with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
+
+    def get_iri(self, name: str) -> str | None:
+        return self.name2iri.get(name)

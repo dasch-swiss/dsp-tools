@@ -96,7 +96,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     max_file_size_text = "max. multimedia file size allowed for ingest, in MB (default: 2000, max: 100'000)"
     no_prune_text = "don't execute 'docker system prune' (and don't ask)"
     with_test_data_text = "initialise the database with built-in test data"
-    custom_host = "set host to use stack on a server"
+    custom_host = "set a host to an IP or a domain to run the instance on a server"
     subparser = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
     subparser.set_defaults(action="start-stack")
     subparser.add_argument("--max_file_size", type=int, help=max_file_size_text)
@@ -237,10 +237,17 @@ def _add_ingest_xmlupload(
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xml_file", help="path to XML file containing the data")
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
-    subparser.add_argument("--skip-ontology-validation", action="store_true", help="skip the ontology validation")
+    subparser.add_argument(
+        "--skip-ontology-validation",
+        action="store_true",
+        help=(
+            "don't validate the ontology itself, only the data. "
+            "This is intended for projects that are already on the production server"
+        ),
+    )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
     )
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
@@ -268,13 +275,24 @@ def _add_xmlupload(
         "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
     )
     subparser.add_argument(
-        "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
+        "-V", "--validate-only", action="store_true", help="run the XML Schema validation without uploading the XML"
     )
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
-    subparser.add_argument("--skip-ontology-validation", action="store_true", help="skip the ontology validation")
+    subparser.add_argument(
+        "--skip-ontology-validation",
+        action="store_true",
+        help=(
+            "don't validate the ontology itself, only the data. "
+            "This is intended for projects that are already on the production server"
+        ),
+    )
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
-    subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")
+    subparser.add_argument(
+        "--no-iiif-uri-validation",
+        action="store_true",
+        help="don't check if the IIIF links are valid URLs that can be reached online",
+    )
     subparser.add_argument(
         "--ignore-duplicate-files-warning",
         action="store_true",
@@ -283,7 +301,7 @@ def _add_xmlupload(
     subparser.add_argument(
         "--validation-severity",
         choices=["error", "warning", "info"],
-        help="Which severity level of validation message should be printed out",
+        help="Which severity level of validation message should be printed out. Each level of severity includes the higher levels.",
         default="info",
     )
     subparser.add_argument(
@@ -295,7 +313,7 @@ def _add_xmlupload(
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
     )
 
 
@@ -315,13 +333,20 @@ def _add_validate_data(
         action="store_true",
         help="don't check if multimedia files are referenced more than once",
     )
-    subparser.add_argument("--skip-ontology-validation", action="store_true", help="skip the ontology validation")
+    subparser.add_argument(
+        "--skip-ontology-validation",
+        action="store_true",
+        help=(
+            "don't validate the ontology itself, only the data. "
+            "This is intended for projects that are already on the production server"
+        ),
+    )
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file by IRIs provided in this mapping file",
+        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
     )
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
@@ -331,7 +356,9 @@ def _add_validate_data(
         ),
     )
     subparser.add_argument(
-        "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."
+        "--save-graphs",
+        action="store_true",
+        help="Save the data, onto and shacl graph as ttl files. This is primarily intended for development use.",
     )
 
 

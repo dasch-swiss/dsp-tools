@@ -25,7 +25,7 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 def create_lists(
     parsed_lists: list[ParsedList], shortcode: str, auth: AuthenticationClient, project_iri: str
 ) -> tuple[ListNameToIriLookup, CollectedProblems | None]:
-    print("\n" + BOLD + "Processing List Section:" + RESET_TO_DEFAULT)
+    print(BOLD + "Processing list section:" + RESET_TO_DEFAULT)
     name2iri = get_existing_lists_on_server(shortcode, auth)
     if not parsed_lists:
         return name2iri, None

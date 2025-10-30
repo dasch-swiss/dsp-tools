@@ -3,6 +3,7 @@ from typing import Any
 from loguru import logger
 from rdflib import Literal
 from rdflib import URIRef
+from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
@@ -36,25 +37,30 @@ def add_all_cardinalities(
             problems = _add_all_cardinalities_for_one_onto(
                 cardinalities=onto.cardinalities,
                 onto_iri=URIRef(onto_iri),
+                onto_name=onto.name,
                 last_modification_date=last_mod_date,
                 onto_client=onto_client,
                 created_iris=created_iris,
             )
             all_problems.extend(problems)
     if all_problems:
-        return CollectedProblems("During the cardinality creation the following problems occurred:", all_problems)
+        return CollectedProblems("    While adding cardinalities the following problems occurred:", all_problems)
     return None
 
 
 def _add_all_cardinalities_for_one_onto(
     cardinalities: list[ParsedClassCardinalities],
     onto_iri: URIRef,
+    onto_name: str,
     last_modification_date: Literal,
     onto_client: OntologyCreateClient,
     created_iris: CreatedIriCollection,
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
-    for c in cardinalities:
+    progress_bar = tqdm(
+        cardinalities, desc=f"    Adding cardinalities to the ontology '{onto_name}'", dynamic_ncols=True
+    )
+    for c in progress_bar:
         # we do not inform about classes failures here, as it will have been done upstream
         if c.class_iri not in created_iris.classes:
             logger.warning(f"CARDINALITY: Class '{c.class_iri}' not in successes, no cardinalities added.")

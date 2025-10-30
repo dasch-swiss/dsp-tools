@@ -1,6 +1,8 @@
 from loguru import logger
 
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
@@ -11,8 +13,8 @@ def create_default_permissions(
     default_permissions_overrule: dict[str, str | list[str]] | None,
     shortcode: str,
 ) -> bool:
-    logger.info("Set default permissions...")
-    print("Set default permissions...")
+    print(BOLD + "Processing default permissions:" + RESET_TO_DEFAULT)
+    logger.info("Processing default permissions:")
     if not _delete_existing_doaps(perm_client):
         print("    WARNING: Cannot delete the existing default permissions")
         logger.warning("Cannot delete the existing default permissions")
@@ -26,8 +28,8 @@ def create_default_permissions(
             print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
-    logger.info("Default permissions have been set")
     print("    Default permissions have been set")
+    logger.info("Default permissions have been set")
     return True
 
 

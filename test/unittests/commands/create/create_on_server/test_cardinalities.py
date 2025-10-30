@@ -26,6 +26,7 @@ RES_1 = str(ONTO.Resource1)
 RES_2 = str(ONTO.Resource2)
 RES_3 = str(ONTO.Resource3)
 PROP_IRI = ONTO.hasText
+ONTO_NAME = "onto"
 
 NEW_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
 
@@ -237,7 +238,7 @@ class TestAddAllCardinalities:
             )
         ]
         result = _add_all_cardinalities_for_one_onto(
-            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, created_iri_collection
+            cardinalities, ONTO_IRI, ONTO_NAME, LAST_MODIFICATION_DATE, onto_client_ok, created_iri_collection
         )
         assert len(result) == 0
         assert onto_client_ok.post_resource_cardinalities.call_count == 1
@@ -283,7 +284,7 @@ class TestAddAllCardinalities:
             ),
         ]
         result = _add_all_cardinalities_for_one_onto(
-            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+            cardinalities, ONTO_IRI, ONTO_NAME, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
         )
         assert len(result) == 0
         assert mock_client.post_resource_cardinalities.call_count == 3
@@ -329,7 +330,7 @@ class TestAddAllCardinalities:
             ),
         ]
         result = _add_all_cardinalities_for_one_onto(
-            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+            cardinalities, ONTO_IRI, ONTO_NAME, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
         )
         assert len(result) == 1
         assert mock_client.post_resource_cardinalities.call_count == 3
@@ -358,7 +359,7 @@ class TestAddAllCardinalities:
             ),
         ]
         result = _add_all_cardinalities_for_one_onto(
-            cardinalities, ONTO_IRI, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
+            cardinalities, ONTO_IRI, ONTO_NAME, LAST_MODIFICATION_DATE, mock_client, created_iri_collection
         )
         assert len(result) == 0
         assert len(passed_graphs) == 2

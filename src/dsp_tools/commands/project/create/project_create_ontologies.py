@@ -174,12 +174,12 @@ def _create_ontology(
     # skip if it already exists on the DSP server
     if onto_name in [onto.name for onto in project_ontologies]:
         err_msg = f"Ontology '{onto_name}' already exists on the DSP server. Skipping..."
-        print(f"    WARNING: {err_msg}")
+        print(f"WARNING: {err_msg}")
         logger.warning(err_msg)
         return None
 
-    print(f"Create ontology '{onto_name}'...")
-    logger.info(f"Create ontology '{onto_name}'...")
+    print(BOLD + f"Processing ontology '{onto_name}':" + RESET_TO_DEFAULT)
+    logger.info(f"Processing ontology '{onto_name}'")
     ontology_local = Ontology(
         con=con,
         project=project_remote,

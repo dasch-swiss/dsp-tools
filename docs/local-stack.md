@@ -13,8 +13,8 @@ This command runs a local instance of DSP-API and DSP-APP.
 
 !!! note "Login credentials for DSP-APP"
 
-  A system administrator account is automatically created.
-  Use the email `root@example.com` and password `test` to login.
+  To gain system administration rights inside a locally running DSP-APP, 
+  login with username `root@example.com` and password `test`.
 
 
 ```bash

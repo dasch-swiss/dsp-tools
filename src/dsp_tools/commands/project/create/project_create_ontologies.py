@@ -381,8 +381,8 @@ def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
                     f"Unable to create property class '{prop_class['name']}' "
                     f"because the list with the name '{list_name}' does not exist on the server."
                 )
-                print(f"WARNING: {err_msg}")
-                logger.exception(err_msg)
+                print(f"    WARNING: {err_msg}")
+                logger.warning(err_msg)
                 overall_success = False
                 continue
 
@@ -417,7 +417,7 @@ def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
                 err.message,
             ):
                 err_msg += f", because it refers to a class of another project: '{found.group(1)}'."
-            print(f"WARNING: {err_msg}")
+            print(f"    WARNING: {err_msg}")
             logger.exception(err_msg)
             overall_success = False
 

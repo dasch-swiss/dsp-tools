@@ -247,7 +247,10 @@ def _add_ingest_xmlupload(
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
+        help=(
+            "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
+            "by IRIs provided in this mapping file"
+        ),
     )
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",
@@ -301,7 +304,10 @@ def _add_xmlupload(
     subparser.add_argument(
         "--validation-severity",
         choices=["error", "warning", "info"],
-        help="Which severity level of validation message should be printed out. Each level of severity includes the higher levels.",
+        help=(
+            "Which severity level of validation message should be printed out. "
+            "Each level of severity includes the higher levels."
+        ),
         default="info",
     )
     subparser.add_argument(
@@ -313,7 +319,10 @@ def _add_xmlupload(
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
+        help=(
+            "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
+            "by IRIs provided in this mapping file"
+        ),
     )
 
 
@@ -346,7 +355,10 @@ def _add_validate_data(
     )
     subparser.add_argument(
         "--id2iri-replacement-with-file",
-        help="replaces internal IDs of an XML file (links and stand-off links inside richtext) by IRIs provided in this mapping file",
+        help=(
+            "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
+            "by IRIs provided in this mapping file"
+        ),
     )
     subparser.add_argument(
         "--do-not-request-resource-metadata-from-db",

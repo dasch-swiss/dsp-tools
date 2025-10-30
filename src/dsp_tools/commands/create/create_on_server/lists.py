@@ -26,7 +26,7 @@ def create_lists(
     parsed_lists: list[ParsedList], shortcode: str, auth: AuthenticationClient, project_iri: str
 ) -> tuple[ListNameToIriLookup, CollectedProblems | None]:
     print("\n" + BOLD + "Processing List Section:" + RESET_TO_DEFAULT)
-    name2iri = _get_existing_lists_on_server(shortcode, auth)
+    name2iri = get_existing_lists_on_server(shortcode, auth)
     if not parsed_lists:
         return name2iri, None
     lists_to_create, existing_info = _filter_out_existing_lists(parsed_lists, name2iri)
@@ -62,7 +62,7 @@ def _print_existing_list_info(existing_lists: list[UserInformation]) -> None:
     print(BOLD_CYAN + msg + RESET_TO_DEFAULT)
 
 
-def _get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> ListNameToIriLookup:
+def get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> ListNameToIriLookup:
     client = ListGetClientLive(auth.server, shortcode)
     name2iri_dict = client.get_all_list_iris_and_names()
     return ListNameToIriLookup(name2iri_dict)

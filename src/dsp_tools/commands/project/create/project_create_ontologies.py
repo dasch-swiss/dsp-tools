@@ -12,6 +12,7 @@ from dsp_tools.commands.create.communicate_problems import print_problem_collect
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
@@ -28,7 +29,7 @@ def create_ontologies(
     con: Connection,
     context: Context,
     knora_api_prefix: str,
-    names_and_iris_of_list_nodes: dict[str, Any],
+    list_name_2_iri: ListNameToIriLookup,
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
@@ -45,7 +46,7 @@ def create_ontologies(
         con: Connection to the DSP server
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
-        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
+        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
         ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
@@ -114,7 +115,7 @@ def create_ontologies(
             onto_name=ontology_definition["name"],
             property_definitions=ontology_definition.get("properties", []),
             ontology_remote=ontology_remote,
-            names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
+            list_name_2_iri=list_name_2_iri,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
@@ -308,11 +309,11 @@ def _sort_resources(
     return sorted_resources
 
 
-def _add_property_classes_to_remote_ontology(
+def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
     onto_name: str,
     property_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
-    names_and_iris_of_list_nodes: dict[str, Any],
+    list_name_2_iri: ListNameToIriLookup,
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
@@ -328,7 +329,7 @@ def _add_property_classes_to_remote_ontology(
         onto_name: name of the current ontology
         property_definitions: the part of the parsed JSON project file that contains the properties of the current onto
         ontology_remote: representation of the current ontology on the DSP server
-        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
+        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -373,7 +374,18 @@ def _add_property_classes_to_remote_ontology(
         # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            list_iri = names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"]
+            list_name = gui_attributes["hlist"]["id"]
+            list_iri = list_name_2_iri.get_iri(list_name)
+            if not list_iri:
+                err_msg = (
+                    f"Unable to create property class '{prop_class['name']}' "
+                    f"because the list with the name '{list_name}' does not exist on the server."
+                )
+                print(f"WARNING: {err_msg}")
+                logger.exception(err_msg)
+                overall_success = False
+                continue
+
             gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class

@@ -15,12 +15,13 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.create_on_server.lists import create_lists
+from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
-from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
@@ -102,17 +103,20 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         overall_success = False
 
     # create the lists
-    names_and_iris_of_list_nodes: dict[str, Any] = {}
-    if legacy_project.lists:
-        print("Create lists...")
-        logger.info("Create lists...")
-        names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=legacy_project.lists,
-            con=con,
-            project_remote=project_remote,
+    if parsed_project.lists:
+        print("Create lists:")
+        logger.info("Create lists:")
+        list_name_2_iri, list_problems = create_lists(
+            parsed_lists=parsed_project.lists,
+            shortcode=parsed_project.project_metadata.shortcode,
+            auth=auth,
+            project_iri=project_iri,
         )
-        if not success:
+        if list_problems:
             overall_success = False
+            print_problem_collection(list_problems)
+    else:
+        list_name_2_iri = get_existing_lists_on_server(parsed_project.project_metadata.shortcode, auth)
 
     # create the groups
     current_project_groups: dict[str, Group] = {}
@@ -146,7 +150,7 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         con=con,
         context=context,
         knora_api_prefix=knora_api_prefix,
-        names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
+        list_name_2_iri=list_name_2_iri,
         ontology_definitions=legacy_project.ontologies,
         project_remote=project_remote,
         verbose=verbose,

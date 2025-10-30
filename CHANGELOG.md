@@ -1,5 +1,58 @@
 # Changelog
 
+## [18.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v17.0.0...v18.0.0) (2025-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985))
+
+### Enhancements
+
+* **CLI:** check if provided filepaths or directories exist before call (DEV-5536) ([#2013](https://github.com/dasch-swiss/dsp-tools/issues/2013)) ([b06ccfd](https://github.com/dasch-swiss/dsp-tools/commit/b06ccfdc2488b501b626ce5bd005d4aaae4322cd))
+* **create:** allow default user passwords through an .env file (DEV-5496) ([#1995](https://github.com/dasch-swiss/dsp-tools/issues/1995)) ([f42da0c](https://github.com/dasch-swiss/dsp-tools/commit/f42da0c5e778005eb2f0efd6d83d58bbfe06a51d))
+* **create:** disallow properties that reference a class from another project (DEV-5449) ([#1992](https://github.com/dasch-swiss/dsp-tools/issues/1992)) ([125cd2c](https://github.com/dasch-swiss/dsp-tools/commit/125cd2c63507604050b52cbb51df91d326cee2ca))
+* **excel2json:** allow null values for user passwords (DEV-5495) ([#1996](https://github.com/dasch-swiss/dsp-tools/issues/1996)) ([3a3bbfc](https://github.com/dasch-swiss/dsp-tools/commit/3a3bbfcff4fea8e1736a21ad2bb4a544163f9576))
+* **excel2json:** remove gui-attributes that do not have an effect in the APP (DEV-5482) ([#1985](https://github.com/dasch-swiss/dsp-tools/issues/1985)) ([dc69b79](https://github.com/dasch-swiss/dsp-tools/commit/dc69b79a942cd7bc4a781eb5ab591c9ee899e85f))
+* improve error message when local stack is not running (DEV-5526) ([#2001](https://github.com/dasch-swiss/dsp-tools/issues/2001)) ([5457073](https://github.com/dasch-swiss/dsp-tools/commit/545707310592bded6933d977035552d7e851e843))
+* integrate id2iri replacement functionality in `xmlupload` and `validate-data` (DEV-5201) ([#1982](https://github.com/dasch-swiss/dsp-tools/issues/1982)) ([4dbee13](https://github.com/dasch-swiss/dsp-tools/commit/4dbee13f692215f1437d5f5f9023fba5fd8ea961))
+* **validate-data:** create metadata client (DEV-5528) ([#2009](https://github.com/dasch-swiss/dsp-tools/issues/2009)) ([ac7b813](https://github.com/dasch-swiss/dsp-tools/commit/ac7b813d7cfecb802505d16b3795d1c81c4c1e27))
+* **validate-data:** handle IRI validation check based on successful metadata request (DEV-5529) ([#2017](https://github.com/dasch-swiss/dsp-tools/issues/2017)) ([26cf470](https://github.com/dasch-swiss/dsp-tools/commit/26cf4706b70f9ef035493b88f027fdefbd4755cd))
+* **validate-data:** resources in DB are included as checks for link targets (DEV-5527) ([#2012](https://github.com/dasch-swiss/dsp-tools/issues/2012)) ([47e96dc](https://github.com/dasch-swiss/dsp-tools/commit/47e96dcfdca3799403cadc09072f9850832bb765))
+
+
+### Bug Fixes
+
+* **create:** better error message if default_permissions is missing in the JSON file (DEV-5479) ([#1991](https://github.com/dasch-swiss/dsp-tools/issues/1991)) ([d7866cb](https://github.com/dasch-swiss/dsp-tools/commit/d7866cb5f9e14ee99f251515600f48a1f8a78a24))
+* **create:** cardinality check used `https` in ontology IRI should be `http` (DEV-5541) ([#2016](https://github.com/dasch-swiss/dsp-tools/issues/2016)) ([16242e3](https://github.com/dasch-swiss/dsp-tools/commit/16242e302b1e28f06000a301998a4f654c2b4891))
+
+
+### Maintenance
+
+* **CLI:** clean up call actions (DEV-5527) ([#2019](https://github.com/dasch-swiss/dsp-tools/issues/2019)) ([f18c2a9](https://github.com/dasch-swiss/dsp-tools/commit/f18c2a96546cb2d132f29baee5de1a991ddde618))
+* **create:** add api call to create cardinalities ([#2003](https://github.com/dasch-swiss/dsp-tools/issues/2003)) ([91792a9](https://github.com/dasch-swiss/dsp-tools/commit/91792a94122893432a355a38a3503ccab062ca3a))
+* **create:** check new `create` with `vulture` ([#2023](https://github.com/dasch-swiss/dsp-tools/issues/2023)) ([2475d95](https://github.com/dasch-swiss/dsp-tools/commit/2475d956f5cf04d7b568e60da121c9aa95963003))
+* **create:** extend parsing the list section from project json ([#2021](https://github.com/dasch-swiss/dsp-tools/issues/2021)) ([b65bea2](https://github.com/dasch-swiss/dsp-tools/commit/b65bea2ef980152aa6b6be5aed52fabc160b8bdb))
+* **create:** implement new list creation route in `create --lists-only` (DEV-5551) ([#2022](https://github.com/dasch-swiss/dsp-tools/issues/2022)) ([1ae9d4b](https://github.com/dasch-swiss/dsp-tools/commit/1ae9d4ba33065a83ecacf8f134ca5929161cea10))
+* **create:** integrate new cardinality creation (DEV-5502) ([#2004](https://github.com/dasch-swiss/dsp-tools/issues/2004)) ([8017d30](https://github.com/dasch-swiss/dsp-tools/commit/8017d3033a0d9913ba267422d7e783664a604447))
+* **create:** integrate new create lists section into main code (DEV-5552) ([#2025](https://github.com/dasch-swiss/dsp-tools/issues/2025)) ([2dbb41e](https://github.com/dasch-swiss/dsp-tools/commit/2dbb41e071c4659f5d2ecc912c713960c0af01f6))
+* **create:** make models for `ParsedProject` (DEV-5505) ([#1999](https://github.com/dasch-swiss/dsp-tools/issues/1999)) ([995c0a7](https://github.com/dasch-swiss/dsp-tools/commit/995c0a7c95366b31414670bfb56960786de52e75))
+* **create:** make print messages consistent ([#2026](https://github.com/dasch-swiss/dsp-tools/issues/2026)) ([206ef0a](https://github.com/dasch-swiss/dsp-tools/commit/206ef0abe10378984259d17166ba2b45bc498c35))
+* **create:** refactor adding cardinalities (DEV-5502) ([#1997](https://github.com/dasch-swiss/dsp-tools/issues/1997)) ([83066fc](https://github.com/dasch-swiss/dsp-tools/commit/83066fcb77c4d420390d3bb4f0927933be32ccaf))
+* **deps:** bump all dependencies ([#1993](https://github.com/dasch-swiss/dsp-tools/issues/1993)) ([2b5c51c](https://github.com/dasch-swiss/dsp-tools/commit/2b5c51c006a98df1e032616352210ff6079fbab1))
+* **deps:** bump the all-dependencies group across 1 directory with 5 updates ([#2011](https://github.com/dasch-swiss/dsp-tools/issues/2011)) ([290c62a](https://github.com/dasch-swiss/dsp-tools/commit/290c62ac6a63090fd13ab1ace9c7c684738c7037))
+* **deps:** bump the all-dependencies group across 1 directory with 6 updates ([#1984](https://github.com/dasch-swiss/dsp-tools/issues/1984)) ([01a6ea5](https://github.com/dasch-swiss/dsp-tools/commit/01a6ea5fd6b2fcd6b7d6fb75236cd719d290c903))
+* **start-stack:** bump versions to 2025.10.02 and use HttpWaitStrategy in testcontainers instead of waiting for logs ([#2027](https://github.com/dasch-swiss/dsp-tools/issues/2027)) ([c25c0c0](https://github.com/dasch-swiss/dsp-tools/commit/c25c0c0547262c9d03ce05498d64d2516fea9917))
+* **validate-data:** move API clients to general clients folder ([#2018](https://github.com/dasch-swiss/dsp-tools/issues/2018)) ([e5b82cc](https://github.com/dasch-swiss/dsp-tools/commit/e5b82cc1b3763606d803c1865154244043807888))
+
+
+### Documentation
+
+* **lint:** markdown-link-validator: ignore w3.org ([#2014](https://github.com/dasch-swiss/dsp-tools/issues/2014)) ([13a739d](https://github.com/dasch-swiss/dsp-tools/commit/13a739d65eb85dea6285ae310812a16038d10ab8))
+* **lint:** markdownlint: unignore readme ([#2015](https://github.com/dasch-swiss/dsp-tools/issues/2015)) ([9d252e6](https://github.com/dasch-swiss/dsp-tools/commit/9d252e66d7eb6d1e4e4222d3e0b6da60ad99fcf3))
+* new architecural design of the `create` command (DEV-5506) ([#1998](https://github.com/dasch-swiss/dsp-tools/issues/1998)) ([ba16373](https://github.com/dasch-swiss/dsp-tools/commit/ba16373b2da15da3eb8419b04fa7a7b2957255f0))
+* remove all possible CLI options from documentation to make it more readable ([#2024](https://github.com/dasch-swiss/dsp-tools/issues/2024)) ([d680b5f](https://github.com/dasch-swiss/dsp-tools/commit/d680b5ff312ba559edfe5e05a1c8078a9aa62c39))
+
 ## [17.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v16.12.2...v17.0.0) (2025-10-08)
 
 

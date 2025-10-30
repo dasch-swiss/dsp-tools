@@ -14,20 +14,20 @@ def create_default_permissions(
     logger.info("Set default permissions...")
     print("Set default permissions...")
     if not _delete_existing_doaps(perm_client):
-        print("WARNING: Cannot delete the existing default permissions")
+        print("    WARNING: Cannot delete the existing default permissions")
         logger.warning("Cannot delete the existing default permissions")
         return False
     if not _create_new_doap(perm_client, default_permissions):
-        print("WARNING: Cannot create default permissions")
+        print("    WARNING: Cannot create default permissions")
         logger.warning("Cannot create default permissions")
         return False
     if default_permissions_overrule:
         if not _create_overrules(perm_client, default_permissions_overrule, shortcode):
-            print("WARNING: Cannot create default permissions overrules")
+            print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
     logger.info("Default permissions have been set")
-    print("Default permissions have been set")
+    print("    Default permissions have been set")
     return True
 
 

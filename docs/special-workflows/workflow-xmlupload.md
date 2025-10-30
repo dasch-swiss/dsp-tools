@@ -105,19 +105,16 @@ must be present in the current working directory.
 dsp-tools ingest-xmlupload [options] xml_data_file.xml
 ```
 
-The following options are available:
+
+The most frequently used options are:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
-- `--skip-validation` (optional): skip the SHACL schema validation
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
-  This is intended for projects that are already on the production server
-- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
-  (links and stand-off links inside richtext) by IRIs provided in this mapping file
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+To see all possible options, type `dsp-tools ingest-xmlupload --help`.
+
 
 The defaults are intended for local testing: 
 

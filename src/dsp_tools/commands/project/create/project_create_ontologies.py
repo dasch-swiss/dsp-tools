@@ -67,7 +67,7 @@ def create_ontologies(
     onto_client = OntologyCreateClientLive(auth.server, auth)
 
     overall_success = True
-    logger.info(BOLD + "Processing Ontology Section:" + RESET_TO_DEFAULT)
+    logger.info("Processing Ontology Section")
     try:
         project_ontologies = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
     except BaseError:

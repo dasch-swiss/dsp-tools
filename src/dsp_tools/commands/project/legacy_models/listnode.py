@@ -301,36 +301,6 @@ class ListNode(Model):
             rootNodeIri=rootNodeIri,
         )
 
-    def create(self) -> ListNode:
-        """
-        Create a new List
-
-        :return: JSON-object from DSP-API
-        """
-        jsonobj = self._toJsonObj_create()
-        if self._parent:
-            result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
-            return ListNode.fromJsonObj(self._con, result["nodeinfo"])
-        else:
-            result = self._con.post(ListNode.ROUTE, jsonobj)
-            return ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
-
-    def _toJsonObj_create(self):
-        tmp = {}
-        if self._project is None:
-            raise BaseError("There must be a project id given!")
-        tmp["projectIri"] = self._project
-        if self._label.isEmpty():
-            raise BaseError("There must be a valid ListNode label!")
-        tmp["labels"] = self._label.toJsonObj()
-        if self._comments:
-            tmp["comments"] = self._comments.toJsonObj()
-        if self._name:
-            tmp["name"] = self._name
-        if self._parent:
-            tmp["parentNodeIri"] = self._parent
-        return tmp
-
     def read(self) -> Any:
         """
         Read a project from DSP-API

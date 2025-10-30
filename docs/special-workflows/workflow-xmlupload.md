@@ -113,7 +113,7 @@ The most frequently used options are:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 
-To see all possible options, type `dsp-tools ngest-xmlupload --help`.
+To see all possible options, type `dsp-tools ingest-xmlupload --help`.
 
 
 The defaults are intended for local testing: 

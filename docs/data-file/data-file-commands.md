@@ -13,18 +13,14 @@ This command validates an XML data file according to the ontology previously upl
 dsp-tools validate-data [options] xml_data_file.xml
 ```
 
-The following options are available:
+The most frequently used options are:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
-  This is intended for projects that are already on the production server
-- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
-  (links and stand-off links inside richtext) by IRIs provided in this mapping file
-- `--save-graphs` (optional): if you want to save the graphs required for the validation as turtle files. 
-  This is primarily intended for development use.
+
+To see all possible options, type `dsp-tools validate-data --help`.
+
 
 Output:
 
@@ -72,27 +68,14 @@ This command uploads data defined in an XML file to a DSP server.
 dsp-tools xmlupload [options] xml_data_file.xml
 ```
 
-The following options are available:
+The most frequently used options are:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
-- `-V` | `--validate` (optional): validate the XML file without uploading it
-- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-- `--id2iri-replacement-with-file` (optional): replaces internal IDs of an XML file 
-  (links and stand-off links inside richtext) by IRIs provided in this mapping file
-- `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
-- `--skip-validation` (optional): skip the SHACL schema validation
-- `--ignore-duplicate-files-warning` (optional): don't check if multimedia files are referenced more than once
-- `--skip-ontology-validation` (optional): don't validate the ontology itself, only the data.
-  This is intended for projects that are already on the production server
-- `--validation-severity` (optional, default: `info`): which severity level of messages 
-  will be printed out during validation. 
-  Options: `info`, `warning`, and `error` 
-  (each level of severity includes the higher levels; see [`validate-data`](#validate-data) for details).
+
+To see all possible options, type `dsp-tools xmlupload --help`.
 
 Output:
 
@@ -147,8 +130,6 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--skip-first-resource` (optional): the `xmlupload` should skip the first saved resource. 
   This is not implemented for stashed links.
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
@@ -168,8 +149,6 @@ dsp-tools id2iri xmlfile.xml mapping.json
 The following options are available:
 
 - `-r` | `--remove-resources` (optional): remove resources if their ID is in the mapping 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The output file is written to `[original name]_replaced_[timestamp].xml`.
 

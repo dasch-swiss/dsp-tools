@@ -33,7 +33,7 @@ def create_lists(
     if existing_info:
         _print_existing_list_info(existing_info)
     if not lists_to_create:
-        msg = "    All lists defined in the project are already on the server, no lists were uploaded."
+        msg = "    All lists defined in the project are already on the server, no list was uploaded."
         logger.warning(msg)
         print(BOLD_CYAN + msg + RESET_TO_DEFAULT)
         return name2iri, None

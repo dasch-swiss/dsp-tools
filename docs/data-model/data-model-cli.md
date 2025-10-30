@@ -11,16 +11,14 @@ and creates it on a DSP server.
 dsp-tools create [options] project_definition.json
 ```
 
-The following options are available:
+The most frequently used options are:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
-- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
-- `-V` | `--validate-only` (optional): validate the JSON file without creating it on the DSP server
-- `-l` | `--lists-only` (optional): create only the lists (prerequisite: the project exists on the server)
-- `-v` | `--verbose` (optional): print more information about the progress to the console
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+
+To see all possible options, type `dsp-tools create --help`.
+
 
 The defaults are intended for local testing: 
 
@@ -53,15 +51,14 @@ to create the same project on another DSP server.
 dsp-tools get [options] project_definition.json
 ```
 
-The following options are available:
+The most frequently used options are:
 
+- `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
-- `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
-- `-v` | `--verbose` (optional): print more information about the progress to the console
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+To see all possible options, type `dsp-tools get --help`.
 
 The defaults are intended for local testing: 
 

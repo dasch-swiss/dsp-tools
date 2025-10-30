@@ -18,8 +18,6 @@ The most frequently used options are:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 To see all possible options, type `dsp-tools validate-data --help`.
 
@@ -76,8 +74,6 @@ The most frequently used options are:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 To see all possible options, type `dsp-tools xmlupload --help`.
 
@@ -134,8 +130,6 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--skip-first-resource` (optional): the `xmlupload` should skip the first saved resource. 
   This is not implemented for stashed links.
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
@@ -155,8 +149,6 @@ dsp-tools id2iri xmlfile.xml mapping.json
 The following options are available:
 
 - `-r` | `--remove-resources` (optional): remove resources if their ID is in the mapping 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The output file is written to `[original name]_replaced_[timestamp].xml`.
 

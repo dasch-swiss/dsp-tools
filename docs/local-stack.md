@@ -31,15 +31,8 @@ The most frequently used options are:
   If you attempt to upload a multimedia file bigger than `max_file_size`, it will be rejected.
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 To see all possible options, type `dsp-tools start-stack --help`.
-
-A note on the flag `--max_file_size`, if you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
-it will be possible to upload files that are up to 1 GB big. 
-If a file bigger than `max_file_size` is uploaded, 
-the upload will be rejected.
 
 More help for this command can be found [here](./developers/start-stack.md).
 
@@ -51,12 +44,6 @@ When your work is done, shut down DSP-API and DSP-APP with
 ```bash
 dsp-tools stop-stack
 ```
-
-The most frequently used option is:
-
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-
 
 To see all possible options, type `dsp-tools stop-stack --help`.
 

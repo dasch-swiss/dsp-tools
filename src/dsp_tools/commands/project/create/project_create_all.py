@@ -34,6 +34,8 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import InvalidInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_input
 
 load_dotenv()
@@ -90,8 +92,8 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    info_str = f"Create project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode})..."
-    print(info_str)
+    info_str = f"Create project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode}):"
+    print(BOLD + info_str + RESET_TO_DEFAULT)
     logger.info(info_str)
     project_remote, success = _create_project_on_server(
         project_definition=legacy_project.metadata,

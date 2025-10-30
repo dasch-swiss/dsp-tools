@@ -27,6 +27,8 @@ If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
 The most frequently used options are:
 
+- `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed, in MB (max: 100'000)
+  If you attempt to upload a multimedia file bigger than `max_file_size`, it will be rejected.
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 

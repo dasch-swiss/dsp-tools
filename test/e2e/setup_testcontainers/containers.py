@@ -6,7 +6,8 @@ from pathlib import Path
 import requests
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
-from testcontainers.core.waiting_utils import wait_for_logs
+from testcontainers.core.wait_strategies import HttpWaitStrategy
+from testcontainers.core.wait_strategies import LogMessageWaitStrategy
 
 from test.e2e.setup_testcontainers.artifacts import E2E_TESTDATA
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
@@ -69,9 +70,9 @@ def _get_fuseki(
         .with_network(network)
         .with_bind_ports(host=ports.fuseki, container=FUSEKI_INTERNAL_PORT)
         .with_env("ADMIN_PASSWORD", "test")
+        .waiting_for(LogMessageWaitStrategy(rf"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)"))
     )
     fuseki.start()
-    wait_for_logs(fuseki, rf"Start Fuseki \(http={FUSEKI_INTERNAL_PORT}\)")
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
@@ -100,9 +101,9 @@ def _get_sipi(
         .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
+        .waiting_for(LogMessageWaitStrategy(f"Server listening on HTTP port {SIPI_INTERNAL_PORT}"))
     )
     sipi.start()
-    wait_for_logs(sipi, f"Server listening on HTTP port {SIPI_INTERNAL_PORT}")
     print("Sipi is ready")
     return sipi
 
@@ -126,9 +127,9 @@ def _get_ingest(
         .with_volume_mapping(artifact_dirs.sipi_images, "/opt/images", "rw")
         .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/tmp", "rw")
         .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
+        .waiting_for(LogMessageWaitStrategy("Started dsp-ingest"))
     )
     ingest.start()
-    wait_for_logs(ingest, "Started dsp-ingest")
     print("Ingest is ready")
     return ingest
 
@@ -148,10 +149,9 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_bind_ports(host=ports.api, container=API_INTERNAL_PORT)
+        .waiting_for(HttpWaitStrategy(API_INTERNAL_PORT, "/version"))
     )
     api.start()
-    wait_for_logs(api, "AppState set to Running")
-    wait_for_logs(api, "Starting api on")
     print("API is ready")
     return api
 

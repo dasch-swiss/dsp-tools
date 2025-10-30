@@ -23,6 +23,8 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_ontologies(
@@ -65,14 +67,12 @@ def create_ontologies(
     onto_client = OntologyCreateClientLive(auth.server, auth)
 
     overall_success = True
-
-    print("Create ontologies...")
-    logger.info("Create ontologies...")
+    logger.info(BOLD + "Processing Ontology Section:" + RESET_TO_DEFAULT)
     try:
         project_ontologies = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
-        print("WARNING: {err_msg}")
+        print(f"    WARNING: {err_msg}")
         logger.exception(err_msg)
         project_ontologies = []
 
@@ -126,7 +126,7 @@ def create_ontologies(
         if not success:
             overall_success = False
 
-    print("Add cardinalities to resource classes...")
+    print(BOLD + "Processing Cardinalities:" + RESET_TO_DEFAULT)
     problems = add_all_cardinalities(
         ontologies=parsed_ontologies,
         project_iri_lookup=project_iri_lookup,

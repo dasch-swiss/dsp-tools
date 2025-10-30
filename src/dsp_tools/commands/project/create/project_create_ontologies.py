@@ -374,7 +374,7 @@ def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
         # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            list_name = gui_attributes["hlist"]["id"]
+            list_name = gui_attributes["hlist"]
             list_iri = list_name_2_iri.get_iri(list_name)
             if not list_iri:
                 err_msg = (

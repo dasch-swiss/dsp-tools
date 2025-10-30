@@ -36,4 +36,4 @@ class ListNameToIriLookup:
         self.name2iri[name] = iri
 
     def get_iri(self, name: str) -> str | None:
-        return self.get_iri(name)
+        return self.name2iri.get(name)

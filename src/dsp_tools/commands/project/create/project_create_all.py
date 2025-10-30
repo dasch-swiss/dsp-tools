@@ -104,8 +104,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # create the lists
     if parsed_project.lists:
-        print("Create lists:")
-        logger.info("Create lists:")
         list_name_2_iri, list_problems = create_lists(
             parsed_lists=parsed_project.lists,
             shortcode=parsed_project.project_metadata.shortcode,

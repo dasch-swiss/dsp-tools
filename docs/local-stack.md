@@ -49,6 +49,7 @@ When your work is done, shut down DSP-API and DSP-APP with
 ```bash
 dsp-tools stop-stack
 ```
+
 The most frequently used option is:
 
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
@@ -58,6 +59,3 @@ The most frequently used option is:
 To see all possible options, type `dsp-tools stop-stack --help`.
 
 This deletes all Docker volumes, and removes all data that was in the database.
-
-
-

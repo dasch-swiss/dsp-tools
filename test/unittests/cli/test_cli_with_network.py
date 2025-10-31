@@ -28,14 +28,14 @@ def test_invalid_arguments() -> None:
 
 
 class TestCreate:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_with_schema")
     def test_lists_validate(self, validate_lists: Mock, check_docker: Mock) -> None:
         args = f"create --lists-only --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
         validate_lists.assert_called_once_with(PROJECT_JSON_PATH)
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create_lists_only")
     def test_lists_create(self, create_lists: Mock, check_docker: Mock) -> None:
         create_lists.return_value = True
@@ -47,14 +47,14 @@ class TestCreate:
             creds=creds,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_project")
     def test_project_validate(self, validate_project: Mock, check_docker: Mock) -> None:
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
         validate_project.assert_called_once_with(PROJECT_JSON_PATH)
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create_project")
     def test_project_create(self, create_project: Mock, check_docker: Mock) -> None:
         args = f"create {PROJECT_JSON_PATH}".split()
@@ -68,7 +68,7 @@ class TestCreate:
 
 
 class TestGet:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.get_project")
     def test_project_get(self, get_project: Mock, check_docker: Mock) -> None:
         project = "shortname"
@@ -84,7 +84,7 @@ class TestGet:
 
 
 class TestXmlupload:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_default(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH}".split()
@@ -111,14 +111,14 @@ class TestXmlupload:
             ),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.parse_and_validate_xml_file")
     def test_xmlupload_validate(self, validate_xml: Mock, check_docker: Mock) -> None:
         args = f"xmlupload --validate-only {DATA_XML_PATH}".split()
         entry_point.run(args)
         validate_xml.assert_called_once_with(Path(DATA_XML_PATH))
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_no_iiif(self, xmlupload: Mock, check_docker: Mock) -> None:
         no_validation = "--no-iiif-uri-validation"
@@ -137,7 +137,7 @@ class TestXmlupload:
             config=UploadConfig(skip_iiif_validation=True),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_skip_validation(self, xmlupload: Mock, check_docker: Mock) -> None:
         no_validation = "--skip-validation"
@@ -156,7 +156,7 @@ class TestXmlupload:
             config=UploadConfig(skip_validation=True),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_ignore_duplicate_files_warning(self, xmlupload: Mock, check_docker: Mock) -> None:
         ignore_duplicate_files = "--ignore-duplicate-files-warning"
@@ -175,7 +175,7 @@ class TestXmlupload:
             config=UploadConfig(ignore_duplicate_files_warning=True),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_default_validation_severity_warning(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH} --validation-severity warning".split()
@@ -197,7 +197,7 @@ class TestXmlupload:
             ),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_default_validation_severity_error(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH} --validation-severity error".split()
@@ -219,7 +219,7 @@ class TestXmlupload:
             ),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_skip_ontology_validation(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH} --skip-ontology-validation".split()
@@ -242,7 +242,7 @@ class TestXmlupload:
             ),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_interrupt_after(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload --interrupt-after=1 {DATA_XML_PATH}".split()
@@ -257,7 +257,7 @@ class TestXmlupload:
             input_file=Path(DATA_XML_PATH), creds=creds, imgdir=".", config=UploadConfig(interrupt_after=1)
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_id2iri_replacement_with_file(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
@@ -275,7 +275,7 @@ class TestXmlupload:
             config=UploadConfig(id2iri_replacement_file=ID_2_IRI_JSON_PATH),
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_do_not_request_resource_metadata_from_db(self, xmlupload: Mock, check_docker: Mock) -> None:
         args = f"xmlupload {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
@@ -304,7 +304,7 @@ class TestXmlupload:
 
 
 class TestValidateData:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_default(self, validate_data: Mock, check_docker: Mock) -> None:
         args = f"validate-data {DATA_XML_PATH}".split()
@@ -322,7 +322,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_ignore_duplicate_files(self, validate_data: Mock, check_docker: Mock) -> None:
         ignore_duplicate_files = "--ignore-duplicate-files-warning"
@@ -341,7 +341,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_save_graph(self, validate_data: Mock, check_docker: Mock) -> None:
         args = f"validate-data {DATA_XML_PATH} --save-graphs".split()
@@ -359,7 +359,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_other_server(self, validate_data: Mock, check_docker: Mock) -> None:
         args = f"validate-data {DATA_XML_PATH} -s https://api.dasch.swiss".split()
@@ -380,7 +380,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_other_creds(self, validate_data: Mock, check_docker: Mock) -> None:
         server = "https://api.test.dasch.swiss"
@@ -401,7 +401,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_skip_ontology_validation(self, validate_data: Mock, check_docker: Mock) -> None:
         args = f"validate-data {DATA_XML_PATH} --skip-ontology-validation".split()
@@ -419,7 +419,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_id2iri_replacement_with_file(self, validate_data: Mock, check_docker: Mock) -> None:
         args = f"validate-data --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
@@ -437,7 +437,7 @@ class TestValidateData:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_do_not_request_resource_metadata_from_db(
         self, validate_data: Mock, check_docker: Mock
@@ -487,7 +487,7 @@ class TestResumeXmlupload:
 
 
 class TestIngestUploads:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.upload_files")
     def test_upload_files_localhost(self, upload_files: Mock, check_docker: Mock) -> None:
         args = f"upload-files {DATA_XML_PATH}".split()
@@ -500,7 +500,7 @@ class TestIngestUploads:
         )
         upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.upload_files")
     def test_upload_files_remote(self, upload_files: Mock, check_docker: Mock) -> None:
         server = "https://api.test.dasch.swiss"
@@ -547,7 +547,7 @@ class TestIngestUploads:
         )
         ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_localhost(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
         args = f"ingest-xmlupload {DATA_XML_PATH}".split()
@@ -568,7 +568,7 @@ class TestIngestUploads:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_skip_validation(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
         skip_validation = "--skip-validation"
@@ -590,7 +590,7 @@ class TestIngestUploads:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_interrupt_after(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
         args = f"ingest-xmlupload --interrupt-after=1 {DATA_XML_PATH}".split()
@@ -611,7 +611,7 @@ class TestIngestUploads:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_remote(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
         server = "https://api.test.dasch.swiss"
@@ -635,7 +635,7 @@ class TestIngestUploads:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_id2iri_replacement_with_file(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
         args = f"ingest-xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
@@ -656,7 +656,7 @@ class TestIngestUploads:
             do_not_request_resource_metadata_from_db=False,
         )
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_do_not_request_resource_metadata_from_db(
         self, ingest_xmlupload: Mock, check_docker: Mock
@@ -792,7 +792,7 @@ def test_stop_stack(stop_stack: Mock) -> None:
 
 
 class TestUpdatePromptFlag:
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     @patch("dsp_tools.cli.entry_point._check_version")
     def test_suppress_update_prompt_flag_absent(self, check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -801,7 +801,7 @@ class TestUpdatePromptFlag:
         check_version.assert_called_once()
         xmlupload.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     @patch("dsp_tools.cli.entry_point._check_version")
     def test_suppress_update_prompt_leftmost(self, check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -810,7 +810,7 @@ class TestUpdatePromptFlag:
         check_version.assert_not_called()
         xmlupload.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     @patch("dsp_tools.cli.entry_point._check_version")
     def test_suppress_update_prompt_middle(self, check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:
@@ -819,7 +819,7 @@ class TestUpdatePromptFlag:
         check_version.assert_not_called()
         xmlupload.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_network_health")
+    @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     @patch("dsp_tools.cli.entry_point._check_version")
     def test_suppress_update_prompt_rightmost(self, check_version: Mock, xmlupload: Mock, check_docker: Mock) -> None:

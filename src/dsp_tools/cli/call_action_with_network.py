@@ -6,7 +6,6 @@ from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
-from dsp_tools.cli.utils import check_network_health
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.lists_only import create_lists_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -62,7 +61,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def call_ingest_files(args: argparse.Namespace) -> bool:
-    check_network_health(NetworkRequirements(api_url=args.server))
+    check_input_dependencies(network_dependencies=NetworkRequirements(api_url=args.server))
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
@@ -156,7 +155,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
 
 def call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    check_network_health(NetworkRequirements(args.server))
+    check_input_dependencies(network_dependencies=NetworkRequirements(args.server))
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,

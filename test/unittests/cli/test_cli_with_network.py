@@ -459,9 +459,9 @@ class TestValidateData:
 
 
 class TestResumeXmlupload:
-    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.resume_xmlupload")
-    def test_resume_xmlupload_default(self, resume_xmlupload: Mock, check_docker: Mock) -> None:
+    def test_resume_xmlupload_default(self, resume_xmlupload: Mock, check_input_dependencies: Mock) -> None:
         args = "resume-xmlupload".split()
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -472,9 +472,9 @@ class TestResumeXmlupload:
         entry_point.run(args)
         resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
 
-    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.resume_xmlupload")
-    def test_resume_xmlupload_skip_first_resource(self, resume_xmlupload: Mock, check_docker: Mock) -> None:
+    def test_resume_xmlupload_skip_first_resource(self, resume_xmlupload: Mock, check_input_dependencies: Mock) -> None:
         args = "resume-xmlupload --skip-first-resource".split()
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -516,9 +516,9 @@ class TestIngestUploads:
         )
         upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
-    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.ingest_files")
-    def test_ingest_files_localhost(self, ingest_files: Mock, check_docker: Mock) -> None:
+    def test_ingest_files_localhost(self, ingest_files: Mock, check_input_dependencies: Mock) -> None:
         shortcode = "1234"
         args = f"ingest-files {shortcode}".split()
         entry_point.run(args)
@@ -530,9 +530,9 @@ class TestIngestUploads:
         )
         ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
-    @patch("dsp_tools.cli.call_action_with_network.check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.ingest_files")
-    def test_ingest_files_remote(self, ingest_files: Mock, check_docker: Mock) -> None:
+    def test_ingest_files_remote(self, ingest_files: Mock, check_input_dependencies: Mock) -> None:
         shortcode = "1234"
         server = "https://api.test.dasch.swiss"
         user = "first-name.second-name@dasch.swiss"

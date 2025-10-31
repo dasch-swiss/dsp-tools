@@ -31,7 +31,7 @@ def check_input_dependencies(
     if paths:
         check_path_dependencies(paths)
     if network_dependencies:
-        check_network_health(network_dependencies)
+        _check_network_health(network_dependencies)
 
 
 def check_path_dependencies(paths: PathDependencies) -> None:
@@ -51,7 +51,7 @@ def _check_directory_exists(dir_path: Path) -> None:
         raise UserDirectoryNotFoundError(dir_path)
 
 
-def check_network_health(network_requirements: NetworkRequirements) -> None:
+def _check_network_health(network_requirements: NetworkRequirements) -> None:
     if network_requirements.api_url == LOCALHOST_API or network_requirements.always_requires_docker:
         check_docker_health()
     _check_api_health(network_requirements.api_url)

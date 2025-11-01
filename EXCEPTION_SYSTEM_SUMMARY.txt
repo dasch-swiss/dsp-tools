@@ -1,0 +1,156 @@
+DSP-TOOLS EXCEPTION SYSTEM - QUICK REFERENCE
+==============================================
+
+EXCEPTION LOCATIONS
+-------------------
+Primary definitions:
+  - /src/dsp_tools/error/exceptions.py (25 exceptions)
+  - /src/dsp_tools/error/xmllib_errors.py (3 exceptions)
+  - /src/dsp_tools/error/custom_warnings.py (2 warning classes)
+  - /src/dsp_tools/error/xmllib_warnings.py (2 warning classes)
+
+EXCEPTION HIERARCHY
+-------------------
+All custom exceptions inherit from BaseError (which inherits from Exception)
+
+Main categories:
+  1. InputError - User-provided data is invalid
+  2. InternalError - Something wrong with the system
+  3. PermanentConnectionError - Can't connect to DSP server
+  4. XmlUploadError - Issues during XML upload
+  5. ShaclValidationError - Validation problems
+  6. Domain-specific errors (Docker, API, DOAP, etc.)
+
+KEY DESIGN PRINCIPLES
+---------------------
+1. User-friendly messages - InputError messages tell users what to fix
+2. Layered handling - Top-level catch in entry_point.py logs and prints
+3. Problem vs Exception - Non-fatal issues use Problem dataclasses
+4. Color-coded output - Errors in BOLD_RED, warnings in YELLOW
+5. Comprehensive logging - Full tracebacks go to log file
+
+HOW ERRORS FLOW TO USERS
+------------------------
+1. Code raises SpecificError("message")
+2. Propagates up through call stack
+3. Caught in CLI entry_point.py as BaseError or generic Exception
+4. Message logged to file with full traceback
+5. User-friendly message printed to stdout in red
+6. Process exits with code 1
+
+EXCEPTION CATCHING PATTERNS
+---------------------------
+Pattern 1 - Input validation (cli/utils.py):
+  if not file.exists():
+      raise UserFilepathNotFoundError(file)
+
+Pattern 2 - API calls (clients/connection_live.py):
+  except RequestException:
+      raise PermanentConnectionError(msg)
+
+Pattern 3 - Exception conversion (authentication_client_live.py):
+  except PermanentConnectionError as e:
+      raise InputError(e.message) from None
+
+Pattern 4 - Command-level catch:
+  try:
+      operation()
+  except BaseError:
+      log_and_handle()
+      return False
+
+PROBLEM COLLECTION PATTERN
+---------------------------
+Alternative to exceptions for non-fatal errors:
+
+1. Collect Problem objects during validation
+2. Aggregate by type/severity
+3. Format all problems for display
+4. Show user all problems together
+5. Raise error only if critical problems exist
+
+This allows reporting all validation errors at once instead of stopping at first error.
+
+WHERE EXCEPTIONS ARE RAISED (69 files total)
+---------------------------------------------
+Most common locations:
+  - /src/dsp_tools/cli/utils.py - Input path validation
+  - /src/dsp_tools/clients/ - Connection & authentication
+  - /src/dsp_tools/commands/xmlupload/ - XML upload operations
+  - /src/dsp_tools/commands/project/create/ - Project creation
+  - /src/dsp_tools/utils/request_utils.py - Request handling
+
+WHERE EXCEPTIONS ARE CAUGHT (30 files total)
+---------------------------------------------
+Most common locations:
+  - /src/dsp_tools/cli/entry_point.py - Top-level handler
+  - /src/dsp_tools/commands/ - Command implementations
+  - /src/dsp_tools/clients/ - API client implementations
+
+COMMON EXCEPTION USAGE
+----------------------
+
+To raise an error:
+  raise InputError("Description of what's wrong")
+  raise UserFilepathNotFoundError("/path/to/file")
+  raise BaseError("Generic error message")
+
+To catch and handle:
+  try:
+      do_something()
+  except InputError as e:
+      logger.error(f"Input error: {e.message}")
+      raise
+
+To convert exception types:
+  try:
+      risky_operation()
+  except LowLevelError as e:
+      raise HighLevelError(str(e)) from None
+
+INCONSISTENCIES NOTED
+---------------------
+1. Exception construction uses positional args but should use keyword args for clarity
+2. Problem protocol used inconsistently - excel2json uses it heavily, others use exceptions
+3. Catch-all Exception handler may catch KeyboardInterrupt unintentionally
+4. Some command docstrings don't list all possible exception types
+5. Re-raising patterns vary - sometimes converted, sometimes propagated as-is
+
+TESTING RECOMMENDATIONS
+-----------------------
+1. Test each exception type is raised in correct conditions
+2. Test exception messages contain helpful information
+3. Test exception propagation through call stack
+4. Test error recovery and state after exception handling
+5. Test Problem collection and aggregation
+6. Test color formatting of error messages
+
+SUMMARY STATISTICS
+------------------
+Total custom exception classes: 28
+Total custom warning classes: 5
+Files defining exceptions: 3
+Files raising exceptions: 69
+Files catching exceptions: 30
+Problem model files: 4
+Lines in complete exception map: 561
+
+KEY FILES TO UNDERSTAND
+-----------------------
+1. /src/dsp_tools/error/exceptions.py - All exception definitions
+2. /src/dsp_tools/cli/entry_point.py - Top-level exception handling
+3. /src/dsp_tools/cli/utils.py - Input validation, error checking
+4. /src/dsp_tools/clients/connection_live.py - Network error handling
+5. /src/dsp_tools/utils/request_utils.py - Request timeout handling
+
+PATTERNS TO FOLLOW
+------------------
+1. Always use specific exception types, not generic Exception
+2. Include helpful context in error messages
+3. Use InputError for user-fixable problems
+4. Use BaseError subclasses for domain-specific errors
+5. Let exceptions propagate unless you need to convert type
+6. Catch specific exception types, not broad categories
+7. Log before raising (logger.error() then raise)
+8. Use from None when intentionally suppressing context
+

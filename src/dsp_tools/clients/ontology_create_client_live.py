@@ -7,7 +7,7 @@ from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from requests import ReadTimeout
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -16,7 +16,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import UnexpectedApiResponseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
+from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -38,8 +38,9 @@ class OntologyCreateClientLive(OntologyCreateClient):
         logger.debug("GET ontology metadata")
         try:
             response = self._get_and_log_request(url, header)
-        except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         if response.ok:
             date = _parse_last_modification_date(response.text, URIRef(onto_iri))
             if not date:
@@ -62,10 +63,12 @@ class OntologyCreateClientLive(OntologyCreateClient):
         logger.debug("POST resource cardinalities to ontology")
         try:
             response = self._post_and_log_request(url, cardinality_graph)
-        except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         if response.ok:
             date = _parse_last_modification_date(response.text)
+            # TODO: delete (cast it instead)
             if not date:
                 raise UnexpectedApiResponseError(
                     f"Could not find the last modification date in the response: {response.text}"

@@ -49,8 +49,8 @@ class ListGetClientLive(ListGetClient):
         log_request(RequestParameters("GET", url, timeout))
         try:
             response = requests.get(url=url, timeout=timeout)
-        except RequestException as e:
-            log_and_raise_request_exception(e)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
 
         log_response(response)
         if not response.ok:
@@ -68,8 +68,8 @@ class ListGetClientLive(ListGetClient):
         log_request(RequestParameters("GET", url, timeout))
         try:
             response = requests.get(url=url, timeout=timeout)
-        except RequestException as e:
-            log_and_raise_request_exception(e)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
 
         log_response(response, include_response_content=False)
         if not response.ok:
@@ -106,8 +106,8 @@ class ListCreateClientLive(ListCreateClient):
         headers = self._get_request_header()
         try:
             response = _post_and_log_request(url, list_info, headers)
-        except RequestException as e:
-            log_and_raise_request_exception(e)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
 
         if response.ok:
             result = response.json()
@@ -127,8 +127,8 @@ class ListCreateClientLive(ListCreateClient):
         headers = self._get_request_header()
         try:
             response = _post_and_log_request(url, node_info, headers)
-        except RequestException as e:
-            log_and_raise_request_exception(e)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
 
         if response.ok:
             result = response.json()

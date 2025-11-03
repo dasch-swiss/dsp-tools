@@ -68,7 +68,7 @@ def call_ingest_files(args: argparse.Namespace) -> bool:
 def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xml_file)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -82,7 +82,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=id2iri_file,
+        id2iri_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
@@ -90,7 +90,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 def call_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xmlfile)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -127,7 +127,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
                 validation_severity=severity,
                 skip_ontology_validation=args.skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
-                id2iri_replacement_file=id2iri_file,
+                id2iri_file=id2iri_file,
             ),
         )
 
@@ -135,7 +135,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
 def call_validate_data(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xmlfile)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -148,7 +148,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=id2iri_file,
+        id2iri_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 

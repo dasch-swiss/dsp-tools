@@ -42,7 +42,7 @@ def ingest_xmlupload(
     interrupt_after: int | None = None,
     skip_validation: bool = False,
     skip_ontology_validation: bool = False,
-    id2iri_replacement_file: str | None = None,
+    id2iri_file: str | None = None,
     do_not_request_resource_metadata_from_db: bool = False,
 ) -> bool:
     """
@@ -59,7 +59,7 @@ def ingest_xmlupload(
         interrupt_after: if set, the upload will be interrupted after this number of resources
         skip_validation: skip the SHACL validation
         skip_ontology_validation: skip the ontology validation
-        id2iri_replacement_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        id2iri_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
         do_not_request_resource_metadata_from_db: if true do not request metadata information from the api
                                                   for existing resources
 
@@ -86,8 +86,8 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
-    if id2iri_replacement_file:
-        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_file))
+    if id2iri_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_file))
 
     validation_should_be_skipped = skip_validation
     is_on_prod_like_server = is_prod_like_server(creds.server)

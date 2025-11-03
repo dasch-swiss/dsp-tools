@@ -218,4 +218,5 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
         f"Response status code: {status_code}\n"
         f"Original Message: {resp_txt}"
     )
+    logger.warning(msg)
     warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))

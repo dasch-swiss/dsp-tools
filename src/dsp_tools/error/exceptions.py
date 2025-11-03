@@ -75,7 +75,8 @@ class FatalUnsupportedApiResponseCode(BaseError):
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
         resp_txt = response_text[:200] if len(response_text) > 200 else response_text
         msg = (
-            f"We currently do not support the following API response code for this request.\n"
+            f"We currently do not support the following API response code for this request. "
+            f"Please contact the dsp-tools development team to handle this bug.\n"
             f"Status code: {status_code}\n"
             f"Request URL: {request_url}\n"
             f"Original Response: {resp_txt}"

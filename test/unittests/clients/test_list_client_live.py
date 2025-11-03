@@ -143,6 +143,11 @@ class TestListClient:
             with pytest.raises(FatalNonOkApiResponseCode):
                 list_client._get_all_list_iris()
 
+    def test_get_all_list_iris_timeout(self, list_client: ListGetClientLive) -> None:
+        with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspToolsRequestException):
+                list_client._get_all_list_iris()
+
     def test_get_one_list(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"type": "ListGetResponseADM", "list": {}}
@@ -157,6 +162,11 @@ class TestListClient:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.list_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCode):
+                list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
+
+    def test_get_one_list_timeout(self, list_client: ListGetClientLive) -> None:
+        with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspToolsRequestException):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
     def test_extract_list_iris(
@@ -240,6 +250,18 @@ class TestListCreateClient:
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspToolsRequestException):
                 list_create_client.create_new_list(list_info)
+
+    def test_create_new_list_server_error(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": PROJECT_IRI,
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            result = list_create_client.create_new_list(list_info)
+        assert result is None
 
     def test_add_list_node_success(self, list_create_client: ListCreateClientLive) -> None:
         node_info = {

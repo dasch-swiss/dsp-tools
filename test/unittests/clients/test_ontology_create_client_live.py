@@ -15,8 +15,8 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import FatalUnsupportedApiResponseCode
 from dsp_tools.error.exceptions import PermanentTimeOutError
-from dsp_tools.error.exceptions import UnexpectedApiResponseError
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 ONTO_IRI = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")
@@ -175,7 +175,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
         expected = regex.escape(f"Could not find the last modification date in the response: {api_response}")
-        with pytest.raises(UnexpectedApiResponseError, match=expected):
+        with pytest.raises(FatalUnsupportedApiResponseCode, match=expected):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
     def test_post_and_log_request_creates_correct_headers(
@@ -279,7 +279,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
         expected = regex.escape(f"Could not find the last modification date of the ontology '{ONTO_IRI}'")
-        with pytest.raises(UnexpectedApiResponseError, match=expected):
+        with pytest.raises(FatalUnsupportedApiResponseCode, match=expected):
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
     def test_get_last_modification_date_unexpected_status_code(
@@ -295,7 +295,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
         expected = regex.escape("An unexpected response with the status code 404 was received from the API.")
-        with pytest.raises(UnexpectedApiResponseError, match=expected):
+        with pytest.raises(FatalUnsupportedApiResponseCode, match=expected):
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
     def test_get_last_modification_date_timeout(

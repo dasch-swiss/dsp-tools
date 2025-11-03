@@ -69,8 +69,18 @@ class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
 
 
-class UnexpectedApiResponseError(BaseError):
+class FatalUnsupportedApiResponseCode(BaseError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
+
+    def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
+        resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+        msg = (
+            f"We currently do not support the following API response code for this request.\n"
+            f"Status code: {status_code}\n"
+            f"Request URL: {request_url}\n"
+            f"Original Response: {resp_txt}"
+        )
+        super().__init__(msg)
 
 
 class UserFilepathNotFoundError(InputError):

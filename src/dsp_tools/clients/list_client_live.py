@@ -17,6 +17,7 @@ from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -46,7 +47,11 @@ class ListGetClientLive(ListGetClient):
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
         timeout = 10
         log_request(RequestParameters("GET", url, timeout))
-        response = requests.get(url=url, timeout=timeout)
+        try:
+            response = requests.get(url=url, timeout=timeout)
+        except RequestException as e:
+            log_and_raise_request_exception(e)
+
         log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
@@ -61,7 +66,11 @@ class ListGetClientLive(ListGetClient):
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
         timeout = 30
         log_request(RequestParameters("GET", url, timeout))
-        response = requests.get(url=url, timeout=timeout)
+        try:
+            response = requests.get(url=url, timeout=timeout)
+        except RequestException as e:
+            log_and_raise_request_exception(e)
+
         log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
@@ -94,12 +103,12 @@ class ListCreateClientLive(ListCreateClient):
 
     def create_new_list(self, list_info: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/lists"
+        headers = self._get_request_header()
         try:
-            headers = self._get_request_header()
             response = _post_and_log_request(url, list_info, headers)
-        except RequestException as err:
-            logger.exception(err)
-            return None
+        except RequestException as e:
+            log_and_raise_request_exception(e)
+
         if response.ok:
             result = response.json()
             list_iri = cast(str, result["list"]["listinfo"]["id"])
@@ -115,12 +124,12 @@ class ListCreateClientLive(ListCreateClient):
     def add_list_node(self, node_info: dict[str, Any], parent_iri: str) -> str | None:
         encoded_parent_iri = quote_plus(parent_iri)
         url = f"{self.api_url}/admin/lists/{encoded_parent_iri}"
+        headers = self._get_request_header()
         try:
-            headers = self._get_request_header()
             response = _post_and_log_request(url, node_info, headers)
-        except RequestException as err:
-            logger.error(err)
-            return None
+        except RequestException as e:
+            log_and_raise_request_exception(e)
+
         if response.ok:
             result = response.json()
             node_iri = cast(str, result["nodeinfo"]["id"])

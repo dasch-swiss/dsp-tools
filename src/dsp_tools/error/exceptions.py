@@ -60,15 +60,6 @@ class DspApiNotReachableError(BaseError):
 class DspToolsRequestException(BaseError):
     """Class for errors that are raised if any request exceptions happens."""
 
-    def __init__(self, original_exception_name: str, original_exceptions_message: str):
-        msg = (
-            f"During an API call the following exception occurred, "
-            f"please contact the dsp-tools development team if you need help resolving the error.\n"
-            f"Original Exception: {original_exception_name}\n"
-            f"Original Message: {original_exceptions_message}"
-        )
-        super().__init__(msg)
-
 
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""

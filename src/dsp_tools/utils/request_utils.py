@@ -14,10 +14,12 @@ from typing import Union
 from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
 
 
@@ -192,3 +194,14 @@ def should_retry(response: Response) -> bool:
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (try_again_later or in_500_range) and not in_testing_env
+
+
+def log_and_raise_request_exception(error: RequestException) -> Never:
+    msg = (
+        f"During an API call the following exception occurred, "
+        f"please contact the dsp-tools development team if you need help resolving the error.\n"
+        f"Original request: {error.request}\n"
+        f"Original exception name: {error.__class__.__name__}"
+    )
+    logger.error(msg)
+    raise DspToolsRequestException(msg) from None

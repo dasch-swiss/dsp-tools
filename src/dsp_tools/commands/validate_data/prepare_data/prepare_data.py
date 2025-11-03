@@ -30,15 +30,15 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 
 
 def get_info_and_parsed_resources_from_file(
-    file: Path, api_url: str, id2iri_replacement_file: str | None
+    file: Path, api_url: str, id2iri_file: str | None
 ) -> tuple[list[ParsedResource], str, dict[str, list[str]], list[str]]:
     root = parse_and_clean_xml_file(file)
     shortcode = root.attrib["shortcode"]
     authorship_lookup = get_authorship_lookup(root)
     permission_ids = [perm.attrib["id"] for perm in root.findall("permissions")]
     parsed_resources = get_parsed_resources(root, api_url)
-    if id2iri_replacement_file:
-        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_replacement_file))
+    if id2iri_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_file))
     return parsed_resources, shortcode, authorship_lookup, permission_ids
 
 

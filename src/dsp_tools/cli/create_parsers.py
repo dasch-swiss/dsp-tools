@@ -246,7 +246,7 @@ def _add_ingest_xmlupload(
         ),
     )
     subparser.add_argument(
-        "--id2iri-replacement-with-file",
+        "--id2iri-file",
         help=(
             "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
             "by IRIs provided in this mapping file"
@@ -318,7 +318,7 @@ def _add_xmlupload(
         ),
     )
     subparser.add_argument(
-        "--id2iri-replacement-with-file",
+        "--id2iri-file",
         help=(
             "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
             "by IRIs provided in this mapping file"
@@ -354,7 +354,7 @@ def _add_validate_data(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
     subparser.add_argument(
-        "--id2iri-replacement-with-file",
+        "--id2iri-file",
         help=(
             "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
             "by IRIs provided in this mapping file"

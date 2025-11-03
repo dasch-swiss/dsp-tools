@@ -502,9 +502,7 @@ def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_f
 def _test_xml_upload_with_id2iri_flag(id2iri_mapping_file: Path, creds: ServerCredentials) -> None:
     second_xml_file = Path("testdata/xml-data/test-data-systematic-with-id2iri-4123.xml")
 
-    config = UploadConfig(
-        id2iri_replacement_file=str(id2iri_mapping_file), do_not_request_resource_metadata_from_db=True
-    )
+    config = UploadConfig(id2iri_file=str(id2iri_mapping_file), do_not_request_resource_metadata_from_db=True)
     success = xmlupload(
         input_file=second_xml_file,
         creds=creds,

@@ -30,3 +30,10 @@ class DspToolsFutureWarning(DspToolsWarning, FutureWarning):
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
         print(BOLD_RED + f"DEPRECATION WARNING: {message}" + RESET_TO_DEFAULT)
+
+
+class DspToolsUnexpectedStatusCodeWarning(DspToolsWarning):
+    @classmethod
+    def showwarning(cls, message: str) -> None:
+        """Print the warning, without context"""
+        print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)

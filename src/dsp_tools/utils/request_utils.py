@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
@@ -19,6 +20,7 @@ from requests import Response
 
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
 
@@ -205,3 +207,15 @@ def log_and_raise_request_exception(error: RequestException) -> Never:
     )
     logger.error(msg)
     raise DspToolsRequestException(msg) from None
+
+
+def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
+    resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+    msg = (
+        "We got an unexpected API response during the following request. "
+        "Please contact the dsp-tools development team with your log file "
+        "so that we can handle this more gracefully in the future.\n"
+        f"Response status code: {status_code}\n"
+        f"Original Message: {resp_txt}"
+    )
+    warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))

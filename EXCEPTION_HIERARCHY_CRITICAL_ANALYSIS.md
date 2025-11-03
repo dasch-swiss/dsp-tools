@@ -14,6 +14,7 @@ However, the implementation suffers from **significant inconsistencies** in usag
 **architectural ambiguities**, and **missing best practices** that undermine the system's clarity and maintainability.
 
 **Key Findings:**
+
 - ✅ **Strengths:** Clear hierarchy, good user message formatting, comprehensive logging
 - ⚠️ **Weaknesses:** Inconsistent exception construction, ambiguous exception semantics, catch-all patterns
 - 🔴 **Critical Issues:** Exception/Problem duality creates confusion, positional arguments break dataclass contracts
@@ -28,9 +29,9 @@ Please think about them carefully, and if you agree, include them in your report
 
 - InputError should be renamed to UserError, to reflect the broader scope: not only the input might be wrong, but also other circumstances within the power of the user
 - There should be 2 subclasses of BaseError: 
-  - UserError where the user is the culprit and can do something to remedy the issue,
-  - InternalError for issues with server infrastructure, unexpected API responses, unexpected behaviour of our own python code, ... where the user can do nothing to remedy the issue.
-  - All other classes should be a subclass of either of the aforementioned.
+    - UserError where the user is the culprit and can do something to remedy the issue,
+    - InternalError for issues with server infrastructure, unexpected API responses, unexpected behaviour of our own python code, ... where the user can do nothing to remedy the issue.
+    - All other classes should be a subclass of either of the aforementioned.
 - In the try-except block in entry_point.py > run(), first the UserErrors should be handled (instead of BaseError as it is now), then the `Exception` (which include `InternalError`) should be transformed into `InternalError`
 - DockerNotReachableError and DspApiNotReachableError should be subclasses of UserError
 - UnexpectedApiResponseError should be a subclass of InternalError
@@ -54,12 +55,13 @@ Please think about them carefully, and if you agree, include them in your report
 - Generally: When handling an internal error, where the cause of the mistake is not 100% clear, 
   as much context as possible should be logged, either with `logger.exception()` or by re-raising a new exception *without* `from None`
 - Issues with ShaclCliValidator.validate():
-  - The error message says that Docker is not running, but this is already checked in `src/dsp_tools/cli/utils.py` > `check_docker_health()`
-  - it uses `logger.error()` instead of `logger.exception()`
-  - it uses `logger.error()` twice
-  - it raises ShaclValidationCliError from None, so the original error is lost. 
-  - Question to Claude Code: What is better, `logger.exception()` or removing `from None`? Or should both be used?
+    - The error message says that Docker is not running, but this is already checked in `src/dsp_tools/cli/utils.py` > `check_docker_health()`
+    - it uses `logger.error()` instead of `logger.exception()`
+    - it uses `logger.error()` twice
+    - it raises ShaclValidationCliError from None, so the original error is lost. 
+    - Question to Claude Code: What is better, `logger.exception()` or removing `from None`? Or should both be used?
 
+TODO:   bei den http clients für create: unsere programmierfehler sollen wir gar nicht behandeln, sondern es soll dann dreckig eskalieren. Das passiert sowieso in der testphase auf localhost. und es muss sowieso von uns debugged und supported werden. wir würden nur den code aufblähen, wenn wir unsere programmierfehler behandeln. Gilt diese überlegung vielleicth für die ganze codebase?
 
 
 ---
@@ -70,6 +72,7 @@ Please think about them carefully, and if you agree, include them in your report
 
 **Clear Separation of Concerns**
 The system distinguishes between:
+
 - **User-fixable errors** (`InputError` subclasses) - invalid input that users can correct
 - **Connection/network errors** (`PermanentConnectionError`, `PermanentTimeOutError`)
 - **Internal errors** (`InternalError`) - bugs requiring dev team intervention
@@ -98,6 +101,7 @@ This ensures consistent string representation across all exceptions.
 Several exceptions have unclear or overlapping purposes:
 
 **Problem A: `InvalidInputError` vs `InputError`**
+
 ```python
 class InputError(BaseError):
     """User input is invalid. Message should be user-friendly."""
@@ -115,6 +119,7 @@ This distinction is not obvious from the names.
 **RESPONSE FROM DEVELOPER**: Please go for `ApiRejectedInputError`
 
 **Problem B: `XmlInputConversionError` vs `InputError`**
+
 ```python
 class XmlInputConversionError(BaseError):
     """Error during XML input conversion."""
@@ -130,11 +135,13 @@ The current hierarchy suggests it's neither user-fixable nor internal, creating 
 **Problem C: Generic `BaseError` Raises**
 
 Found multiple locations raising raw `BaseError`:
+
 - [src/dsp_tools/utils/data_formats/date_util.py:46](src/dsp_tools/utils/data_formats/date_util.py#L46): `raise BaseError(f"Invalid calendar type: {s}")`
 - [src/dsp_tools/utils/json_parsing.py:33](src/dsp_tools/utils/json_parsing.py#L33): `raise BaseError("Invalid input: ...")`
 - [src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
 
 **Critique:** Raising raw `BaseError` defeats the purpose of having a hierarchy. These should use more specific exception types:
+
 - Date parsing errors → `InputError` (user provided bad date)
 - JSON validation → `JSONFileParsingError` (already exists!)
 - Unknown value types → `InternalError` (programming error)
@@ -151,6 +158,7 @@ except PermanentConnectionError as e:
 ```
 
 **Locations:**
+
 - [src/dsp_tools/clients/authentication_client_live.py:43](src/dsp_tools/clients/authentication_client_live.py#L43)
 - [src/dsp_tools/clients/authentication_client_live.py:45](src/dsp_tools/clients/authentication_client_live.py#L45)
 - [src/dsp_tools/utils/xml_parsing/parse_clean_validate_xml.py:46](src/dsp_tools/utils/xml_parsing/parse_clean_validate_xml.py#L46)
@@ -160,13 +168,16 @@ except PermanentConnectionError as e:
 This makes it harder to diagnose the root cause of errors.
 
 **When it's appropriate:**
+
 - Converting low-level exceptions to user-friendly messages where the technical details aren't relevant
 
 **When it's problematic:**
+
 - Converting between DSP-TOOLS exceptions (e.g., `PermanentConnectionError` → `InputError`)
 - In development/debugging scenarios
 
 **Recommendation:**
+
 - Use `from e` (or no `from` clause) for DSP-TOOLS-to-DSP-TOOLS conversions
 - Reserve `from None` for converting third-party exceptions to user messages
 
@@ -175,6 +186,7 @@ This makes it harder to diagnose the root cause of errors.
 Found three different patterns for exception construction:
 
 **Pattern A: Custom `__init__` with specific parameters** ✅ Good
+
 ```python
 class UserFilepathNotFoundError(InputError):
     def __init__(self, filepath: str | Path) -> None:
@@ -183,11 +195,13 @@ class UserFilepathNotFoundError(InputError):
 ```
 
 **Pattern B: Dataclass field with positional argument** ⚠️ Fragile
+
 ```python
 raise InputError("Some error message")  # Relies on positional arg
 ```
 
 **Pattern C: Complex custom logic** 🤔 Complex but justified
+
 ```python
 class InternalError(BaseError):
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
@@ -197,11 +211,13 @@ class InternalError(BaseError):
 **Critique:**
 
 Pattern B (positional arguments) is **dangerous** because:
+
 1. It relies on dataclass field ordering (fragile)
 2. Doesn't communicate intent (what does `InputError("foo")` mean?)
 3. Breaks if dataclass fields are added/reordered
 
 **Evidence of the problem:**
+
 ```python
 # Current usage across codebase:
 raise InputError("Invalid DSP server URL")  # positional
@@ -210,6 +226,7 @@ raise InputError(msg)  # positional - what does 'msg' represent?
 ```
 
 **Recommendation:**
+
 - **Enforce keyword arguments:** `raise InputError(message="Invalid DSP server URL")`
 - Or create factory methods: `InputError.from_message("...")`
 - Add type hints to make field names explicit
@@ -223,11 +240,13 @@ raise InputError(msg)  # positional - what does 'msg' represent?
 DSP-TOOLS has **two parallel systems** for reporting errors:
 
 **System 1: Exceptions** (raises and catches)
+
 ```python
 raise InputError("Bad input")
 ```
 
 **System 2: Problem Protocol** (collects and reports)
+
 ```python
 class Problem(Protocol):
     def execute_error_protocol(self) -> str: ...
@@ -238,15 +257,18 @@ class Problem(Protocol):
 #### **Issue 2.1: Inconsistent Usage Across Modules**
 
 **Problem collection used in:**
+
 - ✅ `excel2json` module - extensively uses `Problem` protocol
 - ✅ `validate_data` module - uses `InputProblem` dataclasses
 - ✅ `create` module - uses problem models
 
 **Exception raising used in:**
+
 - All other modules
 - Even within modules that use `Problem`, exceptions are still raised
 
 **Critique:** There's no clear guidance on when to use which system. This leads to:
+
 - **Inconsistent error reporting UX** - some commands show all errors together, others fail on first error
 - **Harder testing** - need to test two different error patterns
 - **Cognitive overhead** - developers must decide which system to use
@@ -254,10 +276,12 @@ class Problem(Protocol):
 #### **Issue 2.2: Missing Conversion Between Systems**
 
 When both systems exist in the same module, there's no standard pattern for:
+
 - Converting a `Problem` to an `Exception` when it should be fatal
 - Collecting multiple exceptions as `Problem` instances
 
 **Example from excel2json:**
+
 ```python
 # Sometimes raises immediately:
 raise InputError(msg)  # Line 65 in resources.py
@@ -276,12 +300,14 @@ The example you cite as "Sometimes raises immediately" perfectly follows this pa
 #### **Issue 2.3: Problem Protocol Lacks Severity Levels**
 
 The `Problem` protocol is minimal:
+
 ```python
 class Problem(Protocol):
     def execute_error_protocol(self) -> str: ...
 ```
 
 But `InputProblem` (in validate_data) has severity:
+
 ```python
 class Severity(Enum):
     VIOLATION = auto()
@@ -290,11 +316,13 @@ class Severity(Enum):
 ```
 
 **Critique:** The base `Problem` protocol doesn't support severity levels, but implementations need them. This creates inconsistency:
+
 - `excel2json` problems are all-or-nothing (no warnings)
 - `validate_data` problems have three severity levels
 - No standard way to aggregate and present problems across modules
 
 **Recommendation:** Enhance the `Problem` protocol:
+
 ```python
 class Problem(Protocol):
     def execute_error_protocol(self) -> str: ...
@@ -327,15 +355,18 @@ except Exception as err:  # noqa: BLE001 (blind-except)
 #### **Issue 3.1: Catch-All Exception Handler Catches Too Much**
 
 **Problem:** `except Exception` catches **everything**, including:
+
 - `KeyboardInterrupt` (in Python < 3.0, or if someone incorrectly raises it as Exception)
 - `SystemExit` (though typically bypasses except)
 - All third-party library exceptions
 
 **Critique:** This can prevent graceful shutdown:
+
 - User presses Ctrl+C → caught as `Exception` → shown as "InternalError"
 - Third-party library raises unexpected exception → logged but loses context
 
 **Recommendation:**
+
 ```python
 except BaseError as err:
     # Handle DSP-TOOLS exceptions
@@ -355,12 +386,14 @@ except Exception as err:
 Found multiple patterns for exception conversion:
 
 **Pattern A: Catch and convert** (used 15+ times)
+
 ```python
 except PermanentConnectionError as e:
     raise InputError(e.message) from None
 ```
 
 **Pattern B: Catch and re-raise** (used 5+ times)
+
 ```python
 except BaseError:
     logger.error("...")
@@ -368,6 +401,7 @@ except BaseError:
 ```
 
 **Pattern C: Catch, log, and continue** (used 10+ times)
+
 ```python
 except BaseError:
     logger.exception("Failed to create list")
@@ -375,6 +409,7 @@ except BaseError:
 ```
 
 **Pattern D: Catch multiple, handle differently** (used 3+ times)
+
 ```python
 except (PermanentConnectionError, InvalidInputError) as e:
     # Special handling
@@ -383,15 +418,18 @@ except BaseError as e:
 ```
 
 **Critique:** No clear guidelines on when to use each pattern. This leads to:
+
 - **Inconsistent error recovery** - some commands continue after errors, others abort
 - **Lost context** - some conversions lose important details
 - **Redundant catches** - multiple layers catching the same exception types
 
 **Locations exhibiting inconsistency:**
+
 - [src/dsp_tools/commands/project/create/project_create_all.py](src/dsp_tools/commands/project/create/project_create_all.py) - 6 different catch blocks with different patterns
 - [src/dsp_tools/commands/project/create/project_create_ontologies.py](src/dsp_tools/commands/project/create/project_create_ontologies.py) - 4 different catch blocks
 
 **Recommendation:** Document standard patterns:
+
 ```python
 # Pattern 1: Full conversion (external → internal exceptions)
 try:
@@ -442,11 +480,13 @@ except PermanentConnectionError as e:
 ### 4.1 Strengths
 
 **Good message formatting:**
+
 - Red color for errors
 - Yellow for warnings
 - Clear separation between user message (stdout) and technical details (log file)
 
 **InternalError provides excellent guidance:**
+
 ```python
 "\n\nAn internal error occurred.\n"
 "Please contact the dsp-tools development team with the following information:\n"
@@ -484,6 +524,7 @@ The process was terminated because of an Error: ERROR: Invalid DSP server URL 'f
 ```
 
 **Recommendation:**
+
 - Remove all "ERROR:" prefixes from exception messages
 - Standardize on sentence case with punctuation
 - Create message format guidelines
@@ -497,6 +538,7 @@ raise InputError(f"A project with shortcode {shortcode} could not be found on th
 ```
 
 **Critique:** Users may not know what a "shortcode" is. Better message:
+
 ```python
 raise InputError(
     f"The project with ID '{shortcode}' could not be found on the DSP server. "
@@ -505,6 +547,7 @@ raise InputError(
 ```
 
 **Other examples:**
+
 - "OntologyConstraintException" mentioned in error (too technical)
 - "Resource ID exists in both mapping and new data" (unclear what to do)
 - "INGEST rejected file due to its name" (what's INGEST? What's wrong with the name?)
@@ -523,6 +566,7 @@ raise InvalidGuiAttributeError("Invalid gui attribute")
 ```
 
 **Recommendation:** For all `InputError` subclasses, ensure messages:
+
 1. State what was expected
 2. State what was found
 3. Suggest how to fix it
@@ -532,6 +576,7 @@ raise InvalidGuiAttributeError("Invalid gui attribute")
 ## 5. Xmllib Exception Isolation
 
 The xmllib has its own exception hierarchy:
+
 - `XmllibInputError`
 - `XmllibFileNotFoundError`
 - `XmllibInternalError`
@@ -539,6 +584,7 @@ The xmllib has its own exception hierarchy:
 ### 5.1 Analysis
 
 **Good:**
+
 - Clear isolation of library-specific errors
 - Follows same pattern as main exceptions (Input/Internal distinction)
 
@@ -557,12 +603,14 @@ class UserFilepathNotFoundError(InputError):
 **Critique:** These are functionally identical. Why does xmllib need its own file-not-found exception?
 
 **Recommendation:** Either:
+
 - **Option A:** Use `UserFilepathNotFoundError` everywhere (remove xmllib version)
 - **Option B:** If xmllib needs isolation, document **why** and ensure the exceptions provide xmllib-specific context
 
 #### **Issue 5.2: Xmllib Warnings are More Sophisticated**
 
 The xmllib warning system has:
+
 ```python
 class XmllibUserInfoBase(Warning, ABC):
     @classmethod
@@ -577,12 +625,14 @@ class XmllibInputWarning(XmllibUserInfoBase):
 ```
 
 But main warnings are simpler:
+
 ```python
 class DspToolsUserWarning(DspToolsWarning):
     # Just warnings, no "info" level
 ```
 
 **Critique:** Why does xmllib have `Info` and `Warning` levels, but the main system doesn't? This suggests:
+
 - The main warning system is under-designed
 - Or xmllib has special needs that weren't generalized
 
@@ -607,6 +657,7 @@ BaseError
 **Problem:** `PermanentTimeOutError` is a sibling of `PermanentConnectionError`, but semantically, a timeout **is** a connection failure.
 
 **Current code:**
+
 ```python
 # In xmlupload.py, must catch both separately:
 except (PermanentConnectionError, PermanentTimeOutError, XmlUploadInterruptedError):
@@ -616,6 +667,7 @@ except (PermanentConnectionError, PermanentTimeOutError, XmlUploadInterruptedErr
 **Critique:** Having to catch both separately is a code smell. Timeouts are a **type** of connection problem.
 
 **Recommendation:**
+
 ```python
 class PermanentConnectionError(BaseError):
     """All reconnection attempts to DSP have failed."""
@@ -629,16 +681,19 @@ This allows catching all network issues with just `except PermanentConnectionErr
 #### **Issue 6.2: Retry Logic Hidden in Connection Class**
 
 The [ConnectionLive._try_network_action](src/dsp_tools/clients/connection_live.py#L148-L190) has:
+
 - Hardcoded 24 retries
 - Exponential backoff in `log_request_failure_and_sleep`
 - Timeout durations: 30 min for PUT/POST, 20 sec for GET
 
 **Critique:** This retry logic is:
+
 - Not configurable without changing code
 - Not testable with different retry counts
 - Hidden implementation detail
 
 **Recommendation:**
+
 - Make retry parameters configurable via constructor or config file
 - Extract retry logic to separate utility for testability
 - Document the retry strategy in exception docstrings
@@ -660,10 +715,12 @@ class ShaclValidationError(BaseError):
 #### **Issue 7.1: Unclear Error Boundaries**
 
 **Question:** When should each be raised?
+
 - Is `ShaclValidationCliError` for Docker issues specifically?
 - Is `ShaclValidationError` for SHACL validation failures or unexpected errors?
 
 **From usage:**
+
 ```python
 # In shacl_cli_validator.py
 raise ShaclValidationCliError(...)  # Docker problems
@@ -673,6 +730,7 @@ raise ShaclValidationError(msg) from None  # Parsing errors
 ```
 
 **Critique:** These names don't communicate the distinction. Better names:
+
 - `ShaclValidationCliError` → `ShaclDockerCommandError`
 - `ShaclValidationError` → `ShaclResultParsingError`
 
@@ -707,6 +765,7 @@ if not result.no_problems:
 **Critique:** This is actually **good design** - validation is pure (no side effects), CLI handles exceptions. However, this pattern isn't used consistently in other commands.
 
 **Recommendation:** Adopt this pattern project-wide:
+
 1. Commands return result objects (success + problems)
 2. CLI layer handles exceptions and exit codes
 3. Document this pattern as standard
@@ -739,6 +798,7 @@ class XmlUploadListNodeNotFoundError(BaseError):
 **Problem:** The "NotFoundError" exceptions are siblings of `XmlUploadError`, but semantically they're upload-related errors.
 
 **Recommendation:**
+
 ```python
 class XmlUploadError(BaseError):
     """Generic XML upload error"""
@@ -770,6 +830,7 @@ raise XmlUploadInterruptedError(msg) from None
 ```
 
 **Critique:** The same exception is raised in 4 different places with different messages. This suggests:
+
 - Either the messages should be standardized
 - Or different exception types should be used (e.g., `XmlUploadUserInterrupted`, `XmlUploadConnectionInterrupted`)
 
@@ -780,12 +841,14 @@ raise XmlUploadInterruptedError(msg) from None
 ### 9.1 Current State
 
 **Observed:** Many unit tests verify exception types and messages:
+
 ```python
 with pytest.raises(InputError, match="expected message"):
     function_that_should_raise()
 ```
 
 **Good practices found:**
+
 - Tests verify specific exception types (not just `Exception`)
 - Tests check error message content
 - Some tests verify exception chains with `__cause__`
@@ -795,11 +858,13 @@ with pytest.raises(InputError, match="expected message"):
 #### **Issue 9.1: No Tests for Exception Hierarchy**
 
 **Missing:**
+
 - Tests verifying inheritance relationships (e.g., `isinstance(InputError(), BaseError)`)
 - Tests ensuring all custom exceptions have proper `__str__` behavior
 - Tests for exception message formatting (no double "ERROR:" prefix)
 
 **Recommendation:** Add meta-tests:
+
 ```python
 def test_all_exceptions_inherit_from_base_error():
     """Ensure all custom exceptions inherit from BaseError."""
@@ -816,6 +881,7 @@ def test_exception_messages_dont_have_error_prefix():
 #### **Issue 9.2: No Tests for Exception Conversion Patterns**
 
 **Missing:** Tests verifying that exceptions are correctly converted between layers:
+
 ```python
 def test_permanent_connection_error_converts_to_input_error_in_auth():
     """Verify authentication converts connection errors to input errors."""
@@ -830,12 +896,14 @@ def test_permanent_connection_error_converts_to_input_error_in_auth():
 ### 10.1 Docstring Quality
 
 **Good examples:**
+
 ```python
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 ```
 
 **Poor examples:**
+
 ```python
 class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
@@ -862,6 +930,7 @@ def create_project(...) -> bool:
 ```
 
 **Recommendation:** Add comprehensive "Raises" sections:
+
 ```python
 def create_project(...) -> bool:
     """
@@ -880,12 +949,14 @@ def create_project(...) -> bool:
 ### 10.2 Missing Architecture Documentation
 
 **Current state:** No centralized documentation explaining:
+
 - When to use exceptions vs Problem protocol
 - How to choose between exception types
 - Exception conversion patterns
 - Retry and recovery strategies
 
 **Recommendation:** Create `docs/error-handling.md` with:
+
 1. Decision tree for choosing exception types
 2. Standard patterns for exception conversion
 3. Guidelines for error messages
@@ -983,12 +1054,14 @@ The DSP-TOOLS exception system has a **solid foundation** with clear user/intern
 ### Key Takeaways
 
 **What's Working:**
+
 - Clear exception hierarchy concept
 - Excellent InternalError user guidance
 - Good logging and color-coded output
 - Problem protocol for validation
 
 **What Needs Work:**
+
 - Inconsistent exception construction (positional args)
 - Ambiguous exception names and relationships
 - Mixed Exception/Problem usage patterns

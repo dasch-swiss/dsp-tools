@@ -5,6 +5,7 @@ from typing import cast
 import requests
 
 from dsp_tools.clients.ontology_clients import OntologyGetClient
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
@@ -23,9 +24,9 @@ class OntologyGetClientLive(OntologyGetClient):
         log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
         response = requests.get(url=url, headers=headers, timeout=timeout)
         log_response(response, include_response_content=False)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        return response.text
+        if response.ok:
+            return response.text
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def get_ontologies(self) -> tuple[list[str], list[str]]:
         """
@@ -49,7 +50,7 @@ class OntologyGetClientLive(OntologyGetClient):
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
         if not (ontos := response_json.get("project", {}).get("ontologies")):
-            raise InternalError(f"The response from the API does not contain any ontologies.\nResponse:{response.text}")
+            raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
         output = cast(list[str], ontos)
         return output
 
@@ -60,6 +61,6 @@ class OntologyGetClientLive(OntologyGetClient):
         log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
         response = requests.get(url=url, headers=headers, timeout=timeout)
         log_response(response, include_response_content=False)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        return response.text
+        if response.ok:
+            return response.text
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

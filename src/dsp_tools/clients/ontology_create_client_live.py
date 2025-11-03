@@ -14,6 +14,7 @@ from requests import Response
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -44,8 +45,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
         if response.ok:
             return _parse_last_modification_date(response.text, URIRef(onto_iri))
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You do not have sufficient credentials to retrieve ontology metadata.")
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"

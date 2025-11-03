@@ -69,7 +69,7 @@ class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
 
 
-class FatalUnsupportedApiResponseCode(BaseError):
+class FatalNonOkApiResponseCode(BaseError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
 
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:

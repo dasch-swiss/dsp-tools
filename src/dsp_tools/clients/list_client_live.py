@@ -14,7 +14,7 @@ from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
@@ -53,10 +53,10 @@ class ListGetClientLive(ListGetClient):
             log_and_raise_request_exception(err)
 
         log_response(response)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        if response.ok:
+            json_response = cast(dict[str, Any], response.json())
+            return json_response
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
         return [x["id"] for x in response_json["lists"]]
@@ -72,10 +72,10 @@ class ListGetClientLive(ListGetClient):
             log_and_raise_request_exception(err)
 
         log_response(response, include_response_content=False)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        response_json = cast(dict[str, Any], response.json())
-        return response_json
+        if response.ok:
+            response_json = cast(dict[str, Any], response.json())
+            return response_json
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
         list_name = response_json["list"]["listinfo"]["name"]

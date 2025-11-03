@@ -1,3 +1,4 @@
+import warnings
 from typing import Any
 
 from loguru import logger
@@ -17,6 +18,8 @@ from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
@@ -64,8 +67,18 @@ def _print_existing_list_info(existing_lists: list[UserInformation]) -> None:
 
 def get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> ListNameToIriLookup:
     client = ListGetClientLive(auth.server, shortcode)
-    name2iri_dict = client.get_all_list_iris_and_names()
-    return ListNameToIriLookup(name2iri_dict)
+    try:
+        name2iri_dict = client.get_all_list_iris_and_names()
+        return ListNameToIriLookup(name2iri_dict)
+    except FatalNonOkApiResponseCode as e:
+        logger.exception(e)
+        warnings.warn(
+            DspToolsUnexpectedStatusCodeWarning(
+                "Could not retrieve existing lists on server, "
+                "we will not be able to create any properties that require a list that is not defined in the json."
+            )
+        )
+        return ListNameToIriLookup({})
 
 
 def _filter_out_existing_lists(

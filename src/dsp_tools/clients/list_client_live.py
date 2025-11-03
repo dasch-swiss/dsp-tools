@@ -5,7 +5,6 @@ from typing import cast
 from urllib.parse import quote_plus
 
 import requests
-from loguru import logger
 from requests import RequestException
 from requests import Response
 
@@ -18,6 +17,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -118,7 +118,7 @@ class ListCreateClientLive(ListCreateClient):
                 "Only a project or system administrator can create lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.exception(f"Failed to create list: '{list_info['name']}'")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
     def add_list_node(self, node_info: dict[str, Any], parent_iri: str) -> str | None:
@@ -139,7 +139,7 @@ class ListCreateClientLive(ListCreateClient):
                 "Only a project or system administrator can add nodes to lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.error(f"Failed to add node: '{node_info['name']}'")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
     def _get_request_header(self) -> dict[str, str]:

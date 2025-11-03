@@ -10,6 +10,7 @@ from requests import JSONDecodeError
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
@@ -260,7 +261,8 @@ class TestListCreateClient:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.create_new_list(list_info)
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = list_create_client.create_new_list(list_info)
         assert result is None
 
     def test_add_list_node_success(self, list_create_client: ListCreateClientLive) -> None:
@@ -326,7 +328,8 @@ class TestListCreateClient:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
         assert result is None
 
 

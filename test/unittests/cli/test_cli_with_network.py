@@ -106,7 +106,7 @@ class TestXmlupload:
                 skip_ontology_validation=False,
                 ignore_duplicate_files_warning=False,
                 validation_severity=ValidationSeverity.INFO,
-                id2iri_replacement_file=None,
+                id2iri_file=None,
                 do_not_request_resource_metadata_from_db=False,
             ),
         )
@@ -259,8 +259,8 @@ class TestXmlupload:
 
     @patch("dsp_tools.cli.utils.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
-    def test_xmlupload_id2iri_replacement_with_file(self, xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
+    def test_xmlupload_id2iri_file(self, xmlupload: Mock, check_docker: Mock) -> None:
+        args = f"xmlupload --id2iri-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
             user="root@example.com",
@@ -272,7 +272,7 @@ class TestXmlupload:
             input_file=Path(DATA_XML_PATH),
             creds=creds,
             imgdir=".",
-            config=UploadConfig(id2iri_replacement_file=ID_2_IRI_JSON_PATH),
+            config=UploadConfig(id2iri_file=ID_2_IRI_JSON_PATH),
         )
 
     @patch("dsp_tools.cli.utils.check_network_health")
@@ -297,7 +297,7 @@ class TestXmlupload:
                 skip_ontology_validation=False,
                 ignore_duplicate_files_warning=False,
                 validation_severity=ValidationSeverity.INFO,
-                id2iri_replacement_file=None,
+                id2iri_file=None,
                 do_not_request_resource_metadata_from_db=True,
             ),
         )
@@ -318,7 +318,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -337,7 +337,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=True,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -355,7 +355,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -376,7 +376,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -397,7 +397,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -415,14 +415,14 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=True,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
     @patch("dsp_tools.cli.utils.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
-    def test_validate_data_id2iri_replacement_with_file(self, validate_data: Mock, check_docker: Mock) -> None:
-        args = f"validate-data --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
+    def test_validate_data_id2iri_file(self, validate_data: Mock, check_docker: Mock) -> None:
+        args = f"validate-data --id2iri-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
             user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
@@ -433,7 +433,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=ID_2_IRI_JSON_PATH,
+            id2iri_file=ID_2_IRI_JSON_PATH,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -453,7 +453,7 @@ class TestValidateData:
             creds=creds,
             ignore_duplicate_files_warning=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=True,
         )
 
@@ -564,7 +564,7 @@ class TestIngestUploads:
             interrupt_after=None,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -586,7 +586,7 @@ class TestIngestUploads:
             interrupt_after=None,
             skip_validation=True,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -607,7 +607,7 @@ class TestIngestUploads:
             interrupt_after=1,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -631,14 +631,14 @@ class TestIngestUploads:
             interrupt_after=None,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
         )
 
     @patch("dsp_tools.cli.utils.check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
-    def test_ingest_xmlupload_id2iri_replacement_with_file(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"ingest-xmlupload --id2iri-replacement-with-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
+    def test_ingest_xmlupload_id2iri_file(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
+        args = f"ingest-xmlupload --id2iri-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -652,7 +652,7 @@ class TestIngestUploads:
             interrupt_after=None,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=ID_2_IRI_JSON_PATH,
+            id2iri_file=ID_2_IRI_JSON_PATH,
             do_not_request_resource_metadata_from_db=False,
         )
 
@@ -675,7 +675,7 @@ class TestIngestUploads:
             interrupt_after=None,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_replacement_file=None,
+            id2iri_file=None,
             do_not_request_resource_metadata_from_db=True,
         )
 

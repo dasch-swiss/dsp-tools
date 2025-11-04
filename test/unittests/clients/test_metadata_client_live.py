@@ -11,6 +11,7 @@ from requests import Response
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 
 
 @pytest.fixture
@@ -82,8 +83,7 @@ def test_get_resource_metadata_non_ok(metadata_client):
     assert data == []
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_request_exception(log_request, metadata_client):
+def test_get_resource_metadata_request_exception(metadata_client):
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.side_effect = RequestException("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
@@ -92,10 +92,7 @@ def test_get_resource_metadata_request_exception(log_request, metadata_client):
     assert data == []
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
-def test_get_resource_metadata_unauthorized_no_warning(
-    log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
-):
+def test_get_resource_metadata_unauthorized_no_warning(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = HTTPStatus.UNAUTHORIZED.value
@@ -107,22 +104,16 @@ def test_get_resource_metadata_unauthorized_no_warning(
 
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []
-    log_and_warn.assert_not_called()
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
-def test_get_resource_metadata_unexpected_status_logs_warning(
-    log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
-):
+def test_get_resource_metadata_unexpected_status_logs_warning(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 500
     mock_response.text = "Internal Server Error"
-
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
-        response_type, data = metadata_client.get_resource_metadata("9999")
-
+        with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+            response_type, data = metadata_client.get_resource_metadata("9999")
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []
-    log_and_warn.assert_called_once_with(500, "Internal Server Error")

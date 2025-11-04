@@ -20,6 +20,7 @@ from requests import Response
 
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
@@ -201,11 +202,12 @@ def should_retry(response: Response) -> bool:
 def log_and_raise_request_exception(error: RequestException) -> Never:
     msg = (
         f"During an API call the following exception occurred, "
-        f"please contact the dsp-tools development team (at info@dasch.swiss) if you need help resolving the error.\n"
-        f"Original request: {error.request}\n"
+        f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
+        f"if you required help resolving the issue.\n"
+        f"Original request: {error.request.method} {error.request.url}\n"
         f"Original exception name: {error.__class__.__name__}"
     )
-    logger.error(msg)
+    logger.exception(msg)
     raise DspToolsRequestException(msg) from None
 
 

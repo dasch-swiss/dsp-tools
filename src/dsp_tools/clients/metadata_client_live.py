@@ -33,7 +33,7 @@ class MetadataClientLive(MetadataClient):
                 timeout=params.timeout,
             )
         except RequestException as err:
-            logger.error(err)
+            logger.exception(err)
             return ExistingResourcesRetrieved.FALSE, []
         if response.ok:
             log_response(response, include_response_content=False)

@@ -74,8 +74,8 @@ def get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> 
         logger.exception(e)
         warnings.warn(
             DspToolsUnexpectedStatusCodeWarning(
-                "Could not retrieve existing lists on server, "
-                "we will not be able to create any properties that require a list that is not defined in the json."
+                "Could not retrieve existing lists on server. "
+                "We will not be able to create any properties that require a list that is not defined in the JSON."
             )
         )
         return ListNameToIriLookup({})

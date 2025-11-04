@@ -1,10 +1,10 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
+from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.legal_info_client_live import HTTP_LACKING_PERMISSIONS
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -84,7 +84,7 @@ class TestPostCopyrightHolders:
 
     def test_client_post_copyright_holders_lacking_permissions(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=HTTP_LACKING_PERMISSIONS, ok=False)
+        expected_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False)
         client._post_and_log_request = Mock(return_value=expected_response)
         with pytest.raises(BadCredentialsError):
             client.post_copyright_holders(["1"])
@@ -150,7 +150,7 @@ class TestGetEnabledLicenses:
 
     def test_insufficient_credentials(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        mock_response = Mock(status_code=HTTP_LACKING_PERMISSIONS, ok=False)
+        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False)
         mock_response.json.return_value = {}
         mock_response.headers = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:

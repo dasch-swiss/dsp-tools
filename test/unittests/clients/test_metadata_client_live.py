@@ -29,9 +29,7 @@ def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
     )
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_client):  # noqa: ARG001
+def test_get_resource_metadata_ok_with_data(metadata_client):
     expected_data = [
         {
             "resourceClassIri": "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource",
@@ -56,9 +54,7 @@ def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_
     assert data == expected_data
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_client):  # noqa: ARG001
+def test_get_resource_metadata_ok_no_data(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = True
     mock_response.status_code = 200
@@ -72,9 +68,7 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
     assert data == []
 
 
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
+def test_get_resource_metadata_non_ok(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 403
@@ -89,7 +83,7 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
 
 
 @patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_request_exception(log_request, metadata_client):  # noqa: ARG001
+def test_get_resource_metadata_request_exception(log_request, metadata_client):
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.side_effect = RequestException("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
@@ -99,8 +93,6 @@ def test_get_resource_metadata_request_exception(log_request, metadata_client): 
 
 
 @patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_unauthorized_no_warning(
     log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
 ):
@@ -119,8 +111,6 @@ def test_get_resource_metadata_unauthorized_no_warning(
 
 
 @patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
-@patch("dsp_tools.clients.metadata_client_live.log_response")
-@patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_unexpected_status_logs_warning(
     log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
 ):

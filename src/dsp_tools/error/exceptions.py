@@ -171,6 +171,14 @@ class UnknownDOAPException(BaseError):
     """Class for errors that are raised if a DOAP cannot be parsed"""
 
 
+class ProjectOntologyNotFound(BaseError):
+    """Class for errors that are raised if no project ontologies were found."""
+
+    def __init__(self, shortcode: str) -> None:
+        msg = f"The project with the shortcode '{shortcode}' does not have any ontologies."
+        super().__init__(msg)
+
+
 class CreateError(BaseError):
     """Errors for the create command."""
 

@@ -4,11 +4,12 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import RequestException
 
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 
 AUTH = Mock()
@@ -48,15 +49,16 @@ class TestPostCopyrightHolders:
     @patch("dsp_tools.clients.legal_info_client_live.log_request")
     def test_log_request(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        url = "http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders"
         params = RequestParameters(
             method="POST",
-            url="http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders",
+            url=url,
             data={"data": ["1"]},
             timeout=60,
         )
         with patch("dsp_tools.clients.legal_info_client_live.requests.post") as post_mock:
             post_mock.return_value = Mock(status_code=200, ok=True)
-            response = client._post_and_log_request("copyright-holders", ["1"])
+            response = client._post_and_log_request(url, ["1"])
         assert response.status_code == 200
         assert response.ok
         log_request_call_params = log_request.call_args_list[0].args[0]
@@ -68,16 +70,17 @@ class TestPostCopyrightHolders:
     @patch("dsp_tools.clients.legal_info_client_live.log_request")
     def test_post_ok(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        url = "http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders"
         params = RequestParameters(
             method="POST",
-            url="http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders",
+            url=url,
             data={"data": ["1"]},
             timeout=60,
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
         )
         with patch("dsp_tools.clients.legal_info_client_live.requests.post") as post_mock:
             post_mock.return_value = Mock(status_code=200, ok=True)
-            client._post_and_log_request("copyright-holders", ["1"])
+            client._post_and_log_request(url, ["1"])
             post_mock.assert_called_once_with(
                 url=params.url, headers=params.headers, data=params.data_serialized, timeout=params.timeout
             )
@@ -91,10 +94,21 @@ class TestPostCopyrightHolders:
 
     def test_client_post_copyright_holders_unknown_status_code(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=404, ok=False)
+        expected_response = Mock(status_code=404, ok=False, text="Not Found")
         client._post_and_log_request = Mock(return_value=expected_response)
-        with pytest.raises(BaseError):
+        with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
             client.post_copyright_holders(["1"])
+        assert "404" in str(exc_info.value)
+
+    @patch("dsp_tools.clients.legal_info_client_live.log_and_raise_request_exception")
+    def test_client_post_copyright_holders_request_exception(self, log_and_raise_mock: Mock):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        request_error = RequestException("Connection timeout")
+        client._post_and_log_request = Mock(side_effect=request_error)
+        log_and_raise_mock.side_effect = request_error
+        with pytest.raises(RequestException):
+            client.post_copyright_holders(["1"])
+        log_and_raise_mock.assert_called_once()
 
 
 class TestGetEnabledLicenses:
@@ -160,13 +174,27 @@ class TestGetEnabledLicenses:
 
     def test_unknown_status_code(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        mock_response = Mock(status_code=404, ok=False)
+        mock_response = Mock(status_code=404, ok=False, text="Not Found")
         mock_response.json.return_value = {}
         mock_response.headers = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
-            with pytest.raises(BaseError):
+            with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
                 client._get_one_license_page(page_num=1, enabled_only=True)
+        assert "404" in str(exc_info.value)
+
+    @patch("dsp_tools.clients.legal_info_client_live.log_response")
+    @patch("dsp_tools.clients.legal_info_client_live.log_request")
+    @patch("dsp_tools.clients.legal_info_client_live.log_and_raise_request_exception")
+    def test_request_exception(self, log_and_raise_mock: Mock, log_request: Mock, log_response: Mock):  # noqa: ARG002
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        request_error = RequestException("Connection timeout")
+        log_and_raise_mock.side_effect = request_error
+        with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
+            get_mock.side_effect = request_error
+            with pytest.raises(RequestException):
+                client._get_one_license_page(page_num=1, enabled_only=True)
+        log_and_raise_mock.assert_called_once()
 
 
 def test_is_last_page_no():

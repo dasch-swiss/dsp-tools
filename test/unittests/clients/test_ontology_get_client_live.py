@@ -2,10 +2,11 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import RequestException
 
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import ProjectOntologyNotFound
 
 
 @pytest.fixture
@@ -28,18 +29,20 @@ class TestOntologyClient:
         assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
 
     def test_get_ontology_iris_non_ok_code(self, ontology_client: OntologyGetClientLive) -> None:
-        mock_response = Mock(status_code=404, ok=False, headers={})
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="Not Found")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(InternalError):
+            with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
                 ontology_client._get_ontology_iris()
+        assert "404" in str(exc_info.value)
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="text")
         mock_response.json.return_value = {"foo": "bar"}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(ProjectOntologyNotFound) as exc_info:
                 ontology_client._get_ontology_iris()
+        assert "9999" in str(exc_info.value)
 
     def test_get_one_ontology(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")
@@ -49,6 +52,32 @@ class TestOntologyClient:
         assert result == "Turtle Text"
         assert mock_get.call_args_list[0][1]["url"] == "iri"
         assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
+
+    @patch("dsp_tools.clients.ontology_get_client_live.log_request")
+    @patch("dsp_tools.clients.ontology_get_client_live.log_and_raise_request_exception")
+    def test_get_ontology_iris_request_exception(
+        self, log_and_raise_mock: Mock, log_request: Mock, ontology_client: OntologyGetClientLive
+    ) -> None:
+        request_error = RequestException("Connection timeout")
+        log_and_raise_mock.side_effect = request_error
+        with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
+            mock_get.side_effect = request_error
+            with pytest.raises(RequestException):
+                ontology_client._get_ontology_iris()
+        log_and_raise_mock.assert_called_once()
+
+    @patch("dsp_tools.clients.ontology_get_client_live.log_request")
+    @patch("dsp_tools.clients.ontology_get_client_live.log_and_raise_request_exception")
+    def test_get_one_ontology_request_exception(
+        self, log_and_raise_mock: Mock, log_request: Mock, ontology_client: OntologyGetClientLive
+    ) -> None:
+        request_error = RequestException("Connection timeout")
+        log_and_raise_mock.side_effect = request_error
+        with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
+            mock_get.side_effect = request_error
+            with pytest.raises(RequestException):
+                ontology_client._get_one_ontology("iri")
+        log_and_raise_mock.assert_called_once()
 
 
 if __name__ == "__main__":

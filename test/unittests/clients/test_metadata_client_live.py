@@ -1,9 +1,11 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -87,10 +89,50 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
 
 
 @patch("dsp_tools.clients.metadata_client_live.log_request")
-def test_get_resource_metadata_error_raised(log_request, metadata_client):  # noqa: ARG001
+def test_get_resource_metadata_request_exception(log_request, metadata_client):  # noqa: ARG001
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
-        get_mock.side_effect = Exception("Connection error")
+        get_mock.side_effect = RequestException("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
 
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []
+
+
+@patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_unauthorized_no_warning(
+    log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
+):
+    mock_response = Mock(spec=Response)
+    mock_response.ok = False
+    mock_response.status_code = HTTPStatus.UNAUTHORIZED.value
+    mock_response.text = "Unauthorized"
+
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("4124")
+
+    assert response_type == ExistingResourcesRetrieved.FALSE
+    assert data == []
+    log_and_warn.assert_not_called()
+
+
+@patch("dsp_tools.clients.metadata_client_live.log_and_warn_unexpected_non_ok_response")
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_unexpected_status_logs_warning(
+    log_request: Mock, log_response: Mock, log_and_warn: Mock, metadata_client
+):
+    mock_response = Mock(spec=Response)
+    mock_response.ok = False
+    mock_response.status_code = 500
+    mock_response.text = "Internal Server Error"
+
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("9999")
+
+    assert response_type == ExistingResourcesRetrieved.FALSE
+    assert data == []
+    log_and_warn.assert_called_once_with(500, "Internal Server Error")

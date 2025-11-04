@@ -71,7 +71,7 @@ def test_failing_regex(iiif_uri_problem_bad_regex_good_status_code: IIIFUriProbl
         "URI: http://www.example.org/\n"
         "    - Did not pass the internal regex check.\n"
         "    - Although the IIIF-server responded as expected, this URI did not pass validation.\n"
-        "    - Please contact the dsp-tools development team with this information."
+        "    - Please contact the dsp-tools development team (at info@dasch.swiss) with this information."
     )
 
 

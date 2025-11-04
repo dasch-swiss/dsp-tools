@@ -10,8 +10,10 @@ from requests import JSONDecodeError
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import DspToolsRequestException
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"
@@ -136,10 +138,15 @@ class TestListClient:
         assert mock_get.call_args_list[0][1]["url"] == f"{list_client.api_url}/admin/lists?projectShortcode=9999"
 
     def test_get_all_list_iris_non_ok_code(self, list_client: ListGetClientLive) -> None:
-        mock_response = Mock(status_code=404, ok=False, headers={})
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.list_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(InternalError):
+            with pytest.raises(FatalNonOkApiResponseCode):
+                list_client._get_all_list_iris()
+
+    def test_get_all_list_iris_timeout(self, list_client: ListGetClientLive) -> None:
+        with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspToolsRequestException):
                 list_client._get_all_list_iris()
 
     def test_get_one_list(self, list_client: ListGetClientLive) -> None:
@@ -152,10 +159,15 @@ class TestListClient:
         assert mock_get.call_args_list[0][1]["url"] == url_expected
 
     def test_get_one_list_non_ok_code(self, list_client: ListGetClientLive) -> None:
-        mock_response = Mock(status_code=404, ok=False, headers={})
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.list_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(InternalError):
+            with pytest.raises(FatalNonOkApiResponseCode):
+                list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
+
+    def test_get_one_list_timeout(self, list_client: ListGetClientLive) -> None:
+        with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspToolsRequestException):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
     def test_extract_list_iris(
@@ -237,7 +249,20 @@ class TestListCreateClient:
             "labels": [{"value": "Test List", "language": "en"}],
         }
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            result = list_create_client.create_new_list(list_info)
+            with pytest.raises(DspToolsRequestException):
+                list_create_client.create_new_list(list_info)
+
+    def test_create_new_list_server_error(self, list_create_client: ListCreateClientLive) -> None:
+        list_info = {
+            "projectIri": PROJECT_IRI,
+            "name": "test-list",
+            "labels": [{"value": "Test List", "language": "en"}],
+        }
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = list_create_client.create_new_list(list_info)
         assert result is None
 
     def test_add_list_node_success(self, list_create_client: ListCreateClientLive) -> None:
@@ -290,8 +315,8 @@ class TestListCreateClient:
             "labels": [{"value": "Test Node", "language": "en"}],
         }
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
-        assert result is None
+            with pytest.raises(DspToolsRequestException):
+                list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
     def test_add_list_node_server_error(self, list_create_client: ListCreateClientLive) -> None:
         node_info = {
@@ -303,7 +328,8 @@ class TestListCreateClient:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
         assert result is None
 
 

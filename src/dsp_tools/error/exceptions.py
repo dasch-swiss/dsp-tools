@@ -29,7 +29,7 @@ class InternalError(BaseError):
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
-            "Please contact the dsp-tools development team with the following information:\n"
+            "Please contact the dsp-tools development team (at info@dasch.swiss) with the following information:\n"
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
@@ -57,6 +57,10 @@ class DspApiNotReachableError(BaseError):
     """This error is raised when the DSP-API could not be reached on localhost."""
 
 
+class DspToolsRequestException(BaseError):
+    """Class for errors that are raised if any request exceptions happens."""
+
+
 class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
@@ -65,8 +69,19 @@ class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
 
 
-class UnexpectedApiResponseError(BaseError):
+class FatalNonOkApiResponseCode(BaseError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
+
+    def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
+        resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+        msg = (
+            f"We currently do not support the following API response code for this request.\n"
+            f"Status code: {status_code}\n"
+            f"Request URL: {request_url}\n"
+            f"Original Response: {resp_txt}\n"
+            f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
+        )
+        super().__init__(msg)
 
 
 class UserFilepathNotFoundError(InputError):

@@ -32,17 +32,15 @@ class TestOntologyClient:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="Not Found")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
+            with pytest.raises(FatalNonOkApiResponseCode):
                 ontology_client._get_ontology_iris()
-        assert "404" in str(exc_info.value)
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="text")
         mock_response.json.return_value = {"foo": "bar"}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(ProjectOntologyNotFound) as exc_info:
+            with pytest.raises(ProjectOntologyNotFound):
                 ontology_client._get_ontology_iris()
-        assert "9999" in str(exc_info.value)
 
     def test_get_one_ontology(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")

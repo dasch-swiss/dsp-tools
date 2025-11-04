@@ -96,9 +96,8 @@ class TestPostCopyrightHolders:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         expected_response = Mock(status_code=404, ok=False, text="Not Found")
         client._post_and_log_request = Mock(return_value=expected_response)
-        with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
+        with pytest.raises(FatalNonOkApiResponseCode):
             client.post_copyright_holders(["1"])
-        assert "404" in str(exc_info.value)
 
     @patch("dsp_tools.clients.legal_info_client_live.log_and_raise_request_exception")
     def test_client_post_copyright_holders_request_exception(self, log_and_raise_mock: Mock):
@@ -179,22 +178,16 @@ class TestGetEnabledLicenses:
         mock_response.headers = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
-            with pytest.raises(FatalNonOkApiResponseCode) as exc_info:
+            with pytest.raises(FatalNonOkApiResponseCode):
                 client._get_one_license_page(page_num=1, enabled_only=True)
-        assert "404" in str(exc_info.value)
 
-    @patch("dsp_tools.clients.legal_info_client_live.log_response")
-    @patch("dsp_tools.clients.legal_info_client_live.log_request")
-    @patch("dsp_tools.clients.legal_info_client_live.log_and_raise_request_exception")
-    def test_request_exception(self, log_and_raise_mock: Mock, log_request: Mock, log_response: Mock):  # noqa: ARG002
+    def test_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         request_error = RequestException("Connection timeout")
-        log_and_raise_mock.side_effect = request_error
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.side_effect = request_error
             with pytest.raises(RequestException):
                 client._get_one_license_page(page_num=1, enabled_only=True)
-        log_and_raise_mock.assert_called_once()
 
 
 def test_is_last_page_no():

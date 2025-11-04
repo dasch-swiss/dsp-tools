@@ -6,7 +6,6 @@ from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
-from dsp_tools.cli.utils import check_network_health
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.lists_only import create_lists_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
@@ -62,14 +61,14 @@ def call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def call_ingest_files(args: argparse.Namespace) -> bool:
-    check_network_health(NetworkRequirements(api_url=args.server))
+    check_input_dependencies(network_dependencies=NetworkRequirements(api_url=args.server))
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
 def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xml_file)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -83,7 +82,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=id2iri_file,
+        id2iri_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
@@ -91,7 +90,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 def call_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xmlfile)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -128,7 +127,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
                 validation_severity=severity,
                 skip_ontology_validation=args.skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
-                id2iri_replacement_file=id2iri_file,
+                id2iri_file=id2iri_file,
             ),
         )
 
@@ -136,7 +135,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
 def call_validate_data(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xmlfile)
     required_files = [xml_path]
-    id2iri_file = args.id2iri_replacement_with_file
+    id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
@@ -149,14 +148,14 @@ def call_validate_data(args: argparse.Namespace) -> bool:
         save_graphs=args.save_graphs,
         ignore_duplicate_files_warning=args.ignore_duplicate_files_warning,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_replacement_file=id2iri_file,
+        id2iri_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
     )
 
 
 def call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    check_network_health(NetworkRequirements(args.server))
+    check_input_dependencies(network_dependencies=NetworkRequirements(args.server))
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,

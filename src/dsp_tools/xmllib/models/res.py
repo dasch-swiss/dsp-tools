@@ -91,15 +91,15 @@ class Resource:
             ```
         """
         if not is_valid_resource_id(res_id):
+            res_id = str(res_id)
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xsd:ID", value=res_id, res_id=res_id, value_field="resource ID"
             )
-            res_id = str(res_id)
         if not is_nonempty_value(restype):
+            restype = str(restype)
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
             )
-            restype = str(restype)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
 
         return Resource(

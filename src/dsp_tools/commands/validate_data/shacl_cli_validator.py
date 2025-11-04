@@ -9,6 +9,7 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ShaclValidationCliError
 
@@ -22,7 +23,7 @@ class ShaclCliValidator:
             msg = (
                 "Data validation requires Docker. Is your Docker Desktop Application open? "
                 "If it is, please contact the DSP-TOOLS development team (at info@dasch.swiss) "
-                "with the latest log file (see timestamp in the filename) saved at ~/.dsp-tools/logs/."
+                f"with the log file at {LOGGER_SAVEPATH}."
             )
             logger.error(msg)
             raise ShaclValidationCliError(msg) from None

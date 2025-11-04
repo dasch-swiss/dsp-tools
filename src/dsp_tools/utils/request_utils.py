@@ -201,7 +201,7 @@ def should_retry(response: Response) -> bool:
 
 def log_and_raise_request_exception(error: RequestException) -> Never:
     msg = (
-        f"During an API call the following exception occurred, "
+        f"During an API call the following exception occurred. "
         f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
         f"if you required help resolving the issue.\n"
         f"Original request: {error.request.method} {error.request.url}\n"

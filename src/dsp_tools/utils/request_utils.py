@@ -204,9 +204,10 @@ def log_and_raise_request_exception(error: RequestException) -> Never:
         f"During an API call the following exception occurred. "
         f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
         f"if you required help resolving the issue.\n"
-        f"Original request: {error.request.method} {error.request.url}\n"
-        f"Original exception name: {error.__class__.__name__}"
+        f"Original exception name: {error.__class__.__name__}\n"
     )
+    if error.request:
+        msg += f"Original request: {error.request.method} {error.request.url}"
     logger.exception(msg)
     raise DspToolsRequestException(msg) from None
 

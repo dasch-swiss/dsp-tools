@@ -18,8 +18,6 @@ from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT = 60
 
-HTTP_LACKING_PERMISSIONS = 403
-
 
 @dataclass
 class LegalInfoClientLive(LegalInfoClient):

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from http import HTTPStatus
 
 import requests
 from loguru import logger
@@ -39,5 +40,8 @@ class MetadataClientLive(MetadataClient):
             log_response(response, include_response_content=False)
             logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
             return ExistingResourcesRetrieved.TRUE, response.json()
-        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        if response.status_code != HTTPStatus.UNAUTHORIZED:
+            # this warning is to inform for unhandled status codes
+            # if the user has insufficient credentials but references resources in the XML, they will get informed then
+            log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return ExistingResourcesRetrieved.FALSE, []

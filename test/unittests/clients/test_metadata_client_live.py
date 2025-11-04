@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -91,7 +92,7 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
 @patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_error_raised(log_request, metadata_client):  # noqa: ARG001
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
-        get_mock.side_effect = Exception("Connection error")
+        get_mock.side_effect = RequestException("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
 
     assert response_type == ExistingResourcesRetrieved.FALSE

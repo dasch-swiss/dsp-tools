@@ -9,6 +9,7 @@ from requests import RequestException
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 
@@ -103,7 +104,7 @@ class TestPostCopyrightHolders:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         request_error = RequestException("Connection timeout")
         client._post_and_log_request = Mock(side_effect=request_error)
-        with pytest.raises(RequestException):
+        with pytest.raises(DspToolsRequestException):
             client.post_copyright_holders(["1"])
 
 
@@ -183,7 +184,7 @@ class TestGetEnabledLicenses:
         request_error = RequestException("Connection timeout")
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.side_effect = request_error
-            with pytest.raises(RequestException):
+            with pytest.raises(DspToolsRequestException):
                 client._get_one_license_page(page_num=1, enabled_only=True)
 
 

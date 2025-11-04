@@ -5,6 +5,7 @@ import pytest
 from requests import RequestException
 
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
+from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import ProjectOntologyNotFound
 
@@ -55,14 +56,14 @@ class TestOntologyClient:
         request_error = RequestException("Connection timeout")
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
-            with pytest.raises(RequestException):
+            with pytest.raises(DspToolsRequestException):
                 ontology_client._get_ontology_iris()
 
     def test_get_one_ontology_request_exception(self, ontology_client: OntologyGetClientLive) -> None:
         request_error = RequestException("Connection timeout")
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
-            with pytest.raises(RequestException):
+            with pytest.raises(DspToolsRequestException):
                 ontology_client._get_one_ontology("iri")
 
 

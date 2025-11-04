@@ -5,7 +5,6 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
@@ -30,7 +29,9 @@ def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
     )
 
 
-def test_get_resource_metadata_ok_with_data(metadata_client):
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_client):  # noqa: ARG001
     expected_data = [
         {
             "resourceClassIri": "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource",
@@ -55,7 +56,9 @@ def test_get_resource_metadata_ok_with_data(metadata_client):
     assert data == expected_data
 
 
-def test_get_resource_metadata_ok_no_data(metadata_client):
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = True
     mock_response.status_code = 200
@@ -69,7 +72,9 @@ def test_get_resource_metadata_ok_no_data(metadata_client):
     assert data == []
 
 
-def test_get_resource_metadata_non_ok(metadata_client):
+@patch("dsp_tools.clients.metadata_client_live.log_response")
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 403
@@ -83,9 +88,10 @@ def test_get_resource_metadata_non_ok(metadata_client):
     assert data == []
 
 
-def test_get_resource_metadata_request_exception(metadata_client):
+@patch("dsp_tools.clients.metadata_client_live.log_request")
+def test_get_resource_metadata_error_raised(log_request, metadata_client):  # noqa: ARG001
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
-        get_mock.side_effect = RequestException("Connection error")
+        get_mock.side_effect = Exception("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
 
     assert response_type == ExistingResourcesRetrieved.FALSE

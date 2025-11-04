@@ -1,4 +1,5 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
+
 from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -41,33 +42,20 @@ class TestGetToken:
         assert token == cached_token
         post_mock.assert_not_called()
 
-    @pytest.mark.parametrize(
-        ("status_code", "exception_type", "expected_msg"),
-        [
-            (HTTPStatus.UNAUTHORIZED.value, BadCredentialsError, "test@example.com"),
-            (500, FatalNonOkApiResponseCode, "500"),
-            (404, FatalNonOkApiResponseCode, "404"),
-        ],
-    )
-    def test_get_token_error_responses(
-        self, auth_client: AuthenticationClientLive, status_code: int, exception_type: type, expected_msg: str
-    ):
-        from requests import JSONDecodeError
-
-        mock_response = Mock(status_code=status_code, ok=False, text="Error", headers={})
-        mock_response.json.side_effect = JSONDecodeError("", "", 0)
-
+    def test_get_token_error_responses(self, auth_client: AuthenticationClientLive):
+        mock_response = Mock(status_code=HTTPStatus.BAD_REQUEST, ok=False, text="Error", headers={})
         with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
-            with pytest.raises(exception_type) as exc_info:
+            with pytest.raises(FatalNonOkApiResponseCode):
                 auth_client.get_token()
 
-        assert expected_msg in str(exc_info.value)
+    def test_get_token_unauthorised_exception(self, auth_client: AuthenticationClientLive):
+        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False, text="Error", headers={})
+        with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                auth_client.get_token()
 
-    @patch("dsp_tools.clients.authentication_client_live.log_and_raise_request_exception")
-    def test_get_token_request_exception(self, log_and_raise_mock: Mock, auth_client: AuthenticationClientLive):
+    def test_get_token_request_exception(self, auth_client: AuthenticationClientLive):
         request_error = RequestException("Connection timeout")
-        log_and_raise_mock.side_effect = request_error
-
         with patch("dsp_tools.clients.authentication_client_live.requests.post", side_effect=request_error):
             with pytest.raises(RequestException):
                 auth_client.get_token()

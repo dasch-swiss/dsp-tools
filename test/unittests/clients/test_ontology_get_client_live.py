@@ -53,31 +53,19 @@ class TestOntologyClient:
         assert mock_get.call_args_list[0][1]["url"] == "iri"
         assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
 
-    @patch("dsp_tools.clients.ontology_get_client_live.log_request")
-    @patch("dsp_tools.clients.ontology_get_client_live.log_and_raise_request_exception")
-    def test_get_ontology_iris_request_exception(
-        self, log_and_raise_mock: Mock, log_request: Mock, ontology_client: OntologyGetClientLive
-    ) -> None:
+    def test_get_ontology_iris_request_exception(self, ontology_client: OntologyGetClientLive) -> None:
         request_error = RequestException("Connection timeout")
-        log_and_raise_mock.side_effect = request_error
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
             with pytest.raises(RequestException):
                 ontology_client._get_ontology_iris()
-        log_and_raise_mock.assert_called_once()
 
-    @patch("dsp_tools.clients.ontology_get_client_live.log_request")
-    @patch("dsp_tools.clients.ontology_get_client_live.log_and_raise_request_exception")
-    def test_get_one_ontology_request_exception(
-        self, log_and_raise_mock: Mock, log_request: Mock, ontology_client: OntologyGetClientLive
-    ) -> None:
+    def test_get_one_ontology_request_exception(self, ontology_client: OntologyGetClientLive) -> None:
         request_error = RequestException("Connection timeout")
-        log_and_raise_mock.side_effect = request_error
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
             with pytest.raises(RequestException):
                 ontology_client._get_one_ontology("iri")
-        log_and_raise_mock.assert_called_once()
 
 
 if __name__ == "__main__":

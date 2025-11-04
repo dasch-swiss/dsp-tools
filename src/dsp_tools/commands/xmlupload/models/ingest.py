@@ -3,6 +3,7 @@ from __future__ import annotations
 import urllib
 from dataclasses import dataclass
 from dataclasses import field
+from http import HTTPStatus
 from pathlib import Path
 from typing import Protocol
 
@@ -18,10 +19,10 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InvalidIngestFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
-STATUS_OK = 200
-BAD_REQUEST = 400
-STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
 
 
@@ -98,26 +99,28 @@ class DspIngestClientLive(AssetClient):
             "Content-Type": "application/octet-stream",
         }
         timeout = 9 * 60
+        params = RequestParameters(method="POST", url=url, timeout=timeout, headers=headers)
         with open(filepath, "rb") as binary_io:
             try:
-                logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")
+                log_request(params)
                 res = self.session.post(
-                    url=url,
-                    headers=headers,
+                    url=params.url,
+                    headers=params.headers,
                     data=binary_io,
-                    timeout=timeout,
+                    timeout=params.timeout,
                 )
-                logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
-                if res.status_code == STATUS_OK:
-                    return IngestResponse(internal_filename=res.json()["internalFilename"])
-                elif res.status_code == STATUS_UNAUTHORIZED:
-                    raise BadCredentialsError("Bad credentials")
-                elif res.status_code == BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
-                    raise InvalidIngestFileNameError()
-                else:
-                    raise PermanentConnectionError()
+                log_response(res)
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError() from e
+
+            if res.ok:
+                return IngestResponse(internal_filename=res.json()["internalFilename"])
+            elif res.status_code == HTTPStatus.UNAUTHORIZED:
+                raise BadCredentialsError("You do not have sufficient credentials to upload assets.")
+            elif res.status_code == HTTPStatus.BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
+                raise InvalidIngestFileNameError()
+            else:
+                raise PermanentConnectionError()
 
     def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""

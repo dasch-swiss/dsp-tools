@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from importlib.metadata import version
 from typing import Any
+from typing import cast
 
 import requests
 from requests import RequestException
@@ -49,7 +50,7 @@ class AuthenticationClientLive(AuthenticationClient):
 
         if response.ok:
             res_json: dict[str, Any] = response.json()
-            return res_json["token"]
+            return cast(str, res_json["token"])
         if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise BadCredentialsError(
                 f"Login to the API with the email '{self.email}' was not successful. "

@@ -23,49 +23,6 @@ However, the implementation suffers from **significant inconsistencies** in usag
 
 ---
 
-**OVERALL RESPONSE FROM DEVELOPER**: When reading your report, I digged through the codebase and found some further issues.
-I noted them in this paragraph. (I hope I didn't duplicate one of your findings, by mistake).
-Please think about them carefully, and if you agree, include them in your report.
-
-- InputError should be renamed to UserError, to reflect the broader scope: not only the input might be wrong, but also other circumstances within the power of the user
-- There should be 2 subclasses of BaseError: 
-    - UserError where the user is the culprit and can do something to remedy the issue,
-    - InternalError for issues with server infrastructure, unexpected API responses, unexpected behaviour of our own python code, ... where the user can do nothing to remedy the issue.
-    - All other classes should be a subclass of either of the aforementioned.
-- In the try-except block in entry_point.py > run(), first the UserErrors should be handled (instead of BaseError as it is now), then the `Exception` (which include `InternalError`) should be transformed into `InternalError`
-- DockerNotReachableError and DspApiNotReachableError should be subclasses of UserError
-- UnexpectedApiResponseError should be a subclass of InternalError
-- InvalidGuiAttributeError should be a subclass of UserError
-- PermanentConnectionError should be a subclass of InternalError
-- ShaclValidationCliError should be replaced by ShaclValidationError. ShaclValidationError should be a subclass of InternalError
-- PermanentTimeOutError should be a subclass of InternalError
-- XmlUploadError should be renamed to XmlPermissionError and be a subclass of UserError. The messages should be improved, in order to be helpful for the user
-- XmlInputConversionError should be a subclass of InternalError
-- Id2IriReplacementError should be a subclass of UserError
-- XmlUploadInterruptedError should be a subclass of InternalError
-- XmlUploadPermissionsNotFoundError should be a subclass of UserError. Its message should be improved, in order to be helpful for the user
-- XmlUploadAuthorshipsNotFoundError should be a subclass of UserError. Its message should be improved, in order to be helpful for the user
-- XmlUploadListNodeNotFoundError should be a subclass of UserError. Its message should be improved, in order to be helpful for the user
-- UnknownDOAPException should either be a subclass of InternalError, or be removed entirely. Instead of raising an UnknownDOAPException, the functions should just return None. What do you think?
-
-
-- All UserErrors that belong to xmlupload could be grouped under a class XmluploadUserError, which is a subclass of UserError
-
-
-- Generally: When handling an internal error, where the cause of the mistake is not 100% clear, 
-  as much context as possible should be logged, either with `logger.exception()` or by re-raising a new exception *without* `from None`
-- Issues with ShaclCliValidator.validate():
-    - The error message says that Docker is not running, but this is already checked in `src/dsp_tools/cli/utils.py` > `check_docker_health()`
-    - it uses `logger.error()` instead of `logger.exception()`
-    - it uses `logger.error()` twice
-    - it raises ShaclValidationCliError from None, so the original error is lost. 
-    - Question to Claude Code: What is better, `logger.exception()` or removing `from None`? Or should both be used?
-
-TODO:   bei den http clients für create: unsere programmierfehler sollen wir gar nicht behandeln, sondern es soll dann dreckig eskalieren. Das passiert sowieso in der testphase auf localhost. und es muss sowieso von uns debugged und supported werden. wir würden nur den code aufblähen, wenn wir unsere programmierfehler behandeln. Gilt diese überlegung vielleicth für die ganze codebase?
-
-
----
-
 ## 1. Exception Hierarchy Architecture
 
 ### 1.1 Strengths

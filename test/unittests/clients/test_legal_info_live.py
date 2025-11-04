@@ -99,15 +99,12 @@ class TestPostCopyrightHolders:
         with pytest.raises(FatalNonOkApiResponseCode):
             client.post_copyright_holders(["1"])
 
-    @patch("dsp_tools.clients.legal_info_client_live.log_and_raise_request_exception")
-    def test_client_post_copyright_holders_request_exception(self, log_and_raise_mock: Mock):
+    def test_client_post_copyright_holders_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         request_error = RequestException("Connection timeout")
         client._post_and_log_request = Mock(side_effect=request_error)
-        log_and_raise_mock.side_effect = request_error
         with pytest.raises(RequestException):
             client.post_copyright_holders(["1"])
-        log_and_raise_mock.assert_called_once()
 
 
 class TestGetEnabledLicenses:

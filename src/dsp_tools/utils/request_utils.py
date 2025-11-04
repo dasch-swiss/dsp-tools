@@ -201,7 +201,7 @@ def should_retry(response: Response) -> bool:
 def log_and_raise_request_exception(error: RequestException) -> Never:
     msg = (
         f"During an API call the following exception occurred, "
-        f"please contact the dsp-tools development team if you need help resolving the error.\n"
+        f"please contact the dsp-tools development team (at info@dasch.swiss) if you need help resolving the error.\n"
         f"Original request: {error.request}\n"
         f"Original exception name: {error.__class__.__name__}"
     )
@@ -213,7 +213,7 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     resp_txt = response_text[:200] if len(response_text) > 200 else response_text
     msg = (
         "We got an unexpected API response during the following request. "
-        "Please contact the dsp-tools development team with your log file "
+        "Please contact the dsp-tools development team (at info@dasch.swiss) with your log file "
         "so that we can handle this more gracefully in the future.\n"
         f"Response status code: {status_code}\n"
         f"Original Message: {resp_txt}"

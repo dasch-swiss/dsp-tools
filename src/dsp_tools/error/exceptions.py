@@ -75,11 +75,11 @@ class FatalNonOkApiResponseCode(BaseError):
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
         resp_txt = response_text[:200] if len(response_text) > 200 else response_text
         msg = (
-            f"We currently do not support the following API response code for this request. "
-            f"Please contact the dsp-tools development team (at info@dasch.swiss) to handle this bug.\n"
+            f"We currently do not support the following API response code for this request.\n"
             f"Status code: {status_code}\n"
             f"Request URL: {request_url}\n"
-            f"Original Response: {resp_txt}"
+            f"Original Response: {resp_txt}\n"
+            f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
         )
         super().__init__(msg)
 

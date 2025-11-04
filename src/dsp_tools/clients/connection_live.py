@@ -25,6 +25,8 @@ from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import should_retry
 
+HTTP_OK = 200
+
 
 @dataclass
 class ConnectionLive(Connection):
@@ -178,7 +180,7 @@ class ConnectionLive(Connection):
                 continue
 
             log_response(response)
-            if response.ok:
+            if response.status_code == HTTP_OK:
                 return response
 
             self._handle_non_ok_responses(response, retry_counter)

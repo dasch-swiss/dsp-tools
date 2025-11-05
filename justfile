@@ -125,7 +125,7 @@ e2e-test-ingest-xmlupload *FLAGS:
 e2e-test-validate-data *FLAGS:
     # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
     # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
-    uv run pytest -n=auto --dist=loadfile test/e2e/commands/validate_data/ {{FLAGS}}
+    uv run pytest -n=4 --dist=loadfile test/e2e/commands/validate_data/ {{FLAGS}}
 
 
 # Run the end-to-end tests for the xmlupload command (with testcontainers)

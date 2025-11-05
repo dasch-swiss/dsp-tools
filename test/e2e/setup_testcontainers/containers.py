@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,7 +57,6 @@ def get_all_containers(network: Network, metadata: ContainerMetadata) -> Contain
     ingest = _get_ingest(network, metadata.versions.ingest, metadata.ports, metadata.names, metadata.artifact_dirs)
     api = _get_api(network, metadata.versions.api, metadata.ports, metadata.names)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
-    _verify_stack_healthy(metadata.ports)
     _print_containers_are_ready(containers)
     return containers
 
@@ -87,33 +85,6 @@ def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
     if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
     print("Admin user created")
-
-
-def _verify_stack_healthy(ports: ExternalContainerPorts, max_retries: int = 30) -> None:
-    """
-    Verify that the API can successfully communicate with Fuseki.
-    This ensures the full stack is operational, not just that individual containers respond to health checks.
-    The API container may report as ready via /version endpoint before it has fully initialized
-    its connection pool to the Fuseki triplestore, which can cause early test failures.
-    """
-    url = f"http://0.0.0.0:{ports.api}/admin/projects"
-
-    for _ in range(max_retries):
-        try:
-            response = requests.get(url, timeout=5)
-            if response.ok:
-                print("Stack health check passed: API successfully connected to Fuseki")
-                return
-        except (requests.RequestException, ConnectionError):
-            pass
-
-        time.sleep(1)
-
-    msg = (
-        f"Stack health check failed after {max_retries} attempts. "
-        "API container is running but cannot communicate with Fuseki."
-    )
-    raise RuntimeError(msg)
 
 
 def _get_sipi(

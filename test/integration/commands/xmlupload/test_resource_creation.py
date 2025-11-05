@@ -10,6 +10,7 @@ from uuid import uuid4
 import pytest
 from requests import Response
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -65,10 +66,13 @@ def ingest_client_mock():
 def legal_info_client_mock():
     return Mock(spec_set=LegalInfoClient)
 
+
 class ListClientMock:
+    con: Connection
+    project_iri: str
+
     def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
         return dict()
-
 
 
 def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:

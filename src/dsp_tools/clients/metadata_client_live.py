@@ -1,12 +1,15 @@
 from dataclasses import dataclass
+from http import HTTPStatus
 
 import requests
 from loguru import logger
+from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client import MetadataClient
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -30,14 +33,15 @@ class MetadataClientLive(MetadataClient):
                 headers=params.headers,
                 timeout=params.timeout,
             )
-            if response.ok:
-                # we log the response separately because if it was successful it will be too big
-                log_response(response, include_response_content=False)
-                logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
-                return ExistingResourcesRetrieved.TRUE, response.json()
-            # here the response text is important
-            log_response(response)
+        except RequestException as err:
+            logger.exception(err)
             return ExistingResourcesRetrieved.FALSE, []
-        except Exception as err:  # noqa: BLE001 (blind exception)
-            logger.error(err)
-            return ExistingResourcesRetrieved.FALSE, []
+        if response.ok:
+            log_response(response, include_response_content=False)
+            logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
+            return ExistingResourcesRetrieved.TRUE, response.json()
+        if response.status_code != HTTPStatus.UNAUTHORIZED:
+            # this warning is to inform for unhandled status codes
+            # if the user has insufficient credentials but references resources in the XML, they will get informed then
+            log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return ExistingResourcesRetrieved.FALSE, []

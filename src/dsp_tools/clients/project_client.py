@@ -6,5 +6,5 @@ from typing import Protocol
 class ProjectInfoClient(Protocol):
     api_url: str
 
-    def get_project_iri(self, shortcode: str) -> str | None:
+    def get_project_iri(self, shortcode: str) -> str:
         """Get the IRI of a project via shortcode."""

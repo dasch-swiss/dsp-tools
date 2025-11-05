@@ -7,6 +7,7 @@ import requests
 from dsp_tools.clients.project_client_live import ProjectInfoClientLive
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.error.exceptions import ProjectNotFoundError
 
 
 @pytest.fixture
@@ -38,8 +39,8 @@ class TestProjectInfoClientLive:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response):
-            result = project_client.get_project_iri("9999")
-        assert result is None
+            with pytest.raises(ProjectNotFoundError):
+                project_client.get_project_iri("9999")
 
     def test_get_project_iri_timeout(self, project_client: ProjectInfoClientLive) -> None:
         with patch("dsp_tools.clients.project_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):

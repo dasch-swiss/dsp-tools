@@ -9,27 +9,9 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.get.get import get_project
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import get_containers
 
 TESTFILE_PATH = Path("testdata/json-project/generic-e2e-project-4125.json")
 PROJECT_SHORTCODE = "4125"
-
-
-@pytest.fixture(scope="module")
-def container_ports() -> Iterator[ExternalContainerPorts]:
-    with get_containers() as metadata:
-        yield metadata.ports
-
-
-@pytest.fixture(scope="module")
-def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
-    return ServerCredentials(
-        "root@example.com",
-        "test",
-        f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
-    )
 
 
 @pytest.fixture(scope="module")

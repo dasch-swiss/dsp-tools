@@ -54,7 +54,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     project_client: ProjectInfoClient = ProjectInfoClientLive(auth.server)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri(upload_state.config.shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
-    clients = UploadClients(ingest_client, project_client, list_client, legal_info_client)
+    clients = UploadClients(ingest_client, list_client, legal_info_client)
 
     return execute_upload(clients, upload_state)
 

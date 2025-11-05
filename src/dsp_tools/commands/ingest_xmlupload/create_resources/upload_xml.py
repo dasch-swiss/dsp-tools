@@ -163,4 +163,4 @@ def _get_live_clients(con: Connection, config: UploadConfig, auth: Authenticatio
     project_client = ProjectInfoClientLive(auth.server)
     list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
-    return UploadClients(ingest_client, project_client, list_client, legal_info_client)
+    return UploadClients(ingest_client, list_client, legal_info_client)

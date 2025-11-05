@@ -202,7 +202,6 @@ def _get_live_clients(
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
-        project_client=project_client,
         list_client=list_client,
         legal_info_client=legal_info_client,
     )

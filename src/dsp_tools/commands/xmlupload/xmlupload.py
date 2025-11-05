@@ -323,7 +323,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     )
 
     resource_create_client = ResourceCreateClient(
-        con=clients.project_client.con,
+        con=clients.list_client.con,
     )
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:

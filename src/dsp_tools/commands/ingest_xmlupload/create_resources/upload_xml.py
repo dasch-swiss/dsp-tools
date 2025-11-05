@@ -13,6 +13,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectInfoClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
@@ -24,7 +25,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
-from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
@@ -160,7 +160,7 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
 
 def _get_live_clients(con: Connection, config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
     ingest_client = BulkIngestedAssetClient()
-    project_client = ProjectClientLive(con, config.shortcode)
-    list_client = ListClientLive(con, project_client.get_project_iri())
+    project_client = ProjectInfoClientLive(auth.server)
+    list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
     return UploadClients(ingest_client, project_client, list_client, legal_info_client)

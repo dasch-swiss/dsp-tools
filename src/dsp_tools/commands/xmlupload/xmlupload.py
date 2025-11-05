@@ -21,6 +21,8 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.project_client import ProjectInfoClient
+from dsp_tools.clients.project_client_live import ProjectInfoClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
@@ -37,8 +39,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
-from dsp_tools.commands.xmlupload.project_client import ProjectClient
-from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
@@ -197,8 +197,8 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectClient = ProjectClientLive(con, shortcode)
-    list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    project_client: ProjectInfoClient = ProjectInfoClientLive(auth.server)
+    list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
@@ -315,7 +315,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_iri = clients.project_client.get_project_iri()
+    project_iri = clients.list_client.project_iri
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
@@ -338,19 +338,19 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
-            _upload_stash(upload_state, clients.project_client)
+            _upload_stash(upload_state, clients.list_client.con)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
 
 
 def _upload_stash(
     upload_state: UploadState,
-    project_client: ProjectClient,
+    con: Connection,
 ) -> None:
     if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
-        upload_stashed_xml_texts(upload_state, project_client.con)
+        upload_stashed_xml_texts(upload_state, con)
     if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
-        upload_stashed_resptr_props(upload_state, project_client.con)
+        upload_stashed_resptr_props(upload_state, con)
 
 
 def _upload_one_resource(

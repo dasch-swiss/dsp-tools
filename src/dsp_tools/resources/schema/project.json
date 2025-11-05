@@ -124,7 +124,8 @@
             "type": "object",
             "properties": {
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^(?=.{3,50}$)(?![_.-])(?!.*[_.-]{2})[a-zA-Z0-9._-]+(?<![_.-])$"
                 },
                 "email": {
                     "type": "string",

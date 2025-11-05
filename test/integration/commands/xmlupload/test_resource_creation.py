@@ -71,6 +71,11 @@ class ListClientMock:
     con: Connection
     project_iri: str
 
+    def __init__(self, con: Connection | None = None) -> None:
+        # This way the tests that require the connection can hand over their specific mock implementation
+        self.con = con if con is not None else Mock(spec_set=ConnectionLive)
+        self.project_iri = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+
     def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
         return dict()
 
@@ -90,7 +95,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
     post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
 
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
@@ -153,7 +158,7 @@ def test_one_resource_with_link_to_existing_resource(
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
@@ -239,7 +244,7 @@ def _2_resources_with_stash_interrupted_by_error(
         err_to_interrupt_with,
     ]
     con.post = Mock(side_effect=post_responses)
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         with pytest.warns(DspToolsUserWarning):
@@ -280,7 +285,7 @@ def test_2_resources_with_stash(
         {},  # uploading a stash doesn't rely on a certain response
     ]
     con.post = Mock(side_effect=post_responses)
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     _upload_resources(clients, upload_state)
 
@@ -333,7 +338,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     ]
     con.post = Mock(side_effect=post_responses)
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
-    client = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    client = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
@@ -382,7 +387,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     ]
     con.post = Mock(side_effect=post_responses)
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
-    client = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    client = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
@@ -439,7 +444,7 @@ def test_logging(
         {},  # uploading a stash doesn't rely on a certain response
     ]
     con.post = Mock(side_effect=post_responses)
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
@@ -495,7 +500,7 @@ def test_post_requests(
         {},  # uploading a stash doesn't rely on a certain response
     ]
     con.post = Mock(side_effect=post_responses)
-    clients = UploadClients(ingest_client_mock, ListClientMock(), legal_info_client_mock)
+    clients = UploadClients(ingest_client_mock, ListClientMock(con), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
@@ -518,7 +523,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_cl
     ingest_client = DspIngestClientLive("", AuthenticationClientMockBase(), "1234", ".")
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
-        _upload_resources(UploadClients(ingest_client, ListClientMock(), legal_info_client_mock), upload_state)
+        _upload_resources(UploadClients(ingest_client, ListClientMock(con), legal_info_client_mock), upload_state)
         msg = (
             "Lost connection to DSP server, probably because the server is down. "
             "Please continue later with 'resume-xmlupload'. Reason for this failure: "

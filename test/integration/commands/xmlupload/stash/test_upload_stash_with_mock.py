@@ -84,7 +84,9 @@ class TestUploadLinkValueStashes:
                 "002": "http://www.rdfh.ch/0001/002",
             }
         )
+        con: Connection = ConnectionMock(post_responses=[{}])
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
+        _upload_stash(upload_state, con)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:

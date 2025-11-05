@@ -172,7 +172,7 @@ class UnknownDOAPException(BaseError):
 
 
 class ProjectOntologyNotFound(BaseError):
-    """Class for errors that are raised if no project ontologies were found."""
+    """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
 
     def __init__(self, shortcode: str) -> None:
         msg = f"The project with the shortcode '{shortcode}' does not have any ontologies."

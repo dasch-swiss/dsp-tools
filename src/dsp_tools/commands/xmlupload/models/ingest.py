@@ -23,8 +23,6 @@ from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-STATUS_INTERNAL_SERVER_ERROR = 500
-
 
 @dataclass(frozen=True)
 class IngestResponse:
@@ -63,7 +61,7 @@ class DspIngestClientLive(AssetClient):
             connect=retries,
             backoff_factor=0.3,
             allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+            status_forcelist=[HTTPStatus.INTERNAL_SERVER_ERROR.value],
         )
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)

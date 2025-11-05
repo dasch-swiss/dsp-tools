@@ -43,14 +43,21 @@ class AuthenticationClientLive(AuthenticationClient):
         request_params = RequestParameters("POST", url, data=payload, timeout=timeout, headers=headers)
         log_request(request_params)
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=timeout)
+            response = requests.post(
+                request_params.url,
+                json=request_params.data,
+                headers=request_params.headers,
+                timeout=request_params.timeout,
+            )
             log_response(response)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
         if response.ok:
             res_json: dict[str, Any] = response.json()
-            return cast(str, res_json["token"])
+            tkn = cast(str, res_json["token"])
+            self._token = tkn
+            return tkn
         if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise BadCredentialsError(
                 f"Login to the API with the email '{self.email}' was not successful. "

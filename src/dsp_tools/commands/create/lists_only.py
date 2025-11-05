@@ -36,7 +36,7 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
         raise ProjectNotFoundError(
             f"This commands adds lists to an existing project. "
             f"The project with the shortcode {project_metadata.shortcode} does not exist on this server. "
-            f"If you wish to create an entire project use the `create` command without the flag."
+            f"If you wish to create an entire project, please use the `create` command without the flag."
         ) from None
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)

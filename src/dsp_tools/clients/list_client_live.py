@@ -5,7 +5,6 @@ from typing import cast
 from urllib.parse import quote_plus
 
 import requests
-from loguru import logger
 from requests import RequestException
 from requests import Response
 
@@ -15,8 +14,10 @@ from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_and_raise_request_exception
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -46,12 +47,16 @@ class ListGetClientLive(ListGetClient):
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
         timeout = 10
         log_request(RequestParameters("GET", url, timeout))
-        response = requests.get(url=url, timeout=timeout)
+        try:
+            response = requests.get(url=url, timeout=timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         log_response(response)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        if response.ok:
+            json_response = cast(dict[str, Any], response.json())
+            return json_response
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
         return [x["id"] for x in response_json["lists"]]
@@ -61,12 +66,16 @@ class ListGetClientLive(ListGetClient):
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
         timeout = 30
         log_request(RequestParameters("GET", url, timeout))
-        response = requests.get(url=url, timeout=timeout)
+        try:
+            response = requests.get(url=url, timeout=timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         log_response(response, include_response_content=False)
-        if not response.ok:
-            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
-        response_json = cast(dict[str, Any], response.json())
-        return response_json
+        if response.ok:
+            response_json = cast(dict[str, Any], response.json())
+            return response_json
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
         list_name = response_json["list"]["listinfo"]["name"]
@@ -94,12 +103,12 @@ class ListCreateClientLive(ListCreateClient):
 
     def create_new_list(self, list_info: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/lists"
+        headers = self._get_request_header()
         try:
-            headers = self._get_request_header()
             response = _post_and_log_request(url, list_info, headers)
         except RequestException as err:
-            logger.exception(err)
-            return None
+            log_and_raise_request_exception(err)
+
         if response.ok:
             result = response.json()
             list_iri = cast(str, result["list"]["listinfo"]["id"])
@@ -109,18 +118,18 @@ class ListCreateClientLive(ListCreateClient):
                 "Only a project or system administrator can create lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.exception(f"Failed to create list: '{list_info['name']}'")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
     def add_list_node(self, node_info: dict[str, Any], parent_iri: str) -> str | None:
         encoded_parent_iri = quote_plus(parent_iri)
         url = f"{self.api_url}/admin/lists/{encoded_parent_iri}"
+        headers = self._get_request_header()
         try:
-            headers = self._get_request_header()
             response = _post_and_log_request(url, node_info, headers)
         except RequestException as err:
-            logger.error(err)
-            return None
+            log_and_raise_request_exception(err)
+
         if response.ok:
             result = response.json()
             node_iri = cast(str, result["nodeinfo"]["id"])
@@ -130,7 +139,7 @@ class ListCreateClientLive(ListCreateClient):
                 "Only a project or system administrator can add nodes to lists. "
                 "Your permissions are insufficient for this action."
             )
-        logger.error(f"Failed to add node: '{node_info['name']}'")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
     def _get_request_header(self) -> dict[str, str]:

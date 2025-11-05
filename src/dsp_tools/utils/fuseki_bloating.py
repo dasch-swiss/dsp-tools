@@ -4,6 +4,7 @@ from loguru import logger
 
 from dsp_tools.clients.fuseki_metrics import FusekiBloatingLevel
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
@@ -23,7 +24,7 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
     msg = (
         f"The xmlupload caused the database to use {rounded} GB disk space. "
         f"Please check that your test server has enough disk space for an upload. "
-        f"If you have any questions contact the dsp-tools developers."
+        f"If you have any questions contact the dsp-tools developers at info@dasch.swiss."
     )
     match bloating_level:
         case FusekiBloatingLevel.OK:
@@ -37,7 +38,8 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
         case FusekiBloatingLevel.CALCULATION_FAILURE:
             msg = (
                 "The database bloating size could not be calculated. "
-                "Please contact the dsp-tools developers with your logs."
+                f"Please contact the dsp-tools developers (at info@dasch.swiss) "
+                f"with your logs saved at {LOGGER_SAVEPATH}."
             )
             print(f"{BACKGROUND_BOLD_RED}{msg}{RESET_TO_DEFAULT}")
             logger.error(msg)

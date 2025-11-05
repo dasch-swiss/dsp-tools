@@ -1,5 +1,25 @@
 # Changelog
 
+## [18.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.0.0...v18.1.0) (2025-11-05)
+
+
+### Enhancements
+
+* **xmllib:** add "Rightsstatements: No Copyright - Non-Commercial Use Only" License (DEV-5562) ([#2036](https://github.com/dasch-swiss/dsp-tools/issues/2036)) ([183c323](https://github.com/dasch-swiss/dsp-tools/commit/183c323dea1a2db8a963b117ec002f9f9916d4f7))
+
+
+### Bug Fixes
+
+* **xmllib:** do not crash if resource id or type are `NaN` values (DEV-5569) ([#2035](https://github.com/dasch-swiss/dsp-tools/issues/2035)) ([acb684a](https://github.com/dasch-swiss/dsp-tools/commit/acb684af782d4184eec94269194a70ce24a74bcf))
+
+
+### Maintenance
+
+* **CLI:** rename `--id2iri-file` flag (DEV-5497) ([#2030](https://github.com/dasch-swiss/dsp-tools/issues/2030)) ([c30d561](https://github.com/dasch-swiss/dsp-tools/commit/c30d56124edf2eb86837ffa33bd696a697edc2d9))
+* **cli:** use check_input_dependencies() consistently ([#2028](https://github.com/dasch-swiss/dsp-tools/issues/2028)) ([019f562](https://github.com/dasch-swiss/dsp-tools/commit/019f562fca23f0ca41f7008f705be481b52f9c2f))
+* **create:** make request exception handling consistent ([#2032](https://github.com/dasch-swiss/dsp-tools/issues/2032)) ([b4609af](https://github.com/dasch-swiss/dsp-tools/commit/b4609afbff9d413b203379e7a9229e5e95c1b0d1))
+* **start-stack:** bump versions to 2025.11.01 ([#2037](https://github.com/dasch-swiss/dsp-tools/issues/2037)) ([4902243](https://github.com/dasch-swiss/dsp-tools/commit/49022430294edb59980fa9c7ac8b15883d502936))
+
 ## [18.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v17.0.0...v18.0.0) (2025-10-30)
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
@@ -14,10 +15,14 @@ from typing import Union
 from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
+from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
 
 
@@ -192,3 +197,29 @@ def should_retry(response: Response) -> bool:
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (try_again_later or in_500_range) and not in_testing_env
+
+
+def log_and_raise_request_exception(error: RequestException) -> Never:
+    msg = (
+        f"During an API call the following exception occurred. "
+        f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
+        f"if you required help resolving the issue.\n"
+        f"Original exception name: {error.__class__.__name__}\n"
+    )
+    if error.request:
+        msg += f"Original request: {error.request.method} {error.request.url}"
+    logger.exception(msg)
+    raise DspToolsRequestException(msg) from None
+
+
+def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
+    resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+    msg = (
+        "We got an unexpected API response during the following request. "
+        "Please contact the dsp-tools development team (at info@dasch.swiss) with your log file "
+        "so that we can handle this more gracefully in the future.\n"
+        f"Response status code: {status_code}\n"
+        f"Original Message: {resp_txt}"
+    )
+    logger.warning(msg)
+    warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))

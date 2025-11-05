@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import InternalError
 
 
@@ -34,10 +35,10 @@ class TestOntologyClient:
                 ontology_client._get_ontology_iris()
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyGetClientLive) -> None:
-        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response = Mock(status_code=200, ok=True, headers={}, text="text")
         mock_response.json.return_value = {"foo": "bar"}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(InternalError):
+            with pytest.raises(FatalNonOkApiResponseCode):
                 ontology_client._get_ontology_iris()
 
     def test_get_one_ontology(self, ontology_client: OntologyGetClientLive) -> None:

@@ -1,11 +1,11 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
 
 from http import HTTPStatus
-from json import JSONDecodeError
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import JSONDecodeError
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive

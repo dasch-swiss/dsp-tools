@@ -73,6 +73,7 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
     assert data == []
 
 
+@pytest.mark.filterwarnings("ignore::dsp_tools.error.custom_warnings.DspToolsUnexpectedStatusCodeWarning")
 @patch("dsp_tools.clients.metadata_client_live.log_response")
 @patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001

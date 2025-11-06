@@ -138,6 +138,8 @@ This makes it harder to diagnose the root cause of errors.
 - Use `from e` (or no `from` clause) for DSP-TOOLS-to-DSP-TOOLS conversions
 - Reserve `from None` for converting third-party exceptions to user messages
 
+**RESPONSE FROM DEVELOPER**: Is it okay to use `from None` when we first do `logger.exception()`?
+
 #### **Issue 1.3: Inconsistent Exception Constructor Patterns**
 
 Found three different patterns for exception construction:
@@ -188,6 +190,10 @@ raise InputError(msg)  # positional - what does 'msg' represent?
 - Or create factory methods: `InputError.from_message("...")`
 - Add type hints to make field names explicit
 
+**RESPONSE FROM DEVELOPER**: We prefer pattern A or C. But pattern B is also okay, because we always use typed fields.
+While your concern is theoretically valid, I don't see a real problem for our codebase. 
+You can keep a short remark in the report that pattern A is preferred, but please remove that pattern B is a problem.
+
 ---
 
 ## 2. Exception vs. Problem Duality
@@ -230,6 +236,11 @@ class Problem(Protocol):
 - **Harder testing** - need to test two different error patterns
 - **Cognitive overhead** - developers must decide which system to use
 
+**RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected, then they are transformed into a string with the `execute_error_protocol()` method, and finally, an InputError is raised with the string as message.
+The difference between group 1 (`create`: server interaction) and group 2 (`excel2json`/`validate_data`: Locally running data validation/transformation commands) is on purpose:
+Group 1 is allowed to crash without aggregation, while group 2 must aggregate all problems before crashing.
+The only potential problem I see is: 
+
 #### **Issue 2.2: Missing Conversion Between Systems**
 
 When both systems exist in the same module, there's no standard pattern for:
@@ -252,7 +263,7 @@ if compliance_problem:
 **Critique:** Mixing patterns within the same module is confusing. The excel2json module sometimes validates everything and reports all problems, other times fails fast on first error.
 
 **RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected, then they are transformed into a string with the `execute_error_protocol()` method, and finally, an InputError is raised with the string as message.
-The example you cite as "Sometimes raises immediately" perfectly follows this pattern.
+The example you cite as "Sometimes raises immediately" perfectly follows this pattern. So I don't see the problem.
 
 #### **Issue 2.3: Problem Protocol Lacks Severity Levels**
 

@@ -1,10 +1,17 @@
 ## Prompt
 
-When reading your report, I digged through the codebase and found some further issues.
-I noted them in this paragraph. (I hope I didn't duplicate one of your findings, by mistake).
-Please think about them carefully, and if you agree, include them in your report.
+When reading your report @EXCEPTION_HIERARCHY_CRITICAL_ANALYSIS.md, I digged through the codebase and found some further issues.
+I noted them in this document. (I hope I didn't duplicate one of your findings, by mistake).
+Please think about them carefully, and if you agree, 
+create a new version of your report, where my input is included.
+If necessary, ask me while preparing the new version, so that we can do it interactively.
+
+In your original report, I added some feedback, but it's clearly marked as such.
+In your new version, please also include my feedback.
+
 If necessary, you can also use the intermediary steps from our previous conversation,
-i.e. the files that you have stored under EXCEPTION_*.(md|txt)
+i.e. the files that you have stored under ./EXCEPTION_*.(md|txt)
+
 Please be aware that in the meantime there were some commits to the codebase, so it has slightly changed.
 
 
@@ -16,14 +23,16 @@ The DSP-TOOLS functionalities (commands) can be grouped in 2 groups:
   If new customer data is tested with these commands, it is always first tested in a test environment before going to prod.
   If they fail in the test environment, the data is fixed (or the DSP-TOOLS code is fixed/enhanced) until it works.
   It is okay if users cannot fix the problem themselves. They can contact the DSP-TOOLS developers.
+  In the rare case of bugs in our codebase, it's okay to let it escalate until `entry_point.py` > `run()`, where it is catched anyway.
     - create
     - xmlupload
     - ingest-xmlupload
     - resume-xmlupload
-2. Data validation/transformation commands: Should report ALL problems clearly and allow users to fix them.
+2. Locally running data validation/transformation commands: Should report ALL problems clearly and allow users to fix them.
   These commands are run on the machines of the user, and it should immediately work.
   If there's a problem, it should be handled gracefully, and communicated in a user-friendly way,
   so that the users can fix the problem themselves, without contacting the developers.
+  In the rare case of bugs in our codebase, it's okay to let it escalate until `entry_point.py` > `run()`, where it is catched anyway.
     - excel2json
     - excel2xml
     - xmllib
@@ -36,12 +45,12 @@ The DSP-TOOLS functionalities (commands) can be grouped in 2 groups:
 We catch all exceptions at the top level (`entry_point.py` > `run()`)
 to prevent Python tracebacks from reaching users.
 
-In the implementation code, don't catch errors from your own code logic (bugs like type errors, logic mistakes).
+In the implementation code, we shouldn't catch errors from your own code logic (bugs like type errors, logic mistakes).
 These should crash immediately because:
 
 - The standard Python traceback pinpoints exactly where and why the failure occurred
 - Wrapping them in try-except blocks may mask the root cause (if done poorly) and delays discovery
-- Your test environment exists precisely to surface these issues before production
+- The test environments exists precisely to surface these issues before production
 - Silent failures or generic error messages make debugging significantly harder
 
 In the implementation code, do catch exceptions for external operations where failure is expected and recoverable:
@@ -70,8 +79,9 @@ as much context as possible should be logged, either with `logger.exception()` o
 Guideline how to re-raise exceptions:
 
 - Use explicit chaining (`from e`) when the original exception provides valuable debugging context and directly caused your new exception.
-- Use implicit chaining (no `from`) when exceptions occur incidentally during error handling.
 - Use `from None` when the original exception would confuse callers or expose internal implementation details that shouldn't be visible.
+
+Question to Claude Code: What is better, `logger.exception()` or raising without `from None`? Or both?
 
 
 ## Envisioned error class hierarchy
@@ -108,5 +118,3 @@ Issues with ShaclCliValidator.validate():
 - it uses `logger.error()` instead of `logger.exception()`
 - it uses `logger.error()` twice
 - it raises ShaclValidationCliError from None, so the original error is lost. 
-- Question to Claude Code: What is better, `logger.exception()` or removing `from None`? Or both?
-

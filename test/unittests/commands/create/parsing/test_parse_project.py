@@ -83,7 +83,7 @@ class TestParseGroups:
         assert len(result) == 0
 
     def test_parse_one_group(self, project_json_create):
-        result = _parse_one_group(project_json_create["groups"][0])
+        result = _parse_one_group(project_json_create["project"]["groups"][0])
         assert result.name == "testGroup"
         assert len(result.descriptions) == 2
         en_desc = next(x for x in result.descriptions if x.lang == "en")
@@ -106,7 +106,7 @@ class TestParseUsers:
         assert len(result) == 0
 
     def test_only_mandatory(self, project_json_create):
-        user = project_json_create["users"][0]
+        user = project_json_create["project"]["users"][0]
         result = _parse_one_user(user)
         assert result.username == "user_only_mandatory"
         assert result.email == "user-1@test.org"
@@ -118,7 +118,7 @@ class TestParseUsers:
         assert not result.groups
 
     def test_admin(self, project_json_create):
-        user = project_json_create["users"][1]
+        user = project_json_create["project"]["users"][1]
         result = _parse_one_user(user)
         assert result.username == "User_admin"
         assert result.email == "user-2@test.org"
@@ -130,7 +130,7 @@ class TestParseUsers:
         assert not result.groups
 
     def test_with_group(self, project_json_create):
-        user = project_json_create["users"][2]
+        user = project_json_create["project"]["users"][2]
         result = _parse_one_user(user)
         assert result.username == "User_member_and_group"
         assert result.email == "user-3@test.org"

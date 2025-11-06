@@ -6,6 +6,7 @@ from loguru import logger
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
+from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
@@ -90,7 +91,8 @@ def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:
 
 
 def _parse_one_group(group_dict: dict[str, Any]) -> ParsedGroup:
-    pass
+    descriptions = [ParsedGroupDescription(lang=lang, text=text) for lang, text in group_dict["descriptions"].items()]
+    return ParsedGroup(name=group_dict["name"], descriptions=descriptions)
 
 
 def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
@@ -100,7 +102,19 @@ def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
 
 
 def _parse_one_user(user_dict: dict[str, Any]) -> ParsedUser:
-    pass
+    projects = user_dict.get("projects", [])
+    is_admin = ":admin" in projects
+    groups = [g.removeprefix(":") for g in user_dict.get("groups", [])]
+    return ParsedUser(
+        username=user_dict["username"],
+        email=user_dict["email"],
+        given_name=user_dict["givenName"],
+        family_name=user_dict["familyName"],
+        password=user_dict["password"],
+        lang=user_dict.get("lang", "en"),
+        is_admin=is_admin,
+        groups=groups,
+    )
 
 
 def _parse_lists(project_json: dict[str, Any]) -> tuple[list[ParsedList], CollectedProblems | None]:

@@ -12,7 +12,10 @@ from dsp_tools.commands.create.serialisation.project import serialise_one_group
 
 
 def create_groups(
-    groups: list[ParsedGroup], group_client: GroupClient, project_iri: str, group_lookup: GroupNameToIriLookup
+    groups: list[ParsedGroup],
+    group_client: GroupClient,
+    project_iri: str,
+    group_lookup: GroupNameToIriLookup,
 ) -> tuple[GroupNameToIriLookup, CollectedProblems | None]:
     problems = []
     for gr in groups:

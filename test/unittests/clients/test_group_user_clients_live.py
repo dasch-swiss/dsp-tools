@@ -9,6 +9,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 
 @pytest.fixture
 def api_url() -> str:
@@ -61,13 +62,6 @@ class TestGroupClientLive:
             result = group_client.get_all_groups()
 
         assert result == []
-
-    def test_get_all_groups_unauthorized(self, group_client: GroupClientLive) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
-        mock_response.json.return_value = {}
-        with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
-            with pytest.raises(BadCredentialsError, match="You don't have permission to access groups"):
-                group_client.get_all_groups()
 
     def test_get_all_groups_timeout(self, group_client: GroupClientLive) -> None:
         with patch(

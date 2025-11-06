@@ -29,8 +29,8 @@ class TestSerialiseGroup:
         assert result == expected
 
 
-class TestSerialiseUserForCreation:
-    def test_only_mandatory(self):
+class TestSerialiseUser:
+    def test_user(self):
         expected = {
             "username": "user_only_mandatory",
             "email": "user-1@test.org",
@@ -41,12 +41,6 @@ class TestSerialiseUserForCreation:
             "status": True,
             "systemAdmin": False,
         }
-        user = ParsedUser("user_only_mandatory", "user-1@test.org", "user", "one", "111", "en", False, [])
+        user = ParsedUser("user_only_mandatory", "user-1@test.org", "user", "one", "111", "en")
         result = serialise_one_user_for_creation(user)
         assert result == expected
-
-    def test_is_admin(self):
-        pass
-
-    def test_with_group(self):
-        pass

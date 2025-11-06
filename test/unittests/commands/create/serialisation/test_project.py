@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedUser

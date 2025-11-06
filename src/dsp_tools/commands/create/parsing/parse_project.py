@@ -101,12 +101,12 @@ def _parse_one_group(group_dict: dict[str, Any]) -> ParsedGroup:
 def _parse_users(project_json: dict[str, Any]) -> tuple[list[ParsedUser], list[ParsedUserMemberShipInfo]]:
     if not (found := project_json.get("users")):
         return [], []
-    users, membership = [], []
+    users, memberships = [], []
     for u in found:
         usr, mbmr = _parse_one_user(u)
         users.append(usr)
-        membership.append(mbmr)
-    return users, membership
+        memberships.append(mbmr)
+    return users, memberships
 
 
 def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMemberShipInfo]:

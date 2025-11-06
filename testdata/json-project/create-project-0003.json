@@ -42,7 +42,7 @@
             },
             {
                 "username": "User_admin",
-                "email": "tuser-2@test.org",
+                "email": "user-2@test.org",
                 "givenName": "user",
                 "familyName": "two",
                 "password": "222",
@@ -53,7 +53,7 @@
             },
             {
                 "username": "User_member_and_group",
-                "email": "tuser-3@test.org",
+                "email": "user-3@test.org",
                 "givenName": "user",
                 "familyName": "three",
                 "password": "333",

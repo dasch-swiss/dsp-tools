@@ -7,6 +7,7 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologie
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
 from dsp_tools.commands.create.parsing.parse_project import _parse_lists
 from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
+from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
 from dsp_tools.commands.create.parsing.parse_project import _parse_project
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
@@ -84,7 +85,7 @@ class TestParseGroups:
 class TestParseUsers:
     def test_parse_users_empty(self, project_json_create):
         result = _parse_users(project_json_create["project"])
-        assert len(result) == 0
+        assert len(result) == 3
 
     def test_parse_users_with_users(self, project_json_systematic):
         result = _parse_users(project_json_systematic["project"])
@@ -93,6 +94,42 @@ class TestParseUsers:
     def test_parse_users_missing_key(self, minimal_project_json):
         result = _parse_users(minimal_project_json)
         assert len(result) == 0
+
+    def test_only_mandatory(self, project_json_create):
+        user = project_json_create["users"][0]
+        result = _parse_one_user(user)
+        assert result.username == "user_only_mandatory"
+        assert result.email == "user-1@test.org"
+        assert result.given_name == "user"
+        assert result.family_name == "one"
+        assert result.password == "111"
+        assert result.lang == "en"
+        assert not result.is_admin
+        assert not result.groups
+
+    def test_admin(self, project_json_create):
+        user = project_json_create["users"][1]
+        result = _parse_one_user(user)
+        assert result.username == "User_admin"
+        assert result.email == "user-2@test.org"
+        assert result.given_name == "user"
+        assert result.family_name == "two"
+        assert result.password == "222"
+        assert result.lang == "de"
+        assert result.is_admin
+        assert not result.groups
+
+    def test_with_group(self, project_json_create):
+        user = project_json_create["users"][2]
+        result = _parse_one_user(user)
+        assert result.username == "User_member_and_group"
+        assert result.email == "user-3@test.org"
+        assert result.given_name == "user"
+        assert result.family_name == "three"
+        assert result.password == "333"
+        assert result.lang == "fr"
+        assert not result.is_admin
+        assert result.groups == ["testGroup"]
 
 
 class TestParseLists:

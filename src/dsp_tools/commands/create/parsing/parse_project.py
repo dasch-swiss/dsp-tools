@@ -92,7 +92,11 @@ def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:
 def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
     if not (found := project_json.get("users")):
         return []
-    return [ParsedUser(x) for x in found]
+    return [_parse_one_user(x) for x in found]
+
+
+def _parse_one_user(user_dict: dict[str, Any]) -> ParsedUser:
+    pass
 
 
 def _parse_lists(project_json: dict[str, Any]) -> tuple[list[ParsedList], CollectedProblems | None]:

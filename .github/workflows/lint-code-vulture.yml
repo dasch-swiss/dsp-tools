@@ -1,6 +1,6 @@
 ---
 
-name: Lint Code
+name: Lint Code With Vulture
 
 on:
   pull_request:

@@ -8,5 +8,5 @@ def serialise_one_group(group: ParsedGroup, project_iri: str) -> dict[str, Any]:
     pass
 
 
-def serialise_one_user(user: ParsedUser) -> dict[str, Any]:
+def serialise_one_user_for_creation(user: ParsedUser) -> dict[str, Any]:
     pass

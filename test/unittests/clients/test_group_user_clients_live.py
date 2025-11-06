@@ -5,11 +5,9 @@ import pytest
 import requests
 
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
-
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
+from dsp_tools.error.exceptions import DspToolsRequestException
+
 
 @pytest.fixture
 def api_url() -> str:
@@ -74,8 +72,10 @@ class TestGroupClientLive:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
-                group_client.get_all_groups()
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = group_client.get_all_groups()
+
+        assert result == []
 
     def test_get_all_groups_connection_error(self, group_client: GroupClientLive) -> None:
         with patch(

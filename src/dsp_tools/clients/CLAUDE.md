@@ -81,7 +81,7 @@ If the code may continue even if the request is not successful, then `None` will
 
 In most cases `HTTPStatus.UNAUTHORIZED` will mean that a `BadCredentialsError` will be raised
 
-1. If the request is not successfully, then an error is raised.
+Pattern 1: If the request is not successfully, then an error is raised.
 
 ```python
 def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Response:
@@ -119,7 +119,7 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
 
-2. If the request is not successful, then the user is warned and `None` is returned
+Pattern 2: If the request is not successful, then the user is warned and `None` is returned
 
 ```python
 def create_resource(self, resource_data: dict[str, Any]) -> str | None:
@@ -303,7 +303,7 @@ headers = {
 
 ## Example: Creating a New Client
 
-1. Define the Protocol in `src/dsp_tools/clients/<domain>_client.py`:
+First: Define the Protocol in `src/dsp_tools/clients/<domain>_client.py`:
 
 ```python
 from typing import Protocol
@@ -317,7 +317,7 @@ class UserClient(Protocol):
         """Get user information by IRI"""
 ```
 
-2. Implement the live client in `src/dsp_tools/clients/<domain>_client_live.py`:
+Second: Implement the live client in `src/dsp_tools/clients/<domain>_client_live.py`:
 
 ```python
 from dataclasses import dataclass

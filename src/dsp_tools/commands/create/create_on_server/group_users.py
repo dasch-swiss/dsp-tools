@@ -4,6 +4,7 @@ from loguru import logger
 
 from dsp_tools.clients.group_user_clients import GroupClient
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
@@ -17,7 +18,7 @@ def create_groups(
     project_iri: str,
     group_lookup: GroupNameToIriLookup,
 ) -> tuple[GroupNameToIriLookup, CollectedProblems | None]:
-    problems = []
+    problems: list[CreateProblem] = []
     for gr in groups:
         if group_lookup.check_exists(gr.name):
             logger.debug(f"Group with the name '{gr.name}' already exists, skipping.")

@@ -24,7 +24,7 @@ class GroupClientLive(GroupClient):
         params = RequestParameters("GET", url, TIMEOUT)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)
@@ -39,12 +39,12 @@ class GroupClientLive(GroupClient):
         params = RequestParameters("POST", url, TIMEOUT, data=group_dict)
         log_request(params)
         try:
-            response = requests.post(url, data=params.data_serialized, timeout=TIMEOUT)
+            response = requests.post(params.url, data=params.data_serialized, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            result = cast(dict[str, Any], response.json())
-            return result["group"]["id"]
+            result = response.json()
+            return cast(str, result["group"]["id"])
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None

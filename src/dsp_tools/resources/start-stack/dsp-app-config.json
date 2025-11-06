@@ -18,6 +18,25 @@
       "rollbar": {
         "enabled": false,
         "accessToken": ""
+      },
+      "faro": {
+        "enabled": false,
+        "collectorUrl": "",
+        "appName": "dsp-app",
+        "sessionTracking": {
+          "enabled": false,
+          "persistent": false,
+          "samplingRate": 1.0
+        },
+        "console": {
+          "enabled": false,
+          "disabledLevels": []
+        },
+        "tracingCorsUrls": [],
+        "otlp": {
+          "logsUrl": "",
+          "tracesUrl": ""
+        }
       }
     },
     "featureFlags": {

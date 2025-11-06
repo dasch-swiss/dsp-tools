@@ -15,6 +15,38 @@ class ProjectIriLookup:
 
 
 @dataclass
+class GroupNameToIriLookup:
+    name2iri: dict[str, str]
+
+    def check_exists(self, name: str) -> bool:
+        return name in self.name2iri.keys()
+
+    def add_iri(self, name: str, iri: str) -> None:
+        if self.check_exists(name):
+            raise InternalError(f"Group with the name '{name}' already exists in the lookup.")
+        self.name2iri[name] = iri
+
+    def get_iri(self, name: str) -> str | None:
+        return self.name2iri.get(name)
+
+
+@dataclass
+class UserNameToIriLookup:
+    name2iri: dict[str, str]
+
+    def check_exists(self, name: str) -> bool:
+        return name in self.name2iri.keys()
+
+    def add_iri(self, name: str, iri: str) -> None:
+        if self.check_exists(name):
+            raise InternalError(f"User with the name '{name}' already exists in the lookup.")
+        self.name2iri[name] = iri
+
+    def get_iri(self, name: str) -> str | None:
+        return self.name2iri.get(name)
+
+
+@dataclass
 class CreatedIriCollection:
     classes: set[str] = field(default_factory=set)
     properties: set[str] = field(default_factory=set)

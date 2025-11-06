@@ -36,10 +36,10 @@ class GroupClientLive(GroupClient):
 
     def create_new_group(self, group_dict: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/groups"
-        params = RequestParameters("POST", url, TIMEOUT)
+        params = RequestParameters("POST", url, TIMEOUT, data=group_dict)
         log_request(params)
         try:
-            response = requests.post(url, timeout=TIMEOUT)
+            response = requests.post(url, data=params.data_serialized, timeout=TIMEOUT)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)

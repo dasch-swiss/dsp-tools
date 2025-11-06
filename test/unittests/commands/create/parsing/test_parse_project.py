@@ -130,7 +130,7 @@ class TestParseUsers:
         assert parsed_u.family_name == "two"
         assert parsed_u.password == "222"
         assert parsed_u.lang == "de"
-        assert parsed_mem.username == "user_only_mandatory"
+        assert parsed_mem.username == "User_admin"
         assert parsed_mem.is_admin
         assert not parsed_mem.groups
 
@@ -143,7 +143,7 @@ class TestParseUsers:
         assert parsed_u.family_name == "three"
         assert parsed_u.password == "333"
         assert parsed_u.lang == "fr"
-        assert parsed_mem.username == "user_only_mandatory"
+        assert parsed_mem.username == "User_member_and_group"
         assert not parsed_mem.is_admin
         assert parsed_mem.groups == ["testGroup"]
 

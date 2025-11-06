@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from dsp_tools.commands.create.create_on_server.group_users import _construct_group_lookup
-from dsp_tools.commands.create.create_on_server.group_users import get_group_to_iri_lookup
+from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
 from test.unittests.commands.create.constants import PROJECT_IRI
 
@@ -98,7 +98,7 @@ class TestGetGroupToIriLookup:
         mock_client = Mock()
         mock_client.get_all_groups.return_value = all_groups
 
-        result = get_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
 
         mock_client.get_all_groups.assert_called_once()
         assert isinstance(result, GroupNameToIriLookup)
@@ -110,7 +110,7 @@ class TestGetGroupToIriLookup:
         mock_client = Mock()
         mock_client.get_all_groups.return_value = []
 
-        result = get_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
 
         mock_client.get_all_groups.assert_called_once()
         assert isinstance(result, GroupNameToIriLookup)
@@ -130,7 +130,7 @@ class TestGetGroupToIriLookup:
             }
         ]
 
-        result = get_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
         assert result.get_iri("testGroup") == "http://rdfh.ch/groups/4123/testGroup"
 
 

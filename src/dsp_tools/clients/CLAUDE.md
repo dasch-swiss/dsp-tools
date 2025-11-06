@@ -76,7 +76,10 @@ Live clients typically include:
 
 ### Request Workflow
 
-There are two main patterns:
+There are two main patterns, in some cases the code cannot continue if a request is not successful, see pattern 1.
+If the code may continue even if the request is not successful, then `None` will be returned, see pattern 2.
+
+In most cases `HTTPStatus.UNAUTHORIZED` will mean that a `BadCredentialsError` will be raised
 
 1. If the request is not successfully, then an error is raised.
 
@@ -118,7 +121,47 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
 
 2. If the request is not successful, then the user is warned and `None` is returned
 
-TODO: -> add code example (with log_and_warn_unexpected_non_ok_response())
+```python
+def create_resource(self, resource_data: dict[str, Any]) -> str | None:
+    # 1. Prepare request parameters
+    url = f"{self.api_url}/v2/resources"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.auth.get_token()}",
+    }
+    params = RequestParameters("POST", url, TIMEOUT, resource_data, headers)
+
+    # 2. Log the request
+    log_request(params)
+
+    # 3. Execute request with exception handling
+    try:
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+
+    # 4. Log the response
+    log_response(response)
+
+    # 5. Handle response status
+    if response.ok:
+        result = response.json()
+        resource_iri = cast(str, result["@id"])
+        return resource_iri
+
+    # 6. Handle specific known error cases
+    if response.status_code==HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError("You don't have permission to create resources in this project.")
+
+    # 7. Handle unexpected errors non-fatally
+    log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+    return None
+```
 
 ### Key Steps
 

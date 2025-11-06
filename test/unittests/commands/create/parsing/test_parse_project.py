@@ -94,52 +94,58 @@ class TestParseGroups:
 
 class TestParseUsers:
     def test_parse_users_empty(self, project_json_create):
-        result = _parse_users(project_json_create["project"])
-        assert len(result) == 3
+        users, memberships = _parse_users(project_json_create["project"])
+        assert len(users) == 3
+        assert len(memberships) == 3
 
     def test_parse_users_with_users(self, project_json_systematic):
-        result = _parse_users(project_json_systematic["project"])
-        assert len(result) == 7
+        users, memberships = _parse_users(project_json_systematic["project"])
+        assert len(users) == 7
+        assert len(memberships) == 7
 
     def test_parse_users_missing_key(self, minimal_project_json):
-        result = _parse_users(minimal_project_json)
-        assert len(result) == 0
+        users, memberships = _parse_users(minimal_project_json)
+        assert len(users) == 0
+        assert len(memberships) == 0
 
     def test_only_mandatory(self, project_json_create):
         user = project_json_create["project"]["users"][0]
-        result = _parse_one_user(user)
-        assert result.username == "user_only_mandatory"
-        assert result.email == "user-1@test.org"
-        assert result.given_name == "user"
-        assert result.family_name == "one"
-        assert result.password == "111"
-        assert result.lang == "en"
-        assert not result.is_admin
-        assert not result.groups
+        parsed_u, parsed_mem = _parse_one_user(user)
+        assert parsed_u.username == "user_only_mandatory"
+        assert parsed_u.email == "user-1@test.org"
+        assert parsed_u.given_name == "user"
+        assert parsed_u.family_name == "one"
+        assert parsed_u.password == "111"
+        assert parsed_u.lang == "en"
+        assert parsed_mem.username == "user_only_mandatory"
+        assert not parsed_mem.is_admin
+        assert not parsed_mem.groups
 
     def test_admin(self, project_json_create):
         user = project_json_create["project"]["users"][1]
-        result = _parse_one_user(user)
-        assert result.username == "User_admin"
-        assert result.email == "user-2@test.org"
-        assert result.given_name == "user"
-        assert result.family_name == "two"
-        assert result.password == "222"
-        assert result.lang == "de"
-        assert result.is_admin
-        assert not result.groups
+        parsed_u, parsed_mem = _parse_one_user(user)
+        assert parsed_u.username == "User_admin"
+        assert parsed_u.email == "user-2@test.org"
+        assert parsed_u.given_name == "user"
+        assert parsed_u.family_name == "two"
+        assert parsed_u.password == "222"
+        assert parsed_u.lang == "de"
+        assert parsed_mem.username == "user_only_mandatory"
+        assert parsed_mem.is_admin
+        assert not parsed_mem.groups
 
     def test_with_group(self, project_json_create):
         user = project_json_create["project"]["users"][2]
-        result = _parse_one_user(user)
-        assert result.username == "User_member_and_group"
-        assert result.email == "user-3@test.org"
-        assert result.given_name == "user"
-        assert result.family_name == "three"
-        assert result.password == "333"
-        assert result.lang == "fr"
-        assert not result.is_admin
-        assert result.groups == ["testGroup"]
+        parsed_u, parsed_mem = _parse_one_user(user)
+        assert parsed_u.username == "User_member_and_group"
+        assert parsed_u.email == "user-3@test.org"
+        assert parsed_u.given_name == "user"
+        assert parsed_u.family_name == "three"
+        assert parsed_u.password == "333"
+        assert parsed_u.lang == "fr"
+        assert parsed_mem.username == "user_only_mandatory"
+        assert not parsed_mem.is_admin
+        assert parsed_mem.groups == ["testGroup"]
 
 
 class TestParseLists:

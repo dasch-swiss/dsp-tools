@@ -86,7 +86,11 @@ def _parse_permissions(project_json: dict[str, Any]) -> ParsedPermissions:
 def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:
     if not (found := project_json.get("groups")):
         return []
-    return [ParsedGroup(x) for x in found]
+    return [_parse_one_group(x) for x in found]
+
+
+def _parse_one_group(group_dict: dict[str, Any]) -> ParsedGroup:
+    pass
 
 
 def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:

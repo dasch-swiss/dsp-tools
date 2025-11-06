@@ -27,8 +27,7 @@
                 "name": "testGroup",
                 "descriptions": {
                     "en": "Test group",
-                    "de": "Testgruppe",
-                    "rm": "squadra test"
+                    "de": "Testgruppe"
                 }
             }
         ],

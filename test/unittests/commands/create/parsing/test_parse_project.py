@@ -7,6 +7,7 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologie
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
 from dsp_tools.commands.create.parsing.parse_project import _parse_lists
 from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
+from dsp_tools.commands.create.parsing.parse_project import _parse_one_group
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
 from dsp_tools.commands.create.parsing.parse_project import _parse_project
@@ -71,7 +72,7 @@ class TestParsePermissions:
 class TestParseGroups:
     def test_parse_groups_empty(self, project_json_create):
         result = _parse_groups(project_json_create["project"])
-        assert len(result) == 0
+        assert len(result) == 1
 
     def test_parse_groups_with_groups(self, project_json_systematic):
         result = _parse_groups(project_json_systematic["project"])
@@ -80,6 +81,15 @@ class TestParseGroups:
     def test_parse_groups_missing_key(self, minimal_project_json):
         result = _parse_groups(minimal_project_json)
         assert len(result) == 0
+
+    def test_parse_one_group(self, project_json_create):
+        result = _parse_one_group(project_json_create["groups"][0])
+        assert result.name == "testGroup"
+        assert len(result.descriptions) == 2
+        en_desc = next(x for x in result.descriptions if x.lang == "en")
+        assert en_desc.text == "Test group"
+        de_desc = next(x for x in result.descriptions if x.lang == "de")
+        assert de_desc.text == "Testgruppe"
 
 
 class TestParseUsers:

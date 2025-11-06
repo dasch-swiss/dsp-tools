@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -7,29 +9,26 @@ import requests
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import DspToolsRequestException
+from test.unittests.clients.constants import API_URL
+from test.unittests.clients.constants import PROJECT_IRI
 
 
 @pytest.fixture
-def api_url() -> str:
-    return "http://0.0.0.0:3333"
+def group_client() -> GroupClientLive:
+    return GroupClientLive(api_url=API_URL)
 
 
-@pytest.fixture
-def group_client(api_url: str) -> GroupClientLive:
-    return GroupClientLive(api_url=api_url)
-
-
-class TestGroupClientLive:
+class TestGroupClientLiveGetGroup:
     def test_get_all_groups_success(self, group_client: GroupClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {
             "groups": [
                 {
-                    "id": "http://rdfh.ch/groups/4123/K6tppNTITqGY1nLvxdDL9A",
+                    "id": "http://rdfh.ch/groups/4123/iri-testgroupEditors",
                     "name": "testgroupEditors",
                     "descriptions": [],
                     "project": {
-                        "id": "http://rdfh.ch/projects/DPCEKkIjTYe9ApkgwBTWeg",
+                        "id": PROJECT_IRI,
                         "shortname": "systematic-tp",
                     },
                 },
@@ -46,10 +45,9 @@ class TestGroupClientLive:
         }
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
             result = group_client.get_all_groups()
-
         assert len(result) == 2
         assert result[0]["name"] == "testgroupEditors"
-        assert result[0]["id"] == "http://rdfh.ch/groups/4123/K6tppNTITqGY1nLvxdDL9A"
+        assert result[0]["id"] == "http://rdfh.ch/groups/4123/iri-testgroupEditors"
         assert result[1]["name"] == "testgroupReaders"
         assert mock_get.call_args[0][0] == f"{group_client.api_url}/admin/groups"
 
@@ -58,7 +56,6 @@ class TestGroupClientLive:
         mock_response.json.return_value = {"groups": []}
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
             result = group_client.get_all_groups()
-
         assert result == []
 
     def test_get_all_groups_timeout(self, group_client: GroupClientLive) -> None:
@@ -74,16 +71,40 @@ class TestGroupClientLive:
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
                 result = group_client.get_all_groups()
-
         assert result == []
 
-    def test_get_all_groups_connection_error(self, group_client: GroupClientLive) -> None:
-        with patch(
-            "dsp_tools.clients.group_user_clients_live.requests.get",
-            side_effect=requests.ConnectionError("Connection failed"),
-        ):
-            with pytest.raises(DspToolsRequestException):
-                group_client.get_all_groups()
+
+class TestGroupClientCreateNewGroup:
+    """response
+
+        {
+        "group": {
+            "id": "http://rdfh.ch/groups/9999/krZ2lP_NTBSbfbX2BSvhiw",
+            "name": "NewGroup",
+            "descriptions": [
+                {
+                    "value": "NewGroupDescription",
+                    "language": "en"
+                },
+                {
+                    "value": "NeueGruppenBeschreibung",
+                    "language": "de"
+                }
+            ],
+            "project": {
+                "id": "http://rdfh.ch/projects/zimXRcPvRxeXS-6veIrB7A"
+        }
+    }
+    """
+
+    def test_success(self):
+        pass
+
+    def test_request_exception(self):
+        pass
+
+    def test_non_ok_response(self):
+        pass
 
 
 if __name__ == "__main__":

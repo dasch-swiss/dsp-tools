@@ -33,3 +33,18 @@ class GroupClientLive(GroupClient):
             return cast(list[dict[str, Any]], result["groups"])
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return []
+
+    def create_new_group(self, group_dict: dict[str, Any]) -> str | None:
+        url = f"{self.api_url}/admin/groups"
+        params = RequestParameters("POST", url, TIMEOUT)
+        log_request(params)
+        try:
+            response = requests.post(url, timeout=TIMEOUT)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            result = cast(dict[str, Any], response.json())
+            return result["group"]["id"]
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return None

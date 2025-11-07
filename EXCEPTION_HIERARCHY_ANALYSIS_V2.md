@@ -90,28 +90,31 @@ and get fixed quickly.
 
 ### General Principles
 
-When handling internal errors where the cause isn't 100% clear, preserve as much context as possible
-either with `logger.exception()` or by re-raising WITHOUT `from None`.
+When catching errors, preserve as much context as possible:
 
-### Exception Chaining Guidelines
+- if possible, extract the message from the exception object: `err.msg` / `err.message`
+- log the original stack trace with `logger.exception(err.msg)`
+    - `logger.error()` doesn't preserve the original stack trace -> avoid it
+- if re-raising is wished, do NOT use `from None`
+    - `from None` removes the information about the original error from the stack trace -> avoid it
+- whenever possible, don't compose long error messages outside of the error class.
+  Instead, the message should be composed in the `__str__(self)` method of the error class
 
-When re-raising an exception within the `except` block:
+```python
+try:
+    return json.load(filepath)
+except json.JSONDecodeError as err:
+    logger.exception(err.msg)  # extract err.msg and preserve the original stack trace
+    raise JSONFileParsingError(filepath, err.msg)
 
-- **Use explicit chaining (`from e`) or implicit chaining (plain `raise XYZError()`)**:
-  When the original exception provides valuable debugging context and directly caused your new exception
-- **Use `from None`**: This removes the information about the original error from the stack trace.
-  Use it when the original exception would confuse callers or expose internal implementation details.
-    - In DSP-TOOLS, this is **almost never** the case --> avoid it.
+@dataclass
+class JSONFileParsingError:
+    filepath: Path
+    orig_err_msg: str
 
-### Recommendation on logger.exception() vs. Raising
-
-Both serve different purposes:
-
-- **Use `logger.exception()` + `raise ... from None`**: When preserving context in logs but presenting
-  clean user-facing errors
-- **Use `raise ... from e`**: When the exception chain is valuable for debugging and should be preserved
-- **Generally prefer `from e`** for internal errors; reserve `from None` for cases where the original
-  exception would genuinely confuse users
+    def __str__(self) -> str:
+        return f"The input file '{self.filepath}' cannot be parsed due to the following problem: {self.orig_err_msg}"
+```
 
 ---
 

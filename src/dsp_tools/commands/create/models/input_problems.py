@@ -43,3 +43,4 @@ class ProblemType(StrEnum):
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
     LIST_COULD_NOT_BE_CREATED = "The list could not be created on the server."
     LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."
+    GROUP_COULD_NOT_BE_CREATED = "The group could not be created."

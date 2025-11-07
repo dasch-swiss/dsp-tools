@@ -57,7 +57,7 @@ from reaching users.
 
 ### In Implementation Code: Do NOT Catch
 
-Avoid catching errors from your own code logic (bugs like type errors, logic mistakes).
+Avoid catching errors from your own code logic (your own programming bugs like type errors, logic mistakes).
 Let them crash immediately because:
 
 - Standard Python tracebacks pinpoint the failure location and cause
@@ -91,14 +91,17 @@ and get fixed quickly.
 ### General Principles
 
 When handling internal errors where the cause isn't 100% clear, preserve as much context as possible
-either with `logger.exception()` or by re-raising without `from None`.
+either with `logger.exception()` or by re-raising WITHOUT `from None`.
 
 ### Exception Chaining Guidelines
 
-- **Use explicit chaining (`from e`)**: When the original exception provides valuable debugging context
-  and directly caused your new exception
-- **Use `from None`**: When the original exception would confuse callers or expose internal
-  implementation details
+When re-raising an exception within the `except` block:
+
+- **Use explicit chaining (`from e`) or implicit chaining (plain `raise XYZError()`)**:
+  When the original exception provides valuable debugging context and directly caused your new exception
+- **Use `from None`**: This removes the information about the original error from the stack trace.
+  Use it when the original exception would confuse callers or expose internal implementation details.
+    - In DSP-TOOLS, this is **almost never** the case --> avoid it.
 
 ### Recommendation on logger.exception() vs. Raising
 
@@ -383,7 +386,9 @@ Errors like `XmlUploadPermissionsNotFoundError`, `XmlUploadAuthorshipsNotFoundEr
 
 ---
 
-## 6. ShaclCliValidator Issues
+## 6. Concrete issues in error handling
+
+### 6.1 ShaclCliValidator Issues
 
 Multiple issues in `ShaclCliValidator.validate()`:
 
@@ -400,6 +405,14 @@ Multiple issues in `ShaclCliValidator.validate()`:
 - Consolidate logging to single call
 - Replace `ShaclValidationCliError` with `ShaclValidationError` as `InternalError` subclass
 - Use `from e` or `logger.exception()` + `from None` pattern
+
+### 6.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
+
+- `if not response.ok`  should be moved out of the try-except block
+- except block uses `logger.error()` twice
+    - remove `logger.error(e)`
+    - `logger.error(msg)` -> `logger.exception(msg)`
+- remove `from None`
 
 ---
 

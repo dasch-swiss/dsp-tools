@@ -9,8 +9,12 @@ Please think about my thoughts carefully, ask me if necessary, and then include 
 
 In your original report, I added some feedback, but it's clearly marked as such.
 Your new version should reflect my feedback.
+Again: If you disagree with my thoughts, ask back, so that we can discuss the issue.
 I have also deleted some paragraphs from your original report, because they were irrelevant.
 So you have to update the numbering system.
+
+The new version of the report should be a bit less verbose, and more concise,
+i.e. it should contain the same amount of information, but with less words.
 
 If necessary, you can also use the intermediary steps from our previous conversation,
 i.e. the files that you have stored under ./EXCEPTION_*.(md|txt)

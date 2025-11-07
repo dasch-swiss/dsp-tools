@@ -22,6 +22,49 @@
             "http://rdfh.ch/licenses/ai-generated"
         ],
         "default_permissions": "public",
+        "groups": [
+            {
+                "name": "testGroup",
+                "descriptions": {
+                    "en": "Test group",
+                    "de": "Testgruppe"
+                }
+            }
+        ],
+        "users": [
+            {
+                "username": "user_only_mandatory",
+                "email": "user-1@test.org",
+                "givenName": "user",
+                "familyName": "one",
+                "password": "111"
+            },
+            {
+                "username": "User_admin",
+                "email": "user-2@test.org",
+                "givenName": "user",
+                "familyName": "two",
+                "password": "222",
+                "lang": "de",
+                "projects": [
+                    ":admin"
+                ]
+            },
+            {
+                "username": "User_member_and_group",
+                "email": "user-3@test.org",
+                "givenName": "user",
+                "familyName": "three",
+                "password": "333",
+                "lang": "fr",
+                "groups": [
+                    ":testGroup"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            }
+        ],
         "lists": [
             {
                 "name": "firstList",

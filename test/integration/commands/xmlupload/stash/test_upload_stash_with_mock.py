@@ -13,7 +13,6 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -27,27 +26,6 @@ from test.integration.commands.xmlupload.connection_mock import ConnectionMockBa
 # ruff: noqa: ARG002 (unused-method-argument)
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
-
-
-@dataclass
-class ProjectClientStub:
-    """Stub class for ProjectClient."""
-
-    con: Connection
-    shortcode: str
-    project_info: ProjectInfo | None
-
-    def get_project_iri(self) -> str:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_iris(self) -> list[str]:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_name_dict(self) -> dict[str, str]:
-        return {}
-
-    def get_ontology_iri_dict(self) -> dict[str, str]:
-        raise NotImplementedError("get_project_iri not implemented")
 
 
 @dataclass
@@ -108,7 +86,7 @@ class TestUploadLinkValueStashes:
         )
         con: Connection = ConnectionMock(post_responses=[{}])
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        _upload_stash(upload_state, con)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:
@@ -141,7 +119,7 @@ class TestUploadLinkValueStashes:
         )
         con: Connection = ConnectionMock(post_responses=[{}, {}, {}, {}])
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        _upload_stash(upload_state, con)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
@@ -187,7 +165,7 @@ class TestUploadTextValueStashes:
             put_responses=[{}],
         )
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        _upload_stash(upload_state, con)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_not_upload_text_value_stash_if_uuid_not_on_value(self) -> None:
@@ -230,5 +208,5 @@ class TestUploadTextValueStashes:
             put_responses=[{}],
         )
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        _upload_stash(upload_state, con)
         assert upload_state.pending_stash == stash

@@ -6,11 +6,13 @@ from loguru import logger
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
+from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
@@ -42,6 +44,7 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)
     parsed_lists, problems = _parse_lists(project_json)
+    users, memberships = _parse_users(project_json)
     if isinstance(problems, CollectedProblems):
         failures.append(problems)
     if failures:
@@ -51,7 +54,8 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
         project_metadata=_parse_metadata(project_json),
         permissions=_parse_permissions(project_json),
         groups=_parse_groups(project_json),
-        users=_parse_users(project_json),
+        users=users,
+        user_memberships=memberships,
         lists=parsed_lists,
         ontologies=ontologies,
     )
@@ -86,13 +90,39 @@ def _parse_permissions(project_json: dict[str, Any]) -> ParsedPermissions:
 def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:
     if not (found := project_json.get("groups")):
         return []
-    return [ParsedGroup(x) for x in found]
+    return [_parse_one_group(x) for x in found]
 
 
-def _parse_users(project_json: dict[str, Any]) -> list[ParsedUser]:
+def _parse_one_group(group_dict: dict[str, Any]) -> ParsedGroup:
+    descriptions = [ParsedGroupDescription(lang=lang, text=text) for lang, text in group_dict["descriptions"].items()]
+    return ParsedGroup(name=group_dict["name"], descriptions=descriptions)
+
+
+def _parse_users(project_json: dict[str, Any]) -> tuple[list[ParsedUser], list[ParsedUserMemberShipInfo]]:
     if not (found := project_json.get("users")):
-        return []
-    return [ParsedUser(x) for x in found]
+        return [], []
+    users, memberships = [], []
+    for u in found:
+        usr, mbmr = _parse_one_user(u)
+        users.append(usr)
+        memberships.append(mbmr)
+    return users, memberships
+
+
+def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMemberShipInfo]:
+    projects = user_dict.get("projects", [])
+    is_admin = ":admin" in projects
+    groups = [g.removeprefix(":") for g in user_dict.get("groups", [])]
+    usr = ParsedUser(
+        username=user_dict["username"],
+        email=user_dict["email"],
+        given_name=user_dict["givenName"],
+        family_name=user_dict["familyName"],
+        password=user_dict["password"],
+        lang=user_dict.get("lang", "en"),
+    )
+    memberships = ParsedUserMemberShipInfo(user_dict["username"], is_admin, groups)
+    return usr, memberships
 
 
 def _parse_lists(project_json: dict[str, Any]) -> tuple[list[ParsedList], CollectedProblems | None]:

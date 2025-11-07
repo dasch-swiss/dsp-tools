@@ -91,10 +91,12 @@ class Resource:
             ```
         """
         if not is_valid_resource_id(res_id):
+            res_id = str(res_id)
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xsd:ID", value=res_id, res_id=res_id, value_field="resource ID"
             )
         if not is_nonempty_value(restype):
+            restype = str(restype)
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
             )

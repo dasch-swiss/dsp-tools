@@ -29,13 +29,15 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
         return True
 
     project_info = ProjectInfoClientLive(creds.server)
-    project_iri = project_info.get_project_iri(project_metadata.shortcode)
-    if not project_iri:
+    try:
+        project_iri = project_info.get_project_iri(project_metadata.shortcode)
+    except ProjectNotFoundError:
+        # we want a more precise error message
         raise ProjectNotFoundError(
             f"This commands adds lists to an existing project. "
             f"The project with the shortcode {project_metadata.shortcode} does not exist on this server. "
-            f"If you wish to create an entire project use the `create` command without the flag."
-        )
+            f"If you wish to create an entire project, please use the `create` command without the flag."
+        ) from None
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     _, problems = create_lists(parsed_lists, project_metadata.shortcode, auth, project_iri)

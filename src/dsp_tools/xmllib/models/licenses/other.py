@@ -47,10 +47,12 @@ class Various(License):
 
     - `BORIS_STANDARD`: BORIS Standard License
     - `FRANCE_OUVERTE`: LICENCE OUVERTE 2.0
+    - `RIGHTSSTATEMENTS_NOC_NC`: Rightsstatements: No Copyright - Non-Commercial Use Only
     """
 
     BORIS_STANDARD = "http://rdfh.ch/licenses/boris"
     FRANCE_OUVERTE = "http://rdfh.ch/licenses/open-licence-2.0"
+    RIGHTSSTATEMENTS_NOC_NC = "http://rdfh.ch/licenses/noc-nc-1.0"
 
 
 LicenseOther.Public = Public

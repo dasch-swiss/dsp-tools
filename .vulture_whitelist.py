@@ -1,4 +1,3 @@
-from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
 from dsp_tools.commands.create.serialisation.ontology import make_cardinality_graph_for_request
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
@@ -32,5 +31,4 @@ XmllibInputError()
 XmllibInternalError()
 XmllibFileNotFoundError()
 
-PARSED_CARDINALITY_TO_RDF
 make_cardinality_graph_for_request()

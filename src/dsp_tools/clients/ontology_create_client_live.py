@@ -1,22 +1,24 @@
 from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
+from typing import cast
 
 import requests
 from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from requests import ReadTimeout
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import UnexpectedApiResponseError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
+from dsp_tools.utils.request_utils import log_and_raise_request_exception
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -38,23 +40,12 @@ class OntologyCreateClientLive(OntologyCreateClient):
         logger.debug("GET ontology metadata")
         try:
             response = self._get_and_log_request(url, header)
-        except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         if response.ok:
-            date = _parse_last_modification_date(response.text, URIRef(onto_iri))
-            if not date:
-                raise UnexpectedApiResponseError(
-                    f"Could not find the last modification date of the ontology '{onto_iri}' "
-                    f"in the response: {response.text}"
-                )
-            return date
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You do not have sufficient credentials to retrieve ontology metadata.")
-        else:
-            raise UnexpectedApiResponseError(
-                f"An unexpected response with the status code {response.status_code} was received from the API. "
-                f"Please consult 'warnings.log' for details."
-            )
+            return _parse_last_modification_date(response.text, URIRef(onto_iri))
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
@@ -62,26 +53,18 @@ class OntologyCreateClientLive(OntologyCreateClient):
         logger.debug("POST resource cardinalities to ontology")
         try:
             response = self._post_and_log_request(url, cardinality_graph)
-        except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
         if response.ok:
-            date = _parse_last_modification_date(response.text)
-            if not date:
-                raise UnexpectedApiResponseError(
-                    f"Could not find the last modification date in the response: {response.text}"
-                )
-            return date
+            return _parse_last_modification_date(response.text)
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
-        else:
-            logger.error(
-                f"During cardinality creation an unexpected response with the status code {response.status_code} "
-                f"was received from the API."
-            )
-            return None
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return None
 
     def _post_and_log_request(
         self,
@@ -130,10 +113,8 @@ class OntologyCreateClientLive(OntologyCreateClient):
         return data_dict, generic_headers
 
 
-def _parse_last_modification_date(response_text: str, onto_iri: URIRef | None = None) -> Literal | None:
+def _parse_last_modification_date(response_text: str, onto_iri: URIRef | None = None) -> Literal:
     g = Graph()
     g.parse(data=response_text, format="json-ld")
-    result = next(g.objects(subject=onto_iri, predicate=KNORA_API.lastModificationDate), None)
-    if isinstance(result, Literal):
-        return result
-    return None
+    date = next(g.objects(subject=onto_iri, predicate=KNORA_API.lastModificationDate))
+    return cast(Literal, date)

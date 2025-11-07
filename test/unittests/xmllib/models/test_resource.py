@@ -39,9 +39,10 @@ class TestCreateNewResource:
     def test_empty_resource_id(self):
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid xsd:ID, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid xsd:ID, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("", "restype", "label")
+            res = Resource.create_new(pd.NA, "restype", "label")  # type: ignore[arg-type]
+        assert res.res_id == "<NA>"
 
     def test_invalid_resource_id(self):
         with pytest.warns(
@@ -53,9 +54,10 @@ class TestCreateNewResource:
     def test_empty_restype(self):
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid resource type, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid resource type, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "", "label")
+            res = Resource.create_new("res_id", pd.NA, "label")  # type: ignore[arg-type]
+        assert res.restype == "<NA>"
 
     def test_empty_label(self):
         with pytest.warns(

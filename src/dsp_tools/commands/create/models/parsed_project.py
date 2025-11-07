@@ -13,6 +13,7 @@ class ParsedProject:
     permissions: ParsedPermissions
     groups: list[ParsedGroup]
     users: list[ParsedUser]
+    user_memberships: list[ParsedUserMemberShipInfo]
     lists: list[ParsedList]
     ontologies: list[ParsedOntology]
 
@@ -35,12 +36,31 @@ class ParsedPermissions:
 
 @dataclass
 class ParsedGroup:
-    info: dict[str, Any]
+    name: str
+    descriptions: list[ParsedGroupDescription]
+
+
+@dataclass
+class ParsedGroupDescription:
+    lang: str
+    text: str
 
 
 @dataclass
 class ParsedUser:
-    info: dict[str, Any]
+    username: str
+    email: str
+    given_name: str
+    family_name: str
+    password: str
+    lang: str
+
+
+@dataclass
+class ParsedUserMemberShipInfo:
+    username: str
+    is_admin: bool
+    groups: list[str]
 
 
 @dataclass

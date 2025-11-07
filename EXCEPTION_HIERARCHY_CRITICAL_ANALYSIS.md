@@ -279,43 +279,7 @@ class UserFilepathNotFoundError(InputError):
     """Filepath from user does not exist."""
 ```
 
-**Critique:** These are functionally identical. Why does xmllib need its own file-not-found exception?
-
-**Recommendation:** Either:
-
-- **Option A:** Use `UserFilepathNotFoundError` everywhere (remove xmllib version)
-- **Option B:** If xmllib needs isolation, document **why** and ensure the exceptions provide xmllib-specific context
-
-#### **Issue 5.2: Xmllib Warnings are More Sophisticated**
-
-The xmllib warning system has:
-
-```python
-class XmllibUserInfoBase(Warning, ABC):
-    @classmethod
-    @abstractmethod
-    def showwarning(cls, message: str) -> None: ...
-
-class XmllibInputInfo(XmllibUserInfoBase):
-    # Printed in YELLOW
-
-class XmllibInputWarning(XmllibUserInfoBase):
-    # Printed in BOLD_RED
-```
-
-But main warnings are simpler:
-
-```python
-class DspToolsUserWarning(DspToolsWarning):
-    # Just warnings, no "info" level
-```
-
-**Critique:** Why does xmllib have `Info` and `Warning` levels, but the main system doesn't? This suggests:
-
-- The main warning system is under-designed
-- Or xmllib has special needs that weren't generalized
-
-**Recommendation:** Either adopt xmllib's Info/Warning split project-wide, or justify why xmllib needs special handling.
+**Recommendation:** Use `UserFilepathNotFoundError` everywhere (remove xmllib version)
 
 ---
 
@@ -357,61 +321,10 @@ class PermanentTimeOutError(PermanentConnectionError):
 
 This allows catching all network issues with just `except PermanentConnectionError`.
 
-#### **Issue 6.2: Retry Logic Hidden in Connection Class**
-
-The [ConnectionLive._try_network_action](src/dsp_tools/clients/connection_live.py#L148-L190) has:
-
-- Hardcoded 24 retries
-- Exponential backoff in `log_request_failure_and_sleep`
-- Timeout durations: 30 min for PUT/POST, 20 sec for GET
-
-**Critique:** This retry logic is:
-
-- Not configurable without changing code
-- Not testable with different retry counts
-- Hidden implementation detail
-
-**Recommendation:**
-
-- Make retry parameters configurable via constructor or config file
-- Extract retry logic to separate utility for testability
-- Document the retry strategy in exception docstrings
-
 ---
 
 ## 7. Validation Error Handling
 
-### 7.1 SHACL Validation Exceptions
-
-```python
-class ShaclValidationCliError(BaseError):
-    """Docker command has problems"""
-
-class ShaclValidationError(BaseError):
-    """Unexpected error during validation"""
-```
-
-#### **Issue 7.1: Unclear Error Boundaries**
-
-**Question:** When should each be raised?
-
-- Is `ShaclValidationCliError` for Docker issues specifically?
-- Is `ShaclValidationError` for SHACL validation failures or unexpected errors?
-
-**From usage:**
-
-```python
-# In shacl_cli_validator.py
-raise ShaclValidationCliError(...)  # Docker problems
-
-# In get_validation_report.py
-raise ShaclValidationError(msg) from None  # Parsing errors
-```
-
-**Critique:** These names don't communicate the distinction. Better names:
-
-- `ShaclValidationCliError` → `ShaclDockerCommandError`
-- `ShaclValidationError` → `ShaclResultParsingError`
 
 #### **Issue 7.2: Validation Problems vs Exceptions**
 
@@ -430,10 +343,7 @@ class InputProblem:
 ```
 
 This is **excellent** - allows collecting all validation errors and showing them together.
-
-**But:** When does validation raise an exception vs return problems?
-
-**Answer from code:** Validation returns `ValidateDataResult` with problems, then the CLI command decides whether to exit:
+Validation returns `ValidateDataResult` with problems, then the CLI command decides whether to exit:
 
 ```python
 if not result.no_problems:
@@ -441,7 +351,8 @@ if not result.no_problems:
     sys.exit(1)
 ```
 
-**Critique:** This is actually **good design** - validation is pure (no side effects), CLI handles exceptions. However, this pattern isn't used consistently in other commands.
+**Critique:** This is actually **good design** - validation is pure (no side effects), CLI handles exceptions.
+However, this pattern isn't used consistently in other commands.
 
 **Recommendation:** Adopt this pattern project-wide:
 
@@ -453,52 +364,6 @@ if not result.no_problems:
 
 ## 8. Upload Error Handling
 
-### 8.1 XML Upload Exceptions
-
-```python
-class XmlUploadError(BaseError):
-    """Generic XML upload error"""
-
-class XmlUploadInterruptedError(XmlUploadError):
-    """Upload was interrupted"""
-
-class XmlUploadPermissionsNotFoundError(BaseError):
-    """Permission does not exist"""
-
-class XmlUploadAuthorshipsNotFoundError(BaseError):
-    """Authorship ID does not exist"""
-
-class XmlUploadListNodeNotFoundError(BaseError):
-    """List node does not exist"""
-```
-
-#### **Issue 8.1: Inconsistent Hierarchy**
-
-**Problem:** The "NotFoundError" exceptions are siblings of `XmlUploadError`, but semantically they're upload-related errors.
-
-**Recommendation:**
-
-```python
-class XmlUploadError(BaseError):
-    """Generic XML upload error"""
-
-class XmlUploadInterruptedError(XmlUploadError):
-    """Upload was interrupted"""
-
-class XmlUploadResourceNotFoundError(XmlUploadError):
-    """Referenced resource not found"""
-
-class XmlUploadPermissionsNotFoundError(XmlUploadResourceNotFoundError):
-    """Permission does not exist"""
-
-class XmlUploadAuthorshipsNotFoundError(XmlUploadResourceNotFoundError):
-    """Authorship ID does not exist"""
-
-class XmlUploadListNodeNotFoundError(XmlUploadResourceNotFoundError):
-    """List node does not exist"""
-```
-
-This creates logical groupings and allows catching all upload errors with one catch.
 
 #### **Issue 8.2: XmlUploadInterruptedError Raised in Multiple Places**
 
@@ -509,9 +374,7 @@ raise XmlUploadInterruptedError(msg) from None
 ```
 
 **Critique:** The same exception is raised in 4 different places with different messages. This suggests:
-
-- Either the messages should be standardized
-- Or different exception types should be used (e.g., `XmlUploadUserInterrupted`, `XmlUploadConnectionInterrupted`)
+Different exception types should be used (e.g., `XmlUploadUserInterrupted`, `XmlUploadConnectionInterrupted`)
 
 ---
 
@@ -555,17 +418,6 @@ def test_exception_messages_dont_have_error_prefix():
     for exc_class in get_all_exception_classes():
         instance = exc_class("Test message")
         assert not str(instance).startswith("ERROR:")
-```
-
-#### **Issue 9.2: No Tests for Exception Conversion Patterns**
-
-**Missing:** Tests verifying that exceptions are correctly converted between layers:
-
-```python
-def test_permanent_connection_error_converts_to_input_error_in_auth():
-    """Verify authentication converts connection errors to input errors."""
-    # Mock connection to raise PermanentConnectionError
-    # Verify AuthenticationClient raises InputError instead
 ```
 
 ---
@@ -625,6 +477,11 @@ def create_project(...) -> bool:
     """
 ```
 
+**RESPONSE FROM DEVELOPER**: In principle I agree with you, but I guess the effort-reward ratio is bad. 
+The "Raises" section would quickly outdate (doc-rot),
+and since Python doesn't have a built-in system where every possible exception is visible,
+you anyways never know what exception you will get. Or am I too pessimistic?
+
 ### 10.2 Missing Architecture Documentation
 
 **Current state:** No centralized documentation explaining:
@@ -649,7 +506,6 @@ def create_project(...) -> bool:
 
 | Location | Issue | Severity | Recommendation |
 |----------|-------|----------|----------------|
-| [authentication_client_live.py:42](src/dsp_tools/clients/authentication_client_live.py#L42) | Catching exception that can't be raised | 🔴 High | Remove dead catch block |
 | [entry_point.py:77](src/dsp_tools/cli/entry_point.py#L77) | Catch-all catches KeyboardInterrupt | 🔴 High | Add KeyboardInterrupt handler |
 | [Multiple files](src/dsp_tools/utils/data_formats/date_util.py) | Raising raw BaseError | 🟡 Medium | Use specific exception types |
 | [Multiple files](src/dsp_tools/commands/excel2json/) | Inconsistent Exception/Problem usage | 🟡 Medium | Standardize on one pattern per module |
@@ -660,102 +516,5 @@ def create_project(...) -> bool:
 |----------|-------------|---------|
 | `exceptions.py` | Add `from __future__ import annotations` | Enable forward references |
 | All exception raises | Use keyword arguments | Type safety and clarity |
-| `connection_live.py` | Extract retry logic | Testability |
 | `xmllib_errors.py` | Merge with main exceptions | Reduce duplication |
 | All files | Remove "ERROR:" prefix | Cleaner messages |
-
----
-
-## 12. Recommendations Summary
-
-### Immediate Actions (High Priority)
-
-1. **Fix dead code in authentication_client_live.py**
-   - Remove impossible catch block
-   - Add unit test to catch similar issues
-
-2. **Add KeyboardInterrupt handling**
-   - Prevent treating Ctrl+C as InternalError
-
-3. **Standardize exception messages**
-   - Remove "ERROR:" prefixes
-   - Add actionable guidance
-   - Fix grammar/typos
-
-4. **Document exception hierarchy**
-   - Create architecture doc
-   - Add decision tree for developers
-
-5. **Enforce keyword arguments for exceptions**
-   - Prevents fragile positional argument bugs
-
-### Medium-Term Improvements
-
-6. **Rationalize exception hierarchy**
-   - Make `PermanentTimeOutError` subclass of `PermanentConnectionError`
-   - Group upload errors under common parent
-   - Remove redundant xmllib exceptions
-
-7. **Standardize Problem vs Exception usage**
-   - Document when to use each
-   - Consider adopting validation's return-result pattern project-wide
-
-8. **Enhance Problem protocol**
-   - Add severity levels
-   - Add is_fatal() method
-
-9. **Add meta-tests**
-   - Test exception hierarchy
-   - Test message formatting
-   - Test conversion patterns
-
-### Long-Term Enhancements
-
-10. **Make retry logic configurable**
-    - Extract to utility class
-    - Allow configuration per-command
-
-11. **Add development mode**
-    - Preserve exception chains (ignore `from None`)
-    - Show full tracebacks to stdout
-
-12. **Create exception catalog**
-    - Document all exceptions
-    - Show example usage
-    - Link to handling code
-
----
-
-## 13. Conclusion
-
-The DSP-TOOLS exception system has a **solid foundation** with clear user/internal error separation and good message formatting. However, it suffers from **inconsistent implementation** that undermines its effectiveness.
-
-### Key Takeaways
-
-**What's Working:**
-
-- Clear exception hierarchy concept
-- Excellent InternalError user guidance
-- Good logging and color-coded output
-- Problem protocol for validation
-
-**What Needs Work:**
-
-- Inconsistent exception construction (positional args)
-- Ambiguous exception names and relationships
-- Mixed Exception/Problem usage patterns
-- Dead code and impossible catch blocks
-- Missing documentation of exception semantics
-
-### Bottom Line
-
-This is **not a bad system**, but it shows signs of **organic growth without periodic refactoring**. With focused effort on standardization and documentation, it could become exemplary.
-
-**Estimated effort to address critical issues:** 2-3 weeks
-**Estimated effort for complete refactoring:** 6-8 weeks
-
----
-
-**Report compiled by:** Claude (Sonnet 4.5)
-**Analysis depth:** Complete codebase scan with focused examination of exception patterns
-**Total exceptions analyzed:** 28 exception classes, 69 raise sites, 30 catch sites

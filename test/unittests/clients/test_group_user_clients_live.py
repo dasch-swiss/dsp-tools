@@ -63,6 +63,7 @@ class TestGroupClientLiveGetGroup:
         assert result[0]["name"] == "testgroup"
         assert result[0]["id"] == GROUP_IRI
         assert result[1]["name"] == "testgroupReaders"
+        assert result[1]["id"] == "http://rdfh.ch/groups/4123/anotherGroupId"
         assert mock_get.call_args[0][0] == f"{group_client.api_url}/admin/groups"
 
     def test_get_all_groups_empty(self, group_client: GroupClientLive) -> None:
@@ -89,28 +90,6 @@ class TestGroupClientLiveGetGroup:
 
 
 class TestGroupClientCreateNewGroup:
-    """response
-
-        {
-        "group": {
-            "id": "http://rdfh.ch/groups/9999/krZ2lP_NTBSbfbX2BSvhiw",
-            "name": "NewGroup",
-            "descriptions": [
-                {
-                    "value": "NewGroupDescription",
-                    "language": "en"
-                },
-                {
-                    "value": "NeueGruppenBeschreibung",
-                    "language": "de"
-                }
-            ],
-            "project": {
-                "id": "http://rdfh.ch/projects/zimXRcPvRxeXS-6veIrB7A"
-        }
-    }
-    """
-
     def test_success(self, group_client: GroupClientLive, new_group) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {

@@ -236,10 +236,13 @@ class Problem(Protocol):
 - **Harder testing** - need to test two different error patterns
 - **Cognitive overhead** - developers must decide which system to use
 
-**RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected, then they are transformed into a string with the `execute_error_protocol()` method, and finally, an InputError is raised with the string as message.
-The difference between group 1 (`create`: server interaction) and group 2 (`excel2json`/`validate_data`: Locally running data validation/transformation commands) is on purpose:
+**RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected,
+then they are transformed into a string with the `execute_error_protocol()` method,
+and finally, an InputError is raised with the string as message.
+The difference between group 1 (`create`: server interaction) and group 2 (`excel2json`/`validate_data`:
+Locally running data validation/transformation commands) is on purpose:
 Group 1 is allowed to crash without aggregation, while group 2 must aggregate all problems before crashing.
-The only potential problem I see is: 
+
 
 #### **Issue 2.2: Missing Conversion Between Systems**
 
@@ -262,7 +265,9 @@ if compliance_problem:
 
 **Critique:** Mixing patterns within the same module is confusing. The excel2json module sometimes validates everything and reports all problems, other times fails fast on first error.
 
-**RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected, then they are transformed into a string with the `execute_error_protocol()` method, and finally, an InputError is raised with the string as message.
+**RESPONSE FROM DEVELOPER**: The idea is that first, all problems are collected,
+then they are transformed into a string with the `execute_error_protocol()` method,
+and finally, an InputError is raised with the string as message.
 The example you cite as "Sometimes raises immediately" perfectly follows this pattern. So I don't see the problem.
 
 #### **Issue 2.3: Problem Protocol Lacks Severity Levels**
@@ -289,6 +294,8 @@ class Severity(Enum):
 - `validate_data` problems have three severity levels
 - No standard way to aggregate and present problems across modules
 
+**RESPONSE FROM DEVELOPER**: The modules are in fact separate CLI commands, which can never run at the same time.
+
 **Recommendation:** Enhance the `Problem` protocol:
 
 ```python
@@ -297,6 +304,8 @@ class Problem(Protocol):
     def get_severity(self) -> Severity: ...
     def is_fatal(self) -> bool: ...
 ```
+
+**RESPONSE FROM DEVELOPER**: It seems to me that your entire paragraph "2. Exception vs. Problem Duality" is void and should be removed from the report.
 
 ---
 
@@ -349,76 +358,9 @@ except Exception as err:
     success = False
 ```
 
-#### **Issue 3.2: Inconsistent Re-raising Patterns**
+**RESPONSE FROM DEVELOPER**: It's a good idea to add `except KeyboardInterrupt`
 
-Found multiple patterns for exception conversion:
 
-**Pattern A: Catch and convert** (used 15+ times)
-
-```python
-except PermanentConnectionError as e:
-    raise InputError(e.message) from None
-```
-
-**Pattern B: Catch and re-raise** (used 5+ times)
-
-```python
-except BaseError:
-    logger.error("...")
-    raise  # Let it propagate unchanged
-```
-
-**Pattern C: Catch, log, and continue** (used 10+ times)
-
-```python
-except BaseError:
-    logger.exception("Failed to create list")
-    # Don't re-raise, continue execution
-```
-
-**Pattern D: Catch multiple, handle differently** (used 3+ times)
-
-```python
-except (PermanentConnectionError, InvalidInputError) as e:
-    # Special handling
-except BaseError as e:
-    # Generic handling
-```
-
-**Critique:** No clear guidelines on when to use each pattern. This leads to:
-
-- **Inconsistent error recovery** - some commands continue after errors, others abort
-- **Lost context** - some conversions lose important details
-- **Redundant catches** - multiple layers catching the same exception types
-
-**Locations exhibiting inconsistency:**
-
-- [src/dsp_tools/commands/project/create/project_create_all.py](src/dsp_tools/commands/project/create/project_create_all.py) - 6 different catch blocks with different patterns
-- [src/dsp_tools/commands/project/create/project_create_ontologies.py](src/dsp_tools/commands/project/create/project_create_ontologies.py) - 4 different catch blocks
-
-**Recommendation:** Document standard patterns:
-
-```python
-# Pattern 1: Full conversion (external → internal exceptions)
-try:
-    response = requests.get(url)
-except requests.RequestException as e:
-    raise PermanentConnectionError(f"Network error: {e}") from e
-
-# Pattern 2: Enrichment (add context to existing exception)
-try:
-    create_resource(data)
-except BaseError as e:
-    logger.error(f"Failed to create {resource_id}")
-    raise  # Re-raise with logged context
-
-# Pattern 3: Recovery (non-fatal errors)
-try:
-    optional_operation()
-except BaseError as e:
-    logger.warning(f"Optional operation failed: {e}")
-    # Continue without re-raising
-```
 
 ### 3.2 Authentication Client Exception Handling
 

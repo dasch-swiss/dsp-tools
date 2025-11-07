@@ -11,4 +11,8 @@ Proposed Exception Hierarchy Redesign:
 - BadCredentialsError should be a subclass of UserError, because the user can fix it
 - CreateError and ProjectNotFoundError are user-fixable -> subclass of UserError
 
-Please add to the report that `parse_json_file()` in `src/dsp_tools/utils/json_parsing.py` doesn't follow the pattern in "How to Handle Exceptions"
+Please add to the report that `parse_json_file()` in `src/dsp_tools/utils/json_parsing.py`
+doesn't follow the pattern in "How to Handle Exceptions". 
+In addition, it doesn't pass on the parsing error to the user, so the user doesn't have a chance to fix his JSON.
+
+Your "Proposed Exception Hierarchy Redesign" lists some exceptions 2 times in the hierarchy.

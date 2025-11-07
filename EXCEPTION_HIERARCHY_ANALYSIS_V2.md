@@ -138,13 +138,9 @@ BaseError
 │   ├── DockerNotReachableError (moved)
 │   ├── DspApiNotReachableError (moved)
 │   ├── InvalidGuiAttributeError (moved)
-│   ├── Id2IriReplacementError (moved)
-│   ├── XmlUploadPermissionsNotFoundError (moved)
-│   ├── XmlUploadAuthorshipsNotFoundError (moved)
-│   ├── XmlUploadListNodeNotFoundError (moved)
-│   ├── XmlPermissionError (renamed from XmlUploadError, moved)
 │   └── XmlUploadUserError (new grouping for xmlupload user errors)
-│       ├── XmlUploadPermissionsNotFoundError
+│       ├── Id2IriReplacementError
+│       ├── XmlUploadPermissionsNotFoundError (XmlUploadError should be merged with this class)
 │       ├── XmlUploadAuthorshipsNotFoundError
 │       └── XmlUploadListNodeNotFoundError
 ├── InternalError
@@ -173,7 +169,7 @@ BaseError
    - `UnexpectedApiResponseError` (unexpected behavior we can't handle)
    - `PermanentConnectionError` (infrastructure issues after retries)
 6. **Rename/improve xmlupload errors**:
-   - `XmlUploadError` → `XmlPermissionError` (be specific about what's wrong)
+   - `XmlUploadError` → should be merged with `XmlUploadPermissionsNotFoundError`
    - Group xmlupload user errors under `XmlUploadUserError` for easier catching
 7. **Replace `ShaclValidationCliError` with `ShaclValidationError`**: Make it a subclass of `InternalError`
 8. **Move `InvalidGuiAttributeError` to `UserError`**: User provided invalid attribute
@@ -518,7 +514,7 @@ class CreateError(BaseError):
     """Errors for the create command."""
 ```
 
-**Analysis:** Functionality-specific error classes like `CreateError` and `XmlUploadError` are useful for:
+**Analysis:** Functionality-specific error classes like `CreateError` and `XmlUploadUserError` are useful for:
 
 - Grouping related errors
 - Catching all errors from a specific command together

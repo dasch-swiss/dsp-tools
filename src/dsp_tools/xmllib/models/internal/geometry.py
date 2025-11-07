@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning, raise_xmllib_input_error
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
-from dsp_tools.error.xmllib_errors import XmllibInputError
+
 
 @dataclass
 class GeometryShape(Protocol):

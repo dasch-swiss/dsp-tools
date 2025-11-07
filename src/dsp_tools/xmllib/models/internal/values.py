@@ -238,7 +238,7 @@ class ListValue(Value):
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(
             value=str(value),
-            list_name=list_str,
+            list_name=str(list_str),
             prop_name=prop_name,
             permissions=permissions,
             comment=fixed_comment,

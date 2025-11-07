@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning, raise_xmllib_input_error
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
-
+from dsp_tools.error.xmllib_errors import XmllibInputError
 
 @dataclass
 class GeometryShape(Protocol):
@@ -54,7 +54,7 @@ class Polygon(GeometryShape):
                 "The region shape is a polygon. Polygons should have at least 3 points. "
                 "If you would like to display a rectangle we recommend to use the designated rectangle shape."
             )
-            emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
+            raise_xmllib_input_error(MessageInfo(msg, self.resource_id))
 
     def to_json_string(self) -> str:
         json_dict = {
@@ -98,7 +98,8 @@ class GeometryPoint:
     def __post_init__(self) -> None:
         if not all([is_decimal(self.x), is_decimal(self.y)]):
             msg = f"The entered geometry points are not floats. x: '{self.x}', y: '{self.y}'"
-            emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
+            raise_xmllib_input_error(MessageInfo(msg, self.resource_id))
+
         else:
             info = []
             if not 0 <= float(self.x) <= 1:
@@ -110,9 +111,9 @@ class GeometryPoint:
                     f"The geometry points must be larger/equal 0 and smaller/equal 1. "
                     f"The following points are not valid: {', '.join(info)}"
                 )
-                emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
-            self.x = float(self.x)
-            self.y = float(self.y)
+                raise_xmllib_input_error(MessageInfo(msg, self.resource_id))
+        self.x = float(self.x)
+        self.y = float(self.y)
 
     def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y}
@@ -127,7 +128,7 @@ class Vector:
     def __post_init__(self) -> None:
         if not all([is_decimal(self.x), is_decimal(self.y)]):
             msg = f"The radius vector are not floats. x: '{self.x}', y: '{self.y}'"
-            emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
+            raise_xmllib_input_error(MessageInfo(msg, self.resource_id))
         else:
             info = []
             if not 0 <= float(self.x) <= 1:
@@ -139,9 +140,9 @@ class Vector:
                     f"The radius vector must be larger/equal 0 and smaller/equal 1. "
                     f"The following values are not valid: {', '.join(info)}"
                 )
-                emit_xmllib_input_warning(MessageInfo(msg, self.resource_id))
-            self.x = float(self.x)
-            self.y = float(self.y)
+                raise_xmllib_input_error(MessageInfo(msg, self.resource_id))
+        self.x = float(self.x)
+        self.y = float(self.y)
 
     def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y}
@@ -158,4 +159,4 @@ def _check_warn_shape_info(color: str, line_width: float, res_id: str) -> None:
         problems.append(f"The color must be a valid hexadecimal color. The provided value is not valid: {color}")
     if problems:
         msg = f"Some of the shape values are not valid: \n- {'\n- '.join(problems)}"
-        emit_xmllib_input_warning(MessageInfo(msg, res_id))
+        raise_xmllib_input_error(MessageInfo(msg, res_id))

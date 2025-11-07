@@ -44,7 +44,7 @@ class Metadata:
         license: License | None,
         copyright_holder: str | None,
         authorship: Collection[str] | None,
-        permissions: Permissions,
+        permissions: Permissions | str,
         resource_id: str,
     ) -> Metadata:
         lic_ = license
@@ -56,14 +56,20 @@ class Metadata:
                 value_field="license (bistream/iiif-uri)",
             )
             lic_ = None
-        if not isinstance(permissions, Permissions):
+        # TODO: find out the preferred method
+        if isinstance(permissions, Permissions):
+            pass
+        elif is_nonempty_value_internal(permissions):
+            permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        else:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xmllib.Permissions",
                 value=permissions,
                 res_id=resource_id,
                 value_field="permissions (bistream/iiif-uri)",
             )
-            permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+            # in this case the input will be invalid in any case
+            permissions = str(permissions)
         if copyright_holder is not None:
             copyright_holder = check_and_fix_is_non_empty_string(
                 value=copyright_holder,

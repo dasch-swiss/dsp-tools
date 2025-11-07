@@ -1,13 +1,16 @@
 ## Prompt
 
-When reading your report @EXCEPTION_HIERARCHY_CRITICAL_ANALYSIS.md, I digged through the codebase and found some further issues.
+When reading your report @EXCEPTION_HIERARCHY_CRITICAL_ANALYSIS.md,
+I digged through the codebase and found some further issues.
 I noted them in this document. (I hope I didn't duplicate one of your findings, by mistake).
-Please think about them carefully, and if you agree, 
-create a new version of your report, where my input is included.
-If necessary, ask me while preparing the new version, so that we can do it interactively.
+
+Please create a new version of your report, and save it as a new file.
+Please think about my thoughts carefully, ask me if necessary, and then include my input in the new version.
 
 In your original report, I added some feedback, but it's clearly marked as such.
-In your new version, please also include my feedback.
+Your new version should reflect my feedback.
+I have also deleted some paragraphs from your original report, because they were irrelevant.
+So you have to update the numbering system.
 
 If necessary, you can also use the intermediary steps from our previous conversation,
 i.e. the files that you have stored under ./EXCEPTION_*.(md|txt)

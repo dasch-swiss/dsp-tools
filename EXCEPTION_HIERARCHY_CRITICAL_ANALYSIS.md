@@ -193,29 +193,6 @@ except Exception as err:
 
 **RESPONSE FROM DEVELOPER**: It's a good idea to add `except KeyboardInterrupt`
 
-
-
-### 3.2 Authentication Client Exception Handling
-
-The [authentication_client_live.py](src/dsp_tools/clients/authentication_client_live.py#L38-L51) has a **logical impossibility**:
-
-```python
-try:
-    response = requests.post(url, json=payload, headers=headers, timeout=10)
-    logger.debug(f"RESPONSE: Requesting token responded with status {response.status_code}")
-    res_json: dict[str, Any] = response.json()
-except BadCredentialsError:  # ← This can NEVER be raised by requests.post()!
-    raise InputError(f"Username and/or password are not valid on server '{self.server}'") from None
-except PermanentConnectionError as e:
-    raise InputError(e.message) from None
-```
-
-**Critique:** `BadCredentialsError` is a DSP-TOOLS exception, but it's being caught around a `requests.post()` call that can **never raise it**. This catch block is **dead code**.
-
-**Root cause:** The exception handling was probably refactored at some point, leaving obsolete catch blocks.
-
-**Recommendation:** Remove the impossible catch block or investigate if different code should be inside the try block.
-
 ---
 
 ## 4. Error Message Quality and User Experience
@@ -243,53 +220,12 @@ except PermanentConnectionError as e:
 
 #### **Issue 4.1: Inconsistent Message Formatting**
 
-**Problem:** Exception messages use different formats:
-
-```python
-# Format 1: Prefixed with "ERROR:"
-raise InputError(f"ERROR: Invalid DSP server URL '{server}'")  # entry_point.py:246
-
-# Format 2: No prefix
-raise InputError(f"Invalid DSP server URL '{server}'")
-
-# Format 3: Sentence case
-raise InputError("Username and/or password are not valid")
-
-# Format 4: Lowercase continuation
-raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
-```
-
-**Critique:** The "ERROR:" prefix is redundant since the CLI already prints "The process was terminated because of an Error:" before the message. This creates double-prefixing:
-
-```
-The process was terminated because of an Error: ERROR: Invalid DSP server URL 'foo'
-                                              ^^^^^^ redundant
-```
-
-**Recommendation:**
-
-- Remove all "ERROR:" prefixes from exception messages
-- Standardize on sentence case with punctuation
-- Create message format guidelines
+**Recommendation:** Remove all "ERROR:" prefixes from exception messages,
+i.e. replace all `raise FooError("ERROR: foobar")` by `raise FooError("foobar")`
 
 #### **Issue 4.2: Technical Jargon in User-Facing Errors**
 
-Some `InputError` messages contain technical details:
-
-```python
-raise InputError(f"A project with shortcode {shortcode} could not be found on the DSP server")
-```
-
-**Critique:** Users may not know what a "shortcode" is. Better message:
-
-```python
-raise InputError(
-    f"The project with ID '{shortcode}' could not be found on the DSP server. "
-    f"Please verify the project ID is correct."
-)
-```
-
-**Other examples:**
+**Examples:**
 
 - "OntologyConstraintException" mentioned in error (too technical)
 - "Resource ID exists in both mapping and new data" (unclear what to do)
@@ -308,7 +244,7 @@ raise InvalidGuiAttributeError("Invalid gui attribute")
 # Better: "Invalid gui-attribute '{attr}'. Valid attributes for {gui_element} are: {valid_attrs}"
 ```
 
-**Recommendation:** For all `InputError` subclasses, ensure messages:
+**Recommendation:** For all user-facing errors, ensure messages:
 
 1. State what was expected
 2. State what was found

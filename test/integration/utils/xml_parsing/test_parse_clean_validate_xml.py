@@ -7,39 +7,19 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _validate_root_get_validation_messages
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
-@pytest.fixture
-def data_systematic_unclean() -> Path:
-    return Path("testdata/xml-data/test-data-systematic-4123.xml")
-
-
-@pytest.fixture
-def data_systematic_cleaned(data_systematic_unclean: Path) -> etree._Element:
-    return parse_and_clean_xml_file(data_systematic_unclean)
-
-
-def _clean_resulting_tree(tree: etree._Element) -> str:
-    cleaned_str = regex.sub("\n", "", etree.tostring(tree, encoding=str))
-    return regex.sub(" +", " ", cleaned_str)
-
-
-def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_unclean: Path) -> None:
-    from_tree = parse_and_clean_xml_file(data_systematic_unclean)
-    from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic-4123.xml"))
-    cleaned_from_file = _clean_resulting_tree(from_file)
-    cleaned_from_tree = _clean_resulting_tree(from_tree)
-    assert cleaned_from_file == cleaned_from_tree, (
-        "The output must be equal, regardless if the input is a path or parsed."
-    )
-
-
-def test_comment_removal(data_systematic_unclean: Path, data_systematic_cleaned: etree._Element) -> None:
-    data = etree.parse(data_systematic_unclean)
-    comments_before = [e for e in data.iter() if isinstance(e, etree._Comment)]
+def test_comment_removal() -> None:
+    input_file = Path("testdata/xml-data/test-data-systematic-4123.xml")
+    data_systematic_uncleaned = etree.parse(input_file)
+    data_systematic_cleaned = parse_and_clean_xml_file(input_file)
+    comments_before = [e for e in data_systematic_uncleaned.iter() if isinstance(e, etree._Comment)]
     assert len(comments_before) > 0
     comments_after = [e for e in data_systematic_cleaned.iter() if isinstance(e, etree._Comment)]
     assert len(comments_after) == 0, (
@@ -57,12 +37,17 @@ def test_validate_xml_data_minimal() -> None:
 
 
 def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
-    expected = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "    Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed."
-    )
-    with pytest.raises(InputError, match=expected):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag-4124.xml")
+    input_file = "testdata/invalid-testdata/xml-data/invalid-resource-tag-4124.xml"
+    root = _parse_xml_file(input_file)
+    root = _remove_comments_from_element_tree(root)
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 1
+    result = validation_messages[0]
+    assert result.line_number == 12
+    assert result.element == "resource"
+    assert result.attribute == "invalidtag"
+    assert "The attribute 'invalidtag' is not allowed" in result.message
 
 
 def test_validate_xml_data_duplicate_iri() -> None:

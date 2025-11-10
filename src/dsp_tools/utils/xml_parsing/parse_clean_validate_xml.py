@@ -24,7 +24,7 @@ list_separator = "\n    - "
 def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = _parse_xml_file(input_file)
     root = _remove_comments_from_element_tree(root)
-    if not validate_root_emit_user_message(root):
+    if not validate_root_emit_user_message(root, Path(input_file).parent):
         raise InputError("The XML file contains validation errors.")  # a detailed report has already been printed
     print("The XML file is syntactically correct.")
     return _transform_into_localnames(root)
@@ -33,7 +33,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:
     root = _parse_xml_file(input_file)
     data_xml = _remove_comments_from_element_tree(root)
-    return validate_root_emit_user_message(data_xml)
+    return validate_root_emit_user_message(data_xml, Path(input_file).parent)
 
 
 def _parse_xml_file(input_file: str | Path) -> etree._Element:

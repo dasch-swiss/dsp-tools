@@ -3,10 +3,8 @@
 from pathlib import Path
 
 import pytest
-import regex
 from lxml import etree
 
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _remove_comments_from_element_tree
@@ -55,54 +53,74 @@ def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
 
 
 def test_validate_xml_data_duplicate_iri() -> None:
-    expected_msg = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "    Line 19: Element 'resource': Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] "
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/duplicate-iri-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 1
+    result = validation_messages[0]
+    assert result.line_number == 19
+    assert result.element == "resource"
+    assert result.attribute is None
+    assert (
+        result.message == "Duplicate key-sequence ['http://rdfh.ch/4123/54SYvWF0QUW6a'] "
         "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'."
     )
-    with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-iri-4124.xml")
 
 
 def test_validate_xml_duplicate_ark() -> None:
-    expected_msg = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "    Line 19: Element 'resource': Duplicate key-sequence ['ark:/72163/4123-31ec6eab334-a.2022829'] "
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/duplicate-ark-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 1
+    result = validation_messages[0]
+    assert result.line_number == 19
+    assert result.element == "resource"
+    assert result.attribute is None
+    assert (
+        result.message == "Duplicate key-sequence ['ark:/72163/4123-31ec6eab334-a.2022829'] "
         "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'."
     )
-    with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-ark-4124.xml")
 
 
 def test_validate_xml_empty_label() -> None:
-    expected_msg = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "    Line 11: Element 'resource', attribute 'label': [facet 'minLength'] "
-        "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
-    )
-    with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/empty-label-4124.xml")
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/empty-label-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 1
+    result = validation_messages[0]
+    assert result.line_number == 11
+    assert result.element == "resource"
+    assert result.attribute == "label"
+    assert result.message == "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
 
 
 def test_validate_xml_invalid_characters_in_resptr() -> None:
-    expected_msg = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "    Line 13: Element 'resptr': [facet 'pattern'] The value 'not|allowed|characters' "
-        "is not accepted by the pattern "
-    )
-    with pytest.raises(InputError, match=expected_msg):
-        parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resptr-characters-4124.xml")
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/invalid-resptr-characters-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 1
+    result = validation_messages[0]
+    assert result.line_number == 13
+    assert result.element == "resptr"
+    assert result.attribute is None
+    assert result.message == "The value 'not|allowed|characters' is not accepted by the pattern for this value."
 
 
 def test_beautify_err_msg() -> None:
-    _match = (
-        r"Line \d+: The resource ID 'res_1' is not valid\. IDs must be unique across the entire file\. "
-        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\.\n +"
-        r"Line \d+: The resource ID 'res_2' is not valid\. IDs must be unique across the entire file\. "
-        r"The function make_xsd_compatible_id\(\) assists you in creating IDs\."
-    )
-    with pytest.raises(InputError, match=_match):
-        parse_and_validate_xml_file("testdata/invalid-testdata/xml-data/duplicate-res-id-4124.xml")
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/duplicate-res-id-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 2
+    result_1 = validation_messages[0]
+    result_2 = validation_messages[1]
+    assert result_1.element == "audio-segment"
+    assert result_2.element == "region"
+    assert result_1.attribute == "id"
+    assert result_2.attribute == "id"
+    expected_msg = "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file."
+    assert expected_msg in result_1.message
+    expected_msg = "The provided resource id 'res_2' is either not a valid xsd:ID or not unique in the file."
+    assert expected_msg in result_2.message
 
 
 class TestReformatErrorMessage:

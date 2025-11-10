@@ -98,9 +98,11 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     check_input_dependencies(path_deps, network_requirements)
 
     if args.validate_only:
-        success = parse_and_validate_xml_file(xml_path)
-        print("The XML file is syntactically correct.")
-        return success
+        if parse_and_validate_xml_file(xml_path):
+            print("The XML file is syntactically correct.")
+            return True
+        else:
+            return False  # detailed error report has already been printed
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         match args.validation_severity:

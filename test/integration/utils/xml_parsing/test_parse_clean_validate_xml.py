@@ -36,10 +36,14 @@ def test_validate_xml_data_minimal() -> None:
     assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-minimal-4124.xml")
 
 
-def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
-    input_file = "testdata/invalid-testdata/xml-data/invalid-resource-tag-4124.xml"
+def _prepare_root(input_file: Path) -> etree._Element:
     root = _parse_xml_file(input_file)
     root = _remove_comments_from_element_tree(root)
+    return root
+
+
+def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/invalid-resource-tag-4124.xml"))
     validation_messages = _validate_root_get_validation_messages(root)
     assert validation_messages
     assert len(validation_messages) == 1

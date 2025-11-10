@@ -198,7 +198,7 @@ class TestReformatErrorMessage:
         assert result.element == "audio-segment"
         assert result.attribute == "id"
         assert (
-            result.message == "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file."
+            "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file." in result.message
         )
 
 

@@ -32,7 +32,7 @@ def sort_user_problems(
     filtered_problems = _filter_out_duplicate_problems(iris_removed)
     violations, warnings, info = _separate_according_to_severity(filtered_problems)
     if duplicate_file_warnings:
-        warnings.extend(duplicate_file_warnings.problems)
+        info.extend(duplicate_file_warnings.problems)
     info.extend(links_level_info)
     unique_unexpected = list(set(x.component_type for x in all_problems.unexpected_results or []))
     return SortedProblems(

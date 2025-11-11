@@ -121,7 +121,7 @@ class TestSortedProblems:
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
         ]
-        expected_info = [
+        expected_info: list[tuple[str | None, ProblemType]] = [
             (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
             (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif
         ]
@@ -136,9 +136,9 @@ class TestSortedProblems:
         for one_result, expected_item in zip(sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_item[1]
             assert one_result.res_id == expected_item[0]
-        for one_result, expected_item in zip(sorted_info, expected_info):
-            assert one_result.problem_type == expected_item[1]
-            assert one_result.res_id == expected_item[0]
+        for one_result, expected_info_item in zip(sorted_info, expected_info):
+            assert one_result.problem_type == expected_info_item[1]
+            assert one_result.res_id == expected_info_item[0]
 
     def test_no_violations_with_warnings_problems_ignore_duplicates(self, authentication):
         # This only tests if the duplicates were ignored, the details of the result is tested separately

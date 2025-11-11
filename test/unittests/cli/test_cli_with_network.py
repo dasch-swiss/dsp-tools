@@ -159,7 +159,7 @@ class TestXmlupload:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
     def test_xmlupload_ignore_duplicate_files_info(self, xmlupload: Mock, check_docker: Mock) -> None:
-        ignore_duplicate_files = "--ignore-duplicate-files-warning"
+        ignore_duplicate_files = "--ignore-duplicate-files-info"
         args = f"xmlupload {ignore_duplicate_files} {DATA_XML_PATH}".split()
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -325,7 +325,7 @@ class TestValidateData:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_data")
     def test_validate_data_ignore_duplicate_files(self, validate_data: Mock, check_docker: Mock) -> None:
-        ignore_duplicate_files = "--ignore-duplicate-files-warning"
+        ignore_duplicate_files = "--ignore-duplicate-files-info"
         args = f"validate-data {ignore_duplicate_files} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(

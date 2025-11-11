@@ -27,7 +27,7 @@ def test_systematic(api_url: str) -> None:
     no_violations = validate_data(
         file,
         creds,
-        ignore_duplicate_files_warning=False,
+        ignore_duplicate_files_info=False,
         save_graphs=False,
         skip_ontology_validation=False,
         id2iri_file=None,

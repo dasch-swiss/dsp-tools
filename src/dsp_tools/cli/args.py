@@ -23,7 +23,7 @@ class ValidateDataConfig:
     xml_file: Path
     save_graph_dir: Path | None
     severity: ValidationSeverity
-    ignore_duplicate_files_warning: bool
+    ignore_duplicate_files_info: bool
     is_on_prod_server: bool
     skip_ontology_validation: bool
     do_not_request_resource_metadata_from_db: bool

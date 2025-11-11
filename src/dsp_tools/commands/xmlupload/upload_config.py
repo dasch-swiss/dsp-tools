@@ -53,7 +53,7 @@ class UploadConfig:
     skip_iiif_validation: bool = False
     skip_validation: bool = False
     skip_ontology_validation: bool = False
-    ignore_duplicate_files_warning: bool = False
+    ignore_duplicate_files_info: bool = False
     validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
     id2iri_file: str | None = None
     do_not_request_resource_metadata_from_db: bool = False

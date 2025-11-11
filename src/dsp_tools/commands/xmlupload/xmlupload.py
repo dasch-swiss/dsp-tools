@@ -150,10 +150,10 @@ def _handle_validation(
         if str(resp) == "no":
             validation_should_be_skipped = False
     if not validation_should_be_skipped:
-        ignore_duplicates = config.ignore_duplicate_files_warning
+        ignore_duplicates = config.ignore_duplicate_files_info
         if is_on_prod_like_server and ignore_duplicates:
             msg = (
-                "You set the flag '--ignore-duplicate-files-warning'. "
+                "You set the flag '--ignore-duplicate-files-info'. "
                 "This means that duplicate multimedia files will not be detected. "
                 "Are you sure you want to exclude this from the validation? (yes/no)"
             )
@@ -174,7 +174,7 @@ def _handle_validation(
                 input_file,
                 save_graph_dir=None,
                 severity=v_severity,
-                ignore_duplicate_files_warning=ignore_duplicates,
+                ignore_duplicate_files_info=ignore_duplicates,
                 is_on_prod_server=is_on_prod_like_server,
                 skip_ontology_validation=config.skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,

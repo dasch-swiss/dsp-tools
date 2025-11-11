@@ -48,7 +48,7 @@ NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation err
 def validate_data(
     filepath: Path,
     creds: ServerCredentials,
-    ignore_duplicate_files_warning: bool,
+    ignore_duplicate_files_info: bool,
     save_graphs: bool,
     skip_ontology_validation: bool,
     id2iri_file: str | None,
@@ -60,7 +60,7 @@ def validate_data(
     Args:
         filepath: path to the xml data file
         creds: server credentials for authentication
-        ignore_duplicate_files_warning: ignore the shape that checks for duplicate files
+        ignore_duplicate_files_info: ignore the shape that checks for duplicate files
         save_graphs: if this flag is set, all the graphs will be saved in a folder
         skip_ontology_validation: skip the ontology validation
         id2iri_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
@@ -78,7 +78,7 @@ def validate_data(
         xml_file=filepath,
         save_graph_dir=graph_save_dir,
         severity=ValidationSeverity.INFO,
-        ignore_duplicate_files_warning=ignore_duplicate_files_warning,
+        ignore_duplicate_files_info=ignore_duplicate_files_info,
         is_on_prod_server=is_prod_like_server(creds.server),
         skip_ontology_validation=skip_ontology_validation,
         do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,
@@ -164,7 +164,7 @@ def _validate_data(
             return ValidateDataResult(False, onto_validation_result, None)
     # Validation of the data
     duplicate_file_warnings = None
-    if not config.ignore_duplicate_files_warning:
+    if not config.ignore_duplicate_files_info:
         duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:

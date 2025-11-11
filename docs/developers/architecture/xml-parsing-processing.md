@@ -111,7 +111,7 @@ stateDiagram-v2
     state "<b>STOP<b>" as stopUnknown
     state "Ontology Validation<br>(SHACL-CLI)" as ontoVal
     state "<b>STOP<b>" as ontoViolation
-    state "flag <em>--ignore-duplicate-files-warning<em>" as ignoreF
+    state "flag <em>--ignore-duplicate-files-info<em>" as ignoreF
     state "Check for Duplicate Filepaths<br>(Python Logic)" as duplicFile
     state "severity: WARNING" as warning
     state "severity: INFO" as info

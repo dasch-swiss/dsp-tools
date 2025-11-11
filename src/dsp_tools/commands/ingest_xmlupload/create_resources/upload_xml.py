@@ -115,7 +115,7 @@ def ingest_xmlupload(
                 xml_file,
                 save_graph_dir=None,
                 severity=v_severity,
-                ignore_duplicate_files_warning=True,
+                ignore_duplicate_files_info=True,
                 is_on_prod_server=is_on_prod_like_server,
                 skip_ontology_validation=skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,

@@ -104,7 +104,7 @@ class TestXmlupload:
                 skip_iiif_validation=False,
                 skip_validation=False,
                 skip_ontology_validation=False,
-                ignore_duplicate_files_warning=False,
+                ignore_duplicate_files_info=False,
                 validation_severity=ValidationSeverity.INFO,
                 id2iri_file=None,
                 do_not_request_resource_metadata_from_db=False,
@@ -158,7 +158,7 @@ class TestXmlupload:
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.xmlupload")
-    def test_xmlupload_ignore_duplicate_files_warning(self, xmlupload: Mock, check_docker: Mock) -> None:
+    def test_xmlupload_ignore_duplicate_files_info(self, xmlupload: Mock, check_docker: Mock) -> None:
         ignore_duplicate_files = "--ignore-duplicate-files-warning"
         args = f"xmlupload {ignore_duplicate_files} {DATA_XML_PATH}".split()
         creds = ServerCredentials(
@@ -172,7 +172,7 @@ class TestXmlupload:
             input_file=Path(DATA_XML_PATH),
             creds=creds,
             imgdir=".",
-            config=UploadConfig(ignore_duplicate_files_warning=True),
+            config=UploadConfig(ignore_duplicate_files_info=True),
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -295,7 +295,7 @@ class TestXmlupload:
                 skip_iiif_validation=False,
                 skip_validation=False,
                 skip_ontology_validation=False,
-                ignore_duplicate_files_warning=False,
+                ignore_duplicate_files_info=False,
                 validation_severity=ValidationSeverity.INFO,
                 id2iri_file=None,
                 do_not_request_resource_metadata_from_db=True,
@@ -316,7 +316,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -335,7 +335,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=True,
+            ignore_duplicate_files_info=True,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -353,7 +353,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=True,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -374,7 +374,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -395,7 +395,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -413,7 +413,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=True,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
@@ -431,7 +431,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=ID_2_IRI_JSON_PATH,
             do_not_request_resource_metadata_from_db=False,
@@ -451,7 +451,7 @@ class TestValidateData:
             filepath=Path(DATA_XML_PATH),
             save_graphs=False,
             creds=creds,
-            ignore_duplicate_files_warning=False,
+            ignore_duplicate_files_info=False,
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=True,

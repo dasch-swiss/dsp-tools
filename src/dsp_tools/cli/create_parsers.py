@@ -297,7 +297,7 @@ def _add_xmlupload(
         help="don't check if the IIIF links are valid URLs that can be reached online",
     )
     subparser.add_argument(
-        "--ignore-duplicate-files-warning",
+        "--ignore-duplicate-files-info",
         action="store_true",
         help="don't check if multimedia files are referenced more than once",
     )
@@ -338,7 +338,7 @@ def _add_validate_data(
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument(
-        "--ignore-duplicate-files-warning",
+        "--ignore-duplicate-files-info",
         action="store_true",
         help="don't check if multimedia files are referenced more than once",
     )

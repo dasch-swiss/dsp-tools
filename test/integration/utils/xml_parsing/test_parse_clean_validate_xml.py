@@ -7,7 +7,9 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file, _validate_xml_with_schema
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
@@ -54,6 +56,12 @@ def test_validate_xml_data_systematic() -> None:
 
 def test_validate_xml_data_minimal() -> None:
     assert parse_and_validate_xml_file(input_file="testdata/xml-data/test-data-minimal-4124.xml")
+
+
+def _prepare_root(input_file: Path) -> etree._Element:
+    root = _parse_xml_file(input_file)
+    root = _remove_comments_from_element_tree(root)
+    return root
 
 
 def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
@@ -193,6 +201,20 @@ class TestReformatErrorMessage:
         assert (
             result.message == "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file."
         )
+
+
+def test_restype_and_property_name_with_spaces():
+    input_file = Path("testdata/invalid-testdata/xml-data/restype-and-propname-with-spaces-4124.xml")
+    root = _prepare_root(input_file)
+    expected = regex.escape(
+        "The XML file cannot be uploaded due to the following validation error(s):\n"
+        "    Line 4: Element 'resource', attribute 'restype': [facet 'pattern'] "
+        "The value ':Test Resource' is not accepted by the pattern '[^\\s]+'.\n"
+        "    Line 5: Element 'text-prop', attribute 'name': [facet 'pattern'] "
+        "The value ':has Title' is not accepted by the pattern '[^\\s]+'."
+    )
+    with pytest.raises(InputError, match=expected):
+        _validate_xml_with_schema(root)
 
 
 if __name__ == "__main__":

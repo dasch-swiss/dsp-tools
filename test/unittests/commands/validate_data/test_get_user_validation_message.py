@@ -198,7 +198,7 @@ class TestSortUserProblems:
             res_id=None,
             res_type=None,
             prop_name="bitstream / iiif-uri",
-            severity=Severity.WARNING,
+            severity=Severity.INFO,
             message="msg",
             input_value="fil.jpg",
         )
@@ -224,13 +224,16 @@ class TestSortUserProblems:
             "references_iri_of_another_project",
             "references_iri",
         }
-        unique_warnings_expected = {None, "image_no_legal_info"}
+        unique_warnings_expected = {"image_no_legal_info"}
+        unique_info_expected = {None}
         assert len(result.unique_violations) == 5
         assert set([x.res_id for x in result.unique_violations]) == unique_violations_expected
         assert len(result.user_warnings) == len(unique_warnings_expected)
         warning_ids = {x.res_id for x in result.user_warnings}
         assert warning_ids == unique_warnings_expected
-        assert not result.user_info
+        assert len(result.user_info) == len(unique_info_expected)
+        info_ids = {x.res_id for x in result.user_info}
+        assert info_ids == unique_info_expected
         assert not result.unexpected_shacl_validation_components
 
     def test_sort_user_problems_with_duplicate(self, duplicate_value, link_value_type_mismatch):
@@ -482,7 +485,7 @@ class TestUserMessages:
             res_id=None,
             res_type=None,
             prop_name="bitstream / iiif-uri",
-            severity=Severity.WARNING,
+            severity=Severity.INFO,
             message="msg",
             input_value="file1.jpg",
         )
@@ -491,7 +494,7 @@ class TestUserMessages:
             res_id=None,
             res_type=None,
             prop_name="bitstream / iiif-uri",
-            severity=Severity.WARNING,
+            severity=Severity.INFO,
             message="msg",
             input_value="file2.jpg",
         )

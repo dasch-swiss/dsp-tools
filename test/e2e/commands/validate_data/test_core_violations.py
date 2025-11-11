@@ -206,7 +206,6 @@ class TestWithReportGraphs:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         expected_warnings = [
-            (None, ProblemType.FILE_DUPLICATE),
             ("no_legal_info_bitstream", ProblemType.GENERIC),
             ("no_legal_info_bitstream", ProblemType.GENERIC),
             ("no_legal_info_bitstream", ProblemType.GENERIC),
@@ -214,14 +213,18 @@ class TestWithReportGraphs:
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
         ]
+        expected_info = [
+            (None, ProblemType.FILE_DUPLICATE),
+        ]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
         sorted_problems = sort_user_problems(result, duplicate_files, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         alphabetically_sorted_violations = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
         alphabetically_sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+        alphabetically_sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert len(sorted_problems.unique_violations) == len(expected_violations)
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info)
         assert not sorted_problems.unexpected_shacl_validation_components
         assert not result.unexpected_results
         for one_result, expected_e in zip(alphabetically_sorted_violations, expected_violations):
@@ -230,6 +233,9 @@ class TestWithReportGraphs:
         for one_result, expected_w in zip(alphabetically_sorted_warnings, expected_warnings):
             assert one_result.problem_type == expected_w[1]
             assert one_result.res_id == expected_w[0]
+        for one_result, expected_i in zip(alphabetically_sorted_info, expected_info):
+            assert one_result.problem_type == expected_i[1]
+            assert one_result.res_id == expected_i[0]
         assert not _get_validation_status(sorted_problems, is_on_prod=True)
         assert not _get_validation_status(sorted_problems, is_on_prod=False)
 

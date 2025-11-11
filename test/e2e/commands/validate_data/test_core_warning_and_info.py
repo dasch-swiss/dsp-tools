@@ -110,8 +110,6 @@ class TestGetCorrectValidationResult:
 class TestSortedProblems:
     def test_no_violations_with_warnings_problems(self, no_violations_with_warnings_do_not_ignore_duplicate_files):
         expected_warnings = [
-            (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
-            (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif
             # each type of missing legal info (authorship, copyright, license) produces one violation
             ("no_legal_info_archive", ProblemType.GENERIC),
             ("no_legal_info_archive", ProblemType.GENERIC),
@@ -123,16 +121,24 @@ class TestSortedProblems:
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
         ]
+        expected_info = [
+            (None, ProblemType.FILE_DUPLICATE),  # triplicate_archive
+            (None, ProblemType.FILE_DUPLICATE),  # duplicate_iiif
+        ]
         sorted_problems = no_violations_with_warnings_do_not_ignore_duplicate_files.problems
         assert isinstance(sorted_problems, SortedProblems)
         sorted_warnings = sorted(sorted_problems.user_warnings, key=lambda x: str(x.res_id))
+        sorted_info = sorted(sorted_problems.user_info, key=lambda x: str(x.res_id))
         assert not sorted_problems.unique_violations
         assert len(sorted_problems.user_warnings) == len(expected_warnings)
-        assert not sorted_problems.user_info
+        assert len(sorted_problems.user_info) == len(expected_info)
         assert not sorted_problems.unexpected_shacl_validation_components
-        for one_result, expected_info in zip(sorted_warnings, expected_warnings):
-            assert one_result.problem_type == expected_info[1]
-            assert one_result.res_id == expected_info[0]
+        for one_result, expected_item in zip(sorted_warnings, expected_warnings):
+            assert one_result.problem_type == expected_item[1]
+            assert one_result.res_id == expected_item[0]
+        for one_result, expected_item in zip(sorted_info, expected_info):
+            assert one_result.problem_type == expected_item[1]
+            assert one_result.res_id == expected_item[0]
 
     def test_no_violations_with_warnings_problems_ignore_duplicates(self, authentication):
         # This only tests if the duplicates were ignored, the details of the result is tested separately

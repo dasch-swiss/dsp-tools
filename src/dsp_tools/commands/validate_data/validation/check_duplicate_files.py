@@ -40,14 +40,14 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
     all_duplicates = []
     for dup_entry, usage_count in duplicates.items():
         msg = f"value used {usage_count} times"
-        logger.warning(f"File '{dup_entry}' {msg}")
+        logger.info(f"File '{dup_entry}' {msg}")
         all_duplicates.append(
             InputProblem(
                 problem_type=ProblemType.FILE_DUPLICATE,
                 res_id=None,
                 res_type=None,
                 prop_name="bitstream / iiif-uri",
-                severity=Severity.WARNING,
+                severity=Severity.INFO,
                 message=msg,
                 input_value=dup_entry,
             )

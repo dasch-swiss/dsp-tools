@@ -74,7 +74,7 @@ class TestCheckDuplicates:
         assert not problem.res_id
         assert not problem.res_type
         assert problem.prop_name == "bitstream / iiif-uri"
-        assert problem.severity == Severity.WARNING
+        assert problem.severity == Severity.INFO
         assert problem.message == expected_msg
         assert problem.input_value == file_value_1.value
 

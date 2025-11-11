@@ -37,10 +37,8 @@ Output:
         - For example, legal information for assets is mandatory on a production server. 
           Since a project may need time to compile all the data we allow missing legal information on test servers.
     - **Info**: Will not block an xmlupload.
-        - Content that may cause errors during an upload. 
-        - For example, if you reference IRIs from resources that are already in the database,
-          you will get an info message.
-          The reason is, that if the resource does not exist, an xmlupload will fail.
+        - For example, duplicate files or IIIF links.
+          It's up to the user's discretion to decide if this is on purpose or a mistake.
 
 
 The defaults are intended for local testing: 

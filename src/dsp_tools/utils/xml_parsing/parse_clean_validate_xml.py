@@ -135,10 +135,11 @@ def _emit_validation_errors(validation_errors: list[XSDValidationMessage], save_
 
 
 def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:
-    return [_reformat_error_message_str(err.message, err.line) for err in log]
+    res = [_reformat_error_message_str(err.message, err.line) for err in log]
+    return [x for x in res if x]
 
 
-def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage:
+def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage | None:
     element, attrib = None, None
     msg = msg.replace("{https://dasch.swiss/schema}", "")
     first, message = msg.split(":", maxsplit=1)
@@ -146,6 +147,8 @@ def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMess
         element = ele_found.group(1)
     if attrib_found := regex.search(r"attribute '(.*?)'", first):
         attrib = attrib_found.group(1)
+    if "No precomputed value available, the value was either invalid or something strange happened" in message:
+        return None
     if " is not a valid value of the atomic type 'xs:ID'." in message:
         if found := regex.search(r"'.*?'", message):
             id_ = found.group(0)

@@ -7,9 +7,10 @@ import regex
 from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file, _validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _validate_xml_with_schema
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
@@ -131,6 +132,7 @@ class TestReformatErrorMessage:
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "label"
@@ -143,6 +145,7 @@ class TestReformatErrorMessage:
             "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_]*)'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resptr"
         assert result.attribute is None
@@ -154,6 +157,7 @@ class TestReformatErrorMessage:
             "The attribute 'invalidattrib' is not allowed."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "invalidattrib"
@@ -166,6 +170,7 @@ class TestReformatErrorMessage:
             "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -181,6 +186,7 @@ class TestReformatErrorMessage:
             "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -195,6 +201,7 @@ class TestReformatErrorMessage:
             "'res_1' is not a valid value of the atomic type 'xs:ID'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "audio-segment"
         assert result.attribute == "id"

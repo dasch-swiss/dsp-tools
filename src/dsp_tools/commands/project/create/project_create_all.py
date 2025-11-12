@@ -21,6 +21,7 @@ from dsp_tools.commands.create.create_on_server.group_users import get_existing_
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
@@ -352,7 +353,7 @@ def _create_users(
     Returns:
         True if all users could be created without any problems. False if a warning/error occurred.
     """
-    group_problems = []
+    group_problems: list[CreateProblem] = []
     overall_success = True
     all_users = User.getAllUsers(con)
     for json_user_definition in users_section:

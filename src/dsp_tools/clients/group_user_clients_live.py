@@ -2,12 +2,15 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
 from typing import cast
+from urllib.parse import quote_plus
 
 import requests
 from requests import RequestException
+from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients import GroupClient
+from dsp_tools.clients.group_user_clients import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -16,6 +19,50 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT = 30
+
+
+class UserClientLive(UserClient):
+    api_url: str
+    auth: AuthenticationClient
+
+    def get_user_iri_by_username(self, username: str) -> str | None:
+        url = f"{self.api_url}/admin/users/username/{username}"
+        # GET
+        # not found: 404 {
+        #     "message": "User with username 'djjj' not found"
+        # }
+        # good:
+        # {
+        #     "user": {
+        #         "id": "http://rdfh.ch/users/root",
+        #     }
+        # }
+        # return None if not found
+
+    def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
+        url = f"{self.api_url}/admin/users"
+        # POST
+        # 400: already exists
+
+    def add_user_to_project(self, user_iri: str, project_iri: str) -> bool:
+        project_iri_encoded = quote_plus(project_iri)
+        user_iri_encoded = quote_plus(user_iri)
+        url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-memberships/{project_iri_encoded}"
+        # POST
+
+    def add_user_as_project_admin(self, user_iri: str, project_iri: str) -> bool:
+        project_iri_encoded = quote_plus(project_iri)
+        user_iri_encoded = quote_plus(user_iri)
+        url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-admin-memberships/{project_iri_encoded}"
+        # POST
+
+    def add_user_to_custom_group(self, user_iri: str, groups: list[str]) -> bool:
+        """Add a user to a custom group."""
+
+    def _add_user_to_one_group(self, user_iri_encoded: str, group_iri: str) -> Response:
+        group_iri_encoded = quote_plus(group_iri)
+        url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}group-memberships/{group_iri_encoded}"
+        # POST
 
 
 @dataclass

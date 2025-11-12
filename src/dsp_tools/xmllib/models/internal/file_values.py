@@ -56,7 +56,6 @@ class Metadata:
                 value_field="license (bistream/iiif-uri)",
             )
             lic_ = None
-        # TODO: find out the preferred method
         if isinstance(permissions, Permissions):
             pass
         elif is_nonempty_value_internal(permissions):

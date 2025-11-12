@@ -110,7 +110,7 @@ class UserClientLive(UserClient):
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return False
 
-    def add_user_to_custom_group(self, user_iri: str, groups: list[str]) -> bool:
+    def add_user_to_custom_groups(self, user_iri: str, groups: list[str]) -> bool:
         user_iri_encoded = quote_plus(user_iri)
         successes = []
         for gr in groups:

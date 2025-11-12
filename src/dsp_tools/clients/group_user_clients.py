@@ -31,5 +31,5 @@ class UserClient(Protocol):
     def add_user_as_project_admin(self, user_iri: str, project_iri: str) -> bool:
         """Add a user as a project admin."""
 
-    def add_user_to_custom_group(self, user_iri: str, groups: list[str]) -> bool:
+    def add_user_to_custom_groups(self, user_iri: str, groups: list[str]) -> bool:
         """Add a user to a custom group."""

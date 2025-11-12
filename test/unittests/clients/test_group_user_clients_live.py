@@ -319,7 +319,7 @@ class TestUserClientLiveAddUserToCustomGroup:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            result = user_client.add_user_to_custom_group(
+            result = user_client.add_user_to_custom_groups(
                 USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
             )
         assert result is True
@@ -331,7 +331,7 @@ class TestUserClientLiveAddUserToCustomGroup:
         mock_failure.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", side_effect=[mock_success, mock_failure]):
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-                result = user_client.add_user_to_custom_group(
+                result = user_client.add_user_to_custom_groups(
                     USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
                 )
         assert result is False
@@ -341,13 +341,13 @@ class TestUserClientLiveAddUserToCustomGroup:
         mock_failure.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_failure):
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-                result = user_client.add_user_to_custom_group(
+                result = user_client.add_user_to_custom_groups(
                     USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
                 )
         assert result is False
 
     def test_empty_list(self, user_client: UserClientLive) -> None:
-        result = user_client.add_user_to_custom_group(USER_IRI, [])
+        result = user_client.add_user_to_custom_groups(USER_IRI, [])
         assert result is True
 
 

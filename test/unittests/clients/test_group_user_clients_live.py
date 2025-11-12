@@ -180,8 +180,8 @@ class TestUserClientLiveGetUserIriByUsername:
             result = user_client.get_user_iri_by_username("nonexistent")
         assert result is None
 
-    def test_unauthorized(self, user_client: UserClientLive) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
+    def test_forbidden(self, user_client: UserClientLive) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
@@ -219,8 +219,8 @@ class TestUserClientLivePostNewUser:
             with pytest.raises(FatalNonOkApiResponseCode):
                 user_client.post_new_user(new_user)
 
-    def test_unauthorized(self, user_client: UserClientLive, new_user) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
+    def test_forbidden(self, user_client: UserClientLive, new_user) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
@@ -255,8 +255,8 @@ class TestUserClientLiveAddUserToProject:
         )
         assert mock_post.call_args[1]["url"] == expected_url
 
-    def test_unauthorized(self, user_client: UserClientLive) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
+    def test_forbidden(self, user_client: UserClientLive) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
@@ -291,8 +291,8 @@ class TestUserClientLiveAddUserAsProjectAdmin:
         )
         assert mock_post.call_args[1]["url"] == expected_url
 
-    def test_unauthorized(self, user_client: UserClientLive) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
+    def test_forbidden(self, user_client: UserClientLive) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
@@ -365,8 +365,8 @@ class TestUserClientLiveAddUserToOneGroup:
         )
         assert mock_post.call_args[1]["url"] == expected_url
 
-    def test_unauthorized(self, user_client: UserClientLive) -> None:
-        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorized")
+    def test_forbidden(self, user_client: UserClientLive) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         user_iri_encoded = "http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):

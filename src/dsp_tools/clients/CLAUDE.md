@@ -79,7 +79,7 @@ Live clients typically include:
 There are two main patterns, in some cases the code cannot continue if a request is not successful, see pattern 1.
 If the code may continue even if the request is not successful, then `None` will be returned, see pattern 2.
 
-In most cases `HTTPStatus.UNAUTHORIZED` will mean that a `BadCredentialsError` will be raised
+In most cases `HTTPStatus.FORBIDDEN` will mean that a `BadCredentialsError` will be raised
 
 Pattern 1: If the request is not successfully, then an error is raised.
 
@@ -113,7 +113,7 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     if response.ok:
         return response
 
-    if response.status_code==HTTPStatus.UNAUTHORIZED:
+    if response.status_code==HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("Descriptive error message")
 
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
@@ -367,7 +367,7 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code==HTTPStatus.UNAUTHORIZED:
+        if response.status_code==HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to access user information."
             )

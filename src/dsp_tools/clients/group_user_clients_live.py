@@ -41,7 +41,7 @@ class UserClientLive(UserClient):
             return cast(str, result["user"]["id"])
         if response.status_code == HTTPStatus.NOT_FOUND:
             return None
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You do not have sufficient credentials to retrieve user information.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
@@ -67,7 +67,7 @@ class UserClientLive(UserClient):
         if response.status_code == HTTPStatus.BAD_REQUEST:
             # if the user exists we get a 400, this should never happen through code design
             raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to create users.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
@@ -86,7 +86,7 @@ class UserClientLive(UserClient):
         log_response(response)
         if response.ok:
             return True
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to add users to projects.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return False
@@ -105,7 +105,7 @@ class UserClientLive(UserClient):
         log_response(response)
         if response.ok:
             return True
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to add users as project admins.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return False
@@ -131,7 +131,7 @@ class UserClientLive(UserClient):
         log_response(response)
         if response.ok:
             return True
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to add users to groups.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return False

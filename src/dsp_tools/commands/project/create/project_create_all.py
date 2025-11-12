@@ -127,7 +127,9 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # create the groups
     group_client = GroupClientLive(creds.server, auth)
-    group_lookup = get_existing_group_to_iri_lookup(group_client, project_iri)
+    group_lookup = get_existing_group_to_iri_lookup(
+        group_client, project_iri, parsed_project.project_metadata.shortname
+    )
     if parsed_project.groups:
         group_lookup, group_problems = create_groups(
             groups=parsed_project.groups,
@@ -291,7 +293,9 @@ def _create_users(
                 if gr_found := group_lookup.get_iri(gr_name):
                     group_iris.add(gr_found)
                 else:
-                    group_problems.append(UploadProblem(f"User: {username} / Group: {gr}", ProblemType.GROUP_NOT_FOUND))
+                    group_problems.append(
+                        UploadProblem(f"User: '{username}' / Group: '{gr}'", ProblemType.GROUP_NOT_FOUND)
+                    )
 
         project_info, success = _get_projects_where_user_is_admin(
             json_user_definition=json_user_definition,

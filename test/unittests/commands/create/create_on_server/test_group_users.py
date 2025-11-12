@@ -14,6 +14,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
 from test.unittests.commands.create.constants import PROJECT_IRI
+from test.unittests.commands.create.constants import SHORTNAME
 
 
 @pytest.fixture
@@ -87,37 +88,39 @@ def mock_group_client() -> Mock:
 
 @pytest.fixture
 def empty_group_lookup() -> GroupNameToIriLookup:
-    return GroupNameToIriLookup(name2iri={})
+    return GroupNameToIriLookup(name2iri={}, shortname=SHORTNAME)
 
 
 @pytest.fixture
 def group_lookup_with_existing() -> GroupNameToIriLookup:
-    return GroupNameToIriLookup(name2iri={"editors": "http://rdfh.ch/groups/4123/existing"})
+    return GroupNameToIriLookup(name2iri={"editors": "http://rdfh.ch/groups/4123/existing"}, shortname=SHORTNAME)
 
 
 class TestConstructGroupLookup:
     def test_filters_by_project_iri(self, all_groups: list[dict[str, Any]]) -> None:
-        result = _construct_group_lookup(all_groups, PROJECT_IRI)
+        result = _construct_group_lookup(all_groups, PROJECT_IRI, SHORTNAME)
 
-        assert len(result.name2iri) == 2
+        assert len(result.name2iri) == 4
         assert result.check_exists("testgroupEditors")
+        assert result.check_exists(f"{SHORTNAME}:testgroupEditors")
         assert result.check_exists("testgroupReaders")
+        assert result.check_exists(f"{SHORTNAME}:testgroupReaders")
         assert not result.check_exists("otherProjectGroup")
 
     def test_maps_names_to_iris_correctly(self, all_groups: list[dict[str, Any]]) -> None:
-        result = _construct_group_lookup(all_groups, PROJECT_IRI)
+        result = _construct_group_lookup(all_groups, PROJECT_IRI, SHORTNAME)
         assert result.get_iri("testgroupEditors") == "http://rdfh.ch/groups/4123/group1"
         assert result.get_iri("testgroupReaders") == "http://rdfh.ch/groups/4123/group2"
         assert result.get_iri("otherProjectGroup") is None
 
     def test_empty_groups_list(self) -> None:
-        result = _construct_group_lookup([], PROJECT_IRI)
+        result = _construct_group_lookup([], PROJECT_IRI, SHORTNAME)
         assert len(result.name2iri) == 0
         assert isinstance(result, GroupNameToIriLookup)
 
     def test_no_matching_project(self, all_groups: list[dict[str, Any]]) -> None:
         non_existent_project_iri = "http://rdfh.ch/projects/nonExistent"
-        result = _construct_group_lookup(all_groups, non_existent_project_iri)
+        result = _construct_group_lookup(all_groups, non_existent_project_iri, SHORTNAME)
         assert len(result.name2iri) == 0
 
     def test_only_target_project_groups(self) -> None:
@@ -132,26 +135,29 @@ class TestConstructGroupLookup:
                 },
             }
         ]
-        result = _construct_group_lookup(groups, PROJECT_IRI)
-        assert len(result.name2iri) == 1
+        result = _construct_group_lookup(groups, PROJECT_IRI, SHORTNAME)
+        assert len(result.name2iri) == 2
         assert result.get_iri("onlyGroup") == "http://rdfh.ch/groups/4123/group1"
+        assert result.get_iri(f"{SHORTNAME}:onlyGroup") == "http://rdfh.ch/groups/4123/group1"
 
 
 class TestGetGroupToIriLookup:
     def test_calls_client_and_constructs_lookup(self, all_groups: list[dict[str, Any]]) -> None:
         mock_client = Mock()
         mock_client.get_all_groups.return_value = all_groups
-        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI, SHORTNAME)
         mock_client.get_all_groups.assert_called_once()
         assert isinstance(result, GroupNameToIriLookup)
-        assert len(result.name2iri) == 2
+        assert len(result.name2iri) == 4
         assert result.check_exists("testgroupEditors")
+        assert result.check_exists(f"{SHORTNAME}:testgroupEditors")
         assert result.check_exists("testgroupReaders")
+        assert result.check_exists(f"{SHORTNAME}:testgroupReaders")
 
     def test_handles_empty_groups(self) -> None:
         mock_client = Mock()
         mock_client.get_all_groups.return_value = []
-        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI, SHORTNAME)
         mock_client.get_all_groups.assert_called_once()
         assert isinstance(result, GroupNameToIriLookup)
         assert len(result.name2iri) == 0
@@ -169,7 +175,7 @@ class TestGetGroupToIriLookup:
                 },
             }
         ]
-        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI)
+        result = get_existing_group_to_iri_lookup(mock_client, PROJECT_IRI, SHORTNAME)
         assert result.get_iri("testGroup") == "http://rdfh.ch/groups/4123/testGroup"
 
 
@@ -239,7 +245,7 @@ class TestCreateGroups:
             ParsedGroup(name="newSuccess", descriptions=[ParsedGroupDescription(lang="en", text="New Success")]),
             ParsedGroup(name="newFail", descriptions=[ParsedGroupDescription(lang="en", text="New Fail")]),
         ]
-        lookup = GroupNameToIriLookup(name2iri={"existing": "http://rdfh.ch/groups/4123/existing"})
+        lookup = GroupNameToIriLookup(name2iri={"existing": "http://rdfh.ch/groups/4123/existing"}, shortname=SHORTNAME)
         mock_group_client.create_new_group.side_effect = ["http://rdfh.ch/groups/4123/newSuccess", None]
         result_lookup, problems = create_groups(groups, mock_group_client, PROJECT_IRI, lookup)
         assert isinstance(problems, CollectedProblems)
@@ -255,7 +261,8 @@ class TestCreateGroups:
             name2iri={
                 "editors": "http://rdfh.ch/groups/4123/editors",
                 "readers": "http://rdfh.ch/groups/4123/readers",
-            }
+            },
+            shortname=SHORTNAME,
         )
         result_lookup, problems = create_groups(parsed_groups, mock_group_client, PROJECT_IRI, lookup)
         assert problems is None

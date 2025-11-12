@@ -17,6 +17,7 @@ class ProjectIriLookup:
 @dataclass
 class GroupNameToIriLookup:
     name2iri: dict[str, str]
+    shortname: str
 
     def check_exists(self, name: str) -> bool:
         return name in self.name2iri.keys()
@@ -25,6 +26,7 @@ class GroupNameToIriLookup:
         if self.check_exists(name):
             raise InternalError(f"Group with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
+        self.name2iri[f"{self.shortname}:{name}"] = iri
 
     def get_iri(self, name: str) -> str | None:
         return self.name2iri.get(name)

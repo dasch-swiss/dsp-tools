@@ -17,6 +17,9 @@ def is_nonempty_value(value: Any) -> bool:
     - ``\\p{P}`` = punctuation
     - ``\\w`` = all Unicode letters, numbers, and _
 
+    If the value is a collection (i.e. list, tuple, set or dictionary)
+    all the elements must be non-empty to return True.
+
     Args:
         value: value of any type
 
@@ -27,6 +30,7 @@ def is_nonempty_value(value: Any) -> bool:
         ```python
         # True values:
         assert xmllib.is_nonempty_value("word") == True
+        assert xmllib.is_nonempty_value(["word"]) == True
         assert xmllib.is_nonempty_value("None") == True
         assert xmllib.is_nonempty_value("-") == True
         assert xmllib.is_nonempty_value(0) == True
@@ -41,10 +45,21 @@ def is_nonempty_value(value: Any) -> bool:
         assert xmllib.is_nonempty_value(pd.NA) == False
         assert xmllib.is_nonempty_value(None) == False
         assert xmllib.is_nonempty_value("") == False
+        assert xmllib.is_nonempty_value(["", "some-content"]) == False
+        assert xmllib.is_nonempty_value({"dict-key": ""}) == False
         assert xmllib.is_nonempty_value(" ") == False
         assert xmllib.is_nonempty_value("\\n") == False
         ```
     """
+    if isinstance(value, (tuple, list, set)):
+        all_vals = [is_nonempty_value(v) for v in value]
+        return all(all_vals)
+    if isinstance(value, dict):
+        all_vals = []
+        for k, v in value.items():
+            all_vals.append(is_nonempty_value(k))
+            all_vals.append(is_nonempty_value(v))
+        return all(all_vals)
     if pd.isna(value):
         return False
     if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):

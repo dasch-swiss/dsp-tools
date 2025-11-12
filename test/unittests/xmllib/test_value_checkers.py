@@ -38,6 +38,10 @@ from dsp_tools.xmllib.value_checkers import is_valid_resource_id
         False,
         "עִבְרִית",
         "اَلْعَرَبِيَّةُ",
+        ["content"],
+        tuple("content"),
+        {"content"},
+        {"content": "content"},
     ],
 )
 def test_is_nonempty_value_correct(text: str) -> None:
@@ -61,6 +65,11 @@ def test_is_nonempty_value_correct(text: str) -> None:
         " \u200b ",  # zero-width space
         " \ufeff ",  # Zero-Width No-Break Space
         " \t\n\r\v\f \u00a0 \u200b \ufeff",
+        [""],
+        ["", "content"],
+        ("",),
+        {""},
+        {"": ""},
     ],
 )
 def test_is_nonempty_value_wrong(text: str) -> None:

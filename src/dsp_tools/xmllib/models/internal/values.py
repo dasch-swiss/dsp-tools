@@ -238,7 +238,7 @@ class ListValue(Value):
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(
             value=str(value),
-            list_name=list_str,
+            list_name=str(list_str),
             prop_name=prop_name,
             permissions=permissions,
             comment=fixed_comment,
@@ -333,9 +333,10 @@ class UriValue(Value):
         comment: str | None,
         resource_id: str | None,
     ) -> UriValue:
-        if not is_uri(value):
+        v = str(value)
+        if not is_uri(v):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        return cls(value=v, prop_name=prop_name, permissions=permissions, comment=fixed_comment)

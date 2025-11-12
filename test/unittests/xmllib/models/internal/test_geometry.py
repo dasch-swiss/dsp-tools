@@ -2,6 +2,7 @@ import warnings
 
 import pytest
 
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.xmllib.models.internal.geometry import Circle
 from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
 from dsp_tools.xmllib.models.internal.geometry import Polygon
@@ -27,18 +28,14 @@ class TestGeometryShape:
         assert result == expected_str
 
     def test_polygon_to_json_string_no_points(self) -> None:
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            polygon = Polygon(
+        with pytest.raises(XmllibInputError):
+            Polygon(
                 points=[],
                 line_width=2,
                 color="#5b24bf",
                 active=True,
                 resource_id="res_id",
             )
-            assert len(caught_warnings) == 1
-        result = polygon.to_json_string()
-        expected_str = '{"status": "active", "type": "polygon", "lineWidth": 2, "points": []}'
-        assert result == expected_str
 
     def test_circle_to_json_string_success(self) -> None:
         geom_obj = Circle(
@@ -73,11 +70,8 @@ class TestGeometryPoint:
         assert point.y == 0.2
 
     def test_warning(self) -> None:
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            point = GeometryPoint("x", "y", "res_id")  # type: ignore[arg-type]
-            assert len(caught_warnings) == 1
-        assert point.x == "x"  # type: ignore[comparison-overlap]
-        assert point.y == "y"  # type: ignore[comparison-overlap]
+        with pytest.raises(XmllibInputError):
+            GeometryPoint("x", "y", "res_id")  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":

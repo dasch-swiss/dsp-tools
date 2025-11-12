@@ -6,7 +6,6 @@ from typing import Any
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -72,6 +71,7 @@ class RegionResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         return RegionResource(
             res_id=res_id,
@@ -351,39 +351,6 @@ class RegionResource:
             return self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
-    def add_migration_metadata(
-        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
-    ) -> RegionResource:
-        """
-        Add metadata from a SALSAH migration.
-
-        Args:
-            creation_date: creation date of the region in SALSAH
-            iri: Original IRI in SALSAH
-            ark: Original ARK in SALSAH
-
-        Raises:
-            XmllibInputError: if metadata already exists
-
-        Returns:
-            The original region, with the added metadata
-
-        Examples:
-            ```python
-            region = region.add_migration_metadata(
-                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-        """
-        if self.migration_metadata:
-            msg_info = MessageInfo(
-                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
-            )
-            raise_xmllib_input_error(msg_info)
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
-        return self
-
 
 @dataclass
 class LinkResource:
@@ -425,7 +392,7 @@ class LinkResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-
+        res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals: list[Value] = [
@@ -540,39 +507,6 @@ class LinkResource:
             return self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
-    def add_migration_metadata(
-        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
-    ) -> LinkResource:
-        """
-        Add metadata from a SALSAH migration.
-
-        Args:
-            creation_date: creation date of the resource in SALSAH
-            iri: Original IRI in SALSAH
-            ark: Original ARK in SALSAH
-
-        Raises:
-            XmllibInputError: if metadata already exists
-
-        Returns:
-            The original resource, with the added metadata
-
-        Examples:
-            ```python
-            link_resource = link_resource.add_migration_metadata(
-                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-        """
-        if self.migration_metadata:
-            msg_info = MessageInfo(
-                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
-            )
-            raise_xmllib_input_error(msg_info)
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
-        return self
-
 
 @dataclass
 class SegmentBounds:
@@ -594,6 +528,8 @@ class SegmentBounds:
                 self.res_id,
             )
             emit_xmllib_input_warning(msg_info)
+        self.segment_start = str(self.segment_start)
+        self.segment_end = str(self.segment_end)
 
 
 @dataclass
@@ -642,7 +578,7 @@ class VideoSegmentResource:
             ```
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-
+        res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
@@ -1097,39 +1033,6 @@ class VideoSegmentResource:
             self.add_relates_to(relates_to, permissions, comment)
         return self
 
-    def add_migration_metadata(
-        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
-    ) -> VideoSegmentResource:
-        """
-        Add metadata from a SALSAH migration.
-
-        Args:
-            creation_date: creation date of the resource in SALSAH
-            iri: Original IRI in SALSAH
-            ark: Original ARK in SALSAH
-
-        Raises:
-            XmllibInputError: if metadata already exists
-
-        Returns:
-            The original resource, with the added metadata
-
-        Examples:
-            ```python
-            video_segment = video_segment.add_migration_metadata(
-                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-        """
-        if self.migration_metadata:
-            msg_info = MessageInfo(
-                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
-            )
-            raise_xmllib_input_error(msg_info)
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
-        return self
-
 
 @dataclass
 class AudioSegmentResource:
@@ -1166,6 +1069,7 @@ class AudioSegmentResource:
             An audio segment resource
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
             value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
@@ -1618,39 +1522,6 @@ class AudioSegmentResource:
         """
         if is_nonempty_value(relates_to):
             self.add_relates_to(relates_to, permissions, comment)
-        return self
-
-    def add_migration_metadata(
-        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
-    ) -> AudioSegmentResource:
-        """
-        Add metadata from a SALSAH migration.
-
-        Args:
-            creation_date: creation date of the resource in SALSAH
-            iri: Original IRI in SALSAH
-            ark: Original ARK in SALSAH
-
-        Raises:
-            XmllibInputError: if metadata already exists
-
-        Returns:
-            The original resource, with the added metadata
-
-        Examples:
-            ```python
-            audio_segment = audio_segment.add_migration_metadata(
-                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-        """
-        if self.migration_metadata:
-            msg_info = MessageInfo(
-                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
-            )
-            raise_xmllib_input_error(msg_info)
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
 

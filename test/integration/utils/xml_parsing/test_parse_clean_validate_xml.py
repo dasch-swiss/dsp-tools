@@ -123,6 +123,23 @@ def test_beautify_err_msg() -> None:
     assert expected_msg in result_2.message
 
 
+def test_restype_and_property_name_with_spaces():
+    root = _prepare_root(Path("testdata/invalid-testdata/xml-data/restype-and-propname-with-spaces-4124.xml"))
+    validation_messages = _validate_root_get_validation_messages(root)
+    assert validation_messages
+    assert len(validation_messages) == 2
+    result_1 = validation_messages[0]
+    result_2 = validation_messages[1]
+    assert result_1.line_number == 4
+    assert result_1.element == "resource"
+    assert result_1.attribute == "restype"
+    assert result_1.message == "The value ':Test Resource' is not accepted by the pattern for this value."
+    assert result_2.line_number == 5
+    assert result_2.element == "text-prop"
+    assert result_2.attribute == "name"
+    assert result_2.message == "The value ':has Title' is not accepted by the pattern for this value."
+
+
 class TestReformatErrorMessage:
     def test_empty_label(self):
         in_msg = (
@@ -130,6 +147,7 @@ class TestReformatErrorMessage:
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "label"
@@ -142,6 +160,7 @@ class TestReformatErrorMessage:
             "'([a-zA-Zçéàèöäüòôûâêñ_][a-zA-Zçéàèöäüòôûâêñ_]*)'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resptr"
         assert result.attribute is None
@@ -153,6 +172,7 @@ class TestReformatErrorMessage:
             "The attribute 'invalidattrib' is not allowed."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute == "invalidattrib"
@@ -165,6 +185,7 @@ class TestReformatErrorMessage:
             "'{https://dasch.swiss/schema}IRI_attribute_of_resource_must_be_unique'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -180,6 +201,7 @@ class TestReformatErrorMessage:
             "'{https://dasch.swiss/schema}ARK_attribute_of_resource_must_be_unique'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "resource"
         assert result.attribute is None
@@ -194,6 +216,7 @@ class TestReformatErrorMessage:
             "'res_1' is not a valid value of the atomic type 'xs:ID'."
         )
         result = _reformat_error_message_str(in_msg, line_number=1)
+        assert result
         assert result.line_number == 1
         assert result.element == "audio-segment"
         assert result.attribute == "id"

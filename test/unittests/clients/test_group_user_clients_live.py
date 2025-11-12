@@ -6,9 +6,12 @@ from unittest.mock import patch
 
 import pytest
 import requests
+from requests import JSONDecodeError
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from test.unittests.clients.constants import API_URL
 from test.unittests.clients.constants import GROUP_IRI
@@ -16,8 +19,16 @@ from test.unittests.clients.constants import PROJECT_IRI
 
 
 @pytest.fixture
-def group_client() -> GroupClientLive:
-    return GroupClientLive(api_url=API_URL)
+def mock_auth() -> Mock:
+    auth = Mock(spec=AuthenticationClient)
+    auth.get_token.return_value = "test-token-123"
+    auth.server = "http://0.0.0.0:3333"
+    return auth
+
+
+@pytest.fixture
+def group_client(mock_auth) -> GroupClientLive:
+    return GroupClientLive(API_URL, mock_auth)
 
 
 @pytest.fixture
@@ -122,6 +133,13 @@ class TestGroupClientCreateNewGroup:
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
                 result = group_client.create_new_group(new_group)
         assert result is None
+
+    def test_forbidden(self, group_client: GroupClientLive, new_group) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
+        with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                group_client.create_new_group(new_group)
 
 
 if __name__ == "__main__":

@@ -47,16 +47,8 @@
                     "en": "Test group viewers",
                     "de": "Testgruppe Viewers"
                 },
-                "selfjoin": true,
+                "selfjoin": false,
                 "status": true
-            },
-            {
-                "name": "testgroupInactive",
-                "descriptions": {
-                    "en": "Test group inactive",
-                    "de": "Testgruppe Inaktiv"
-                },
-                "status": false
             }
         ],
         "users": [

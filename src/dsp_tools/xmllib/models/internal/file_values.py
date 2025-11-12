@@ -67,8 +67,7 @@ class Metadata:
                 res_id=resource_id,
                 value_field="permissions (bistream/iiif-uri)",
             )
-            # in this case the input will be invalid in any case
-            permissions = str(permissions)
+            permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
         if copyright_holder is not None:
             copyright_holder = check_and_fix_is_non_empty_string(
                 value=copyright_holder,
@@ -150,7 +149,8 @@ class IIIFUri(AbstractFileValue):
 
     @classmethod
     def new(cls, value: str, metadata: Metadata, comment: str | None, resource_id: str) -> IIIFUri:
-        if not is_iiif_uri(value):
+        v = str(value)
+        if not is_iiif_uri(v):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="IIIF uri",
                 value=value,
@@ -165,4 +165,4 @@ class IIIFUri(AbstractFileValue):
             )
         else:
             fixed_comment = None
-        return cls(value=str(value), metadata=metadata, comment=fixed_comment)
+        return cls(value=v, metadata=metadata, comment=fixed_comment)

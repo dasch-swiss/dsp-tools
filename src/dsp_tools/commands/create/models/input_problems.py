@@ -44,3 +44,7 @@ class ProblemType(StrEnum):
     LIST_COULD_NOT_BE_CREATED = "The list could not be created on the server."
     LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."
     GROUP_COULD_NOT_BE_CREATED = "The group could not be created."
+    GROUP_NOT_FOUND = (
+        "The group referenced for the user could not be found. "
+        "Please note that only groups from this project can be referenced."
+    )

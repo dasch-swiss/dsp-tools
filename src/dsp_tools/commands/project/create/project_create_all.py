@@ -14,10 +14,17 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.create_on_server.group_users import create_groups
+from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
+from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
@@ -119,31 +126,34 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         list_name_2_iri = get_existing_lists_on_server(parsed_project.project_metadata.shortcode, auth)
 
     # create the groups
-    current_project_groups: dict[str, Group] = {}
-    if legacy_project.groups:
-        print("Create groups...")
-        logger.info("Create groups...")
-        current_project_groups, success = _create_groups(
-            con=con,
-            groups=legacy_project.groups,
-            project=project_remote,
+    group_client = GroupClientLive(creds.server)
+    group_lookup = get_existing_group_to_iri_lookup(group_client, project_iri)
+    if parsed_project.groups:
+        group_lookup, group_problems = create_groups(
+            groups=parsed_project.groups,
+            group_client=group_client,
+            project_iri=project_iri,
+            group_lookup=group_lookup,
         )
-        if not success:
+        if group_problems:
+            print_problem_collection(group_problems)
             overall_success = False
 
     # create or update the users
     if legacy_project.users:
         print("Create users...")
         logger.info("Create users...")
-        success = _create_users(
+        success, user_problems = _create_users(
             con=con,
             users_section=legacy_project.users,
-            current_project_groups=current_project_groups,
+            group_lookup=group_lookup,
             current_project=project_remote,
             verbose=verbose,
         )
         if not success:
             overall_success = False
+        if user_problems:
+            print_problem_collection(user_problems)
 
     # create the ontologies
     success = create_ontologies(
@@ -324,10 +334,10 @@ def _create_groups(
 def _create_users(
     con: Connection,
     users_section: list[dict[str, str]],
-    current_project_groups: dict[str, Group],
+    group_lookup: GroupNameToIriLookup,
     current_project: Project,
     verbose: bool,
-) -> bool:
+) -> tuple[bool, CollectedProblems | None]:
     """
     Creates users on a DSP server from the "users" section of a JSON project file.
     If a user cannot be created, a warning is printed and the user is skipped.
@@ -335,28 +345,27 @@ def _create_users(
     Args:
         con: connection instance to connect to the DSP server
         users_section: "users" section of a parsed JSON project file
-        current_project_groups: groups defined in the current project, in the form ``{group name: group object}``
-            (must exist on DSP server)
+        group_lookup: groups defined in the current project
         current_project: "project" object of the current project (must exist on DSP server)
         verbose: Prints more information if set to True
 
     Returns:
         True if all users could be created without any problems. False if a warning/error occurred.
     """
+    group_problems = []
     overall_success = True
     all_users = User.getAllUsers(con)
     for json_user_definition in users_section:
         username = json_user_definition["username"]
 
-        group_iris, success = _get_group_iris_for_user(
-            json_user_definition=json_user_definition,
-            current_project=current_project,
-            current_project_groups=current_project_groups,
-            con=con,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
+        group_iris = set()
+        if found_groups := json_user_definition.get("groups"):
+            for gr in found_groups:
+                gr_name = gr.removeprefix(":")
+                if gr_found := group_lookup.get_iri(gr_name):
+                    group_iris.add(gr_found)
+                else:
+                    group_problems.append(UploadProblem(f"User: {username} / Group: {gr}", ProblemType.GROUP_NOT_FOUND))
 
         project_info, success = _get_projects_where_user_is_admin(
             json_user_definition=json_user_definition,
@@ -405,8 +414,10 @@ def _create_users(
             print(f"    WARNING: Unable to create user '{username}'.")
             logger.exception(f"Unable to create user '{username}'.")
             overall_success = False
-
-    return overall_success
+    if group_problems:
+        probs = CollectedProblems("During the creation of the users the following problems occurred:", group_problems)
+        return False, probs
+    return overall_success, None
 
 
 def _add_user_to_groups_and_project(
@@ -451,88 +462,6 @@ def _add_user_to_groups_and_project(
             )
             print(f"    WARNING: {err_msg}")
             logger.warning(err_msg)
-
-
-def _get_group_iris_for_user(
-    json_user_definition: dict[str, str],
-    current_project: Project,
-    current_project_groups: dict[str, Group],
-    con: Connection,
-    verbose: bool,
-) -> tuple[set[str], bool]:
-    """
-    Retrieve the IRIs of the groups that the user belongs to.
-
-    Args:
-        json_user_definition: the section of the JSON file that defines a user
-        current_project: the Project object
-        current_project_groups: dict of the form ``{group name: group object}``
-            with the groups that exist on the DSP server
-        con: connection to the DSP server
-        verbose: verbose switch
-
-    Returns:
-        a tuple consisting of the group IRIs,
-        and the success status (True if everything went well)
-
-    Raises:
-        BaseError: if no groups can be retrieved from the DSP server, or if the retrieved group has no IRI
-    """
-    success = True
-    username = json_user_definition["username"]
-    group_iris: set[str] = set()
-    remote_groups: list[Group] = []
-    for full_group_name in json_user_definition.get("groups", []):
-        # full_group_name has the form '[project_shortname]:group_name'
-        inexisting_group_msg = (
-            f"User {username} cannot be added to group {full_group_name}, because such a group doesn't exist."
-        )
-        if ":" not in full_group_name:
-            print(f"    WARNING: {inexisting_group_msg}")
-            logger.warning(inexisting_group_msg)
-            success = False
-            continue
-
-        # all other cases (":" in full_group_name)
-        project_shortname, group_name = full_group_name.split(":")
-        if not project_shortname:
-            # full_group_name refers to a group inside the same project
-            if group_name not in current_project_groups:
-                print(f"    WARNING: {inexisting_group_msg}")
-                logger.warning(inexisting_group_msg)
-                success = False
-                continue
-            group = current_project_groups[group_name]
-        else:
-            # full_group_name refers to an already existing group on DSP
-            try:
-                # "remote_groups" might be available from a previous loop cycle
-                remote_groups = remote_groups or Group.getAllGroups(con=con)
-            except BaseError:
-                err_msg = (
-                    f"User '{username}' is referring to the group {full_group_name} that "
-                    f"exists on the DSP server, but no groups could be retrieved from the DSP server."
-                )
-                print(f"    WARNING: {err_msg}")
-                logger.exception(err_msg)
-                success = False
-                continue
-            existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
-            if not existing_group:
-                print(f"    WARNING: {inexisting_group_msg}")
-                logger.warning(inexisting_group_msg)
-                success = False
-                continue
-            group = existing_group[0]
-
-        if not group.iri:
-            raise BaseError(f"Group '{group}' has no IRI.")
-        group_iris.add(group.iri)
-        if verbose:
-            print(f"    Added user '{username}' to group '{full_group_name}'.")
-        logger.info(f"Added user '{username}' to group '{full_group_name}'.")
-
-    return group_iris, success
 
 
 def _get_projects_where_user_is_admin(

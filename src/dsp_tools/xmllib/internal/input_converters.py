@@ -28,7 +28,11 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
 
 
 def check_and_fix_is_non_empty_string(
-    value: Any, res_id: str | None = None, prop_name: str | None = None, value_field: str | None = None
+    value: Any,
+    res_id: str | None = None,
+    prop_name: str | None = None,
+    value_field: str | None = None,
+    expected: str = "non empty string",
 ) -> str:
     """
     Emits warnings if the string is or looks empty.
@@ -40,6 +44,7 @@ def check_and_fix_is_non_empty_string(
         res_id: resource ID
         prop_name: property name
         value_field: field if it is not a property
+        expected: expected type
 
     Returns:
         The value as string, if it is empty an empty string.
@@ -54,7 +59,7 @@ def check_and_fix_is_non_empty_string(
         return str(value)
     else:
         emit_xmllib_input_type_mismatch_warning(
-            expected_type="non empty string",
+            expected_type=expected,
             value=value,
             res_id=res_id,
             prop_name=prop_name,

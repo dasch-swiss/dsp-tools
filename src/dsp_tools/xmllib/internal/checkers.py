@@ -27,6 +27,15 @@ def is_nonempty_value_internal(value: Any) -> bool:
     Returns:
         True if the value is not None-like and contains at least one of the above-mentioned characters
     """
+    if isinstance(value, (tuple, list, set)):
+        all_vals = [is_nonempty_value_internal(v) for v in value]
+        return all(all_vals)
+    if isinstance(value, dict):
+        all_vals = []
+        for k, v in value.items():
+            all_vals.append(is_nonempty_value_internal(k))
+            all_vals.append(is_nonempty_value_internal(v))
+        return all(all_vals)
     if pd.isna(value):
         return False
     if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):

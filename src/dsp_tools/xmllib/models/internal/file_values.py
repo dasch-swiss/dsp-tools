@@ -13,6 +13,7 @@ from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contai
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
 
@@ -43,9 +44,10 @@ class Metadata:
         license: License | None,
         copyright_holder: str | None,
         authorship: Collection[str] | None,
-        permissions: Permissions,
+        permissions: Permissions | str,
         resource_id: str,
     ) -> Metadata:
+        lic_ = license
         if license is not None and not isinstance(license, License):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xmllib.License",
@@ -53,41 +55,53 @@ class Metadata:
                 res_id=resource_id,
                 value_field="license (bistream/iiif-uri)",
             )
-        if not isinstance(permissions, Permissions):
+            lic_ = None
+        if isinstance(permissions, Permissions):
+            pass
+        elif is_nonempty_value_internal(permissions):
+            permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        else:
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="xmllib.Permissions",
                 value=permissions,
                 res_id=resource_id,
                 value_field="permissions (bistream/iiif-uri)",
             )
+            permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
         if copyright_holder is not None:
-            check_and_warn_potentially_empty_string(
+            copyright_holder = check_and_fix_is_non_empty_string(
                 value=copyright_holder,
                 res_id=resource_id,
-                expected="string",
-                field="copyright_holder (bistream/iiif-uri)",
+                value_field="copyright_holder (bistream/iiif-uri)",
             )
         if authorship is not None:
-            if len(authorship) == 0:
+            if not is_nonempty_value_internal(authorship):
                 emit_xmllib_input_type_mismatch_warning(
                     expected_type="list of authorship strings",
-                    value="empty input",
+                    value=authorship,
                     res_id=resource_id,
                     value_field="authorship (bistream/iiif-uri)",
                 )
-            fixed_authors = set(
-                check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
-            )
-            for author in fixed_authors:
-                check_and_warn_potentially_empty_string(
-                    value=author, res_id=resource_id, expected="string", field="authorship (bistream/iiif-uri)"
+                authors = None
+            else:
+                fixed_authors = set(
+                    check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
                 )
-            fixed_authors_list = [str(x).strip() for x in fixed_authors]
-            authors = tuple(sorted(fixed_authors_list))
+                fixed_authors_list = [
+                    check_and_fix_is_non_empty_string(
+                        value=x,
+                        res_id=resource_id,
+                        value_field="authorship (bistream/iiif-uri)",
+                    )
+                    for x in fixed_authors
+                ]
+                authors = tuple(sorted(fixed_authors_list))
+                if len(authors) == 0:
+                    authors = None
         else:
             authors = None
         return cls(
-            license=license,
+            license=lic_,
             copyright_holder=copyright_holder,
             authorship=authors,
             permissions=permissions,
@@ -139,7 +153,8 @@ class IIIFUri(AbstractFileValue):
 
     @classmethod
     def new(cls, value: str, metadata: Metadata, comment: str | None, resource_id: str) -> IIIFUri:
-        if not is_iiif_uri(value):
+        v = str(value)
+        if not is_iiif_uri(v):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="IIIF uri",
                 value=value,
@@ -154,4 +169,4 @@ class IIIFUri(AbstractFileValue):
             )
         else:
             fixed_comment = None
-        return cls(value=str(value), metadata=metadata, comment=fixed_comment)
+        return cls(value=v, metadata=metadata, comment=fixed_comment)

@@ -241,7 +241,7 @@ def _add_ingest_xmlupload(
         "--skip-ontology-validation",
         action="store_true",
         help=(
-            "don't validate the ontology itself, only the data. "
+            "don't validate the data model itself, only the data. "
             "This is intended for projects that are already on the production server"
         ),
     )
@@ -285,7 +285,7 @@ def _add_xmlupload(
         "--skip-ontology-validation",
         action="store_true",
         help=(
-            "don't validate the ontology itself, only the data. "
+            "don't validate the data model itself, only the data. "
             "This is intended for projects that are already on the production server"
         ),
     )
@@ -333,7 +333,7 @@ def _add_validate_data(
     root_user_pw: str,
 ) -> None:
     subparser = subparsers.add_parser(
-        name="validate-data", help="Validate the data against the ontology previously uploaded on the server."
+        name="validate-data", help="Validate the data against the data model previously uploaded on the server."
     )
     subparser.set_defaults(action="validate-data")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
@@ -348,7 +348,7 @@ def _add_validate_data(
         "--skip-ontology-validation",
         action="store_true",
         help=(
-            "don't validate the ontology itself, only the data. "
+            "don't validate the data model itself, only the data. "
             "This is intended for projects that are already on the production server"
         ),
     )
@@ -356,7 +356,7 @@ def _add_validate_data(
         "-s",
         "--server",
         default=default_dsp_api_url,
-        help="URL of the DSP server where DSP-TOOLS gets the ontology from",
+        help="URL of the DSP server where DSP-TOOLS gets the data model from",
     )
     subparser.add_argument(
         "--id2iri-file",

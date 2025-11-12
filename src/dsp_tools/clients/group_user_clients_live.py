@@ -42,7 +42,7 @@ class UserClientLive(UserClient):
         if response.status_code == HTTPStatus.NOT_FOUND:
             return None
         if response.status_code == HTTPStatus.UNAUTHORIZED:
-            raise BadCredentialsError("You don't have permission to access user information.")
+            raise BadCredentialsError("You do not have sufficient credentials to retrieve user information.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
@@ -65,6 +65,7 @@ class UserClientLive(UserClient):
             result = response.json()
             return cast(str, result["user"]["id"])
         if response.status_code == HTTPStatus.BAD_REQUEST:
+            # if the user exists we get a 400, this should never happen through code design
             raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
         if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise BadCredentialsError("You don't have permission to create users.")

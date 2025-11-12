@@ -29,7 +29,7 @@ class TestParseProject:
         assert result.project_metadata.shortname == "systematic-tp"
         assert len(result.ontologies) == 2
         assert len(result.lists) == 2
-        assert len(result.groups) == 3
+        assert len(result.groups) == 2
         assert len(result.users) == 7
 
     def test_parse_project_failure(self, minimal_failing_project):
@@ -76,7 +76,7 @@ class TestParseGroups:
 
     def test_parse_groups_with_groups(self, project_json_systematic):
         result = _parse_groups(project_json_systematic["project"])
-        assert len(result) == 3
+        assert len(result) == 2
 
     def test_parse_groups_missing_key(self, minimal_project_json):
         result = _parse_groups(minimal_project_json)

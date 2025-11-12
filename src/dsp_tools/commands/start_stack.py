@@ -14,6 +14,7 @@ from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
@@ -403,7 +404,13 @@ class StackHandler:
         """
         self._copy_resources_to_home_dir()
         self._set_custom_host()
-        self._get_sipi_docker_config_lua()
+        try:
+            self._get_sipi_docker_config_lua()
+        except (requests.ConnectionError, requests.ReadTimeout):
+            raise PermanentConnectionError(
+                "This command requires an internet connection. "
+                "Please ensure that your computer is connected and try again."
+            )
         self._start_docker_containers()
         return True
 

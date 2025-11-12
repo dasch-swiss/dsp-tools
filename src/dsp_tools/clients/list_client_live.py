@@ -113,7 +113,7 @@ class ListCreateClientLive(ListCreateClient):
             result = response.json()
             list_iri = cast(str, result["list"]["listinfo"]["id"])
             return list_iri
-        if response.status_code == HTTPStatus.FORBIDDEN:
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise BadCredentialsError(
                 "Only a project or system administrator can create lists. "
                 "Your permissions are insufficient for this action."
@@ -134,7 +134,7 @@ class ListCreateClientLive(ListCreateClient):
             result = response.json()
             node_iri = cast(str, result["nodeinfo"]["id"])
             return node_iri
-        if response.status_code == HTTPStatus.FORBIDDEN:
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
             raise BadCredentialsError(
                 "Only a project or system administrator can add nodes to lists. "
                 "Your permissions are insufficient for this action."

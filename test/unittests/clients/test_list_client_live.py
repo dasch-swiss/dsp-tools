@@ -230,13 +230,13 @@ class TestListCreateClient:
         # The data is serialized as bytes, so we need to decode and parse it
         assert json.loads(call_kwargs["data"]) == list_info
 
-    def test_create_new_list_forbidden(self, list_create_client: ListCreateClientLive) -> None:
+    def test_create_new_list_unauthorised(self, list_create_client: ListCreateClientLive) -> None:
         list_info = {
             "projectIri": PROJECT_IRI,
             "name": "test-list",
             "labels": [{"value": "Test List", "language": "en"}],
         }
-        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorised")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
@@ -294,14 +294,14 @@ class TestListCreateClient:
         # The data is serialized as bytes, so we need to decode and parse it
         assert json.loads(call_kwargs["data"]) == node_info
 
-    def test_add_list_node_forbidden(self, list_create_client: ListCreateClientLive) -> None:
+    def test_add_list_node_unauthorised(self, list_create_client: ListCreateClientLive) -> None:
         node_info = {
             "parentNodeIri": PARENT_NODE_IRI,
             "projectIri": PROJECT_IRI,
             "name": "test-node",
             "labels": [{"value": "Test Node", "language": "en"}],
         }
-        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response = Mock(status_code=401, ok=False, headers={}, text="Unauthorised")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):

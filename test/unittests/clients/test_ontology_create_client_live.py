@@ -101,7 +101,7 @@ class TestOntologyClientLive:
         result = ontology_client.post_resource_cardinalities(sample_cardinality_graph)
         assert result == LAST_MODIFICATION_DATE
 
-    def test_post_resource_cardinalities_forbidden(
+    def test_post_resource_cardinalities_unauthorised(
         self,
         ontology_client: OntologyCreateClientLive,
         sample_cardinality_graph: dict[str, object],
@@ -109,7 +109,7 @@ class TestOntologyClientLive:
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = False
-        mock_response.status_code = 403
+        mock_response.status_code = 401
 
         def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response

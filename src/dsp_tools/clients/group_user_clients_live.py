@@ -53,7 +53,7 @@ class GroupClientLive(GroupClient):
         if response.ok:
             result = response.json()
             return cast(str, result["group"]["id"])
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a project or system administrator can create groups. "
                 "Your permissions are insufficient for this action."

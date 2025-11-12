@@ -6,7 +6,6 @@ from urllib.parse import quote_plus
 
 import requests
 from requests import RequestException
-from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients import GroupClient
@@ -37,32 +36,47 @@ class UserClientLive(UserClient):
         #         "id": "http://rdfh.ch/users/root",
         #     }
         # }
-        # return None if not found
+        # if ok -> return response.json["user"]["id"]
+        # if 404 -> return None
+        # everything else: log_and_warn_unexpected_non_ok_response
 
     def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/users"
         # POST
-        # 400: already exists
+        # if ok -> return response.json["user"]["id"]
+        # 400: already exists -> FatalNonOkApiResponseCode
+        # everything else: log_and_warn_unexpected_non_ok_response
 
     def add_user_to_project(self, user_iri: str, project_iri: str) -> bool:
         project_iri_encoded = quote_plus(project_iri)
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-memberships/{project_iri_encoded}"
         # POST
+        # if ok: return True
+        # everything else: log_and_warn_unexpected_non_ok_response and return False
 
     def add_user_as_project_admin(self, user_iri: str, project_iri: str) -> bool:
         project_iri_encoded = quote_plus(project_iri)
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-admin-memberships/{project_iri_encoded}"
         # POST
+        # if ok: return True
+        # everything else: log_and_warn_unexpected_non_ok_response and return False
 
     def add_user_to_custom_group(self, user_iri: str, groups: list[str]) -> bool:
-        """Add a user to a custom group."""
+        user_iri_encoded = quote_plus(user_iri)
+        successes = []
+        for gr in groups:
+            result = self._add_user_to_one_group(user_iri_encoded, gr)
+            successes.append(result)
+        return all(successes)
 
-    def _add_user_to_one_group(self, user_iri_encoded: str, group_iri: str) -> Response:
+    def _add_user_to_one_group(self, user_iri_encoded: str, group_iri: str) -> bool:
         group_iri_encoded = quote_plus(group_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}group-memberships/{group_iri_encoded}"
         # POST
+        # if ok: return True
+        # everything else: log_and_warn_unexpected_non_ok_response and return False
 
 
 @dataclass

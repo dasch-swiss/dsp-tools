@@ -332,7 +332,9 @@ def _add_validate_data(
     root_user_email: str,
     root_user_pw: str,
 ) -> None:
-    subparser = subparsers.add_parser(name="validate-data", help="Validate the data with the data model.")
+    subparser = subparsers.add_parser(
+        name="validate-data", help="Validate the data against the ontology previously uploaded on the server."
+    )
     subparser.set_defaults(action="validate-data")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
@@ -351,7 +353,10 @@ def _add_validate_data(
         ),
     )
     subparser.add_argument(
-        "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
+        "-s",
+        "--server",
+        default=default_dsp_api_url,
+        help="URL of the DSP server where DSP-TOOLS gets the ontology from",
     )
     subparser.add_argument(
         "--id2iri-file",

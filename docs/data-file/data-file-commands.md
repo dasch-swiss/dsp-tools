@@ -15,7 +15,7 @@ dsp-tools validate-data [options] xml_data_file.xml
 
 The most frequently used options are:
 
-- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS gets the ontology from
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 
@@ -37,10 +37,7 @@ Output:
         - For example, legal information for assets is mandatory on a production server. 
           Since a project may need time to compile all the data we allow missing legal information on test servers.
     - **Info**: Will not block an xmlupload.
-        - Content that may cause errors during an upload. 
-        - For example, if you reference IRIs from resources that are already in the database,
-          you will get an info message.
-          The reason is, that if the resource does not exist, an xmlupload will fail.
+        - Content that may cause errors during an upload.
 
 
 The defaults are intended for local testing: 

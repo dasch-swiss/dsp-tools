@@ -79,7 +79,7 @@ class TestAddValues:
     def test_add_bool_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid bool, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid bool, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_bool("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -99,7 +99,7 @@ class TestAddValues:
     def test_add_color_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid color, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid color, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_color("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -124,7 +124,7 @@ class TestAddValues:
     def test_add_date_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid date, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid date, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_date("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -149,7 +149,7 @@ class TestAddValues:
     def test_add_decimal_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid decimal, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid decimal, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_decimal("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -174,7 +174,7 @@ class TestAddValues:
     def test_add_geoname_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid geoname, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid geoname, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_geoname("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -199,7 +199,7 @@ class TestAddValues:
     def test_add_integer_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid integer, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid integer, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_integer("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -225,7 +225,7 @@ class TestAddValues:
         with pytest.warns(
             XmllibInputWarning,
             match=regex.escape(
-                "The input should be a valid xsd:ID or DSP resource IRI, your input '' does not match the type."
+                "The input should be a valid xsd:ID or DSP resource IRI, your input '<NA>' does not match the type."
             ),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_link("", pd.NA)  # type: ignore[arg-type]
@@ -253,7 +253,7 @@ class TestAddValues:
     def test_add_list_node_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid list node, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid list node, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_list("", "listname", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -261,7 +261,7 @@ class TestAddValues:
     def test_add_list_name_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid list name, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid list name, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_list("", pd.NA, "node")  # type: ignore[arg-type]
         list_val = res.values.pop()
@@ -290,7 +290,9 @@ class TestAddValues:
     def test_add_simple_text_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_simpletext("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == ""
@@ -364,7 +366,7 @@ class TestAddValues:
     def test_add_time_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid timestamp, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid timestamp, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_time("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -391,7 +393,7 @@ class TestAddValues:
     def test_add_uri_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid uri, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid uri, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_uri("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == "<NA>"
@@ -430,14 +432,15 @@ class TestAddFiles:
     def test_add_file_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Field 'bitstream' | Your input '' is empty. Please enter a valid file name."),
+            match=regex.escape("Field 'bitstream' | Your input '<NA>' is empty. Please enter a valid file name."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_file(
-                pd.NA,
+                pd.NA,  # type: ignore[arg-type]
                 LicenseRecommended.DSP.UNKNOWN,
                 "copy",
-                ["auth"],  # type: ignore[arg-type]
+                ["auth"],
             )
+        assert isinstance(res.file_value, FileValue)
         assert res.file_value.value == "<NA>"
 
     def test_add_file_raising(self) -> None:
@@ -476,14 +479,15 @@ class TestAddFiles:
     def test_add_iiif_uri_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid IIIF uri, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid IIIF uri, your input '<NA>' does not match the type."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
-                pd.NA,
+                pd.NA,  # type: ignore[arg-type]
                 LicenseRecommended.DSP.UNKNOWN,
                 "copy",
-                ["auth"],  # type: ignore[arg-type]
+                ["auth"],
             )
+        assert isinstance(res.file_value, IIIFUri)
         assert res.file_value.value == "<NA>"
 
     def test_add_iiif_uri_raising(self) -> None:

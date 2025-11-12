@@ -45,6 +45,15 @@ def is_nonempty_value(value: Any) -> bool:
         assert xmllib.is_nonempty_value("\\n") == False
         ```
     """
+    if isinstance(value, (tuple, list, set)):
+        all_vals = [is_nonempty_value(v) for v in value]
+        return all(all_vals)
+    if isinstance(value, dict):
+        all_vals = []
+        for k, v in value.items():
+            all_vals.append(is_nonempty_value(k))
+            all_vals.append(is_nonempty_value(v))
+        return all(all_vals)
     if pd.isna(value):
         return False
     if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):

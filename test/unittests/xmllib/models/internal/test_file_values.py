@@ -60,31 +60,33 @@ class TestMetadata:
 
     def test_wrong_copyright(self):
         expected = regex.escape(
-            "Field 'copyright_holder (bistream/iiif-uri)' | Your input '<NA>' is empty. Please enter a valid string."
+            "Field 'copyright_holder (bistream/iiif-uri)' | "
+            "The input should be a valid non empty string, your input '<NA>' does not match the type."
         )
         with pytest.warns(XmllibInputWarning, match=expected):
             result = Metadata.new(
                 LicenseRecommended.DSP.UNKNOWN,
-                pd.NA,
+                pd.NA,  # type: ignore[arg-type]
                 ["authorship"],
                 Permissions.PROJECT_SPECIFIC_PERMISSIONS,
-                "id",  # type: ignore[arg-type]
+                "id",
             )
         assert result.copyright_holder == ""
 
     def test_wrong_authorship(self):
         expected = regex.escape(
-            "Field 'authorship (bistream/iiif-uri)' | Your input '<NA>' is empty. Please enter a valid string."
+            "Field 'authorship (bistream/iiif-uri)' | "
+            "The input should be a valid list of authorship strings, your input '[<NA>]' does not match the type."
         )
         with pytest.warns(XmllibInputWarning, match=expected):
             result = Metadata.new(
                 LicenseRecommended.DSP.UNKNOWN,
                 "copyright",
-                [pd.NA],
+                [pd.NA],  # type: ignore[list-item]
                 Permissions.PROJECT_SPECIFIC_PERMISSIONS,
-                "id",  # type: ignore[arg-type]
+                "id",
             )
-        assert result.authorship[0] == ""
+        assert result.authorship is None
 
     def test_wrong_permissions(self):
         expected = regex.escape(
@@ -93,7 +95,7 @@ class TestMetadata:
         )
         with pytest.warns(XmllibInputWarning, match=expected):
             result = Metadata.new(LicenseRecommended.DSP.UNKNOWN, "copyright", ["authorship"], pd.NA, "id")  # type: ignore[arg-type]
-        assert result.permissions == ""
+        assert result.permissions == Permissions.PROJECT_SPECIFIC_PERMISSIONS
 
 
 class TestFileValue:

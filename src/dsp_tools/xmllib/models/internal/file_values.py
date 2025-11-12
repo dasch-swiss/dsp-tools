@@ -75,25 +75,29 @@ class Metadata:
                 value_field="copyright_holder (bistream/iiif-uri)",
             )
         if authorship is not None:
-            if len(authorship) == 0:
+            if not is_nonempty_value_internal(authorship):
                 emit_xmllib_input_type_mismatch_warning(
                     expected_type="list of authorship strings",
-                    value="empty input",
+                    value=authorship,
                     res_id=resource_id,
                     value_field="authorship (bistream/iiif-uri)",
                 )
-            fixed_authors = set(
-                check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
-            )
-            fixed_authors_list = [
-                check_and_fix_is_non_empty_string(
-                    value=x,
-                    res_id=resource_id,
-                    value_field="authorship (bistream/iiif-uri)",
+                authors = None
+            else:
+                fixed_authors = set(
+                    check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
                 )
-                for x in fixed_authors
-            ]
-            authors = tuple(sorted(fixed_authors_list))
+                fixed_authors_list = [
+                    check_and_fix_is_non_empty_string(
+                        value=x,
+                        res_id=resource_id,
+                        value_field="authorship (bistream/iiif-uri)",
+                    )
+                    for x in fixed_authors
+                ]
+                authors = tuple(sorted(fixed_authors_list))
+                if len(authors) == 0:
+                    authors = None
         else:
             authors = None
         return cls(

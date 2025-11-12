@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema" shortcode="0001" default-ontology="test">
+    <resource label="Test" restype=":Test Resource" id="test">
+        <text-prop name=":has Title">
+            <text encoding="utf8">Test</text>
+        </text-prop>
+    </resource>
+
+</knora>

@@ -24,7 +24,8 @@ list_separator = "\n    - "
 def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = _parse_xml_file(input_file)
     root = _remove_comments_from_element_tree(root)
-    _validate_xml_with_schema(root)
+    if not validate_root_emit_user_message(root, Path(input_file).parent):
+        raise InputError("The XML file contains validation errors.")  # a detailed report has already been printed
     print("The XML file is syntactically correct.")
     return _transform_into_localnames(root)
 
@@ -32,7 +33,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:
     root = _parse_xml_file(input_file)
     data_xml = _remove_comments_from_element_tree(root)
-    return _validate_xml_with_schema(data_xml)
+    return validate_root_emit_user_message(data_xml, Path(input_file).parent)
 
 
 def _parse_xml_file(input_file: str | Path) -> etree._Element:
@@ -64,15 +65,6 @@ def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Ele
     return root
 
 
-def _validate_xml_with_schema(xml: etree._Element) -> bool:
-    """Requires a cleaned (no comments) XML, but with the namespaces."""
-    if errors := _validate_xml_tree_against_schema(xml):
-        problem_msg = _get_validation_error_print_out(errors)
-        logger.error(problem_msg)
-        raise InputError(problem_msg)
-    return True
-
-
 def _validate_xml_tree_against_schema(data_xml: etree._Element) -> etree.XMLSchema | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
@@ -82,31 +74,12 @@ def _validate_xml_tree_against_schema(data_xml: etree._Element) -> etree.XMLSche
     return None
 
 
-def _get_validation_error_print_out(xmlschema: etree.XMLSchema) -> str:
-    error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-    for error in xmlschema.error_log:
-        error_msg += f"{separator}Line {error.line}: {_beautify_err_msg(error.message)}"
-    return error_msg
-
-
-def _beautify_err_msg(err_msg: str) -> str:
-    err_msg = err_msg.replace("{https://dasch.swiss/schema}", "")
-    new_msg_for_duplicate_res_id = (
-        "The resource ID '\\1' is not valid. IDs must be unique across the entire file. "
-        "The function make_xsd_compatible_id() assists you in creating IDs."
-    )
-    rgx_for_duplicate_res_id = (
-        r"Element '(?:resource|link|video-segment|audio-segment|region)', attribute 'id': '(.+?)' "
-        r"is not a valid value of the atomic type 'xs:ID'."
-    )
-    err_msg = regex.sub(rgx_for_duplicate_res_id, new_msg_for_duplicate_res_id, err_msg)
-    return err_msg
-
-
-def validate_root_emit_user_message(root: etree._Element, save_path: Path) -> None:
+def validate_root_emit_user_message(root: etree._Element, save_path: Path) -> bool:
     validation_errors = _validate_root_get_validation_messages(root)
     if validation_errors:
         _emit_validation_errors(validation_errors, save_path)
+        return False
+    return True
 
 
 def _validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSDValidationMessage] | None:
@@ -135,10 +108,11 @@ def _emit_validation_errors(validation_errors: list[XSDValidationMessage], save_
 
 
 def _reformat_validation_errors(log: etree._ListErrorLog) -> list[XSDValidationMessage]:
-    return [_reformat_error_message_str(err.message, err.line) for err in log]
+    res = [_reformat_error_message_str(err.message, err.line) for err in log]
+    return [x for x in res if x]
 
 
-def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage:
+def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMessage | None:
     element, attrib = None, None
     msg = msg.replace("{https://dasch.swiss/schema}", "")
     first, message = msg.split(":", maxsplit=1)
@@ -146,12 +120,17 @@ def _reformat_error_message_str(msg: str, line_number: int) -> XSDValidationMess
         element = ele_found.group(1)
     if attrib_found := regex.search(r"attribute '(.*?)'", first):
         attrib = attrib_found.group(1)
+    if "No precomputed value available, the value was either invalid or something strange happened" in message:
+        return None
     if " is not a valid value of the atomic type 'xs:ID'." in message:
         if found := regex.search(r"'.*?'", message):
             id_ = found.group(0)
         else:
             id_ = ""
-        message = f"The provided resource id {id_} is either not a valid xsd:ID or not unique in the file."
+        message = (
+            f"The provided resource id {id_} is either not a valid xsd:ID or not unique in the file."
+            "The function make_xsd_compatible_id() assists you in creating IDs."
+        )
     else:
         message = regex.sub(r"\[facet .+\] ", "", message)
         message = regex.sub(r"pattern ('.+')", "pattern for this value", message).strip()

@@ -126,7 +126,7 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         list_name_2_iri = get_existing_lists_on_server(parsed_project.project_metadata.shortcode, auth)
 
     # create the groups
-    group_client = GroupClientLive(creds.server)
+    group_client = GroupClientLive(creds.server, auth)
     group_lookup = get_existing_group_to_iri_lookup(group_client, project_iri)
     if parsed_project.groups:
         group_lookup, group_problems = create_groups(

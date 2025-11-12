@@ -135,7 +135,7 @@ class TestGroupClientCreateNewGroup:
         assert result is None
 
     def test_forbidden(self, group_client: GroupClientLive, new_group) -> None:
-        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response = Mock(status_code=401, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):

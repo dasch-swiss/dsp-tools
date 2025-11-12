@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  lint:
+  lint-vulture:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

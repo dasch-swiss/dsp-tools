@@ -58,7 +58,7 @@ def _check_network_health(network_requirements: NetworkRequirements) -> None:
 
 
 def check_docker_health() -> None:
-    if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
+    if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True, timeout=3).returncode != 0:
         raise DockerNotReachableError()
 
 

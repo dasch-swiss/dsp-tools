@@ -11,6 +11,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients import GroupClient
 from dsp_tools.clients.group_user_clients import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
@@ -20,48 +21,93 @@ from dsp_tools.utils.request_utils import log_response
 TIMEOUT = 30
 
 
+@dataclass
 class UserClientLive(UserClient):
     api_url: str
     auth: AuthenticationClient
 
     def get_user_iri_by_username(self, username: str) -> str | None:
         url = f"{self.api_url}/admin/users/username/{username}"
-        # GET
-        # not found: 404 {
-        #     "message": "User with username 'djjj' not found"
-        # }
-        # good:
-        # {
-        #     "user": {
-        #         "id": "http://rdfh.ch/users/root",
-        #     }
-        # }
-        # if ok -> return response.json["user"]["id"]
-        # if 404 -> return None
-        # everything else: log_and_warn_unexpected_non_ok_response
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("GET", url, TIMEOUT, headers=headers)
+        log_request(params)
+        try:
+            response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            result = response.json()
+            return cast(str, result["user"]["id"])
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            return None
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("You don't have permission to access user information.")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return None
 
     def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/users"
-        # POST
-        # if ok -> return response.json["user"]["id"]
-        # 400: already exists -> FatalNonOkApiResponseCode
-        # everything else: log_and_warn_unexpected_non_ok_response
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("POST", url, TIMEOUT, data=user_dict, headers=headers)
+        log_request(params)
+        try:
+            response = requests.post(
+                url=params.url, headers=params.headers, data=params.data_serialized, timeout=params.timeout
+            )
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            result = response.json()
+            return cast(str, result["user"]["id"])
+        if response.status_code == HTTPStatus.BAD_REQUEST:
+            raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("You don't have permission to create users.")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return None
 
     def add_user_to_project(self, user_iri: str, project_iri: str) -> bool:
         project_iri_encoded = quote_plus(project_iri)
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-memberships/{project_iri_encoded}"
-        # POST
-        # if ok: return True
-        # everything else: log_and_warn_unexpected_non_ok_response and return False
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        log_request(params)
+        try:
+            response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            return True
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("You don't have permission to add users to projects.")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return False
 
     def add_user_as_project_admin(self, user_iri: str, project_iri: str) -> bool:
         project_iri_encoded = quote_plus(project_iri)
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-admin-memberships/{project_iri_encoded}"
-        # POST
-        # if ok: return True
-        # everything else: log_and_warn_unexpected_non_ok_response and return False
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        log_request(params)
+        try:
+            response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            return True
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("You don't have permission to add users as project admins.")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return False
 
     def add_user_to_custom_group(self, user_iri: str, groups: list[str]) -> bool:
         user_iri_encoded = quote_plus(user_iri)
@@ -73,10 +119,21 @@ class UserClientLive(UserClient):
 
     def _add_user_to_one_group(self, user_iri_encoded: str, group_iri: str) -> bool:
         group_iri_encoded = quote_plus(group_iri)
-        url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}group-memberships/{group_iri_encoded}"
-        # POST
-        # if ok: return True
-        # everything else: log_and_warn_unexpected_non_ok_response and return False
+        url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/group-memberships/{group_iri_encoded}"
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        log_request(params)
+        try:
+            response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            return True
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("You don't have permission to add users to groups.")
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return False
 
 
 @dataclass

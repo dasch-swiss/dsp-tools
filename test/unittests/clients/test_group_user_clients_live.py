@@ -247,7 +247,7 @@ class TestUserClientLiveAddUserToProject:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
-            result = user_client.add_user_to_project(USER_IRI, PROJECT_IRI)
+            result = user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
         assert result is True
         expected_url = (
             f"{user_client.api_url}/admin/users/iri/http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
@@ -260,21 +260,21 @@ class TestUserClientLiveAddUserToProject:
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
-                user_client.add_user_to_project(USER_IRI, PROJECT_IRI)
+                user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
 
     def test_timeout(self, user_client: UserClientLive) -> None:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspToolsRequestException):
-                user_client.add_user_to_project(USER_IRI, PROJECT_IRI)
+                user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
 
     def test_server_error(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-                result = user_client.add_user_to_project(USER_IRI, PROJECT_IRI)
+                result = user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
         assert result is False
 
 

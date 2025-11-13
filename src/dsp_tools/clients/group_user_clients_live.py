@@ -72,7 +72,7 @@ class UserClientLive(UserClient):
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
-    def add_user_to_project(self, user_iri: str, project_iri: str) -> bool:
+    def add_user_as_project_member(self, user_iri: str, project_iri: str) -> bool:
         project_iri_encoded = quote_plus(project_iri)
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-memberships/{project_iri_encoded}"

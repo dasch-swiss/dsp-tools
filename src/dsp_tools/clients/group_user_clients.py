@@ -25,7 +25,7 @@ class UserClient(Protocol):
     def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
         """Create a new user."""
 
-    def add_user_to_project(self, user_iri: str, project_iri: str) -> bool:
+    def add_user_as_project_member(self, user_iri: str, project_iri: str) -> bool:
         """Add an existing user to a project."""
 
     def add_user_as_project_admin(self, user_iri: str, project_iri: str) -> bool:

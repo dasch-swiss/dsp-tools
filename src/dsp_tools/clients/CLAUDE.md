@@ -113,8 +113,8 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     if response.ok:
         return response
 
-    if response.status_code==HTTPStatus.UNAUTHORIZED:
-        raise BadCredentialsError("Descriptive error message")
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        raise BadCredentialsError("Authentication failed. Please check your credentials.")
 
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
@@ -155,7 +155,7 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
         return resource_iri
 
     # 6. Handle specific known error cases
-    if response.status_code==HTTPStatus.FORBIDDEN:
+    if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("You don't have permission to create resources in this project.")
 
     # 7. Handle unexpected errors non-fatally
@@ -177,6 +177,72 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
 - **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
 - **Other API errors**: Raise `FatalNonOkApiResponseCode` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
+
+#### 401 vs 403: Authentication vs Authorization
+
+It's crucial to distinguish between authentication failures (401) and authorization failures (403):
+
+**401 Unauthorized - Authentication Failure**
+
+- **Meaning**: "Who are you?" - The request lacks valid authentication credentials or the credentials are invalid/expired
+- **When to use**: Invalid username/password, expired token, missing credentials, failed login
+- **Example error messages**:
+  - "Authentication failed. Please check your credentials."
+  - "Login to the API was not successful. Please ensure that your email and password are correct."
+  - "Your session has expired. Please log in again."
+
+**403 Forbidden - Authorization Failure**
+
+- **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
+- **When to use**: Insufficient role/permissions, project membership required, admin-only actions
+- **Example error messages**:
+  - "Only a project or system administrator can create new copyright holders. Your permissions are insufficient for this action."
+  - "You don't have permission to start the ingest process."
+  - "Only members of a project or system administrators can enable licenses. Your permissions are insufficient for this action."
+
+**Code Examples**
+
+Correct 401 handling (authentication):
+
+```python
+if response.status_code == HTTPStatus.UNAUTHORIZED:
+    raise BadCredentialsError("Authentication failed. Please check your credentials.")
+```
+
+Correct 403 handling (authorization):
+
+```python
+if response.status_code == HTTPStatus.FORBIDDEN:
+    raise BadCredentialsError(
+        "Only a project or system administrator can create new copyright holders. "
+        "Your permissions are insufficient for this action."
+    )
+```
+
+Handling both separately when needed:
+
+```python
+if response.status_code == HTTPStatus.UNAUTHORIZED:
+    raise BadCredentialsError("Authentication failed. Please check your credentials.")
+if response.status_code == HTTPStatus.FORBIDDEN:
+    raise BadCredentialsError("You don't have permission to start the ingest process.")
+```
+
+**When Writing Error Messages**
+
+- If the message mentions **"credentials", "login", "password", or "token"** → use **401**
+- If the message mentions **"permissions", "administrator", "member", or "role"** → use **403**
+- If the message says **"insufficient permissions"** or **"only X can do Y"** → use **403**
+
+**Special Case: Silent Handling**
+
+In some non-critical cases (e.g., metadata retrieval), both 401 and 403 can be handled silently:
+
+```python
+if response.status_code not in [HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN]:
+    log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+return None
+```
 
 ## Common Imports
 
@@ -367,10 +433,10 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code==HTTPStatus.UNAUTHORIZED:
-            raise BadCredentialsError(
-                "You don't have permission to access user information."
-            )
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise BadCredentialsError("Authentication failed. Please check your credentials.")
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to access user information.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
 

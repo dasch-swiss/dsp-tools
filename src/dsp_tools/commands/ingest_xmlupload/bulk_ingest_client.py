@@ -114,8 +114,10 @@ class BulkIngestClient:
         logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
         res = self.session.post(url, timeout=timeout)
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
-        if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
-            raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
+        if res.status_code == STATUS_UNAUTHORIZED:
+            raise BadCredentialsError("Authentication failed. Please check your credentials.")
+        if res.status_code == STATUS_FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to start the ingest process.")
         if res.status_code == STATUS_NOT_FOUND:
             raise InputError(
                 f"No assets have been uploaded for project {self.shortcode}. "

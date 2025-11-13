@@ -88,7 +88,7 @@ class TestPostCopyrightHolders:
 
     def test_client_post_copyright_holders_lacking_permissions(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False)
+        expected_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False)
         client._post_and_log_request = Mock(return_value=expected_response)
         with pytest.raises(BadCredentialsError):
             client.post_copyright_holders(["1"])
@@ -161,7 +161,7 @@ class TestGetEnabledLicenses:
 
     def test_insufficient_credentials(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False)
+        mock_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False)
         mock_response.json.return_value = {}
         mock_response.headers = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:

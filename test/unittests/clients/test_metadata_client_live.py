@@ -73,18 +73,18 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
     assert data == []
 
 
-@pytest.mark.filterwarnings("ignore::dsp_tools.error.custom_warnings.DspToolsUnexpectedStatusCodeWarning")
 @patch("dsp_tools.clients.metadata_client_live.log_response")
 @patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
-    mock_response.status_code = 403
+    mock_response.status_code = 404
     mock_response.text = {"message": "Some message from the API."}
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
-        response_type, data = metadata_client.get_resource_metadata("9999")
+        with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+            response_type, data = metadata_client.get_resource_metadata("9999")
 
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []
@@ -105,6 +105,20 @@ def test_get_resource_metadata_unauthorized_no_warning(metadata_client):
     mock_response.ok = False
     mock_response.status_code = HTTPStatus.UNAUTHORIZED.value
     mock_response.text = "Unauthorized"
+
+    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
+        get_mock.return_value = mock_response
+        response_type, data = metadata_client.get_resource_metadata("4124")
+
+    assert response_type == ExistingResourcesRetrieved.FALSE
+    assert data == []
+
+
+def test_get_resource_metadata_forbidden_no_warning(metadata_client):
+    mock_response = Mock(spec=Response)
+    mock_response.ok = False
+    mock_response.status_code = HTTPStatus.FORBIDDEN.value
+    mock_response.text = "Forbidden"
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response

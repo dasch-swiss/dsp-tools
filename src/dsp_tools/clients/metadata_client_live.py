@@ -40,7 +40,7 @@ class MetadataClientLive(MetadataClient):
             log_response(response, include_response_content=False)
             logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
             return ExistingResourcesRetrieved.TRUE, response.json()
-        if response.status_code != HTTPStatus.UNAUTHORIZED:
+        if response.status_code not in [HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN]:
             # this warning is to inform for unhandled status codes
             # if the user has insufficient credentials but references resources in the XML, they will get informed then
             log_and_warn_unexpected_non_ok_response(response.status_code, response.text)

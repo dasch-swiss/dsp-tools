@@ -1,18 +1,28 @@
 from typing import Any
 from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 
+from dsp_tools.commands.create.create_on_server.group_users import _add_all_memberships
+from dsp_tools.commands.create.create_on_server.group_users import _add_one_membership
+from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_groups
 from dsp_tools.commands.create.create_on_server.group_users import _construct_group_lookup
+from dsp_tools.commands.create.create_on_server.group_users import _create_all_users
 from dsp_tools.commands.create.create_on_server.group_users import _create_one_group
+from dsp_tools.commands.create.create_on_server.group_users import _create_one_user
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
+from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
+from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
+from dsp_tools.commands.create.models.server_project_info import UserNameToIriLookup
 from test.unittests.commands.create.constants import PROJECT_IRI
 from test.unittests.commands.create.constants import SHORTNAME
 
@@ -268,6 +278,454 @@ class TestCreateGroups:
         assert problems is None
         assert len(result_lookup.name2iri) == 2
         mock_group_client.create_new_group.assert_not_called()
+
+
+# ===== User Fixtures =====
+
+
+@pytest.fixture
+def parsed_user_1() -> ParsedUser:
+    return ParsedUser(
+        username="testuser1",
+        email="testuser1@example.com",
+        given_name="Test",
+        family_name="User One",
+        password="password123",
+        lang="en",
+    )
+
+
+@pytest.fixture
+def parsed_user_2() -> ParsedUser:
+    return ParsedUser(
+        username="testuser2",
+        email="testuser2@example.com",
+        given_name="Test",
+        family_name="User Two",
+        password="password456",
+        lang="de",
+    )
+
+
+@pytest.fixture
+def parsed_users(parsed_user_1: ParsedUser, parsed_user_2: ParsedUser) -> list[ParsedUser]:
+    return [parsed_user_1, parsed_user_2]
+
+
+@pytest.fixture
+def user_membership_admin() -> ParsedUserMemberShipInfo:
+    return ParsedUserMemberShipInfo(username="testuser1", is_admin=True, groups=["editors", "reviewers"])
+
+
+@pytest.fixture
+def user_membership_regular() -> ParsedUserMemberShipInfo:
+    return ParsedUserMemberShipInfo(username="testuser2", is_admin=False, groups=["readers"])
+
+
+@pytest.fixture
+def user_memberships(
+    user_membership_admin: ParsedUserMemberShipInfo, user_membership_regular: ParsedUserMemberShipInfo
+) -> list[ParsedUserMemberShipInfo]:
+    return [user_membership_admin, user_membership_regular]
+
+
+@pytest.fixture
+def mock_user_client() -> Mock:
+    return Mock()
+
+
+@pytest.fixture
+def mock_auth() -> Mock:
+    mock = Mock()
+    mock.server = "http://0.0.0.0:3333"
+    return mock
+
+
+@pytest.fixture
+def user_lookup() -> UserNameToIriLookup:
+    lookup = UserNameToIriLookup()
+    lookup.add_iri("testuser1", "http://rdfh.ch/users/testuser1IRI")
+    lookup.add_iri("testuser2", "http://rdfh.ch/users/testuser2IRI")
+    return lookup
+
+
+@pytest.fixture
+def group_lookup_with_groups() -> GroupNameToIriLookup:
+    return GroupNameToIriLookup(
+        name2iri={
+            "editors": "http://rdfh.ch/groups/4123/editors",
+            "readers": "http://rdfh.ch/groups/4123/readers",
+            "reviewers": "http://rdfh.ch/groups/4123/reviewers",
+        },
+        shortname=SHORTNAME,
+    )
+
+
+# ===== User Tests =====
+
+
+class TestCreateOneUser:
+    def test_creates_new_user(self, parsed_user_1: ParsedUser, mock_user_client: Mock) -> None:
+        expected_iri = "http://rdfh.ch/users/newUserIRI"
+        mock_user_client.get_user_iri_by_username.return_value = None
+        mock_user_client.post_new_user.return_value = expected_iri
+        result = _create_one_user(parsed_user_1, mock_user_client)
+        assert result == expected_iri
+        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
+        mock_user_client.post_new_user.assert_called_once()
+
+    def test_returns_existing_user_iri(self, parsed_user_1: ParsedUser, mock_user_client: Mock) -> None:
+        existing_iri = "http://rdfh.ch/users/existingUserIRI"
+        mock_user_client.get_user_iri_by_username.return_value = existing_iri
+        result = _create_one_user(parsed_user_1, mock_user_client)
+        assert result == existing_iri
+        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
+        mock_user_client.post_new_user.assert_not_called()
+
+    def test_returns_none_when_creation_fails(self, parsed_user_1: ParsedUser, mock_user_client: Mock) -> None:
+        mock_user_client.get_user_iri_by_username.return_value = None
+        mock_user_client.post_new_user.return_value = None
+        result = _create_one_user(parsed_user_1, mock_user_client)
+        assert result is None
+        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
+        mock_user_client.post_new_user.assert_called_once()
+
+
+class TestCreateAllUsers:
+    def test_creates_all_new_users_successfully(self, parsed_users: list[ParsedUser], mock_user_client: Mock) -> None:
+        mock_user_client.get_user_iri_by_username.return_value = None
+        mock_user_client.post_new_user.side_effect = [
+            "http://rdfh.ch/users/user1IRI",
+            "http://rdfh.ch/users/user2IRI",
+        ]
+        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+        assert len(problems) == 0
+        assert lookup.get_iri("testuser1") == "http://rdfh.ch/users/user1IRI"
+        assert lookup.get_iri("testuser2") == "http://rdfh.ch/users/user2IRI"
+        assert mock_user_client.post_new_user.call_count == 2
+
+    def test_handles_existing_users(self, parsed_users: list[ParsedUser], mock_user_client: Mock) -> None:
+        mock_user_client.get_user_iri_by_username.side_effect = [
+            "http://rdfh.ch/users/existingUser1IRI",
+            None,
+        ]
+        mock_user_client.post_new_user.return_value = "http://rdfh.ch/users/user2IRI"
+        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+        assert len(problems) == 0
+        assert lookup.get_iri("testuser1") == "http://rdfh.ch/users/existingUser1IRI"
+        assert lookup.get_iri("testuser2") == "http://rdfh.ch/users/user2IRI"
+        assert mock_user_client.post_new_user.call_count == 1
+
+    def test_handles_creation_failures(self, parsed_users: list[ParsedUser], mock_user_client: Mock) -> None:
+        mock_user_client.get_user_iri_by_username.return_value = None
+        mock_user_client.post_new_user.side_effect = [None, "http://rdfh.ch/users/user2IRI"]
+        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser1"
+        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_CREATED
+        assert lookup.get_iri("testuser1") is None
+        assert lookup.get_iri("testuser2") == "http://rdfh.ch/users/user2IRI"
+
+    def test_handles_all_failures(self, parsed_users: list[ParsedUser], mock_user_client: Mock) -> None:
+        mock_user_client.get_user_iri_by_username.return_value = None
+        mock_user_client.post_new_user.return_value = None
+        _, problems = _create_all_users(parsed_users, mock_user_client)
+        assert len(problems) == 2
+        assert problems[0].problematic_object == "testuser1"
+        assert problems[1].problematic_object == "testuser2"
+        assert all(p.problem == ProblemType.USER_COULD_NOT_BE_CREATED for p in problems)
+
+    def test_empty_users_list(self, mock_user_client: Mock) -> None:
+        lookup, problems = _create_all_users([], mock_user_client)
+        assert len(problems) == 0
+        assert isinstance(lookup, UserNameToIriLookup)
+        mock_user_client.get_user_iri_by_username.assert_not_called()
+        mock_user_client.post_new_user.assert_not_called()
+
+
+class TestAddOneMembership:
+    def test_adds_regular_member_successfully(
+        self, user_membership_regular: ParsedUserMemberShipInfo, mock_user_client: Mock
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser2IRI"
+        mock_user_client.add_user_as_project_member.return_value = True
+        problems = _add_one_membership(user_membership_regular, user_iri, PROJECT_IRI, mock_user_client)
+        assert len(problems) == 0
+        mock_user_client.add_user_as_project_member.assert_called_once_with(user_iri, PROJECT_IRI)
+        mock_user_client.add_user_as_project_admin.assert_not_called()
+
+    def test_adds_admin_member_successfully(
+        self, user_membership_admin: ParsedUserMemberShipInfo, mock_user_client: Mock
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_as_project_member.return_value = True
+        mock_user_client.add_user_as_project_admin.return_value = True
+        problems = _add_one_membership(user_membership_admin, user_iri, PROJECT_IRI, mock_user_client)
+        assert len(problems) == 0
+        mock_user_client.add_user_as_project_member.assert_called_once_with(user_iri, PROJECT_IRI)
+        mock_user_client.add_user_as_project_admin.assert_called_once_with(user_iri, PROJECT_IRI)
+
+    def test_handles_member_addition_failure(
+        self, user_membership_regular: ParsedUserMemberShipInfo, mock_user_client: Mock
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser2IRI"
+        mock_user_client.add_user_as_project_member.return_value = False
+        problems = _add_one_membership(user_membership_regular, user_iri, PROJECT_IRI, mock_user_client)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser2"
+        assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
+
+    def test_handles_admin_addition_failure(
+        self, user_membership_admin: ParsedUserMemberShipInfo, mock_user_client: Mock
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_as_project_member.return_value = True
+        mock_user_client.add_user_as_project_admin.return_value = False
+        problems = _add_one_membership(user_membership_admin, user_iri, PROJECT_IRI, mock_user_client)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser1"
+        assert problems[0].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
+
+    def test_handles_both_membership_and_admin_failures(
+        self, user_membership_admin: ParsedUserMemberShipInfo, mock_user_client: Mock
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_as_project_member.return_value = False
+        mock_user_client.add_user_as_project_admin.return_value = False
+        problems = _add_one_membership(user_membership_admin, user_iri, PROJECT_IRI, mock_user_client)
+        assert len(problems) == 2
+        assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
+        assert problems[1].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
+
+
+class TestAddUserToGroups:
+    def test_adds_user_to_all_groups_successfully(
+        self,
+        user_membership_admin: ParsedUserMemberShipInfo,
+        mock_user_client: Mock,
+        group_lookup_with_groups: GroupNameToIriLookup,
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_to_custom_groups.return_value = True
+        problems = _add_user_to_groups(user_membership_admin, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 0
+        mock_user_client.add_user_to_custom_groups.assert_called_once_with(
+            user_iri,
+            ["http://rdfh.ch/groups/4123/editors", "http://rdfh.ch/groups/4123/reviewers"],
+        )
+
+    def test_handles_group_addition_failure(
+        self,
+        user_membership_admin: ParsedUserMemberShipInfo,
+        mock_user_client: Mock,
+        group_lookup_with_groups: GroupNameToIriLookup,
+    ) -> None:
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_to_custom_groups.return_value = False
+        problems = _add_user_to_groups(user_membership_admin, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser1"
+        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
+
+    def test_handles_groups_not_found(
+        self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup
+    ) -> None:
+        membership = ParsedUserMemberShipInfo(username="testuser3", is_admin=False, groups=["nonexistent"])
+        user_iri = "http://rdfh.ch/users/testuser3IRI"
+        problems = _add_user_to_groups(membership, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser3"
+        assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
+        mock_user_client.add_user_to_custom_groups.assert_not_called()
+
+    def test_handles_mixed_found_and_not_found_groups(
+        self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup
+    ) -> None:
+        membership = ParsedUserMemberShipInfo(
+            username="testuser1", is_admin=False, groups=["editors", "nonexistent", "readers"]
+        )
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_to_custom_groups.return_value = True
+        problems = _add_user_to_groups(membership, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 1
+        assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
+        mock_user_client.add_user_to_custom_groups.assert_called_once_with(
+            user_iri,
+            ["http://rdfh.ch/groups/4123/editors", "http://rdfh.ch/groups/4123/readers"],
+        )
+
+    def test_handles_no_groups(self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup) -> None:
+        membership = ParsedUserMemberShipInfo(username="testuser1", is_admin=False, groups=[])
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        problems = _add_user_to_groups(membership, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 0
+        mock_user_client.add_user_to_custom_groups.assert_not_called()
+
+    def test_handles_both_addition_failure_and_groups_not_found(
+        self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup
+    ) -> None:
+        membership = ParsedUserMemberShipInfo(
+            username="testuser1", is_admin=False, groups=["editors", "nonexistent"]
+        )
+        user_iri = "http://rdfh.ch/users/testuser1IRI"
+        mock_user_client.add_user_to_custom_groups.return_value = False
+        problems = _add_user_to_groups(membership, user_iri, mock_user_client, group_lookup_with_groups)
+        assert len(problems) == 2
+        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
+        assert problems[1].problem == ProblemType.USER_GROUPS_NOT_FOUND
+
+
+class TestAddAllMemberships:
+    def test_adds_all_memberships_successfully(
+        self,
+        user_memberships: list[ParsedUserMemberShipInfo],
+        user_lookup: UserNameToIriLookup,
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_user_client: Mock,
+    ) -> None:
+        mock_user_client.add_user_as_project_member.return_value = True
+        mock_user_client.add_user_as_project_admin.return_value = True
+        mock_user_client.add_user_to_custom_groups.return_value = True
+        problems = _add_all_memberships(
+            user_memberships, user_lookup, group_lookup_with_groups, mock_user_client, PROJECT_IRI
+        )
+        assert len(problems) == 0
+        assert mock_user_client.add_user_as_project_member.call_count == 2
+        assert mock_user_client.add_user_as_project_admin.call_count == 1
+        assert mock_user_client.add_user_to_custom_groups.call_count == 2
+
+    def test_skips_users_not_in_lookup(
+        self,
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_user_client: Mock,
+    ) -> None:
+        memberships = [ParsedUserMemberShipInfo(username="nonexistentuser", is_admin=True, groups=["editors"])]
+        empty_lookup = UserNameToIriLookup()
+        problems = _add_all_memberships(
+            memberships, empty_lookup, group_lookup_with_groups, mock_user_client, PROJECT_IRI
+        )
+        assert len(problems) == 0
+        mock_user_client.add_user_as_project_member.assert_not_called()
+        mock_user_client.add_user_as_project_admin.assert_not_called()
+        mock_user_client.add_user_to_custom_groups.assert_not_called()
+
+    def test_handles_membership_failures(
+        self,
+        user_memberships: list[ParsedUserMemberShipInfo],
+        user_lookup: UserNameToIriLookup,
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_user_client: Mock,
+    ) -> None:
+        mock_user_client.add_user_as_project_member.return_value = False
+        mock_user_client.add_user_as_project_admin.return_value = False
+        mock_user_client.add_user_to_custom_groups.return_value = False
+        problems = _add_all_memberships(
+            user_memberships, user_lookup, group_lookup_with_groups, mock_user_client, PROJECT_IRI
+        )
+        assert len(problems) == 5
+        membership_problems = [p for p in problems if p.problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED]
+        admin_problems = [p for p in problems if p.problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED]
+        group_problems = [p for p in problems if p.problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP]
+        assert len(membership_problems) == 2
+        assert len(admin_problems) == 1
+        assert len(group_problems) == 2
+
+    def test_empty_memberships_list(
+        self,
+        user_lookup: UserNameToIriLookup,
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_user_client: Mock,
+    ) -> None:
+        problems = _add_all_memberships(
+            [], user_lookup, group_lookup_with_groups, mock_user_client, PROJECT_IRI
+        )
+        assert len(problems) == 0
+        mock_user_client.add_user_as_project_member.assert_not_called()
+
+
+class TestCreateUsers:
+    def test_creates_users_and_adds_memberships_successfully(
+        self,
+        parsed_users: list[ParsedUser],
+        user_memberships: list[ParsedUserMemberShipInfo],
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_auth: Mock,
+    ) -> None:
+        mock_client = Mock()
+        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.post_new_user.side_effect = ["http://rdfh.ch/users/user1IRI", "http://rdfh.ch/users/user2IRI"]
+        mock_client.add_user_as_project_member.return_value = True
+        mock_client.add_user_as_project_admin.return_value = True
+        mock_client.add_user_to_custom_groups.return_value = True
+        mock_user_client_class = Mock(return_value=mock_client)
+        with patch(
+            "dsp_tools.commands.create.create_on_server.group_users.UserClientLive", mock_user_client_class
+        ):
+            result = create_users(parsed_users, user_memberships, group_lookup_with_groups, mock_auth, PROJECT_IRI)
+        assert result is None
+        mock_user_client_class.assert_called_once_with("http://0.0.0.0:3333", mock_auth)
+
+    def test_returns_problems_when_user_creation_fails(
+        self,
+        parsed_users: list[ParsedUser],
+        user_memberships: list[ParsedUserMemberShipInfo],
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_auth: Mock,
+    ) -> None:
+        mock_client = Mock()
+        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.post_new_user.return_value = None
+        mock_user_client_class = Mock(return_value=mock_client)
+        with patch(
+            "dsp_tools.commands.create.create_on_server.group_users.UserClientLive", mock_user_client_class
+        ):
+            result = create_users(parsed_users, user_memberships, group_lookup_with_groups, mock_auth, PROJECT_IRI)
+        assert isinstance(result, CollectedProblems)
+        assert len(result.problems) == 2
+        assert all(p.problem == ProblemType.USER_COULD_NOT_BE_CREATED for p in result.problems)
+
+    def test_returns_problems_when_membership_addition_fails(
+        self,
+        parsed_users: list[ParsedUser],
+        user_memberships: list[ParsedUserMemberShipInfo],
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_auth: Mock,
+    ) -> None:
+        mock_client = Mock()
+        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.post_new_user.side_effect = ["http://rdfh.ch/users/user1IRI", "http://rdfh.ch/users/user2IRI"]
+        mock_client.add_user_as_project_member.return_value = False
+        mock_client.add_user_as_project_admin.return_value = False
+        mock_client.add_user_to_custom_groups.return_value = False
+        mock_user_client_class = Mock(return_value=mock_client)
+        with patch(
+            "dsp_tools.commands.create.create_on_server.group_users.UserClientLive", mock_user_client_class
+        ):
+            result = create_users(parsed_users, user_memberships, group_lookup_with_groups, mock_auth, PROJECT_IRI)
+        assert isinstance(result, CollectedProblems)
+        assert len(result.problems) > 0
+
+    def test_handles_mixed_success_and_failure(
+        self,
+        parsed_users: list[ParsedUser],
+        user_memberships: list[ParsedUserMemberShipInfo],
+        group_lookup_with_groups: GroupNameToIriLookup,
+        mock_auth: Mock,
+    ) -> None:
+        mock_client = Mock()
+        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.post_new_user.side_effect = [None, "http://rdfh.ch/users/user2IRI"]
+        mock_client.add_user_as_project_member.return_value = True
+        mock_client.add_user_as_project_admin.return_value = True
+        mock_client.add_user_to_custom_groups.return_value = True
+        mock_user_client_class = Mock(return_value=mock_client)
+        with patch(
+            "dsp_tools.commands.create.create_on_server.group_users.UserClientLive", mock_user_client_class
+        ):
+            result = create_users(parsed_users, user_memberships, group_lookup_with_groups, mock_auth, PROJECT_IRI)
+        assert isinstance(result, CollectedProblems)
+        assert len(result.problems) == 1
+        assert result.problems[0].problem == ProblemType.USER_COULD_NOT_BE_CREATED
 
 
 if __name__ == "__main__":

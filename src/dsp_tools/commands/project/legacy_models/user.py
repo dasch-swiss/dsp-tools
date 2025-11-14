@@ -389,20 +389,6 @@ class User(Model):
         return User._make_fromJsonObj(self._con, result["user"])
 
     @staticmethod
-    def getAllUsers(con: Connection) -> list[User]:
-        """
-        Get a list of all users (static method)
-
-        :param con: Connection instance
-        :return: List of users
-        """
-
-        result = con.get(User.ROUTE)
-        if "users" not in result:
-            raise BaseError("Request got no users!")
-        return [User._make_fromJsonObj(con, a) for a in result["users"]]
-
-    @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
         """
         Get a list of all users that belong to a project (static method)

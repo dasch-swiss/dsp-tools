@@ -181,18 +181,18 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
 - **Other API errors**: Raise `FatalNonOkApiResponseCode` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
 
-#### 401 vs 403: Authentication vs Authorization
+### 401 vs 403: Authentication vs Authorization
 
 It's crucial to distinguish between authentication failures (401) and authorization failures (403):
 
-**401 Unauthorized - Authentication Failure**
+#### 401 Unauthorized - Authentication Failure
 
 - **Meaning**: "Who are you?" - The request lacks credentials, or the credentials are invalid/expired
 - **Example error message**: "Please ensure that an account for this email exists and that the password is correct."
 - **Where to handle this**: Only in the authentication client. All other clients depend on the authentication client,
   so it's pointless to handle 401 there.
 
-**403 Forbidden - Authorization Failure**
+#### 403 Forbidden - Authorization Failure
 
 - **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
 - **When to use**: Insufficient role/permissions, project membership required, admin-only actions
@@ -200,7 +200,7 @@ It's crucial to distinguish between authentication failures (401) and authorizat
 - **Where to handle this**: In all clients except the authentication client,
   and except the clients that only access public endpoints.
 
-**Code Examples**
+#### Code Examples
 
 Correct 401 handling (authentication):
 

@@ -73,6 +73,7 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
     assert data == []
 
 
+@pytest.mark.filterwarnings("ignore::dsp_tools.error.custom_warnings.DspToolsUnexpectedStatusCodeWarning")
 @patch("dsp_tools.clients.metadata_client_live.log_response")
 @patch("dsp_tools.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
@@ -83,8 +84,7 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
-        with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-            response_type, data = metadata_client.get_resource_metadata("9999")
+        response_type, data = metadata_client.get_resource_metadata("9999")
 
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []

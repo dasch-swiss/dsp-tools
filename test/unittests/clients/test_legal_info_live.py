@@ -159,6 +159,16 @@ class TestGetEnabledLicenses:
             get_mock.assert_called_once_with(url=params.url, headers=params.headers, timeout=params.timeout)
         assert response.json() == DATA_PAGE_1_OF_1
 
+    def test_insufficient_credentials(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False)
+        mock_response.json.return_value = {}
+        mock_response.headers = {}
+        with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
+            get_mock.return_value = mock_response
+            with pytest.raises(BadCredentialsError):
+                client._get_one_license_page(page_num=1, enabled_only=True)
+
     def test_unknown_status_code(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         mock_response = Mock(status_code=404, ok=False, text="Not Found")

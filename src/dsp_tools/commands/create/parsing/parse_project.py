@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from loguru import logger
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
@@ -22,6 +23,8 @@ from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
+
+load_dotenv()
 
 
 def parse_lists_only(

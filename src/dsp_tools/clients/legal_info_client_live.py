@@ -120,7 +120,7 @@ class LegalInfoClientLive(LegalInfoClient):
             return
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only SystemAdmins or ProjectAdmins can enable licenses. "
+                "Only a SystemAdmin or ProjectAdmin can enable licenses. "
                 "Your permissions are insufficient for this action."
             )
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

@@ -187,21 +187,18 @@ It's crucial to distinguish between authentication failures (401) and authorizat
 
 **401 Unauthorized - Authentication Failure**
 
-- **Meaning**: "Who are you?" - The request lacks valid authentication credentials or the credentials are invalid/expired
-- **When to use**: Invalid username/password, expired token, missing credentials, failed login
-- **Example error messages**:
-    - "Authentication failed. Please check your credentials."
-    - "Login to the API was not successful. Please ensure that your email and password are correct."
-    - "Your session has expired. Please log in again."
+- **Meaning**: "Who are you?" - The request lacks credentials, or the credentials are invalid/expired
+- **Example error message**: "Please ensure that an account for this email exists and that the password is correct."
+- **Where to handle this**: Only in the authentication client. All other clients depend on the authentication client,
+  so it's pointless to handle 401 there.
 
 **403 Forbidden - Authorization Failure**
 
 - **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
 - **When to use**: Insufficient role/permissions, project membership required, admin-only actions
-- **Example error messages**:
-    - "Only a SystemAdmin or ProjectAdmin can create new copyright holders. Your permissions are insufficient for this action."
-    - "You don't have permission to start the ingest process."
-    - "Only SystemAdmins or ProjectAdmins can enable licenses. Your permissions are insufficient for this action."
+- **Example error message**: "Only a SystemAdmin or ProjectAdmin can create new copyright holders."
+- **Where to handle this**: In all clients except the authentication client,
+  and except the clients that only access public endpoints.
 
 **Code Examples**
 
@@ -221,21 +218,6 @@ if response.status_code == HTTPStatus.FORBIDDEN:
         "Your permissions are insufficient for this action."
     )
 ```
-
-Handling both separately when needed:
-
-```python
-if response.status_code == HTTPStatus.UNAUTHORIZED:
-    raise BadCredentialsError("Authentication failed. Please check your credentials.")
-if response.status_code == HTTPStatus.FORBIDDEN:
-    raise BadCredentialsError("You don't have permission to start the ingest process.")
-```
-
-**When Writing Error Messages**
-
-- If the message mentions **"credentials", "login", "password", or "token"** → use **401**
-- If the message mentions **"permissions", "administrator", "member", or "role"** → use **403**
-- If the message says **"insufficient permissions"** or **"only X can do Y"** → use **403**
 
 ## Common Imports
 

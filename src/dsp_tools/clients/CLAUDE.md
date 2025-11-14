@@ -201,7 +201,7 @@ It's crucial to distinguish between authentication failures (401) and authorizat
 - **Example error messages**:
     - "Only a SystemAdmin or ProjectAdmin can create new copyright holders. Your permissions are insufficient for this action."
     - "You don't have permission to start the ingest process."
-    - "Only members of a project or system administrators can enable licenses. Your permissions are insufficient for this action."
+    - "Only SystemAdmins or ProjectAdmins can enable licenses. Your permissions are insufficient for this action."
 
 **Code Examples**
 

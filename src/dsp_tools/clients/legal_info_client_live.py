@@ -93,11 +93,6 @@ class LegalInfoClientLive(LegalInfoClient):
             log_and_raise_request_exception(err)
         if response.ok:
             return response
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError(
-                "Only members of a project or system administrators can request the enabled licenses of a project."
-                "Your permissions are insufficient for this action."
-            )
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def enable_unknown_license(self) -> None:
@@ -125,7 +120,7 @@ class LegalInfoClientLive(LegalInfoClient):
             return
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only members of a project or system administrators can enable licenses. "
+                "Only SystemAdmins or ProjectAdmins can enable licenses. "
                 "Your permissions are insufficient for this action."
             )
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

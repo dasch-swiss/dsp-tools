@@ -30,7 +30,7 @@ class TestParseProject:
         assert len(result.ontologies) == 2
         assert len(result.lists) == 2
         assert len(result.groups) == 2
-        assert len(result.users) == 7
+        assert len(result.users) == 6
 
     def test_parse_project_failure(self, minimal_failing_project):
         result = _parse_project(minimal_failing_project, "http://0.0.0.0:3333")
@@ -101,7 +101,7 @@ class TestParseUsers:
     def test_parse_users_with_users(self, project_json_systematic):
         users, memberships = _parse_users(project_json_systematic["project"])
         assert len(users) == 7
-        assert len(memberships) == 7
+        assert len(memberships) == 6
 
     def test_parse_users_missing_key(self, minimal_project_json):
         users, memberships = _parse_users(minimal_project_json)

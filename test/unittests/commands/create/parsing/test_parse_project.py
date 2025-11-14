@@ -94,7 +94,7 @@ class TestParseGroups:
 
 class TestParseUsers:
     def test_parse_users_empty(self, project_json_create):
-        users, memberships = _parse_users(project_json_create["project"])
+        users, memberships, problems = _parse_users(project_json_create["project"])
         assert len(users) == 3
         assert len(memberships) == 3
         assert not problems

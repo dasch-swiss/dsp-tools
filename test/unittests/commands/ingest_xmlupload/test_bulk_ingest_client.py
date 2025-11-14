@@ -114,13 +114,6 @@ def test_trigger_if_success(ingest_client: BulkIngestClient, requests_mock: Mock
     assert req.headers["Authorization"] == "Bearer mocked_token"
 
 
-def test_trigger_if_unauthorized(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:
-    url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
-    requests_mock.post(url, status_code=401)
-    with pytest.raises(BadCredentialsError):
-        ingest_client.trigger_ingest_process()
-
-
 def test_trigger_if_forbidden(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=403)

@@ -137,15 +137,15 @@ def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMe
     groups = [g.removeprefix(":") for g in user_dict.get("groups", [])]
     pw = user_dict["password"]
     if not pw:
-        default_pw = os.getenv("DSP_USER_PASSWORD")
-        if not default_pw:
+        pw = os.getenv("DSP_USER_PASSWORD")
+        if not pw:
             return InputProblem(user_dict["username"], ProblemType.USER_PASSWORD_NOT_SET)
     usr = ParsedUser(
         username=user_dict["username"],
         email=user_dict["email"],
         given_name=user_dict["givenName"],
         family_name=user_dict["familyName"],
-        password=user_dict["password"],
+        password=pw,
         lang=user_dict.get("lang", "en"),
     )
     memberships = ParsedUserMemberShipInfo(user_dict["username"], is_admin, groups)

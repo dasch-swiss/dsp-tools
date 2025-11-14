@@ -195,7 +195,7 @@ class TestParseUsers:
         parsed_u, parsed_mem = result
         assert isinstance(parsed_u, ParsedUser)
         assert isinstance(parsed_mem, ParsedUserMemberShipInfo)
-        assert parsed_u.password == ""
+        assert parsed_u.password == "env_password"
         assert parsed_u.username == "test_user"
 
     def test_no_password_no_env_var(self, monkeypatch):

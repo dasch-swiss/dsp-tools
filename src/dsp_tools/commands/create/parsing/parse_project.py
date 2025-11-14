@@ -1,9 +1,13 @@
+import os
 from pathlib import Path
 from typing import Any
 
 from loguru import logger
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.input_problems import CreateProblem
+from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
@@ -43,10 +47,12 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)
-    parsed_lists, problems = _parse_lists(project_json)
-    users, memberships = _parse_users(project_json)
-    if isinstance(problems, CollectedProblems):
-        failures.append(problems)
+    parsed_lists, list_problems = _parse_lists(project_json)
+    if list_problems:
+        failures.append(list_problems)
+    users, memberships, user_problems = _parse_users(project_json)
+    if user_problems:
+        failures.append(user_problems)
     if failures:
         return failures
     return ParsedProject(
@@ -98,21 +104,39 @@ def _parse_one_group(group_dict: dict[str, Any]) -> ParsedGroup:
     return ParsedGroup(name=group_dict["name"], descriptions=descriptions)
 
 
-def _parse_users(project_json: dict[str, Any]) -> tuple[list[ParsedUser], list[ParsedUserMemberShipInfo]]:
+def _parse_users(
+    project_json: dict[str, Any],
+) -> tuple[list[ParsedUser], list[ParsedUserMemberShipInfo], CollectedProblems | None]:
     if not (found := project_json.get("users")):
-        return [], []
+        return [], [], None
     users, memberships = [], []
+    input_problems: list[CreateProblem] = []
     for u in found:
-        usr, mbmr = _parse_one_user(u)
-        users.append(usr)
-        memberships.append(mbmr)
-    return users, memberships
+        result = _parse_one_user(u)
+        if isinstance(result, InputProblem):
+            input_problems.append(result)
+        else:
+            usr, mbmr = result
+            users.append(usr)
+            memberships.append(mbmr)
+    if input_problems:
+        problem_collection = CollectedProblems(
+            "When parsing the user section the following problems occurred:", input_problems
+        )
+    else:
+        problem_collection = None
+    return users, memberships, problem_collection
 
 
-def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMemberShipInfo]:
+def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMemberShipInfo] | InputProblem:
     projects = user_dict.get("projects", [])
     is_admin = ":admin" in projects
     groups = [g.removeprefix(":") for g in user_dict.get("groups", [])]
+    pw = user_dict["password"]
+    if not pw:
+        default_pw = os.getenv("DSP_USER_PASSWORD")
+        if not default_pw:
+            return InputProblem(user_dict["username"], ProblemType.USER_PASSWORD_NOT_SET)
     usr = ParsedUser(
         username=user_dict["username"],
         email=user_dict["email"],

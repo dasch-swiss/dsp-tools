@@ -35,6 +35,9 @@ class UploadProblem(CreateProblem): ...
 
 
 class ProblemType(StrEnum):
+    USER_PASSWORD_NOT_SET = (
+        "This user cannot be created as no password is specified and no default password is saved in a .env file."
+    )
     PREFIX_COULD_NOT_BE_RESOLVED = (
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."

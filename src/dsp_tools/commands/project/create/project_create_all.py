@@ -17,6 +17,7 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
+from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
@@ -141,21 +142,17 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
             print_problem_collection(group_problems)
             overall_success = False
 
-    # create or update the users
-    if legacy_project.users:
-        print("Create users...")
-        logger.info("Create users...")
-        success, user_problems = _create_users(
-            con=con,
-            users_section=legacy_project.users,
+    if parsed_project.users:
+        user_problems = create_users(
+            users=parsed_project.users,
+            user_memberships=parsed_project.user_memberships,
             group_lookup=group_lookup,
-            current_project=project_remote,
-            verbose=verbose,
+            auth=auth,
+            project_iri=project_iri,
         )
-        if not success:
-            overall_success = False
         if user_problems:
             print_problem_collection(user_problems)
+            overall_success = False
 
     # create the ontologies
     success = create_ontologies(

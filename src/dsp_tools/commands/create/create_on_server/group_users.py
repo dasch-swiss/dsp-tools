@@ -1,6 +1,7 @@
 from typing import Any
 
 from loguru import logger
+from tqdm import tqdm
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients import GroupClient
@@ -38,7 +39,9 @@ def create_users(
 def _create_all_users(users: list[ParsedUser], client: UserClient) -> tuple[UserNameToIriLookup, list[CreateProblem]]:
     problems: list[CreateProblem] = []
     user_to_iri = UserNameToIriLookup()
-    for usr in users:
+    progress_bar = tqdm(users, desc="    Creating users", dynamic_ncols=True)
+    logger.debug("Creating users")
+    for usr in progress_bar:
         result = _create_one_user(usr, client)
         if result is None:
             problems.append(UploadProblem(usr.username, ProblemType.USER_COULD_NOT_BE_CREATED))
@@ -62,7 +65,9 @@ def _add_all_memberships(
     project_iri: str,
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
-    for memb in memberships:
+    progress_bar = tqdm(memberships, desc="    Updating user information", dynamic_ncols=True)
+    logger.debug("Updating user information")
+    for memb in progress_bar:
         if usr_iri := user_to_iri.get_iri(memb.username):
             result = _add_user_to_project_memberships(memb, usr_iri, project_iri, client)
             problems.extend(result)
@@ -115,7 +120,9 @@ def create_groups(
     group_lookup: GroupNameToIriLookup,
 ) -> tuple[GroupNameToIriLookup, CollectedProblems | None]:
     problems: list[CreateProblem] = []
-    for gr in groups:
+    progress_bar = tqdm(groups, desc="    Creating groups", dynamic_ncols=True)
+    logger.debug("Creating groups")
+    for gr in progress_bar:
         if group_lookup.check_exists(gr.name):
             logger.debug(f"Group with the name '{gr.name}' already exists, skipping.")
             continue

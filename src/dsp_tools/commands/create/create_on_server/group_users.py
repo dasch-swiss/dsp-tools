@@ -18,6 +18,8 @@ from dsp_tools.commands.create.models.server_project_info import GroupNameToIriL
 from dsp_tools.commands.create.models.server_project_info import UserNameToIriLookup
 from dsp_tools.commands.create.serialisation.project import serialise_one_group
 from dsp_tools.commands.create.serialisation.project import serialise_one_user_for_creation
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_users(
@@ -27,6 +29,7 @@ def create_users(
     auth: AuthenticationClient,
     project_iri: str,
 ) -> CollectedProblems | None:
+    print(BOLD + "Processing user section:" + RESET_TO_DEFAULT)
     client = UserClientLive(auth.server, auth)
     user_to_iri, problems = _create_all_users(users, client)
     membership_problems = _add_all_memberships(user_memberships, user_to_iri, group_lookup, client, project_iri)
@@ -120,6 +123,7 @@ def create_groups(
     group_lookup: GroupNameToIriLookup,
 ) -> tuple[GroupNameToIriLookup, CollectedProblems | None]:
     problems: list[CreateProblem] = []
+    print(BOLD + "Processing group section:" + RESET_TO_DEFAULT)
     progress_bar = tqdm(groups, desc="    Creating groups", dynamic_ncols=True)
     logger.debug("Creating groups")
     for gr in progress_bar:

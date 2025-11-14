@@ -372,7 +372,7 @@ class TestCreateOneUser:
         mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
         mock_user_client.post_new_user.assert_called_once()
 
-    def test_returns_existing_user_iri(self, parsed_user_1: ParsedUser, mock_user_client: Mock):
+    def test_returns_existing_user_iri(self, parsed_user_2: ParsedUser, mock_user_client: Mock):
         mock_user_client.get_user_iri_by_username.return_value = USER_2_IRI
         result = _create_one_user(parsed_user_2, mock_user_client)
         assert result == USER_2_IRI

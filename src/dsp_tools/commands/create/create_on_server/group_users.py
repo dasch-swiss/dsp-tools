@@ -67,6 +67,8 @@ def _add_all_memberships(
             problems.extend(_add_one_membership(memb, usr_iri, project_iri, client))
             if memb.groups:
                 problems.extend(_add_user_to_groups(memb, usr_iri, client, group_lookup))
+        else:
+            logger.debug(f"IRI of user '{memb.username}' could not be found, no project membership added.")
     return problems
 
 

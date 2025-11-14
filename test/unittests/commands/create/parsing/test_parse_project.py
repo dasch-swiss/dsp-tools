@@ -97,16 +97,19 @@ class TestParseUsers:
         users, memberships = _parse_users(project_json_create["project"])
         assert len(users) == 3
         assert len(memberships) == 3
+        assert not problems
 
     def test_parse_users_with_users(self, project_json_systematic):
-        users, memberships = _parse_users(project_json_systematic["project"])
-        assert len(users) == 7
+        users, memberships, problems = _parse_users(project_json_systematic["project"])
+        assert len(users) == 6
         assert len(memberships) == 6
+        assert not problems
 
     def test_parse_users_missing_key(self, minimal_project_json):
-        users, memberships = _parse_users(minimal_project_json)
+        users, memberships, problems = _parse_users(minimal_project_json)
         assert len(users) == 0
         assert len(memberships) == 0
+        assert not problems
 
     def test_only_mandatory(self, project_json_create):
         user = project_json_create["project"]["users"][0]

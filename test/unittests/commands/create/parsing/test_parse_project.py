@@ -1,8 +1,12 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from dsp_tools.commands.create.models.input_problems import InputProblem
+from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
+from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologies
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
 from dsp_tools.commands.create.parsing.parse_project import _parse_lists
@@ -149,6 +153,58 @@ class TestParseUsers:
         assert parsed_mem.username == "User_member_and_group"
         assert not parsed_mem.is_admin
         assert parsed_mem.groups == ["testGroup"]
+
+    def test_password_from_user_dict(self, monkeypatch):
+        monkeypatch.setenv("DSP_USER_PASSWORD", "env_password")
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "dict_password",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
+        assert isinstance(parsed_u, ParsedUser)
+        assert isinstance(parsed_mem, ParsedUserMemberShipInfo)
+        assert parsed_u.password == "dict_password"
+        assert parsed_u.username == "test_user"
+        assert parsed_u.email == "test@example.com"
+        assert parsed_u.given_name == "Test"
+        assert parsed_u.family_name == "User"
+        assert parsed_u.lang == "en"
+
+    def test_password_from_env_var(self, monkeypatch):
+        monkeypatch.setenv("DSP_USER_PASSWORD", "env_password")
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
+        assert isinstance(parsed_u, ParsedUser)
+        assert isinstance(parsed_mem, ParsedUserMemberShipInfo)
+        assert parsed_u.password == ""
+        assert parsed_u.username == "test_user"
+
+    def test_no_password_no_env_var(self, monkeypatch):
+        monkeypatch.delenv("DSP_USER_PASSWORD", raising=False)
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, InputProblem)
+        assert result.problematic_object == "test_user"
+        assert result.problem == ProblemType.USER_PASSWORD_NOT_SET
 
 
 class TestParseLists:

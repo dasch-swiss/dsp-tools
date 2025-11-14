@@ -32,7 +32,7 @@ def get_validation_report(
         dir_to_save_graphs = tmp_path.parent / "validation-graphs"
         msg = (
             f"An error occurred during the data validation. "
-            f"Please contact the dsp-tools development team (at info@dasch.swiss) "
+            f"Please contact the dsp-tools development team (at support@dasch.swiss) "
             f"with your log files and the files in the directory: {dir_to_save_graphs}"
         )
         raise ShaclValidationError(msg) from None

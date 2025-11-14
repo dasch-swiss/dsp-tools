@@ -52,7 +52,7 @@ def validate_ontology(
         save_graph_dir = tmp_path.parent / "validation-graphs"
         msg = (
             f"An error occurred during the ontology validation. "
-            f"Please contact the dsp-tools development team (at info@dasch.swiss) "
+            f"Please contact the dsp-tools development team (at support@dasch.swiss) "
             f"with your log files and the files in the directory: {save_graph_dir}"
         )
         raise ShaclValidationError(msg) from None

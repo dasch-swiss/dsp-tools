@@ -24,7 +24,7 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
     msg = (
         f"The xmlupload caused the database to use {rounded} GB disk space. "
         f"Please check that your test server has enough disk space for an upload. "
-        f"If you have any questions contact the dsp-tools developers at info@dasch.swiss."
+        f"If you have any questions contact the dsp-tools developers at support@dasch.swiss."
     )
     match bloating_level:
         case FusekiBloatingLevel.OK:
@@ -38,7 +38,7 @@ def communicate_fuseki_bloating(fuseki_metrics: FusekiMetrics) -> None:
         case FusekiBloatingLevel.CALCULATION_FAILURE:
             msg = (
                 "The database bloating size could not be calculated. "
-                f"Please contact the dsp-tools developers (at info@dasch.swiss) "
+                f"Please contact the dsp-tools developers (at support@dasch.swiss) "
                 f"with your logs saved at {LOGGER_SAVEPATH}."
             )
             print(f"{BACKGROUND_BOLD_RED}{msg}{RESET_TO_DEFAULT}")

@@ -113,8 +113,8 @@ class DspIngestClientLive(AssetClient):
 
             if res.ok:
                 return IngestResponse(internal_filename=res.json()["internalFilename"])
-            elif res.status_code == HTTPStatus.UNAUTHORIZED:
-                raise BadCredentialsError("You do not have sufficient credentials to upload assets.")
+            elif res.status_code == HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError("Only SystemAdmins and ProjectAdmins can upload assets.")
             elif res.status_code == HTTPStatus.BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
                 raise InvalidIngestFileNameError()
             else:

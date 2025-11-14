@@ -115,7 +115,7 @@ class ListCreateClientLive(ListCreateClient):
             return list_iri
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only a project or system administrator can create lists. "
+                "Only a SystemAdmin or ProjectAdmin can create lists. "
                 "Your permissions are insufficient for this action."
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
@@ -136,7 +136,7 @@ class ListCreateClientLive(ListCreateClient):
             return node_iri
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only a project or system administrator can add nodes to lists. "
+                "Only a SystemAdmin or ProjectAdmin can add nodes to lists. "
                 "Your permissions are insufficient for this action."
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)

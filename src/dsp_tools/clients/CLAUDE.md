@@ -113,8 +113,11 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     if response.ok:
         return response
 
-    if response.status_code==HTTPStatus.FORBIDDEN:
-        raise BadCredentialsError("Descriptive error message")
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError(
+            "Only a SystemAdmin or ProjectAdmin can do ... "
+            "Your permissions are insufficient for this action.."
+        )
 
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
@@ -155,7 +158,7 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
         return resource_iri
 
     # 6. Handle specific known error cases
-    if response.status_code==HTTPStatus.FORBIDDEN:
+    if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("You don't have permission to create resources in this project.")
 
     # 7. Handle unexpected errors non-fatally
@@ -177,6 +180,44 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
 - **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
 - **Other API errors**: Raise `FatalNonOkApiResponseCode` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
+
+### 401 vs 403: Authentication vs Authorization
+
+It's crucial to distinguish between authentication failures (401) and authorization failures (403):
+
+#### 401 Unauthorized - Authentication Failure
+
+- **Meaning**: "Who are you?" - The request lacks credentials, or the credentials are invalid/expired
+- **Example error message**: "Please ensure that an account for this email exists and that the password is correct."
+- **Where to handle this**: Only in the authentication client. All other clients depend on the authentication client,
+  so it's pointless to handle 401 there.
+
+#### 403 Forbidden - Authorization Failure
+
+- **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
+- **When to use**: Insufficient role/permissions, project membership required, admin-only actions
+- **Example error message**: "Only a SystemAdmin or ProjectAdmin can create new copyright holders."
+- **Where to handle this**: In all clients except the authentication client,
+  and except the clients that only access public endpoints.
+
+#### Code Examples
+
+Correct 401 handling (authentication):
+
+```python
+if response.status_code == HTTPStatus.UNAUTHORIZED:
+    raise BadCredentialsError("Authentication failed. Please check your credentials.")
+```
+
+Correct 403 handling (authorization):
+
+```python
+if response.status_code == HTTPStatus.FORBIDDEN:
+    raise BadCredentialsError(
+        "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
+        "Your permissions are insufficient for this action."
+    )
+```
 
 ## Common Imports
 
@@ -367,10 +408,8 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code==HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError(
-                "You don't have permission to access user information."
-            )
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to access user information.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
 

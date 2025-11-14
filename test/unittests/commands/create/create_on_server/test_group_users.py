@@ -7,8 +7,8 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.commands.create.create_on_server.group_users import _add_all_memberships
-from dsp_tools.commands.create.create_on_server.group_users import _add_one_membership
-from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_groups
+from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_custom_groups
+from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_project_memberships
 from dsp_tools.commands.create.create_on_server.group_users import _construct_group_lookup
 from dsp_tools.commands.create.create_on_server.group_users import _create_all_users
 from dsp_tools.commands.create.create_on_server.group_users import _create_one_group
@@ -432,7 +432,7 @@ class TestAddOneMembership:
         self, user_membership_regular: ParsedUserMemberShipInfo, mock_user_client: Mock
     ):
         mock_user_client.add_user_as_project_member.return_value = True
-        problems = _add_one_membership(user_membership_regular, USER_2_IRI, PROJECT_IRI, mock_user_client)
+        problems = _add_user_to_project_memberships(user_membership_regular, USER_2_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 0
         mock_user_client.add_user_as_project_member.assert_called_once_with(USER_2_IRI, PROJECT_IRI)
         mock_user_client.add_user_as_project_admin.assert_not_called()
@@ -442,7 +442,7 @@ class TestAddOneMembership:
     ):
         mock_user_client.add_user_as_project_member.return_value = True
         mock_user_client.add_user_as_project_admin.return_value = True
-        problems = _add_one_membership(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
+        problems = _add_user_to_project_memberships(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 0
         mock_user_client.add_user_as_project_member.assert_called_once_with(USER_1_IRI, PROJECT_IRI)
         mock_user_client.add_user_as_project_admin.assert_called_once_with(USER_1_IRI, PROJECT_IRI)
@@ -451,7 +451,7 @@ class TestAddOneMembership:
         self, user_membership_regular: ParsedUserMemberShipInfo, mock_user_client: Mock
     ):
         mock_user_client.add_user_as_project_member.return_value = False
-        problems = _add_one_membership(user_membership_regular, USER_2_IRI, PROJECT_IRI, mock_user_client)
+        problems = _add_user_to_project_memberships(user_membership_regular, USER_2_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser2"
         assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
@@ -461,7 +461,7 @@ class TestAddOneMembership:
     ):
         mock_user_client.add_user_as_project_member.return_value = True
         mock_user_client.add_user_as_project_admin.return_value = False
-        problems = _add_one_membership(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
+        problems = _add_user_to_project_memberships(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
         assert problems[0].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
@@ -471,7 +471,7 @@ class TestAddOneMembership:
     ):
         mock_user_client.add_user_as_project_member.return_value = False
         mock_user_client.add_user_as_project_admin.return_value = False
-        problems = _add_one_membership(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
+        problems = _add_user_to_project_memberships(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 2
         assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
         assert problems[1].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
@@ -485,7 +485,9 @@ class TestAddUserToGroups:
         group_lookup_with_groups: GroupNameToIriLookup,
     ):
         mock_user_client.add_user_to_custom_groups.return_value = True
-        problems = _add_user_to_groups(user_membership_admin, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(
+            user_membership_admin, USER_1_IRI, mock_user_client, group_lookup_with_groups
+        )
         assert len(problems) == 0
         mock_user_client.add_user_to_custom_groups.assert_called_once_with(
             USER_1_IRI,
@@ -499,14 +501,16 @@ class TestAddUserToGroups:
         group_lookup_with_groups: GroupNameToIriLookup,
     ):
         mock_user_client.add_user_to_custom_groups.return_value = False
-        problems = _add_user_to_groups(user_membership_admin, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(
+            user_membership_admin, USER_1_IRI, mock_user_client, group_lookup_with_groups
+        )
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
         assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
 
     def test_handles_groups_not_found(self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup):
         membership = ParsedUserMemberShipInfo(username="testuser1", is_admin=False, groups=["nonexistent"])
-        problems = _add_user_to_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
         assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
@@ -519,7 +523,7 @@ class TestAddUserToGroups:
             username="testuser1", is_admin=False, groups=["editors", "nonexistent", "readers"]
         )
         mock_user_client.add_user_to_custom_groups.return_value = True
-        problems = _add_user_to_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 1
         assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
         mock_user_client.add_user_to_custom_groups.assert_called_once_with(
@@ -529,7 +533,7 @@ class TestAddUserToGroups:
 
     def test_handles_no_groups(self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup):
         membership = ParsedUserMemberShipInfo(username="testuser1", is_admin=False, groups=[])
-        problems = _add_user_to_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 0
         mock_user_client.add_user_to_custom_groups.assert_not_called()
 
@@ -538,7 +542,7 @@ class TestAddUserToGroups:
     ):
         membership = ParsedUserMemberShipInfo(username="testuser1", is_admin=False, groups=["editors", "nonexistent"])
         mock_user_client.add_user_to_custom_groups.return_value = False
-        problems = _add_user_to_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
+        problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 2
         assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
         assert problems[1].problem == ProblemType.USER_GROUPS_NOT_FOUND

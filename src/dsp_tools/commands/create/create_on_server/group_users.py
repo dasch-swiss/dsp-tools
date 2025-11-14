@@ -64,15 +64,15 @@ def _add_all_memberships(
     problems: list[CreateProblem] = []
     for memb in memberships:
         if usr_iri := user_to_iri.get_iri(memb.username):
-            problems.extend(_add_one_membership(memb, usr_iri, project_iri, client))
+            problems.extend(_add_user_to_project_memberships(memb, usr_iri, project_iri, client))
             if memb.groups:
-                problems.extend(_add_user_to_groups(memb, usr_iri, client, group_lookup))
+                problems.extend(_add_user_to_custom_groups(memb, usr_iri, client, group_lookup))
         else:
             logger.debug(f"IRI of user '{memb.username}' could not be found, no project membership added.")
     return problems
 
 
-def _add_one_membership(
+def _add_user_to_project_memberships(
     membership: ParsedUserMemberShipInfo, user_iri: str, project_iri: str, client: UserClient
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
@@ -86,7 +86,7 @@ def _add_one_membership(
     return problems
 
 
-def _add_user_to_groups(
+def _add_user_to_custom_groups(
     membership: ParsedUserMemberShipInfo, user_iri: str, client: UserClient, group_lookup: GroupNameToIriLookup
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []

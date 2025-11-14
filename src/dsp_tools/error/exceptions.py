@@ -29,7 +29,7 @@ class InternalError(BaseError):
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
-            "Please contact the dsp-tools development team (at info@dasch.swiss) with the following information:\n"
+            "Please contact the dsp-tools development team (at support@dasch.swiss) with the following information:\n"
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
@@ -79,7 +79,7 @@ class FatalNonOkApiResponseCode(BaseError):
             f"Status code: {status_code}\n"
             f"Request URL: {request_url}\n"
             f"Original Response: {resp_txt}\n"
-            f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
+            f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
         )
         super().__init__(msg)
 

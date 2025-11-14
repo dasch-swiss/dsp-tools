@@ -22,7 +22,7 @@ class ShaclCliValidator:
             logger.error(e)
             msg = (
                 "Data validation requires Docker. Is your Docker Desktop Application open? "
-                "If it is, please contact the DSP-TOOLS development team (at info@dasch.swiss) "
+                "If it is, please contact the DSP-TOOLS development team (at support@dasch.swiss) "
                 f"with the log file at {LOGGER_SAVEPATH}."
             )
             logger.error(msg)

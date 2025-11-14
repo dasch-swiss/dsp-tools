@@ -117,7 +117,9 @@ class TestParseUsers:
 
     def test_only_mandatory(self, project_json_create):
         user = project_json_create["project"]["users"][0]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "user_only_mandatory"
         assert parsed_u.email == "user-1@test.org"
         assert parsed_u.given_name == "user"
@@ -130,7 +132,9 @@ class TestParseUsers:
 
     def test_admin(self, project_json_create):
         user = project_json_create["project"]["users"][1]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "User_admin"
         assert parsed_u.email == "user-2@test.org"
         assert parsed_u.given_name == "user"
@@ -143,7 +147,9 @@ class TestParseUsers:
 
     def test_with_group(self, project_json_create):
         user = project_json_create["project"]["users"][2]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "User_member_and_group"
         assert parsed_u.email == "user-3@test.org"
         assert parsed_u.given_name == "user"

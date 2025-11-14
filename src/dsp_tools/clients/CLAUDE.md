@@ -408,8 +408,6 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
-            raise BadCredentialsError("Authentication failed. Please check your credentials.")
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to access user information.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

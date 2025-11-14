@@ -79,7 +79,7 @@ Live clients typically include:
 There are two main patterns, in some cases the code cannot continue if a request is not successful, see pattern 1.
 If the code may continue even if the request is not successful, then `None` will be returned, see pattern 2.
 
-In most cases `HTTPStatus.UNAUTHORIZED` will mean that a `BadCredentialsError` will be raised
+In most cases `HTTPStatus.FORBIDDEN` will mean that a `BadCredentialsError` will be raised
 
 Pattern 1: If the request is not successfully, then an error is raised.
 
@@ -113,8 +113,11 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     if response.ok:
         return response
 
-    if response.status_code == HTTPStatus.UNAUTHORIZED:
-        raise BadCredentialsError("Authentication failed. Please check your credentials.")
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError(
+            "Only a SystemAdmin or ProjectAdmin can do ... "
+            "Your permissions are insufficient for this action.."
+        )
 
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
@@ -187,18 +190,18 @@ It's crucial to distinguish between authentication failures (401) and authorizat
 - **Meaning**: "Who are you?" - The request lacks valid authentication credentials or the credentials are invalid/expired
 - **When to use**: Invalid username/password, expired token, missing credentials, failed login
 - **Example error messages**:
-  - "Authentication failed. Please check your credentials."
-  - "Login to the API was not successful. Please ensure that your email and password are correct."
-  - "Your session has expired. Please log in again."
+    - "Authentication failed. Please check your credentials."
+    - "Login to the API was not successful. Please ensure that your email and password are correct."
+    - "Your session has expired. Please log in again."
 
 **403 Forbidden - Authorization Failure**
 
 - **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
 - **When to use**: Insufficient role/permissions, project membership required, admin-only actions
 - **Example error messages**:
-  - "Only a project or system administrator can create new copyright holders. Your permissions are insufficient for this action."
-  - "You don't have permission to start the ingest process."
-  - "Only members of a project or system administrators can enable licenses. Your permissions are insufficient for this action."
+    - "Only a SystemAdmin or ProjectAdmin can create new copyright holders. Your permissions are insufficient for this action."
+    - "You don't have permission to start the ingest process."
+    - "Only members of a project or system administrators can enable licenses. Your permissions are insufficient for this action."
 
 **Code Examples**
 
@@ -214,7 +217,7 @@ Correct 403 handling (authorization):
 ```python
 if response.status_code == HTTPStatus.FORBIDDEN:
     raise BadCredentialsError(
-        "Only a project or system administrator can create new copyright holders. "
+        "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
         "Your permissions are insufficient for this action."
     )
 ```
@@ -233,16 +236,6 @@ if response.status_code == HTTPStatus.FORBIDDEN:
 - If the message mentions **"credentials", "login", "password", or "token"** → use **401**
 - If the message mentions **"permissions", "administrator", "member", or "role"** → use **403**
 - If the message says **"insufficient permissions"** or **"only X can do Y"** → use **403**
-
-**Special Case: Silent Handling**
-
-In some non-critical cases (e.g., metadata retrieval), both 401 and 403 can be handled silently:
-
-```python
-if response.status_code not in [HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN]:
-    log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-return None
-```
 
 ## Common Imports
 

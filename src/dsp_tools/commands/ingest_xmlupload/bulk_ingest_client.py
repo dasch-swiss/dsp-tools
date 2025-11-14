@@ -117,7 +117,7 @@ class BulkIngestClient:
         if res.status_code == STATUS_UNAUTHORIZED:
             raise BadCredentialsError("Authentication failed. Please check your credentials.")
         if res.status_code == STATUS_FORBIDDEN:
-            raise BadCredentialsError("You don't have permission to start the ingest process.")
+            raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
         if res.status_code == STATUS_NOT_FOUND:
             raise InputError(
                 f"No assets have been uploaded for project {self.shortcode}. "

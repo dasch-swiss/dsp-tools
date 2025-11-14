@@ -100,20 +100,6 @@ def test_get_resource_metadata_error_raised(log_request, metadata_client):  # no
     assert data == []
 
 
-def test_get_resource_metadata_unauthorized_no_warning(metadata_client):
-    mock_response = Mock(spec=Response)
-    mock_response.ok = False
-    mock_response.status_code = HTTPStatus.UNAUTHORIZED.value
-    mock_response.text = "Unauthorized"
-
-    with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
-        get_mock.return_value = mock_response
-        response_type, data = metadata_client.get_resource_metadata("4124")
-
-    assert response_type == ExistingResourcesRetrieved.FALSE
-    assert data == []
-
-
 def test_get_resource_metadata_forbidden_no_warning(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = False

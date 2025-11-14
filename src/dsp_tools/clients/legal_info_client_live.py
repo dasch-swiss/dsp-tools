@@ -37,7 +37,7 @@ class LegalInfoClientLive(LegalInfoClient):
             return
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only a project or system administrator can create new copyright holders. "
+                "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
                 "Your permissions are insufficient for this action."
             )
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

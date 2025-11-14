@@ -55,7 +55,7 @@ class GroupClientLive(GroupClient):
             return cast(str, result["group"]["id"])
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only a project or system administrator can create groups. "
+                "Only a SystemAdmin or ProjectAdmin can create groups. "
                 "Your permissions are insufficient for this action."
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)

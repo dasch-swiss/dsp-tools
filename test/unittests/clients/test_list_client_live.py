@@ -239,7 +239,7 @@ class TestListCreateClient:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
+            with pytest.raises(BadCredentialsError, match="Only a SystemAdmin or ProjectAdmin"):
                 list_create_client.create_new_list(list_info)
 
     def test_create_new_list_timeout(self, list_create_client: ListCreateClientLive) -> None:
@@ -304,7 +304,7 @@ class TestListCreateClient:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.list_client_live.requests.post", return_value=mock_response):
-            with pytest.raises(BadCredentialsError, match="Only a project or system administrator"):
+            with pytest.raises(BadCredentialsError, match="Only a SystemAdmin or ProjectAdmin"):
                 list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
     def test_add_list_node_timeout(self, list_create_client: ListCreateClientLive) -> None:

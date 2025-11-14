@@ -48,3 +48,8 @@ class ProblemType(StrEnum):
         "The group that this user should be added to doesn't exist. "
         "Please note that only groups from this project can be referenced."
     )
+    USER_COULD_NOT_BE_CREATED = "The user could not be created."
+    PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED = "The user could not be added as project member."
+    PROJECT_ADMIN_COULD_NOT_BE_ADDED = "The user could not be added as project admin."
+    USER_COULD_NOT_BE_ADDED_TO_GROUP = "The user could not be added to some or all of the custom groups."
+    USER_GROUPS_NOT_FOUND = "The user could not be added to the groups because they do not exist on the server."

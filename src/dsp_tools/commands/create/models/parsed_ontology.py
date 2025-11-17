@@ -46,10 +46,23 @@ class ParsedProperty:
     labels: Labels
     comments: Comments
     supers: Supers
-    object: str
+    object: KnoraObjectType | str
     subject: str | None
     gui_element: GuiElement
     list_iri: str
+
+
+class KnoraObjectType(StrEnum):
+    BOOLEAN = f"{KNORA_API_STR}BooleanValue"
+    COLOR = f"{KNORA_API_STR}ColorValue"
+    DATE = f"{KNORA_API_STR}DateValue"
+    DECIMAL = f"{KNORA_API_STR}DecimalValue"
+    GEONAME = f"{KNORA_API_STR}GeonameValue"
+    INT = f"{KNORA_API_STR}IntValue"
+    LIST = f"{KNORA_API_STR}ListValue"
+    TEXT = f"{KNORA_API_STR}TextValue"
+    TIME = f"{KNORA_API_STR}TimeValue"
+    URI = f"{KNORA_API_STR}UriValue"
 
 
 class GuiElement(StrEnum):

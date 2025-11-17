@@ -13,7 +13,6 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 
 CARDINALITY_MAPPER = {
@@ -51,13 +50,11 @@ GUI_ELEMENT_MAPPER = {
 }
 
 
-def parse_ontology(
-    ontology_json: dict[str, Any], prefixes: dict[str, str], list_name_to_iri: ListNameToIriLookup
-) -> ParsedOntology | CollectedProblems:
+def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> ParsedOntology | CollectedProblems:
     onto_name = ontology_json["name"]
     current_onto = prefixes[onto_name]
     fails = []
-    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes, list_name_to_iri)
+    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes)
     fails.extend(prop_fails)
     classes, cls_fails = _parse_classes(ontology_json["resources"], current_onto)
     fails.extend(cls_fails)
@@ -81,21 +78,20 @@ def _parse_properties(
     properties_list: list[dict[str, Any]],
     current_onto_prefix: str,
     prefixes: dict[str, str],
-    list_name_to_iri: ListNameToIriLookup,
 ) -> tuple[list[ParsedProperty], list[CreateProblem]]:
     problems: list[CreateProblem] = []
     parsed = []
     for prop in properties_list:
-        result = _parse_one_property(prop, current_onto_prefix, prefixes, list_name_to_iri)
+        result = _parse_one_property(prop, current_onto_prefix, prefixes)
         if isinstance(result, ParsedProperty):
             parsed.append(result)
         else:
-            problems.append(result)
+            problems.extend(result)
     return parsed, problems
 
 
 def _parse_one_property(
-    prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str], list_name_to_iri: ListNameToIriLookup
+    prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedProperty | list[CreateProblem]:
     problems = []
     prop_name = f"{current_onto_prefix}{prop['name']}"
@@ -139,11 +135,9 @@ def _parse_one_property(
             )
         subject = resolved_subject
 
-    list_iri = None
+    list_name = None
     if object_value == KnoraObjectType.LIST:
         list_name = prop["gui_attributes"]["hlist"]
-        if not (list_iri := list_name_to_iri.get_iri(list_name)):
-            problems.append(InputProblem(prop["name"], ProblemType.REFERENCED_LIST_DOES_NOT_EXIST))
 
     if problems:
         return problems
@@ -155,7 +149,7 @@ def _parse_one_property(
         object=object_value,
         subject=subject,
         gui_element=gui_element,
-        list_iri=list_iri,
+        list_iri=list_name,
     )
 
 

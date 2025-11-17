@@ -20,11 +20,11 @@ from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
 class TestParseOntology:
-    def test_good(self, onto_json, prefixes):
-        result = parse_ontology(onto_json, prefixes)
+    def test_good(self, onto_json, prefixes, list_name_to_iri):
+        result = parse_ontology(onto_json, prefixes, list_name_to_iri)
         assert isinstance(result, ParsedOntology)
 
-    def test_fail(self, prefixes):
+    def test_fail(self, prefixes, list_name_to_iri):
         onto_wrong = {
             "name": "onto",
             "label": "Ontology",
@@ -38,7 +38,7 @@ class TestParseOntology:
                 }
             ],
         }
-        result = parse_ontology(onto_wrong, prefixes)
+        result = parse_ontology(onto_wrong, prefixes, list_name_to_iri)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 1
 

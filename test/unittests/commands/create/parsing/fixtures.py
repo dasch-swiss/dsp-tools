@@ -28,7 +28,13 @@ def prefixes() -> dict[str, str]:
 
 @pytest.fixture
 def list_name_to_iri() -> ListNameToIriLookup:
-    return ListNameToIriLookup({"node_name": LIST_IRI})
+    return ListNameToIriLookup(
+        {
+            "node_name": LIST_IRI,
+            "firstList": "http://rdfh.ch/lists/0003/firstList",
+            "secondList": "http://rdfh.ch/lists/0003/secondList",
+        }
+    )
 
 
 @pytest.fixture

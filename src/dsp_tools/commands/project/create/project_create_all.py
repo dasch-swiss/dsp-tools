@@ -1,11 +1,9 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
-import os
 from pathlib import Path
 from typing import Any
 from typing import cast
-from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from loguru import logger
@@ -17,15 +15,11 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
+from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
-from dsp_tools.commands.create.models.input_problems import UploadProblem
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
@@ -33,13 +27,10 @@ from dsp_tools.commands.project.create.project_create_default_permissions import
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidInputError
-from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
@@ -141,21 +132,17 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
             print_problem_collection(group_problems)
             overall_success = False
 
-    # create or update the users
-    if legacy_project.users:
-        print("Create users...")
-        logger.info("Create users...")
-        success, user_problems = _create_users(
-            con=con,
-            users_section=legacy_project.users,
+    if parsed_project.users:
+        user_problems = create_users(
+            users=parsed_project.users,
+            user_memberships=parsed_project.user_memberships,
             group_lookup=group_lookup,
-            current_project=project_remote,
-            verbose=verbose,
+            auth=auth,
+            project_iri=project_iri,
         )
-        if not success:
-            overall_success = False
         if user_problems:
             print_problem_collection(user_problems)
+            overall_success = False
 
     # create the ontologies
     success = create_ontologies(
@@ -257,211 +244,3 @@ def _create_project_on_server(
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success
-
-
-def _create_users(
-    con: Connection,
-    users_section: list[dict[str, str]],
-    group_lookup: GroupNameToIriLookup,
-    current_project: Project,
-    verbose: bool,
-) -> tuple[bool, CollectedProblems | None]:
-    """
-    Creates users on a DSP server from the "users" section of a JSON project file.
-    If a user cannot be created, a warning is printed and the user is skipped.
-
-    Args:
-        con: connection instance to connect to the DSP server
-        users_section: "users" section of a parsed JSON project file
-        group_lookup: groups defined in the current project
-        current_project: "project" object of the current project (must exist on DSP server)
-        verbose: Prints more information if set to True
-
-    Returns:
-        True if all users could be created without any problems. False if a warning/error occurred.
-    """
-    group_problems: list[CreateProblem] = []
-    overall_success = True
-    all_users = User.getAllUsers(con)
-    for json_user_definition in users_section:
-        username = json_user_definition["username"]
-
-        group_iris = set()
-        if found_groups := json_user_definition.get("groups"):
-            for gr in found_groups:
-                gr_name = gr.removeprefix(":")
-                if gr_found := group_lookup.get_iri(gr_name):
-                    group_iris.add(gr_found)
-                else:
-                    group_problems.append(
-                        UploadProblem(f"User: '{username}' / Group: '{gr}'", ProblemType.GROUP_NOT_FOUND)
-                    )
-
-        project_info, success = _get_projects_where_user_is_admin(
-            json_user_definition=json_user_definition,
-            current_project=current_project,
-            con=con,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
-
-        if existing_user := next((user for user in all_users if user.username == username), None):
-            _add_user_to_groups_and_project(existing_user, project_info, group_iris, con, current_project)
-            continue
-
-        # create the user
-        user_name = json_user_definition["username"]
-        pw = json_user_definition["password"]
-        if not pw:
-            default_pw = os.getenv("DSP_USER_PASSWORD")
-            if not default_pw:
-                print(
-                    f"    User with the user name '{user_name}' could not be created "
-                    f"as no password is specified and no default password is saved in a .env file."
-                )
-                overall_success = False
-                continue
-            else:
-                pw = str(default_pw)
-        user_local = User(
-            con=con,
-            username=user_name,
-            email=json_user_definition["email"],
-            givenName=json_user_definition["givenName"],
-            familyName=json_user_definition["familyName"],
-            password=pw,
-            status=bool(json_user_definition.get("status", True)),
-            lang=json_user_definition.get("lang", "en"),
-            in_projects=project_info,
-            in_groups=group_iris,
-        )
-        try:
-            user_local.create()
-            print(f"    Created user '{username}'.")
-            logger.info(f"Created user '{username}'.")
-        except BaseError:
-            print(f"    WARNING: Unable to create user '{username}'.")
-            logger.exception(f"Unable to create user '{username}'.")
-            overall_success = False
-    if group_problems:
-        probs = CollectedProblems("During the creation of the users the following problems occurred:", group_problems)
-        return False, probs
-    return overall_success, None
-
-
-def _add_user_to_groups_and_project(
-    user: User,
-    project_info: dict[str, bool],
-    group_iris: set[str],
-    con: Connection,
-    current_project: Project,
-) -> None:
-    if str(current_project.iri) not in project_info:
-        if group_iris:
-            err_msg = "Existing user cannot be added to groups, because they are not a member of this project."
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-        return
-    is_admin = project_info[str(current_project.iri)]
-    user_iri_quoted = quote_plus(str(user.iri))
-    project_iri_quoted = quote_plus(str(current_project.iri))
-    try:
-        con.post(f"/admin/users/iri/{user_iri_quoted}/project-memberships/{project_iri_quoted}")
-        if is_admin:
-            con.post(f"/admin/users/iri/{user_iri_quoted}/project-admin-memberships/{project_iri_quoted}")
-        print(f"    Added existing user '{user.username}' to project.")
-        logger.info(f"Added existing user '{user.username}' to project.")
-    except (PermanentConnectionError, InvalidInputError):
-        err_msg = (
-            f"Existing user '{user.username}' could not be added to project. "
-            f"Please manually add this user to the project in DSP-APP."
-        )
-        print(f"    WARNING: {err_msg}")
-        logger.exception(err_msg)
-
-    for group_iri in group_iris:
-        try:
-            con.post(f"/admin/users/iri/{user_iri_quoted}/group-memberships/{quote_plus(group_iri)}")
-            print(f"    Added existing user '{user.username}' to group {group_iri}.")
-            logger.info(f"Added existing user '{user.username}' to group {group_iri}.")
-        except (PermanentConnectionError, InvalidInputError):
-            err_msg = (
-                f"Existing user '{user.username}' could not be added to group {group_iri}.\n"
-                f"Please manually add this user to the group in DSP-APP."
-            )
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-
-
-def _get_projects_where_user_is_admin(
-    json_user_definition: dict[str, str],
-    current_project: Project,
-    con: Connection,
-    verbose: bool,
-) -> tuple[dict[str, bool], bool]:
-    """
-    Create a dict that tells for every project if the user is administrator in that project or not.
-
-    Args:
-        json_user_definition: the section of the JSON file that defines a user
-        current_project: the Project object
-        con: connection to the DSP server
-        verbose: verbose switch
-
-    Returns:
-        a tuple consisting of a dict in the form {project IRI: isAdmin}, and the success status
-    """
-    success = True
-    username = json_user_definition["username"]
-    project_info: dict[str, bool] = {}
-    remote_projects: list[Project] = []
-    for full_project_name in json_user_definition.get("projects", []):
-        # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
-        if ":" not in full_project_name:
-            err_msg = "Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
-            print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg)
-            success = False
-            continue
-
-        project_name, project_role = full_project_name.split(":")
-        if not project_name:
-            # full_project_name refers to the current project
-            in_project = current_project
-        else:
-            # full_project_name refers to an already existing project on DSP
-            try:
-                # "remote_projects" might be available from a previous loop cycle
-                remote_projects = remote_projects or current_project.getAllProjects(con=con)
-            except BaseError:
-                err_msg = (
-                    f"User '{username}' cannot be added to the projects {json_user_definition['projects']} "
-                    f"because the projects cannot be retrieved from the DSP server."
-                )
-                print(f"    WARNING: {err_msg}")
-                logger.exception(err_msg)
-                success = False
-                continue
-            in_project_list = [p for p in remote_projects if p.shortname == project_name]
-            if not in_project_list:
-                msg = f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
-                print(f"    WARNING: {msg}")
-                logger.warning(msg)
-                success = False
-                continue
-            in_project = in_project_list[0]
-
-        is_admin = project_role == "admin"
-        match project_info.get(str(in_project.iri)):
-            case None:  # user hasn't yet been registered as admin/member of this project
-                project_info[str(in_project.iri)] = is_admin
-            case True:  # user has already been registered as **admin** of this project
-                pass  # leave previous admin/member status untouched
-            case False:  # user has already been registered as **member** of this project
-                project_info[str(in_project.iri)] = is_admin  # overwrite previous admin/member status
-        if verbose:
-            print(f"    Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
-        logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
-
-    return project_info, success

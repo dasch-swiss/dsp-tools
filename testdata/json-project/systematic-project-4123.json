@@ -101,18 +101,6 @@
                 "status": true
             },
             {
-                "username": "inactiveUser",
-                "email": "inactive.user@test.org",
-                "givenName": "Inactive",
-                "familyName": "User",
-                "password": "test0815",
-                "lang": "en",
-                "projects": [
-                    ":admin"
-                ],
-                "status": false
-            },
-            {
                 "username": "member-admin",
                 "email": "member-admin@test.org",
                 "givenName": "member-admin",

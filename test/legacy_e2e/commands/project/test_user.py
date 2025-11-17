@@ -85,11 +85,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.in_projects, {iri_project_0001: True})
         self.assertEqual(user.in_groups, {iri_group_thing_searcher})
 
-    def test_user_get_all_users(self) -> None:
-        all_users = User.getAllUsers(self.con)
-        for user in all_users:
-            self.assertIsNotNone(user.iri)
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

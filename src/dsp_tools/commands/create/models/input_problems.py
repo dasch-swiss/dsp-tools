@@ -52,3 +52,6 @@ class ProblemType(StrEnum):
     PROJECT_ADMIN_COULD_NOT_BE_ADDED = "The user could not be added as project admin."
     USER_COULD_NOT_BE_ADDED_TO_GROUP = "The user could not be added to some or all of the custom groups."
     USER_GROUPS_NOT_FOUND = "The user could not be added to the groups because they do not exist on the server."
+    REFERENCED_LIST_DOES_NOT_EXIST = (
+        "The list referenced with this property neither exists on the server nor in the project JSON."
+    )

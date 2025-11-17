@@ -66,8 +66,8 @@ def _parse_properties(
 
 def _parse_one_property(
     prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str], list_name_to_iri: ListNameToIriLookup
-) -> ParsedProperty | list[CreateProblem]:
-    pass
+) -> ParsedProperty | CreateProblem:
+    pass  # TODO
 
 
 def _parse_classes(
@@ -123,7 +123,3 @@ def _parse_one_cardinality(
         cardinality=CARDINALITY_MAPPER[cast(str, card_json["cardinality"])],
         gui_order=gui,
     )
-
-
-def _verify_is_not_other_dsp_project_iri(iri: str, current_onto_prefix: str) -> bool:
-    pass

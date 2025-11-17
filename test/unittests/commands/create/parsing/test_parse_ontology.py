@@ -1,5 +1,4 @@
 # mypy: disable-error-code="no-untyped-def"
-import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
@@ -15,7 +14,6 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalitie
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
-from dsp_tools.commands.create.parsing.parse_ontology import _verify_is_not_other_dsp_project_iri
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from test.unittests.commands.create.parsing.fixtures import LIST_IRI
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
@@ -109,6 +107,35 @@ class TestParseProperties:
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.list_iri is None
 
+    def test_bad_list(self, prefixes, list_name_to_iri):
+        p_lbl = {"en": "Test List"}
+        prop = {
+            "name": "testListProp",
+            "super": ["hasValue"],
+            "object": "ListValue",
+            "labels": p_lbl,
+            "gui_element": "List",
+            "gui_attributes": {"hlist": "inexistent"},
+        }
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        assert isinstance(result, CreateProblem)
+        assert result.problematic_object == "testListProp"
+        assert result.problem == ProblemType.REFERENCED_LIST_DOES_NOT_EXIST
+
+    def test_bad_prefix(self, prefixes, list_name_to_iri):
+        p_lbl = {"en": "testHasLinkToClassMixedCard"}
+        prop = {
+            "name": "testHasLinkToClassMixedCard",
+            "super": ["hasLinkTo", "inexistent:internalSuper"],
+            "object": ":ClassMixedCard",
+            "labels": p_lbl,
+            "gui_element": "Searchbox",
+        }
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        assert isinstance(result, CreateProblem)
+        assert result.problematic_object == "testHasLinkToClassMixedCard"
+        assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+
 
 class TestParseClasses:
     def test_good(self):
@@ -200,16 +227,3 @@ class TestParseCardinalities:
         assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
-
-
-@pytest.mark.parametrize(
-    ("iri", "expected"),
-    [
-        ("seqnum", True),
-        (":ownOnto", True),
-        ("http://purl.org/dc/terms/name", True),
-        ("http://0.0.0.0:3333/ontology/9999/other-project/v2#prop", False),
-    ],
-)
-def test_verify_is_not_other_dsp_project_iri(iri, expected):
-    assert _verify_is_not_other_dsp_project_iri(iri, ONTO_PREFIX) == expected

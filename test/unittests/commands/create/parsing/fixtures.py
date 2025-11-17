@@ -6,7 +6,6 @@ from typing import Any
 import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
-from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.utils.json_parsing import parse_json_file
 
 ONTO_PREFIX = "http://0.0.0.0:3333/ontology/0003/onto/v2#"
@@ -24,17 +23,6 @@ def prefixes() -> dict[str, str]:
         "onto": ONTO_PREFIX,
         "second-onto": "http://0.0.0.0:3333/ontology/0003/second-onto/v2#",
     }
-
-
-@pytest.fixture
-def list_name_to_iri() -> ListNameToIriLookup:
-    return ListNameToIriLookup(
-        {
-            "node_name": LIST_IRI,
-            "firstList": "http://rdfh.ch/lists/0003/firstList",
-            "secondList": "http://rdfh.ch/lists/0003/secondList",
-        }
-    )
 
 
 @pytest.fixture

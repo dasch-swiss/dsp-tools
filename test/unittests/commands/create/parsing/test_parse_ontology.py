@@ -20,11 +20,11 @@ from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
 class TestParseOntology:
-    def test_good(self, onto_json, prefixes, list_name_to_iri):
-        result = parse_ontology(onto_json, prefixes, list_name_to_iri)
+    def test_good(self, onto_json, prefixes):
+        result = parse_ontology(onto_json, prefixes)
         assert isinstance(result, ParsedOntology)
 
-    def test_fail(self, prefixes, list_name_to_iri):
+    def test_fail(self, prefixes):
         onto_wrong = {
             "name": "onto",
             "label": "Ontology",
@@ -38,13 +38,13 @@ class TestParseOntology:
                 }
             ],
         }
-        result = parse_ontology(onto_wrong, prefixes, list_name_to_iri)
+        result = parse_ontology(onto_wrong, prefixes)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 1
 
 
 class TestParseProperties:
-    def test_good_with_comment(self, prefixes, list_name_to_iri):
+    def test_good_with_comment(self, prefixes):
         p_lbl = {"en": "Super Property Date"}
         p_cmnt = {"en": "Comment on property"}
         prop = {
@@ -55,7 +55,7 @@ class TestParseProperties:
             "comments": p_cmnt,
             "gui_element": "Date",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedProperty)
         assert result.name == f"{ONTO_PREFIX}testDate"
         assert result.labels == p_lbl
@@ -66,7 +66,7 @@ class TestParseProperties:
         assert result.gui_element == GuiElement.DATE
         assert result.list_iri is None
 
-    def test_good_list(self, prefixes, list_name_to_iri):
+    def test_good_list(self, prefixes):
         p_lbl = {"en": "Test List"}
         prop = {
             "name": "testListProp",
@@ -76,7 +76,7 @@ class TestParseProperties:
             "gui_element": "List",
             "gui_attributes": {"hlist": "node_name"},
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedProperty)
         assert result.name == f"{ONTO_PREFIX}testListProp"
         assert result.labels == p_lbl
@@ -87,7 +87,7 @@ class TestParseProperties:
         assert result.gui_element == GuiElement.LIST
         assert result.list_iri == LIST_IRI
 
-    def test_good_link(self, prefixes, list_name_to_iri):
+    def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
         prop = {
             "name": "testHasLinkToClassMixedCard",
@@ -96,7 +96,7 @@ class TestParseProperties:
             "labels": p_lbl,
             "gui_element": "Searchbox",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
         assert isinstance(result, ParsedProperty)
         assert result.name == f"{ONTO_PREFIX}testHasLinkToClassMixedCard"
         assert result.labels == p_lbl
@@ -107,24 +107,7 @@ class TestParseProperties:
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.list_iri is None
 
-    def test_bad_list(self, prefixes, list_name_to_iri):
-        p_lbl = {"en": "Test List"}
-        prop = {
-            "name": "testListProp",
-            "super": ["hasValue"],
-            "object": "ListValue",
-            "labels": p_lbl,
-            "gui_element": "List",
-            "gui_attributes": {"hlist": "inexistent"},
-        }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
-        assert isinstance(result, list)
-        assert len(result) == 1
-        prob = result.pop()
-        assert prob.problematic_object == "testListProp"
-        assert prob.problem == ProblemType.REFERENCED_LIST_DOES_NOT_EXIST
-
-    def test_bad_prefix(self, prefixes, list_name_to_iri):
+    def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
         prop = {
             "name": "testHasLinkToClassMixedCard",
@@ -133,7 +116,7 @@ class TestParseProperties:
             "labels": p_lbl,
             "gui_element": "Searchbox",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
         assert isinstance(result, list)
         assert len(result) == 1
         prob = result.pop()

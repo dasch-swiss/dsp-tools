@@ -44,7 +44,7 @@ class TestParseOntology:
 
 
 class TestParseProperties:
-    def test_good(self, prefixes, list_name_to_iri):
+    def test_good_with_comment(self, prefixes, list_name_to_iri):
         p_lbl = {"en": "Super Property Date"}
         p_cmnt = {"en": "Comment on property"}
         prop = {
@@ -62,6 +62,7 @@ class TestParseProperties:
         assert result.comments == p_cmnt
         assert result.supers == [f"{KNORA_API_STR}hasValue"]
         assert result.object == KnoraObjectType.DATE
+        assert result.subject is None
         assert result.gui_element == GuiElement.DATE
         assert result.list_iri is None
 
@@ -82,8 +83,29 @@ class TestParseProperties:
         assert result.comments is None
         assert result.supers == [f"{KNORA_API_STR}hasValue"]
         assert result.object == KnoraObjectType.LIST
+        assert result.subject is None
         assert result.gui_element == GuiElement.LIST
         assert result.list_iri == LIST_IRI
+
+    def test_good_link(self, prefixes, list_name_to_iri):
+        p_lbl = {"en": "testHasLinkToClassMixedCard"}
+        prop = {
+            "name": "testHasLinkToClassMixedCard",
+            "super": ["hasLinkTo"],
+            "object": ":ClassMixedCard",
+            "labels": p_lbl,
+            "gui_element": "Searchbox",
+        }
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        assert isinstance(result, ParsedProperty)
+        assert result.name == f"{ONTO_PREFIX}testHasLinkToClassMixedCard"
+        assert result.labels == p_lbl
+        assert result.comments is None
+        assert result.supers == [f"{KNORA_API_STR}hasLinkTo"]
+        assert result.object == f"{KNORA_API_STR}Resource"
+        assert result.subject == f"{ONTO_PREFIX}ClassMixedCard"
+        assert result.gui_element == GuiElement.SEARCHBOX
+        assert result.list_iri is None
 
 
 class TestParseClasses:

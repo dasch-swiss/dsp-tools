@@ -53,7 +53,7 @@ def test_ingest_failure_when_authentication_error(
     dsp_ingest_url: str, ingest_client: DspIngestClientLive, requests_mock: Mocker, shortcode: str, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
-    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=401)
+    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=403)
     with pytest.raises(BadCredentialsError):
         ingest_client._ingest(tmp_file)
 

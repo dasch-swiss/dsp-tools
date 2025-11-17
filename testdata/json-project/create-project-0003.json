@@ -308,6 +308,18 @@
                         "gui_element": "Searchbox"
                     },
                     {
+                        "name": "testHasLinkToWithSubjectConstraint",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "subject": ":ClassMixedCard",
+                        "object": "Resource",
+                        "labels": {
+                            "en": "testHasLinkTo"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
                         "name": "testHasLinkTo",
                         "super": [
                             "hasLinkTo"

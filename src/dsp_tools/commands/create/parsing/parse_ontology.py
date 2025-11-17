@@ -121,7 +121,9 @@ def _parse_one_property(
                     ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
-        object_value = obj_iri
+            object_value = ""
+        else:
+            object_value = obj_iri
     else:
         object_value = OBJECT_TYPE_MAPPER[object_str]
 

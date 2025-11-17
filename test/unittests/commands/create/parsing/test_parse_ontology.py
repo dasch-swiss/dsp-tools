@@ -1,4 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
+import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
@@ -14,6 +15,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalitie
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
+from dsp_tools.commands.create.parsing.parse_ontology import _verify_is_not_other_dsp_project_iri
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from test.unittests.commands.create.parsing.fixtures import LIST_IRI
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
@@ -49,7 +51,7 @@ class TestParseProperties:
         p_cmnt = {"en": "Comment on property"}
         prop = {
             "name": "testDate",
-            "super": ["hasValue"],
+            "super": ["hasValue", "externalOnto:externalDate"],
             "object": "DateValue",
             "labels": p_lbl,
             "comments": p_cmnt,
@@ -60,7 +62,7 @@ class TestParseProperties:
         assert result.name == f"{ONTO_PREFIX}testDate"
         assert result.labels == p_lbl
         assert result.comments == p_cmnt
-        assert result.supers == [f"{KNORA_API_STR}hasValue"]
+        assert set(result.supers) == {f"{KNORA_API_STR}hasValue", "http://otherOntology.com/onto/externalDate"}
         assert result.object == KnoraObjectType.DATE
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
@@ -91,7 +93,7 @@ class TestParseProperties:
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
         prop = {
             "name": "testHasLinkToClassMixedCard",
-            "super": ["hasLinkTo"],
+            "super": ["hasLinkTo", ":internalSuper"],
             "object": ":ClassMixedCard",
             "labels": p_lbl,
             "gui_element": "Searchbox",
@@ -101,7 +103,7 @@ class TestParseProperties:
         assert result.name == f"{ONTO_PREFIX}testHasLinkToClassMixedCard"
         assert result.labels == p_lbl
         assert result.comments is None
-        assert result.supers == [f"{KNORA_API_STR}hasLinkTo"]
+        assert set(result.supers) == {f"{KNORA_API_STR}hasLinkTo", f"{ONTO_PREFIX}internalSuper"}
         assert result.object == f"{KNORA_API_STR}Resource"
         assert result.subject == f"{ONTO_PREFIX}ClassMixedCard"
         assert result.gui_element == GuiElement.SEARCHBOX
@@ -198,3 +200,16 @@ class TestParseCardinalities:
         assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+
+
+@pytest.mark.parametrize(
+    ("iri", "expected"),
+    [
+        ("seqnum", True),
+        (":ownOnto", True),
+        ("http://purl.org/dc/terms/name", True),
+        ("http://0.0.0.0:3333/ontology/9999/other-project/v2#prop", False),
+    ],
+)
+def test_verify_is_not_other_dsp_project_iri(iri, expected):
+    assert _verify_is_not_other_dsp_project_iri(iri, ONTO_PREFIX) == expected

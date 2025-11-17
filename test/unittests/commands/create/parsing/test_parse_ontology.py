@@ -102,8 +102,8 @@ class TestParseProperties:
         assert result.labels == p_lbl
         assert result.comments is None
         assert set(result.supers) == {f"{KNORA_API_STR}hasLinkTo", f"{ONTO_PREFIX}internalSuper"}
-        assert result.object == f"{KNORA_API_STR}Resource"
-        assert result.subject == f"{ONTO_PREFIX}ClassMixedCard"
+        assert result.object == f"{ONTO_PREFIX}ClassMixedCard"
+        assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.list_iri is None
 
@@ -118,9 +118,11 @@ class TestParseProperties:
             "gui_attributes": {"hlist": "inexistent"},
         }
         result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
-        assert isinstance(result, CreateProblem)
-        assert result.problematic_object == "testListProp"
-        assert result.problem == ProblemType.REFERENCED_LIST_DOES_NOT_EXIST
+        assert isinstance(result, list)
+        assert len(result) == 1
+        prob = result.pop()
+        assert prob.problematic_object == "testListProp"
+        assert prob.problem == ProblemType.REFERENCED_LIST_DOES_NOT_EXIST
 
     def test_bad_prefix(self, prefixes, list_name_to_iri):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -132,9 +134,11 @@ class TestParseProperties:
             "gui_element": "Searchbox",
         }
         result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
-        assert isinstance(result, CreateProblem)
-        assert result.problematic_object == "testHasLinkToClassMixedCard"
-        assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+        assert isinstance(result, list)
+        assert len(result) == 1
+        prob = result.pop()
+        assert prob.problematic_object == "testHasLinkToClassMixedCard"
+        assert prob.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseClasses:

@@ -60,7 +60,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             return _parse_last_modification_date(response.text)
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
-                "Only a project or system administrator can add cardinalities to resource classes. "
+                "Only a SystemAdmin or ProjectAdmin can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)

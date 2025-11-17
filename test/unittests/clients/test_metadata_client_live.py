@@ -79,7 +79,7 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
-    mock_response.status_code = 403
+    mock_response.status_code = 404
     mock_response.text = {"message": "Some message from the API."}
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
@@ -100,11 +100,11 @@ def test_get_resource_metadata_error_raised(log_request, metadata_client):  # no
     assert data == []
 
 
-def test_get_resource_metadata_unauthorized_no_warning(metadata_client):
+def test_get_resource_metadata_forbidden_no_warning(metadata_client):
     mock_response = Mock(spec=Response)
     mock_response.ok = False
-    mock_response.status_code = HTTPStatus.UNAUTHORIZED.value
-    mock_response.text = "Unauthorized"
+    mock_response.status_code = HTTPStatus.FORBIDDEN.value
+    mock_response.text = "Forbidden"
 
     with patch("dsp_tools.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response

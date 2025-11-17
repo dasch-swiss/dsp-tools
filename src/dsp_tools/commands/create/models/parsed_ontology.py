@@ -20,21 +20,6 @@ class ParsedOntology:
 
 
 @dataclass
-class Labels:
-    values: dict[str, str]
-
-
-@dataclass
-class Comments:
-    values: dict[str, str]
-
-
-@dataclass
-class Supers:
-    values: list[str]
-
-
-@dataclass
 class ParsedClass:
     name: str
     info: dict[str, Any]
@@ -43,13 +28,13 @@ class ParsedClass:
 @dataclass
 class ParsedProperty:
     name: str
-    labels: Labels
-    comments: Comments
-    supers: Supers
+    labels: dict[str, str]
+    comments: dict[str, str]
+    supers: list[str]
     object: KnoraObjectType | str
     subject: str | None
     gui_element: GuiElement
-    list_iri: str
+    list_iri: str | None
 
 
 class KnoraObjectType(StrEnum):

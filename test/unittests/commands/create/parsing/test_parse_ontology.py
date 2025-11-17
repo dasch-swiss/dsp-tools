@@ -5,12 +5,15 @@ from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import GuiElement
+from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalities
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
-from dsp_tools.commands.create.parsing.parse_ontology import _parse_properties
+from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
@@ -40,17 +43,26 @@ class TestParseOntology:
 
 
 class TestParseProperties:
-    def test_good(self):
+    def test_good(self, prefixes, list_name_to_iri):
+        p_lbl = {"en": "Super Property Date"}
+        p_cmnt = {"en": "Comment on property"}
         prop = {
-            "name": "testGeoname",
+            "name": "testDate",
             "super": ["hasValue"],
-            "object": "GeonameValue",
-            "labels": {"en": "Test Geoname"},
-            "gui_element": "Geonames",
+            "object": "DateValue",
+            "labels": p_lbl,
+            "comments": p_cmnt,
+            "gui_element": "Date",
         }
-        parsed, problems = _parse_properties([prop], ONTO_PREFIX)
-        assert len(parsed) == 1
-        assert not problems
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        assert isinstance(result, ParsedProperty)
+        assert result.name == f"{ONTO_PREFIX}testDate"
+        assert result.labels == p_lbl
+        assert result.comments == p_cmnt
+        assert result.supers == [f"{KNORA_API_STR}hasValue"]
+        assert result.object == KnoraObjectType.DATE
+        assert result.gui_element == GuiElement.DATE
+        assert result.list_iri is None
 
 
 class TestParseClasses:

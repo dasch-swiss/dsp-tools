@@ -111,7 +111,8 @@ def _parse_one_property(
         if not resolved:
             problems.append(
                 InputProblem(
-                    f'At property "{prop["name"]}" / Super: "{super_prop}"', ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+                    f'At property "{prop["name"]}" / Super: "{super_prop}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
         supers.append(resolved)
@@ -120,7 +121,8 @@ def _parse_one_property(
         if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(
-                    f'At property "{prop["name"]}" / Object: "{object_str}"', ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+                    f'At property "{prop["name"]}" / Object: "{object_str}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
         object_value = obj_iri
@@ -131,7 +133,8 @@ def _parse_one_property(
         if not (resolved_subject := resolve_to_absolute_iri(prop["subject"], current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(
-                    f'At property "{prop["name"]}" / Subject: "{subject}"', ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+                    f'At property "{prop["name"]}" / Subject: "{subject}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
         subject = resolved_subject

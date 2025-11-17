@@ -6,6 +6,8 @@ from enum import StrEnum
 from enum import auto
 from typing import Any
 
+from dsp_tools.commands.create.constants import KNORA_API_STR
+
 
 @dataclass
 class ParsedOntology:
@@ -50,6 +52,20 @@ class ParsedProperty:
     list_iri: str
 
 
+class GuiElement(StrEnum):
+    CHECKBOX = f"{KNORA_API_STR}Checkbox"
+    COLORPICKER = f"{KNORA_API_STR}Colorpicker"
+    DATE = f"{KNORA_API_STR}Date"
+    SPINBOX = f"{KNORA_API_STR}Spinbox"
+    GEONAMES = f"{KNORA_API_STR}Geonames"
+    LIST = f"{KNORA_API_STR}List"
+    SIMPLETEXT = f"{KNORA_API_STR}SimpleText"
+    TEXTAREA = f"{KNORA_API_STR}Textarea"
+    RICHTEXT = f"{KNORA_API_STR}Richtext"
+    SEARCHBOX = f"{KNORA_API_STR}Searchbox"
+    TIME_STAMP = f"{KNORA_API_STR}TimeStamp"
+
+
 @dataclass
 class ParsedClassCardinalities:
     class_iri: str
@@ -61,20 +77,6 @@ class ParsedPropertyCardinality:
     propname: str
     cardinality: Cardinality
     gui_order: int | None
-
-
-class GuiElement(StrEnum):
-    CHECKBOX = "Checkbox"
-    COLORPICKER = "Colorpicker"
-    DATE = "Date"
-    SPINBOX = "Spinbox"
-    GEONAMES = "Geonames"
-    LIST = "List"
-    SIMPLETEXT = "SimpleText"
-    TEXTAREA = "Textarea"
-    RICHTEXT = "Richtext"
-    SEARCHBOX = "Searchbox"
-    TIME_STAMP = "TimeStamp"
 
 
 class Cardinality(Enum):

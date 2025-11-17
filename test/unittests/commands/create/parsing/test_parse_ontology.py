@@ -137,7 +137,9 @@ class TestParseProperties:
         assert isinstance(result, list)
         assert len(result) == 1
         prob = result.pop()
-        assert prob.problematic_object == "testHasLinkToClassMixedCard"
+        assert (
+            prob.problematic_object == 'At property "testHasLinkToClassMixedCard" / Super: "inexistent:internalSuper"'
+        )
         assert prob.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 

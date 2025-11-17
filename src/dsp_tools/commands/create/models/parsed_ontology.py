@@ -29,7 +29,7 @@ class ParsedClass:
 class ParsedProperty:
     name: str
     labels: dict[str, str]
-    comments: dict[str, str]
+    comments: dict[str, str] | None
     supers: list[str]
     object: KnoraObjectType | str
     subject: str | None

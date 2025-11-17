@@ -15,6 +15,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
+from test.unittests.commands.create.parsing.fixtures import LIST_IRI
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
@@ -63,6 +64,26 @@ class TestParseProperties:
         assert result.object == KnoraObjectType.DATE
         assert result.gui_element == GuiElement.DATE
         assert result.list_iri is None
+
+    def test_good_list(self, prefixes, list_name_to_iri):
+        p_lbl = {"en": "Test List"}
+        prop = {
+            "name": "testListProp",
+            "super": ["hasValue"],
+            "object": "ListValue",
+            "labels": p_lbl,
+            "gui_element": "List",
+            "gui_attributes": {"hlist": "node_name"},
+        }
+        result = _parse_one_property(prop, ONTO_PREFIX, prefixes, list_name_to_iri)
+        assert isinstance(result, ParsedProperty)
+        assert result.name == f"{ONTO_PREFIX}testListProp"
+        assert result.labels == p_lbl
+        assert result.comments is None
+        assert result.supers == [f"{KNORA_API_STR}hasValue"]
+        assert result.object == KnoraObjectType.LIST
+        assert result.gui_element == GuiElement.LIST
+        assert result.list_iri == LIST_IRI
 
 
 class TestParseClasses:

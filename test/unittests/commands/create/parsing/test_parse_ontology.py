@@ -15,7 +15,6 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from test.unittests.commands.create.parsing.fixtures import LIST_IRI
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
@@ -85,7 +84,7 @@ class TestParseProperties:
         assert result.object == KnoraObjectType.LIST
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
-        assert result.list_iri == LIST_IRI
+        assert result.list_iri == "node_name"
 
     def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}

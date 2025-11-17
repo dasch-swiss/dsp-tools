@@ -9,7 +9,6 @@ from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.utils.json_parsing import parse_json_file
 
 ONTO_PREFIX = "http://0.0.0.0:3333/ontology/0003/onto/v2#"
-LIST_IRI = "http://rdfh.ch/lists/0003/node_name"
 
 
 @pytest.fixture

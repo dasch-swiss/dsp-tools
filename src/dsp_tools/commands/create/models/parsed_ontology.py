@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from enum import StrEnum
 from enum import auto
 from typing import Any
 
@@ -17,6 +18,21 @@ class ParsedOntology:
 
 
 @dataclass
+class Labels:
+    values: dict[str, str]
+
+
+@dataclass
+class Comments:
+    values: dict[str, str]
+
+
+@dataclass
+class Supers:
+    values: list[str]
+
+
+@dataclass
 class ParsedClass:
     name: str
     info: dict[str, Any]
@@ -25,7 +41,13 @@ class ParsedClass:
 @dataclass
 class ParsedProperty:
     name: str
-    info: dict[str, Any]
+    labels: Labels
+    comments: Comments
+    supers: Supers
+    object: str
+    subject: str | None
+    gui_element: GuiElement
+    list_iri: str
 
 
 @dataclass
@@ -39,6 +61,20 @@ class ParsedPropertyCardinality:
     propname: str
     cardinality: Cardinality
     gui_order: int | None
+
+
+class GuiElement(StrEnum):
+    CHECKBOX = "Checkbox"
+    COLORPICKER = "Colorpicker"
+    DATE = "Date"
+    SPINBOX = "Spinbox"
+    GEONAMES = "Geonames"
+    LIST = "List"
+    SIMPLETEXT = "SimpleText"
+    TEXTAREA = "Textarea"
+    RICHTEXT = "Richtext"
+    SEARCHBOX = "Searchbox"
+    TIME_STAMP = "TimeStamp"
 
 
 class Cardinality(Enum):

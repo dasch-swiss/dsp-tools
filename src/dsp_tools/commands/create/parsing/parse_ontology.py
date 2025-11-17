@@ -10,6 +10,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
+from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
 
 CARDINALITY_MAPPER = {
@@ -20,11 +21,13 @@ CARDINALITY_MAPPER = {
 }
 
 
-def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> ParsedOntology | CollectedProblems:
+def parse_ontology(
+    ontology_json: dict[str, Any], prefixes: dict[str, str], list_name_to_iri: ListNameToIriLookup
+) -> ParsedOntology | CollectedProblems:
     onto_name = ontology_json["name"]
     current_onto = prefixes[onto_name]
     fails = []
-    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto)
+    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes, list_name_to_iri)
     fails.extend(prop_fails)
     classes, cls_fails = _parse_classes(ontology_json["resources"], current_onto)
     fails.extend(cls_fails)
@@ -45,12 +48,26 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
 
 
 def _parse_properties(
-    properties_list: list[dict[str, Any]], current_onto_prefix: str
+    properties_list: list[dict[str, Any]],
+    current_onto_prefix: str,
+    prefixes: dict[str, str],
+    list_name_to_iri: ListNameToIriLookup,
 ) -> tuple[list[ParsedProperty], list[CreateProblem]]:
+    problems: list[CreateProblem] = []
     parsed = []
     for prop in properties_list:
-        parsed.append(ParsedProperty(f"{current_onto_prefix}{prop['name']}", prop))
-    return parsed, []
+        result = _parse_one_property(prop, current_onto_prefix, prefixes, list_name_to_iri)
+        if isinstance(result, ParsedProperty):
+            parsed.append(result)
+        else:
+            problems.extend(result)
+    return parsed, problems
+
+
+def _parse_one_property(
+    prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str], list_name_to_iri: ListNameToIriLookup
+) -> ParsedProperty | list[CreateProblem]:
+    pass
 
 
 def _parse_classes(
@@ -106,3 +123,7 @@ def _parse_one_cardinality(
         cardinality=CARDINALITY_MAPPER[cast(str, card_json["cardinality"])],
         gui_order=gui,
     )
+
+
+def _verify_is_not_other_dsp_project_iri(iri: str, current_onto_prefix: str) -> bool:
+    pass

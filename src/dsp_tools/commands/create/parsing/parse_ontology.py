@@ -93,7 +93,7 @@ def _parse_properties(
 def _parse_one_property(
     prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedProperty | list[CreateProblem]:
-    problems = []
+    problems: list[CreateProblem] = []
     prop_name = f"{current_onto_prefix}{prop['name']}"
     labels = prop["labels"]
     comments = prop.get("comments")
@@ -103,15 +103,15 @@ def _parse_one_property(
 
     supers = []
     for super_prop in prop["super"]:
-        resolved = resolve_to_absolute_iri(super_prop, current_onto_prefix, prefixes)
-        if not resolved:
+        if not (resolved := resolve_to_absolute_iri(super_prop, current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(
                     f'At property "{prop["name"]}" / Super: "{super_prop}"',
                     ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
-        supers.append(resolved)
+        else:
+            supers.append(resolved)
 
     if gui_element == GuiElement.SEARCHBOX:
         if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):

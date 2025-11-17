@@ -159,6 +159,9 @@
                         "labels": {
                             "en": "Super Property Date"
                         },
+                        "comments": {
+                            "en": "Comment on property"
+                        },
                         "gui_element": "Date"
                     },
                     {

@@ -4,7 +4,6 @@ from typing import Any
 from typing import cast
 
 import requests
-from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -38,7 +37,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         url = f"{self.server}/v2/ontologies/metadata"
         header = {"X-Knora-Accept-Project": project_iri}
-        logger.debug("GET ontology metadata")
         try:
             response = self._get_and_log_request(url, header)
         except RequestException as err:
@@ -50,8 +48,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
-
-        logger.debug("POST resource cardinalities to ontology")
         try:
             response = self._post_and_log_request(url, cardinality_graph)
         except RequestException as err:
@@ -69,7 +65,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/properties"
-        logger.debug("POST property to ontology")
         try:
             response = self._post_and_log_request(url, property_graph)
         except RequestException as err:

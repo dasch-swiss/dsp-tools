@@ -183,7 +183,7 @@ def is_password_weak(password: str) -> str | None:
     passphrase_min_length = 30
 
     if len(password) < password_min_length:
-        return f"Password must be at least {password_min_length} characters long"
+        return f"Password must be at least {password_min_length} characters long."
 
     if len(password) < passphrase_min_length and not (
         regex.search(r"[A-Z]", password)
@@ -198,6 +198,6 @@ def is_password_weak(password: str) -> str | None:
         )
 
     if regex.search(r"(.)\1\1", password):
-        return "Password contains too many consecutive identical characters"
+        return "Password contains too many consecutive identical characters."
 
     return None

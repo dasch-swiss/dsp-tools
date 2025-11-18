@@ -15,5 +15,10 @@ def print_problem_collection(problem_collection: CollectedProblems) -> None:
 
 
 def _create_individual_problem_strings(problems: list[CreateProblem]) -> str:
-    str_list = [f"{p.problematic_object}: {p.problem!s}" for p in problems]
+    str_list = []
+    for p in problems:
+        p_str = f"{p.problematic_object}: {p.problem!s}"
+        if p.details:
+            p_str = f"{p_str} {p.details}"
+        str_list.append(p_str)
     return "   - " + "\n    - ".join(str_list)

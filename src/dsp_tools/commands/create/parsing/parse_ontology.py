@@ -152,6 +152,7 @@ def _parse_one_property(
         subject=subject,
         gui_element=gui_element,
         node_name=list_name,
+        onto_name=current_onto_prefix.rstrip("#"),
     )
 
 

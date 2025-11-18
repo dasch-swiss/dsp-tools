@@ -15,6 +15,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
+from test.unittests.commands.create.parsing.fixtures import ONTO_NAME
 from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
 
 
@@ -64,6 +65,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
         assert result.node_name is None
+        assert result.onto_name == ONTO_NAME
 
     def test_good_list(self, prefixes):
         p_lbl = {"en": "Test List"}
@@ -85,6 +87,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
         assert result.node_name == "node_name"
+        assert result.onto_name == ONTO_NAME
 
     def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -105,6 +108,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.node_name is None
+        assert result.onto_name == ONTO_NAME
 
     def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}

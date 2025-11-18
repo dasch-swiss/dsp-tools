@@ -63,7 +63,7 @@ class TestParseProperties:
         assert result.object == KnoraObjectType.DATE
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
-        assert result.list_iri is None
+        assert result.node_name is None
 
     def test_good_list(self, prefixes):
         p_lbl = {"en": "Test List"}
@@ -84,7 +84,7 @@ class TestParseProperties:
         assert result.object == KnoraObjectType.LIST
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
-        assert result.list_iri == "node_name"
+        assert result.node_name == "node_name"
 
     def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -104,7 +104,7 @@ class TestParseProperties:
         assert result.object == f"{ONTO_PREFIX}ClassMixedCard"
         assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
-        assert result.list_iri is None
+        assert result.node_name is None
 
     def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}

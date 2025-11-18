@@ -34,7 +34,7 @@ class ParsedProperty:
     object: KnoraObjectType | str
     subject: str | None
     gui_element: GuiElement
-    list_iri: str | None
+    node_name: str | None
 
 
 class KnoraObjectType(StrEnum):

@@ -151,7 +151,7 @@ def _parse_one_property(
         object=object_value,
         subject=subject,
         gui_element=gui_element,
-        list_iri=list_name,
+        node_name=list_name,
     )
 
 

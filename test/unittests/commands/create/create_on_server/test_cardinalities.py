@@ -139,7 +139,8 @@ class TestAddCardinalitiesForOneClass:
             resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, successful_props
         )
         assert result_date == NEW_MODIFICATION_DATE
-        assert len(problems) == 0
+        assert len(problems) == 1
+        assert problems[0].problem == UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND
         assert onto_client_ok.post_resource_cardinalities.call_count == 2
 
     def test_handles_partial_failure(self) -> None:
@@ -197,7 +198,8 @@ class TestAddCardinalitiesForOneClass:
             resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, successful_props
         )
         assert result_date == LAST_MODIFICATION_DATE
-        assert len(problems) == 0
+        assert len(problems) == 2
+        assert all([x.problem == UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND for x in problems])
         assert onto_client_ok.post_resource_cardinalities.call_count == 0
 
     def test_updates_modification_date_sequentially(self) -> None:

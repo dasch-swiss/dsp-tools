@@ -87,7 +87,7 @@ def _add_cardinalities_for_one_class(
     problems = []
     for one_card in resource_card.cards:
         if one_card.propname not in successful_props:
-            logger.warning(f"CARDINALITY: Property '{one_card.propname}' not in successes, no cardinality added.")
+            problems.append(UploadProblem(one_card.propname, UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND))
             continue
         last_modification_date, problem = _add_one_cardinality(
             one_card, res_iri, onto_iri, last_modification_date, onto_client

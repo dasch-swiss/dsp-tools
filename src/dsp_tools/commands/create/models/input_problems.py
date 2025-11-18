@@ -64,4 +64,4 @@ class UploadProblemType(ProblemType):
     LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."
     # Ontology
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
-    CARDINALITY_PROPERTY_NOT_FOUND = "The property was not found in the created properties."
+    CARDINALITY_PROPERTY_NOT_FOUND = "The referenced property does not exist on the server."

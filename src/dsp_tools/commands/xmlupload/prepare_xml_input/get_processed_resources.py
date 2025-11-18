@@ -2,6 +2,7 @@ from typing import cast
 from uuid import uuid4
 
 from loguru import logger
+from tqdm import tqdm
 
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -68,7 +69,12 @@ def get_processed_resources(
     resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
 ) -> list[ProcessedResource]:
     logger.debug("Transform ParsedResource into ProcessedResource")
-    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in resources]
+    print("Preparing data for upload.")
+    progress_bar = tqdm(resources, desc="Preparing data for upload", dynamic_ncols=True)
+    processed = []
+    for res in progress_bar:
+        processed.append(_get_one_resource(res, lookups, is_on_prod_like_server))
+    return processed
 
 
 def _get_one_resource(

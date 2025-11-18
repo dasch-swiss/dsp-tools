@@ -32,7 +32,7 @@ def request_exception() -> RequestException:
 
 @pytest.fixture
 def empty_validator() -> IIIFUriValidator:
-    return IIIFUriValidator([])
+    return IIIFUriValidator()
 
 
 @pytest.mark.parametrize(

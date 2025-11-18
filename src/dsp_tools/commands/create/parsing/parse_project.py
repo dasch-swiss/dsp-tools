@@ -5,10 +5,10 @@ from typing import Any
 from dotenv import load_dotenv
 from loguru import logger
 
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import InputProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import InputProblem
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
@@ -139,7 +139,7 @@ def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMe
     if not pw:
         pw = os.getenv("DSP_USER_PASSWORD")
         if not pw:
-            return InputProblem(user_dict["username"], ProblemType.USER_PASSWORD_NOT_SET)
+            return InputProblem(user_dict["username"], InputProblemType.USER_PASSWORD_NOT_SET)
     usr = ParsedUser(
         username=user_dict["username"],
         email=user_dict["email"],

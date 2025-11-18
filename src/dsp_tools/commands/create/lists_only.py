@@ -8,7 +8,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.project_client_live import ProjectInfoClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.parsing.parse_project import parse_lists_only
 from dsp_tools.error.exceptions import ProjectNotFoundError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW

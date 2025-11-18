@@ -23,6 +23,7 @@ from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 ONTO_IRI = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")
@@ -241,6 +242,7 @@ class TestOntologyClientLive:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
         result = ontology_client.post_new_property(sample_property_graph)
+        assert isinstance(result, ResponseCodeAndText)
         assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR.value
         assert result.text == "Internal Server Error"
 

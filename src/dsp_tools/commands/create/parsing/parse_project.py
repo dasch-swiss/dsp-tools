@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+import regex
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -140,6 +141,8 @@ def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMe
         pw = os.getenv("DSP_USER_PASSWORD")
         if not pw:
             return InputProblem(user_dict["username"], InputProblemType.USER_PASSWORD_NOT_SET)
+    if weak_msg := is_password_weak(pw):
+        return InputProblem(user_dict["username"], InputProblemType.USER_PASSWORD_WEAK, weak_msg)
     usr = ParsedUser(
         username=user_dict["username"],
         email=user_dict["email"],
@@ -173,3 +176,28 @@ def _parse_all_ontologies(
         else:
             failures.append(result)
     return ontos, failures
+
+
+def is_password_weak(password: str) -> str | None:
+    password_min_length = 12
+    passphrase_min_length = 30
+
+    if len(password) < password_min_length:
+        return f"Password must be at least {password_min_length} characters long"
+
+    if len(password) < passphrase_min_length and not (
+        regex.search(r"[A-Z]", password)
+        and regex.search(r"[a-z]", password)
+        and regex.search(r"[0-9]", password)
+        and regex.search(r"[^A-Za-z0-9]", password)
+    ):
+        return (
+            f"Short passwords (less than {passphrase_min_length} characters) "
+            f"must contain uppercase, lowercase, numbers, and special characters. "
+            f"Consider using a longer passphrase (at least {passphrase_min_length} characters) instead."
+        )
+
+    if regex.search(r"(.)\1\1", password):
+        return "Password contains too many consecutive identical characters"
+
+    return None

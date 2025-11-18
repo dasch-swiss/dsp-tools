@@ -29,6 +29,7 @@ class CreateProblem:
 @dataclass
 class InputProblem(CreateProblem):
     problem: InputProblemType
+    details: str | None = None
 
 
 @dataclass
@@ -43,6 +44,7 @@ class InputProblemType(ProblemType):
     USER_PASSWORD_NOT_SET = (
         "This user cannot be created as no password is specified and no default password is saved in a .env file."
     )
+    USER_PASSWORD_WEAK = "The password is considered weak according to the password policy."
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
     PREFIX_COULD_NOT_BE_RESOLVED = (
         "The prefix used is not defined in the 'prefix' section of the file, "

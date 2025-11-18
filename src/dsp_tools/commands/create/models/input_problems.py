@@ -36,7 +36,7 @@ class UploadProblem(CreateProblem):
     problem: UploadProblemType
 
 
-class ProblemType(StrEnum):...
+class ProblemType(StrEnum): ...
 
 
 class InputProblemType(ProblemType):

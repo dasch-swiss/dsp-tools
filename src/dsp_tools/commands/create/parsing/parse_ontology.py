@@ -4,7 +4,7 @@ from typing import cast
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
 from dsp_tools.commands.create.models.input_problems import InputProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.input_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
@@ -107,7 +107,7 @@ def _parse_one_property(
             problems.append(
                 InputProblem(
                     f'At property "{prop["name"]}" / Super: "{super_prop}"',
-                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                    InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
         else:
@@ -118,7 +118,7 @@ def _parse_one_property(
             problems.append(
                 InputProblem(
                     f'At property "{prop["name"]}" / Object: "{object_str}"',
-                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                    InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
             object_value = ""
@@ -132,7 +132,7 @@ def _parse_one_property(
             problems.append(
                 InputProblem(
                     f'At property "{prop["name"]}" / Subject: "{subject}"',
-                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                    InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
         subject = resolved_subject
@@ -201,7 +201,7 @@ def _parse_one_cardinality(
 ) -> ParsedPropertyCardinality | CreateProblem:
     prp_name = cast(str, card_json["propname"])
     if not (resolved := resolve_to_absolute_iri(prp_name, current_onto_prefix, prefixes)):
-        return CreateProblem(prp_name, ProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
+        return CreateProblem(prp_name, InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED)
     gui = cast(int | None, card_json.get("gui_order"))
     return ParsedPropertyCardinality(
         propname=resolved,

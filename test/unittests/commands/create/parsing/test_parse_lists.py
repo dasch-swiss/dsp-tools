@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import InputProblemType
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.parsing.parse_lists import _parse_node_info
 from dsp_tools.commands.create.parsing.parse_lists import _parse_one_list
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section

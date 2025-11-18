@@ -11,8 +11,8 @@ from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_ca
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
 from dsp_tools.commands.create.create_on_server.cardinalities import _serialise_card
-from dsp_tools.commands.create.models.input_problems import UploadProblem
-from dsp_tools.commands.create.models.input_problems import UploadProblemType
+from dsp_tools.commands.create.models.create_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality

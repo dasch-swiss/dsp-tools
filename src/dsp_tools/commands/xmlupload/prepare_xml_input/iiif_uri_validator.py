@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 import requests
 
-from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 
@@ -11,16 +10,7 @@ from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 class IIIFUriValidator:
     """Client handling communication with external IIIF-servers to do a health check."""
 
-    uri_list: list[str]
-
-    def validate(self) -> AllIIIFUriProblems | None:
-        """Validate the URI and return a list of problems if any."""
-        iiif_uri_problems = [res for uri in self.uri_list if (res := self._validate_one_uri(uri)) is not None]
-        if iiif_uri_problems:
-            return AllIIIFUriProblems(problems=iiif_uri_problems)
-        return None
-
-    def _validate_one_uri(self, uri: str) -> IIIFUriProblem | None:
+    def validate_one_uri(self, uri: str) -> IIIFUriProblem | None:
         """Check if the IIIF-server is reachable. If not, it returns information for error message."""
         regex_has_passed = is_iiif_uri(uri)
         response = self._make_network_call(uri)

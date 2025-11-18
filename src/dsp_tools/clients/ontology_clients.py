@@ -4,6 +4,7 @@ from typing import Protocol
 from rdflib import Literal
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 class OntologyCreateClient(Protocol):
@@ -19,6 +20,9 @@ class OntologyCreateClient(Protocol):
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         """Add cardinalities to an existing resource class."""
+
+    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        """Create a property on the server"""
 
 
 class OntologyGetClient(Protocol):

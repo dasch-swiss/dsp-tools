@@ -17,6 +17,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
@@ -66,7 +67,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
-    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | Response:
+    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/properties"
         logger.debug("POST property to ontology")
         try:
@@ -81,7 +82,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
                 "Only a SystemAdmin or ProjectAdmin can create properties. "
                 "Your permissions are insufficient for this action."
             )
-        return response
+        return ResponseCodeAndText(response.status_code, response.text)
 
     def _post_and_log_request(
         self,

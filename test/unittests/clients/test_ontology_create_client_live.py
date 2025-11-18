@@ -241,7 +241,8 @@ class TestOntologyClientLive:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
         result = ontology_client.post_new_property(sample_property_graph)
-        assert result == mock_response
+        assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR.value
+        assert result.text == "Internal Server Error"
 
     def test_post_new_property_timeout(
         self,

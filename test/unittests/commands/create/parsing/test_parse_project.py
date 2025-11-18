@@ -1,7 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 
 from dsp_tools.commands.create.models.input_problems import InputProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.input_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -210,7 +210,7 @@ class TestParseUsers:
         result = _parse_one_user(user_dict)
         assert isinstance(result, InputProblem)
         assert result.problematic_object == "test_user"
-        assert result.problem == ProblemType.USER_PASSWORD_NOT_SET
+        assert result.problem == InputProblemType.USER_PASSWORD_NOT_SET
 
 
 class TestParseLists:

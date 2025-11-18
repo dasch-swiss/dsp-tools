@@ -3,7 +3,7 @@
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.input_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
@@ -122,7 +122,7 @@ class TestParseProperties:
         assert (
             prob.problematic_object == 'At property "testHasLinkToClassMixedCard" / Super: "inexistent:internalSuper"'
         )
-        assert prob.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+        assert prob.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseClasses:
@@ -175,7 +175,7 @@ class TestParseCardinalities:
         result = failures.pop(0)
         assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:testSimpleText"
-        assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+        assert result.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
     def test_0_1(self, prefixes):
         card = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}
@@ -214,4 +214,4 @@ class TestParseCardinalities:
         result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
-        assert result.problem == ProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+        assert result.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED

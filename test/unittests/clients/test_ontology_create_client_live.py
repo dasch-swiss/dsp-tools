@@ -48,7 +48,7 @@ def ontology_client(mock_auth_client: Mock) -> OntologyCreateClientLive:
 
 
 @pytest.fixture
-def on_response_onto_graph() -> dict[str, Any]:
+def ok_response_onto_graph() -> dict[str, Any]:
     return {
         "@context": {
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",

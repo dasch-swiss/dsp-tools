@@ -10,8 +10,8 @@ from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.input_problems import UploadProblemType
 from dsp_tools.commands.create.models.input_problems import UserInformation
 from dsp_tools.commands.create.models.input_problems import UserInformationMessage
 from dsp_tools.commands.create.models.parsed_project import ParsedList
@@ -106,7 +106,7 @@ def _create_new_list(
 
     if new_iri is None:
         problems: list[UploadProblem] = [
-            UploadProblem(parsed_list.list_info.name, ProblemType.LIST_COULD_NOT_BE_CREATED)
+            UploadProblem(parsed_list.list_info.name, UploadProblemType.LIST_COULD_NOT_BE_CREATED)
         ]
         return None, problems
 
@@ -137,7 +137,7 @@ def _create_node_tree(
         serialised = _serialise_node(node.node_info, parent_iri, project_iri)
         node_iri = create_client.add_list_node(serialised, parent_iri)
         if node_iri is None:
-            problems.append(UploadProblem(node.node_info.name, ProblemType.LIST_NODE_COULD_NOT_BE_CREATED))
+            problems.append(UploadProblem(node.node_info.name, UploadProblemType.LIST_NODE_COULD_NOT_BE_CREATED))
             continue
 
         if node.children:

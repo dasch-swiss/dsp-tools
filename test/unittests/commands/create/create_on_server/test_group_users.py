@@ -17,8 +17,8 @@ from dsp_tools.commands.create.create_on_server.group_users import create_groups
 from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.input_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
@@ -285,7 +285,7 @@ class TestCreateOneGroup:
         result = _create_one_group(parsed_group_1, mock_group_client, PROJECT_IRI)
         assert isinstance(result, UploadProblem)
         assert result.problematic_object == "editors"
-        assert result.problem == ProblemType.GROUP_COULD_NOT_BE_CREATED
+        assert result.problem == UploadProblemType.GROUP_COULD_NOT_BE_CREATED
 
 
 class TestCreateGroups:
@@ -328,7 +328,7 @@ class TestCreateGroups:
         assert isinstance(problems, CollectedProblems)
         assert len(problems.problems) == 1
         assert problems.problems[0].problematic_object == "editors"
-        assert problems.problems[0].problem == ProblemType.GROUP_COULD_NOT_BE_CREATED
+        assert problems.problems[0].problem == UploadProblemType.GROUP_COULD_NOT_BE_CREATED
         assert not result_lookup.check_exists("editors")
         assert result_lookup.check_exists("readers")
 
@@ -413,7 +413,7 @@ class TestCreateAllUsers:
         lookup, problems = _create_all_users(parsed_users, mock_user_client)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
-        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_CREATED
+        assert problems[0].problem == UploadProblemType.USER_COULD_NOT_BE_CREATED
         assert lookup.get_iri("testuser1") is None
         assert lookup.get_iri("testuser2") == USER_2_IRI
 
@@ -424,7 +424,7 @@ class TestCreateAllUsers:
         assert len(problems) == 2
         assert problems[0].problematic_object == "testuser1"
         assert problems[1].problematic_object == "testuser2"
-        assert all(p.problem == ProblemType.USER_COULD_NOT_BE_CREATED for p in problems)
+        assert all(p.problem == UploadProblemType.USER_COULD_NOT_BE_CREATED for p in problems)
 
 
 class TestAddOneMembership:
@@ -454,7 +454,7 @@ class TestAddOneMembership:
         problems = _add_user_to_project_memberships(user_membership_regular, USER_2_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser2"
-        assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
+        assert problems[0].problem == UploadProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
 
     def test_handles_admin_addition_failure(
         self, user_membership_admin: ParsedUserMemberShipInfo, mock_user_client: Mock
@@ -464,7 +464,7 @@ class TestAddOneMembership:
         problems = _add_user_to_project_memberships(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
-        assert problems[0].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
+        assert problems[0].problem == UploadProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
 
     def test_handles_both_membership_and_admin_failures(
         self, user_membership_admin: ParsedUserMemberShipInfo, mock_user_client: Mock
@@ -473,8 +473,8 @@ class TestAddOneMembership:
         mock_user_client.add_user_as_project_admin.return_value = False
         problems = _add_user_to_project_memberships(user_membership_admin, USER_1_IRI, PROJECT_IRI, mock_user_client)
         assert len(problems) == 2
-        assert problems[0].problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
-        assert problems[1].problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
+        assert problems[0].problem == UploadProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
+        assert problems[1].problem == UploadProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED
 
 
 class TestAddUserToGroups:
@@ -506,14 +506,14 @@ class TestAddUserToGroups:
         )
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
-        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
+        assert problems[0].problem == UploadProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
 
     def test_handles_groups_not_found(self, mock_user_client: Mock, group_lookup_with_groups: GroupNameToIriLookup):
         membership = ParsedUserMemberShipInfo(username="testuser1", is_admin=False, groups=["nonexistent"])
         problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
-        assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
+        assert problems[0].problem == UploadProblemType.USER_GROUPS_NOT_FOUND
         mock_user_client.add_user_to_custom_groups.assert_not_called()
 
     def test_handles_mixed_found_and_not_found_groups(
@@ -525,7 +525,7 @@ class TestAddUserToGroups:
         mock_user_client.add_user_to_custom_groups.return_value = True
         problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 1
-        assert problems[0].problem == ProblemType.USER_GROUPS_NOT_FOUND
+        assert problems[0].problem == UploadProblemType.USER_GROUPS_NOT_FOUND
         mock_user_client.add_user_to_custom_groups.assert_called_once_with(
             USER_1_IRI,
             ["http://rdfh.ch/groups/4123/editors", "http://rdfh.ch/groups/4123/readers"],
@@ -544,8 +544,8 @@ class TestAddUserToGroups:
         mock_user_client.add_user_to_custom_groups.return_value = False
         problems = _add_user_to_custom_groups(membership, USER_1_IRI, mock_user_client, group_lookup_with_groups)
         assert len(problems) == 2
-        assert problems[0].problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
-        assert problems[1].problem == ProblemType.USER_GROUPS_NOT_FOUND
+        assert problems[0].problem == UploadProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP
+        assert problems[1].problem == UploadProblemType.USER_GROUPS_NOT_FOUND
 
 
 class TestAddAllMemberships:
@@ -596,9 +596,11 @@ class TestAddAllMemberships:
             user_memberships, user_lookup, group_lookup_with_groups, mock_user_client, PROJECT_IRI
         )
         assert len(problems) == 5
-        membership_problems = [p for p in problems if p.problem == ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED]
-        admin_problems = [p for p in problems if p.problem == ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED]
-        group_problems = [p for p in problems if p.problem == ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP]
+        membership_problems = [
+            p for p in problems if p.problem == UploadProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED
+        ]
+        admin_problems = [p for p in problems if p.problem == UploadProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED]
+        group_problems = [p for p in problems if p.problem == UploadProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP]
         assert len(membership_problems) == 2
         assert len(admin_problems) == 1
         assert len(group_problems) == 2
@@ -642,7 +644,7 @@ class TestCreateUsers:
             result = create_users(parsed_users, user_memberships, group_lookup_with_groups, mock_auth, PROJECT_IRI)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 1
-        assert result.problems[0].problem == ProblemType.USER_COULD_NOT_BE_CREATED
+        assert result.problems[0].problem == UploadProblemType.USER_COULD_NOT_BE_CREATED
 
 
 if __name__ == "__main__":

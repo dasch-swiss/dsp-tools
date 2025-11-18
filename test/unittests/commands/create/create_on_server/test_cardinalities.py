@@ -11,8 +11,8 @@ from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_ca
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
 from dsp_tools.commands.create.create_on_server.cardinalities import _serialise_card
-from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.input_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
@@ -72,7 +72,7 @@ class TestAddOneCardinality:
         )
         assert result_date == LAST_MODIFICATION_DATE
         assert isinstance(problem, UploadProblem)
-        assert problem.problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        assert problem.problem == UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
         assert problem.problematic_object == "onto:Resource / onto:hasText"
 
 
@@ -168,7 +168,7 @@ class TestAddCardinalitiesForOneClass:
         assert str(result_date) == "2025-10-14T14:02:00.000000Z"
         assert len(problems) == 1
         assert isinstance(problems[0], UploadProblem)
-        assert problems[0].problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        assert problems[0].problem == UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
         assert problems[0].problematic_object == "onto:Resource / onto:hasNumber"
         assert mock_client.post_resource_cardinalities.call_count == 3
 

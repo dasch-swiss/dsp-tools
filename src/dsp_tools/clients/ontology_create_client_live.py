@@ -66,6 +66,23 @@ class OntologyCreateClientLive(OntologyCreateClient):
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 
+    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | Response:
+        url = f"{self.server}/v2/ontologies/properties"
+        logger.debug("POST property to ontology")
+        try:
+            response = self._post_and_log_request(url, property_graph)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        if response.ok:
+            return _parse_last_modification_date(response.text)
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can create properties. "
+                "Your permissions are insufficient for this action."
+            )
+        return response
+
     def _post_and_log_request(
         self,
         url: str,

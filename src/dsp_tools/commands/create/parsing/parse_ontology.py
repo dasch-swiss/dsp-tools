@@ -3,8 +3,11 @@ from typing import cast
 
 from dsp_tools.commands.create.models.input_problems import CollectedProblems
 from dsp_tools.commands.create.models.input_problems import CreateProblem
+from dsp_tools.commands.create.models.input_problems import InputProblem
 from dsp_tools.commands.create.models.input_problems import ProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import GuiElement
+from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
@@ -19,12 +22,39 @@ CARDINALITY_MAPPER = {
     "1-n": Cardinality.C_1_N,
 }
 
+OBJECT_TYPE_MAPPER = {
+    "BooleanValue": KnoraObjectType.BOOLEAN,
+    "ColorValue": KnoraObjectType.COLOR,
+    "DateValue": KnoraObjectType.DATE,
+    "DecimalValue": KnoraObjectType.DECIMAL,
+    "GeonameValue": KnoraObjectType.GEONAME,
+    "IntValue": KnoraObjectType.INT,
+    "ListValue": KnoraObjectType.LIST,
+    "TextValue": KnoraObjectType.TEXT,
+    "TimeValue": KnoraObjectType.TIME,
+    "UriValue": KnoraObjectType.URI,
+}
+
+GUI_ELEMENT_MAPPER = {
+    "Checkbox": GuiElement.CHECKBOX,
+    "Colorpicker": GuiElement.COLORPICKER,
+    "Date": GuiElement.DATE,
+    "Spinbox": GuiElement.SPINBOX,
+    "Geonames": GuiElement.GEONAMES,
+    "List": GuiElement.LIST,
+    "SimpleText": GuiElement.SIMPLETEXT,
+    "Textarea": GuiElement.TEXTAREA,
+    "Richtext": GuiElement.RICHTEXT,
+    "Searchbox": GuiElement.SEARCHBOX,
+    "TimeStamp": GuiElement.TIME_STAMP,
+}
+
 
 def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> ParsedOntology | CollectedProblems:
     onto_name = ontology_json["name"]
     current_onto = prefixes[onto_name]
     fails = []
-    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto)
+    props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes)
     fails.extend(prop_fails)
     classes, cls_fails = _parse_classes(ontology_json["resources"], current_onto)
     fails.extend(cls_fails)
@@ -45,12 +75,84 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
 
 
 def _parse_properties(
-    properties_list: list[dict[str, Any]], current_onto_prefix: str
+    properties_list: list[dict[str, Any]],
+    current_onto_prefix: str,
+    prefixes: dict[str, str],
 ) -> tuple[list[ParsedProperty], list[CreateProblem]]:
+    problems: list[CreateProblem] = []
     parsed = []
     for prop in properties_list:
-        parsed.append(ParsedProperty(f"{current_onto_prefix}{prop['name']}", prop))
-    return parsed, []
+        result = _parse_one_property(prop, current_onto_prefix, prefixes)
+        if isinstance(result, ParsedProperty):
+            parsed.append(result)
+        else:
+            problems.extend(result)
+    return parsed, problems
+
+
+def _parse_one_property(
+    prop: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
+) -> ParsedProperty | list[CreateProblem]:
+    problems: list[CreateProblem] = []
+    prop_name = f"{current_onto_prefix}{prop['name']}"
+    labels = prop["labels"]
+    comments = prop.get("comments")
+    object_str = prop["object"]
+    gui_element = GUI_ELEMENT_MAPPER[prop["gui_element"]]
+    subject = prop.get("subject")
+
+    supers = []
+    for super_prop in prop["super"]:
+        if not (resolved := resolve_to_absolute_iri(super_prop, current_onto_prefix, prefixes)):
+            problems.append(
+                InputProblem(
+                    f'At property "{prop["name"]}" / Super: "{super_prop}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
+        else:
+            supers.append(resolved)
+
+    if gui_element == GuiElement.SEARCHBOX:
+        if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):
+            problems.append(
+                InputProblem(
+                    f'At property "{prop["name"]}" / Object: "{object_str}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
+            object_value = ""
+        else:
+            object_value = obj_iri
+    else:
+        object_value = OBJECT_TYPE_MAPPER[object_str]
+
+    if subject:
+        if not (resolved_subject := resolve_to_absolute_iri(prop["subject"], current_onto_prefix, prefixes)):
+            problems.append(
+                InputProblem(
+                    f'At property "{prop["name"]}" / Subject: "{subject}"',
+                    ProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
+        subject = resolved_subject
+
+    list_name = None
+    if object_value == KnoraObjectType.LIST:
+        list_name = prop["gui_attributes"]["hlist"]
+
+    if problems:
+        return problems
+    return ParsedProperty(
+        name=prop_name,
+        labels=labels,
+        comments=comments,
+        supers=supers,
+        object=object_value,
+        subject=subject,
+        gui_element=gui_element,
+        node_name=list_name,
+    )
 
 
 def _parse_classes(

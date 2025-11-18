@@ -7,10 +7,10 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.group_user_clients import GroupClient
 from dsp_tools.clients.group_user_clients import UserClient
 from dsp_tools.clients.group_user_clients_live import UserClientLive
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
-from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
@@ -47,7 +47,7 @@ def _create_all_users(users: list[ParsedUser], client: UserClient) -> tuple[User
     for usr in progress_bar:
         result = _create_one_user(usr, client)
         if result is None:
-            problems.append(UploadProblem(usr.username, ProblemType.USER_COULD_NOT_BE_CREATED))
+            problems.append(UploadProblem(usr.username, UploadProblemType.USER_COULD_NOT_BE_CREATED))
         else:
             user_to_iri.add_iri(usr.username, result)
     return user_to_iri, problems
@@ -88,11 +88,11 @@ def _add_user_to_project_memberships(
     problems: list[CreateProblem] = []
     membership_good = client.add_user_as_project_member(user_iri, project_iri)
     if not membership_good:
-        problems.append(UploadProblem(membership.username, ProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED))
+        problems.append(UploadProblem(membership.username, UploadProblemType.PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED))
     if membership.is_admin:
         good = client.add_user_as_project_admin(user_iri, project_iri)
         if not good:
-            problems.append(UploadProblem(membership.username, ProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED))
+            problems.append(UploadProblem(membership.username, UploadProblemType.PROJECT_ADMIN_COULD_NOT_BE_ADDED))
     return problems
 
 
@@ -110,9 +110,9 @@ def _add_user_to_custom_groups(
     if groups_iris:
         group_good = client.add_user_to_custom_groups(user_iri, groups_iris)
         if not group_good:
-            problems.append(UploadProblem(membership.username, ProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP))
+            problems.append(UploadProblem(membership.username, UploadProblemType.USER_COULD_NOT_BE_ADDED_TO_GROUP))
     if groups_not_found:
-        problems.append(UploadProblem(membership.username, ProblemType.USER_GROUPS_NOT_FOUND))
+        problems.append(UploadProblem(membership.username, UploadProblemType.USER_GROUPS_NOT_FOUND))
     return problems
 
 
@@ -146,7 +146,7 @@ def _create_one_group(group: ParsedGroup, group_client: GroupClient, project_iri
     new_iri = group_client.create_new_group(serialised)
     if new_iri:
         return new_iri
-    return UploadProblem(group.name, ProblemType.GROUP_COULD_NOT_BE_CREATED)
+    return UploadProblem(group.name, UploadProblemType.GROUP_COULD_NOT_BE_CREATED)
 
 
 def get_existing_group_to_iri_lookup(

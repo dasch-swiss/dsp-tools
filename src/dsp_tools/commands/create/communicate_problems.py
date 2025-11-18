@@ -1,7 +1,7 @@
 from loguru import logger
 
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT

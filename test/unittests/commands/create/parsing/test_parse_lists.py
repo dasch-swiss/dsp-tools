@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.parsing.parse_lists import _parse_node_info
 from dsp_tools.commands.create.parsing.parse_lists import _parse_one_list
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
@@ -66,7 +66,7 @@ def test_parse_list_section_identical_node_names(node_no_comments):
     assert len(result.problems) == 1
     prblm = result.problems.pop()
     assert prblm.problematic_object == "node_no_comments"
-    assert prblm.problem == ProblemType.DUPLICATE_LIST_NAME
+    assert prblm.problem == InputProblemType.DUPLICATE_LIST_NAME
 
 
 def test_parse_node_info(list_many_children):

@@ -7,10 +7,10 @@ from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
-from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
@@ -87,7 +87,7 @@ def _add_cardinalities_for_one_class(
     problems = []
     for one_card in resource_card.cards:
         if one_card.propname not in successful_props:
-            logger.warning(f"CARDINALITY: Property '{one_card.propname}' not in successes, no cardinality added.")
+            problems.append(UploadProblem(one_card.propname, UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND))
             continue
         last_modification_date, problem = _add_one_cardinality(
             one_card, res_iri, onto_iri, last_modification_date, onto_client
@@ -111,7 +111,7 @@ def _add_one_cardinality(
         prefixed_prop = from_dsp_iri_to_prefixed_iri(card.propname)
         return last_modification_date, UploadProblem(
             f"{prefixed_cls} / {prefixed_prop}",
-            ProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
+            UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
         )
     return new_mod_date, None
 

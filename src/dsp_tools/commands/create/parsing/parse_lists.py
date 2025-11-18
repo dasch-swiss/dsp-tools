@@ -1,10 +1,10 @@
 from collections import Counter
 from typing import Any
 
-from dsp_tools.commands.create.models.input_problems import CollectedProblems
-from dsp_tools.commands.create.models.input_problems import CreateProblem
-from dsp_tools.commands.create.models.input_problems import InputProblem
-from dsp_tools.commands.create.models.input_problems import ProblemType
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import InputProblem
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
@@ -16,7 +16,7 @@ def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList] | Collec
     duplicates = {name for name, count in Counter(list_names).items() if count > 1}
     if duplicates:
         problems: list[CreateProblem] = [
-            InputProblem(problematic_object=name, problem=ProblemType.DUPLICATE_LIST_NAME) for name in duplicates
+            InputProblem(problematic_object=name, problem=InputProblemType.DUPLICATE_LIST_NAME) for name in duplicates
         ]
         return CollectedProblems(header="The following problems were found in the list section:", problems=problems)
     return list_section

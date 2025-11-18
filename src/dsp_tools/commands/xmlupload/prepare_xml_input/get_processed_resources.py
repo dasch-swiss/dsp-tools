@@ -69,7 +69,6 @@ def get_processed_resources(
     resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
 ) -> list[ProcessedResource]:
     logger.debug("Transform ParsedResource into ProcessedResource")
-    print("Preparing data for upload.")
     progress_bar = tqdm(resources, desc="Preparing data for upload", dynamic_ncols=True)
     processed = []
     for res in progress_bar:

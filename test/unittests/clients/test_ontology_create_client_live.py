@@ -29,6 +29,7 @@ TEST_RES_IRI = ONTO.TestResource
 TEST_PROP_IRI = ONTO.hasText
 
 LAST_MODIFICATION_DATE = Literal("2025-10-14T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
+NEW_MODIFICATION_DATE = Literal("2025-10-15T13:00:00.000000Z", datatype=XSD.dateTimeStamp)
 
 
 @pytest.fixture
@@ -54,8 +55,9 @@ def ok_response_onto_graph() -> dict[str, Any]:
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "xsd": "http://www.w3.org/2001/XMLSchema#",
         },
+        "@id": str(ONTO_IRI),
         "knora-api:lastModificationDate": {
-            "@value": str(LAST_MODIFICATION_DATE),
+            "@value": str(NEW_MODIFICATION_DATE),
             "@type": "xsd:dateTimeStamp",
         },
     }
@@ -131,7 +133,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
         result = ontology_client.post_resource_cardinalities(sample_cardinality_graph)
-        assert result == LAST_MODIFICATION_DATE
+        assert result == NEW_MODIFICATION_DATE
 
     def test_post_resource_cardinalities_forbidden(
         self,
@@ -202,7 +204,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
         result = ontology_client.post_new_property(sample_property_graph)
-        assert result == LAST_MODIFICATION_DATE
+        assert result == NEW_MODIFICATION_DATE
 
     def test_post_new_property_forbidden(
         self,
@@ -304,24 +306,12 @@ class TestOntologyClientLive:
         assert captured_url == test_url
 
     def test_get_last_modification_date_success(
-        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch, ok_response_onto_graph
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
-        mock_response.text = json.dumps(
-            {
-                "@context": {
-                    "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-                    "xsd": "http://www.w3.org/2001/XMLSchema#",
-                },
-                "@id": str(ONTO_IRI),
-                "knora-api:lastModificationDate": {
-                    "@value": str(LAST_MODIFICATION_DATE),
-                    "@type": "xsd:dateTimeStamp",
-                },
-            }
-        )
+        mock_response.text = json.dumps(ok_response_onto_graph)
 
         def mock_get_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response
@@ -329,7 +319,7 @@ class TestOntologyClientLive:
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
         result = ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
-        assert result == LAST_MODIFICATION_DATE
+        assert result == NEW_MODIFICATION_DATE
 
     def test_get_last_modification_date_unexpected_status_code(
         self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch
@@ -359,21 +349,9 @@ class TestOntologyClientLive:
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
 
-class TestParseLastModificationDate:
-    def test_parse_valid_response(self) -> None:
-        response_text = json.dumps(
-            {
-                "@context": {
-                    "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-                    "xsd": "http://www.w3.org/2001/XMLSchema#",
-                },
-                "knora-api:lastModificationDate": {
-                    "@value": str(LAST_MODIFICATION_DATE),
-                    "@type": "xsd:dateTimeStamp",
-                },
-            }
-        )
-        result = _parse_last_modification_date(response_text)
-        assert result is not None
-        assert isinstance(result, Literal)
-        assert result == LAST_MODIFICATION_DATE
+def test_parse_valid_response(ok_response_onto_graph) -> None:
+    response_text = json.dumps(ok_response_onto_graph)
+    result = _parse_last_modification_date(response_text)
+    assert result is not None
+    assert isinstance(result, Literal)
+    assert result == NEW_MODIFICATION_DATE

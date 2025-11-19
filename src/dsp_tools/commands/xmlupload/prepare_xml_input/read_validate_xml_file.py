@@ -15,6 +15,14 @@ from dsp_tools.error.exceptions import InputError
 
 def validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    if num := len(uris) > 1001:
+        warnings.warn(
+            DspToolsUserWarning(
+                f"Your data contains {num} IIIF-URIs. "
+                f"Each validation makes a server call, due to the large number, the validation has to be skipped."
+            )
+        )
+        return
     progress_bar = tqdm(uris, desc="Checking IIIF-URIs", dynamic_ncols=True)
     validator = IIIFUriValidator()
     problems = []

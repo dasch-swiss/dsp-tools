@@ -15,7 +15,7 @@ in this format:
 Older XML files may contain legal metadata as text properties. 
 This document guides you through the process of updating them to the new format.
 
-## Step 1: Find out the flags to run `update-legal`
+## Step 1: Find out the property names and run `update-legal`
 
 Every XML file uses different property names. 
 Therefore, there cannot be an automatism in DSP-TOOLS to treat all XML files equally.
@@ -83,9 +83,9 @@ Please go through the CSV and fix the errors directly in the CSV.
 
 CSV Output:
 
-| file    | resource_id | license                             | copyright | authorship_1  | authorship_2    |
-| ------- | ----------- | ----------------------------------- | --------- | ------------- | --------------- |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` |           | Rita Gautschy | Daniela Subotic |
+| file    | resource_id | license                             | copyright                | authorship_1  | authorship_2    |
+| ------- | ----------- | ----------------------------------- | ------------------------ | ------------- | --------------- |
+| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Copyright missing | Rita Gautschy | Daniela Subotic |
 
 Please add a copyright holder to the CSV:
 
@@ -97,9 +97,9 @@ Please add a copyright holder to the CSV:
 
 CSV Output:
 
-| file    | resource_id | license                             | copyright | authorship_1 | authorship_2 |
-| ------- | ----------- | ----------------------------------- | --------- | ------------ | ------------ |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     |              |              |
+| file    | resource_id | license                             | copyright | authorship_1              | authorship_2 |
+| ------- | ----------- | ----------------------------------- | --------- | ------------------------- | ------------ |
+| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | FIXME: Authorship missing |              |
 
 Please add at least one authorship to the CSV:
 
@@ -111,9 +111,9 @@ Please add at least one authorship to the CSV:
 
 CSV Output:
 
-| file    | resource_id | license | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       |         | DaSCH     | Rita Gautschy |              |
+| file    | resource_id | license                | copyright | authorship_1  | authorship_2 |
+| ------- | ----------- | ---------------------- | --------- | ------------- | ------------ |
+| dog.jpg | res_1       | FIXME: License missing | DaSCH     | Rita Gautschy |              |
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
@@ -127,9 +127,9 @@ https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.h
 
 CSV Output:
 
-| file    | resource_id | license           | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ----------------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | Courtesy of DaSCH | DaSCH     | Rita Gautschy |              |
+| file    | resource_id | license                                   | copyright | authorship_1  | authorship_2 |
+| ------- | ----------- | ----------------------------------------- | --------- | ------------- | ------------ |
+| dog.jpg | res_1       | FIXME: Invalid license: Courtesy of DaSCH | DaSCH     | Rita Gautschy |              |
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](

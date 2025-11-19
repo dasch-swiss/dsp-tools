@@ -27,6 +27,12 @@ from dsp_tools.error.exceptions import PermanentTimeOutError
 
 
 @dataclass
+class ResponseCodeAndText:
+    status_code: int
+    text: str
+
+
+@dataclass
 class PostFiles:
     """One or more files to be uploaded in a POST request."""
 

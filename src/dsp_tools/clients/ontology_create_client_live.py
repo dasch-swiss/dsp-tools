@@ -4,7 +4,6 @@ from typing import Any
 from typing import cast
 
 import requests
-from loguru import logger
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -17,6 +16,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
@@ -37,7 +37,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         url = f"{self.server}/v2/ontologies/metadata"
         header = {"X-Knora-Accept-Project": project_iri}
-        logger.debug("GET ontology metadata")
         try:
             response = self._get_and_log_request(url, header)
         except RequestException as err:
@@ -49,8 +48,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
-
-        logger.debug("POST resource cardinalities to ontology")
         try:
             response = self._post_and_log_request(url, cardinality_graph)
         except RequestException as err:
@@ -65,6 +62,22 @@ class OntologyCreateClientLive(OntologyCreateClient):
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
+
+    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        url = f"{self.server}/v2/ontologies/properties"
+        try:
+            response = self._post_and_log_request(url, property_graph)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        if response.ok:
+            return _parse_last_modification_date(response.text)
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can create properties. "
+                "Your permissions are insufficient for this action."
+            )
+        return ResponseCodeAndText(response.status_code, response.text)
 
     def _post_and_log_request(
         self,

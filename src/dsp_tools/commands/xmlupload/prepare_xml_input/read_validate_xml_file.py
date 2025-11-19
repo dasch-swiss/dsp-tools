@@ -19,6 +19,7 @@ def validate_iiif_uris(root: etree._Element) -> None:
     validator = IIIFUriValidator()
     problems = []
     for uri in progress_bar:
+        logger.debug(f"Validating IIIF-URI: {uri}")
         if result := validator.validate_one_uri(uri):
             problems.append(result)
     if problems:

@@ -15,7 +15,7 @@ from dsp_tools.error.exceptions import InputError
 
 def validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    if num := len(uris) > 1001:
+    if (num := len(uris)) > 1001:
         warnings.warn(
             DspToolsUserWarning(
                 f"Your data contains {num} IIIF-URIs. "

@@ -26,6 +26,7 @@ def get_parsed_resources_and_mappers(
     root: etree._Element, clients: UploadClients
 ) -> tuple[list[ParsedResource], XmlReferenceLookups]:
     logger.debug("Get ParsedResource and XML-Lookups from root")
+    print("Parsing XML file for upload.")
     parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
     processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
     return parsed_resources, processed_lookups

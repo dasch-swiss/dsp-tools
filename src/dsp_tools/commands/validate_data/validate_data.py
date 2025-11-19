@@ -127,14 +127,14 @@ def validate_parsed_resources(
         msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
-        print(msg)
+        print(msg + "\n")
         # if unknown classes are found, we cannot validate all the data in the file
         return False
     if isinstance(validation_result.problems, OntologyValidationProblem):
         msg = get_msg_str_ontology_validation_violation(validation_result.problems)
         logger.error(msg)
         print(VALIDATION_ERRORS_FOUND_MSG)
-        print(msg)
+        print(msg + "\n")
         # if the ontology itself has errors, we will not validate the data
         return False
     if isinstance(validation_result.problems, SortedProblems):
@@ -255,6 +255,7 @@ def _print_shacl_validation_violation_message(
         else:
             report_graph = cast(ValidationReportGraphs, report)
             _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
+    print("\n")
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:

@@ -70,10 +70,7 @@ def get_processed_resources(
 ) -> list[ProcessedResource]:
     logger.debug("Transform ParsedResource into ProcessedResource")
     progress_bar = tqdm(resources, desc="Preparing data for upload", dynamic_ncols=True)
-    processed = []
-    for res in progress_bar:
-        processed.append(_get_one_resource(res, lookups, is_on_prod_like_server))
-    return processed
+    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in progress_bar]
 
 
 def _get_one_resource(

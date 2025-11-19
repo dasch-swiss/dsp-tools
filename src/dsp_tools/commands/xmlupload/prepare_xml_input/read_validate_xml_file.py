@@ -19,7 +19,8 @@ def validate_iiif_uris(root: etree._Element) -> None:
         warnings.warn(
             DspToolsUserWarning(
                 f"Your data contains {num} IIIF-URIs. "
-                f"Each validation makes a server call. Due to the large number, the validation of the IIIF-URIs has to be skipped."
+                f"Each validation makes a server call. "
+                f"Due to the large number, the validation of the IIIF-URIs has to be skipped."
             )
         )
         return

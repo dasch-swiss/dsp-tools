@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <permissions id="public">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="limited_view">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="private">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <authorship id="authorship_1">
+        <author>Johannes Nussbaum</author>
+    </authorship>
+    <authorship id="authorship_2">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorship>
+
+
+    <resource label="resource_no_values" restype=":ClassWithEverything" id="resource_no_values"/>
+
+    <resource
+            label="resource_no_values_private_permissions"
+            restype=":ClassWithEverything"
+            id="resource_no_values_private_permissions"
+            permissions="private"
+    />
+
+    <resource label="bool_true" restype=":ClassWithEverything" id="bool_true">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="bool_1_private_permissions_on_value" restype=":ClassWithEverything" id="bool_1_private_permissions_on_value">
+        <boolean-prop name=":testBoolean">
+            <boolean permissions="private">1</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="bool_0_comment_on_value" restype=":ClassWithEverything" id="bool_0_comment_on_value">
+        <boolean-prop name=":testBoolean">
+            <boolean comment="Comment on value">0</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="color" restype=":ClassWithEverything" id="color">
+        <color-prop name=":testColor">
+            <color>#00ff00</color>
+        </color-prop>
+    </resource>
+
+    <resource label="date" restype=":ClassWithEverything" id="date">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+    </resource>
+
+    <resource label="decimal" restype=":ClassWithEverything" id="decimal">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>2.71</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="geoname" restype=":ClassWithEverything" id="geoname">
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="integer" restype=":ClassWithEverything" id="integer">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="list" restype=":ClassWithEverything" id="list">
+        <list-prop list="firstList" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <resource label="link" restype=":ClassWithEverything" id="link">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>resource_no_values</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="richtext" restype=":ClassWithEverything" id="richtext">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <p>
+                    Text
+                </p>
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="textarea" restype=":ClassWithEverything" id="textarea">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Line One
+            Line Two</text>
+        </text-prop>
+    </resource>
+
+    <resource label="simpletext" restype=":ClassWithEverything" id="simpletext">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="time" restype=":ClassWithEverything" id="time">
+        <time-prop name=":testTimeValue">
+            <time>2019-10-23T13:45:12.01-14:00</time>
+        </time-prop>
+    </resource>
+
+    <resource label="uri" restype=":ClassWithEverything" id="uri">
+        <uri-prop name=":testUriValue">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="second_onto_class" restype="second-onto:SecondOntoClass" id="second_onto_class">
+        <boolean-prop name="second-onto:testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <!-- Resources with bitstreams -->
+
+    <resource label="image" restype=":TestStillImageRepresentation" id="image">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.png</bitstream>
+    </resource>
+
+    <resource label="iiif_uri" restype=":TestStillImageRepresentation" id="iiif_uri">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_2"
+                  permissions="private"
+        >
+            https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="audio" restype=":TestAudioRepresentation" id="audio">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.wav</bitstream>
+    </resource>
+
+    <resource label="video" restype=":TestMovingImageRepresentation" id="video">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.mp4</bitstream>
+    </resource>
+
+    <!-- DSP in-built resources -->
+
+    <audio-segment label="audio_segment" id="audio_segment">
+        <isSegmentOf>audio</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.2"/>
+        <hasTitle>hasTitle</hasTitle>
+        <hasComment>hasComment</hasComment>
+        <hasDescription>hasDescription</hasDescription>
+        <hasKeyword>hasKeyword</hasKeyword>
+    </audio-segment>
+
+    <video-segment label="video_segment" id="video_segment">
+        <isSegmentOf>video</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.2"/>
+        <hasTitle>hasTitle</hasTitle>
+        <hasComment>hasComment</hasComment>
+        <hasDescription>hasDescription</hasDescription>
+        <hasKeyword>hasKeyword</hasKeyword>
+    </video-segment>
+
+    <link label="link_obj_with_comment" id="link_obj_with_comment">
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment Text</text>
+        </text-prop>
+        <resptr-prop name="hasLinkTo">
+            <resptr>region</resptr>
+            <resptr>second_onto_class</resptr>
+        </resptr-prop>
+    </link>
+
+    <region label="region" id="region">
+        <color-prop name="hasColor">
+            <color permissions="private">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml">
+                This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
+            </text>
+        </text-prop>
+    </region>
+
+</knora>

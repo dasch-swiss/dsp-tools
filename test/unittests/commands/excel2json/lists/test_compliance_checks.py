@@ -262,11 +262,11 @@ class TestShapeCompliance:
         )
         with pytest.warns(DspToolsUserWarning, match=warning_msg):
             res = _make_shape_compliance_one_sheet(test_sheet)
-            assert isinstance(res, ListSheetComplianceProblem)
-            assert res.excel_name == "excel"
-            assert res.sheet_name == "sheet"
-            assert len(res.problems) == 1
-            assert isinstance(res.problems[0], MissingNodeColumn)
+        assert isinstance(res, ListSheetComplianceProblem)
+        assert res.excel_name == "excel"
+        assert res.sheet_name == "sheet"
+        assert len(res.problems) == 1
+        assert isinstance(res.problems[0], MissingNodeColumn)
 
     def test_missing_list_column(self, cols_en_1: Columns) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2], "en_1": ["b", "c"]})

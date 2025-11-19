@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4124"
+       default-ontology="testonto">
+
+    <resource label="Label"
+              restype=":TestThing2"
+              id="resptr_contains_invalid_characters">
+        <resptr-prop name=":linkProp">
+            <resptr>not|allowed|characters</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

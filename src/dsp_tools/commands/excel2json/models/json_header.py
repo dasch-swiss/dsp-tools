@@ -25,6 +25,7 @@ class EmptyJsonHeader(JsonHeader):
                 "longname": "",
                 "descriptions": {"en": ""},
                 "keywords": [""],
+                "enabled_licenses": [""],
             },
         }
 
@@ -57,7 +58,9 @@ class Project:
     longname: str
     descriptions: Descriptions
     keywords: Keywords
+    licenses: Licenses
     users: Users | None
+    default_permissions: str
 
     def to_dict(self) -> dict[str, Any]:
         proj_dict: dict[str, Any] = {
@@ -66,6 +69,8 @@ class Project:
             "longname": self.longname,
             "descriptions": self.descriptions.to_dict(),
             "keywords": self.keywords.to_dict(),
+            "enabled_licenses": self.licenses.to_dict(),
+            "default_permissions": self.default_permissions,
         }
         if self.users:
             proj_dict["users"] = self.users.to_dict()
@@ -93,6 +98,14 @@ class Keywords:
 
 
 @dataclass
+class Licenses:
+    licenses: list[str]
+
+    def to_dict(self) -> list[str]:
+        return sorted(self.licenses)
+
+
+@dataclass
 class Users:
     users: list[User]
 
@@ -106,12 +119,12 @@ class User:
     email: str
     givenName: str
     familyName: str
-    password: str
+    password: str | None
     lang: str
-    role: UserRole
+    isProjectAdmin: bool
 
     def to_dict(self) -> dict[str, Any]:
-        usr_dict = {
+        usr_dict: dict[str, Any] = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,
@@ -119,19 +132,44 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        } | self.role.to_dict()
+        }
+        if self.isProjectAdmin:
+            usr_dict["projects"] = [":admin", ":member"]
+        else:
+            usr_dict["projects"] = [":member"]
         return usr_dict
 
 
 @dataclass
-class UserRole:
-    project_admin: bool = False
-    sys_admin: bool = False
+class PermissionsOverrulesUnprefixed:
+    """
+    Data gathered from the column 'default_permissions_overrule' from 1 resources.xlsx / 1 properties.xlsx,
+    not yet enriched with ontology prefixes
+    """
 
-    def to_dict(self) -> dict[str, list[str]]:
-        if self.sys_admin:
-            return {"groups": ["SystemAdmin"], "projects": [":admin", ":member"]}
-        elif self.project_admin:
-            return {"projects": [":admin", ":member"]}
-        else:
-            return {"projects": [":member"]}
+    private: list[str]
+    limited_view: list[str]
+
+
+@dataclass
+class PermissionsOverrulesPrefixed:
+    """
+    Object to gather 'default_permissions_overrule' infos from several resources.xlsx/properties.xlsx,
+    with ontology prefixes.
+    """
+
+    private: list[str]
+    limited_view: list[str]
+
+    def add_overrules(self, new_overrules: PermissionsOverrulesUnprefixed, onto_prefix: str) -> None:
+        self.private.extend([f"{onto_prefix}:{p}" for p in new_overrules.private])
+        self.limited_view.extend([f"{onto_prefix}:{p}" for p in new_overrules.limited_view])
+
+    def non_empty(self) -> bool:
+        return bool(self.private or self.limited_view)
+
+    def serialize(self) -> dict[str, list[str]]:
+        return {
+            "private": self.private,
+            "limited_view": self.limited_view,
+        }

@@ -9,6 +9,7 @@ from loguru import logger
 from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
+from tqdm import tqdm
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -30,12 +31,13 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
         upload_state: the current state of the upload
         con: connection to DSP
     """
-
-    print(f"{datetime.now()}: Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
     upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
     standoff_stash = cast(StandoffStash, upload_state.pending_stash.standoff_stash)
-    for res_id, stash_items in standoff_stash.res_2_stash_items.copy().items():
+    progress_bar = tqdm(
+        standoff_stash.res_2_stash_items.copy().items(), desc="Upload stashed XML texts", dynamic_ncols=True
+    )
+    for res_id, stash_items in progress_bar:
         res_iri = upload_state.iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -47,7 +49,6 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
         except BaseError as err:
             _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue
-        print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
         logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.value.prop_iri, resource_in_triplestore, stash_item.value.value_uuid)

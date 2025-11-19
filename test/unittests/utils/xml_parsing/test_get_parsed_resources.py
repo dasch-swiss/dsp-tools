@@ -6,7 +6,6 @@ from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
@@ -38,17 +37,6 @@ IRI_LOOKUP = {
     "hasComment": f"{KNORA_API_STR}hasComment",
     "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
 }
-
-
-@pytest.mark.parametrize(
-    ("input_str", "expected"),
-    [
-        (HTTPS_API_URL, HTTP_API_URL),
-        ("http://0.0.0.0:3333", "http://0.0.0.0:3333"),
-    ],
-)
-def test_convert_api_url_for_correct_iri_namespace(input_str, expected):
-    assert _convert_api_url_for_correct_iri_namespace_construction(input_str) == expected
 
 
 class TestParseResource:
@@ -199,7 +187,7 @@ class TestSegment:
         values = _parse_segment_values(resource_audio_segment, "Audio")
         expected = [
             (f"{KNORA_API_STR}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
-            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "open", None),
+            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None),
             (f"{KNORA_API_STR}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
             (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
             (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
@@ -219,7 +207,7 @@ class TestParseValues:
     def test_boolean_value_with_metadata(self):
         xml_val = etree.fromstring("""
         <boolean-prop name=":hasProp">
-            <boolean permissions="open" comment="Comment on Value">true</boolean>
+            <boolean permissions="public" comment="Comment on Value">true</boolean>
         </boolean-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -228,7 +216,7 @@ class TestParseValues:
         assert val.prop_name == HAS_PROP
         assert val.value == "true"
         assert val.value_type == KnoraValueType.BOOLEAN_VALUE
-        assert val.permissions_id == "open"
+        assert val.permissions_id == "public"
         assert val.comment == "Comment on Value"
 
     def test_color_value(self):
@@ -580,7 +568,7 @@ class TestParseFileValues:
 
     def test_bitstream_with_permissions_and_whitespaces(self):
         xml_val = etree.fromstring("""
-        <bitstream permissions="open">
+        <bitstream permissions="public">
             this/is/filepath/file.z
         </bitstream>
         """)
@@ -590,7 +578,7 @@ class TestParseFileValues:
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
-        assert val.metadata.permissions_id == "open"
+        assert val.metadata.permissions_id == "public"
 
     def test_bitstream_with_legal_info_and_whitespaces(self):
         xml_val = etree.fromstring("""
@@ -622,7 +610,8 @@ class TestFileTypeInfo:
         assert _get_file_value_type(file_name) == KnoraValueType.AUDIO_FILE
 
     @pytest.mark.parametrize(
-        "file_name", ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx"]
+        "file_name",
+        ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx", "test.epub"],
     )
     def test_document(self, file_name: str):
         assert _get_file_value_type(file_name) == KnoraValueType.DOCUMENT_FILE
@@ -638,7 +627,18 @@ class TestFileTypeInfo:
 
     @pytest.mark.parametrize(
         "file_name",
-        ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
+        [
+            "path/test.odd",
+            "test.rng",
+            "test.txt",
+            "test.htm",
+            "test.html",
+            "test.xml",
+            "test.xsd",
+            "test.xsl",
+            "test.csv",
+            "test.json",
+        ],
     )
     def test_text(self, file_name: str):
         assert _get_file_value_type(file_name) == KnoraValueType.TEXT_FILE
@@ -688,7 +688,7 @@ def test_get_one_absolute_iri(local_name, expected):
             "Cavanagh, Annie",
         ),
         ('<text encoding="utf8">text &lt;not a tag&gt; text</text>', "text <not a tag> text"),
-        ('<hasKeyword permissions="open">Keyword&#10;</hasKeyword>', "Keyword"),
+        ('<hasKeyword permissions="public">Keyword&#10;</hasKeyword>', "Keyword"),
         (
             """<text>
     Text line 1

@@ -1,13 +1,15 @@
+# mypy: disable-error-code="no-untyped-def"
+
+import warnings
 from typing import Any
 
 import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.xmllib_errors import XmllibInputError
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib import LicenseRecommended
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.internal.file_values import FileValue
@@ -24,7 +26,48 @@ from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
+from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.res import Resource
+
+
+class TestCreateNewResource:
+    def test_good(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            Resource.create_new("res_id", "restype", "label")
+            assert len(caught_warnings) == 0
+
+    def test_empty_resource_id(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid xsd:ID, your input '<NA>' does not match the type."),
+        ):
+            res = Resource.create_new(pd.NA, "restype", "label")  # type: ignore[arg-type]
+        assert res.res_id == "<NA>"
+
+    def test_invalid_resource_id(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid xsd:ID, your input 'not|ok' does not match the type."),
+        ):
+            Resource.create_new("not|ok", "restype", "label")
+
+    def test_empty_restype(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape("The input should be a valid resource type, your input '<NA>' does not match the type."),
+        ):
+            res = Resource.create_new("res_id", pd.NA, "label")  # type: ignore[arg-type]
+        assert res.restype == "<NA>"
+
+    def test_empty_label(self):
+        with pytest.warns(
+            XmllibInputWarning,
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
+        ):
+            res = Resource.create_new("res_id", "restype", pd.NA)  # type: ignore[arg-type]
+        assert res.label == ""
 
 
 class TestAddValues:
@@ -36,9 +79,10 @@ class TestAddValues:
     def test_add_bool_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid bool, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid bool, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_bool("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_bool("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_bool_optional(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_bool_optional("", None)
@@ -55,9 +99,10 @@ class TestAddValues:
     def test_add_color_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid color, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid color, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_color("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_color("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_color_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_color_multiple(":prop", ["#000000", "#ffffff"])
@@ -79,9 +124,10 @@ class TestAddValues:
     def test_add_date_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid date, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid date, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_date("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_date("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_date_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_date_multiple(":prop", ["2024-10-30", "2024-10-31"])
@@ -103,9 +149,10 @@ class TestAddValues:
     def test_add_decimal_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid decimal, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid decimal, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_decimal("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_decimal("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_decimal_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_decimal_multiple(":prop", ["0.1", "0.2"])
@@ -127,9 +174,10 @@ class TestAddValues:
     def test_add_geoname_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid geoname, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid geoname, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_geoname("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_geoname("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_geoname_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_geoname_multiple(":prop", ["123456", "7890"])
@@ -151,9 +199,10 @@ class TestAddValues:
     def test_add_integer_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid integer, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid integer, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_integer("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_integer("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_integer_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_integer_multiple(":prop", ["1", "2"])
@@ -175,9 +224,12 @@ class TestAddValues:
     def test_add_link_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid string, your input '' does not match the type."),
+            match=regex.escape(
+                "The input should be a valid xsd:ID or DSP resource IRI, your input '<NA>' does not match the type."
+            ),
         ):
-            Resource.create_new("res_id", "restype", "label").add_link("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_link("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_link_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_link_multiple(
@@ -201,16 +253,20 @@ class TestAddValues:
     def test_add_list_node_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid list node, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid list node, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_list("", "listname", "")
+            res = Resource.create_new("res_id", "restype", "label").add_list("", "listname", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_list_name_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid list name, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid list name, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_list("", "", "node")
+            res = Resource.create_new("res_id", "restype", "label").add_list("", pd.NA, "node")  # type: ignore[arg-type]
+        list_val = res.values.pop()
+        assert isinstance(list_val, ListValue)
+        assert list_val.list_name == "<NA>"
 
     def test_add_list_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_list_multiple(
@@ -234,9 +290,12 @@ class TestAddValues:
     def test_add_simple_text_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '' is empty. Please enter a valid string."),
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
         ):
-            Resource.create_new("res_id", "restype", "label").add_simpletext("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_simpletext("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == ""
 
     def test_add_simple_text_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_simpletext_multiple(":prop", ["text1", "text2"])
@@ -265,16 +324,19 @@ class TestAddValues:
     def test_add_richtext_warns_empty_string(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '' is empty. Please enter a valid string."),
+            match=regex.escape("The input should be a valid non empty string, your input '' does not match the type."),
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext("prop", "")
 
     def test_add_richtext_warns_pd_na(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Your input '<NA>' is empty. Please enter a valid string."),
+            match=regex.escape(
+                "The input should be a valid non empty string, your input '<NA>' does not match the type."
+            ),
         ):
-            Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
+            res = Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == ""
 
     def test_add_richtext_no_replace(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_richtext(
@@ -304,9 +366,10 @@ class TestAddValues:
     def test_add_time_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid timestamp, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid timestamp, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_time("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_time("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_time_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_time_multiple(
@@ -330,9 +393,10 @@ class TestAddValues:
     def test_add_uri_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid uri, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid uri, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_uri("", "")
+            res = Resource.create_new("res_id", "restype", "label").add_uri("", pd.NA)  # type: ignore[arg-type]
+        assert res.values[0].value == "<NA>"
 
     def test_add_uri_multiple(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_uri_multiple(
@@ -368,11 +432,16 @@ class TestAddFiles:
     def test_add_file_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Field 'bitstream' | Your input '' is empty. Please enter a valid file name."),
+            match=regex.escape("Field 'bitstream' | Your input '<NA>' is empty. Please enter a valid file name."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_file(
-                "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
+            res = Resource.create_new("res_id", "restype", "label").add_file(
+                pd.NA,  # type: ignore[arg-type]
+                LicenseRecommended.DSP.UNKNOWN,
+                "copy",
+                ["auth"],
             )
+        assert isinstance(res.file_value, FileValue)
+        assert res.file_value.value == "<NA>"
 
     def test_add_file_raising(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_file(
@@ -383,7 +452,7 @@ class TestAddFiles:
             "This resource already contains a file with the name: 'existing filename'. "
             "The new file with the name 'new filename' cannot be added."
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             res.add_file("new filename", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"])
 
     def test_add_iiif_uri(self) -> None:
@@ -410,11 +479,16 @@ class TestAddFiles:
     def test_add_iiif_uri_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("The input should be a valid IIIF uri, your input '' does not match the type."),
+            match=regex.escape("The input should be a valid IIIF uri, your input '<NA>' does not match the type."),
         ):
-            Resource.create_new("res_id", "restype", "label").add_iiif_uri(
-                "", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"]
+            res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
+                pd.NA,  # type: ignore[arg-type]
+                LicenseRecommended.DSP.UNKNOWN,
+                "copy",
+                ["auth"],
             )
+        assert isinstance(res.file_value, IIIFUri)
+        assert res.file_value.value == "<NA>"
 
     def test_add_iiif_uri_raising(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_file(
@@ -425,7 +499,7 @@ class TestAddFiles:
             "This resource already contains a file with the name: 'existing IIIF'. "
             "The new file with the name 'new IIIF' cannot be added."
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(XmllibInputError, match=msg):
             res.add_iiif_uri("new IIIF", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth"])
 
 
@@ -451,7 +525,7 @@ def test_check_and_fix_collection_input_raises() -> None:
         "Resource ID 'id' | Property 'prop' | "
         "The input is a dictionary. Only collections (list, set, tuple) are permissible."
     )
-    with pytest.raises(InputError, match=msg):
+    with pytest.raises(XmllibInputError, match=msg):
         check_and_fix_collection_input({1: 1}, "prop", "id")
 
 

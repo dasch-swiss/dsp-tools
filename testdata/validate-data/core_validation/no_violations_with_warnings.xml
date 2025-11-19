@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>
+            Author One
+        </author>
+    </authorship>
+
+    <!--
+    Missing Legal Info will produce a warning. This is allowed on a test server but not on prod
+    -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="no_legal_info_archive">
+        <bitstream>bitstream_no_legal_info.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="no_legal_info_iiif">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="no_legal_info_image_file">
+        <bitstream>no_legal_info_image_file.jp2</bitstream>
+    </resource>
+
+
+    <!-- Duplicate Files -->
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_1">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="duplicate IIIF" restype=":TestStillImageRepresentation" id="duplicate_iiif_2">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_1"
+        >https://iiif.duplicate_iiif.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_1">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="triplicate file" restype=":TestArchiveRepresentation" id="triplicate_archive_3">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+</knora>

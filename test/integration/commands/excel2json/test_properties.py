@@ -1,17 +1,15 @@
-import unittest
-
 import jsonpath_ng
 import pytest
 import regex
 
 from dsp_tools.commands.excel2json import properties as e2j
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.error.exceptions import InputError
 
-excelfile = "testdata/excel2json/old_excel2json_files/test-name (test_label)/properties.xlsx"
-output_from_method, _ = e2j.excel2properties(excelfile, None)
+excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
+output_from_method, default_permissions_overrule, _ = e2j.excel2properties(excelfile, None)
 
 
-# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
@@ -59,11 +57,12 @@ class TestValidateProperties:
 
     def test_invalid_gui_attrib_values(self) -> None:
         expected_msg = regex.escape(
-            "The Excel file 'properties.xlsx' contains the following problems:\n\n\n"
-            "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasInteger'\n"
-            "    Located at: Column 'gui_attributes' | Row 4\n"
-            "    Original Error Message: Additional properties are not allowed ('rows' was unexpected)"
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n"
+            "The property 'hasList' has the following problem(s):\n"
+            "There is invalid content in the excel.\n"
+            "Located at: Column 'gui_attributes' | Row 4\n"
+            "Expected Content: The only valid gui-attribute is 'hlist' for the gui-element 'List'.\n"
+            "Actual Content: max: 10, min: 5, rows: 10"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -72,20 +71,7 @@ class TestValidateProperties:
             )
 
 
-def test_excel2properties_invalid_gui_attrib_format() -> None:
-    expected_msg = regex.escape(
-        "The Excel file 'properties.xlsx' contains the following problems:\n\n"
-        "The property 'hasInteger' has the following problem(s):\n"
-        "There is invalid content in the excel.\n"
-        "Located at: Column 'gui_attributes' | Row 4\n"
-        "Expected Content: attribute1: value, attribute2: value (no attribute key may be duplicated)\n"
-        "Actual Content: max=10, min=5"
-    )
-    with pytest.raises(InputError, match=expected_msg):
-        e2j.excel2properties("testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", "")
-
-
-class TestExcelToProperties(unittest.TestCase):
+class TestExcelToProperties:
     def test_names(self) -> None:
         excel_names = [
             "correspondsToGenericAnthroponym",
@@ -114,7 +100,7 @@ class TestExcelToProperties(unittest.TestCase):
             "hasLinkToAudioRepesentation",
         ]
         json_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
-        self.assertListEqual(excel_names, json_names)
+        assert excel_names == json_names
 
     def test_supers(self) -> None:
         excel_supers = [
@@ -144,7 +130,7 @@ class TestExcelToProperties(unittest.TestCase):
             ["hasLinkTo"],
         ]
         json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
-        self.assertListEqual(excel_supers, json_supers)
+        assert excel_supers == json_supers
 
     def test_objects(self) -> None:
         excel_objects = [
@@ -174,7 +160,7 @@ class TestExcelToProperties(unittest.TestCase):
             "AudioRepresentation",
         ]
         json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_method)]
-        self.assertListEqual(excel_objects, json_objects)
+        assert excel_objects == json_objects
 
     def test_labels(self) -> None:
         excel_labels = {
@@ -233,7 +219,7 @@ class TestExcelToProperties(unittest.TestCase):
         }  # there are also labels in other languages, but they are not tested
         json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
         json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["de", "it"]}
-        self.assertDictEqual(excel_labels, json_labels)
+        assert excel_labels == json_labels
 
     def test_comments(self) -> None:
         excel_comments = {
@@ -297,7 +283,7 @@ class TestExcelToProperties(unittest.TestCase):
             f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_method]
             for lang in ["fr", "it"]
         }
-        self.assertDictEqual(excel_comments, json_comments)
+        assert excel_comments == json_comments
 
     def test_gui_elements(self) -> None:
         excel_gui_elements = [
@@ -328,28 +314,19 @@ class TestExcelToProperties(unittest.TestCase):
         ]
 
         json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_method)]
-        self.assertListEqual(excel_gui_elements, json_gui_elements)
+        assert excel_gui_elements == json_gui_elements
 
     def test_gui_attributes_hasGender(self) -> None:
         excel_gui_attributes_hasGender = {"hlist": "gender"}
         json_gui_attributes_hasGender = (
             jsonpath_ng.ext.parse("$[?name='hasGender'].gui_attributes").find(output_from_method)[0].value
         )
-        self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
+        assert excel_gui_attributes_hasGender == json_gui_attributes_hasGender
 
-    def test_gui_attributes_hasGND(self) -> None:
-        excel_gui_attributes_hasGND = {"size": 100}
-        json_gui_attributes_hasGND = (
-            jsonpath_ng.ext.parse("$[?name='hasGND'].gui_attributes").find(output_from_method)[0].value
-        )
-        self.assertDictEqual(excel_gui_attributes_hasGND, json_gui_attributes_hasGND)
-
-    def test_gui_attributes_hasDecimal(self) -> None:
-        excel_gui_attributes_hasDecimal = {"min": 0.0, "max": 100.0}
-        json_gui_attributes_hasDecimal = (
-            jsonpath_ng.ext.parse("$[?name='hasDecimal'].gui_attributes").find(output_from_method)[0].value
-        )
-        self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
+    def test_default_permissions_overrule(self) -> None:
+        assert isinstance(default_permissions_overrule, PermissionsOverrulesUnprefixed)
+        assert default_permissions_overrule.private == ["hasAnthroponym"]
+        assert default_permissions_overrule.limited_view == []
 
 
 if __name__ == "__main__":

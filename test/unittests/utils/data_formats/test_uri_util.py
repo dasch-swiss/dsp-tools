@@ -1,6 +1,9 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
 
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 
 
 @pytest.mark.parametrize(
@@ -53,6 +56,21 @@ def test_is_iiif_uri_correct(uri: str) -> None:
 )
 def test_is_iiif_uri_wrong(uri: str) -> None:
     assert not is_iiif_uri(uri)
+
+
+@pytest.mark.parametrize(
+    ("uri", "result"),
+    [
+        ("https://api.dasch.swiss", True),
+        ("https://api.rdu.dasch.swiss", True),
+        ("https://api.ls-prod-server.dasch.swiss", True),
+        ("https://api.ls-test-server.dasch.swiss", True),
+        ("https://api.stage.dasch.swiss", True),
+        ("https://api.rdu-06.dasch.swiss", False),
+    ],
+)
+def test_is_prod_like_server(uri, result):
+    assert is_prod_like_server(uri) == result
 
 
 if __name__ == "__main__":

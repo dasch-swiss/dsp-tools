@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
+from pathlib import Path
 
 from rdflib import Graph
 
@@ -22,6 +23,15 @@ class RDFGraphs:
     cardinality_shapes: Graph
     content_shapes: Graph
     knora_api: Graph
+    resources_in_db_graph: Graph
+
+
+@dataclass
+class ValidationFilePaths:
+    directory: Path
+    data_file: str
+    shacl_file: str
+    report_file: str
 
 
 @dataclass
@@ -52,6 +62,7 @@ class ValidationResultBaseInfo:
     focus_node_iri: SubjectObjectTypeAlias
     focus_node_type: SubjectObjectTypeAlias
     result_path: SubjectObjectTypeAlias
+    severity: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 
 
@@ -66,6 +77,7 @@ class ValidationResult:
     violation_type: ViolationType
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
+    severity: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None = None
     message: SubjectObjectTypeAlias | None = None
     input_value: SubjectObjectTypeAlias | None = None
@@ -83,8 +95,8 @@ class ViolationType(Enum):
     MAX_CARD = auto()
     MIN_CARD = auto()
     NON_EXISTING_CARD = auto()
-    FILEVALUE_PROHIBITED = auto()
-    FILE_VALUE = auto()
+    FILE_VALUE_PROHIBITED = auto()
+    FILE_VALUE_MISSING = auto()
 
 
 @dataclass

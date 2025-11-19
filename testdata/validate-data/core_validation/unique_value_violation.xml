@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 5 Violations -->
+
+    <!--
+        The value of the same property may not be identical
+        knora-api:valueAsString is not rdfs:subProperty of any knora-api properties
+    -->
+    <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values_valueAsString">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8"> Text   </text>
+            <text encoding="utf8">&#160;
+                &#xa;Text&#x9;
+            &#xa;</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Duplicate Value: xml" restype=":ClassWithEverything" id="identical_values_richtext">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"> Text   </text>
+            <text encoding="xml">&#160;
+                &#xa;Text&#x9;
+            &#xa;</text>
+        </text-prop>
+    </resource>
+
+    <!--
+        The value of the same property may not be identical
+        api-shapes:linkValueHasTargetID
+    -->
+    <resource label="Target of duplicate LinkValue" restype=":ClassWithEverything" id="link_valueTarget_id"/>
+
+    <resource label="Duplicate Value: LinkValue" restype=":ClassWithEverything" id="identical_values_LinkValue">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>link_valueTarget_id</resptr>
+            <resptr>link_valueTarget_id</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!--
+        The value of the same property may not be identical
+        knora-api:listValueAsListNode
+    -->
+    <resource label="Duplicate Value: ListNode" restype=":ClassWithEverything" id="identical_values_listNode">
+        <list-prop list="firstList" name=":testListProp">
+            <list>n1</list>
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <!--
+        The value of the same property may not be identical
+        The following values use properties that are rdfs:subProperty of knora-api:valueHas
+        - BooleanValue
+        - ColorValue
+        - DecimalValue
+        - GeonameValue
+        - IntValue
+        - Richtext (knora-api:textValueAsXml)
+        - TimeValue
+        - UriValue
+    -->
+    <resource label="Identical Value: valueHas" restype=":ClassWithEverything" id="identical_values_valueHas">
+        <geoname-prop name=":testGeoname">
+            <geoname>00111111</geoname>
+            <geoname>00111111</geoname>
+        </geoname-prop>
+    </resource>
+
+</knora>

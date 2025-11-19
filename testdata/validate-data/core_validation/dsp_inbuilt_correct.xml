@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="in-built">
+
+
+    <permissions id="public">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
+    <!-- Target Resources for Links -->
+
+    <resource label="Empty 1" restype=":TestNormalResource" id="target_empty_1"/>
+    <resource label="Empty 2" restype=":TestNormalResource" id="target_empty_2"/>
+
+    <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >target_empty_image.jpg</bitstream>
+    </resource>
+
+    <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >target_empty_movie.mp4</bitstream>
+    </resource>
+
+    <resource label="Target Audio" restype="onto:TestAudioRepresentation" id="target_empty_audio">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >target_empty_audio.mp3</bitstream>
+    </resource>
+
+    <!-- LinkObj -->
+
+    <link label="Link object" id="link_obj_no_comment">
+        <resptr-prop name="hasLinkTo">
+            <resptr>target_empty_1</resptr>
+            <resptr>target_empty_2</resptr>
+        </resptr-prop>
+    </link>
+
+    <link label="Link object" id="link_obj_with_comment">
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment Text</text>
+        </text-prop>
+        <resptr-prop name="hasLinkTo">
+            <resptr>target_empty_1</resptr>
+            <resptr>target_empty_2</resptr>
+        </resptr-prop>
+    </link>
+
+
+    <!-- Region -->
+
+    <region label="Region" id="region_with_comment">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment Text</text>
+        </text-prop>
+    </region>
+
+    <!-- Region without comment -->
+
+    <region label="Region" id="region_without_comment">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- VideoSegment -->
+
+    <video-segment label="Video Segment with all possible values" id="video_segment_all_values">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        <hasTitle>Title of video segment</hasTitle>
+        <hasComment><strong>Bold comment</strong> of video segment</hasComment>
+        <hasDescription><strong>Bold description</strong> of video segment</hasDescription>
+        <hasKeyword>Keyword 1 of video segment</hasKeyword>
+        <hasKeyword>Keyword 2 of video segment</hasKeyword>
+        <relatesTo>audio_segment_all_values</relatesTo>
+    </video-segment>
+
+    <video-segment label="Video Segment with only the mandatory values" id="video_segment_only_mandatory">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
+    <!-- AudioSegment -->
+
+    <audio-segment label="Audio Segment with all possible values" id="audio_segment_all_values">
+        <isSegmentOf>target_empty_audio</isSegmentOf>
+        <hasSegmentBounds segment_start="0" segment_end="5.6"/>
+        <hasTitle>Title of audio segment</hasTitle>
+        <hasComment>Comment 1 of audio segment</hasComment>
+        <hasComment>Comment 2 of audio segment</hasComment>
+        <hasDescription>Description 1 of audio segment</hasDescription>
+        <hasDescription>Description 2 of audio segment</hasDescription>
+        <hasKeyword>Keyword 1 of audio segment</hasKeyword>
+        <hasKeyword>Keyword 2 of audio segment</hasKeyword>
+        <relatesTo>video_segment_all_values</relatesTo>
+    </audio-segment>
+
+    <audio-segment label="Audio Segment with only the mandatory values" id="audio_segment_mandatory_values">
+        <isSegmentOf>target_empty_audio</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
+
+    <!-- hasRepresentation to any Representation type -->
+
+    <resource label="Target is any representation image" restype=":TestNormalResource"
+              id="has_any_representation_image">
+        <resptr-prop name=":testHasRepresentation">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Target is any representation movie" restype=":TestNormalResource"
+              id="has_any_representation_movie">
+        <resptr-prop name=":testHasRepresentation">
+            <resptr>target_empty_movie</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!-- hasRepresentation to only images -->
+
+    <resource label="Target is image representation" restype=":TestNormalResource" id="has_image_representation">
+        <resptr-prop name=":testHasRepresentationImage">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!-- direct usage of knora-api seqnum/isPartOf -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="seqnum_isPartOf_direct_usage">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >seqnum_isPartOf_direct_usage.jpg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_empty_1</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="seqnum_isPartOf_sub_prop_usage">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >seqnum_isPartOf_sub_prop_usage.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_empty_1</resptr>
+        </resptr-prop>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- permissions -->
+
+    <resource label="Resource with Permissions"
+              restype=":TestNormalResource"
+              id="resource_permissions"
+              permissions="public"
+    />
+
+    <link label="value with permissions" id="value_with_permissions">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="public">target_empty_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <resource label="bitstream with permissions"
+              restype=":TestStillImageRepresentationWithSeqnum"
+              id="bitstream_permissions"
+    >
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+                   permissions="public"
+        >bitstream_permissions.jpg</bitstream>
+    </resource>
+
+    <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">
+        <iiif-uri license="http://rdfh.ch/licenses/unknown"
+                  copyright-holder="DaSCH"
+                  authorship-id="authorship_1"
+                  permissions="public"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+</knora>

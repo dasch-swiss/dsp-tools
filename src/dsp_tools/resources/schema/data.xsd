@@ -33,6 +33,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- data type for resptr tags -->
+    <xs:simpleType name="resptr_datatype">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_][a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_\d.\-]*)|(http://rdfh\.ch/[\dA-F]{4}/\S+)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- group type for allow..." -->
     <xs:simpleType name="group_types">
         <xs:restriction base="xs:string">
@@ -68,6 +75,13 @@
     <xs:simpleType name="knorauri_type">
         <xs:restriction base="xs:string">
             <xs:pattern value="([a-z][a-z0-9+.\-]*):(//([\w_.\-~:\[\]]+)(:\d{0,6})?)(/[\w_.\-:~%()!@,;/=*&amp;'+]*)*(\?[\w_.\-:~%()!@,;/=*&amp;'+]+)*(#[\w_.\-:~%()!@,;/=*&amp;'+]*)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- data type for property and resource class names (no whitespace allowed) -->
+    <xs:simpleType name="string_without_space">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^\s]+"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -212,7 +226,7 @@
     <!-- resptr_type (link to other resource) value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="resptr_datatype">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
@@ -264,7 +278,7 @@
         <xs:sequence>
             <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- colorprop_type -->
@@ -272,7 +286,7 @@
         <xs:sequence>
             <xs:element name="color" type="color_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- dateprop_type -->
@@ -280,7 +294,7 @@
         <xs:sequence>
             <xs:element name="date" type="date_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- floatprop_type -->
@@ -288,7 +302,7 @@
         <xs:sequence>
             <xs:element name="float" type="float_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- geonameprop_type -->
@@ -296,7 +310,7 @@
         <xs:sequence>
             <xs:element name="geoname" type="geoname_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- listprop_type -->
@@ -304,7 +318,7 @@
         <xs:sequence>
             <xs:element name="list" type="list_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
         <xs:attribute name="list" type="xs:string" use="required"/>
     </xs:complexType>
 
@@ -313,7 +327,7 @@
         <xs:sequence>
             <xs:element name="integer" type="integer_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- periodprop_type -->
@@ -321,7 +335,7 @@
         <xs:sequence>
             <xs:element name="period" type="period_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- resptrprop_type -->
@@ -329,7 +343,7 @@
         <xs:sequence>
             <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- timeprop_type -->
@@ -337,7 +351,7 @@
         <xs:sequence>
             <xs:element name="time" type="time_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- decimalprop_type -->
@@ -345,7 +359,7 @@
         <xs:sequence>
             <xs:element name="decimal" type="decimal_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- uriprop_type -->
@@ -353,7 +367,7 @@
         <xs:sequence>
             <xs:element name="uri" type="uri_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- booleanprop_type -->
@@ -361,7 +375,7 @@
         <xs:sequence>
             <xs:element name="boolean" type="boolean_type" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- builtin_hasComment_prop_type -->
@@ -457,7 +471,7 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="restype" type="xs:string" use="required"/>
+        <xs:attribute name="restype" type="string_without_space" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>

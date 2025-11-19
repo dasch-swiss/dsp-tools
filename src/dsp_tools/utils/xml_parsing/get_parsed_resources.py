@@ -5,6 +5,7 @@ from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -15,7 +16,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
-    api_url = _convert_api_url_for_correct_iri_namespace_construction(api_url)
+    api_url = convert_api_url_for_correct_iri_namespace_construction(api_url)
     iri_lookup = _create_from_local_name_to_absolute_iri_lookup(root, api_url)
     all_res: list[ParsedResource] = []
     for res in root.iterdescendants(tag="resource"):
@@ -32,10 +33,6 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResou
     for res in root.iterdescendants(tag="audio-segment"):
         all_res.append(_parse_segment(res, "Audio"))
     return all_res
-
-
-def _convert_api_url_for_correct_iri_namespace_construction(api_url: str) -> str:
-    return regex.sub(r"^https", "http", api_url)
 
 
 def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url: str) -> dict[str, str]:
@@ -315,14 +312,14 @@ def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noq
             return KnoraValueType.ARCHIVE_FILE
         case "mp3" | "wav":
             return KnoraValueType.AUDIO_FILE
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx" | "epub":
             return KnoraValueType.DOCUMENT_FILE
         case "mp4":
             return KnoraValueType.MOVING_IMAGE_FILE
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             return KnoraValueType.STILL_IMAGE_FILE
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+        case "odd" | "rng" | "txt" | "xml" | "htm" | "html" | "xsd" | "xsl" | "csv" | "json":
             return KnoraValueType.TEXT_FILE
         case _:
             return None

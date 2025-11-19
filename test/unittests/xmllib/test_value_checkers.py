@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import warnings
 from typing import Any
 
@@ -16,8 +18,10 @@ from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
+from dsp_tools.xmllib.value_checkers import is_link_value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_timestamp
+from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
 
 @pytest.mark.parametrize(
@@ -34,6 +38,10 @@ from dsp_tools.xmllib.value_checkers import is_timestamp
         False,
         "עִבְרִית",
         "اَلْعَرَبِيَّةُ",
+        ["content"],
+        tuple("content"),
+        {"content"},
+        {"content": "content"},
     ],
 )
 def test_is_nonempty_value_correct(text: str) -> None:
@@ -57,6 +65,11 @@ def test_is_nonempty_value_correct(text: str) -> None:
         " \u200b ",  # zero-width space
         " \ufeff ",  # Zero-Width No-Break Space
         " \t\n\r\v\f \u00a0 \u200b \ufeff",
+        [""],
+        ["", "content"],
+        ("",),
+        {""},
+        {"": ""},
     ],
 )
 def test_is_nonempty_value_wrong(text: str) -> None:
@@ -161,6 +174,26 @@ def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
 
 
+@pytest.mark.parametrize("val", ["_1", "abc_2", "http://rdfh.ch/4123/54SYvWF0QUW6a"])
+def test_is_link_value_correct(val):
+    assert is_link_value(val)
+
+
+@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed", ""])
+def test_is_link_value_wrong(val):
+    assert not is_link_value(val)
+
+
+@pytest.mark.parametrize("val", ["_1", "abc_2", "ö", "Universität", "a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_"])
+def test_is_valid_resource_id_correct(val):
+    assert is_valid_resource_id(val)
+
+
+@pytest.mark.parametrize("val", [1.2, "1", "characters|not|allowed", " ", " not_good", None])
+def test_is_valid_resource_id_wrong(val):
+    assert not is_valid_resource_id(val)
+
+
 @pytest.mark.parametrize(
     "val",
     [
@@ -194,7 +227,9 @@ def test_is_timestamp_wrong(val: Any) -> None:
     assert not is_timestamp(val)
 
 
-@pytest.mark.parametrize("val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
+@pytest.mark.parametrize(
+    "val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", "http://rdfh.ch/4A23/DiAmYQzQSzC7cdTo6OJMYA"]
+)
 def test_is_dsp_iri_correct(val: Any) -> None:
     assert is_dsp_iri(val)
 

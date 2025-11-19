@@ -1,3 +1,4 @@
+import contextlib
 import importlib.resources
 import shutil
 import subprocess
@@ -9,11 +10,17 @@ from typing import Optional
 import regex
 import requests
 import yaml
+from jinja2 import Template
 from loguru import logger
 
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
+MINUTE = 60
 
 
 @dataclass(frozen=True)
@@ -33,6 +40,7 @@ class StackConfiguration:
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
     upload_test_data: bool = False
+    custom_host: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
@@ -45,6 +53,10 @@ class StackConfiguration:
             raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
+        if self.custom_host is not None and not regex.match(
+            r"^(((\d{1,3}\.){3}\d{1,3})|((([-\w_~]+\.)*([a-z]){2,})))$", self.custom_host
+        ):
+            raise InputError("Invalid format for custom host. Please, enter an IP or a domain name.")
 
 
 class StackHandler:
@@ -105,6 +117,7 @@ class StackHandler:
         by an earlier run of this method.
         So, this method must always be called, at every run of start-stack.
         """
+        logger.debug("Copying resources to home directory ...")
         docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")
         for file in docker_path_of_distribution.iterdir():
             with importlib.resources.as_file(file) as f:
@@ -112,6 +125,40 @@ class StackHandler:
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
+
+    def _set_custom_host(self) -> None:
+        """
+        To ensure the frontend can communicate with a backend on a different server, the host in the environments
+        needs to be changed.
+        By design the IRIs match the host of the database.
+
+        This is done by overriding the environment variables in the docker-compose.yml and by replacing the
+        configuration for the frontend.
+        """
+        if self.__stack_configuration.custom_host is not None:
+            logger.debug("Setting custom host...")
+            self.__localhost_url = f"http://{self.__stack_configuration.custom_host}"
+
+            docker_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/docker-compose.override-host.j2"
+            )
+            docker_template = Template(docker_template_path.read_text(encoding="utf-8"))
+            docker_template_rendered = docker_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
+            Path(self.__docker_path_of_user / "docker-compose.override-host.yml").write_text(
+                docker_template_rendered, encoding="utf-8"
+            )
+
+            dsp_app_config_template_path = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/dsp-app-config.override-host.j2"
+            )
+            dsp_app_config_template = Template(dsp_app_config_template_path.read_text(encoding="utf-8"))
+            dsp_app_config_rendered = dsp_app_config_template.render(CUSTOM_HOST=self.__stack_configuration.custom_host)
+            Path(self.__docker_path_of_user / "dsp-app-config.json").unlink()
+            Path(self.__docker_path_of_user / "dsp-app-config.json").write_text(
+                dsp_app_config_rendered, encoding="utf-8"
+            )
+        Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
+        Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -121,6 +168,7 @@ class StackHandler:
         Raises:
             InputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
+        logger.debug("Retrieving sipi.docker-config.lua...")
         docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
@@ -142,6 +190,7 @@ class StackHandler:
         Raises:
             InputError: if the database cannot be started
         """
+        logger.debug("Starting up the fuseki container...")
         cmd = "docker compose up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
@@ -154,53 +203,28 @@ class StackHandler:
         Wait up to 6 minutes, until the fuseki database is up and running.
         This function imitates the behaviour of the script dsp-api/webapi/scripts/wait-for-db.sh.
         """
+        logger.debug("Waiting for the fuseki container to be up and running...")
         for _ in range(6 * 60):
             try:
                 response = requests.get(f"{self.__localhost_url}:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
+                    logger.debug("Fuseki is now up and running.")
                     break
             except Exception:  # noqa: BLE001 (blind-except)
                 time.sleep(1)
             time.sleep(1)
 
-    def _create_knora_test_repo(self) -> None:
-        """
-        Inside fuseki, create the "knora-test" repository.
-        This function imitates the behaviour of the script dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
-
-        Raises:
-            InputError: in case of failure
-        """
-        repo_template_response = requests.get(
-            f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
-            timeout=30,
-        )
-        repo_template = repo_template_response.text
-        repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
-        response = requests.post(
-            f"{self.__localhost_url}:3030/$/datasets",
-            files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
-            auth=("admin", "test"),
-            timeout=30,
-        )
-        if not response.ok:
-            msg = (
-                "Cannot start DSP-API: Error when creating the 'knora-test' repository. "
-                "Is DSP-API perhaps running already?"
-            )
-            logger.error(f"{msg}. response = {vars(response)}")
-            raise InputError(msg)
-
     def _load_data_into_repo(self) -> None:
         """
         Load some basic ontologies and data into the repository.
         This function imitates the behaviour of the script
-        dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh.
+        dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
 
         Raises:
             InputError: if one of the graphs cannot be created
         """
-        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
+        logger.debug("Loading data into the 'dsp-repo' repository...")
+        graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
         ttl_files = [
             ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
             ("webapi/src/main/resources/knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
@@ -237,7 +261,8 @@ class StackHandler:
         Raises:
             InputError: If the user cannot be created.
         """
-        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
+        logger.debug("Creating the default admin user...")
+        graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
         admin_graph = "http://www.knora.org/data/admin"
         admin_user = """
         @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
@@ -268,9 +293,8 @@ class StackHandler:
 
     def _initialize_fuseki(self) -> None:
         """
-        Create the "knora-test" repository and load some basic ontologies and data into it.
+        Load some basic ontologies and data into the 'dsp-repo' repository.
         """
-        self._create_knora_test_repo()
         if self.__stack_configuration.upload_test_data:
             self._load_data_into_repo()
         else:
@@ -283,9 +307,13 @@ class StackHandler:
         """
         compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
+            logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
+        if self.__stack_configuration.custom_host is not None:
+            compose_str += " -f docker-compose.override-host.yml"
         compose_str += " up -d"
+        logger.debug(f"Running '{compose_str}' ...")
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
@@ -293,16 +321,37 @@ class StackHandler:
         Wait until the API is up and running.
         This mimicks the behaviour of the script webapi/scripts/wait-for-api.sh in the DSP-API repository.
         """
-        for _ in range(6 * 60):
+        logger.debug("Waiting for the API to start...")
+        for num_secs in range(6 * 60):
             try:
-                response = requests.get(f"{self.__localhost_url}:3333/health", timeout=1)
-                if not response.ok:
-                    time.sleep(1)
-                    continue
-            except requests.exceptions.RequestException:
-                time.sleep(1)
-                continue
-        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
+                params = RequestParameters("GET", f"{self.__localhost_url}:3333/health", timeout=1)
+                log_request(params)
+                response = requests.get(params.url, timeout=params.timeout)
+                log_response(response)
+                if response.ok:
+                    break
+            except requests.exceptions.RequestException as e:
+                logger.debug(f"RequestException while checking API status: {e}")
+            if num_secs > MINUTE / 2 and num_secs % 10 == 0:
+                # There is probably an issue, so we need more logs
+                with contextlib.suppress():
+                    docker_ps_output = subprocess.run(
+                        "docker ps -a".split(), cwd=self.__docker_path_of_user, check=True, capture_output=True
+                    ).stdout.decode("utf-8")
+                    docker_ps_output = "\n\t".join(docker_ps_output.split("\n"))
+                    logger.debug(f"docker ps -a output:\n\t{docker_ps_output}")
+                    docker_logs_output = subprocess.run(
+                        "docker logs start-stack-api-1".split(),
+                        cwd=self.__docker_path_of_user,
+                        check=True,
+                        capture_output=True,
+                    ).stdout.decode("utf-8")
+                    docker_logs_output = "\n\t".join(docker_logs_output.split("\n"))
+                    logger.debug(f"Logs of DSP-API container:\n\t{docker_logs_output}")
+            time.sleep(1)
+        msg = f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/"
+        logger.debug(msg)
+        print(msg)
 
     def _execute_docker_system_prune(self) -> None:
         """
@@ -324,6 +373,7 @@ class StackHandler:
                     "to keep your docker clean and running smoothly. [y/n]"
                 )
         if prune_docker == "y":
+            logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)
 
     def _start_docker_containers(self) -> None:
@@ -352,10 +402,15 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
-            raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
-        self._get_sipi_docker_config_lua()
+        self._set_custom_host()
+        try:
+            self._get_sipi_docker_config_lua()
+        except (requests.ConnectionError, requests.ReadTimeout):
+            raise PermanentConnectionError(
+                "This command requires an internet connection. "
+                "Please ensure that your computer is connected and try again."
+            )
         self._start_docker_containers()
         return True
 
@@ -367,4 +422,7 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         subprocess.run("docker compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
+        shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
+        # ignore all errors, because the dir cannot be found if this function is called multiple times,
+        # and because in GitHub CI, python lacks permissions to delete this dir
         return True

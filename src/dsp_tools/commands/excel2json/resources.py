@@ -19,11 +19,13 @@ from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMiss
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import OntoResource
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
@@ -37,7 +39,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 def excel2resources(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
-) -> tuple[list[dict[str, Any]], bool]:
+) -> tuple[list[dict[str, Any]], PermissionsOverrulesUnprefixed, bool]:
     """
     Converts resources described in an Excel file into a "resources" section which can be inserted into a JSON
     project file.
@@ -51,8 +53,9 @@ def excel2resources(
         InputError: if something went wrong
 
     Returns:
-        a tuple consisting of the "resources" section as Python list,
-            and the success status (True if everything went well)
+        - the "resources" section as Python list,
+        - the unprefixed "default_permissions_overrule",
+        - the success status (True if everything went well)
     """
 
     all_dfs = read_and_clean_all_sheets(excelfile)
@@ -65,6 +68,7 @@ def excel2resources(
     # transform every row into a resource
     res = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
     resources = [x.serialise() for x in res]
+    default_permissions_overrule = _extract_default_permissions_overrule(classes_df)
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -74,7 +78,7 @@ def excel2resources(
             json.dump(resources, file, indent=4, ensure_ascii=False)
             print(f"resources section was created successfully and written to file '{path_to_output_file}'")
 
-    return resources, True
+    return resources, default_permissions_overrule, True
 
 
 def _validate_excel_file(all_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
@@ -90,6 +94,8 @@ def _validate_excel_file(all_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem |
         problems.append(cls_problem)
     if sheet_problems := _validate_individual_class_sheets(df_dict):
         problems.extend(sheet_problems)
+    if permissions_prob := check_permissions(df=classes_df, allowed_vals=["private", "limited_view"]):
+        problems.append(permissions_prob)
     if problems:
         return ExcelFileProblem("resources.xlsx", problems)
     return None
@@ -152,6 +158,7 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
             "comment_fr",
             "comment_it",
             "comment_rm",
+            "default_permissions_overrule",
         },
     )
     resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}
@@ -203,9 +210,10 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 
 def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
-    return ResourceCardinality(
-        f":{detail_row['property']}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
-    )
+    prop_str = str(detail_row["property"])
+    knora_props = ["seqnum", "isPartOf"]
+    prop = prop_str if ":" in prop_str or prop_str in knora_props else f":{prop_str}"
+    return ResourceCardinality(prop, str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"]))
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
@@ -313,3 +321,16 @@ def _find_validation_problem(
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
     )
+
+
+def _extract_default_permissions_overrule(classes_df: pd.DataFrame) -> PermissionsOverrulesUnprefixed:
+    result = PermissionsOverrulesUnprefixed(private=[], limited_view=[])
+    for _, row in classes_df.iterrows():
+        perm = row.get("default_permissions_overrule")
+        if pd.isna(perm):
+            continue
+        if perm.strip().lower() == "private":
+            result.private.append(row["name"])
+        elif perm.strip().lower() == "limited_view":
+            result.limited_view.append(row["name"])
+    return result

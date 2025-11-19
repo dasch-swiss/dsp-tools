@@ -6,11 +6,14 @@ runs:
   using: "composite"
   steps:
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
     - name: Install just
       uses: taiki-e/install-action@just
     - name: Install Python dependencies (uv will install python automatically, if no appropriate version is installed)
       run: uv sync --all-extras --dev
+      shell: bash
+    - name: Enable dsp-tools log file in cwd
+      run: echo 'DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true' >> .env
       shell: bash

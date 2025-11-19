@@ -7,16 +7,16 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_rdflib_object
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_resource
-from dsp_tools.commands.validate_data.make_data_graph import _make_one_value
-from dsp_tools.commands.validate_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_rdflib_object
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_resource
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_value
+from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_property_objects_graph
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.rdflib_constants import KNORA_API
@@ -48,6 +48,30 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
     ("trpl_obj", "object_type", "prop_type", "expected"),
     [
         (
+            "1900-20-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-20-01", datatype=XSD.string),
+        ),
+        (
+            "9-01-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("9-01-01", datatype=XSD.string),
+        ),
+        (
+            "1990-01-50",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1990-01-50", datatype=XSD.string),
+        ),
+        (
+            "1900-01-01",
+            TripleObjectType.DATE_YYYY_MM_DD,
+            TriplePropertyType.KNORA_DATE_START,
+            Literal("1900-01-01", datatype=XSD.date),
+        ),
+        (
             "label",
             TripleObjectType.STRING,
             None,
@@ -67,7 +91,7 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
         ),
         (
             "res_id",
-            TripleObjectType.IRI,
+            TripleObjectType.INTERNAL_ID,
             TriplePropertyType.KNORA_STANDOFF_LINK,
             DATA.res_id,
         ),
@@ -89,7 +113,6 @@ class TestResource:
             res_id="id",
             property_objects=UNREIFIED_TRIPLE_OBJECTS,
             values=[],
-            asset_value=None,
             migration_metadata=MigrationMetadata(),
         )
         res_g = _make_one_resource(res)
@@ -102,7 +125,6 @@ class TestResource:
             res_id="id",
             property_objects=UNREIFIED_TRIPLE_OBJECTS,
             values=[rdf_like_boolean_value_corr],
-            asset_value=None,
             migration_metadata=MigrationMetadata(),
         )
         res_g = _make_one_resource(res)
@@ -111,28 +133,6 @@ class TestResource:
         assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
         bool_bn = next(res_g.objects(RES_IRI, ONTO.testBoolean))
         assert next(res_g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
-
-    def test_with_asset(self):
-        res = RdfLikeResource(
-            res_id="id",
-            property_objects=UNREIFIED_TRIPLE_OBJECTS,
-            values=[],
-            asset_value=RdfLikeValue(
-                f"{KNORA_API_STR}hasAudioFileValue",
-                "testdata/bitstreams/test.wav",
-                KnoraValueType.AUDIO_FILE,
-                [],
-            ),
-            migration_metadata=MigrationMetadata(),
-        )
-        res_g = _make_one_resource(res)
-        assert len(res_g) == 5
-        assert next(res_g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
-        assert next(res_g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
-        bool_bn = next(res_g.objects(RES_IRI, KNORA_API.hasAudioFileValue))
-        assert next(res_g.objects(bool_bn, KNORA_API.fileValueHasFilename)) == Literal(
-            "testdata/bitstreams/test.wav", datatype=XSD.string
-        )
 
 
 class TestBooleanValue:
@@ -192,6 +192,46 @@ class TestDateValue:
             "JULIAN:BCE:0700:BCE:0600", datatype=XSD.string
         )
 
+    def test_with_date_range_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-01-01", datatype=XSD.date)
+
+    def test_with_date_range_invalid_date(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+            "GREGORIAN:CE:1900:CE:2000-50",
+            KnoraValueType.DATE_VALUE,
+            [
+                PropertyObject(TriplePropertyType.KNORA_DATE_START, "1900-01-01", TripleObjectType.DATE_YYYY_MM_DD),
+                PropertyObject(TriplePropertyType.KNORA_DATE_END, "2000-50-01", TripleObjectType.DATE_YYYY_MM_DD),
+            ],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 5
+        bn = next(val_g.objects(RES_IRI, ONTO.testSubDate1))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.DateValue
+        assert next(val_g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            "GREGORIAN:CE:1900:CE:2000-50", datatype=XSD.string
+        )
+        assert next(val_g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
+        assert next(val_g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-50-01", datatype=XSD.string)
+
 
 class TestDecimalValue:
     def test_corr(self):
@@ -235,7 +275,7 @@ class TestIntValue:
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testIntegerSimpleText))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.IntValue
-        assert next(val_g.objects(bn, KNORA_API.intValueAsInt)) == Literal("1", datatype=XSD.integer)
+        assert next(val_g.objects(bn, KNORA_API.intValueAsInt)) == Literal("1", datatype=XSD.int)
 
 
 class TestIntervalValue:
@@ -270,6 +310,19 @@ class TestLinkValue:
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
         assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
+    def test_corr_with_iri(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
+            "http://rdfh.ch/9999/resource-iri",
+            KnoraValueType.LINK_VALUE,
+            [],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == URIRef("http://rdfh.ch/9999/resource-iri")
+
     def test_none(self):
         val = RdfLikeValue(
             "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []
@@ -290,7 +343,7 @@ class TestListValue:
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testListProp))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ListValue
-        assert next(val_g.objects(bn, API_SHAPES.listNodeAsString)) == Literal("n1", datatype=XSD.string)
+        assert next(val_g.objects(bn, KNORA_API.listValueAsListNode)) == Literal("n1", datatype=XSD.string)
 
 
 class TestSimpleTextValue:
@@ -321,6 +374,21 @@ class TestRichtextValue:
         bn = next(val_g.objects(RES_IRI, ONTO.testRichtext))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
         assert next(val_g.objects(bn, KNORA_API.textValueAsXml)) == Literal("rich text", datatype=XSD.string)
+
+    def test_corr_with_standoff(self):
+        standoff_iri = "http://rdfh.ch/9999/resource-iri"
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext",
+            "rich text",
+            KnoraValueType.RICHTEXT_VALUE,
+            [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, standoff_iri, TripleObjectType.IRI)],
+        )
+        val_g = _make_one_value(val, RES_IRI)
+        assert len(val_g) == 4
+        bn = next(val_g.objects(RES_IRI, ONTO.testRichtext))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TextValue
+        assert next(val_g.objects(bn, KNORA_API.textValueAsXml)) == Literal("rich text", datatype=XSD.string)
+        assert next(val_g.objects(bn, KNORA_API.hasStandoffLinkTo)) == URIRef(standoff_iri)
 
 
 class TestTimeValue:

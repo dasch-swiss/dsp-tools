@@ -24,7 +24,6 @@ from urllib.parse import quote_plus
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.model import Model
-from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import Languages
 
@@ -59,9 +58,6 @@ class User(Model):
 
     status : bool
         Status of the user, If active, is set to True, otherwise false [read/write]
-
-    sysadmin : bool
-        True, if user is system administrator [read/write]
 
     in_groups : set[str]
         Set of group IRI's the user is member of [readonly].
@@ -103,7 +99,6 @@ class User(Model):
     _password: str
     _lang: Languages
     _status: bool
-    _sysadmin: bool
     _in_groups: set[str]
     _in_projects: dict[str, bool]
     _add_to_project: dict[str, bool]
@@ -123,7 +118,6 @@ class User(Model):
         password: Optional[str] = None,
         lang: Optional[Union[str, Languages]] = None,
         status: Optional[bool] = None,
-        sysadmin: Optional[bool] = None,
         in_projects: Optional[dict[str, bool]] = None,
         in_groups: Optional[set[str]] = None,
     ):
@@ -141,7 +135,6 @@ class User(Model):
         :param password: Password [required for CREATE]
         :param lang: Preferred language of the user [optional]
         :param status: Status (active = True, inactive/deleted = False) [optional]
-        :param sysadmin: User has system administration privileges [optional]
         :param in_projects: Dict with project-IRI as key, boolean(True=project admin) as value [optional]
         :param in_groups: Set with group-IRI's the user should belong to [optional]
         """
@@ -173,8 +166,6 @@ class User(Model):
             self._in_groups = in_groups if in_groups is not None else set()
         else:
             raise BaseError("In_groups must be a set of strings or None!")
-
-        self._sysadmin = None if sysadmin is None else bool(sysadmin)
 
     @property
     def iri(self) -> Optional[str]:
@@ -272,17 +263,6 @@ class User(Model):
             self._changed.add("status")
 
     @property
-    def sysadmin(self) -> bool:
-        """True if the user is sysadmin"""
-        return self._sysadmin
-
-    @sysadmin.setter
-    def sysadmin(self, value: bool) -> None:
-        self._sysadmin = None if value is None else bool(value)
-        if value is not None:
-            self._changed.add("sysadmin")
-
-    @property
     def in_groups(self) -> set[str]:
         """Set of group IRI's the user is member of"""
         return self._in_groups
@@ -296,7 +276,7 @@ class User(Model):
     def _make_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
         User._check_if_jsonObj_has_required_info(json_obj)
 
-        sysadmin, in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
+        in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
 
         return cls(
             con=con,
@@ -307,7 +287,6 @@ class User(Model):
             familyName=json_obj.get("familyName"),
             lang=json_obj.get("lang"),
             status=json_obj["status"],
-            sysadmin=sysadmin,
             in_projects=in_projects,
             in_groups=in_groups,
         )
@@ -331,26 +310,21 @@ class User(Model):
             raise BaseError("\n".join(problems))
 
     @classmethod
-    def _update_permissions_and_groups(cls, json_obj: dict[str, Any]) -> tuple[bool | None, set[str], dict[str, bool]]:
+    def _update_permissions_and_groups(cls, json_obj: dict[str, Any]) -> tuple[set[str], dict[str, bool]]:
         in_projects: dict[str, bool] = {}
         in_groups: set[str] = set()
         if json_obj.get("permissions") is not None and json_obj["permissions"].get("groupsPerProject") is not None:
-            sysadmin = False
             for project_iri, group_memberships in json_obj["permissions"]["groupsPerProject"].items():
-                if project_iri == Project.SYSTEM_PROJECT:
-                    if Group.PROJECT_SYSTEMADMIN_GROUP in group_memberships:
-                        sysadmin = True
-                else:
-                    for group in group_memberships:
-                        if group == Group.PROJECT_MEMBER_GROUP:
-                            if in_projects.get(project_iri) is None:
-                                in_projects[project_iri] = False
-                        elif group == Group.PROJECT_ADMIN_GROUP:
-                            in_projects[project_iri] = True
-                        else:
-                            in_groups.add(group)
-            return sysadmin, in_groups, in_projects
-        return None, in_groups, in_projects
+                for group in group_memberships:
+                    if group == Group.PROJECT_MEMBER_GROUP:
+                        if in_projects.get(project_iri) is None:
+                            in_projects[project_iri] = False
+                    elif group == Group.PROJECT_ADMIN_GROUP:
+                        in_projects[project_iri] = True
+                    else:
+                        in_groups.add(group)
+            return in_groups, in_projects
+        return in_groups, in_projects
 
     def create(self) -> User:
         """
@@ -394,7 +368,8 @@ class User(Model):
             raise BaseError("'language' is mandatory!")
         tmp["lang"] = self._lang.value
         tmp["status"] = True if self._status is None else self._status
-        tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
+        # the API expects the key "systemAdmin" to be present. DSP-TOOLS doesn't support creating SystemAdmins any more.
+        tmp["systemAdmin"] = False
         return tmp
 
     def read(self) -> User:
@@ -412,20 +387,6 @@ class User(Model):
         else:
             raise BaseError("Either user-iri or email is required!")
         return User._make_fromJsonObj(self._con, result["user"])
-
-    @staticmethod
-    def getAllUsers(con: Connection) -> list[Any]:
-        """
-        Get a list of all users (static method)
-
-        :param con: Connection instance
-        :return: List of users
-        """
-
-        result = con.get(User.ROUTE)
-        if "users" not in result:
-            raise BaseError("Request got no users!")
-        return [User._make_fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
@@ -465,8 +426,6 @@ class User(Model):
             if "group" in group_info and "name" in group_info["group"]:
                 groupname = group_info["group"]["name"]
                 groups.append(f"{proj_shortname}:{groupname}")
-        if self._sysadmin:
-            groups.append("SystemAdmin")
         user["groups"] = groups
         user["projects"] = list()
         for proj, is_admin in self._in_projects.items():

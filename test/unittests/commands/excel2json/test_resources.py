@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotLis
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
+from dsp_tools.commands.excel2json.resources import _extract_default_permissions_overrule
 from dsp_tools.commands.excel2json.resources import _make_one_cardinality
 
 
@@ -73,23 +74,23 @@ class TestCreateAllCardinalities:
         )
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert isinstance(res, list)
-            res = sorted(res, key=lambda x: x.propname)
-            one = res[0]
-            assert isinstance(one, ResourceCardinality)
-            assert one.propname == ":1"
-            assert one.cardinality == "1-n"
-            assert one.gui_order == 1
-            two = res[1]
-            assert isinstance(two, ResourceCardinality)
-            assert two.propname == ":2"
-            assert two.cardinality == "1"
-            assert two.gui_order == 2
-            three = res[2]
-            assert isinstance(three, ResourceCardinality)
-            assert three.propname == ":3"
-            assert three.cardinality == "0-n"
-            assert three.gui_order == 3
+        assert isinstance(res, list)
+        res = sorted(res, key=lambda x: x.propname)
+        one = res[0]
+        assert isinstance(one, ResourceCardinality)
+        assert one.propname == ":1"
+        assert one.cardinality == "1-n"
+        assert one.gui_order == 1
+        two = res[1]
+        assert isinstance(two, ResourceCardinality)
+        assert two.propname == ":2"
+        assert two.cardinality == "1"
+        assert two.gui_order == 2
+        three = res[2]
+        assert isinstance(three, ResourceCardinality)
+        assert three.propname == ":3"
+        assert three.cardinality == "0-n"
+        assert three.gui_order == 3
 
     def test_error(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": [1, 2, "a"]})
@@ -102,23 +103,23 @@ class TestCreateAllCardinalities:
         )
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert isinstance(res, list)
-            res = sorted(res, key=lambda x: x.propname)
-            one = res[0]
-            assert isinstance(one, ResourceCardinality)
-            assert one.propname == ":1"
-            assert one.cardinality == "1-n"
-            assert one.gui_order == 1
-            two = res[1]
-            assert isinstance(two, ResourceCardinality)
-            assert two.propname == ":2"
-            assert two.cardinality == "1"
-            assert two.gui_order == 2
-            three = res[2]
-            assert isinstance(three, ResourceCardinality)
-            assert three.propname == ":3"
-            assert three.cardinality == "0-n"
-            assert three.gui_order == 3
+        assert isinstance(res, list)
+        res = sorted(res, key=lambda x: x.propname)
+        one = res[0]
+        assert isinstance(one, ResourceCardinality)
+        assert one.propname == ":1"
+        assert one.cardinality == "1-n"
+        assert one.gui_order == 1
+        two = res[1]
+        assert isinstance(two, ResourceCardinality)
+        assert two.propname == ":2"
+        assert two.cardinality == "1"
+        assert two.gui_order == 2
+        three = res[2]
+        assert isinstance(three, ResourceCardinality)
+        assert three.propname == ":3"
+        assert three.cardinality == "0-n"
+        assert three.gui_order == 3
 
     def test_good(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": ["1", "2", "3"]})
@@ -155,6 +156,51 @@ def test_make_one_property() -> None:
     res = _make_one_cardinality(s)
     assert isinstance(res, ResourceCardinality)
     assert res.propname == ":1"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
+def test_make_one_property_external_onto() -> None:
+    s = pd.Series(
+        {
+            "property": "other-onto:prop",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == "other-onto:prop"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
+def test_make_one_property_knora_prop() -> None:
+    s = pd.Series(
+        {
+            "property": "seqnum",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == "seqnum"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
+
+
+def test_make_one_property_own_seqnum() -> None:
+    s = pd.Series(
+        {
+            "property": ":seqnum",
+            "gui_order": 1,
+            "cardinality": "1-n",
+        }
+    )
+    res = _make_one_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == ":seqnum"
     assert res.cardinality == "1-n"
     assert res.gui_order == 1
 
@@ -201,6 +247,17 @@ def test_failing_validate_excel_file() -> None:
     assert isinstance(missing, MandatorySheetsMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
     assert missing.mandatory_sheet == ["classes"]
+
+
+def test_extract_default_permissions_overrule() -> None:
+    df_dict = {
+        "name": ["resource1", "resource2", "resource3", "resource4", "resource5", "resource6"],
+        "default_permissions_overrule": ["private", "limited_view", "Private", "LIMITED_VIEW", pd.NA, "other_value"],
+    }
+    test_df = pd.DataFrame(df_dict)
+    result = _extract_default_permissions_overrule(test_df)
+    assert result.private == ["resource1", "resource3"]
+    assert result.limited_view == ["resource2", "resource4"]
 
 
 class TestValidateClassesExcelSheet:

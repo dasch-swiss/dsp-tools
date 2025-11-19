@@ -2,6 +2,7 @@ import urllib.parse
 from collections.abc import Iterator
 from dataclasses import dataclass
 from dataclasses import field
+from http import HTTPStatus
 from pathlib import Path
 
 import regex
@@ -17,14 +18,6 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import Upl
 from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
-
-STATUS_OK = 200
-STATUS_UNAUTHORIZED = 401
-STATUS_FORBIDDEN = 403
-STATUS_NOT_FOUND = 404
-STATUS_CONFLICT = 409
-STATUS_INTERNAL_SERVER_ERROR = 500
-STATUS_SERVER_UNAVAILABLE = 503
 
 
 @dataclass
@@ -47,7 +40,7 @@ class BulkIngestClient:
             connect=retries,
             backoff_factor=0.3,
             allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE],
+            status_forcelist=[HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE],
         )
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
@@ -60,12 +53,13 @@ class BulkIngestClient:
     ) -> UploadFailure | None:
         """
         Uploads a file to the ingest server.
-        The load balancer on DSP servers currently has a timeout of 60s, so we need to use a timeout of 58s.
-        See https://github.com/dasch-swiss/dsp-tools/pull/1335/files#r1882508057
+        The load balancer on DSP servers currently has a timeout of 10m,
+        so we need to use a slightly shorter timeout of 9m.
+        See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
         # noqa: DAR101
         # noqa: DAR201
         """
-        timeout = 58
+        timeout = 9 * 60
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
         headers = {"Content-Type": "application/octet-stream"}
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
@@ -80,14 +74,14 @@ class BulkIngestClient:
                 )
             logger.debug(f"RESPONSE: {res.status_code}")
         except RequestException as e:
-            logger.error(err_msg)
+            logger.exception(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
-        if res.status_code != STATUS_OK:
-            logger.error(err_msg)
+        if res.status_code != HTTPStatus.OK:
+            logger.error(f"{err_msg}: Response {res.status_code}: {res.text}")
             return UploadFailure(filepath, res.reason, res.status_code, res.text)
         return None
 
@@ -113,19 +107,19 @@ class BulkIngestClient:
         logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
         res = self.session.post(url, timeout=timeout)
         logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
-        if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
-            raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
-        if res.status_code == STATUS_NOT_FOUND:
+        if res.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
+        if res.status_code == HTTPStatus.NOT_FOUND:
             raise InputError(
                 f"No assets have been uploaded for project {self.shortcode}. "
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
-        if res.status_code == STATUS_CONFLICT:
+        if res.status_code == HTTPStatus.CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
             return
-        if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
+        if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
             raise InputError("Server is unavailable. Please try again later.")
 
         try:
@@ -156,11 +150,11 @@ class BulkIngestClient:
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}")
             res = self.session.get(url, timeout=timeout)
             logger.debug(f"RESPONSE: {res.status_code}")
-            if res.status_code == STATUS_CONFLICT:
+            if res.status_code == HTTPStatus.CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
                 yield True
-            elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
+            elif res.status_code != HTTPStatus.OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
                     raise InputError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")

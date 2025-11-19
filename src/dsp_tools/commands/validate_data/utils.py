@@ -1,4 +1,26 @@
+import shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+
+
+def get_temp_directory() -> TemporaryDirectory[str]:
+    ttl_dir = (Path.home() / ".dsp-tools" / "validate-data").absolute()
+    ttl_dir.mkdir(exist_ok=True, parents=True)
+    t_dir = TemporaryDirectory(dir=ttl_dir)
+    return t_dir
+
+
+def clean_up_temp_directory(temp_dir: TemporaryDirectory[str], save_graphs_dir: Path | None) -> None:
+    if save_graphs_dir:
+        tmp_folder = Path(temp_dir.name)
+        save_graphs_dir.mkdir(parents=True, exist_ok=True)
+        for tmp_filepath in tmp_folder.glob("*"):
+            if tmp_filepath.is_file():
+                dest_filepath = save_graphs_dir / tmp_filepath.relative_to(tmp_folder)
+                shutil.copy2(tmp_filepath, dest_filepath)
+    temp_dir.cleanup()
 
 
 def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:

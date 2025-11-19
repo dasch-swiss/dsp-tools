@@ -6,7 +6,8 @@ from pathlib import Path
 import requests
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
-from testcontainers.core.waiting_utils import wait_for_logs
+from testcontainers.core.wait_strategies import HttpWaitStrategy
+from testcontainers.core.wait_strategies import LogMessageWaitStrategy
 
 from test.e2e.setup_testcontainers.artifacts import E2E_TESTDATA
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
@@ -69,24 +70,17 @@ def _get_fuseki(
         .with_network(network)
         .with_bind_ports(host=ports.fuseki, container=FUSEKI_INTERNAL_PORT)
         .with_env("ADMIN_PASSWORD", "test")
+        .waiting_for(HttpWaitStrategy(FUSEKI_INTERNAL_PORT, "/$/ping"))
     )
     fuseki.start()
-    wait_for_logs(fuseki, f"Server .+ Started .+ on port {FUSEKI_INTERNAL_PORT}")
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
 
 
 def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
-    repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/$/datasets"
-    files = {"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")}
-    if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
-        raise RuntimeError("Fuseki did not create the dataset")
-    print("Dataset created")
-
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    url = f"http://0.0.0.0:{fuseki_external_port}/knora-test/data?graph=http://www.knora.org/data/admin"
+    url = f"http://0.0.0.0:{fuseki_external_port}/dsp-repo/data?graph=http://www.knora.org/data/admin"
     files = {"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")}
     if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
@@ -102,14 +96,14 @@ def _get_sipi(
         .with_network(network)
         .with_bind_ports(host=ports.sipi, container=SIPI_INTERNAL_PORT)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
+        .waiting_for(LogMessageWaitStrategy(f"Server listening on HTTP port {SIPI_INTERNAL_PORT}"))
     )
     sipi.start()
-    wait_for_logs(sipi, f"Server listening on HTTP port {SIPI_INTERNAL_PORT}")
     print("Sipi is ready")
     return sipi
 
@@ -123,7 +117,7 @@ def _get_ingest(
         .with_network(network)
         .with_bind_ports(host=ports.ingest, container=INGEST_INTERNAL_PORT)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
-        .with_env("STORAGE_TEMP_DIR", "/opt/temp")
+        .with_env("STORAGE_TEMP_DIR", "/opt/tmp")
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("JWT_ISSUER", f"http://{names.api}:{ports.api}")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
@@ -131,11 +125,11 @@ def _get_ingest(
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
         .with_volume_mapping(artifact_dirs.sipi_images, "/opt/images", "rw")
-        .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/temp", "rw")
+        .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/tmp", "rw")
         .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
+        .waiting_for(HttpWaitStrategy(INGEST_INTERNAL_PORT, "/health"))
     )
     ingest.start()
-    wait_for_logs(ingest, "Started dsp-ingest")
     print("Ingest is ready")
     return ingest
 
@@ -148,17 +142,16 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://{names.ingest}:{INGEST_INTERNAL_PORT}")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://{names.api}:{ports.api}")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", names.fuseki)
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "dsp-repo")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_bind_ports(host=ports.api, container=API_INTERNAL_PORT)
+        .waiting_for(HttpWaitStrategy(API_INTERNAL_PORT, "/version"))
     )
     api.start()
-    wait_for_logs(api, "AppState set to Running")
-    wait_for_logs(api, "Starting api on")
     print("API is ready")
     return api
 

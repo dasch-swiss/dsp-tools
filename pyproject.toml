@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "13.1.0"
+version = "18.1.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
@@ -17,6 +17,8 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "argparse",
+    "dotenv",
+    "jinja2",
     "jsonpath-ng",
     "jsonschema",
     "loguru",
@@ -49,15 +51,13 @@ dsp-tools = "dsp_tools.cli.entry_point:main" # definition of the CLI entry point
 
 
 [build-system]
-# Tells “frontend” build tools (like pip, build, or uv) what “backend” build tool to use (e.g. setuptools, hatchling).
-# The "backend" doesn't need to be installed. It will be installed by the "frontend" in a temporary, isolated
-# environment for use during the build process.
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+# Tells “frontend” build tools (like pip, build, or uv) what “backend” build tool to use.
+requires = ["uv_build>=0.8.13"]
+build-backend = "uv_build"
 
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "darglint",
     "docker",
     "mkdocs-include-markdown-plugin",
@@ -69,7 +69,7 @@ dev-dependencies = [
     "pre-commit",
     "pytest-cov",
     "pytest-unordered",
-    "pytest-xdist>=3.6.1",
+    "pytest-xdist",
     "pytest",
     "requests-mock",
     "ruff",
@@ -87,6 +87,7 @@ dev-dependencies = [
     "viztracer",
     "vulture",
     "yamllint",
+    "pytest-order",
 ]
 
 
@@ -159,9 +160,9 @@ ignore = [
     "S105",   # flake8-bandit: hardcoded password
     "S106",   # flake8-bandit: hardcoded password
     "S603",   # flake8-bandit: subprocess-without-shell-equals-true
-    "S320",   # flake8-bandit: xml parsing vulnerable to XML attacks
     "UP007",  # forbid use of typing.Union and typing.Optional
     "UP015",  # Unnecessary mode="r" argument in open()
+    "UP045",  # Forced use of "|" instead of typing.Optional and typing.Union
 ]
 
 
@@ -181,6 +182,10 @@ ignore = [
     "S101", # flake8-bandit: use of assert
 ]
 "!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
+"src/dsp_tools/legacy_models/**" = [
+    "PLW"
+]
+
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -2,12 +2,10 @@ from typing import Any
 
 import pandas as pd
 import regex
-from lxml import etree
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
-from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -19,6 +17,9 @@ def is_nonempty_value(value: Any) -> bool:
     - ``\\p{P}`` = punctuation
     - ``\\w`` = all Unicode letters, numbers, and _
 
+    If the value is a collection (i.e. list, tuple, set or dictionary)
+    all the elements must be non-empty to return True.
+
     Args:
         value: value of any type
 
@@ -29,6 +30,7 @@ def is_nonempty_value(value: Any) -> bool:
         ```python
         # True values:
         assert xmllib.is_nonempty_value("word") == True
+        assert xmllib.is_nonempty_value(["word"]) == True
         assert xmllib.is_nonempty_value("None") == True
         assert xmllib.is_nonempty_value("-") == True
         assert xmllib.is_nonempty_value(0) == True
@@ -43,10 +45,21 @@ def is_nonempty_value(value: Any) -> bool:
         assert xmllib.is_nonempty_value(pd.NA) == False
         assert xmllib.is_nonempty_value(None) == False
         assert xmllib.is_nonempty_value("") == False
+        assert xmllib.is_nonempty_value(["", "some-content"]) == False
+        assert xmllib.is_nonempty_value({"dict-key": ""}) == False
         assert xmllib.is_nonempty_value(" ") == False
         assert xmllib.is_nonempty_value("\\n") == False
         ```
     """
+    if isinstance(value, (tuple, list, set)):
+        all_vals = [is_nonempty_value(v) for v in value]
+        return all(all_vals)
+    if isinstance(value, dict):
+        all_vals = []
+        for k, v in value.items():
+            all_vals.append(is_nonempty_value(k))
+            all_vals.append(is_nonempty_value(v))
+        return all(all_vals)
     if pd.isna(value):
         return False
     if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):
@@ -255,6 +268,78 @@ def is_integer(value: Any) -> bool:
             return False
 
 
+def is_link_value(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID) or a valid internal DSP IRI.
+    Both of these values are allowed in LinkValues.
+
+    Args:
+        value: the target ID of a LinkValue
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_link_value("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_link_value("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_link_value("resource_id_1")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_link_value("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        # result == True
+        ```
+    """
+    if is_valid_resource_id(value):
+        return True
+    return is_dsp_iri(value)
+
+
+def is_valid_resource_id(value: Any) -> bool:
+    """
+    Check if a value is a valid internal ID of a resource (xsd:ID).
+
+    Args:
+        value: the ID of a Resource
+
+    Returns:
+        True if it is a permissible value.
+
+    Examples:
+        ```python
+        result = xmllib.is_valid_resource_id("1_must_not_start_with_number")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("characters|not|allowed")
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_valid_resource_id("resource_id_1")
+        # result == True
+        ```
+    """
+    allowed_letters = "a-zA-Zàáâäèéêëìíîïòóôöùúûüçñß_"
+    if is_nonempty_value(value):
+        # None, etc. would not be recognised as invalid since it is converted into a string.
+        return bool(
+            regex.search(rf"^[{allowed_letters}][{allowed_letters}\d.\-]*$", str(value)),
+        )
+    return False
+
+
 def is_timestamp(value: Any) -> bool:
     """
     Checks if a value is a valid timestamp.
@@ -301,7 +386,7 @@ def is_dsp_iri(value: Any) -> bool:
         # result == False
         ```
     """
-    return bool(regex.search(r"^http://rdfh\.ch/\d{4}/", str(value)))
+    return bool(regex.search(r"^http://rdfh\.ch/[\dA-F]{4}/", str(value)))
 
 
 def is_dsp_ark(value: Any) -> bool:
@@ -344,16 +429,6 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         XmllibInputWarning: if the input contains XML syntax problems
     """
-    escaped_text = escape_reserved_xml_characters(richtext)
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<text>{num_ent}</text>"
-    try:
-        _ = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        msg = (
-            "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-            "The special characters <, > and & are only allowed to construct a tag.\n"
-            f"Original error message: {err.msg}\n"
-            f"Eventual line/column numbers are relative to this text: {pseudo_xml}"
-        )
-        emit_xmllib_input_warning(MessageInfo(msg))
+    result = parse_richtext_as_xml(richtext)
+    if isinstance(result, MessageInfo):
+        emit_xmllib_input_warning(result)

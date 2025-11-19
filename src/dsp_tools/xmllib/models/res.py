@@ -8,11 +8,10 @@ from typing import Any
 
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
-from dsp_tools.error.xmllib_warnings_util import raise_input_error
-from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
@@ -32,9 +31,9 @@ from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
+from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
-
-# ruff: noqa: D101, D102
+from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
 LIST_SEPARATOR = "\n    - "
 
@@ -49,17 +48,6 @@ class Resource:
     file_value: AbstractFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        check_and_warn_potentially_empty_string(value=self.label, res_id=self.res_id, expected="string", field="label")
-        if not is_nonempty_value(str(self.res_id)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.res_id, res_id=self.res_id, value_field="resource ID"
-            )
-        if not is_nonempty_value(str(self.restype)):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="string", value=self.restype, res_id=self.res_id, value_field="resource type"
-            )
-
     @staticmethod
     def create_new(
         res_id: str,
@@ -69,6 +57,10 @@ class Resource:
     ) -> Resource:
         """
         Create a new resource.
+
+        Tip:
+            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.make_xsd_compatible_id)
+            to transform the resource ID into a format that meets the requirements for an XML ID.
 
         Args:
             res_id: resource ID
@@ -94,14 +86,26 @@ class Resource:
                 res_id="ID",
                 restype=":ResourceType",
                 label="label",
-                permissions=xmllib.Permissions.RESTRICTED,
+                permissions=xmllib.Permissions.PRIVATE,
             )
             ```
         """
+        if not is_valid_resource_id(res_id):
+            res_id = str(res_id)
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="xsd:ID", value=res_id, res_id=res_id, value_field="resource ID"
+            )
+        if not is_nonempty_value(restype):
+            restype = str(restype)
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
+            )
+        lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
+
         return Resource(
             res_id=res_id,
             restype=restype,
-            label=label,
+            label=lbl,
             permissions=permissions,
         )
 
@@ -323,6 +327,11 @@ class Resource:
         """
         Add a date value to the resource.
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
+
+        Tip:
+            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date)
+            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string)
+            to transform a date into the DSP conform format.
 
         Args:
             prop_name: name of the property
@@ -909,6 +918,10 @@ class Resource:
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
+        Tip:
+            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.ListLookup)
+            to retrieve the correct list name based on the label.
+
         Args:
             prop_name: name of the property
             list_name: name of the list (N.B. not the label, but the name of the list)
@@ -1136,6 +1149,113 @@ class Resource:
         return self
 
     #######################
+    # TextValue: Textarea
+    #######################
+
+    def add_textarea(
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add a textarea value to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_textarea(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+        """
+        self.add_simpletext(prop_name, value, permissions, comment)
+        return self
+
+    def add_textarea_multiple(
+        self,
+        prop_name: str,
+        values: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        Add several textarea values to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_multiple(
+                prop_name=":propName",
+                values=["text 1", "text 2"],
+            )
+            ```
+        """
+        self.add_simpletext_multiple(prop_name, values, permissions, comment)
+        return self
+
+    def add_textarea_optional(
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
+
+        Args:
+            prop_name: name of the property
+            value: value to add or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+
+            ```python
+            resource = resource.add_textarea_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+        """
+        self.add_simpletext_optional(prop_name, value, permissions, comment)
+        return self
+
+    #######################
     # TextValue: Richtext
     #######################
 
@@ -1156,7 +1276,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1216,7 +1336,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1271,7 +1391,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1539,9 +1659,9 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: License,
-        copyright_holder: str,
-        authorship: list[str],
+        license: License | None = None,
+        copyright_holder: str | None = None,
+        authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1552,7 +1672,7 @@ class Resource:
 
         Args:
             filename: path to the file
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1560,7 +1680,7 @@ class Resource:
             comment: optional comment
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            XmllibInputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original resource, with the added value
@@ -1582,7 +1702,7 @@ class Resource:
                 license=xmllib.LicenseRecommended.CC.BY_NC_ND,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
-                permissions=xmllib.Permissions.RESTRICTED_VIEW,
+                permissions=xmllib.Permissions.LIMITED_VIEW,
             )
             ```
         """
@@ -1593,7 +1713,7 @@ class Resource:
                 resource_id=self.res_id,
                 field="file / iiif-uri",
             )
-            raise_input_error(msg_info)
+            raise_xmllib_input_error(msg_info)
         meta = Metadata.new(
             license=license,
             copyright_holder=copyright_holder,
@@ -1607,9 +1727,9 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: License,
-        copyright_holder: str,
-        authorship: list[str],
+        license: License | None = None,
+        copyright_holder: str | None = None,
+        authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1620,7 +1740,7 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1628,7 +1748,7 @@ class Resource:
             comment: optional comment
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            XmllibInputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original resource, with the added value
@@ -1650,7 +1770,7 @@ class Resource:
                 resource_id=self.res_id,
                 field="file / iiif-uri",
             )
-            raise_input_error(msg_info)
+            raise_xmllib_input_error(msg_info)
         meta = Metadata.new(
             license=license,
             copyright_holder=copyright_holder,
@@ -1659,50 +1779,4 @@ class Resource:
             resource_id=self.res_id,
         )
         self.file_value = IIIFUri.new(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
-        return self
-
-    #######################
-    # Migration Metadata
-    #######################
-
-    def add_migration_metadata(
-        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
-    ) -> Resource:
-        """
-        Add metadata from a SALSAH migration.
-
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element)
-
-        Args:
-            creation_date: creation date of the resource in SALSAH
-            iri: Original IRI in SALSAH
-            ark: Original ARK in SALSAH
-
-        Raises:
-            InputError: if metadata already exists
-
-        Returns:
-            The original resource, with the added migration metadata
-
-        Examples:
-            ```python
-            resource = resource.add_migration_metadata(
-                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-
-            ```python
-            resource = resource.add_migration_metadata(
-                ark="ark:/72163/4123-43xc6ivb931-a.2022829",
-                creation_date="1999-12-31T23:59:59.9999999+01:00"
-            )
-            ```
-        """
-        if self.migration_metadata:
-            msg_info = MessageInfo(
-                "This resource already contains migration metadata, no new data can be added.", resource_id=self.res_id
-            )
-            raise_input_error(msg_info)
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

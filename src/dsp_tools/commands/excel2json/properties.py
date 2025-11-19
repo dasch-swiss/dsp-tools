@@ -20,11 +20,13 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
+from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
 from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols
@@ -33,6 +35,7 @@ from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import InvalidGuiAttributeError
 from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -42,7 +45,7 @@ language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"
 def excel2properties(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
-) -> tuple[list[dict[str, Any]], bool]:
+) -> tuple[list[dict[str, Any]], PermissionsOverrulesUnprefixed, bool]:
     """
     Converts properties described in an Excel file into a "properties" section which can be inserted into a JSON
     project file.
@@ -55,8 +58,9 @@ def excel2properties(
         InputError: if something went wrong
 
     Returns:
-        a tuple consisting of the "properties" section as a Python list,
-            and the success status (True if everything went well)
+        - the "properties" section as a Python list
+        - the unprefixed "default_permissions_overrule"
+        - the success status (True if everything went well)
     """
 
     property_df = _read_check_property_df(excelfile)
@@ -76,6 +80,7 @@ def excel2properties(
         "comment_it",
         "comment_rm",
         "subject",
+        "default_permissions_overrule",
     }
     property_df = add_optional_columns(property_df, optional_col_set)
 
@@ -100,6 +105,7 @@ def excel2properties(
         raise InputError(msg)
 
     serialised_prop = [x.serialise() for x in props]
+    default_permissions_overrule = _extract_default_permissions_overrule(property_df)
 
     # write final JSON file
     _validate_properties_section_in_json(properties_list=serialised_prop)
@@ -108,7 +114,7 @@ def excel2properties(
             json.dump(serialised_prop, file, indent=4, ensure_ascii=False)
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
-    return serialised_prop, True
+    return serialised_prop, default_permissions_overrule, True
 
 
 def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
@@ -175,6 +181,8 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
         problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
         problems.append(missing_vals_check)
+    if permissions_prob := check_permissions(df=df, allowed_vals=["private"]):
+        problems.append(permissions_prob)
     if any(problems):
         excel_prob = ExcelFileProblem("properties.xlsx", problems)
         msg = excel_prob.execute_error_protocol()
@@ -201,7 +209,7 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProble
 
 
 def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bool]] | None:
-    mandatory_attributes = ["Spinbox", "List"]
+    mandatory_attributes = ["List"]
     mandatory_check = col_must_or_not_empty_based_on_other_col(
         df=df,
         substring_list=mandatory_attributes,
@@ -209,7 +217,18 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         check_empty_colname="gui_attributes",
         must_have_value=True,
     )
-    no_attributes = ["Checkbox", "Date", "Geonames", "Richtext", "TimeStamp"]
+    no_attributes = [
+        "Checkbox",
+        "Colorpicker",
+        "Date",
+        "Spinbox",
+        "Geonames",
+        "SimpleText",
+        "Textarea",
+        "Richtext",
+        "TimeStamp",
+        "Searchbox",
+    ]
     no_attribute_check = col_must_or_not_empty_based_on_other_col(
         df=df,
         substring_list=no_attributes,
@@ -262,49 +281,31 @@ def _get_gui_attribute(
 ) -> GuiAttributes | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):
         return None
-    # If the attribute is not in the correct format, a called function may raise an InputError
     try:
-        return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
-    except InputError:
+        return _unpack_gui_attributes(attribute_str=df_row["gui_attributes"])
+    except InvalidGuiAttributeError:
         return InvalidExcelContentProblem(
-            expected_content="attribute1: value, attribute2: value (no attribute key may be duplicated)",
+            expected_content="The only valid gui-attribute is 'hlist' for the gui-element 'List'.",
             actual_content=df_row["gui_attributes"],
             excel_position=PositionInExcel(column="gui_attributes", row=row_num),
         )
 
 
-def _format_gui_attribute(attribute_str: str) -> GuiAttributes:
-    attribute_dict = _unpack_gui_attributes(attribute_str=attribute_str)
-    return GuiAttributes(
-        {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
-    )
-
-
-def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
-    gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
-    gui_attrib = {}
-    for attrib in gui_list:
-        attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attrib)
-        if attrib_key in gui_attrib:
-            raise InputError("Duplicate gui attribute")
-        gui_attrib[attrib_key] = attrib_val
-    return gui_attrib
+def _unpack_gui_attributes(attribute_str: str) -> GuiAttributes:
+    attribute_str = attribute_str.strip()
+    if not attribute_str:
+        return GuiAttributes({})
+    attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attribute_str)
+    if attrib_key != "hlist":
+        raise InvalidGuiAttributeError("The only valid gui-attribute is 'hlist' for the gui-element 'List'.")
+    return GuiAttributes({attrib_key: attrib_val})
 
 
 def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[str, str]:
     attrib_format = r"(\S+)\s*:\s*(.+)"
     if found := regex.search(attrib_format, attribute_str):
         return found.group(1), found.group(2)
-    raise InputError("Invalid gui attribute")
-
-
-def _search_convert_numbers_in_str(value_str: str) -> str | int | float:
-    if regex.search(r"^\d+$", value_str):
-        return int(value_str)
-    elif regex.search(r"^\d+\.\d+$", value_str):
-        return float(value_str)
-    else:
-        return value_str
+    raise InvalidGuiAttributeError("Invalid gui attribute")
 
 
 def _validate_properties_section_in_json(
@@ -356,3 +357,14 @@ def _find_validation_problem(
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
     )
+
+
+def _extract_default_permissions_overrule(property_df: pd.DataFrame) -> PermissionsOverrulesUnprefixed:
+    result = PermissionsOverrulesUnprefixed(private=[], limited_view=[])
+    for _, row in property_df.iterrows():
+        perm = row.get("default_permissions_overrule")
+        if pd.isna(perm):
+            continue
+        if perm.strip().lower() == "private":
+            result.private.append(row["name"])
+    return result

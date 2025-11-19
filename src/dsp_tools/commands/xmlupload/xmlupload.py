@@ -12,40 +12,51 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.project_client import ProjectInfoClient
+from dsp_tools.clients.project_client_live import ProjectInfoClientLive
+from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
-from dsp_tools.commands.xmlupload.project_client import ProjectClient
-from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.fuseki_bloating import communicate_fuseki_bloating
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -82,10 +93,32 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
+    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    if config.id2iri_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(config.id2iri_file))
+
+    is_on_prod_like_server = is_prod_like_server(creds.server)
+
+    validation_ok = _handle_validation(
+        parsed_resources=parsed_resources,
+        lookups=lookups,
+        config=config,
+        is_on_prod_like_server=is_on_prod_like_server,
+        auth=auth,
+        input_file=input_file,
+    )
+    if not validation_ok:
+        return False
+
     check_if_bitstreams_exist(root, imgdir)
-    preliminary_validation_of_root(root, con, config)
-    processed_resources = get_processed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(processed_resources)
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+
+    if not is_on_prod_like_server:
+        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
+
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
         pending_resources=sorted_resources,
@@ -94,6 +127,65 @@ def xmlupload(
     )
 
     return execute_upload(clients, state)
+
+
+def _handle_validation(
+    parsed_resources: list[ParsedResource],
+    lookups: XmlReferenceLookups,
+    config: UploadConfig,
+    is_on_prod_like_server: bool,
+    auth: AuthenticationClient,
+    input_file: Path,
+) -> bool:
+    validation_should_be_skipped = config.skip_validation
+    if is_on_prod_like_server and config.skip_validation:
+        msg = (
+            "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
+            "This means that the upload may fail due to undetected errors. "
+            "Do you wish to skip the validation (yes/no)? "
+        )
+        resp = ""
+        while resp not in ["yes", "no"]:
+            resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+        if str(resp) == "no":
+            validation_should_be_skipped = False
+    if not validation_should_be_skipped:
+        ignore_duplicates = config.ignore_duplicate_files_warning
+        if is_on_prod_like_server and ignore_duplicates:
+            msg = (
+                "You set the flag '--ignore-duplicate-files-warning'. "
+                "This means that duplicate multimedia files will not be detected. "
+                "Are you sure you want to exclude this from the validation? (yes/no)"
+            )
+            resp = ""
+            while resp not in ["yes", "no"]:
+                resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+            if str(resp) == "no":
+                ignore_duplicates = False
+        v_severity = config.validation_severity
+        if is_on_prod_like_server:
+            v_severity = ValidationSeverity.INFO
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=lookups.authorships,
+            permission_ids=list(lookups.permissions.keys()),
+            shortcode=config.shortcode,
+            config=ValidateDataConfig(
+                input_file,
+                save_graph_dir=None,
+                severity=v_severity,
+                ignore_duplicate_files_warning=ignore_duplicates,
+                is_on_prod_server=is_on_prod_like_server,
+                skip_ontology_validation=config.skip_ontology_validation,
+                do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
+            ),
+            auth=auth,
+        )
+        if not validation_passed:
+            return False
+    else:
+        logger.debug("SHACL validation was skipped.")
+    return True
 
 
 def _get_live_clients(
@@ -105,15 +197,29 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectClient = ProjectClientLive(con, shortcode)
-    list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    project_client: ProjectInfoClient = ProjectInfoClientLive(auth.server)
+    list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
-        project_client=project_client,
         list_client=list_client,
         legal_info_client=legal_info_client,
     )
+
+
+def enable_unknown_license_if_any_are_missing(
+    legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
+) -> None:
+    all_license_infos = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
+    if not all(all_license_infos):
+        legal_info_client.enable_unknown_license()
+        msg = (
+            "The files or iiif-uris in your data are missing some legal information. "
+            "To facilitate an upload on a test environment we are adding dummy information.\n"
+            "In order to be able to use the license 'unknown' in place of missing licenses, "
+            "we are enabling it for your project."
+        )
+        print(BOLD_YELLOW, msg, RESET_TO_DEFAULT)
 
 
 def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
@@ -126,41 +232,21 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-    _warn_about_future_mandatory_legal_info(upload_state.pending_resources)
+    logger.debug("Start uploading data")
+    db_metrics = None
+    if clients.legal_info_client.server == "http://0.0.0.0:3333":
+        db_metrics = FusekiMetrics()
+        db_metrics.try_get_start_size()
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
+    if db_metrics is not None:
+        db_metrics.try_get_end_size()
+        communicate_fuseki_bloating(db_metrics)
     return _cleanup_upload(upload_state)
 
 
-def _warn_about_future_mandatory_legal_info(resources: list[ProcessedResource]) -> None:
-    missing_info = []
-    counter = 0
-    for res in resources:
-        if res.file_value:
-            counter += 1
-            if not res.file_value.metadata.all_legal_info():
-                missing_info.append(res.file_value.value)
-        elif res.iiif_uri:
-            counter += 1
-            if not res.iiif_uri.metadata.all_legal_info():
-                missing_info.append(res.iiif_uri.value)
-    if counter == 0 or not missing_info:
-        return None
-    if len(missing_info) == counter:
-        number = "All"
-    else:
-        number = f"{len(missing_info)} of {counter}"
-    msg = (
-        f"{number} bitstreams and iiif-uris in your XML are lacking the legal info "
-        f"(copyright holders, license and authorship). "
-        "Soon this information will be mandatory for all files."
-    )
-    if len(missing_info) < 100:
-        msg += f" The following files are affected:\n-   {'\n-   '.join(missing_info)}"
-    warnings.warn(DspToolsFutureWarning(msg))
-
-
 def _upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
+    logger.debug("Get and upload copyright holders")
     copyright_holders = _get_copyright_holders(resources)
     legal_info_client.post_copyright_holders(copyright_holders)
 
@@ -186,7 +272,9 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
         success status (deduced from failed_uploads and non-applied stash)
     """
     write_id2iri_mapping(
-        upload_state.iri_resolver.lookup, upload_state.config.shortcode, upload_state.config.diagnostics
+        id2iri_mapping=upload_state.iri_resolver.lookup,
+        shortcode=upload_state.config.shortcode,
+        diagnostics=upload_state.config.diagnostics,
     )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:
@@ -226,7 +314,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_iri = clients.project_client.get_project_iri()
+    project_iri = clients.list_client.project_iri
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
@@ -234,7 +322,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     )
 
     resource_create_client = ResourceCreateClient(
-        con=clients.project_client.con,
+        con=clients.list_client.con,
     )
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
@@ -249,19 +337,19 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
-            _upload_stash(upload_state, clients.project_client)
+            _upload_stash(upload_state, clients.list_client.con)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
 
 
 def _upload_stash(
     upload_state: UploadState,
-    project_client: ProjectClient,
+    con: Connection,
 ) -> None:
     if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
-        upload_stashed_xml_texts(upload_state, project_client.con)
+        upload_stashed_xml_texts(upload_state, con)
     if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
-        upload_stashed_resptr_props(upload_state, project_client.con)
+        upload_stashed_resptr_props(upload_state, con)
 
 
 def _upload_one_resource(
@@ -291,7 +379,7 @@ def _upload_one_resource(
             resource=resource, bitstream_information=media_info, lookups=iri_lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
-        iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
+        iri = resource_create_client.create_resource(serialised_resource, resource_has_bitstream=bool(media_info))
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         _handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:

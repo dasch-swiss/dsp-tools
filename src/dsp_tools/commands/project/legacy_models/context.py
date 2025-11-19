@@ -127,7 +127,7 @@ class Context:
         :param value: Dictionary of context
         :return: None
         """
-        if value is not None and isinstance(value, ContextType):
+        if value is not None and isinstance(value, dict):
             self._context = value
         else:
             raise BaseError("Error in parameter to context setter")

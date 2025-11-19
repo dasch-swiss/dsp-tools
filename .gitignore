@@ -34,6 +34,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env
 
 # Spyder project settings
 .spyderproject
@@ -50,6 +51,8 @@ venv.bak/
 .dmypy.json
 .idea
 .vscode
+.claude/
+.zed
 
 # generated files
 out.json
@@ -62,6 +65,7 @@ testdata/test-list.json
 tmp/
 /out/
 /warnings.log
+/logging.log
 /mapping-????.csv
 /test/warnings.log
 

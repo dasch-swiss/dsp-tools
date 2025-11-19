@@ -29,28 +29,53 @@ def prefixes_wrong_val() -> pd.DataFrame:
 
 
 @pytest.fixture
+def licenses_good() -> pd.DataFrame:
+    return pd.DataFrame({"enabled": ["http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/ai-generated"]})
+
+
+@pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
+    return pd.DataFrame(
+        {"shortcode": [11], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
+    )
 
 
 @pytest.fixture
 def project_good_no_zero() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": [1111], "shortname": ["name"], "longname": ["long"]})
+    return pd.DataFrame(
+        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
+    )
 
 
 @pytest.fixture
 def project_missing_col() -> pd.DataFrame:
-    return pd.DataFrame({"shortname": ["name"], "longname": ["long"]})
+    return pd.DataFrame({"shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]})
 
 
 @pytest.fixture
 def project_missing_val() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"]})
+    return pd.DataFrame(
+        {"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}
+    )
 
 
 @pytest.fixture
 def project_too_many_rows() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": [11, 0], "shortname": ["name", pd.NA], "longname": ["long", "other"]})
+    return pd.DataFrame(
+        {
+            "shortcode": [11, 0],
+            "shortname": ["name", pd.NA],
+            "longname": ["long", "other"],
+            "default_permissions": ["public", "other"],
+        }
+    )
+
+
+@pytest.fixture
+def project_invalid_permissions() -> pd.DataFrame:
+    return pd.DataFrame(
+        {"shortcode": [1111], "shortname": ["name"], "longname": ["long"], "default_permissions": ["invalid"]}
+    )
 
 
 @pytest.fixture
@@ -111,9 +136,9 @@ def users_good() -> pd.DataFrame:
             "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss", "white.rabbit@dasch.swiss"],
             "givenname": ["Alice Pleasance", "Caterpillar", "White"],
             "familyname": ["Liddell", "Wonderland", "Rabbit"],
-            "password": ["alice4322", "alice7652", "alice8711"],
+            "password": [pd.NA, pd.NA, "alice8711"],
             "lang": ["en", "de", "fr"],
-            "role": ["systemadmin", "projectadmin", "projectmember"],
+            "role": ["projectadmin", "projectadmin", "projectmember"],
         }
     )
 
@@ -127,7 +152,7 @@ def users_missing_col() -> pd.DataFrame:
             "givenname": ["Alice Pleasance"],
             "familyname": ["Liddell"],
             "lang": ["fr"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -142,7 +167,7 @@ def users_missing_val() -> pd.DataFrame:
             "familyname": ["Liddell"],
             "password": ["alice7652"],
             "lang": ["fr"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -157,7 +182,7 @@ def users_wrong_lang() -> pd.DataFrame:
             "familyname": ["Liddell"],
             "password": ["alice7652"],
             "lang": ["other"],
-            "role": ["systemadmin"],
+            "role": ["projectadmin"],
         }
     )
 
@@ -170,9 +195,9 @@ def user_good() -> pd.Series[str]:
             "email": "alice@dasch.swiss",
             "givenname": "Alice Pleasance",
             "familyname": "Liddell",
-            "password": "alice7652",
+            "password": pd.NA,
             "lang": "en",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 
@@ -187,7 +212,7 @@ def user_wrong_lang() -> pd.Series[str]:
             "familyname": "Liddell",
             "password": "alice7652",
             "lang": "other",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 
@@ -202,7 +227,7 @@ def user_wrong_email() -> pd.Series[str]:
             "familyname": "Liddell",
             "password": "alice7652",
             "lang": "fr",
-            "role": "systemadmin",
+            "role": "projectadmin",
         }
     )
 

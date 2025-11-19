@@ -31,6 +31,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import Id2IriReplacementError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
@@ -43,7 +44,7 @@ PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
 
 
-OPEN_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
+DUMMY_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
 def absolute_iri(prop: str) -> str:
@@ -61,7 +62,7 @@ def lookups() -> IRILookups:
 class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
+        prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, DUMMY_PERMISSION)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.isTrueOrFalse))
@@ -129,7 +130,7 @@ class TestMakeOneValueGraphSuccess:
         prop = ProcessedInt(1, absolute_iri("hasInteger"), "comment", None)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
+        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)))
         assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
         assert next(result.subjects(ONTO.hasInteger, val)) == res_bn
         comment = next(result.objects(val, KNORA_API.valueHasComment))
@@ -196,7 +197,7 @@ class TestMakeOneValueGraphSuccess:
             FormattedTextValue("Text"),
             absolute_iri("hasRichtext"),
             None,
-            OPEN_PERMISSION,
+            DUMMY_PERMISSION,
             resource_references=set(),
             value_uuid=str(uuid4()),
         )
@@ -339,6 +340,9 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
         resource_references=set("nonExisingReference"),
         value_uuid=str(uuid4()),
     )
-    err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
-    with pytest.raises(BaseError, match=err_str):
+    err_str = regex.escape(
+        "Some internal IDs of the following richtext could not be resolved to an IRI: "
+        'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
+    )
+    with pytest.raises(Id2IriReplacementError, match=err_str):
         _make_one_value_graph(prop, res_bn, lookups)

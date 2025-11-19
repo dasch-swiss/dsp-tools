@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="in-built">
+
+    <permissions id="public">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="private">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
+    <!-- 18 Violations -->
+
+    <!-- Target Resources for Links -->
+
+    <resource label="Resource without Representation" restype=":TestNormalResource"
+              id="target_res_without_representation_1"/>
+
+
+    <resource label="Resource without Representation" restype=":TestNormalResource"
+              id="target_res_without_representation_2"/>
+
+    <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >target_empty_movie.mp4</bitstream>
+    </resource>
+
+    <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >target_empty_image.jpg</bitstream>
+    </resource>
+
+
+    <!-- link target does not exist -->
+
+    <link label="Link object" id="link_obj_target_non_existent">
+        <resptr-prop name="hasLinkTo">
+            <resptr>non_existing_link_target</resptr>
+        </resptr-prop>
+    </link>
+
+    <!-- Region isRegionOf does not exist -->
+
+    <region label="Region" id="region_isRegionOf_resource_does_not_exist">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_does_not_exist</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- Region isRegionOf target resource is not a representation -->
+
+    <region label="Region" id="region_isRegionOf_resource_not_a_representation">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- Region Geometry is not valid json -->
+
+    <region label="Region" id="region_invalid_geometry">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                { not a valid json }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- AudioSegment -->
+
+    <audio-segment label="Audio Segment" id="audio_segment_target_non_existent">
+        <isSegmentOf>target_non_existent</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
+
+
+    <audio-segment label="Audio Segment" id="audio_segment_target_is_video">
+        <isSegmentOf>target_empty_image</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
+
+    <!-- VideoSegment -->
+
+    <video-segment label="Video Segment" id="video_segment_target_non_existent">
+        <isSegmentOf>target_non_existent</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
+    <video-segment label="Video Segment" id="video_segment_target_is_audio">
+        <isSegmentOf>target_empty_image</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
+    <video-segment label="Video Segment" id="video_segment_start_larger_than_end">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="99" segment_end="1"/>
+    </video-segment>
+
+    <video-segment label="Video Segment" id="video_segment_wrong_bounds">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="-2" segment_end="0"/>
+    </video-segment>
+
+
+    <!-- hasRepresentation target is not a representation -->
+
+    <resource label="Target is not a representation" restype=":TestNormalResource"
+              id="target_must_be_a_representation">
+        <resptr-prop name=":testHasRepresentation">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </resource>
+
+    <!-- hasRepresentation target must be an image but is a movie -->
+
+    <resource label="Target is image representation" restype=":TestNormalResource"
+              id="target_must_be_an_image_representation">
+        <resptr-prop name=":testHasRepresentationImage">
+            <resptr>target_empty_movie</resptr>
+        </resptr-prop>
+    </resource>
+
+    <!-- direct usage of knora-api seqnum/isPartOf one prop missing -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="missing_seqnum">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >missing_seqnum.jpg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="missing_isPartOf">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >missing_isPartOf.jpg</bitstream>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- 8 Violations but not yet implemented -->
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf one prop missing -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="seqnum_sub_prop_missing">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >seqnum_sub_prop_missing.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="isPartOf_sub_prop_missing">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >isPartOf_sub_prop_missing.jpg</bitstream>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- direct usage of knora-api seqnum/isPartOf: negative sequence -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="seqnum_isPartOf_direct_usage_negative_sequence">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >seqnum_isPartOf_direct_usage_negative_sequence.jpg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>-1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf: negative sequence -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="seqnum_isPartOf_sub_prop_usage_negative_sequence">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >seqnum_isPartOf_sub_prop_usage_negative_sequence.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <integer-prop name=":testSeqnum">
+            <integer>-1</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- permissions -->
+
+    <resource label="Resource with Permissions"
+              restype=":TestNormalResource"
+              id="non_existent_permissions_resource"
+              permissions="unknown"
+    />
+
+    <link label="value with permissions" id="non_existent_permissions_value">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="unknown">target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <resource label="bitstream with permissions"
+              restype=":TestStillImageRepresentationWithSeqnum"
+              id="non_existent_permissions_bitstream"
+    >
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+                   permissions="unknown"
+        >non_existent_permissions_bitstream.jpg</bitstream>
+    </resource>
+
+</knora>

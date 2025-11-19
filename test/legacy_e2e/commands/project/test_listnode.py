@@ -8,8 +8,6 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
-from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.legacy_models.langstring import Languages
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -38,48 +36,6 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(node.label["en"], "Tree list root")
         self.assertTrue(node.isRootNode)
         self.assertEqual(node.children, [])
-
-    def test_ListNode_create(self) -> None:
-        """
-        Create a list node
-        :return: None
-        """
-        node = ListNode(
-            con=self.con,
-            project=self.project,
-            label=LangString({Languages.DE: "root node 1"}),
-            comments=LangString({Languages.DE: "first root node"}),
-            name="test_node_1",
-        ).create()
-        self.assertIsNotNone(node.iri)
-        self.assertEqual(node.project, self.project)
-        self.assertEqual(node.label["de"], "root node 1")
-        self.assertEqual(node.comments["de"], "first root node")
-        self.assertEqual(node.name, "test_node_1")
-        self.assertTrue(node.isRootNode)
-
-    def test_ListNode_hierarchy(self) -> None:
-        """
-        Create a node and a sub-node
-        :return: None
-        """
-        node = ListNode(
-            con=self.con,
-            project=self.project,
-            label=LangString({Languages.EN: "root node"}),
-            comments=LangString({Languages.EN: "This is a root node"}),
-            name="root_node",
-        ).create()
-        subnode = ListNode(
-            con=self.con,
-            project=self.project,
-            label=LangString({Languages.DE: "Ein Knoten der Liste"}),
-            comments=LangString({Languages.DE: "Ein Kommentar"}),
-            name="sub_node",
-            parent=node,
-        ).create()
-        self.assertTrue(node.isRootNode)
-        self.assertFalse(subnode.isRootNode)
 
     def test_ListNode_getAllLists(self) -> None:
         """

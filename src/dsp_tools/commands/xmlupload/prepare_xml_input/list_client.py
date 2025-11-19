@@ -39,6 +39,9 @@ class ProjectLists:
 class ListClient(Protocol):
     """Interface (protocol) for list-related requests to the DSP-API."""
 
+    con: Connection
+    project_iri: str
+
     def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
         """Get a lookup of list node names to IRIs."""
 

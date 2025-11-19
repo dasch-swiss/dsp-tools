@@ -1,0 +1,328 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>    
+    <authorship id="authorship_2">
+        <author>Author One</author>
+        <author>Author Two</author>
+    </authorship>
+    <authorship id="authorship_3">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorship>
+    <authorship id="authorship_4">
+        <author>Johannes Nussbaum</author>
+        <author>Perplexity.ai</author>
+    </authorship>
+
+    <!-- ArchiveRepresentation -->
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="id_archive_zip">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_2"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="id_archive_tar">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gz" restype=":TestArchiveRepresentation" id="id_archive_gz">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.gz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation z" restype=":TestArchiveRepresentation" id="id_archive_z">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.z</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation tgz" restype=":TestArchiveRepresentation" id="id_archive_tgz">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.tgz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gzip" restype=":TestArchiveRepresentation" id="id_archive_gzip">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.gzip</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation 7z" restype=":TestArchiveRepresentation" id="id_archive_7z">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.7z</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation ZIP" restype=":TestArchiveRepresentation" id="id_archive_zip_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.ZIP</bitstream>
+    </resource>
+
+    <!-- AudioRepresentation -->
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_mp3">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp3</bitstream>
+    </resource>
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.wav</bitstream>
+    </resource>
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.WAV</bitstream>
+    </resource>
+
+    <!-- DocumentRepresentation -->
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.pdf</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation doc" restype=":TestDocumentRepresentation" id="id_document_doc">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.doc</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation docx" restype=":TestDocumentRepresentation" id="id_document_docx">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.docx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xls" restype=":TestDocumentRepresentation" id="id_document_xls">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.xls</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xlsx" restype=":TestDocumentRepresentation" id="id_document_xlsx">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.xlsx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation ppt" restype=":TestDocumentRepresentation" id="id_document_ppt">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.ppt</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pptx" restype=":TestDocumentRepresentation" id="id_document_pptx">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.pptx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation epub" restype=":TestDocumentRepresentation" id="id_document_epub">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.epub</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.PDF</bitstream>
+    </resource>
+
+    <!-- MovingImageRepresentation -->
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.MP4</bitstream>
+    </resource>
+
+    <!-- StillImageRepresentation -->
+
+    <resource label="TestStillImageRepresentation File jpg" restype=":TestStillImageRepresentation" id="id_still_image_jpg">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File jpeg" restype=":TestStillImageRepresentation" id="id_still_image_jpeg">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpeg</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File png" restype=":TestStillImageRepresentation" id="id_still_image_png">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.png</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File tif" restype=":TestStillImageRepresentation" id="id_still_image_tif">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.tif</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File tiff" restype=":TestStillImageRepresentation" id="id_still_image_tiff">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.tiff</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File jp2" restype=":TestStillImageRepresentation" id="id_still_image_jp2">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jp2</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File JPG Capitalised" restype=":TestStillImageRepresentation" id="id_still_image_JPG_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.JPG</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="id_still_image_iiif">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_3"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
+    </resource>
+
+    <!-- TextRepresentation -->
+
+    <resource label="TestTextRepresentation odd" restype=":TestTextRepresentation" id="id_text_odd">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.odd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation rng" restype=":TestTextRepresentation" id="id_text_rng">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.rng</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation txt" restype=":TestTextRepresentation" id="id_text_txt">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.txt</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation htm" restype=":TestTextRepresentation" id="id_text_htm">
+        <bitstream license="http://rdfh.ch/licenses/ai-generated"
+                   copyright-holder="AI-Generated Content - Not Protected by Copyright"
+                   authorship-id="authorship_4"
+        >this/is/filepath/file.htm</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation html" restype=":TestTextRepresentation" id="id_text_html">
+        <bitstream license="http://rdfh.ch/licenses/ai-generated"
+                   copyright-holder="AI-Generated Content - Not Protected by Copyright"
+                   authorship-id="authorship_4"
+        >this/is/filepath/file.html</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xml" restype=":TestTextRepresentation" id="id_text_xml">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.xml</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsd" restype=":TestTextRepresentation" id="id_text_xsd">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.xsd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsl" restype=":TestTextRepresentation" id="id_text_xsl">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.xsl</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation csv" restype=":TestTextRepresentation" id="id_text_csv">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.csv</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation json" restype=":TestTextRepresentation" id="id_text_json">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.json</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation JSON" restype=":TestTextRepresentation" id="id_text_json_capitalised">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.JSON</bitstream>
+    </resource>
+
+</knora>

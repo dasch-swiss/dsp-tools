@@ -147,11 +147,10 @@ class ConnectionLive(Connection):
 
     def _try_network_action(self, params: RequestParameters) -> Response:
         """
-        Try 7 times to execute an HTTP request.
+        Try several times to execute an HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
         or if the response indicates that there is a non-permanent server-side problem,
         this function waits and retries the HTTP request.
-        The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
 
         Args:
             params: keyword arguments for the HTTP request
@@ -166,7 +165,8 @@ class ConnectionLive(Connection):
             the return value of action
         """
         action = partial(self.session.request, **params.as_kwargs())
-        for retry_counter in range(7):
+        num_of_retries = 24  # xmlupload must handle > 45 min fuseki downtime due to compaction, see DEV-5089
+        for retry_counter in range(num_of_retries):
             try:
                 log_request(params, dict(self.session.headers))
                 response = action()

@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 15 Violations -->
+
+    <!--
+        In this file, the property type does not match with the ontology.
+        The content is valid (eg. a boolean is a valid boolean)
+        For the text-prop the encoding was switched
+     -->
+
+    <resource label="Empty" restype=":ClassWithEverything" id="empty_ok"/>
+
+    <resource label="Bool" restype=":ClassWithEverything" id="bool_wrong_value_type">
+        <text-prop name=":testBoolean">
+            <text encoding="utf8">true</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Color" restype=":ClassWithEverything" id="color_wrong_value_type">
+        <text-prop name=":testColor">
+            <text encoding="utf8">#00ff00</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Date" restype=":ClassWithEverything" id="date_wrong_value_type">
+        <text-prop name=":testSubDate1">
+            <text encoding="utf8">JULIAN:BCE:0700:BCE:0600</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Decimal" restype=":ClassWithEverything" id="decimal_wrong_value_type">
+        <text-prop name=":testDecimalSimpleText">
+            <text encoding="utf8">2.71</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Geoname" restype=":ClassWithEverything" id="geoname_wrong_value_type">
+        <text-prop name=":testGeoname">
+            <text encoding="utf8">1111111</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Integer" restype=":ClassWithEverything" id="integer_wrong_value_type">
+        <text-prop name=":testIntegerSimpleText">
+            <text encoding="utf8">1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="This should be an int value" restype=":ClassWithEverything" id="is_text_should_be_integer">
+        <text-prop name=":testIntegerSpinbox">
+            <text encoding="utf8">1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="List" restype=":ClassWithEverything" id="list_wrong_value_type">
+        <text-prop name=":testListProp">
+            <text encoding="utf8">n1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="link_wrong_value_type">
+        <text-prop name=":testHasLinkTo">
+            <text encoding="utf8">id_1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_wrong_value_type">
+        <text-prop name=":testRichtext">
+            <text encoding="utf8"><p>Text</p></text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="simpletext_wrong_value_type">
+        <text-prop name=":testTextarea">
+            <text encoding="xml">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="This should be a text value" restype=":ClassWithEverything" id="is_link_should_be_text">
+        <resptr-prop name=":testTextarea">
+            <resptr>link_non_existing</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Should be simple text" restype=":ClassWithEverything" id="is_date_should_be_simpletext">
+        <date-prop name=":testTextarea">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+    </resource>
+
+    <resource label="Time" restype=":ClassWithEverything" id="time_wrong_value_type">
+        <text-prop name=":testTimeValue">
+            <text encoding="utf8">2019-10-23T13:45:12.01-14:00</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Uri" restype=":ClassWithEverything" id="uri_wrong_value_type">
+        <text-prop name=":testUriValue">
+            <text encoding="utf8">https://dasch.swiss</text>
+        </text-prop>
+    </resource>
+
+</knora>

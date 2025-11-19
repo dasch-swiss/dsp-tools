@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
+
+    <resource label="Bool True" restype=":ClassWithEverything" id="id_bool_true">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool One" restype=":ClassWithEverything" id="id_bool_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>1</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool Zero" restype=":ClassWithEverything" id="id_bool_0">
+        <boolean-prop name=":testBoolean">
+            <boolean>0</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Color" restype=":ClassWithEverything" id="id_color">
+        <color-prop name=":testColor">
+            <color>#00ff00</color>
+        </color-prop>
+    </resource>
+
+    <resource label="Date" restype=":ClassWithEverything" id="id_date">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+    </resource>
+
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_decimal">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>2.71</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_geoname">
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Integer" restype=":ClassWithEverything" id="id_integer">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="List" restype=":ClassWithEverything" id="id_list">
+        <list-prop list="firstList" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_link">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>id_empty</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Link Target" restype=":ClassInheritedCardinality" id="id_target_of_link_inherited"/>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_link_with_inheritance">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_target_of_link_inherited</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"> Text line 1
+
+            line2 </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"><p>Text</p></text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off_url">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.</text>
+        </text-prop>
+    </resource>
+
+    <!-- The target of the stand-off link may be the resource itself. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_recursive_standoff_link">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with <a class="salsah-link" href="IRI:richtext_recursive_standoff_link:IRI">standoff</a>.
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text line 1
+
+            line 2  </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="identical_text_different_prop">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="same_comment_on_different_values" restype=":ClassWithEverything" id="same_comment_on_different_values">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" comment="comment">Text 1</text>
+            <text encoding="utf8" comment="comment">Text 2</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Time" restype=":ClassWithEverything" id="id_time">
+        <time-prop name=":testTimeValue">
+            <time>2019-10-23T13:45:12.01-14:00</time>
+        </time-prop>
+    </resource>
+
+    <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
+        <uri-prop name=":testUriValue">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value">
+        <uri-prop name=":testUriValue">
+            <uri comment="This is a comment to the value">https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+    <!--
+    A check is conducted that ensures that the start date is equal or before the end date.
+    This is implemented for CE dates only. BCE will be ignored.
+    All calendars are treated the same, as they can all be parsed into a standard xsd date format.
+    -->
+
+    <resource label="date_full_JULIAN" restype=":ClassWithEverything" id="date_full_JULIAN">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:CE:1800-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_full_GREGORIAN" restype=":ClassWithEverything" id="date_full_GREGORIAN">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_full_ISLAMIC" restype=":ClassWithEverything" id="date_full_ISLAMIC">
+        <date-prop name=":testSubDate1">
+            <date>ISLAMIC:1800-01-01:1900-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_start_end_is_the_same" restype=":ClassWithEverything" id="date_start_end_is_the_same">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1800-01-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_yyyy_mm" restype=":ClassWithEverything" id="date_yyyy_mm">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01:CE:1900-01</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_yyyy" restype=":ClassWithEverything" id="date_yyyy">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800:CE:1900</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_mixed_precision" restype=":ClassWithEverything" id="date_mixed_precision">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800-01-01:CE:1900</date>
+        </date-prop>
+    </resource>
+
+    <resource label="date_only_start" restype=":ClassWithEverything" id="date_only_start">
+        <date-prop name=":testSubDate1">
+            <date>GREGORIAN:CE:1800</date>
+        </date-prop>
+    </resource>
+
+</knora>

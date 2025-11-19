@@ -1,0 +1,50 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0001",
+        "shortname": "e2e-ingest",
+        "longname": "e2e ingest test project",
+        "descriptions": {
+            "en": "The e2e test project"
+        },
+        "keywords": [
+            "e2e-test-projec-keyword"
+        ],
+        "default_permissions": "public",
+        "ontologies": [
+            {
+                "name": "e2e-ingest-onto",
+                "label": "e2e Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "ImageResource",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Image Resource"
+                        }
+                    },
+                    {
+                        "name": "PDFResource",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "PDF Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

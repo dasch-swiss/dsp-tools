@@ -3,11 +3,11 @@ from lxml import etree
 
 from dsp_tools.xmllib.internal.serialise_file_value import _serialise_metadata
 from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.permissions import Permissions
 
 
 @pytest.fixture
@@ -35,13 +35,13 @@ def test_serialise_metadata_with_permissions() -> None:
         license=LicenseRecommended.DSP.UNKNOWN,
         copyright_holder="copyright",
         authorship=tuple(["auth"]),
-        permissions=Permissions.OPEN,
+        permissions=Permissions.PUBLIC,
     )
     expected = {
         "license": "http://rdfh.ch/licenses/unknown",
         "copyright-holder": "copyright",
         "authorship-id": "authorship_2",
-        "permissions": "open",
+        "permissions": "public",
     }
     result = _serialise_metadata(meta, "authorship_2")
     assert result == expected
@@ -96,6 +96,22 @@ def test_serialise_file_value_iiif_with_comment(metadata_no_permissions: Metadat
         b'copyright-holder="copyright" '
         b'authorship-id="authorship_1" '
         b'comment="comment"'
+        b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
+    )
+    assert etree.tostring(result) == expected
+
+
+def test_serialise_file_value_iiif_without_legal_info() -> None:
+    meta = Metadata(
+        license=None,
+        copyright_holder=None,
+        authorship=None,
+        permissions=Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+    )
+    val = IIIFUri("https://example.org/image.jpg/full/1338%2C/0/default.jpg", meta, None)
+    result = serialise_file_value(val, None)
+    expected = (
+        b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
         b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
     )
     assert etree.tostring(result) == expected

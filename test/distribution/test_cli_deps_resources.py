@@ -17,9 +17,9 @@ class TestCliDepsResources(unittest.TestCase):
         - The CLI call from another working directory tests if the files in 'src/dsp_tools/resources' are accessible.
     """
 
-    test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
-    test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
-    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
+    test_project_systematic_file = Path("testdata/json-project/systematic-project-4123.json")
+    test_project_minimal_file = Path("testdata/json-project/minimal-project-4124.json")
+    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal-4124.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
 
@@ -47,7 +47,7 @@ class TestCliDepsResources(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/resources-only.json' can be accessed.
         The output is not tested here, this is done in the unit tests.
         """
-        excel_file = Path("testdata/excel2json/old_excel2json_files/test-name (test_label)/resources.xlsx")
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
         out_file = self.testdata_tmp / "_out_resources.json"
         self._make_cli_call(["excel2resources", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()
@@ -57,7 +57,7 @@ class TestCliDepsResources(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/properties-only.json' can be accessed.
         The output is not tested here, this is done in the unit tests.
         """
-        excel_file = Path("testdata/excel2json/old_excel2json_files/test-name (test_label)/properties.xlsx")
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
         out_file = self.testdata_tmp / "_out_properties.json"
         self._make_cli_call(["excel2properties", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()

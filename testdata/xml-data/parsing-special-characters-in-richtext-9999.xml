@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- This file contains test cases to ensure that richtext is correctly parsed during an xmlupload -->
+
+
+    <!-- Resources that are referenced by other resources -->
+
+    <resource
+            label="target_resource_with_iri"
+            restype=":ClassWithEverything"
+            id="target_resource_with_iri"
+            iri="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA"
+    />
+
+    <resource label="target_resource_with_id" restype=":ClassWithEverything" id="target_resource_with_id"/>
+
+    <!-- Richtext test cases -->
+
+    <resource label="res_with_tags_in_text" restype=":ClassWithEverything" id="res_with_tags_in_text">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is
+                <em>italicized and
+                    <strong>bold</strong>
+                </em>
+                text!
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_text_wrapped_in_tag" restype=":ClassWithEverything" id="res_text_wrapped_in_tag">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <p>
+                    Paragraph text
+                </p>
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_multiple_paragraphs" restype=":ClassWithEverything" id="res_with_multiple_paragraphs">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <p>
+                    Paragraph 1 text
+                </p>
+                <p>
+                    Paragraph 2 text
+                </p>
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_escaped_characters" restype=":ClassWithEverything" id="res_with_escaped_characters">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                text &lt;notatag&gt; text and with ampersand &amp;
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="richtext_res_with_standoff_link_to_id" restype=":ClassWithEverything" id="richtext_res_with_standoff_link_to_id">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                <em>Text
+                    <a class="salsah-link" href="IRI:target_resource_with_id:IRI">target_resource_with_id</a>
+                </em>
+                and some tags
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_standoff_link_to_iri" restype=":ClassWithEverything" id="res_with_standoff_link_to_iri">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <a class="salsah-link" href="http://rdfh.ch/9999/DiAmYQzQSzC7cdTo6OJMYA">target_resource_with_iri</a>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="richtext_res_with_standoff_link_to_url" restype=":ClassWithEverything" id="richtext_res_with_standoff_link_to_url">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <a href="https://www.dasch.swiss/">URL</a>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_footnotes" restype=":ClassWithEverything" id="res_with_footnotes">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="Footnote"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_with_escaped_chars_in_footnote"
+              restype=":ClassWithEverything"
+              id="res_with_escaped_chars_in_footnote"
+    >
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="Text &lt;a href=&quot;https://www.google.com/&quot;&gt;Google&lt;/a&gt;"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- Special characters test cases -->
+
+    <resource label="res_richtext_special_characters"
+              restype=":ClassWithEverything"
+              id="res_richtext_special_characters">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="res_simpletext_special_characters"
+              restype=":ClassWithEverything"
+              id="res_simpletext_special_characters">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">
+                àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"
+              restype=":ClassWithEverything"
+              id="res_label_special_characters"/>
+
+    <resource label="res_special_chars_in_footnote" restype=":ClassWithEverything" id="res_special_chars_in_footnote">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="àéèêëôûç äöüß _-'()[]{}+=!| 漢が글ርبيةб中זרקצחק §µÞðΘΨ∉∴∫⊗‰♦"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
+</knora>

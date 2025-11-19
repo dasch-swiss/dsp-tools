@@ -1,0 +1,176 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4125",
+        "shortname": "e2e-tp",
+        "longname": "e2e test project",
+        "descriptions": {
+            "en": "The e2e test project"
+        },
+        "keywords": [
+            "e2e-test-project-keyword"
+        ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        ],
+        "default_permissions": "public",
+        "default_permissions_overrule": {
+            "private": [
+                "second-onto:PrivatePermissionsResource",
+                "second-onto:privateProp"
+            ],
+            "limited_view": [
+                "e2e-testonto:ImageResource"
+            ]
+        },
+        "users": [
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": null,
+                "lang": "de",
+                "projects": [
+                    ":admin"
+                ],
+                "status": true
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "e2e-testonto",
+                "label": "e2e Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "ImageResource",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Image Resource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PDFResource",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "PDF Resource"
+                        },
+                        "comments": {
+                            "en": "This resource has a preview permission."
+                        }
+                    },
+                    {
+                        "name": "ResourceWithPropFromSecondOnto",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with a property from second ontology"
+                        },
+                        "cardinalities": [
+                          {
+                              "propname": "second-onto:defaultPermissionsProp",
+                              "cardinality": "0-1"
+                          }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "second-onto",
+                "label": "Second test ontology",
+                "properties": [
+                    {
+                        "name": "defaultPermissionsProp",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "TextValue with default permissions (i.e. public)"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "privateProp",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "TextValue with private permissions"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "DefaultPermissionsResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with default permissions (i.e. public)"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":defaultPermissionsProp",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": ":privateProp",
+                                "cardinality": "0-1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PrivatePermissionsResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with private permissions"
+                        },
+                        "cardinalities": [
+                          {
+                              "propname": ":defaultPermissionsProp",
+                              "cardinality": "0-1"
+                          },
+                          {
+                              "propname": ":privateProp",
+                              "cardinality": "0-1"
+                          }
+                        ]
+                    },
+                    {
+                        "name": "ResourceWithPropFromFirstOnto",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Resource with a property from first ontology"
+                        },
+                        "cardinalities": [
+                          {
+                              "propname": "e2e-testonto:hasText",
+                              "cardinality": "0-1"
+                          }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -5,6 +5,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import subprocess
 import sys
+from collections.abc import Sequence
 from importlib.metadata import version
 
 import regex
@@ -14,7 +15,6 @@ from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.config.logger_config import logger_config
 from dsp_tools.config.warnings_config import initialize_warnings
 from dsp_tools.error.exceptions import BaseError
@@ -32,7 +32,7 @@ def main() -> None:
     run(sys.argv[1:])
 
 
-def run(args: list[str]) -> None:
+def run(args: Sequence[str]) -> None:
     """
     Main function of the CLI.
 
@@ -71,16 +71,13 @@ def run(args: list[str]) -> None:
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
-        logger.error(f"The process was terminated because of an Error: {err.message}")
+        logger.exception(f"The process was terminated because of an Error: {err.message}")
         print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
         success = False
     except Exception as err:  # noqa: BLE001 (blind-except)
         logger.exception(err)
         print(InternalError())
         success = False
-    finally:
-        if WARNINGS_SAVEPATH.is_file() and len(WARNINGS_SAVEPATH.read_bytes()) == 0:
-            WARNINGS_SAVEPATH.unlink()
 
     if not success:
         logger.error("Terminate without success")
@@ -124,7 +121,7 @@ def _check_version() -> None:
 
 
 def _parse_arguments(
-    user_args: list[str],
+    user_args: Sequence[str],
     parser: argparse.ArgumentParser,
 ) -> argparse.Namespace:
     """

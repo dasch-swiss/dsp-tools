@@ -6,25 +6,33 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.args import ValidateDataConfig
+from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectInfoClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
+from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_processed_resources_for_upload
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
-from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -32,6 +40,10 @@ def ingest_xmlupload(
     xml_file: Path,
     creds: ServerCredentials,
     interrupt_after: int | None = None,
+    skip_validation: bool = False,
+    skip_ontology_validation: bool = False,
+    id2iri_file: str | None = None,
+    do_not_request_resource_metadata_from_db: bool = False,
 ) -> bool:
     """
     This function reads an XML file
@@ -45,6 +57,11 @@ def ingest_xmlupload(
         xml_file: path to XML file containing the resources
         creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
+        skip_validation: skip the SHACL validation
+        skip_ontology_validation: skip the ontology validation
+        id2iri_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
+        do_not_request_resource_metadata_from_db: if true do not request metadata information from the api
+                                                  for existing resources
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -68,10 +85,56 @@ def ingest_xmlupload(
     )
     clients = _get_live_clients(con, config, auth)
 
-    preliminary_validation_of_root(root, con, config)
+    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    if id2iri_file:
+        parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_file))
 
-    processed_resources = get_processed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(processed_resources)
+    validation_should_be_skipped = skip_validation
+    is_on_prod_like_server = is_prod_like_server(creds.server)
+    if is_on_prod_like_server and config.skip_validation:
+        msg = (
+            "You set the flag '--skip-validation' to circumvent the SHACL schema validation. "
+            "This means that the upload may fail due to undetected errors. "
+            "Do you wish to skip the validation (yes/no)? "
+        )
+        resp = ""
+        while resp not in ["yes", "no"]:
+            resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+        if str(resp) == "no":
+            validation_should_be_skipped = False
+    if not validation_should_be_skipped:
+        v_severity = config.validation_severity
+        if is_on_prod_like_server:
+            v_severity = ValidationSeverity.INFO
+        validation_passed = validate_parsed_resources(
+            parsed_resources=parsed_resources,
+            authorship_lookup=lookups.authorships,
+            permission_ids=list(lookups.permissions.keys()),
+            shortcode=shortcode,
+            config=ValidateDataConfig(
+                xml_file,
+                save_graph_dir=None,
+                severity=v_severity,
+                ignore_duplicate_files_warning=True,
+                is_on_prod_server=is_on_prod_like_server,
+                skip_ontology_validation=skip_ontology_validation,
+                do_not_request_resource_metadata_from_db=do_not_request_resource_metadata_from_db,
+            ),
+            auth=auth,
+        )
+        if not validation_passed:
+            return False
+    else:
+        logger.debug("SHACL validation was skipped.")
+
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+
+    if not is_on_prod_like_server:
+        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
+
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
 
     state = UploadState(
@@ -97,7 +160,7 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
 
 def _get_live_clients(con: Connection, config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
     ingest_client = BulkIngestedAssetClient()
-    project_client = ProjectClientLive(con, config.shortcode)
-    list_client = ListClientLive(con, project_client.get_project_iri())
+    project_client = ProjectInfoClientLive(auth.server)
+    list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
-    return UploadClients(ingest_client, project_client, list_client, legal_info_client)
+    return UploadClients(ingest_client, list_client, legal_info_client)

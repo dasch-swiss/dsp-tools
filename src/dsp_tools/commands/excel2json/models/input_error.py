@@ -384,3 +384,33 @@ class PropertyProblem:
         """
         all_problems = [x.execute_error_protocol() for x in self.problems]
         return f"The property '{self.prop_name}' has the following problem(s):\n{medium_separator.join(all_problems)}"
+
+
+@dataclass(frozen=True)
+class InvalidPermissionsOverrule:
+    entity_name: str
+    actual_val: str
+    allowed_vals: list[str]
+
+
+@dataclass(frozen=True)
+class InvalidPermissionsOverruleProblem:
+    """This class contains information if a "default_permissions_overrule" is invalid."""
+
+    wrong_vals: list[InvalidPermissionsOverrule]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        report_lines = [
+            f"Entity: '{x.entity_name}'. Actual value: '{x.actual_val}'. Allowed values: {', '.join(x.allowed_vals)}."
+            for x in self.wrong_vals
+        ]
+        return (
+            f"The following entities have an invalid 'default_permissions_overrule': "
+            f"{list_separator}{list_separator.join(report_lines)}"
+        )

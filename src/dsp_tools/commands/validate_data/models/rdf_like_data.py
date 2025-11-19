@@ -26,14 +26,12 @@ class RdfLikeResource:
             They are non-reified triples (not values).
             For example, the label of a resource is here.
         values: a list of user-facing values (e.g. BooleanValue)
-        asset_value: an asset value (all FileValues excluding the IIIFUri)
         migration_metadata: Metadata used for salsah migration
     """
 
     res_id: str
     property_objects: list[PropertyObject]
     values: list[RdfLikeValue]
-    asset_value: RdfLikeValue | None
     migration_metadata: MigrationMetadata
 
 
@@ -98,6 +96,8 @@ class TriplePropertyType(Enum):
     KNORA_LICENSE = auto()
     KNORA_AUTHORSHIP = auto()
     KNORA_COPYRIGHT_HOLDER = auto()
+    KNORA_DATE_START = auto()
+    KNORA_DATE_END = auto()
 
 
 class TripleObjectType(Enum):
@@ -111,5 +111,7 @@ class TripleObjectType(Enum):
     DECIMAL = auto()
     INTEGER = auto()
     IRI = auto()
+    INTERNAL_ID = auto()
     STRING = auto()
     URI = auto()
+    DATE_YYYY_MM_DD = auto()

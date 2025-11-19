@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
@@ -14,11 +15,21 @@ from typing import Union
 from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
+from requests import RequestException
 from requests import Response
 
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
+from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
+
+
+@dataclass
+class ResponseCodeAndText:
+    status_code: int
+    text: str
 
 
 @dataclass
@@ -143,14 +154,39 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
 
 
 def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
-    """Log the reason for a request failure and sleep."""
-    msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
+    """
+    Log the reason for a request failure and sleep.
+
+    =============  ================  =============================
+    retry_counter  seconds to sleep  cumulative waiting time (min)
+    =============  ================  =============================
+    0              1                 0
+    1              2                 0
+    2              4                 0
+    3              8                 0
+    4              16                0
+    5              32                1
+    6              64                2
+    7              128               4
+    8              256               9
+    9              300               14
+    10             300               19
+    11             300               24
+    12             300               29
+    15             300               44
+    18             300               59
+    24             300               89
+    30             300               119
+    =============  ================  =============================
+    """
+    sleep_time = min(2**retry_counter, 300)
+    msg = f"{reason}: Try reconnecting to DSP server, next attempt in {sleep_time} seconds..."
     print(f"{datetime.now()}: {msg}")
     if exc_info:
         logger.exception(f"{msg} ({retry_counter=:})")
     else:
         logger.error(f"{msg} ({retry_counter=:})")
-    time.sleep(2**retry_counter)
+    time.sleep(sleep_time)
 
 
 def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
@@ -167,3 +203,29 @@ def should_retry(response: Response) -> bool:
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (try_again_later or in_500_range) and not in_testing_env
+
+
+def log_and_raise_request_exception(error: RequestException) -> Never:
+    msg = (
+        f"During an API call the following exception occurred. "
+        f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
+        f"if you required help resolving the issue.\n"
+        f"Original exception name: {error.__class__.__name__}\n"
+    )
+    if error.request:
+        msg += f"Original request: {error.request.method} {error.request.url}"
+    logger.exception(msg)
+    raise DspToolsRequestException(msg) from None
+
+
+def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
+    resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+    msg = (
+        "We got an unexpected API response during the following request. "
+        "Please contact the dsp-tools development team (at support@dasch.swiss) with your log file "
+        "so that we can handle this more gracefully in the future.\n"
+        f"Response status code: {status_code}\n"
+        f"Original Message: {resp_txt}"
+    )
+    logger.warning(msg)
+    warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))

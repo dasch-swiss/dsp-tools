@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -19,14 +20,15 @@ from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
 from dsp_tools.commands.excel2json.models.json_header import Keywords
+from dsp_tools.commands.excel2json.models.json_header import Licenses
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
-from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
 from dsp_tools.utils.data_formats.uri_util import is_uri
@@ -59,6 +61,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
 
 
 def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    _futurewarning_about_inexistent_license_info(df_dict)
     if file_problems := _check_if_sheets_are_filled_and_exist(df_dict):
         return file_problems
     sheet_problems: list[Problem] = []
@@ -70,12 +73,24 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
         sheet_problems.append(description_problem)
     if keywords_problem := _check_keywords(df_dict["keywords"]):
         sheet_problems.append(keywords_problem)
+    if (licenses_df := df_dict.get("licenses")) is not None:
+        if license_problem := _check_licenses(licenses_df):
+            sheet_problems.append(license_problem)
     if (user_df := df_dict.get("users")) is not None:
         if user_problems := _check_all_users(user_df):
             sheet_problems.append(user_problems)
     if sheet_problems:
         return ExcelFileProblem("json_header.xlsx", sheet_problems)
     return None
+
+
+def _futurewarning_about_inexistent_license_info(df_dict: dict[str, pd.DataFrame]) -> None:
+    if df_dict.get("licenses") is None:
+        msg = (
+            "The json_header.xlsx file does not have a sheet containing the enabled licenses. "
+            "Please note that this will become mandatory in the future."
+        )
+        warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
@@ -117,7 +132,7 @@ def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
 
 def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
     problems: list[Problem] = []
-    cols = {"shortcode", "shortname", "longname"}
+    cols = {"shortcode", "shortname", "longname", "default_permissions"}
     if missing_cols := check_contains_required_columns(df, cols):
         problems.append(missing_cols)
     if len(df) > 1:
@@ -126,6 +141,14 @@ def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
         return ExcelSheetProblem("project", problems)
     if missing_values := find_missing_required_values(df, list(cols)):
         return ExcelSheetProblem("project", [MissingValuesProblem(missing_values)])
+    perm_value = str(df.loc[0, "default_permissions"]).strip().lower()
+    if perm_value not in ["public", "private"]:
+        prob = InvalidExcelContentProblem(
+            expected_content="One of: public, private",
+            actual_content=perm_value,
+            excel_position=PositionInExcel(column="default_permissions", row=2),
+        )
+        return ExcelSheetProblem("project", [prob])
     return None
 
 
@@ -148,13 +171,20 @@ def _check_keywords(df: pd.DataFrame) -> ExcelSheetProblem | None:
     return None
 
 
+def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    if missing_cols := check_contains_required_columns(df, {"enabled"}):
+        return ExcelSheetProblem("licenses", [missing_cols])
+    return None
+
+
 def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if not len(df) > 0:
         return None
-    columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
-    if missing_cols := check_contains_required_columns(df, set(columns)):
+    required_columns = ["username", "email", "givenname", "password", "familyname", "lang", "role"]
+    if missing_cols := check_contains_required_columns(df, set(required_columns)):
         return ExcelSheetProblem("users", [missing_cols])
-    if missing_vals := find_missing_required_values(df, columns):
+    required_values = ["username", "email", "givenname", "familyname", "lang", "role"]
+    if missing_vals := find_missing_required_values(df, required_values):
         return ExcelSheetProblem("users", [MissingValuesProblem(missing_vals)])
     problems: list[Problem] = []
     for i, row in df.iterrows():
@@ -198,10 +228,10 @@ def _check_email(email: str, row_num: int) -> InvalidExcelContentProblem | None:
 
 
 def _check_role(value: str, row_num: int) -> InvalidExcelContentProblem | None:
-    possible_roles = ["projectadmin", "systemadmin", "projectmember"]
+    possible_roles = ["projectadmin", "projectmember"]
     if value.lower() not in possible_roles:
         return InvalidExcelContentProblem(
-            expected_content="One of: projectadmin, systemadmin, projectmember",
+            expected_content="One of: projectadmin, projectmember",
             actual_content=value,
             excel_position=PositionInExcel(column="role", row=row_num),
         )
@@ -224,18 +254,25 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
     project_df = df_dict["project"]
     extracted_description = _extract_descriptions(df_dict["description"])
     extracted_keywords = _extract_keywords(df_dict["keywords"])
+    if (lic_df := df_dict.get("licenses")) is not None:
+        extracted_licenses = _extract_licenses(lic_df)
+    else:
+        extracted_licenses = Licenses([])
     all_users = None
     if (user_df := df_dict.get("users")) is not None:
         if len(user_df) > 0:
             all_users = _extract_users(user_df)
     shortcode = str(project_df.loc[0, "shortcode"]).zfill(4)
+    default_permissions = str(project_df.loc[0, "default_permissions"]).strip().lower()
     return Project(
         shortcode=shortcode,
         shortname=str(project_df.loc[0, "shortname"]),
         longname=str(project_df.loc[0, "longname"]),
         descriptions=extracted_description,
         keywords=extracted_keywords,
+        licenses=extracted_licenses,
         users=all_users,
+        default_permissions=default_permissions,
     )
 
 
@@ -256,6 +293,11 @@ def _extract_keywords(df: pd.DataFrame) -> Keywords:
     return Keywords(keywords)
 
 
+def _extract_licenses(df: pd.DataFrame) -> Licenses:
+    licenses = list({x for x in df["enabled"] if not pd.isna(x)})
+    return Licenses(licenses)
+
+
 def _extract_users(df: pd.DataFrame) -> Users:
     users = []
     for _, row in df.iterrows():
@@ -265,23 +307,15 @@ def _extract_users(df: pd.DataFrame) -> Users:
 
 
 def _extract_one_user(row: pd.Series[str]) -> User:
-    user_role = _get_role(row["role"])
+    isProjectAdmin = row["role"].lower() == "projectadmin"
+    if pd.isna(pw := row["password"]):
+        pw = None
     return User(
         username=row["username"],
         email=row["email"],
         givenName=row["givenname"],
         familyName=row["familyname"],
-        password=row["password"],
+        password=pw,
         lang=row["lang"],
-        role=user_role,
+        isProjectAdmin=isProjectAdmin,
     )
-
-
-def _get_role(value: str) -> UserRole:
-    match value.lower():
-        case "projectadmin":
-            return UserRole(project_admin=True)
-        case "systemadmin":
-            return UserRole(sys_admin=True)
-        case _:
-            return UserRole()

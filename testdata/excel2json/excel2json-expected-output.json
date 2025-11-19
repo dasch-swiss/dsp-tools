@@ -1,115 +1,272 @@
 {
     "prefixes": {
-        "": ""
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "dcterms": "http://purl.org/dc/terms/",
+        "schema": "https://schema.org/",
+        "sdh": "https://ontome.net/ns/sdhss/",
+        "cidoc": "http://www.cidoc-crm.org/cidoc-crm/"
     },
     "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "",
-        "shortname": "",
-        "longname": "",
+        "shortcode": "0011",
+        "shortname": "daschland",
+        "longname": "Alice in DaSCHland",
         "descriptions": {
-            "en": ""
+            "en": "Alice in DaSCHland. <br/>Testdata",
+            "fr": "Alice au Pays de DaSCH. <br/>Données test",
+            "de": "Alice im DaSCHland. <br/>Testdaten"
         },
         "keywords": [
-            ""
+            "Alice",
+            "Beispiel",
+            "DaSCH",
+            "Data",
+            "Données",
+            "Example",
+            "Exemple",
+            "Test",
+            "animaux de compagnie",
+            "pet-friendly",
+            "tierfreundlich"
+        ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/public-domain"
+        ],
+        "default_permissions": "public",
+        "default_permissions_overrule": {
+            "private": ["test-name:Alias", "test-name:hasAnthroponym"],
+            "limited_view": ["test-name:Image"]
+        },
+        "users": [
+            {
+                "username": "Alice",
+                "email": "alice@dasch.swiss",
+                "givenName": "Alice Pleasance",
+                "familyName": "Liddell",
+                "password": null,
+                "lang": "en",
+                "status": true,
+                "projects": [
+                    ":admin",
+                    ":member"
+                ]
+            },
+            {
+                "username": "Caterpillar",
+                "email": "caterpillar@dasch.swiss",
+                "givenName": "Caterpillar",
+                "familyName": "Wonderland",
+                "password": "alice7652",
+                "lang": "de",
+                "status": true,
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "WhiteRabbit",
+                "email": "white.rabbit@dasch.swiss",
+                "givenName": "White",
+                "familyName": "Rabbit",
+                "password": null,
+                "lang": "fr",
+                "status": true,
+                "projects": [
+                    ":admin",
+                    ":member"
+                ]
+            }
         ],
         "lists": [
             {
-                "name": "first-list",
+                "name": "List 1",
                 "labels": {
-                    "fr": "première liste",
-                    "en": "first list",
-                    "de": "erste Liste"
+                    "en": "List 1",
+                    "de": "Liste 1"
                 },
                 "comments": {
-                    "fr": "première liste",
-                    "en": "first list",
-                    "de": "erste Liste"
+                    "en": "Comments List",
+                    "de": "Kommentar Liste"
                 },
                 "nodes": [
                     {
-                        "name": "special-characters-12-0-are-embedded",
+                        "name": "List 1:Node 1",
                         "labels": {
-                            "fr": "caractères spéciales 1&2-%*_0 dedans",
-                            "en": "special characters 1&2-%*_0 are embedded",
-                            "de": "Spezialzeichen 1&2-%*_0 sind eingebettet"
+                            "en": "Node 1",
+                            "de": "Knoten 1"
                         },
                         "nodes": [
                             {
-                                "name": "very",
+                                "name": "Node 1.1",
                                 "labels": {
-                                    "fr": "très",
-                                    "en": "very",
-                                    "de": "sehr"
+                                    "en": "Node 1.1",
+                                    "de": "Knoten 1.1"
                                 },
                                 "nodes": [
                                     {
-                                        "name": "deeply",
+                                        "name": "custom_name_1-1-1",
                                         "labels": {
-                                            "fr": "profondément",
-                                            "en": "deeply",
-                                            "de": "tief"
-                                        },
-                                        "nodes": [
-                                            {
-                                                "name": "nested",
-                                                "labels": {
-                                                    "fr": "niché!",
-                                                    "en": "nested!",
-                                                    "de": "verschachtelt!"
-                                                }
-                                            }
-                                        ]
+                                            "en": "Node 1.1.1",
+                                            "de": "Knoten 1.1.1"
+                                        }
+                                    },
+                                    {
+                                        "name": "custom_name_1-1-2",
+                                        "labels": {
+                                            "en": "Node 1.1.2",
+                                            "de": "Knoten 1.1.2"
+                                        }
                                     }
                                 ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "List 1:Node 2",
+                        "labels": {
+                            "en": "Node 2",
+                            "de": "Knoten 2"
+                        },
+                        "nodes": [
+                            {
+                                "name": "Node 2.1",
+                                "labels": {
+                                    "en": "Node 2.1",
+                                    "de": "Knoten 2.1"
+                                },
+                                "comments": {
+                                    "en": "Comments N2.1",
+                                    "de": "Kommentar N2.1"
+                                }
+                            },
+                            {
+                                "name": "Node 2.2",
+                                "labels": {
+                                    "en": "Node 2.2",
+                                    "de": "Knoten 2.2"
+                                }
+                            },
+                            {
+                                "name": "Node 2.3",
+                                "labels": {
+                                    "en": "Node 2.3",
+                                    "de": "Knoten 2.3"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "List 1:Node 3",
+                        "labels": {
+                            "en": "Node 3",
+                            "de": "Knoten 3"
+                        },
+                        "comments": {
+                            "en": "Comments N3",
+                            "de": "Kommentar N3"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "List 2",
+                "labels": {
+                    "en": "List 2"
+                },
+                "comments": {
+                    "en": "Comment List"
+                },
+                "nodes": [
+                    {
+                        "name": "List 2:Node 1",
+                        "labels": {
+                            "en": "Node 1"
+                        },
+                        "comments": {
+                            "en": "Comment N1"
+                        },
+                        "nodes": [
+                            {
+                                "name": "List 2:Node 1:subnode1",
+                                "labels": {
+                                    "en": "subnode1"
+                                },
+                                "comments": {
+                                    "en": "Comment N1.1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "List 2:Node 2",
+                        "labels": {
+                            "en": "Node 2"
+                        },
+                        "comments": {
+                            "en": "Comment N2"
+                        },
+                        "nodes": [
+                            {
+                                "name": "List 2:Node 2:subnode1",
+                                "labels": {
+                                    "en": "subnode1"
+                                },
+                                "comments": {
+                                    "en": "Comment N2.1"
+                                }
                             }
                         ]
                     }
                 ]
             },
             {
-                "name": "second-list",
+                "name": "list 3 id",
                 "labels": {
-                    "fr": "deuxième liste",
-                    "en": "second list",
-                    "de": "zweite Liste"
+                    "en": "List 3"
                 },
                 "comments": {
-                    "fr": "deuxième liste",
-                    "en": "second list",
-                    "de": "zweite Liste"
+                    "en": "List 3"
                 },
                 "nodes": [
                     {
-                        "name": "first-node",
+                        "name": "List 3:Node 1",
                         "labels": {
-                            "fr": "premier noeud",
-                            "en": "first node",
-                            "de": "erster Knoten"
+                            "en": "Node 1"
+                        },
+                        "nodes": [
+                            {
+                                "name": "sub1",
+                                "labels": {
+                                    "en": "sub1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "List 3:Node 2",
+                        "labels": {
+                            "en": "Node 2"
                         }
                     },
                     {
-                        "name": "duplicate-nodename",
+                        "name": "List 3:Node 3",
                         "labels": {
-                            "fr": "noeud doublé",
-                            "en": "duplicate nodename",
-                            "de": "Doppelung"
-                        }
+                            "en": "Node 3"
+                        },
+                        "nodes": [
+                            {
+                                "name": "List 3:Node 3:sub1",
+                                "labels": {
+                                    "en": "sub1"
+                                }
+                            }
+                        ]
                     },
                     {
-                        "name": "duplicate-nodename-2",
+                        "name": "Node 4",
                         "labels": {
-                            "fr": "noeud doublé!",
-                            "en": "duplicate nodename!",
-                            "de": "Doppelung!"
-                        }
-                    },
-                    {
-                        "name": "duplicate-nodename-3",
-                        "labels": {
-                            "fr": "noeud doublé?",
-                            "en": "duplicate nodename?",
-                            "de": "Doppelung?"
+                            "en": "Node 4"
                         }
                     }
                 ]
@@ -162,8 +319,8 @@
                         "super": [
                             "hasValue"
                         ],
-                        "subject": ":Person",
                         "object": "ListValue",
+                        "subject": ":Person",
                         "labels": {
                             "fr": "only French"
                         },
@@ -242,8 +399,8 @@
                         "super": [
                             "hasValue"
                         ],
-                        "subject": ":Person",
                         "object": "IntValue",
+                        "subject": ":Person",
                         "labels": {
                             "en": "age",
                             "fr": "Âge",
@@ -252,11 +409,7 @@
                         "comments": {
                             "de": "only German"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "min": 0.0,
-                            "max": 100.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasBirthDate",
@@ -343,10 +496,7 @@
                             "it": "Gemeinsame Normdatei",
                             "rm": "Rumantsch"
                         },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "size": 100
-                        }
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasColor",
@@ -382,11 +532,7 @@
                             "de": "Dezimalzahl",
                             "fr": "Chiffre décimale"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "min": 0.0,
-                            "max": 100.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasTime",
@@ -444,8 +590,8 @@
                         "super": [
                             "isPartOf"
                         ],
-                        "subject": ":Image",
                         "object": ":Documents",
+                        "subject": ":Image",
                         "labels": {
                             "en": "is part of a document",
                             "de": "ist Teil eines Dokuments"
@@ -465,10 +611,7 @@
                         "labels": {
                             "en": "Links to a region of an image"
                         },
-                        "gui_element": "Searchbox",
-                        "gui_attributes": {
-                            "numprops": 1
-                        }
+                        "gui_element": "Searchbox"
                     },
                     {
                         "name": "hasLinkToImage",
@@ -617,6 +760,11 @@
                                 "propname": ":hasRemarks",
                                 "cardinality": "1-n",
                                 "gui_order": 13
+                            },
+                            {
+                                "propname": "other-onto:hasProp",
+                                "cardinality": "0-1",
+                                "gui_order": 14
                             }
                         ]
                     },
@@ -1048,6 +1196,16 @@
                                 "propname": ":hasRemarks",
                                 "cardinality": "1",
                                 "gui_order": 1
+                            },
+                            {
+                                "propname": "seqnum",
+                                "cardinality": "0-1",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": "isPartOf",
+                                "cardinality": "0-1",
+                                "gui_order": 3
                             }
                         ]
                     },

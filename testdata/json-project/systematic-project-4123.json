@@ -1,0 +1,863 @@
+{
+    "prefixes": {
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "externalOnto": "http://otherOntology.com/onto/",
+        "dcterms": "http://purl.org/dc/terms/"
+    },
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4123",
+        "shortname": "systematic-tp",
+        "longname": "systematic test project",
+        "descriptions": {
+            "en": "A systematic test project",
+            "de": "Ein systematisches Testprojekt",
+            "rm": "Rumantsch descripziun"
+        },
+        "keywords": [
+            "test",
+            "testing"
+        ],
+        "enabled_licenses": [
+            "http://rdfh.ch/licenses/cc-by-4.0",
+            "http://rdfh.ch/licenses/cc-by-nc-4.0",
+            "http://rdfh.ch/licenses/ai-generated"
+        ],
+        "default_permissions": "public",
+        "default_permissions_overrule": {
+            "private": [
+                "testonto:TestThing2",
+                "testonto:hasTextChild2"
+            ],
+            "limited_view": "all"
+        },
+        "groups": [
+            {
+                "name": "testgroupEditors",
+                "descriptions": {
+                    "en": "Test group editors",
+                    "de": "Testgruppe Editors",
+                    "rm": "squadra test 'Editors' in Rumantsch"
+                },
+                "selfjoin": false
+            },
+            {
+                "name": "testgroup-viewers",
+                "descriptions": {
+                    "en": "Test group viewers",
+                    "de": "Testgruppe Viewers"
+                },
+                "selfjoin": false,
+                "status": true
+            }
+        ],
+        "users": [
+            {
+                "username": "testerKnownUser",
+                "email": "tester.known@test.org",
+                "givenName": "Tester",
+                "familyName": "Known",
+                "password": "test0815",
+                "lang": "en"
+            },
+            {
+                "username": "testerProjectEditor",
+                "email": "tester.projecteditor@test.org",
+                "givenName": "Tester",
+                "familyName": "Editor",
+                "password": "test0815",
+                "lang": "fr",
+                "groups": [
+                    ":testgroupEditors"
+                ],
+                "projects": [
+                    ":member"
+                ]
+            },
+            {
+                "username": "testerProjectViewer",
+                "email": "tester.projectviewer@test.org",
+                "givenName": "Tester",
+                "familyName": "Viewer",
+                "password": "test0815",
+                "lang": "it",
+                "groups": [
+                    "systematic-tp:testgroup-viewers"
+                ],
+                "projects": [
+                    "systematic-tp:member"
+                ]
+            },
+            {
+                "username": "testerProjectAdmin",
+                "email": "tester.projectadmin@test.org",
+                "givenName": "Tester",
+                "familyName": "Project Admin",
+                "password": "test0815",
+                "lang": "de",
+                "projects": [
+                    ":admin"
+                ],
+                "status": true
+            },
+            {
+                "username": "member-admin",
+                "email": "member-admin@test.org",
+                "givenName": "member-admin",
+                "familyName": "member-admin",
+                "password": "test0815",
+                "lang": "rm",
+                "projects": [
+                    ":member",
+                    ":admin"
+                ]
+            },
+            {
+                "username": "admin-member",
+                "email": "admin-member@test.org",
+                "givenName": "admin-member",
+                "familyName": "admin-member",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":admin",
+                    ":member"
+                ]
+            }
+        ],
+        "lists": [
+            {
+                "name": "testlist",
+                "labels": {
+                    "en": "Testlist",
+                    "rm": "Glista test in Rumantsch"
+                },
+                "comments": {
+                    "de": "kein Kommentar",
+                    "en": "no comment",
+                    "rm": "nagin commentar in Rumantsch"
+                },
+                "nodes": [
+                    {
+                        "name": "first node of testlist",
+                        "labels": {
+                            "en": "First node of the Test-List",
+                            "rm": "Rumantsch"
+                        }
+                    },
+                    {
+                        "name": "second node of testlist",
+                        "labels": {
+                            "en": "Second node of the Test-List"
+                        },
+                        "nodes": [
+                            {
+                                "name": "first subnode",
+                                "labels": {
+                                    "en": "First Sub-Node"
+                                }
+                            },
+                            {
+                                "name": "second subnode",
+                                "labels": {
+                                    "en": "Second Sub-Node"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "third node of testlist",
+                        "labels": {
+                            "en": "Third node of the Test-List"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "notUsedList",
+                "labels": {
+                    "en": "Not used list"
+                },
+                "comments": {
+                    "de": "kein Kommentar",
+                    "en": "no comment"
+                },
+                "nodes": [
+                    {
+                        "name": "notUsedNode_1",
+                        "labels": {
+                            "en": "nodeLabel_1\"'"
+                        },
+                        "comments": {
+                            "en": "Nodes can have comments, too!",
+                            "rm": "Even in Rumantsch!"
+                        }
+                    }
+                ]
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "comment": "This is the main ontology of this project. Further down, another one is defined.",
+                "properties": [
+                    {
+                        "name": "hasTextChild2",
+                        "super": [
+                            "testonto:hasTextChild1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text",
+                            "rm": "hasTextChild2 in Rumantsch"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasTextChild1",
+                        "super": [
+                            ":hasSimpleText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue",
+                            "foaf:name",
+                            "externalOnto:hasText"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "comments": {
+                            "en": "properties can optionally have comments",
+                            "de": "Properties können Kommentare haben",
+                            "rm": "Property with a Rumantsch comment"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasTextArea",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasTextArea"
+                        },
+                        "gui_element": "Textarea"
+                    },
+                    {
+                        "name": "hasUri",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "UriValue",
+                        "labels": {
+                            "en": "URI"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    },
+                    {
+                        "name": "hasBoolean",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "BooleanValue",
+                        "labels": {
+                            "en": "Boolean value"
+                        },
+                        "gui_element": "Checkbox"
+                    },
+                    {
+                        "name": "hasDate",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DateValue",
+                        "labels": {
+                            "en": "Date"
+                        },
+                        "gui_element": "Date"
+                    },
+                    {
+                        "name": "hasTime",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TimeValue",
+                        "labels": {
+                            "en": "Time"
+                        },
+                        "gui_element": "TimeStamp"
+                    },
+                    {
+                        "name": "hasInteger",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Integer"
+                        },
+                        "gui_element": "Spinbox"
+                    },
+                    {
+                        "name": "hasDecimal",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "DecimalValue",
+                        "labels": {
+                            "en": "Decimal number"
+                        },
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "max": 100.0,
+                            "min": 0.0
+                        }
+                    },
+                    {
+                        "name": "hasGeoname",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "GeonameValue",
+                        "labels": {
+                            "en": "Geoname"
+                        },
+                        "gui_element": "Geonames"
+                    },
+                    {
+                        "name": "hasColor",
+                        "super": [
+                            "hasColor"
+                        ],
+                        "object": "ColorValue",
+                        "labels": {
+                            "en": "Color"
+                        },
+                        "gui_element": "Colorpicker"
+                    },
+                    {
+                        "name": "hasListItem",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": {
+                            "en": "List element"
+                        },
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "testlist"
+                        }
+                    },
+                    {
+                        "name": "hasTestThing2",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing2",
+                        "labels": {
+                            "en": "hasTestThing2"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasTestThing",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":TestThing",
+                        "labels": {
+                            "en": "hasTestThing"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRegion",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Region",
+                        "labels": {
+                            "en": "hasRegion"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Representation",
+                        "labels": {
+                            "en": "hasRepresentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasMovingImageRepresentation",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "hasMovingImageRepresentation"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasPagenum",
+                        "super": [
+                            "seqnum"
+                        ],
+                        "object": "IntValue",
+                        "labels": {
+                            "en": "Page number"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "partOf",
+                        "super": [
+                            "isPartOf"
+                        ],
+                        "object": ":CompoundThing",
+                        "labels": {
+                            "en": "is part of"
+                        },
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": [
+                            "Resource",
+                            "foaf:Person",
+                            "externalOnto:thing"
+                        ],
+                        "labels": {
+                            "en": "TestThing",
+                            "rm": "TestThing in Rumantsch"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": "testonto:hasSimpleText",
+                                "cardinality": "1-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasTextArea",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasUri",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasBoolean",
+                                "cardinality": "1",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasDate",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasTime",
+                                "cardinality": "0-n",
+                                "gui_order": 6
+                            },
+                            {
+                                "propname": ":hasInteger",
+                                "cardinality": "0-n",
+                                "gui_order": 7
+                            },
+                            {
+                                "propname": ":hasDecimal",
+                                "cardinality": "0-n",
+                                "gui_order": 8
+                            },
+                            {
+                                "propname": ":hasGeoname",
+                                "cardinality": "0-n",
+                                "gui_order": 9
+                            },
+                            {
+                                "propname": ":hasColor",
+                                "cardinality": "0-n",
+                                "gui_order": 10
+                            },
+                            {
+                                "propname": ":hasListItem",
+                                "cardinality": "0-n",
+                                "gui_order": 11
+                            },
+                            {
+                                "propname": ":hasTestThing2",
+                                "cardinality": "0-n",
+                                "gui_order": 12
+                            },
+                            {
+                                "propname": ":hasResource",
+                                "cardinality": "0-n",
+                                "gui_order": 13
+                            },
+                            {
+                                "propname": ":hasRegion",
+                                "cardinality": "0-n",
+                                "gui_order": 14
+                            },
+                            {
+                                "propname": ":hasRepresentation",
+                                "cardinality": "0-n",
+                                "gui_order": 15
+                            },
+                            {
+                                "propname": ":hasMovingImageRepresentation",
+                                "cardinality": "0-n",
+                                "gui_order": 16
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2Child2",
+                        "super": ":TestThing2Child1",
+                        "labels": {
+                            "en": "TestThing2Child2"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasTextChild2",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2Child1",
+                        "super": ":TestThing2",
+                        "labels": {
+                            "en": "TestThing2Child1"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasTextChild1",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TestThing2",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Another Test Thing"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 0,
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasTestThing",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "CompoundThing",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "A Compound Thing"
+                        },
+                        "comments": {
+                            "en": "A thing for testing compound things.",
+                            "rm": "Rumantsch comment of resource 'CompoundThing'"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "An Image Thing"
+                        },
+                        "comments": {
+                            "en": "An image thing for testing image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "AudioThing",
+                        "super": "AudioRepresentation",
+                        "labels": {
+                            "en": "An Audio Thing",
+                            "de": "Ein Audioding"
+                        },
+                        "comments": {
+                            "en": "An audio thing for testing audio things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "MovieThing",
+                        "super": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "An Movie Thing"
+                        },
+                        "comments": {
+                            "en": "An movie thing for testing moving image things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DocumentThing",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "A Document Thing"
+                        },
+                        "comments": {
+                            "en": "A second things for testing different things."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ZipThing",
+                        "super": "ArchiveRepresentation",
+                        "labels": {
+                            "en": "A ZIP Thing"
+                        },
+                        "comments": {
+                            "en": "A  things for testing ZIPS."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "TextThing",
+                        "super": "TextRepresentation",
+                        "labels": {
+                            "en": "A Text Thing"
+                        },
+                        "comments": {
+                            "en": "A  things for testing TEXTS."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "gui_order": 1,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThing",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having a isPartOf and seqnum property"
+                        },
+                        "comments": {
+                            "en": "A thing for testing partOf and seqnum properties."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": "isPartOf",
+                                "gui_order": 1,
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": "seqnum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "PartOfThingWithSubproperties",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "A Thing having subproperties of isPartOf and seqnum"
+                        },
+                        "comments": {
+                            "en": "A thing for testing subproperties of isPartOf and seqnum."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":partOf",
+                                "gui_order": 1,
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasPagenum",
+                                "gui_order": 2,
+                                "cardinality": "1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "SomeThing",
+                        "super": [
+                            "StillImageRepresentation",
+                            "testonto:ImageThing"
+                        ],
+                        "labels": {
+                            "en": "Thing whose superclass is referenced with prefixed onto name"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "testontoPermissions",
+                "label": "Test ontology permissions",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText",
+                        "gui_attributes": {
+                            "maxlength": 255,
+                            "size": 80
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThingPermissions",
+                        "super": [
+                            "Resource",
+                            "http://xmlns.com/foaf/0.1/#term_name"
+                        ],
+                        "labels": {
+                            "en": "Test thing for permissions without object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": "testonto:hasSimpleText",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ImageThingPermissions",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Test thing for permissions with object"
+                        },
+                        "comments": {
+                            "en": "A thing to test permission related things",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasText",
+                                "gui_order": 1,
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

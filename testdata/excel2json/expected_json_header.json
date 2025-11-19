@@ -29,13 +29,18 @@
       "pet-friendly",
       "tierfreundlich"
     ],
+    "enabled_licenses": [
+      "http://rdfh.ch/licenses/cc-by-4.0",
+      "http://rdfh.ch/licenses/public-domain"
+    ],
+    "default_permissions": "public",
     "users": [
       {
         "username": "Alice",
         "email": "alice@dasch.swiss",
         "givenName": "Alice Pleasance",
         "familyName": "Liddell",
-        "password": "alice4322",
+        "password": null,
         "lang": "en",
         "status": true,
         "projects": [
@@ -60,12 +65,9 @@
         "email": "white.rabbit@dasch.swiss",
         "givenName": "White",
         "familyName": "Rabbit",
-        "password": "alice8711",
+        "password": null,
         "lang": "fr",
         "status": true,
-        "groups": [
-          "SystemAdmin"
-        ],
         "projects": [
           ":admin",
           ":member"

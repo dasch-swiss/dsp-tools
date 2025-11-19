@@ -67,12 +67,26 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.ValidationError as err:
+        # Check for the specific case of missing 'default_permissions'
+        if "'default_permissions' is a required property" in err.message:
+            raise BaseError("You forgot to specify the 'default_permissions'") from None
+        # Check for the specific case of private permissions with overrule
+        if (
+            "should not be valid under {'required': ['default_permissions_overrule']}" in err.message
+            and project_definition.get("project", {}).get("default_permissions") == "private"
+        ):
+            raise BaseError(
+                "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
+                "Private permissions cannot be overruled."
+            ) from None
+
         raise BaseError(
             f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
             f"The error occurred at {err.json_path}:\n{err.instance}"
         ) from None
 
     # make some checks that are too complex for JSON schema
+    _check_for_invalid_default_permissions_overrule(project_definition)
     _check_for_undefined_super_property(project_definition)
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
@@ -83,6 +97,176 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
+
+
+def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
+    """
+    Build a lookup dictionary for resources by ontology and name.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Returns:
+        Dictionary mapping ontology names to resource names to resource definitions
+    """
+    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        resource_lookup[onto["name"]] = {}
+        for resource in onto["resources"]:
+            resource_lookup[onto["name"]][resource["name"]] = resource
+    return resource_lookup
+
+
+def _parse_class_reference(class_ref: str) -> tuple[str, str] | None:
+    """
+    Parse a class reference in the format 'ontology:ClassName'.
+
+    Args:
+        class_ref: Class reference string
+
+    Returns:
+        Tuple of (ontology_name, class_name) or None if invalid format
+    """
+    if ":" not in class_ref:
+        return None
+
+    parts = class_ref.split(":")
+    if len(parts) != 2:
+        return None
+
+    return parts[0], parts[1]
+
+
+def _is_subclass_of_still_image_representation(
+    ontology_name: str, class_name: str, resource_lookup: dict[str, dict[str, dict[str, Any]]]
+) -> bool:
+    """
+    Check if a class is a subclass of StillImageRepresentation by traversing the inheritance chain.
+
+    Args:
+        ontology_name: Name of the ontology containing the class
+        class_name: Name of the class to check
+        resource_lookup: Dictionary mapping ontology names to resource definitions
+
+    Returns:
+        True if the class is a subclass of StillImageRepresentation
+    """
+    current_onto = ontology_name
+    current_class = class_name
+    visited = set()
+
+    # Follow the inheritance chain up to 10 levels (prevent infinite loops)
+    for _ in range(10):
+        class_id = f"{current_onto}:{current_class}"
+        if class_id in visited:
+            break  # Circular reference detected
+        visited.add(class_id)
+
+        if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
+            break  # Resource not found
+
+        resource = resource_lookup[current_onto][current_class]
+        super_class = resource.get("super")
+
+        # Handle both string and list formats for super
+        super_classes = []
+        if isinstance(super_class, list):
+            super_classes = super_class
+        elif super_class:
+            super_classes = [super_class]
+
+        # Check if any superclass is StillImageRepresentation
+        if "StillImageRepresentation" in super_classes:
+            return True
+
+        # Find the next class in the inheritance chain
+        next_class = None
+        for super_cls in super_classes:
+            if super_cls.startswith(":"):
+                # Same ontology reference
+                next_class = (current_onto, super_cls[1:])
+                break
+            elif ":" in super_cls and super_cls != "StillImageRepresentation":
+                # Different ontology reference
+                super_parts = super_cls.split(":", 1)
+                if len(super_parts) == 2:
+                    next_class = (super_parts[0], super_parts[1])
+                    break
+
+        if next_class:
+            current_onto, current_class = next_class
+        else:
+            break  # No more inheritance to follow
+
+    return False
+
+
+def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
+    """
+    Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a class in limited_view doesn't have the correct superclass
+
+    Returns:
+        True if all classes in limited_view are subclasses of StillImageRepresentation
+    """
+    if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
+        return True
+    if not (limited_view := default_permissions_overrule.get("limited_view")):
+        return True
+
+    # If limited_view is "all", no validation needed - it applies to all image classes
+    if limited_view == "all":
+        return True
+
+    errors: dict[str, str] = {}
+    resource_lookup = _build_resource_lookup(project_definition)
+
+    # Check each class in limited_view (when it's a list)
+    for class_ref in limited_view:
+        parsed_ref = _parse_class_reference(class_ref)
+        if not parsed_ref:
+            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
+            continue
+
+        ontology_name, class_name = parsed_ref
+
+        # Check if the ontology exists
+        if ontology_name not in resource_lookup:
+            errors[f"Class reference '{class_ref}'"] = f"Ontology '{ontology_name}' not found"
+            continue
+
+        # Check if the resource exists in the ontology
+        if class_name not in resource_lookup[ontology_name]:
+            errors[f"Class reference '{class_ref}'"] = (
+                f"Resource '{class_name}' not found in ontology '{ontology_name}'"
+            )
+            continue
+
+        # Check if the resource is a subclass of StillImageRepresentation
+        if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
+            errors[f"Class reference '{class_ref}'"] = (
+                f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
+                f"(directly or through inheritance)"
+            )
+
+    if errors:
+        err_msg = (
+            "All classes in project.default_permissions_overrule.limited_view "
+            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
+            "permission is only implemented for images (i.e. blurring, watermarking). \n"
+            "In order to check, the classes must be provided in the form \n"
+            '    "limited_view": ["ontoname:Classname", ...]\n\n'
+            "The following classes do not meet this requirement:\n"
+        )
+        err_msg += "\n".join(f" - {loc}: {error}" for loc, error in errors.items())
+        raise BaseError(err_msg)
+
+    return True
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:

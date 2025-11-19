@@ -28,6 +28,7 @@ lint: uv-sync
     just markdownlint
     just darglint
     just mypy
+    just vulture
     uv run scripts/markdown_link_validator.py
 
 
@@ -68,9 +69,10 @@ darglint:
 
 
 # Check that there are no dead links in the docs
+# links to w3.org are ignored, because for unknown reasons, they are always reported as invalid
 [no-exit-message]
 check-links:
-    markdown-link-validator ./docs -i ./assets/.+
+    markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/
 
 
 # Check the docs for ambiguous Markdown syntax that could be wrongly rendered
@@ -79,16 +81,17 @@ markdownlint:
     docker run \
     --rm \
     -v $PWD:/workdir \
-    ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
+    ghcr.io/igorshubovych/markdownlint-cli:v0.45.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
-    --ignore README.md \
     "**/*.md"
+
 
 # Run vulture, dead code analysis
 [no-exit-message]
 vulture:
     uv run vulture
+
 
 # Run the unit tests
 [no-exit-message]
@@ -102,12 +105,45 @@ integration-tests *FLAGS:
     uv run pytest test/integration/ {{FLAGS}}
 
 
-# Run the end-to-end tests (with testcontainers)
+# Run all the end-to-end tests with testcontainers
 [no-exit-message]
 e2e-tests *FLAGS:
     # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
+    # "-n=4" runs 4 workers in parallel. This is a tradeoff in order to not overload Docker Desktop.
     # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
-    uv run pytest -n=auto --dist=loadfile test/e2e/ {{FLAGS}}
+    uv run pytest -n=4 --dist=loadfile test/e2e/ {{FLAGS}}
+
+
+# Run the end-to-end tests for the ingest-xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-ingest-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/ingest_xmlupload/ {{FLAGS}}
+
+
+# Run the end-to-end tests for the validate-data command (with testcontainers)
+[no-exit-message]
+e2e-test-validate-data *FLAGS:
+    # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
+    # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
+    uv run pytest -n=4 --dist=loadfile test/e2e/commands/validate_data/ {{FLAGS}}
+
+
+# Run the end-to-end tests for the xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/xmlupload/ {{FLAGS}}
+
+
+# Run the end-to-end tests for the create and get command (with testcontainers)
+[no-exit-message]
+e2e-test-project *FLAGS:
+    uv run pytest test/e2e/commands/project/ {{FLAGS}}
+
+
+# Run the end-to-end tests for the create, get and xmlupload command (with testcontainers)
+[no-exit-message]
+e2e-test-create-get-xmlupload *FLAGS:
+    uv run pytest test/e2e/commands/test_create_get_xmlupload.py {{FLAGS}}
 
 
 # Run the legacy end-to-end tests (needs a running stack)

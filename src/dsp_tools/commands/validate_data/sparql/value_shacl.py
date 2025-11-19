@@ -8,26 +8,25 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
 
-from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
-from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.clients.list_client import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
-from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
 from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
-def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+def construct_property_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
     """
     Returns the sh:PropertyShape for the properties in the ontology.
 
     Args:
         onto: ontology graph
-        project_lists: lists of a project
+        project_lists: all lists from a project
 
     Returns:
         Graph with the property shapes
     """
-    logger.info("Constructing property shapes for ontology.")
+    logger.debug("Constructing property shapes for ontology.")
     g = Graph()
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
@@ -40,7 +39,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
 
 
 def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
-    logger.info("Add property shape to resources")
+    logger.debug("Add property shape to resources")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -52,7 +51,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       ?class a sh:NodeShape ;
              sh:property ?propShapesIRI .
-    
+
     } WHERE {
 
       ?class a owl:Class ;
@@ -61,7 +60,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;          
           owl:onProperty ?propRestriction .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
@@ -74,7 +73,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
 
 def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
-    logger.info("Add value type shape to resources")
+    logger.debug("Add value type shape to resources")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -103,7 +102,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-      
+
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
@@ -114,7 +113,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
 
 def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
-    logger.info("Add value type shape to resources")
+    logger.debug("Add value type shape to resources")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -150,7 +149,7 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
 
 def _construct_link_value_shape(onto: Graph) -> Graph:
-    logger.info("Constructing LinkValue PropertyShape")
+    logger.debug("Constructing LinkValue PropertyShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -179,7 +178,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
 
 def _construct_link_value_node_shape(onto: Graph) -> Graph:
-    logger.info("Constructing LinkValue NodeShape")
+    logger.debug("Constructing LinkValue NodeShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -194,7 +193,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?msg ;
+                                sh:message   ?msg 
                             ] ;
             sh:severity    sh:Violation .
 
@@ -216,7 +215,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
 def _construct_property_type_text_value(onto: Graph) -> Graph:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
-        "salsah-gui:Textarea": "api-shapes:SimpleTextValue_ClassShape",
+        "salsah-gui:Textarea": "api-shapes:TextareaTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
     }
     g = Graph()
@@ -226,7 +225,7 @@ def _construct_property_type_text_value(onto: Graph) -> Graph:
 
 
 def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
-    logger.info(f"Constructing shape for {gui_element}")
+    logger.debug(f"Constructing shape for {gui_element}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -254,11 +253,11 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     return Graph()
 
 
-def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
     lists_graph = Graph()
-    for one_list in project_lists.all_lists:
+    for one_list in project_lists:
         lists_graph += _construct_one_list_node_shape(one_list)
-    for one_list in project_lists.all_lists:
+    for one_list in project_lists:
         lists_graph += _construct_one_list_property_shape(onto, one_list)
     return lists_graph
 
@@ -268,15 +267,15 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
-    list_name_and_node = [f"{one_list.list_name} / {x}" for x in one_list.nodes]
+    list_iris = [nd.iri for nd in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
-        sh_path=API_SHAPES.listNodeAsString,
+        sh_path=KNORA_API.listValueAsListNode,
         sh_message=(
             f"A valid node from the list '{one_list.list_name}' must be used with this property "
             f"(input displayed in format 'listName / NodeName')."
         ),
-        sh_in=list_name_and_node,
+        sh_in=list_iris,
     )
     g += _construct_one_list_property_shape_with_collection(node_prop_info)
     return g
@@ -301,7 +300,7 @@ def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
-    logger.info(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
+    logger.debug(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -328,7 +327,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
-    logger.info("Constructing Collection Shape seqnum / isPartOf")
+    logger.debug("Constructing Collection Shape seqnum / isPartOf")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

@@ -1,4 +1,7 @@
+from typing import cast
 from uuid import uuid4
+
+from loguru import logger
 
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -7,8 +10,6 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.processed.res import ResourceInputProcessingFailure
-from dsp_tools.commands.xmlupload.models.processed.res import ResourceProcessingResult
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
@@ -36,8 +37,10 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import PermissionNotExistsError
+from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
+from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
+from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -61,29 +64,20 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 }
 
 
-def get_processed_resources(resources: list[ParsedResource], lookups: XmlReferenceLookups) -> ResourceProcessingResult:
-    failures = []
-    processed = []
-    for res in resources:
-        try:
-            result = _get_one_resource(res, lookups)
-            processed.append(result)
-        except (PermissionNotExistsError, InputError) as e:
-            failures.append(ResourceInputProcessingFailure(res.res_id, str(e)))
-    return ResourceProcessingResult(processed, failures)
+def get_processed_resources(
+    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> list[ProcessedResource]:
+    logger.debug("Transform ParsedResource into ProcessedResource")
+    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in resources]
 
 
-def _get_one_resource(resource: ParsedResource, lookups: XmlReferenceLookups) -> ProcessedResource:
+def _get_one_resource(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
-    file_val, iiif_uri, migration_metadata = None, None, None
-    if resource.file_value:
-        if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
-            iiif_uri = _get_iiif_uri_value(resource.file_value, lookups)
-        else:
-            file_val = _get_file_value(
-                val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
-            )
+    migration_metadata = None
+    file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -108,54 +102,80 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
     return MigrationMetadata(res_iri, date)
 
 
+def _resolve_file_value(
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+) -> tuple[None | ProcessedFileValue, None | ProcessedIIIFUri]:
+    file_val, iiif_uri = None, None
+    if not resource.file_value:
+        return file_val, iiif_uri
+
+    if is_on_prod_like_server:
+        metadata = _get_file_metadata(resource.file_value.metadata, lookups)
+    else:
+        metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
+    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+        iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
+    else:
+        file_val = _get_file_value(
+            val=resource.file_value, metadata=metadata, res_id=resource.res_id, res_label=resource.label
+        )
+    return file_val, iiif_uri
+
+
 def _get_file_value(
-    val: ParsedFileValue, lookups: XmlReferenceLookups, res_id: str, res_label: str
+    val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
-    metadata = _get_file_metadata(val.metadata, lookups)
+    file_type = cast(KnoraValueType, val.value_type)
     file_val = assert_is_string(val.value)
-    return ProcessedFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
+    return ProcessedFileValue(
+        value=file_val,
+        file_type=file_type,
+        metadata=metadata,
+        res_id=res_id,
+        res_label=res_label,
+    )
 
 
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: XmlReferenceLookups) -> ProcessedIIIFUri:
-    metadata = _get_file_metadata(iiif_uri.metadata, lookups)
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedIIIFUri:
     file_val = assert_is_string(iiif_uri.value)
     return ProcessedIIIFUri(file_val, metadata)
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:
+    license_iri = assert_is_string(file_metadata.license_iri)
+    copyright_holder = assert_is_string(file_metadata.copyright_holder)
+    auth_id = assert_is_string(file_metadata.authorship_id)
+    authorships = _resolve_authorship(auth_id, lookups.authorships)
     permissions = _resolve_permission(file_metadata.permissions_id, lookups.permissions)
-    predefined_licenses = [
-        "http://rdfh.ch/licenses/cc-by-4.0",
-        "http://rdfh.ch/licenses/cc-by-sa-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-sa-4.0",
-        "http://rdfh.ch/licenses/cc-by-nd-4.0",
-        "http://rdfh.ch/licenses/cc-by-nc-nd-4.0",
-        "http://rdfh.ch/licenses/ai-generated",
-        "http://rdfh.ch/licenses/unknown",
-        "http://rdfh.ch/licenses/public-domain",
-    ]
-    if file_metadata.license_iri and file_metadata.license_iri not in predefined_licenses:
-        raise InputError(
-            f"The license '{file_metadata.license_iri}' used for an image or iiif-uri is unknown. "
-            f"See documentation for accepted pre-defined licenses."
-        )
     return ProcessedFileMetadata(
-        license_iri=file_metadata.license_iri,
-        copyright_holder=file_metadata.copyright_holder,
-        authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),
+        license_iri=license_iri,
+        copyright_holder=copyright_holder,
+        authorships=authorships,
         permissions=permissions,
     )
 
 
-def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
-    if not authorship_id:
-        return None
+def _get_file_metadata_for_test_environments(
+    metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
+) -> ProcessedFileMetadata:
+    lic_iri = metadata.license_iri or "http://rdfh.ch/licenses/unknown"
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    if not metadata.authorship_id:
+        authorship = ["DUMMY"]
+    else:
+        authorship = _resolve_authorship(metadata.authorship_id, lookups.authorships)
+    permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)
+    return ProcessedFileMetadata(
+        license_iri=lic_iri,
+        copyright_holder=copy_right,
+        authorships=authorship,
+        permissions=permissions,
+    )
+
+
+def _resolve_authorship(authorship_id: str, lookup: dict[str, list[str]]) -> list[str]:
     if not (found := lookup.get(authorship_id)):
-        raise InputError(
-            f"The authorship id '{authorship_id}' referenced in a multimedia file or iiif-uri is unknown. "
-            f"Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
-        )
+        raise XmlUploadAuthorshipsNotFoundError(f"Could not find authorships for value: {authorship_id}")
     return found
 
 
@@ -196,7 +216,7 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
 def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
     tuple_val = assert_is_tuple(val.value)
     if not (list_iri := lookups.listnodes.get(tuple_val)):
-        raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
+        raise XmlUploadListNodeNotFoundError(f"Could not find list IRI for value: {tuple_val}")
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
     list_val: ProcessedValue = ProcessedList(
         value=list_iri,
@@ -215,7 +235,7 @@ def _get_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Proce
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        resource_references=transformed_value.find_internal_ids(),
+        resource_references=find_internal_ids(transformed_value.xmlstr),
         value_uuid=str(uuid4()),
     )
     return richtext
@@ -225,6 +245,6 @@ def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, P
     """Resolve the permission into a string that can be sent to the API."""
     if permissions:
         if not (per := permissions_lookup.get(permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
+            raise XmlUploadPermissionsNotFoundError(f"Could not find permissions for value: {permissions}")
         return per
     return None

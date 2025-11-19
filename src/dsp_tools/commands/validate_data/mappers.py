@@ -65,6 +65,8 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_LICENSE: KNORA_API.hasLicense,
     TriplePropertyType.KNORA_AUTHORSHIP: KNORA_API.hasAuthorship,
     TriplePropertyType.KNORA_COPYRIGHT_HOLDER: KNORA_API.hasCopyrightHolder,
+    TriplePropertyType.KNORA_DATE_START: API_SHAPES.dateHasStart,
+    TriplePropertyType.KNORA_DATE_END: API_SHAPES.dateHasEnd,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {
@@ -74,7 +76,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.DECIMAL_VALUE: DECIMAL_PROP_TYPE_INFO,
     KnoraValueType.GEONAME_VALUE: GEONAME_PROP_TYPE_INFO,
     KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
-    KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, API_SHAPES.listNodeAsString, XSD.string),
+    KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode, XSD.string),
     KnoraValueType.LINK_VALUE: RDFPropTypeInfo(KNORA_API.LinkValue, API_SHAPES.linkValueHasTargetID, XSD.string),
     KnoraValueType.INT_VALUE: INT_PROP_TYPE_INFO,
     KnoraValueType.INTERVAL_VALUE: RDFPropTypeInfo(KNORA_API.IntervalValue, KNORA_API.hasSegmentBounds),
@@ -118,9 +120,10 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
     TripleObjectType.BOOLEAN: XSD.boolean,
     TripleObjectType.DATETIME: XSD.dateTimeStamp,
     TripleObjectType.DECIMAL: XSD.decimal,
-    TripleObjectType.INTEGER: XSD.integer,
+    TripleObjectType.INTEGER: XSD.int,
     TripleObjectType.STRING: XSD.string,
     TripleObjectType.URI: XSD.anyURI,
+    TripleObjectType.DATE_YYYY_MM_DD: XSD.date,
 }
 
 # validation results
@@ -135,6 +138,6 @@ RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.MAX_CARD: ProblemType.MAX_CARD,
     ViolationType.MIN_CARD: ProblemType.MIN_CARD,
     ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
-    ViolationType.FILEVALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
-    ViolationType.FILE_VALUE: ProblemType.FILE_VALUE,
+    ViolationType.FILE_VALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
+    ViolationType.FILE_VALUE_MISSING: ProblemType.FILE_VALUE_MISSING,
 }

@@ -13,6 +13,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
@@ -25,7 +26,7 @@ COLOR_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValu
 DECIMAL_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, XSD.decimal)
 GEOMETRY_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry, XSD.string)
 GEONAME_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, XSD.string)
-INT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, XSD.integer)
+INT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, XSD.int)
 SIMPLE_TEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString, XSD.string)
 TIME_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp, XSD.dateTimeStamp)
 URI_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, XSD.anyURI)
@@ -50,3 +51,13 @@ MOVING_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.MovingImageFileValue, KNORA_
 STILL_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.StillImageFileValue, KNORA_API.hasStillImageFileValue, XSD.string)
 TEXT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.TextFileValue, KNORA_API.hasTextFileValue, XSD.string)
 IIIF_URI_VALUE = RDFPropTypeInfo(KNORA_API.StillImageExternalFileValue, KNORA_API.hasStillImageFileValue, XSD.anyURI)
+
+
+FILE_TYPE_TO_RDF_MAPPER = {
+    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
+}

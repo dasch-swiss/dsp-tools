@@ -64,12 +64,13 @@ class LanguageDict:
     lang_dict: dict[str, str]
 
     def serialise(self) -> dict[str, str]:
-        return self.lang_dict
+        sorted_dict = {k: self.lang_dict[k] for k in sorted(self.lang_dict.keys())}
+        return sorted_dict
 
 
 @dataclass
 class GuiAttributes:
-    gui_attributes: dict[str, int | str | float]
+    gui_attributes: dict[str, str]
 
-    def serialise(self) -> dict[str, int | str | float]:
+    def serialise(self) -> dict[str, str]:
         return self.gui_attributes

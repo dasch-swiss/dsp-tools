@@ -40,8 +40,9 @@ api-shapes:UniqueValue_Shape
                 }
                 UNION
                 {
-                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
+                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID ?value .
                 }
+                FILTER NOT EXISTS { ?valueClass knora-api:valueHasComment ?value }
             }
             GROUP BY $this ?path ?value
             HAVING (COUNT(?value) > 1)
@@ -66,7 +67,7 @@ api-shapes:Resource_Shape
                     sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
                     sh:severity     sh:Violation ;
-                    sh:message      "The label must be a non-empty string without newlines." ;
+                    sh:message      "The label must be a non-empty string without newlines."
                   ] ,
                   [
                     # Currently StandOff are attached directly to the resource and not in a LinkValue,
@@ -75,7 +76,7 @@ api-shapes:Resource_Shape
                     sh:path     knora-api:hasStandoffLinkTo ;
                     sh:class    knora-api:Resource ;
                     sh:severity sh:Violation ;
-                    sh:message  "A stand-off link must target an existing resource." ;
+                    sh:message  "A stand-off link must target an existing resource."
                   ] .
 
 
@@ -97,7 +98,7 @@ api-shapes:Value_ClassShape
                     sh:minCount 0 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "The comment on the value must be a non-empty string" ;
+                    sh:message  "The comment on the value must be a non-empty string"
                  ] .
 
 
@@ -112,7 +113,7 @@ api-shapes:BooleanValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A BooleanValue requires exactly one valid boolean" ;
+                    sh:message  "A BooleanValue requires exactly one valid boolean"
                  ] .
 
 api-shapes:ColorValue_ClassShape
@@ -127,7 +128,7 @@ api-shapes:ColorValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A ColorValue requires exactly one valid color" ;
+                    sh:message  "A ColorValue requires exactly one valid color"
                  ] .
 
 api-shapes:DateValue_ClassShape
@@ -135,8 +136,6 @@ api-shapes:DateValue_ClassShape
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DateValue ;
   sh:property    [
-                    # Currently it is only checked that the string value is not empty
-                    # To validate the DateValue as the API receives it, the Date should be taken apart
                     a           sh:PropertyShape ;
                     sh:path     knora-api:valueAsString ;
                     sh:datatype xsd:string ;
@@ -144,7 +143,43 @@ api-shapes:DateValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A DateValue requires a valid Date" ;
+                    sh:message  "A DateValue requires a valid Date"
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     api-shapes:dateHasStart ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                    a           sh:PropertyShape  ;
+                    sh:path     api-shapes:dateHasEnd ;
+                    sh:or       (
+                                    [ sh:datatype xsd:gYear ]
+                                    [ sh:datatype xsd:gYearMonth ]
+                                    [ sh:datatype xsd:date ]
+                                ) ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number."
+                 ] ,
+                 [
+                    a                   sh:PropertyShape  ;
+                    sh:path             api-shapes:dateHasStart ;
+                    sh:lessThanOrEquals api-shapes:dateHasEnd ;
+                    sh:severity         sh:Violation ;
+                    sh:message          "The end date must be equal or later than the start date."
+                 ] ,
+                 [
+                     a                 sh:PropertyShape ;
+                     sh:path           api-shapes:dateHasStart ;
+                     dash:coExistsWith api-shapes:dateHasEnd ;
+                     sh:severity       sh:Violation ;
+                     sh:message        "The start date may not be later than the end date. Please take a look if your eras are correct."
                  ] .
 
 api-shapes:DecimalValue_ClassShape
@@ -173,7 +208,7 @@ api-shapes:GeonameValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "The value must be a valid geoname code" ;
+                    sh:message  "The value must be a valid geoname code"
                  ] .
 
 api-shapes:GeomValue_ClassShape
@@ -188,7 +223,7 @@ api-shapes:GeomValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "The value must be a valid geometry JSON object" ;
+                    sh:message  "The value must be a valid geometry JSON object"
                  ] .
 
 api-shapes:IntervalValue_ClassShape
@@ -203,7 +238,7 @@ api-shapes:IntervalValue_ClassShape
                     sh:minCount     1 ;
                     sh:maxCount     1 ;
                     sh:severity     sh:Violation ;
-                    sh:message      "The interval start must be a non-negative integer or decimal." ;
+                    sh:message      "The interval start must be a non-negative integer or decimal."
                  ] ,
                  [
                     a               sh:PropertyShape ;
@@ -213,14 +248,14 @@ api-shapes:IntervalValue_ClassShape
                     sh:minCount     1 ;
                     sh:maxCount     1 ;
                     sh:severity     sh:Violation ;
-                    sh:message      "The interval end must be an integer or decimal that is larger than 0." ;
+                    sh:message      "The interval end must be an integer or decimal that is larger than 0."
                  ] ,
 
                  [
                      sh:path knora-api:intervalValueHasStart ;
                      sh:lessThan knora-api:intervalValueHasEnd ;
                      sh:severity sh:Violation ;
-                     sh:message "The start of the interval must be smaller than the end." ;
+                     sh:message "The start of the interval must be smaller than the end."
                  ] .
 
 api-shapes:IntValue_ClassShape
@@ -230,11 +265,17 @@ api-shapes:IntValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:intValueAsInt ;
-                    sh:datatype xsd:integer ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "An IntValue requires exactly one valid integer" ;
+                    sh:message  "An IntValue requires exactly one valid integer"
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:intValueAsInt ;
+                    sh:datatype xsd:int ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The integer must be within the range of -2'147'483'648 and 2'147'483'647."
                  ] .
 
 ##############
@@ -249,6 +290,29 @@ api-shapes:IntValue_ClassShape
 
 
 api-shapes:SimpleTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Ensures that the properties for a simple text value are used" ;
+  sh:property [
+                  # Because it is not a separate class we have to check the cardinality of the property
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:valueAsString ;
+                  sh:datatype xsd:string ;
+                  sh:minCount 1 ;
+                  sh:maxCount 1 ;
+                  sh:severity sh:Violation ;
+                  sh:message  "TextValue without formatting"
+              ] ,
+              [
+                  a               sh:PropertyShape ;
+                  sh:path         knora-api:valueAsString ;
+                  sh:datatype     xsd:string ;
+                  sh:pattern      "\\s*\\S+\\s*" ;
+                  dash:singleLine true ;
+                  sh:severity     sh:Violation ;
+                  sh:message      "The value must be a non-empty string without newlines."
+              ] .
+
+api-shapes:TextareaTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a simple text value are used" ;
   sh:property [
@@ -281,7 +345,7 @@ api-shapes:FormattedTextValue_ClassShape
                   sh:minCount 1 ;
                   sh:maxCount 1 ;
                   sh:severity sh:Violation ;
-                  sh:message  "TextValue with formatting" ;
+                  sh:message  "TextValue with formatting"
               ] ,
               [
                   a           sh:PropertyShape ;
@@ -289,7 +353,7 @@ api-shapes:FormattedTextValue_ClassShape
                   sh:datatype xsd:string ;
                   sh:pattern  "\\s*\\S+\\s*" ;
                   sh:severity sh:Violation ;
-                  sh:message  "The value must be a non-empty string" ;
+                  sh:message  "The value must be a non-empty string"
               ] .
 
 api-shapes:TimeValue_ClassShape
@@ -317,7 +381,7 @@ api-shapes:UriValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
+                    sh:message  "A UriValue requires exactly one valid xsd:anyURI"
                  ] .
 
 
@@ -328,29 +392,29 @@ api-shapes:UriValue_ClassShape
 api-shapes:FileValue_ClassShape
   a              sh:NodeShape ;
   sh:targetClass knora-api:FileValue ;
-  sh:property    [
+  sh:property     [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:hasPermissions ;
                     sh:minCount 0 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A FileValue may have at most one permission." ;
+                    sh:message  "A FileValue may have at most one permission."
                   ] ,
                   [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:hasLicense ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "Files and IIIF-URIs require a reference to a license." ;
+                    sh:severity sh:Warning ;
+                    sh:message  "Files and IIIF-URIs require a reference to a license."
                   ] ,
                   [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:hasAuthorship ;
                     sh:datatype xsd:string ;
                     sh:minCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "Files and IIIF-URIs require at least one authorship." ;
+                    sh:severity sh:Warning ;
+                    sh:message  "Files and IIIF-URIs require at least one authorship."
                   ] ,
                   [
                     a               sh:PropertyShape ;
@@ -359,7 +423,7 @@ api-shapes:FileValue_ClassShape
                     sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
                     sh:severity     sh:Violation ;
-                    sh:message      "The authorship must be a non-empty string without newlines." ;
+                    sh:message      "The authorship must be a non-empty string without newlines."
                   ] ,
                   [
                     a           sh:PropertyShape ;
@@ -367,8 +431,8 @@ api-shapes:FileValue_ClassShape
                     sh:datatype xsd:string ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "Files and IIIF-URIs require a copyright holder." ;
+                    sh:severity sh:Warning ;
+                    sh:message  "Files and IIIF-URIs require a copyright holder."
                   ] ,
                   [
                     a               sh:PropertyShape ;
@@ -377,7 +441,7 @@ api-shapes:FileValue_ClassShape
                     sh:pattern      "\\s*\\S+\\s*" ;
                     dash:singleLine true ;
                     sh:severity     sh:Violation ;
-                    sh:message     "The copyright holder must be a non-empty string without newlines." ;
+                    sh:message     "The copyright holder must be a non-empty string without newlines."
                   ] .
 
 
@@ -397,7 +461,7 @@ api-shapes:ArchiveFileValue_ClassShape
                     sh:message  """
                                 An ArchiveRepresentation requires a file with one of the following extensions
                                 'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
-                                """ ;
+                                """
                   ] .
 
 api-shapes:AudioFileValue_ClassShape
@@ -413,7 +477,7 @@ api-shapes:AudioFileValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
+                    sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'."
                   ] .
 
 api-shapes:DocumentFileValue_ClassShape
@@ -424,15 +488,15 @@ api-shapes:DocumentFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$" ;
+                    sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx|epub)$" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  """
                                 A DocumentRepresentation requires a file with one of the following extensions
-                                'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
-                                """ ;
+                                'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'epub'.
+                                """
                   ] .
 
 api-shapes:MovingImageFileValue_ClassShape
@@ -448,7 +512,7 @@ api-shapes:MovingImageFileValue_ClassShape
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+                    sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'."
                   ] .
 
 api-shapes:StillImageFileValue_ClassShape
@@ -467,7 +531,7 @@ api-shapes:StillImageFileValue_ClassShape
                     sh:message  """
                                 A StillImageFileValue requires a file with one of the extensions:
                                 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
-                                """ ;
+                                """
                   ] .
 
 api-shapes:StillImageExternalFileValue_ClassShape
@@ -477,11 +541,17 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:stillImageFileValueHasExternalUrl ;
-                    sh:datatype xsd:anyURI ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
+                    sh:message  "StillImageExternalFileValue requires an external IIIF-URI"
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:stillImageFileValueHasExternalUrl ;
+                    sh:datatype xsd:anyURI ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Your IIIF-URI contains characters that are not allowed in a URI."
                   ] .
 
 api-shapes:TextFileValue_ClassShape
@@ -492,15 +562,15 @@ api-shapes:TextFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(odd|rng|txt|xml|xsd|xsl|csv|json)$" ;
+                    sh:pattern  ".+\\.(odd|rng|txt|xml|htm|html|xsd|xsl|csv|json)$" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  """
                                 A TextRepresentation requires a file with one of the following extensions
-                                'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
-                                """ ;
+                                'odd', 'rng', 'txt', 'xml', 'htm', 'html', 'xsd', 'xsl', 'csv', 'json'.
+                                """
                   ] .
 
 
@@ -549,7 +619,7 @@ api-shapes:LinkObj_ResourceShape
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:hasLinkTo ;
-                    sh:node api-shapes:hasLinkTo_NodeShape ;
+                    sh:node api-shapes:hasLinkTo_NodeShape
                  ] ,
                  api-shapes:hasComment_PropertyShape .
 
@@ -562,7 +632,7 @@ api-shapes:hasLinkTo_NodeShape
                 sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:Resource ;
                 sh:severity sh:Violation ;
-                sh:message "Range is knora-api:Resource or a subclass." ;
+                sh:message "Range is knora-api:Resource or a subclass."
               ] .
 
 
@@ -583,19 +653,19 @@ api-shapes:Region_ResourceShape
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:isRegionOf ;
-                    sh:node api-shapes:isRegionOf_NodeShape ;
+                    sh:node api-shapes:isRegionOf_NodeShape
                  ] ,
                  [
                     a          sh:PropertyShape ;
                     sh:path    knora-api:hasColor ;
                     sh:class   knora-api:ColorValue ;
-                    sh:message "This property requires a ColorValue" ;
+                    sh:message "This property requires a ColorValue"
                  ] ,
                  [
                     a          sh:PropertyShape ;
                     sh:path    knora-api:hasGeometry ;
                     sh:class   knora-api:GeomValue ;
-                    sh:message "This property requires a GeomValue" ;
+                    sh:message "This property requires a GeomValue"
                  ] ,
                  api-shapes:hasComment_PropertyShape .
 
@@ -607,7 +677,7 @@ api-shapes:isRegionOf_NodeShape
                 sh:path     api-shapes:linkValueHasTargetID ;
                 sh:class    knora-api:Representation ;
                 sh:severity sh:Violation ;
-                sh:message  "http://api.knora.org/ontology/knora-api/v2#Representation" ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#Representation"
               ] .
 
 
@@ -626,7 +696,7 @@ api-shapes:Segment_ResourceShape
                     sh:path     knora-api:hasSegmentBounds ;
                     sh:class    knora-api:IntervalValue ;
                     sh:severity sh:Violation ;
-                    sh:message  "This property requires an IntervalValue" ;
+                    sh:message  "This property requires an IntervalValue"
                  ] ,
                  [
                     a       sh:PropertyShape ;
@@ -636,12 +706,12 @@ api-shapes:Segment_ResourceShape
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:hasTitle ;
-                    sh:node api-shapes:SimpleTextValue_ClassShape ;
+                    sh:node api-shapes:SimpleTextValue_ClassShape
                  ] ,
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:hasKeyword ;
-                    sh:node api-shapes:SimpleTextValue_ClassShape ;
+                    sh:node api-shapes:SimpleTextValue_ClassShape
                  ] ,
                  [
                     a           sh:PropertyShape ;
@@ -649,12 +719,12 @@ api-shapes:Segment_ResourceShape
                     sh:class    knora-api:LinkValue ;
                     sh:node     api-shapes:relatesTo_NodeShape ;
                     sh:severity sh:Violation ;
-                    sh:message  "This property requires an LinkValue" ;
+                    sh:message  "This property requires an LinkValue"
                  ] ,
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:relatesTo ;
-                    sh:node api-shapes:relatesTo_NodeShape ;
+                    sh:node api-shapes:relatesTo_NodeShape
                  ] ,
                  api-shapes:hasComment_PropertyShape .
 
@@ -666,7 +736,7 @@ api-shapes:relatesTo_NodeShape
                 sh:path     api-shapes:linkValueHasTargetID ;
                 sh:class    knora-api:Resource ;
                 sh:severity sh:Violation ;
-                sh:message  "Range is knora-api:Resource or a subclass." ;
+                sh:message  "Range is knora-api:Resource or a subclass."
               ] .
 
 
@@ -682,12 +752,12 @@ api-shapes:AudioSegment_ResourceShape
                     sh:path     knora-api:isAudioSegmentOf ;
                     sh:class    knora-api:LinkValue ;
                     sh:severity sh:Violation ;
-                    sh:message  "This property requires a LinkValue" ;
+                    sh:message  "This property requires a LinkValue"
                  ] ,
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:isAudioSegmentOf ;
-                    sh:node api-shapes:isAudioSegmentOf_NodeShape ;
+                    sh:node api-shapes:isAudioSegmentOf_NodeShape
                  ] .
 
 api-shapes:isAudioSegmentOf_NodeShape
@@ -698,7 +768,7 @@ api-shapes:isAudioSegmentOf_NodeShape
                 sh:path     api-shapes:linkValueHasTargetID ;
                 sh:class    knora-api:AudioRepresentation ;
                 sh:severity sh:Violation ;
-                sh:message  "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation" ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation"
               ] .
 
 
@@ -714,12 +784,12 @@ api-shapes:VideoSegment_ResourceShape
                     sh:path     knora-api:isVideoSegmentOf ;
                     sh:class    knora-api:LinkValue ;
                     sh:severity sh:Violation ;
-                    sh:message  "This property requires a LinkValue" ;
+                    sh:message  "This property requires a LinkValue"
                  ] ,
                  [
                     a       sh:PropertyShape ;
                     sh:path knora-api:isVideoSegmentOf ;
-                    sh:node api-shapes:isVideoSegmentOf_NodeShape ;
+                    sh:node api-shapes:isVideoSegmentOf_NodeShape
                  ] .
 
 api-shapes:isVideoSegmentOf_NodeShape
@@ -730,5 +800,5 @@ api-shapes:isVideoSegmentOf_NodeShape
                 sh:path     api-shapes:linkValueHasTargetID ;
                 sh:class    knora-api:MovingImageRepresentation ;
                 sh:severity sh:Violation ;
-                sh:message  "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation" ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation"
               ] .

@@ -1,12 +1,20 @@
 from typing import Any
 from typing import Optional
+from typing import cast
 
 import regex
 from loguru import logger
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.project.legacy_models.context import Context
-from dsp_tools.commands.project.legacy_models.helpers import Cardinality
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.propertyclass import PropertyClass
@@ -15,16 +23,21 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_ontologies(
     con: Connection,
     context: Context,
     knora_api_prefix: str,
-    names_and_iris_of_list_nodes: dict[str, Any],
+    list_name_2_iri: ListNameToIriLookup,
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
+    parsed_ontologies: list[ParsedOntology],
+    project_iri_lookup: ProjectIriLookup,
+    auth: AuthenticationClient,
 ) -> bool:
     """
     Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
@@ -35,10 +48,13 @@ def create_ontologies(
         con: Connection to the DSP server
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
-        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
+        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
         ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
+        parsed_ontologies: parsed ontologies
+        project_iri_lookup: lookup for IRIs
+        auth: Authentication Client
 
     Raises:
         InputError: if an error occurs during the creation of an ontology.
@@ -47,19 +63,23 @@ def create_ontologies(
     Returns:
         True if everything went smoothly, False otherwise
     """
+    success_collection = CreatedIriCollection()
+    onto_client = OntologyCreateClientLive(auth.server, auth)
 
     overall_success = True
-
-    print("Create ontologies...")
-    logger.info("Create ontologies...")
+    logger.info("Processing Ontology Section")
     try:
         project_ontologies = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
-        print("WARNING: {err_msg}")
+        print(f"    WARNING: {err_msg}")
         logger.exception(err_msg)
         project_ontologies = []
 
+    for existing_onto in project_ontologies:
+        project_iri_lookup.add_onto(existing_onto.name, existing_onto.iri)
+
+    created_ontos: list[tuple[dict[str, Any], Ontology, dict[str, ResourceClass]]] = []
     for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
             onto_name=ontology_definition["name"],
@@ -74,6 +94,8 @@ def create_ontologies(
         if not ontology_remote:
             overall_success = False
             continue
+        else:
+            project_iri_lookup.add_onto(ontology_remote.name, ontology_remote.iri)
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
@@ -84,34 +106,36 @@ def create_ontologies(
             last_modification_date=ontology_remote.lastModificationDate,
             verbose=verbose,
         )
+        success_collection.classes.update(set(remote_res_classes.keys()))
         if not success:
             overall_success = False
 
         # add the property classes to the remote ontology
-        last_modification_date, success = _add_property_classes_to_remote_ontology(
+        last_modification_date, success, property_successes = _add_property_classes_to_remote_ontology(
             onto_name=ontology_definition["name"],
             property_definitions=ontology_definition.get("properties", []),
             ontology_remote=ontology_remote,
-            names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
+            list_name_2_iri=list_name_2_iri,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
             verbose=verbose,
         )
+        success_collection.properties.update(property_successes)
+        created_ontos.append((ontology_definition, ontology_remote, remote_res_classes))
         if not success:
             overall_success = False
 
-        # Add cardinalities to class
-        success = _add_cardinalities_to_resource_classes(
-            resclass_definitions=ontology_definition.get("resources", []),
-            ontology_remote=ontology_remote,
-            remote_res_classes=remote_res_classes,
-            last_modification_date=last_modification_date,
-            knora_api_prefix=knora_api_prefix,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
+    print(BOLD + "Processing Cardinalities:" + RESET_TO_DEFAULT)
+    problems = add_all_cardinalities(
+        ontologies=parsed_ontologies,
+        project_iri_lookup=project_iri_lookup,
+        created_iris=success_collection,
+        onto_client=onto_client,
+    )
+    if problems:
+        overall_success = False
+        print_problem_collection(problems)
 
     return overall_success
 
@@ -150,12 +174,12 @@ def _create_ontology(
     # skip if it already exists on the DSP server
     if onto_name in [onto.name for onto in project_ontologies]:
         err_msg = f"Ontology '{onto_name}' already exists on the DSP server. Skipping..."
-        print(f"    WARNING: {err_msg}")
+        print(f"WARNING: {err_msg}")
         logger.warning(err_msg)
         return None
 
-    print(f"Create ontology '{onto_name}'...")
-    logger.info(f"Create ontology '{onto_name}'...")
+    print(BOLD + f"Processing ontology '{onto_name}':" + RESET_TO_DEFAULT)
+    logger.info(f"Processing ontology '{onto_name}'")
     ontology_local = Ontology(
         con=con,
         project=project_remote,
@@ -285,16 +309,16 @@ def _sort_resources(
     return sorted_resources
 
 
-def _add_property_classes_to_remote_ontology(
+def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
     onto_name: str,
     property_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
-    names_and_iris_of_list_nodes: dict[str, Any],
+    list_name_2_iri: ListNameToIriLookup,
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
     verbose: bool,
-) -> tuple[DateTimeStamp, bool]:
+) -> tuple[DateTimeStamp, bool, set[str]]:
     """
     Creates the property classes defined in the "properties" section of an ontology. The
     containing project and the containing ontology must already be existing on the DSP server.
@@ -305,7 +329,7 @@ def _add_property_classes_to_remote_ontology(
         onto_name: name of the current ontology
         property_definitions: the part of the parsed JSON project file that contains the properties of the current onto
         ontology_remote: representation of the current ontology on the DSP server
-        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
+        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -314,6 +338,7 @@ def _add_property_classes_to_remote_ontology(
     Returns:
         a tuple consisting of the last modification date of the ontology, and the success status
     """
+    property_successes = set()
     overall_success = True
     print("    Create property classes...")
     logger.info("Create property classes...")
@@ -349,7 +374,18 @@ def _add_property_classes_to_remote_ontology(
         # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            list_iri = names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"]
+            list_name = gui_attributes["hlist"]
+            list_iri = list_name_2_iri.get_iri(list_name)
+            if not list_iri:
+                err_msg = (
+                    f"Unable to create property class '{prop_class['name']}' "
+                    f"because the list with the name '{list_name}' does not exist on the server."
+                )
+                print(f"    WARNING: {err_msg}")
+                logger.warning(err_msg)
+                overall_success = False
+                continue
+
             gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
@@ -367,18 +403,25 @@ def _add_property_classes_to_remote_ontology(
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,
         )
         try:
-            last_modification_date, _ = prop_class_local.create(last_modification_date)
+            last_modification_date, prop_class_created = prop_class_local.create(last_modification_date)
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
                 print(f"    Created property class '{prop_class['name']}'")
             logger.info(f"Created property class '{prop_class['name']}'")
-        except BaseError:
-            err_msg = f"Unable to create property class '{prop_class['name']}'."
-            print(f"WARNING: {err_msg}")
-            logger.exception(f"Unable to create property class '{prop_class['name']}'.")
+            prop_iri = cast(str, prop_class_created.iri)
+            property_successes.add(prop_iri)
+        except BaseError as err:
+            err_msg = f"Unable to create property class '{prop_class['name']}'"
+            if found := regex.search(
+                r"Entity .+ refers to entity (.+), which is in a non-shared ontology that belongs to another project",
+                err.message,
+            ):
+                err_msg += f", because it refers to a class of another project: '{found.group(1)}'."
+            print(f"    WARNING: {err_msg}")
+            logger.exception(err_msg)
             overall_success = False
 
-    return last_modification_date, overall_success
+    return last_modification_date, overall_success, property_successes
 
 
 def _sort_prop_classes(
@@ -415,76 +458,3 @@ def _sort_prop_classes(
                 ok_propclass_names.append(prop_name)
                 prop_classes_to_sort.remove(prop)
     return sorted_prop_classes
-
-
-def _add_cardinalities_to_resource_classes(
-    resclass_definitions: list[dict[str, Any]],
-    ontology_remote: Ontology,
-    remote_res_classes: dict[str, ResourceClass],
-    last_modification_date: DateTimeStamp,
-    knora_api_prefix: str,
-    verbose: bool,
-) -> bool:
-    """
-    Iterates over the resource classes of an ontology of a JSON project definition, and adds the cardinalities to each
-    resource class. The resource classes and the properties must already be existing on the DSP server.
-    If an error occurs during creation of a cardinality, it is printed out, the process continues, but the success
-    status will be false.
-
-    Args:
-        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
-        ontology_remote: representation of the current ontology on the DSP server
-        remote_res_classes: representations of the resource classes on the DSP server
-        last_modification_date: last modification date of the ontology on the DSP server
-        knora_api_prefix: the prefix that stands for the knora-api ontology
-        verbose: verbose switch
-
-    Returns:
-        success status
-    """
-    overall_success = True
-    print("    Add cardinalities to resource classes...")
-    logger.info("Add cardinalities to resource classes...")
-    switcher = {
-        "1": Cardinality.C_1,
-        "0-1": Cardinality.C_0_1,
-        "0-n": Cardinality.C_0_n,
-        "1-n": Cardinality.C_1_n,
-    }
-    for res_class in resclass_definitions:
-        res_class_remote = remote_res_classes.get(f"{ontology_remote.iri}#{res_class['name']}")
-        if not res_class_remote:
-            msg = (
-                f"Unable to add cardinalities to resource class '{res_class['name']}': "
-                f"This class doesn't exist on the DSP server."
-            )
-            print(f"WARNINIG: {msg}")
-            logger.exception(msg)
-            overall_success = False
-            continue
-        for card_info in res_class.get("cardinalities", []):
-            if ":" in card_info["propname"]:
-                prefix, prop = card_info["propname"].split(":")
-                qualified_propname = card_info["propname"] if prefix else f"{ontology_remote.name}:{prop}"
-            else:
-                qualified_propname = knora_api_prefix + card_info["propname"]
-
-            try:
-                last_modification_date = res_class_remote.addProperty(
-                    property_id=qualified_propname,
-                    cardinality=switcher[card_info["cardinality"]],
-                    gui_order=card_info.get("gui_order"),
-                    last_modification_date=last_modification_date,
-                )
-                if verbose:
-                    print(f"    Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
-                logger.info(f"Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
-            except BaseError:
-                err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
-                print(f"WARNING: {err_msg}")
-                logger.exception(err_msg)
-                overall_success = False
-
-            ontology_remote.lastModificationDate = last_modification_date
-
-    return overall_success

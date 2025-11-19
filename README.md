@@ -14,7 +14,7 @@ This document is intended for developers who want to work with the code of DSP-T
 > [!NOTE]
 > This technical document was written as a guide for developers.
 > For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS).
-
+ 
 > [!TIP]
 > This README contains basic information for getting started. 
 > More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
@@ -30,7 +30,8 @@ To get started quickly, without reading the details, just execute these commands
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
-- `brew install just parallel`
+- `brew install just parallel yamlfmt`
+- `echo DSP_USER_PASSWORD="pw" >> .env` (required variable for e2e tests)
 
 The remainder of this README explains these commands in more detail.
 
@@ -113,6 +114,15 @@ The tests of this repository
 are partially written in the [unittest](https://docs.python.org/3/library/unittest.html) framework,
 and partially in the [pytest](https://docs.pytest.org) framework.
 
+Please note that the end-2-end tests require a default password in a local `.env` file.
+The password itself is not relevant.
+
+Example `.env` content:
+
+```text
+DSP_USER_PASSWORD="password"
+```
+
 The following are self-contained and can be run without further requirements:
 
 - `test/benchmarking`: Prevent that the stashing algorithm of the xmlupload becomes worse.
@@ -132,9 +142,9 @@ A DSP stack can be started with the command
 Tests can be run in three different ways:
 
 - Run all tests in a given folder: `pytest test/unittests`.
-- Run only the tests inside a single file: `pytest test/unittests/test_excel2xml.py`.
+- Run only the tests inside a single file: `pytest test/unittests/cli/test_helper_functions.py`.
 - Run only the test for a single method: 
-  `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`.
+  `pytest test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.
@@ -153,6 +163,7 @@ We use the following linters:
 - [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)
+- [yamlfmt](https://github.com/google/yamlfmt) (configured in `.yamlfmt.yml`)
 
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
@@ -162,12 +173,6 @@ Your code can be checked for style violations locally before they are committed:
 ```bash
 just lint
 ```
-
-In addition, there are [pre-commit hooks](#pre-commit-hooks) 
-that run Ruff and MarkdownLint locally before every commit.
-This prevents you from committing code style violations.
-Pre-commit is contained in the dependencies, 
-but before the first use, the hooks must be installed with `pre-commit install`.
 
 Depending on your IDE, there are extensions that emit warnings:
 
@@ -200,6 +205,16 @@ Make sure to set the docstring format to "Google notypes" in the PyCharm setting
 PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google notypes
 
 
+### mypy
+
+The just command `just mypy` uses the `dmypy` daemon,
+which is a background process that holds a cache of type information about the code.
+The advantage is that subsequent runs of `just mypy` are much faster.
+The disadvantage is that in rare cases, 
+the cache can be outdated or broken so that `dmypy` reports a wrong result.
+If `just mypy` behaves weirdly, you can restart the daemon with `dmypy restart`.
+
+
 
 ## Pre-Commit Hooks
 
@@ -212,6 +227,9 @@ If a hook fails, the commit will be aborted and the Git output will list the pro
 
 If a hook modifies a file, the commit will be aborted.
 You can then stage the changes made by the hook, and commit again. 
+
+Pre-commit is contained in the dependencies, 
+but before the first use, the hooks must be installed with `pre-commit install`.
 
 
 

@@ -10,6 +10,7 @@ from typing import Union
 from uuid import uuid4
 
 import pandas as pd
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
@@ -35,7 +36,7 @@ from dsp_tools.xmllib.models.res import Resource
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 @dataclass

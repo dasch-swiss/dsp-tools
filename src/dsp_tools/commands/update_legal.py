@@ -8,7 +8,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _transform_into_localnames
-from dsp_tools.xmllib.helpers import find_license_in_string
+from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 
 

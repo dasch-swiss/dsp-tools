@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -24,7 +25,7 @@ from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def parse_lists_only(

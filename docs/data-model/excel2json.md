@@ -230,9 +230,9 @@ the `resources` section used in a data model (JSON) can be created from an Excel
 Only `XLSX` files are allowed. 
 The `resources` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/resources.xlsx) 
-or also in the
-[`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files).
+**An Excel file template can be found in the
+[`daschland-scripts` repo](https://github.com/dasch-swiss/daschland-scripts/tree/main/data/daschland_ontology/daschland%20(Alice%20in%20DaSCHland)).
+([Direct download link](https://github.com/dasch-swiss/daschland-scripts/raw/refs/heads/main/data/daschland_ontology/daschland%20(Alice%20in%20DaSCHland)/resources.xlsx))
 It is recommended to work from the template.** 
 
 The expected worksheets of the Excel file are:

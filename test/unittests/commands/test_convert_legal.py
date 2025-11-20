@@ -1,6 +1,8 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.update_legal import MetadataDefaults
+from dsp_tools.commands.update_legal import MetadataPropertyConfig
 from dsp_tools.commands.update_legal import _update
 from dsp_tools.error.exceptions import InputError
 
@@ -34,9 +36,9 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    result, problems = _update(
-        one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP
-    )
+    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = MetadataDefaults()
+    result, problems = _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(result) == 3
     assert len(problems) == 0  # No problems expected
     auth_def = result[0]
@@ -83,7 +85,9 @@ def test_incomplete_legal() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = MetadataDefaults()
+    result, problems = _update(orig, properties=properties, defaults=defaults)
 
     # Should have 3 problems (one for each resource with missing fields)
     assert len(problems) == 3
@@ -144,7 +148,9 @@ def test_missing_legal() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = MetadataDefaults()
+    result, problems = _update(orig, properties=properties, defaults=defaults)
 
     # Should have 1 problem for the resource with all fields missing
     assert len(problems) == 1
@@ -181,7 +187,9 @@ def test_different_authors() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(orig, auth_prop=AUTH_PROP)
+    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP)
+    defaults = MetadataDefaults()
+    result, problems = _update(orig, properties=properties, defaults=defaults)
 
     # Should have problems because license and copyright are missing
     assert len(problems) == 3
@@ -224,10 +232,13 @@ def test_different_authors() -> None:
 
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
+    properties = MetadataPropertyConfig(auth_prop="", copy_prop="", license_prop="")
+    defaults = MetadataDefaults()
     with pytest.raises(InputError):
-        _update(one_bitstream_one_iiif, auth_prop="", copy_prop="", license_prop="")
+        _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    properties_empty = MetadataPropertyConfig()
     with pytest.raises(InputError):
-        _update(one_bitstream_one_iiif)
+        _update(one_bitstream_one_iiif, properties=properties_empty, defaults=defaults)
 
 
 def test_empty_author() -> None:
@@ -240,7 +251,9 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    _result, problems = _update(empty, auth_prop=AUTH_PROP)
+    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP)
+    defaults = MetadataDefaults()
+    _result, problems = _update(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty authorship
     assert len(problems) == 1
@@ -258,7 +271,9 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    _result, problems = _update(empty, copy_prop=COPY_PROP)
+    properties = MetadataPropertyConfig(copy_prop=COPY_PROP)
+    defaults = MetadataDefaults()
+    _result, problems = _update(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty copyright
     assert len(problems) == 1
@@ -276,7 +291,9 @@ def test_empty_license() -> None:
         </resource>
     </knora>
     """)
-    _result, problems = _update(empty, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
+    defaults = MetadataDefaults()
+    _result, problems = _update(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty license
     assert len(problems) == 1
@@ -294,7 +311,9 @@ def test_unknown_license() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(empty, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
+    defaults = MetadataDefaults()
+    result, problems = _update(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for unknown license
     assert len(problems) == 1

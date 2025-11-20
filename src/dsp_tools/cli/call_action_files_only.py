@@ -80,4 +80,8 @@ def _call_update_legal(args: argparse.Namespace) -> bool:
         auth_prop=args.authorship_prop,
         copy_prop=args.copyright_prop,
         license_prop=args.license_prop,
+        auth_default=args.authorship_default,
+        copy_default=args.copyright_default,
+        license_default=args.license_default,
+        fixed_errors_file=Path(args.fixed_errors) if args.fixed_errors else None,
     )

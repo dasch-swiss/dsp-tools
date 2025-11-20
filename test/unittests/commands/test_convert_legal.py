@@ -1,9 +1,7 @@
 import pytest
-import regex
 from lxml import etree
 
 from dsp_tools.commands.update_legal import _update
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
@@ -36,8 +34,9 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    result = _update(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result, problems = _update(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
     assert len(result) == 3
+    assert len(problems) == 0  # No problems expected
     auth_def = result[0]
     resource_1 = result[1]
     resource_2 = result[2]
@@ -65,7 +64,8 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
 
 
 def test_incomplete_legal() -> None:
-    orig = etree.fromstring(f""" 
+    """Test that when some fields are missing, problems are generated but values that exist are still applied."""
+    orig = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -81,7 +81,28 @@ def test_incomplete_legal() -> None:
         </resource>
     </knora>
     """)
-    result = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result, problems = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+
+    # Should have 3 problems (one for each resource with missing fields)
+    assert len(problems) == 3
+
+    # Check the problems contain FIXME markers
+    assert problems[0].res_id == "res_1"
+    assert "FIXME:" in problems[0].license
+    assert "FIXME:" in problems[0].copyright
+    assert problems[0].authorships[0] == "Maurice Chuzeville"
+
+    assert problems[1].res_id == "res_2"
+    assert "FIXME:" in problems[1].license
+    assert "FIXME:" in problems[1].authorships[0]
+    assert problems[1].copyright == "Musée du Louvre"
+
+    assert problems[2].res_id == "res_3"
+    assert "FIXME:" in problems[2].authorships[0]
+    assert "FIXME:" in problems[2].copyright
+    assert problems[2].license == "http://rdfh.ch/licenses/cc-by-4.0"
+
+    # Check XML structure
     assert len(result) == 4
     auth_def_0 = result[0]
     resource_1 = result[1]
@@ -113,6 +134,7 @@ def test_incomplete_legal() -> None:
 
 
 def test_missing_legal() -> None:
+    """Test that when all legal metadata is missing, problems are generated."""
     orig = etree.fromstring("""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -120,7 +142,16 @@ def test_missing_legal() -> None:
         </resource>
     </knora>
     """)
-    result = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result, problems = _update(orig, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+
+    # Should have 1 problem for the resource with all fields missing
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_1"
+    assert "FIXME:" in problems[0].license
+    assert "FIXME:" in problems[0].copyright
+    assert "FIXME:" in problems[0].authorships[0]
+
+    # Check XML structure - no attributes should be added
     assert len(result) == 1
     resource_1 = result[0]
 
@@ -131,7 +162,8 @@ def test_missing_legal() -> None:
 
 
 def test_different_authors() -> None:
-    orig = etree.fromstring(f""" 
+    """Test that multiple different authors are handled correctly."""
+    orig = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -147,7 +179,12 @@ def test_different_authors() -> None:
         </resource>
     </knora>
     """)
-    result = _update(orig, auth_prop=AUTH_PROP)
+    result, problems = _update(orig, auth_prop=AUTH_PROP)
+
+    # Should have problems because license and copyright are missing
+    assert len(problems) == 3
+
+    # Check XML structure
     assert len(result) == 5
     auth_def_0 = result[0]
     auth_def_1 = result[1]
@@ -192,7 +229,8 @@ def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
 
 
 def test_empty_author() -> None:
-    empty = etree.fromstring(f""" 
+    """Test that empty authorship creates a problem with FIXME marker."""
+    empty = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -200,13 +238,17 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    match = regex.escape(f"Resource ID: res_1 | Property: {AUTH_PROP} | Message: Empty authorship. Skipping.")
-    with pytest.warns(DspToolsUserWarning, match=match):
-        _update(empty, auth_prop=AUTH_PROP)
+    result, problems = _update(empty, auth_prop=AUTH_PROP)
+
+    # Should have 1 problem for empty authorship
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_1"
+    assert "FIXME:" in problems[0].authorships[0]
 
 
 def test_empty_copy() -> None:
-    empty = etree.fromstring(f""" 
+    """Test that empty copyright creates a problem with FIXME marker."""
+    empty = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -214,13 +256,17 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    match = regex.escape(f"Resource ID: res_1 | Property: {COPY_PROP} | Message: Empty copyright. Skipping.")
-    with pytest.warns(DspToolsUserWarning, match=match):
-        _update(empty, copy_prop=COPY_PROP)
+    result, problems = _update(empty, copy_prop=COPY_PROP)
+
+    # Should have 1 problem for empty copyright
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_1"
+    assert "FIXME:" in problems[0].copyright
 
 
 def test_empty_license() -> None:
-    empty = etree.fromstring(f""" 
+    """Test that empty license creates a problem with FIXME marker."""
+    empty = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -228,13 +274,17 @@ def test_empty_license() -> None:
         </resource>
     </knora>
     """)
-    match = regex.escape(f"Resource ID: res_1 | Property: {LICENSE_PROP} | Message: Empty license. Skipping.")
-    with pytest.warns(DspToolsUserWarning, match=match):
-        _update(empty, license_prop=LICENSE_PROP)
+    result, problems = _update(empty, license_prop=LICENSE_PROP)
+
+    # Should have 1 problem for empty license
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_1"
+    assert "FIXME:" in problems[0].license
 
 
 def test_unknown_license() -> None:
-    empty = etree.fromstring(f""" 
+    """Test that unknown license creates a problem with FIXME marker containing the original text."""
+    empty = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
@@ -242,12 +292,18 @@ def test_unknown_license() -> None:
         </resource>
     </knora>
     """)
-    result = _update(empty, license_prop=LICENSE_PROP)
+    result, problems = _update(empty, license_prop=LICENSE_PROP)
+
+    # Should have 1 problem for unknown license
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_1"
+    assert "FIXME: Invalid license: CC FO BA 4.0" in problems[0].license
+
+    # Check that no license attribute was added (since it's invalid)
     assert len(result) == 1
     resource_1 = result[0]
-
     assert resource_1.tag == "resource"
     assert len(resource_1) == 1
     assert resource_1[0].tag == "bitstream"
-    assert resource_1[0].attrib["license"] == "http://rdfh.ch/licenses/unknown"
+    assert "license" not in resource_1[0].attrib
     assert str(resource_1[0].text).strip() == "test/file.jpg"

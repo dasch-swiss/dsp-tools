@@ -120,6 +120,10 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
         auth_prop=":hasAuthorship",
         copy_prop=":hasCopyright",
         license_prop=":hasLicense",
+        auth_default=None,
+        copy_default=None,
+        license_default=None,
+        fixed_errors_file=None,
     )
 
 
@@ -132,6 +136,64 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
         auth_prop=":hasAuthorship",
         copy_prop=None,
         license_prop=None,
+        auth_default=None,
+        copy_default=None,
+        license_default=None,
+        fixed_errors_file=None,
+    )
+
+
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
+    args = [
+        "update-legal",
+        "--authorship_prop",
+        ":hasAuthorship",
+        "--authorship_default",
+        "Project Member",
+        "--copyright_prop",
+        ":hasCopyright",
+        "--copyright_default",
+        "University of Basel",
+        "--license_prop",
+        ":hasLicense",
+        "--license_default",
+        "CC BY SA",
+        "input.xml",
+    ]
+    entry_point.run(args)
+    update_legal_metadata.assert_called_once_with(
+        input_file=Path("input.xml"),
+        auth_prop=":hasAuthorship",
+        copy_prop=":hasCopyright",
+        license_prop=":hasLicense",
+        auth_default="Project Member",
+        copy_default="University of Basel",
+        license_default="CC BY SA",
+        fixed_errors_file=None,
+    )
+
+
+@patch("dsp_tools.cli.call_action.update_legal_metadata")
+def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
+    args = (
+        "update-legal "
+        "--authorship_prop :hasAuthorship "
+        "--copyright_prop :hasCopyright "
+        "--license_prop :hasLicense "
+        "--fixed_errors legal_errors.csv "
+        "input.xml"
+    ).split()
+    entry_point.run(args)
+    update_legal_metadata.assert_called_once_with(
+        input_file=Path("input.xml"),
+        auth_prop=":hasAuthorship",
+        copy_prop=":hasCopyright",
+        license_prop=":hasLicense",
+        auth_default=None,
+        copy_default=None,
+        license_default=None,
+        fixed_errors_file=Path("legal_errors.csv"),
     )
 
 if __name__ == "__main__":

@@ -461,4 +461,12 @@ def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("--authorship_prop", type=str, help="Property used for the authorship, e.g. ':hasAuthor'")
     subparser.add_argument("--copyright_prop", type=str, help="Property used for the copyright, e.g. ':hasCopyright'")
     subparser.add_argument("--license_prop", type=str, help="Property used for the license, e.g. ':hasLicense'")
+    subparser.add_argument(
+        "--authorship_default", type=str, help="Default authorship value when property is missing"
+    )
+    subparser.add_argument("--copyright_default", type=str, help="Default copyright value when property is missing")
+    subparser.add_argument("--license_default", type=str, help="Default license value when property is missing")
+    subparser.add_argument(
+        "--fixed_errors", type=str, help="Path to the CSV file with corrected legal metadata values"
+    )
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")

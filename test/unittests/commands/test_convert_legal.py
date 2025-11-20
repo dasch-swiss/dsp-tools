@@ -1,9 +1,9 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.update_legal.config import MetadataDefaults
-from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
 from dsp_tools.commands.update_legal.core import update_xml_tree
+from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
@@ -36,7 +36,7 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(result) == 3
@@ -85,7 +85,7 @@ def test_incomplete_legal() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
@@ -148,7 +148,7 @@ def test_missing_legal() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
@@ -187,7 +187,7 @@ def test_different_authors() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
     result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
@@ -232,11 +232,11 @@ def test_different_authors() -> None:
 
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
-    properties = MetadataPropertyConfig(authorship_prop="", copyright_prop="", license_prop="")
+    properties = LegalProperties(authorship_prop="", copyright_prop="", license_prop="")
     defaults = MetadataDefaults()
     with pytest.raises(InputError):
         update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
-    properties_empty = MetadataPropertyConfig()
+    properties_empty = LegalProperties()
     with pytest.raises(InputError):
         update_xml_tree(one_bitstream_one_iiif, properties=properties_empty, defaults=defaults)
 
@@ -251,7 +251,7 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
     _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
@@ -271,7 +271,7 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(copyright_prop=COPY_PROP)
+    properties = LegalProperties(copyright_prop=COPY_PROP)
     defaults = MetadataDefaults()
     _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
@@ -291,7 +291,7 @@ def test_empty_license() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
+    properties = LegalProperties(license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
@@ -311,7 +311,7 @@ def test_unknown_license() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
+    properties = LegalProperties(license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 

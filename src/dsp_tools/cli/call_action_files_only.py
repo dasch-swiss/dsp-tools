@@ -10,9 +10,9 @@ from dsp_tools.commands.excel2json.project import old_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.update_legal.config import MetadataDefaults
-from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
 from dsp_tools.commands.update_legal.core import update_legal_metadata
+from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import MetadataDefaults
 
 
 def call_id2iri(args: argparse.Namespace) -> bool:
@@ -79,7 +79,7 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
 
 def call_update_legal(args: argparse.Namespace) -> bool:
     check_path_dependencies(PathDependencies([Path(args.xmlfile)]))
-    properties = MetadataPropertyConfig(
+    properties = LegalProperties(
         authorship_prop=args.authorship_prop,
         copyright_prop=args.copyright_prop,
         license_prop=args.license_prop,

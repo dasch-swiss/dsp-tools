@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from dsp_tools.commands.update_legal.config import LegalMetadata
-from dsp_tools.commands.update_legal.config import Problem
-from dsp_tools.commands.update_legal.config import is_fixme_value
+from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import Problem
+from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.error.exceptions import InputError
 
 
@@ -146,7 +146,7 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
         authorships = collect_authorships_from_row(row, df.columns)
 
         corrections[res_id] = LegalMetadata(
-            file=str(row["file"]),
+            multimedia_filepath=str(row["file"]),
             license=license_val,
             copyright=copyright_val,
             authorships=authorships,

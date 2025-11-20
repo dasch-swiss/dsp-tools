@@ -4,13 +4,13 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.update_legal.config import LegalMetadata
-from dsp_tools.commands.update_legal.config import MetadataDefaults
-from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
-from dsp_tools.commands.update_legal.config import Problem
-from dsp_tools.commands.update_legal.config import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import ProblemAggregator
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
+from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import MetadataDefaults
+from dsp_tools.commands.update_legal.models import Problem
+from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
 from dsp_tools.commands.update_legal.xml_operations import collect_metadata_for_resource
 from dsp_tools.error.exceptions import InputError
@@ -20,7 +20,7 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _transform_into
 
 def update_legal_metadata(
     input_file: Path,
-    properties: MetadataPropertyConfig,
+    properties: LegalProperties,
     defaults: MetadataDefaults,
     fixed_errors_file: Path | None = None,
 ) -> bool:
@@ -72,7 +72,7 @@ def update_legal_metadata(
 
 def update_xml_tree(
     root: etree._Element,
-    properties: MetadataPropertyConfig,
+    properties: LegalProperties,
     defaults: MetadataDefaults,
     csv_corrections: dict[str, LegalMetadata] | None = None,
 ) -> tuple[etree._Element, list[Problem]]:

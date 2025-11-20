@@ -6,8 +6,8 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
-from dsp_tools.commands.update_legal.config import MetadataDefaults
-from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
+from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import MetadataDefaults
 
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
@@ -120,7 +120,7 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path(DATA_XML_PATH),
-        properties=MetadataPropertyConfig(
+        properties=LegalProperties(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
@@ -141,7 +141,7 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path(DATA_XML_PATH),
-        properties=MetadataPropertyConfig(
+        properties=LegalProperties(
             authorship_prop=":hasAuthorship",
             copyright_prop=None,
             license_prop=None,
@@ -177,7 +177,7 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path(DATA_XML_PATH),
-        properties=MetadataPropertyConfig(
+        properties=LegalProperties(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
@@ -205,7 +205,7 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path(DATA_XML_PATH),
-        properties=MetadataPropertyConfig(
+        properties=LegalProperties(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",

@@ -1,38 +1,21 @@
-"""Configuration dataclasses and helper functions for legal metadata updates."""
-
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class MetadataPropertyConfig:
-    """
-    Configuration for property names used to extract legal metadata from XML.
-
-    Attributes:
-        authorship_prop: Property name for authorship (e.g., ':hasAuthor')
-        copyright_prop: Property name for copyright (e.g., ':hasCopyright')
-        license_prop: Property name for license (e.g., ':hasLicense')
-    """
+class LegalProperties:
+    """Property names in the XML, e.g. ':hasAuthor', ':hasCopyright', ':hasLicense'."""
 
     authorship_prop: str | None = None
     copyright_prop: str | None = None
     license_prop: str | None = None
 
     def has_any_property(self) -> bool:
-        """Check if at least one property is configured."""
         return any([self.authorship_prop, self.copyright_prop, self.license_prop])
 
 
 @dataclass(frozen=True)
 class MetadataDefaults:
-    """
-    Default values to use when legal metadata is missing from XML.
-
-    Attributes:
-        authorship_default: Default authorship value when missing
-        copyright_default: Default copyright value when missing
-        license_default: Default license value when missing
-    """
+    """Default values to use when legal metadata is missing from XML."""
 
     authorship_default: str | None = None
     copyright_default: str | None = None
@@ -40,15 +23,7 @@ class MetadataDefaults:
 
 
 def is_fixme_value(value: str | None) -> bool:
-    """
-    Check if a value is a FIXME marker.
-
-    Args:
-        value: The value to check
-
-    Returns:
-        True if value starts with "FIXME:", False otherwise
-    """
+    """Check if a value is a FIXME marker"""
     return value is not None and value.startswith("FIXME:")
 
 
@@ -87,17 +62,9 @@ class Problem:
 
 @dataclass(frozen=True)
 class LegalMetadata:
-    """
-    Represents legal metadata for a single resource, either from XML or CSV.
+    """Represents legal metadata for a single resource, either from XML or CSV."""
 
-    Attributes:
-        file: The multimedia file path
-        license: The license value (or None if missing)
-        copyright: The copyright holder (or None if missing)
-        authorships: List of authorship values (empty list if missing)
-    """
-
-    file: str
+    multimedia_filepath: str
     license: str | None
     copyright: str | None
     authorships: list[str]

@@ -2,10 +2,10 @@
 
 from lxml import etree
 
-from dsp_tools.commands.update_legal.config import LegalMetadata
-from dsp_tools.commands.update_legal.config import MetadataDefaults
-from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
-from dsp_tools.commands.update_legal.config import is_fixme_value
+from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import MetadataDefaults
+from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 
@@ -81,7 +81,7 @@ def add_authorship_definitions(root: etree._Element, auth_text_to_id: dict[str, 
         root.insert(0, auth_def)
 
 
-def remove_property_elements(res: etree._Element, properties: MetadataPropertyConfig) -> None:
+def remove_property_elements(res: etree._Element, properties: LegalProperties) -> None:
     """
     Remove text property elements from the resource XML.
 
@@ -132,7 +132,7 @@ def apply_metadata_to_element(
 
 def resolve_metadata_values(
     res: etree._Element,
-    properties: MetadataPropertyConfig,
+    properties: LegalProperties,
     defaults: MetadataDefaults,
     csv_metadata: LegalMetadata | None,
     media_elem: etree._Element,
@@ -157,7 +157,7 @@ def resolve_metadata_values(
         license_val = csv_metadata.license
         copyright_val = csv_metadata.copyright
         authorships = csv_metadata.authorships.copy()
-        file_val = csv_metadata.file
+        file_val = csv_metadata.multimedia_filepath
     else:
         license_val = None
         copyright_val = None
@@ -193,7 +193,7 @@ def resolve_metadata_values(
 def collect_metadata_for_resource(
     res: etree._Element,
     media_elem: etree._Element,
-    properties: MetadataPropertyConfig,
+    properties: LegalProperties,
     defaults: MetadataDefaults,
     csv_metadata: LegalMetadata | None,
     auth_text_to_id: dict[str, int],
@@ -237,7 +237,7 @@ def collect_metadata_for_resource(
     remove_property_elements(res, properties)
 
     return LegalMetadata(
-        file=file_val,
+        multimedia_filepath=file_val,
         license=license_val,
         copyright=copyright_val,
         authorships=authorships,

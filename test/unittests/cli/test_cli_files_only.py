@@ -6,6 +6,8 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
+from dsp_tools.commands.update_legal import MetadataDefaults
+from dsp_tools.commands.update_legal import MetadataPropertyConfig
 
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
@@ -118,12 +120,16 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
-        auth_prop=":hasAuthorship",
-        copy_prop=":hasCopyright",
-        license_prop=":hasLicense",
-        auth_default=None,
-        copy_default=None,
-        license_default=None,
+        properties=MetadataPropertyConfig(
+            auth_prop=":hasAuthorship",
+            copy_prop=":hasCopyright",
+            license_prop=":hasLicense",
+        ),
+        defaults=MetadataDefaults(
+            auth_default=None,
+            copy_default=None,
+            license_default=None,
+        ),
         fixed_errors_file=None,
     )
 
@@ -135,12 +141,16 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
-        auth_prop=":hasAuthorship",
-        copy_prop=None,
-        license_prop=None,
-        auth_default=None,
-        copy_default=None,
-        license_default=None,
+        properties=MetadataPropertyConfig(
+            auth_prop=":hasAuthorship",
+            copy_prop=None,
+            license_prop=None,
+        ),
+        defaults=MetadataDefaults(
+            auth_default=None,
+            copy_default=None,
+            license_default=None,
+        ),
         fixed_errors_file=None,
     )
 
@@ -167,12 +177,16 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
-        auth_prop=":hasAuthorship",
-        copy_prop=":hasCopyright",
-        license_prop=":hasLicense",
-        auth_default="Project Member",
-        copy_default="University of Basel",
-        license_default="CC BY SA",
+        properties=MetadataPropertyConfig(
+            auth_prop=":hasAuthorship",
+            copy_prop=":hasCopyright",
+            license_prop=":hasLicense",
+        ),
+        defaults=MetadataDefaults(
+            auth_default="Project Member",
+            copy_default="University of Basel",
+            license_default="CC BY SA",
+        ),
         fixed_errors_file=None,
     )
 
@@ -191,12 +205,16 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
-        auth_prop=":hasAuthorship",
-        copy_prop=":hasCopyright",
-        license_prop=":hasLicense",
-        auth_default=None,
-        copy_default=None,
-        license_default=None,
+        properties=MetadataPropertyConfig(
+            auth_prop=":hasAuthorship",
+            copy_prop=":hasCopyright",
+            license_prop=":hasLicense",
+        ),
+        defaults=MetadataDefaults(
+            auth_default=None,
+            copy_default=None,
+            license_default=None,
+        ),
         fixed_errors_file=Path("legal_errors.csv"),
     )
 

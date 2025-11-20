@@ -36,7 +36,7 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(result) == 3
@@ -85,7 +85,7 @@ def test_incomplete_legal() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = _update(orig, properties=properties, defaults=defaults)
 
@@ -148,7 +148,7 @@ def test_missing_legal() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
     result, problems = _update(orig, properties=properties, defaults=defaults)
 
@@ -187,7 +187,7 @@ def test_different_authors() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP)
+    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
     result, problems = _update(orig, properties=properties, defaults=defaults)
 
@@ -232,7 +232,7 @@ def test_different_authors() -> None:
 
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
-    properties = MetadataPropertyConfig(auth_prop="", copy_prop="", license_prop="")
+    properties = MetadataPropertyConfig(authorship_prop="", copyright_prop="", license_prop="")
     defaults = MetadataDefaults()
     with pytest.raises(InputError):
         _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
@@ -251,7 +251,7 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(auth_prop=AUTH_PROP)
+    properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
     _result, problems = _update(empty, properties=properties, defaults=defaults)
 
@@ -271,7 +271,7 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    properties = MetadataPropertyConfig(copy_prop=COPY_PROP)
+    properties = MetadataPropertyConfig(copyright_prop=COPY_PROP)
     defaults = MetadataDefaults()
     _result, problems = _update(empty, properties=properties, defaults=defaults)
 

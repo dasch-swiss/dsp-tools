@@ -121,13 +121,13 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         properties=MetadataPropertyConfig(
-            auth_prop=":hasAuthorship",
-            copy_prop=":hasCopyright",
+            authorship_prop=":hasAuthorship",
+            copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
         defaults=MetadataDefaults(
-            auth_default=None,
-            copy_default=None,
+            authorship_default=None,
+            copyright_default=None,
             license_default=None,
         ),
         fixed_errors_file=None,
@@ -142,13 +142,13 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         properties=MetadataPropertyConfig(
-            auth_prop=":hasAuthorship",
-            copy_prop=None,
+            authorship_prop=":hasAuthorship",
+            copyright_prop=None,
             license_prop=None,
         ),
         defaults=MetadataDefaults(
-            auth_default=None,
-            copy_default=None,
+            authorship_default=None,
+            copyright_default=None,
             license_default=None,
         ),
         fixed_errors_file=None,
@@ -178,13 +178,13 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         properties=MetadataPropertyConfig(
-            auth_prop=":hasAuthorship",
-            copy_prop=":hasCopyright",
+            authorship_prop=":hasAuthorship",
+            copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
         defaults=MetadataDefaults(
-            auth_default="Project Member",
-            copy_default="University of Basel",
+            authorship_default="Project Member",
+            copyright_default="University of Basel",
             license_default="CC BY SA",
         ),
         fixed_errors_file=None,
@@ -206,13 +206,13 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
     update_legal_metadata.assert_called_once_with(
         input_file=Path("input.xml"),
         properties=MetadataPropertyConfig(
-            auth_prop=":hasAuthorship",
-            copy_prop=":hasCopyright",
+            authorship_prop=":hasAuthorship",
+            copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
         defaults=MetadataDefaults(
-            auth_default=None,
-            copy_default=None,
+            authorship_default=None,
+            copyright_default=None,
             license_default=None,
         ),
         fixed_errors_file=Path("legal_errors.csv"),

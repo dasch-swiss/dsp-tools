@@ -21,13 +21,13 @@ class MetadataPropertyConfig:
         license_prop: Property name for license (e.g., ':hasLicense')
     """
 
-    auth_prop: str | None = None
-    copy_prop: str | None = None
+    authorship_prop: str | None = None
+    copyright_prop: str | None = None
     license_prop: str | None = None
 
     def has_any_property(self) -> bool:
         """Check if at least one property is configured."""
-        return any([self.auth_prop, self.copy_prop, self.license_prop])
+        return any([self.authorship_prop, self.copyright_prop, self.license_prop])
 
 
 @dataclass(frozen=True)
@@ -41,8 +41,8 @@ class MetadataDefaults:
         license_default: Default license value when missing
     """
 
-    auth_default: str | None = None
-    copy_default: str | None = None
+    authorship_default: str | None = None
+    copyright_default: str | None = None
     license_default: str | None = None
 
 
@@ -398,11 +398,11 @@ def _remove_property_elements(res: etree._Element, properties: MetadataPropertyC
         res: The resource element
         properties: Configuration for property names to remove
     """
-    if properties.auth_prop:
-        for prop_elem in res.xpath(f"./text-prop[@name='{properties.auth_prop}']"):
+    if properties.authorship_prop:
+        for prop_elem in res.xpath(f"./text-prop[@name='{properties.authorship_prop}']"):
             res.remove(prop_elem)
-    if properties.copy_prop:
-        for prop_elem in res.xpath(f"./text-prop[@name='{properties.copy_prop}']"):
+    if properties.copyright_prop:
+        for prop_elem in res.xpath(f"./text-prop[@name='{properties.copyright_prop}']"):
             res.remove(prop_elem)
     if properties.license_prop:
         for prop_elem in res.xpath(f"./text-prop[@name='{properties.license_prop}']"):
@@ -480,20 +480,20 @@ def _resolve_metadata_values(
         license_val = _apply_license_default(defaults.license_default)
 
     # Collect copyright (CSV > XML > default > None)
-    if copyright_val is None and properties.copy_prop:
-        copyright_val = _extract_copyright_from_xml(res, properties.copy_prop)
-    if copyright_val is None and defaults.copy_default:
-        copyright_val = defaults.copy_default
+    if copyright_val is None and properties.copyright_prop:
+        copyright_val = _extract_copyright_from_xml(res, properties.copyright_prop)
+    if copyright_val is None and defaults.copyright_default:
+        copyright_val = defaults.copyright_default
 
     # Collect authorship (CSV > XML > default > None)
-    if not authorships and properties.auth_prop:
-        authorships = _extract_authorships_from_xml(res, properties.auth_prop)
-    if not authorships and defaults.auth_default:
-        authorships = [defaults.auth_default]
+    if not authorships and properties.authorship_prop:
+        authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
+    if not authorships and defaults.authorship_default:
+        authorships = [defaults.authorship_default]
         # Add to authorship definitions
-        if (auth_id := auth_text_to_id.get(defaults.auth_default)) is None:
+        if (auth_id := auth_text_to_id.get(defaults.authorship_default)) is None:
             auth_id = len(auth_text_to_id)
-            auth_text_to_id[defaults.auth_default] = auth_id
+            auth_text_to_id[defaults.authorship_default] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
     return license_val, copyright_val, authorships, file_val

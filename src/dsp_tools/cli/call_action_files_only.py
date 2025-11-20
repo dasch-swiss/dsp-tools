@@ -77,15 +77,16 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
     )
 
 
-def _call_update_legal(args: argparse.Namespace) -> bool:
+def call_update_legal(args: argparse.Namespace) -> bool:
+    check_path_dependencies(PathDependencies([Path(args.xmlfile)]))
     properties = MetadataPropertyConfig(
-        auth_prop=args.authorship_prop,
-        copy_prop=args.copyright_prop,
+        authorship_prop=args.authorship_prop,
+        copyright_prop=args.copyright_prop,
         license_prop=args.license_prop,
     )
     defaults = MetadataDefaults(
-        auth_default=args.authorship_default,
-        copy_default=args.copyright_default,
+        authorship_default=args.authorship_default,
+        copyright_default=args.copyright_default,
         license_default=args.license_default,
     )
     return update_legal_metadata(

@@ -34,7 +34,9 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
-    result, problems = _update(one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    result, problems = _update(
+        one_bitstream_one_iiif, auth_prop=AUTH_PROP, copy_prop=COPY_PROP, license_prop=LICENSE_PROP
+    )
     assert len(result) == 3
     assert len(problems) == 0  # No problems expected
     auth_def = result[0]
@@ -238,7 +240,7 @@ def test_empty_author() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(empty, auth_prop=AUTH_PROP)
+    _result, problems = _update(empty, auth_prop=AUTH_PROP)
 
     # Should have 1 problem for empty authorship
     assert len(problems) == 1
@@ -256,7 +258,7 @@ def test_empty_copy() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(empty, copy_prop=COPY_PROP)
+    _result, problems = _update(empty, copy_prop=COPY_PROP)
 
     # Should have 1 problem for empty copyright
     assert len(problems) == 1
@@ -274,7 +276,7 @@ def test_empty_license() -> None:
         </resource>
     </knora>
     """)
-    result, problems = _update(empty, license_prop=LICENSE_PROP)
+    _result, problems = _update(empty, license_prop=LICENSE_PROP)
 
     # Should have 1 problem for empty license
     assert len(problems) == 1

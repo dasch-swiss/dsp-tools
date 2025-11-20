@@ -106,8 +106,9 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.update_legal_metadata")
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
 def test_update_legal(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
     args = (
         "update-legal "
         "--authorship_prop :hasAuthorship "
@@ -127,8 +128,9 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.update_legal_metadata")
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
 def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
     args = "update-legal --authorship_prop :hasAuthorship input.xml".split()
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
@@ -143,8 +145,9 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.update_legal_metadata")
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
 def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
     args = [
         "update-legal",
         "--authorship_prop",
@@ -174,8 +177,9 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.update_legal_metadata")
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
 def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
     args = (
         "update-legal "
         "--authorship_prop :hasAuthorship "

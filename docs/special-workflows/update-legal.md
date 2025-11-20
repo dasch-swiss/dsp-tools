@@ -15,7 +15,7 @@ in this format:
 Older XML files may contain legal metadata as text properties. 
 This document guides you through the process of updating them to the new format.
 
-## Step 1: Find out the property names and run `update-legal`
+## Step 1: Find out the property names and run the command
 
 Every XML file uses different property names. 
 Therefore, there cannot be an automatism in DSP-TOOLS to treat all XML files equally.
@@ -33,7 +33,7 @@ Let's consider this example:
 </knora>
 ```
 
-In this case, you need to call the command like this:
+In this case, you need to run the command like this:
 
 ```bash
 dsp-tools update-legal \
@@ -76,8 +76,25 @@ For each multimedia resource, one or more of these errors may occur:
       https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string).
 
 If there were errors, no output XML is written.
-Instead, you get the file `legal_errors.csv` that lists all problematic resources.
+Instead, you get the file `legal_errors.csv` that lists the problematic resources.
 Please go through the CSV and fix the errors directly in the CSV.
+
+In case that the properties are present for some resources, but missing for others,
+you will get a lot of repetitive errors.
+If every resource has other legal metadata, the only solution is to fix them case by case.
+But you can also provide default values that will be filled in if a property is missing.
+Delete the CSV and run the command again with the following flags:
+
+```bash
+dsp-tools update-legal \
+--authorship_prop=":hasAuthor" \
+--authorship_default="Project Member"
+--copyright_prop=":hasCopyright" \
+--copyright_default="University of Basel" \
+--license_prop=":hasLicense" \
+--license_default="CC BY SA" \
+data.xml
+```
 
 ### 1. Copyright absent
 

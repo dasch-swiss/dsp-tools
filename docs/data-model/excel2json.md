@@ -196,7 +196,8 @@ dsp-tools old-excel2json data_model_files project.json
 The header section can be filled out with the "json_header.xlsx" file.
 The file must be in the top level folder, and the name must be an exact match.
 
-It is recommended to use the [template](../assets/data_model_templates/json_header.xlsx).
+It is recommended to use the [template in the `daschland-scripts` repo](https://github.com/dasch-swiss/daschland-scripts/tree/main/data/daschland_ontology).
+([Direct download link](https://github.com/dasch-swiss/daschland-scripts/raw/refs/heads/main/data/daschland_ontology/json_header.xlsx))
 
 The sheets should be filled as follows:
 
@@ -304,9 +305,9 @@ the `properties` section used in a data model (JSON) can be created from an Exce
 Only the first worksheet of the Excel file is considered and only XLSX files are allowed. 
 The `properties` section can be inserted into the ontology file and then be uploaded onto a DSP server.
 
-**An Excel file template can be found [here](../assets/data_model_templates/rosetta%20(rosetta)/properties.xlsx) 
-or also in the `data_model_files` folder of 
-[`00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files). 
+**An Excel file template can be found in the
+[`daschland-scripts` repo](https://github.com/dasch-swiss/daschland-scripts/tree/main/data/daschland_ontology/daschland%20(Alice%20in%20DaSCHland)).
+([Direct download link](https://github.com/dasch-swiss/daschland-scripts/raw/refs/heads/main/data/daschland_ontology/daschland%20(Alice%20in%20DaSCHland)/properties.xlsx))
 It is recommended to work from the template.**
 
 The Excel sheet must have the following structure:  
@@ -449,7 +450,8 @@ The Excel sheets must have the following structure:
         ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
 
 
-**It is recommended to work from the following template:** [lists.xlsx](../assets/data_model_templates/lists/lists.xlsx)
+**It is recommended to work from the [template in the `daschland-scripts` repo](https://github.com/dasch-swiss/daschland-scripts/tree/main/data/daschland_ontology/lists).**
+([Direct download link](https://github.com/dasch-swiss/daschland-scripts/raw/refs/heads/main/data/daschland_ontology/lists/list.xlsx))
 
 
 
@@ -485,12 +487,10 @@ Some notes:
 - After the creation of the list, a validation against the JSON schema for lists is performed. An error message is 
   printed out if the list is not valid.
 
-**It is recommended to work from the following templates:**  
+**It is recommended to work from the following templates:
 
 - [en.xlsx](../assets/data_model_templates/lists/en.xlsx): File with the English labels
 - [de.xlsx](../assets/data_model_templates/lists/de.xlsx): File with the German labels
-- or alternatively from the
-  [`data_model_files` folder of `00A1-import-scripts`](https://github.com/dasch-swiss/00A1-import-scripts/tree/main/data_model_files)
 
 The output of the above command, with the template files, is:
 

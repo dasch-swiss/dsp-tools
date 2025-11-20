@@ -200,5 +200,6 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
         fixed_errors_file=Path("legal_errors.csv"),
     )
 
+
 if __name__ == "__main__":
     pytest.main([__file__])

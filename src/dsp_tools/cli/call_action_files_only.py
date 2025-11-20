@@ -74,6 +74,7 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
         path_to_output_file=args.project_definition,
     )
 
+
 def _call_update_legal(args: argparse.Namespace) -> bool:
     return update_legal_metadata(
         input_file=Path(args.xmlfile),

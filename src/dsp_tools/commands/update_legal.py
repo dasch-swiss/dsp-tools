@@ -344,7 +344,7 @@ def _has_problems(metadata: LegalMetadata) -> bool:
     has_license_problem = metadata.license is None or metadata.license.startswith("FIXME:")
     has_copyright_problem = metadata.copyright is None or metadata.copyright.startswith("FIXME:")
     has_authorship_problem = not metadata.authorships or (
-        metadata.authorships and metadata.authorships[0].startswith("FIXME:")
+        bool(metadata.authorships) and metadata.authorships[0].startswith("FIXME:")
     )
 
     return has_license_problem or has_copyright_problem or has_authorship_problem

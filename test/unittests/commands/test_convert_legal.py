@@ -1,9 +1,9 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.update_legal import MetadataDefaults
-from dsp_tools.commands.update_legal import MetadataPropertyConfig
-from dsp_tools.commands.update_legal import _update
+from dsp_tools.commands.update_legal.config import MetadataDefaults
+from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
+from dsp_tools.commands.update_legal.core import update_xml_tree
 from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
@@ -38,7 +38,7 @@ def one_bitstream_one_iiif() -> etree._Element:
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
-    result, problems = _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    result, problems = update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(result) == 3
     assert len(problems) == 0  # No problems expected
     auth_def = result[0]
@@ -87,7 +87,7 @@ def test_incomplete_legal() -> None:
     """)
     properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
-    result, problems = _update(orig, properties=properties, defaults=defaults)
+    result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 3 problems (one for each resource with missing fields)
     assert len(problems) == 3
@@ -150,7 +150,7 @@ def test_missing_legal() -> None:
     """)
     properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
-    result, problems = _update(orig, properties=properties, defaults=defaults)
+    result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 1 problem for the resource with all fields missing
     assert len(problems) == 1
@@ -189,7 +189,7 @@ def test_different_authors() -> None:
     """)
     properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
-    result, problems = _update(orig, properties=properties, defaults=defaults)
+    result, problems = update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have problems because license and copyright are missing
     assert len(problems) == 3
@@ -235,10 +235,10 @@ def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
     properties = MetadataPropertyConfig(authorship_prop="", copyright_prop="", license_prop="")
     defaults = MetadataDefaults()
     with pytest.raises(InputError):
-        _update(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+        update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     properties_empty = MetadataPropertyConfig()
     with pytest.raises(InputError):
-        _update(one_bitstream_one_iiif, properties=properties_empty, defaults=defaults)
+        update_xml_tree(one_bitstream_one_iiif, properties=properties_empty, defaults=defaults)
 
 
 def test_empty_author() -> None:
@@ -253,7 +253,7 @@ def test_empty_author() -> None:
     """)
     properties = MetadataPropertyConfig(authorship_prop=AUTH_PROP)
     defaults = MetadataDefaults()
-    _result, problems = _update(empty, properties=properties, defaults=defaults)
+    _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty authorship
     assert len(problems) == 1
@@ -273,7 +273,7 @@ def test_empty_copy() -> None:
     """)
     properties = MetadataPropertyConfig(copyright_prop=COPY_PROP)
     defaults = MetadataDefaults()
-    _result, problems = _update(empty, properties=properties, defaults=defaults)
+    _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty copyright
     assert len(problems) == 1
@@ -293,7 +293,7 @@ def test_empty_license() -> None:
     """)
     properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
-    _result, problems = _update(empty, properties=properties, defaults=defaults)
+    _result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty license
     assert len(problems) == 1
@@ -313,7 +313,7 @@ def test_unknown_license() -> None:
     """)
     properties = MetadataPropertyConfig(license_prop=LICENSE_PROP)
     defaults = MetadataDefaults()
-    result, problems = _update(empty, properties=properties, defaults=defaults)
+    result, problems = update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for unknown license
     assert len(problems) == 1

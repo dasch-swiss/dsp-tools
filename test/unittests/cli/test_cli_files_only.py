@@ -6,8 +6,8 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
-from dsp_tools.commands.update_legal import MetadataDefaults
-from dsp_tools.commands.update_legal import MetadataPropertyConfig
+from dsp_tools.commands.update_legal.config import MetadataDefaults
+from dsp_tools.commands.update_legal.config import MetadataPropertyConfig
 
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"

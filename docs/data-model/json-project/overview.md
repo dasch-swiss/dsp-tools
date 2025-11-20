@@ -566,5 +566,5 @@ The `ontologies` array is [documented here](./ontologies.md)
 
 DaSCH provides you with the `daschland-scripts` repo,
 an example repository that contains everything which is necessary to create a project and upload data.
-It also contains a JSON project definition file [here](https://github.com/dasch-swiss/daschland-scripts/blob/main/data/output).
+It also contains a JSON project definition file [here](https://github.com/dasch-swiss/daschland-scripts/tree/main/data/output).
 ([Direct download link](https://github.com/dasch-swiss/daschland-scripts/raw/refs/heads/main/data/output/daschland.json))

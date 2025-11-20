@@ -439,7 +439,7 @@ def _apply_metadata_to_element(
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
 
-def _resolve_metadata_values(  # noqa: PLR0913
+def _resolve_metadata_values(
     res: etree._Element,
     properties: MetadataPropertyConfig,
     defaults: MetadataDefaults,
@@ -499,7 +499,7 @@ def _resolve_metadata_values(  # noqa: PLR0913
     return license_val, copyright_val, authorships, file_val
 
 
-def _collect_metadata_for_resource(  # noqa: PLR0913
+def _collect_metadata_for_resource(
     res: etree._Element,
     media_elem: etree._Element,
     properties: MetadataPropertyConfig,

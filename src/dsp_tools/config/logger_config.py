@@ -2,10 +2,11 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from loguru import logger
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def _make_and_get_logs_directory() -> Path:

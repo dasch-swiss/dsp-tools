@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from typing import cast
 
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -36,7 +37,7 @@ from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_input
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)

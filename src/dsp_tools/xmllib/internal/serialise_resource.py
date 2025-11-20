@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from lxml import etree
 
@@ -25,7 +26,7 @@ from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.res import Resource
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:

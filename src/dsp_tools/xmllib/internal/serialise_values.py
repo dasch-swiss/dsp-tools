@@ -3,6 +3,7 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import cast
 
+from dotenv import find_dotenv
 from dotenv import load_dotenv
 from lxml import etree
 
@@ -25,7 +26,7 @@ from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.permissions import Permissions
 
-load_dotenv()
+load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 PROP_TYPE_LOOKUP = {
     BooleanValue: "boolean",

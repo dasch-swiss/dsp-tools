@@ -115,11 +115,11 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
         "update-legal "
         "--authorship_prop :hasAuthorship "
         "--copyright_prop=:hasCopyright "
-        "--license_prop :hasLicense input.xml"
+        f"--license_prop :hasLicense {DATA_XML_PATH}"
     ).split()
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
-        input_file=Path("input.xml"),
+        input_file=Path(DATA_XML_PATH),
         properties=MetadataPropertyConfig(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",
@@ -137,10 +137,10 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
 @patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
 def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
     update_legal_metadata.return_value = True
-    args = "update-legal --authorship_prop :hasAuthorship input.xml".split()
+    args = f"update-legal --authorship_prop :hasAuthorship {DATA_XML_PATH}".split()
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
-        input_file=Path("input.xml"),
+        input_file=Path(DATA_XML_PATH),
         properties=MetadataPropertyConfig(
             authorship_prop=":hasAuthorship",
             copyright_prop=None,
@@ -172,11 +172,11 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
         ":hasLicense",
         "--license_default",
         "CC BY SA",
-        "input.xml",
+        DATA_XML_PATH,
     ]
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
-        input_file=Path("input.xml"),
+        input_file=Path(DATA_XML_PATH),
         properties=MetadataPropertyConfig(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",
@@ -200,11 +200,11 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
         "--copyright_prop :hasCopyright "
         "--license_prop :hasLicense "
         "--fixed_errors legal_errors.csv "
-        "input.xml"
+        f"{DATA_XML_PATH}"
     ).split()
     entry_point.run(args)
     update_legal_metadata.assert_called_once_with(
-        input_file=Path("input.xml"),
+        input_file=Path(DATA_XML_PATH),
         properties=MetadataPropertyConfig(
             authorship_prop=":hasAuthorship",
             copyright_prop=":hasCopyright",

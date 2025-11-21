@@ -12,13 +12,12 @@ def extract_license_from_xml(res: etree._Element, license_prop: str) -> str | No
     license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
     if not license_elems:
         return None
-    # Use first element if multiple exist
+    if len(license_elems) > 1:
+        return f"FIXME: Multiple licenses found. Choose one: {license_elems}"
     license_elem = license_elems[0]
     if not license_elem.text or not (license_text := license_elem.text.strip()):
         return None
-    # Try to parse the license
     if not (lic := find_license_in_string(license_text)):
-        # Unknown license - mark as FIXME
         return f"FIXME: Invalid license: {license_text}"
     return lic.value
 

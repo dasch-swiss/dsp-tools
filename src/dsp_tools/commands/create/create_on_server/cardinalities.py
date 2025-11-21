@@ -16,7 +16,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinality_graph
+from dsp_tools.commands.create.serialisation.ontology import make_one_cardinality_graph
 from dsp_tools.commands.create.serialisation.ontology import make_ontology_base_graph
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.rdflib_utils import serialise_json
@@ -121,7 +121,7 @@ def _serialise_card(
 ) -> dict[str, Any]:
     onto_g = make_ontology_base_graph(onto_iri, last_modification_date)
     onto_serialised = next(iter(serialise_json(onto_g)))
-    card_g = _make_one_cardinality_graph(card, res_iri)
+    card_g = make_one_cardinality_graph(card, res_iri)
     card_serialised = serialise_json(card_g)
     onto_serialised["@graph"] = card_serialised
     return onto_serialised

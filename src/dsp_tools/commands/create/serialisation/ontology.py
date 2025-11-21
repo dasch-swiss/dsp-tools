@@ -8,6 +8,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
+from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.utils.rdflib_constants import KNORA_API
 
@@ -19,15 +20,7 @@ def make_ontology_base_graph(onto_iri: URIRef, last_modification_date: Literal) 
     return g
 
 
-def make_cardinality_graph_for_request(
-    card: ParsedPropertyCardinality, res_iri: URIRef, onto_iri: URIRef, last_modification_date: Literal
-) -> Graph:
-    g = make_ontology_base_graph(onto_iri, last_modification_date)
-    g += _make_one_cardinality_graph(card, res_iri)
-    return g
-
-
-def _make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef) -> Graph:
+def make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef) -> Graph:
     card_info = PARSED_CARDINALITY_TO_RDF[card.cardinality]
     g = Graph()
     bn_card = BNode()
@@ -38,4 +31,24 @@ def _make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef
     g.add((bn_card, OWL.onProperty, URIRef(card.propname)))
     if card.gui_order is not None:
         g.add((bn_card, SALSAH_GUI.guiOrder, Literal(card.gui_order)))
+    return g
+
+
+def make_one_property_graph(prop: ParsedProperty, list_iri: URIRef | None) -> Graph:
+    trips = [
+        (RDF.type, OWL.ObjectProperty),
+        (KNORA_API.objectType, URIRef(str(prop.object))),
+        (SALSAH_GUI.guiElement, URIRef(str(prop.gui_element))),
+    ]
+    trips.extend([(RDFS.label, Literal(lbl, lang=lang_tag)) for lang_tag, lbl in prop.labels.items()])
+    trips.extend([(RDFS.comment, Literal(cmnt, lang=lang_tag)) for lang_tag, cmnt in prop.comments.items()])
+    trips.extend([(RDFS.subPropertyOf, URIRef(supr)) for supr in prop.supers])
+    if prop.subject:
+        trips.append((KNORA_API.subjectType, URIRef(prop.subject)))
+    if list_iri:
+        trips.append((SALSAH_GUI.guiAttribute, URIRef))
+    prop_iri = URIRef(prop.name)
+    g = Graph()
+    for p, o in trips:
+        g.add((prop_iri, p, o))
     return g

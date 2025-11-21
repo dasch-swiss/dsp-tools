@@ -1,4 +1,3 @@
-from dsp_tools.commands.create.serialisation.ontology import make_cardinality_graph_for_request
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
@@ -30,5 +29,3 @@ validate_root_emit_user_message()
 XmllibInputError()
 XmllibInternalError()
 XmllibFileNotFoundError()
-
-make_cardinality_graph_for_request()

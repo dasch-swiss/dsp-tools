@@ -2,8 +2,8 @@ import pytest
 from lxml import etree
 
 from dsp_tools.commands.update_legal.core import _update_xml_tree
+from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
-from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
@@ -37,7 +37,7 @@ def one_bitstream_one_iiif() -> etree._Element:
 
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     result, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(result) == 3
     assert len(problems) == 0  # No problems expected
@@ -86,7 +86,7 @@ def test_incomplete_legal() -> None:
     </knora>
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     result, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 3 problems (one for each resource with missing fields)
@@ -149,7 +149,7 @@ def test_missing_legal() -> None:
     </knora>
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     result, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 1 problem for the resource with all fields missing
@@ -188,7 +188,7 @@ def test_different_authors() -> None:
     </knora>
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     result, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have problems because license and copyright are missing
@@ -233,7 +233,7 @@ def test_different_authors() -> None:
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
     properties = LegalProperties(authorship_prop="", copyright_prop="", license_prop="")
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     with pytest.raises(InputError):
         _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     properties_empty = LegalProperties()
@@ -252,7 +252,7 @@ def test_empty_author() -> None:
     </knora>
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     _result, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty authorship
@@ -272,7 +272,7 @@ def test_empty_copy() -> None:
     </knora>
     """)
     properties = LegalProperties(copyright_prop=COPY_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     _result, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty copyright
@@ -292,7 +292,7 @@ def test_empty_license() -> None:
     </knora>
     """)
     properties = LegalProperties(license_prop=LICENSE_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     _result, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty license
@@ -312,7 +312,7 @@ def test_unknown_license() -> None:
     </knora>
     """)
     properties = LegalProperties(license_prop=LICENSE_PROP)
-    defaults = MetadataDefaults()
+    defaults = LegalMetadataDefaults()
     result, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for unknown license

@@ -2,8 +2,8 @@ from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
-from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 
@@ -131,7 +131,7 @@ def apply_metadata_to_element(
 def resolve_metadata_values(
     res: etree._Element,
     properties: LegalProperties,
-    defaults: MetadataDefaults,
+    defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
     media_elem: etree._Element,
     auth_text_to_id: dict[str, int],
@@ -192,7 +192,7 @@ def update_one_xml_resource(
     res: etree._Element,
     media_elem: etree._Element,
     properties: LegalProperties,
-    defaults: MetadataDefaults,
+    defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
     auth_text_to_id: dict[str, int],
 ) -> LegalMetadata:

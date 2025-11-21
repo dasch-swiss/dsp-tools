@@ -6,8 +6,8 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
+from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
-from dsp_tools.commands.update_legal.models import MetadataDefaults
 
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
@@ -125,7 +125,7 @@ def test_update_legal(update_legal_metadata: Mock) -> None:
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
-        defaults=MetadataDefaults(
+        defaults=LegalMetadataDefaults(
             authorship_default=None,
             copyright_default=None,
             license_default=None,
@@ -146,7 +146,7 @@ def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
             copyright_prop=None,
             license_prop=None,
         ),
-        defaults=MetadataDefaults(
+        defaults=LegalMetadataDefaults(
             authorship_default=None,
             copyright_default=None,
             license_default=None,
@@ -182,7 +182,7 @@ def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
-        defaults=MetadataDefaults(
+        defaults=LegalMetadataDefaults(
             authorship_default="Project Member",
             copyright_default="University of Basel",
             license_default="CC BY SA",
@@ -210,7 +210,7 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
             copyright_prop=":hasCopyright",
             license_prop=":hasLicense",
         ),
-        defaults=MetadataDefaults(
+        defaults=LegalMetadataDefaults(
             authorship_default=None,
             copyright_default=None,
             license_default=None,

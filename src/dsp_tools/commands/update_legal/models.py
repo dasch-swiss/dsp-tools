@@ -14,7 +14,17 @@ class LegalProperties:
 
 
 @dataclass(frozen=True)
-class MetadataDefaults:
+class LegalMetadata:
+    """Represents legal metadata for a single resource, either from XML or CSV."""
+
+    multimedia_filepath: str
+    license: str | None
+    copyright: str | None
+    authorships: list[str]
+
+
+@dataclass(frozen=True)
+class LegalMetadataDefaults:
     """Default values to use when legal metadata is missing from XML."""
 
     authorship_default: str | None = None
@@ -30,14 +40,4 @@ class Problem:
     res_id: str
     license: str
     copyright: str
-    authorships: list[str]
-
-
-@dataclass(frozen=True)
-class LegalMetadata:
-    """Represents legal metadata for a single resource, either from XML or CSV."""
-
-    multimedia_filepath: str
-    license: str | None
-    copyright: str | None
     authorships: list[str]

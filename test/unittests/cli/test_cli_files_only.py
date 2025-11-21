@@ -215,7 +215,7 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
             copyright_default=None,
             license_default=None,
         ),
-        fixed_errors_file=Path("legal_errors.csv"),
+        fixed_errors_file=Path("testdata/xml-data/legal_errors.csv"),
     )
 
 

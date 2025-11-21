@@ -3,12 +3,12 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import ProblemAggregator
+from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.commands.update_legal.models import Problem
-from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
 from dsp_tools.commands.update_legal.xml_operations import update_one_xml_resource
 from dsp_tools.error.exceptions import InputError
@@ -135,7 +135,7 @@ def has_problems(metadata: LegalMetadata) -> bool:
     """
     has_license_problem = metadata.license is None or is_fixme_value(metadata.license)
     has_copyright_problem = metadata.copyright is None or is_fixme_value(metadata.copyright)
-    
+
     if not metadata.authorships:
         has_authorship_problem = True
     elif any(is_fixme_value(x) for x in metadata.authorships):

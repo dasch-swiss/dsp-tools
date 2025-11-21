@@ -1,9 +1,9 @@
 from lxml import etree
 
+from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import MetadataDefaults
-from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 

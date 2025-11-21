@@ -5,7 +5,6 @@ import pandas as pd
 
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import Problem
-from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.error.exceptions import InputError
 
 
@@ -72,7 +71,7 @@ def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[
 
 
 def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
-    """Read corrected legal metadata from a CSV file."""
+    """Read corrected legal metadata from a CSV file, and return a mapping from resource ID to LegalMetadata."""
     df = pd.read_csv(csv_path)
 
     # Validate required columns
@@ -86,10 +85,10 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     for _, row in df.iterrows():
         res_id = str(row["resource_id"])
 
-        # Skip rows that still have FIXME markers (not yet corrected)
         license_val = str(row["license"]) if pd.notna(row["license"]) else None
         copyright_val = str(row["copyright"]) if pd.notna(row["copyright"]) else None
 
+        # Skip rows that still have FIXME markers (not yet corrected)
         if is_fixme_value(license_val):
             license_val = None
         if is_fixme_value(copyright_val):
@@ -106,3 +105,8 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
         )
 
     return corrections
+
+
+def is_fixme_value(value: str | None) -> bool:
+    """Check if a value is a FIXME marker"""
+    return value is not None and value.startswith("FIXME:")

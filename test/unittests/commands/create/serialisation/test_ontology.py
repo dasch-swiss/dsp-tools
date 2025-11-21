@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS

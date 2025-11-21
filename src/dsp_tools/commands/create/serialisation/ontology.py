@@ -49,7 +49,7 @@ def _make_one_cardinality_graph(card: ParsedPropertyCardinality, res_iri: URIRef
 
 
 def serialise_property_graph_for_request(
-    prop: ParsedProperty, list_iri: URIRef | None, onto_iri: URIRef, last_modification_date: Literal
+    prop: ParsedProperty, list_iri: Literal | None, onto_iri: URIRef, last_modification_date: Literal
 ) -> dict[str, Any]:
     onto_g = _make_ontology_base_graph(onto_iri, last_modification_date)
     onto_serialised = next(iter(serialise_json(onto_g)))
@@ -60,7 +60,7 @@ def serialise_property_graph_for_request(
 
 
 def _make_one_property_graph(prop: ParsedProperty, list_iri: Literal | None) -> Graph:
-    trips = [
+    trips: list[tuple[URIRef, Literal | URIRef]] = [
         (RDF.type, OWL.ObjectProperty),
         (KNORA_API.objectType, URIRef(str(prop.object))),
         (SALSAH_GUI.guiElement, URIRef(str(prop.gui_element))),

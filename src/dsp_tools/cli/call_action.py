@@ -9,6 +9,7 @@ from dsp_tools.cli.call_action_files_only import call_excel2resources
 from dsp_tools.cli.call_action_files_only import call_id2iri
 from dsp_tools.cli.call_action_files_only import call_old_excel2json
 from dsp_tools.cli.call_action_files_only import call_old_excel2lists
+from dsp_tools.cli.call_action_files_only import call_update_legal
 from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
@@ -75,6 +76,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = call_excel2properties(args)
         case "id2iri":
             result = call_id2iri(args)
+        case "update-legal":
+            result = call_update_legal(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

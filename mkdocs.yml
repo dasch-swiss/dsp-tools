@@ -42,6 +42,7 @@ nav:
       - Deprecated excel2xml: data-file/excel2xml-module.md
   - Advanced Workflows:
       - Special Workflows xmlupload: special-workflows/workflow-xmlupload.md
+      - Update legal info in XML: special-workflows/update-legal.md
       - .env Options: special-workflows/env-set-up.md
   - Information for developers:
       - Developers documentation: developers/index.md

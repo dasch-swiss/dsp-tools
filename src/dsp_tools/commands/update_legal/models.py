@@ -17,7 +17,6 @@ class LegalProperties:
 class LegalMetadata:
     """Represents legal metadata for a single resource, either from XML or CSV."""
 
-    multimedia_filepath: str
     license: str | None
     copyright: str | None
     authorships: list[str]

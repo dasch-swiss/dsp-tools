@@ -135,7 +135,7 @@ def resolve_metadata_values(
     csv_metadata: LegalMetadata | None,
     media_elem: etree._Element,
     auth_text_to_id: dict[str, int],
-) -> tuple[str | None, str | None, list[str], str]:
+) -> tuple[str | None, str | None, list[str]]:
     """
     Resolve metadata values using priority: CSV > XML > defaults.
 
@@ -148,19 +148,17 @@ def resolve_metadata_values(
         auth_text_to_id: Dictionary to track unique authorships
 
     Returns:
-        Tuple of (license_val, copyright_val, authorships, file_val)
+        Tuple of (license_val, copyright_val, authorships)
     """
     # Start with CSV corrections if available
     if csv_metadata:
         license_val = csv_metadata.license
         copyright_val = csv_metadata.copyright
         authorships = csv_metadata.authorships.copy()
-        file_val = csv_metadata.multimedia_filepath
     else:
         license_val = None
         copyright_val = None
         authorships = []
-        file_val = str(media_elem.text).strip() if media_elem.text else ""
 
     # Collect license (CSV > XML > default > None)
     if license_val is None and properties.license_prop:
@@ -185,7 +183,7 @@ def resolve_metadata_values(
             auth_text_to_id[defaults.authorship_default] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
-    return license_val, copyright_val, authorships, file_val
+    return license_val, copyright_val, authorships
 
 
 def update_one_xml_resource(
@@ -213,7 +211,7 @@ def update_one_xml_resource(
         LegalMetadata with collected values
     """
     # Resolve metadata values using priority: CSV > XML > defaults
-    license_val, copyright_val, authorships, file_val = resolve_metadata_values(
+    license_val, copyright_val, authorships = resolve_metadata_values(
         res=res,
         properties=properties,
         defaults=defaults,
@@ -235,7 +233,6 @@ def update_one_xml_resource(
     remove_property_elements(res, properties)
 
     return LegalMetadata(
-        multimedia_filepath=file_val,
         license=license_val,
         copyright=copyright_val,
         authorships=authorships,

@@ -98,7 +98,6 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
         authorships = _collect_authorships_from_row(row, df.columns)
 
         corrections[res_id] = LegalMetadata(
-            multimedia_filepath=str(row["file"]),
             license=license_val,
             copyright=copyright_val,
             authorships=authorships,

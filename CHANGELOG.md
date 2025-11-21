@@ -1,5 +1,12 @@
 # Changelog
 
+## [18.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.2.0...v18.2.1) (2025-11-21)
+
+
+### Maintenance
+
+* **create:** serialise property for request ([#2069](https://github.com/dasch-swiss/dsp-tools/issues/2069)) ([a5dcd89](https://github.com/dasch-swiss/dsp-tools/commit/a5dcd89e9dbaed5c27de582c2086321410bb6383))
+
 ## [18.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.1.0...v18.2.0) (2025-11-21)
 
 

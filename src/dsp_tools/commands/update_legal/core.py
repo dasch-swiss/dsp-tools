@@ -89,7 +89,6 @@ def _update_xml_tree(
     auth_text_to_id: dict[str, int] = {}
     problems: list[Problem] = []
 
-    # Process each resource with multimedia
     for res in root.iterchildren(tag="resource"):
         if not (media_tag_candidates := res.xpath("bitstream|iiif-uri")):
             continue

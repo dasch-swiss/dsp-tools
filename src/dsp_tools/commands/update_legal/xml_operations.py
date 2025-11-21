@@ -7,8 +7,11 @@ from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 
-def extract_license_from_xml(res: etree._Element, license_prop: str) -> str | None:
-    """Extract license from XML property."""
+def _extract_license_from_xml(res: etree._Element, license_prop: str) -> str | None:
+    """
+    Extract license from XML property. If the property is absent or empty, return None.
+    If multiple licenses are found, or if the license is invalid, return a FIXME string.
+    """
     license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
     if not license_elems:
         return None
@@ -22,7 +25,7 @@ def extract_license_from_xml(res: etree._Element, license_prop: str) -> str | No
     return lic.value
 
 
-def apply_license_default(license_default: str) -> str | None:
+def _apply_license_default(license_default: str) -> str | None:
     """Apply default license value, parsing it if possible."""
     if not (lic := find_license_in_string(license_default)):
         # Unknown license - mark as FIXME
@@ -30,7 +33,7 @@ def apply_license_default(license_default: str) -> str | None:
     return lic.value
 
 
-def extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | None:
+def _extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | None:
     """Extract copyright from XML property."""
     copy_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{copy_prop}']/text")
     if not copy_elems:
@@ -42,7 +45,7 @@ def extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | Non
     return copy_text
 
 
-def extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> list[str]:
+def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> list[str]:
     """Extract authorships from XML property."""
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
     if not auth_elems:
@@ -78,7 +81,7 @@ def add_authorship_definitions(root: etree._Element, auth_text_to_id: dict[str, 
         root.insert(0, auth_def)
 
 
-def remove_property_elements(res: etree._Element, properties: LegalProperties) -> None:
+def _remove_property_elements(res: etree._Element, properties: LegalProperties) -> None:
     """
     Remove text property elements from the resource XML.
 
@@ -97,7 +100,7 @@ def remove_property_elements(res: etree._Element, properties: LegalProperties) -
             res.remove(prop_elem)
 
 
-def apply_metadata_to_element(
+def _apply_metadata_to_element(
     media_elem: etree._Element,
     license_val: str | None,
     copyright_val: str | None,
@@ -127,7 +130,7 @@ def apply_metadata_to_element(
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
 
-def resolve_metadata_values(
+def _resolve_metadata_values(
     res: etree._Element,
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
@@ -159,21 +162,21 @@ def resolve_metadata_values(
         copyright_val = None
         authorships = []
 
-    # Collect license (CSV > XML > default > None)
+    # Collect license from XML, fall back to default
     if license_val is None and properties.license_prop:
-        license_val = extract_license_from_xml(res, properties.license_prop)
+        license_val = _extract_license_from_xml(res, properties.license_prop)
     if license_val is None and defaults.license_default:
-        license_val = apply_license_default(defaults.license_default)
+        license_val = _apply_license_default(defaults.license_default)
 
-    # Collect copyright (CSV > XML > default > None)
+    # Collect copyright XML, fall back to default
     if copyright_val is None and properties.copyright_prop:
-        copyright_val = extract_copyright_from_xml(res, properties.copyright_prop)
+        copyright_val = _extract_copyright_from_xml(res, properties.copyright_prop)
     if copyright_val is None and defaults.copyright_default:
         copyright_val = defaults.copyright_default
 
-    # Collect authorship (CSV > XML > default > None)
+    # Collect authorship from XML, fall back to default
     if not authorships and properties.authorship_prop:
-        authorships = extract_authorships_from_xml(res, properties.authorship_prop)
+        authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
     if not authorships and defaults.authorship_default:
         authorships = [defaults.authorship_default]
         # Add to authorship definitions
@@ -210,7 +213,7 @@ def update_one_xml_resource(
         LegalMetadata with collected values
     """
     # Resolve metadata values using priority: CSV > XML > defaults
-    license_val, copyright_val, authorships = resolve_metadata_values(
+    license_val, copyright_val, authorships = _resolve_metadata_values(
         res=res,
         properties=properties,
         defaults=defaults,
@@ -220,7 +223,7 @@ def update_one_xml_resource(
     )
 
     # Apply valid values to the media element
-    apply_metadata_to_element(
+    _apply_metadata_to_element(
         media_elem=media_elem,
         license_val=license_val,
         copyright_val=copyright_val,
@@ -229,7 +232,7 @@ def update_one_xml_resource(
     )
 
     # Remove the text properties from XML (they're now attributes on media element)
-    remove_property_elements(res, properties)
+    _remove_property_elements(res, properties)
 
     return LegalMetadata(
         license=license_val,

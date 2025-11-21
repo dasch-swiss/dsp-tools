@@ -204,6 +204,7 @@ class TestSerialiseProperty:
         result_graph = _make_one_property_graph(prop, LIST_IRI)
         gui_attrs = list(result_graph.objects(ONTO_HAS_TEXT, SALSAH_GUI.guiAttribute))
         assert len(gui_attrs) == 1
+        assert gui_attrs[0] == LIST_IRI
 
     def test_serialise_property(self) -> None:
         prop = ParsedProperty(

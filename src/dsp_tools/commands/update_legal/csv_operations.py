@@ -15,23 +15,10 @@ class ProblemAggregator:
 
     problems: list[Problem]
 
-    def execute_error_protocol(self) -> str:
-        """Format all problems as human-readable string for console output."""
-        msg = "The legal metadata in your XML file contains the following problems:\n\n" + "\n - ".join(
-            [x.execute_error_protocol() for x in self.problems]
-        )
-        return msg
-
     def to_dataframe(self) -> pd.DataFrame:
-        """
-        Convert problems to DataFrame for CSV export.
-
-        Follows the pattern from validate-data command.
-        """
-        # Build list of dicts with user-facing column names
+        """Convert problems to DataFrame for CSV export."""
         problem_dicts = []
         for problem in self.problems:
-            # Start with base columns
             row_dict = {
                 "file": problem.file_or_iiif_uri,
                 "resource_id": problem.res_id,
@@ -45,12 +32,8 @@ class ProblemAggregator:
 
             problem_dicts.append(row_dict)
 
-        # Create DataFrame from records (same method as validate-data)
         df = pd.DataFrame.from_records(problem_dicts)
-
-        # Sort by resource ID for consistency
         df = df.sort_values(by=["resource_id"])
-
         return df
 
     def save_to_csv(self, input_file: Path) -> Path:
@@ -69,13 +52,9 @@ class ProblemAggregator:
         return output_path
 
 
-def collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[str]:
+def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[str]:
     """
     Collect all authorship values from a CSV row.
-
-    Args:
-        row: The pandas Series row
-        df_columns: The DataFrame columns
 
     Returns:
         List of authorship values (excluding FIXME markers)
@@ -86,7 +65,6 @@ def collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[s
         auth_val = row[f"authorship_{i}"]
         if pd.notna(auth_val):
             auth_str = str(auth_val)
-            # Skip FIXME markers
             if not is_fixme_value(auth_str):
                 authorships.append(auth_str)
         i += 1
@@ -94,18 +72,7 @@ def collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[s
 
 
 def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
-    """
-    Read corrected legal metadata from a CSV file.
-
-    Args:
-        csv_path: Path to the CSV file with corrected values
-
-    Returns:
-        Dictionary mapping resource_id to LegalMetadata
-
-    Raises:
-        InputError: If CSV file cannot be read or has invalid format
-    """
+    """Read corrected legal metadata from a CSV file."""
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
@@ -133,7 +100,7 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
             copyright_val = None
 
         # Collect all authorship columns (authorship_1, authorship_2, etc.)
-        authorships = collect_authorships_from_row(row, df.columns)
+        authorships = _collect_authorships_from_row(row, df.columns)
 
         corrections[res_id] = LegalMetadata(
             multimedia_filepath=str(row["file"]),

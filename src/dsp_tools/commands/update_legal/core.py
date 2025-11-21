@@ -10,7 +10,7 @@ from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
-from dsp_tools.commands.update_legal.xml_operations import update_one_resource
+from dsp_tools.commands.update_legal.xml_operations import update_one_xml_resource
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _transform_into_localnames
@@ -96,13 +96,9 @@ def _update_xml_tree(
 
         res_id = res.attrib["id"]
         media_elem = media_tag_candidates[0]
-        media_file = str(media_elem.text).strip() if media_elem.text else ""
-
-        # Get metadata from CSV corrections (highest priority)
         csv_metadata = csv_corrections.get(res_id) if csv_corrections else None
 
-        # Collect metadata from XML and apply to the resource
-        metadata = update_one_resource(
+        metadata = update_one_xml_resource(
             res=res,
             media_elem=media_elem,
             properties=properties,
@@ -111,10 +107,9 @@ def _update_xml_tree(
             auth_text_to_id=auth_text_to_id,
         )
 
-        # Check if there are any problems (missing or invalid values)
         if has_problems(metadata):
             problem = Problem(
-                file=media_file,
+                file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
                 license=metadata.license or "FIXME: License missing",
                 copyright=metadata.copyright or "FIXME: Copyright missing",
@@ -122,7 +117,6 @@ def _update_xml_tree(
             )
             problems.append(problem)
 
-    # Add authorship definitions to the XML
     if auth_text_to_id:
         add_authorship_definitions(root, auth_text_to_id)
 
@@ -139,11 +133,14 @@ def has_problems(metadata: LegalMetadata) -> bool:
     Returns:
         True if there are problems, False otherwise
     """
-    # Check if any required field is missing
     has_license_problem = metadata.license is None or is_fixme_value(metadata.license)
     has_copyright_problem = metadata.copyright is None or is_fixme_value(metadata.copyright)
-    has_authorship_problem = not metadata.authorships or (
-        bool(metadata.authorships) and is_fixme_value(metadata.authorships[0])
-    )
+    
+    if not metadata.authorships:
+        has_authorship_problem = True
+    elif any(is_fixme_value(x) for x in metadata.authorships):
+        has_authorship_problem = True
+    else:
+        has_authorship_problem = False
 
     return has_license_problem or has_copyright_problem or has_authorship_problem

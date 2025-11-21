@@ -11,9 +11,7 @@ from dsp_tools.error.exceptions import InputError
 
 @dataclass(frozen=True)
 class ProblemAggregator:
-    """
-    Aggregates multiple problems and provides DataFrame export for CSV generation.
-    """
+    """Aggregates multiple problems and provides DataFrame export for CSV generation."""
 
     problems: list[Problem]
 
@@ -35,7 +33,7 @@ class ProblemAggregator:
         for problem in self.problems:
             # Start with base columns
             row_dict = {
-                "file": problem.file,
+                "file": problem.file_or_iiif_uri,
                 "resource_id": problem.res_id,
                 "license": problem.license,
                 "copyright": problem.copyright,

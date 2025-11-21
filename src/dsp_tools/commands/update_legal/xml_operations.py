@@ -188,7 +188,7 @@ def resolve_metadata_values(
     return license_val, copyright_val, authorships, file_val
 
 
-def update_one_resource(
+def update_one_xml_resource(
     res: etree._Element,
     media_elem: etree._Element,
     properties: LegalProperties,

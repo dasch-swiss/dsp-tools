@@ -40,7 +40,7 @@ class Problem:
         authorships: List of authorship values, or FIXME marker in first position
     """
 
-    file: str
+    file_or_iiif_uri: str
     res_id: str
     license: str
     copyright: str
@@ -48,7 +48,7 @@ class Problem:
 
     def execute_error_protocol(self) -> str:
         """Format problem as human-readable string for console output."""
-        parts = [f"Resource ID: {self.res_id}", f"File: {self.file}"]
+        parts = [f"Resource ID: {self.res_id}", f"File: {self.file_or_iiif_uri}"]
 
         if is_fixme_value(self.license):
             parts.append(f"License: {self.license}")

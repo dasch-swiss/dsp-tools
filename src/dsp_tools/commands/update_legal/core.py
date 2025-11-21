@@ -1,5 +1,3 @@
-"""Core update logic for legal metadata transformation."""
-
 from pathlib import Path
 
 from lxml import etree
@@ -12,7 +10,7 @@ from dsp_tools.commands.update_legal.models import MetadataDefaults
 from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.commands.update_legal.models import is_fixme_value
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
-from dsp_tools.commands.update_legal.xml_operations import collect_metadata_for_resource
+from dsp_tools.commands.update_legal.xml_operations import update_one_resource
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _transform_into_localnames
@@ -36,23 +34,20 @@ def update_legal_metadata(
     Returns:
         True if XML was successfully written, False if CSV error file was created
     """
-    # Load CSV corrections if provided
     csv_corrections = None
     if fixed_errors_file:
         csv_corrections = read_corrections_csv(fixed_errors_file)
 
-    # Parse and update XML
     root = _parse_xml_file(input_file)
     root = _transform_into_localnames(root)
 
-    root_updated, problems = update_xml_tree(
+    root_updated, problems = _update_xml_tree(
         root=root,
         properties=properties,
         defaults=defaults,
         csv_corrections=csv_corrections,
     )
 
-    # If there are problems, create CSV error file and don't write XML
     if problems:
         aggregator = ProblemAggregator(problems)
         csv_path = aggregator.save_to_csv(input_file)
@@ -70,7 +65,7 @@ def update_legal_metadata(
     return True
 
 
-def update_xml_tree(
+def _update_xml_tree(
     root: etree._Element,
     properties: LegalProperties,
     defaults: MetadataDefaults,
@@ -89,7 +84,7 @@ def update_xml_tree(
         Tuple of (updated root element, list of problems)
     """
     if not properties.has_any_property():
-        raise InputError("At least one property (auth_prop, copy_prop, license_prop) must be provided")
+        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
 
     auth_text_to_id: dict[str, int] = {}
     problems: list[Problem] = []
@@ -107,7 +102,7 @@ def update_xml_tree(
         csv_metadata = csv_corrections.get(res_id) if csv_corrections else None
 
         # Collect metadata from XML and apply to the resource
-        metadata = collect_metadata_for_resource(
+        metadata = update_one_resource(
             res=res,
             media_elem=media_elem,
             properties=properties,

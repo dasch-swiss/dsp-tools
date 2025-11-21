@@ -1,5 +1,3 @@
-"""XML extraction and manipulation operations for legal metadata."""
-
 from lxml import etree
 
 from dsp_tools.commands.update_legal.models import LegalMetadata
@@ -190,7 +188,7 @@ def resolve_metadata_values(
     return license_val, copyright_val, authorships, file_val
 
 
-def collect_metadata_for_resource(
+def update_one_resource(
     res: etree._Element,
     media_elem: etree._Element,
     properties: LegalProperties,
@@ -199,9 +197,9 @@ def collect_metadata_for_resource(
     auth_text_to_id: dict[str, int],
 ) -> LegalMetadata:
     """
-    Collect legal metadata for a resource from CSV, XML properties, or defaults.
-
-    Priority order: CSV corrections > XML properties > defaults > None
+    Collect legal metadata for a resource from CSV, XML properties, or defaults, then apply to media element.
+    Priority order: CSV corrections > XML properties > defaults > None.
+    The resource is updated in-place, and the collected metadata is returned for further processing.
 
     Args:
         res: The resource element

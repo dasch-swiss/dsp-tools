@@ -1,5 +1,3 @@
-"""CSV operations for reading corrections and writing error reports."""
-
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -61,21 +59,15 @@ class ProblemAggregator:
         """
         Save problems to CSV file.
 
-        Follows the pattern from validate-data command.
-
         Args:
-            input_file: The input XML file path
+            input_file: The input XML file path, used to determine the output path
 
         Returns:
             Path to the created CSV file
         """
-        # Construct output path: {input_stem}_legal_errors.csv
         output_path = input_file.parent / f"{input_file.stem}_legal_errors.csv"
-
-        # Convert to DataFrame and save (index=False as per validate-data pattern)
         df = self.to_dataframe()
         df.to_csv(output_path, index=False)
-
         return output_path
 
 

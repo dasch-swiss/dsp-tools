@@ -456,7 +456,7 @@ def _add_create(
 def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="update-legal",
-        help="Convert the legal metadata of an XML file from property-based format to the new format",
+        help="Convert the legal metadata of an XML file from text properties to bitstream attributes",
     )
     subparser.set_defaults(action="update-legal")
     subparser.add_argument("--authorship_prop", type=str, help="Property used for the authorship, e.g. ':hasAuthor'")

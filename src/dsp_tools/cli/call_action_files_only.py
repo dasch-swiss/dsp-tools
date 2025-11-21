@@ -78,7 +78,10 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
 
 
 def call_update_legal(args: argparse.Namespace) -> bool:
-    check_path_dependencies(PathDependencies([Path(args.xmlfile)]))
+    required_files = [Path(args.xmlfile)]
+    if args.fixed_errors:
+        required_files.append(Path(args.fixed_errors))
+    check_path_dependencies(PathDependencies(required_files))
     properties = LegalProperties(
         authorship_prop=args.authorship_prop,
         copyright_prop=args.copyright_prop,

@@ -73,11 +73,7 @@ def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[
 
 def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     """Read corrected legal metadata from a CSV file."""
-    try:
-        df = pd.read_csv(csv_path)
-    except Exception as e:
-        msg = f"Could not read CSV file '{csv_path}': {e}"
-        raise InputError(msg) from e
+    df = pd.read_csv(csv_path)
 
     # Validate required columns
     required_cols = {"file", "resource_id", "license", "copyright"}

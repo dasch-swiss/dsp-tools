@@ -59,19 +59,20 @@ def serialise_property_graph_for_request(
     return onto_serialised
 
 
-def _make_one_property_graph(prop: ParsedProperty, list_iri: URIRef | None) -> Graph:
+def _make_one_property_graph(prop: ParsedProperty, list_iri: Literal | None) -> Graph:
     trips = [
         (RDF.type, OWL.ObjectProperty),
         (KNORA_API.objectType, URIRef(str(prop.object))),
         (SALSAH_GUI.guiElement, URIRef(str(prop.gui_element))),
     ]
     trips.extend([(RDFS.label, Literal(lbl, lang=lang_tag)) for lang_tag, lbl in prop.labels.items()])
-    trips.extend([(RDFS.comment, Literal(cmnt, lang=lang_tag)) for lang_tag, cmnt in prop.comments.items()])
+    if prop.comments:
+        trips.extend([(RDFS.comment, Literal(cmnt, lang=lang_tag)) for lang_tag, cmnt in prop.comments.items()])
     trips.extend([(RDFS.subPropertyOf, URIRef(supr)) for supr in prop.supers])
     if prop.subject:
         trips.append((KNORA_API.subjectType, URIRef(prop.subject)))
-    if list_iri:
-        trips.append((SALSAH_GUI.guiAttribute, URIRef))
+    if list_iri is not None:
+        trips.append((SALSAH_GUI.guiAttribute, list_iri))
     prop_iri = URIRef(prop.name)
     g = Graph()
     for p, o in trips:

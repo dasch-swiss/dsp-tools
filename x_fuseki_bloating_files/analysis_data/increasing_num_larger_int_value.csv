@@ -1,0 +1,6 @@
+Timestamp,DB_Before,Filename,DB_After
+2025-09-01 09:25:48,24M,res-10000_val-10_int_values.xml,18G
+2025-09-01 09:51:49,24M,res-10000_val-20_int_values.xml,30G
+2025-09-01 10:26:23,24M,res-10000_val-30_int_values.xml,42G
+2025-09-01 11:09:40,24M,res-10000_val-40_int_values.xml,54G
+2025-09-01 12:01:53,24M,res-10000_val-50_int_values.xml,66G

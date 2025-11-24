@@ -9,6 +9,7 @@ from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 
 KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
+EXTERNAL_SUPER = "http://xmlns.com/foaf/0.1/name"
 
 
 def make_test_property(
@@ -17,7 +18,7 @@ def make_test_property(
     onto_name: str = "test_onto",
 ) -> ParsedProperty:
     supr = supers if supers else []
-    supers.append(KNORA_SUPER)
+    supr.append(KNORA_SUPER)
     full_name = f"http://api.knora.org/ontology/0001/{onto_name}/v2#{name}"
     return ParsedProperty(
         name=full_name,
@@ -98,8 +99,7 @@ class TestMakeGraphToSort:
 
     def test_creates_graph_ignoring_external_supers(self):
         # Explicitly test that external knora-api supers don't create graph edges
-        external_super = "http://api.knora.org/ontology/knora-api/v2#hasValue"
-        prop_a = make_test_property("PropA", supers=[external_super])
+        prop_a = make_test_property("PropA", supers=[EXTERNAL_SUPER])
 
         graph, _node_to_iri = _make_graph_to_sort([prop_a])
 
@@ -129,8 +129,7 @@ class TestMakeGraphToSort:
         prop_c = make_test_property("PropC")
         prop_b = make_test_property("PropB", supers=[prop_c.name])
         prop_a = make_test_property("PropA", supers=[prop_b.name, prop_c.name])
-        external_super = "http://api.knora.org/ontology/knora-api/v2#hasValue"
-        prop_d = make_test_property("PropD", supers=[external_super])
+        prop_d = make_test_property("PropD", supers=[EXTERNAL_SUPER])
 
         graph, _node_to_iri = _make_graph_to_sort([prop_a, prop_b, prop_c, prop_d])
 
@@ -291,16 +290,15 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_a.name) < result.index(prop_c.name)
 
     def test_external_supers_do_not_break_sorting(self):
-        external_super = "http://api.knora.org/ontology/knora-api/v2#hasValue"
-        prop_b = make_test_property("PropB", supers=[external_super])
-        prop_a = make_test_property("PropA", supers=[prop_b.name, external_super])
+        prop_b = make_test_property("PropB", supers=[])
+        prop_a = make_test_property("PropA", supers=[prop_b.name])
 
         result = _get_property_create_order([prop_a, prop_b])
 
         # A has edge to B, so A comes before B
         assert result.index(prop_a.name) < result.index(prop_b.name)
         # External super should not be in the result
-        assert external_super not in result
+        assert KNORA_SUPER not in result
 
     def test_empty_list_returns_empty_list(self):
         result = _get_property_create_order([])
@@ -321,10 +319,9 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_b.name) < result.index(prop_a.name)
 
     def test_mixed_dependencies_with_external_supers(self):
-        external_super = "http://api.knora.org/ontology/knora-api/v2#hasValue"
         prop_d = make_test_property("PropD")
-        prop_c = make_test_property("PropC", supers=[prop_d.name, external_super])
-        prop_b = make_test_property("PropB", supers=[external_super])
+        prop_c = make_test_property("PropC", supers=[prop_d.name, EXTERNAL_SUPER])
+        prop_b = make_test_property("PropB", supers=[EXTERNAL_SUPER])
         prop_a = make_test_property("PropA", supers=[prop_b.name, prop_c.name])
 
         result = _get_property_create_order([prop_a, prop_b, prop_c, prop_d])

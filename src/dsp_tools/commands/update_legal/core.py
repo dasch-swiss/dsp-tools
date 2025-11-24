@@ -12,8 +12,8 @@ from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
 from dsp_tools.commands.update_legal.xml_operations import update_one_xml_resource
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _transform_into_localnames
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import transform_into_localnames
 
 
 def update_legal_metadata(
@@ -38,8 +38,8 @@ def update_legal_metadata(
     if fixed_errors_file:
         csv_corrections = read_corrections_csv(fixed_errors_file)
 
-    root = _parse_xml_file(input_file)
-    root = _transform_into_localnames(root)
+    root = parse_xml_file(input_file)
+    root = transform_into_localnames(root)
 
     root_updated, problems = _update_xml_tree(
         root=root,

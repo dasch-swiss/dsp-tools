@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _reformat_error_message_str
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import _validate_root_get_validation_messages
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
 
 
 def test_comment_removal() -> None:
@@ -35,7 +35,7 @@ def test_validate_xml_data_minimal() -> None:
 
 
 def _prepare_root(input_file: Path) -> etree._Element:
-    root = _parse_xml_file(input_file)
+    root = parse_xml_file(input_file)
     root = _remove_comments_from_element_tree(root)
     return root
 

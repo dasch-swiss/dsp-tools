@@ -3,7 +3,7 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
-from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import LegalMetadata, UpdateCounter
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.xmllib.general_functions import find_license_in_string
@@ -93,7 +93,6 @@ def _resolve_metadata_values(
         license_val = _extract_license_from_xml(res, properties.license_prop)
     if license_val is None and defaults.license_default:
         license_val = defaults.license_default.value
-        
 
     # Collect copyright XML, fall back to default
     if copyright_val is None and properties.copyright_prop:
@@ -184,7 +183,7 @@ def _apply_metadata_to_element(
     if copyright_val and not is_fixme_value(copyright_val):
         media_elem.attrib["copyright-holder"] = copyright_val
     if authorships and not is_fixme_value(authorships[0]):
-        # Use first authorship for the attribute
+        # Use first authorship for the attribute TODO
         first_auth = authorships[0]
         if (auth_id := auth_text_to_id.get(first_auth)) is None:
             auth_id = len(auth_text_to_id)
@@ -233,10 +232,14 @@ def add_authorship_definitions(root: etree._Element, auth_text_to_id: dict[str, 
         root.insert(0, auth_def)
 
 
-def write_final_xml(input_file: Path, root: etree._Element) -> bool:
+def write_final_xml(input_file: Path, root: etree._Element, counter: UpdateCounter) -> bool:
     root_new = etree.ElementTree(root)
     output_file = input_file.with_stem(f"{input_file.stem}_updated")
     etree.indent(root_new, space="    ")
     root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
-    print(f"\n✓ Successfully updated legal metadata. Output written to:\n    {output_file}")
+    print(f"\n✓ Successfully updated legal metadata. Output written to: {output_file}\n")
+    print(f" - Resources updated: {counter.resources_updated}\n")
+    print(f" - Licenses set: {counter.licenses_set}\n")
+    print(f" - Copyrights set: {counter.copyrights_set}\n")
+    print(f" - Authorships set: {counter.authorships_set}\n")
     return True

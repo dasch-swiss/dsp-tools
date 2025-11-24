@@ -1,8 +1,15 @@
 from dataclasses import dataclass
 
-from dsp_tools.error.exceptions import InputError, InvalidLicenseError
+from dsp_tools.error.exceptions import InvalidLicenseError
 from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.models.licenses.recommended import License
+
+
+class UpdateCounter:
+    resources_updated: int = 0
+    licenses_set: int = 0
+    copyrights_set: int = 0
+    authorships_set: int = 0
 
 
 @dataclass(frozen=True)
@@ -24,6 +31,9 @@ class LegalMetadata:
     license: str | None
     copyright: str | None
     authorships: list[str]
+
+    def any(self) -> bool:
+        return bool(self.license or self.copyright or (self.authorships and any(x for x in self.authorships)))
 
 
 class LegalMetadataDefaults:

@@ -5,7 +5,7 @@ from lxml import etree
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
 from dsp_tools.commands.update_legal.csv_operations import write_problems_to_csv
-from dsp_tools.commands.update_legal.models import LegalMetadata
+from dsp_tools.commands.update_legal.models import LegalMetadata, UpdateCounter
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
@@ -42,18 +42,22 @@ def update_legal_metadata(
     root = parse_xml_file(input_file)
     root = transform_into_localnames(root)
 
-    root_updated, problems = _update_xml_tree(
+    if not properties.has_any_property():
+        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
+    # TODO: validate "properties": verify that at each of them appears at least once in the XML
+
+    root_updated, counter, problems = _update_xml_tree(
         root=root,
         properties=properties,
         defaults=defaults,
         csv_corrections=csv_corrections,
     )
 
-    if problems:
+    if not root_updated or not counter:
         write_problems_to_csv(input_file, problems)
         return False
-
-    return write_final_xml(input_file, root_updated)
+    else:
+        return write_final_xml(input_file, root_updated, counter)
 
 
 def _update_xml_tree(
@@ -61,7 +65,7 @@ def _update_xml_tree(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_corrections: dict[str, LegalMetadata] | None = None,
-) -> tuple[etree._Element, list[Problem]]:
+) -> tuple[etree._Element | None, UpdateCounter | None, list[Problem]]:
     """
     Update the XML tree with legal metadata, applying corrections and defaults.
 
@@ -72,13 +76,11 @@ def _update_xml_tree(
         csv_corrections: Dictionary of corrections from CSV (or None)
 
     Returns:
-        Tuple of (updated root element, list of problems)
+        Tuple of (updated root element, counter of updated resources, list of problems)
     """
-    if not properties.has_any_property():
-        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
-
     auth_text_to_id: dict[str, int] = {}
     problems: list[Problem] = []
+    counter = UpdateCounter()
 
     for res in root.iterchildren(tag="resource"):
         if not (media_tag_candidates := res.xpath("bitstream|iiif-uri")):
@@ -97,7 +99,7 @@ def _update_xml_tree(
             auth_text_to_id=auth_text_to_id,
         )
 
-        if has_problems(metadata):
+        if _has_problems(metadata):
             problem = Problem(
                 file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
@@ -106,14 +108,19 @@ def _update_xml_tree(
                 authorships=metadata.authorships if metadata.authorships else ["FIXME: Authorship missing"],
             )
             problems.append(problem)
+        elif metadata.any():
+            _update_counter(counter, metadata)
 
     if auth_text_to_id:
         add_authorship_definitions(root, auth_text_to_id)
 
-    return root, problems
+    if len(problems) == 0:
+        return root, counter, []
+    else:
+        return None, None, problems
 
 
-def has_problems(metadata: LegalMetadata) -> bool:
+def _has_problems(metadata: LegalMetadata) -> bool:
     """
     Check if metadata has any missing or invalid fields that should be reported in CSV.
 
@@ -134,3 +141,13 @@ def has_problems(metadata: LegalMetadata) -> bool:
         has_authorship_problem = False
 
     return has_license_problem or has_copyright_problem or has_authorship_problem
+
+
+def _update_counter(counter: UpdateCounter, metadata: LegalMetadata) -> None:
+    counter.resources_updated += 1
+    if metadata.license:
+        counter.licenses_set += 1
+    if metadata.copyright:
+        counter.copyrights_set += 1
+    if metadata.authorships:
+        counter.authorships_set += 1

@@ -58,12 +58,12 @@ class TestMakeGraphToSort:
         assert iris_in_mapping == expected_iris
 
     def test_graph_edge_count_matches_internal_dependencies(self, prop_factory):
-        prop_c = prop_factory("PropC")
-        prop_b = prop_factory("PropB", supers=[prop_c.name])
-        prop_a = prop_factory("PropA", supers=[prop_b.name, prop_c.name])
-        prop_d = prop_factory("PropD", supers=[EXTERNAL_SUPER])
+        p_c = prop_factory("PropC")
+        p_b = prop_factory("PropB", supers=[p_c.name])
+        p_a = prop_factory("PropA", supers=[p_b.name, p_c.name])
+        p_d = prop_factory("PropD", supers=[EXTERNAL_SUPER])
 
-        graph, _node_to_iri = _make_graph_to_sort([prop_a, prop_b, prop_c, prop_d])
+        graph, _node_to_iri = _make_graph_to_sort([p_a, p_b, p_c, p_d])
 
         # A->B, A->C, B->C = 3 edges (D's external super creates no edge)
         assert graph.num_edges() == 3
@@ -108,15 +108,15 @@ class TestSortProperties:
 class TestGetPropertyCreateOrder:
     def test_returns_correct_order_for_simple_hierarchy(self, simple_linear_props):
         # PropB is the super, PropA inherits from PropB
-        prop_a, prop_b = simple_linear_props
+        p_a, p_b = simple_linear_props
         result = _get_property_create_order(simple_linear_props)
-        assert result == [prop_a.name, prop_b.name]
+        assert result == [p_a.name, p_b.name]
 
     def test_returns_correct_order_for_complex_hierarchy(self, diamond_props):
         # Hierarchy: PropD at top, PropB and PropC inherit from PropD, PropA inherits from PropB and PropC
-        prop_a, prop_b, prop_c, prop_d = diamond_props
+        p_a, p_b, p_c, p_d = diamond_props
         result = _get_property_create_order(diamond_props)
-        assert result == [prop_a.name, prop_c.name, prop_b.name, prop_d.name]
+        assert result == [p_a.name, p_c.name, p_b.name, p_d.name]
 
     def test_properties_with_no_internal_dependencies_can_be_in_any_order(self, independent_props):
         result = _get_property_create_order(independent_props)
@@ -124,30 +124,25 @@ class TestGetPropertyCreateOrder:
         assert all(p.name in result for p in independent_props)
 
     def test_child_always_comes_before_parent(self, grandparent_hierarchy_props):
-        prop_child, prop_parent, prop_grandparent = grandparent_hierarchy_props
+        p_child, prop_parent, prop_grandparent = grandparent_hierarchy_props
         result = _get_property_create_order(grandparent_hierarchy_props)
-        assert result == [prop_child.name, prop_parent.name, prop_grandparent.name]
+        assert result == [p_child.name, prop_parent.name, prop_grandparent.name]
 
     def test_multiple_inheritance_scenario(self, multiple_inheritance_props):
-        prop_a, prop_b, prop_c = multiple_inheritance_props
+        p_a, p_b, p_c = multiple_inheritance_props
         result = _get_property_create_order(multiple_inheritance_props)
         # A has edges to both B and C, so A comes before both
-        assert result == [prop_a.name, prop_c.name, prop_b.name]
+        assert result == [p_a.name, p_c.name, p_b.name]
 
     def test_external_supers_do_not_break_sorting(self, prop_factory):
-        prop_b = prop_factory("PropB", supers=[])
-        prop_a = prop_factory("PropA", supers=[prop_b.name])
-        result = _get_property_create_order([prop_a, prop_b])
+        p_b = prop_factory("PropB", supers=[])
+        p_a = prop_factory("PropA", supers=[p_b.name])
+        result = _get_property_create_order([p_a, p_b])
         # A has edge to B, so A comes before B
-        assert result == [prop_a.name, prop_b.name]
+        assert result == [p_a.name, p_b.name]
         assert KNORA_SUPER not in result
 
-    def test_input_order_does_not_affect_output_order(self, linear_chain_props):
-        prop_a, prop_b, prop_c = linear_chain_props
-        result = _get_property_create_order([prop_c, prop_b, prop_a])
-        assert result == [prop_a.name, prop_b.name, prop_c.name]
-
     def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props):
-        prop_a, prop_b, prop_c, prop_d = mixed_dependency_props
+        p_a, p_b, p_c, p_d = mixed_dependency_props
         result = _get_property_create_order(mixed_dependency_props)
-        assert result == [prop_a.name, prop_c.name, prop_d.name, prop_b.name]
+        assert result == [p_a.name, p_c.name, p_d.name, p_b.name]

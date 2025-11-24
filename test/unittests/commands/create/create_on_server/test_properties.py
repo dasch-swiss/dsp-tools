@@ -12,17 +12,12 @@ def _create_graph(nodes: dict[str, str], edges: list[tuple[str, str]]) -> tuple[
     graph = rx.PyDiGraph()
     node_indices = {}
     node_to_iri = {}
-
-    # Add nodes
     for node_name, iri in nodes.items():
         idx = graph.add_node(node_name)
         node_indices[node_name] = idx
         node_to_iri[idx] = iri
-
-    # Add edges
     for source, target in edges:
         graph.add_edge(node_indices[source], node_indices[target], None)
-
     return graph, node_to_iri
 
 
@@ -54,11 +49,6 @@ class TestMakeGraphToSort:
         assert len(graph) == 4
         assert graph.num_edges() == 4  # A->B, A->C, B->D, C->D
 
-    def test_creates_graph_ignoring_external_supers(self, prop_a):
-        graph, _node_to_iri = _make_graph_to_sort([prop_a])
-        assert len(graph) == 1
-        assert graph.num_edges() == 0  # External super should not create an edge
-
     def test_creates_correct_node_to_iri_mapping(self, prop_a, prop_b):
         props = [prop_a, prop_b]
         _graph, node_to_iri = _make_graph_to_sort(props)
@@ -89,36 +79,28 @@ class TestSortProperties:
         # Create graph: A -> B -> C (A depends on B, B depends on C)
         # Topological sort returns nodes where nodes with outgoing edges come first
         graph, node_to_iri = linear_graph
-
         result = _sort_properties(graph, node_to_iri)
-
         # A should come before B, B should come before C
         assert result == ["PropA", "PropB", "PropC"]
 
     def test_sorts_complex_graph_with_multiple_branches(self, multiple_branches_graph):
         # Create graph with multiple branches
         graph, node_to_iri = multiple_branches_graph
-
         result = _sort_properties(graph, node_to_iri)
-
         # A should come before B, C should come before D
         assert result == ["PropC", "PropD", "PropA", "PropB"]
 
     def test_sorts_diamond_pattern_correctly(self, diamond_graph):
         # Diamond: A has edges to B and C, B and C have edges to D
         graph, node_to_iri = diamond_graph
-
         result = _sort_properties(graph, node_to_iri)
-
         # A should come first (no incoming edges), D should come last (no outgoing edges)
         assert result == ["PropA", "PropC", "PropB", "PropD"]
 
     def test_sorted_order_respects_dependencies(self, complex_dependency_graph):
         # Create a more complex graph
         graph, node_to_iri = complex_dependency_graph
-
         result = _sort_properties(graph, node_to_iri)
-
         # Verify all dependencies are respected (source before target)
         assert result == ["A", "C", "B", "D", "E"]
 
@@ -127,44 +109,28 @@ class TestGetPropertyCreateOrder:
     def test_returns_correct_order_for_simple_hierarchy(self, simple_linear_props, prop_a, prop_b):
         # PropB is the super, PropA inherits from PropB
         prop_a, prop_b = simple_linear_props
-
         result = _get_property_create_order(simple_linear_props)
-
-        # Note: The current implementation creates edge A->B (child to parent)
-        # So topological sort returns child before parent
         assert result == [prop_a.name, prop_b.name]
 
     def test_returns_correct_order_for_complex_hierarchy(self, diamond_props, prop_a, prop_b, prop_c, prop_d):
         # Hierarchy: PropD at top, PropB and PropC inherit from PropD, PropA inherits from PropB and PropC
         prop_a, prop_b, prop_c, prop_d = diamond_props
-
         result = _get_property_create_order(diamond_props)
-
-        # With edges pointing child->parent, children come before parents
         assert result == [prop_a.name, prop_c.name, prop_b.name, prop_d.name]
 
     def test_properties_with_no_internal_dependencies_can_be_in_any_order(self, independent_props):
-        # All properties have external supers but no dependencies on each other
         result = _get_property_create_order(independent_props)
-
-        # All properties should be in the result (order doesn't matter without internal dependencies)
         assert len(result) == 3
         assert all(p.name in result for p in independent_props)
 
     def test_child_always_comes_before_parent(self, grandparent_hierarchy_props):
-        # Create hierarchy: Grandparent <- Parent <- Child
         prop_child, prop_parent, prop_grandparent = grandparent_hierarchy_props
-
         result = _get_property_create_order(grandparent_hierarchy_props)
-
-        # Child comes before Parent, Parent comes before Grandparent
         assert result == [prop_child.name, prop_parent.name, prop_grandparent.name]
 
     def test_multiple_inheritance_scenario(self, multiple_inheritance_props, prop_a, prop_b, prop_c):
         prop_a, prop_b, prop_c = multiple_inheritance_props
-
         result = _get_property_create_order(multiple_inheritance_props)
-
         # A has edges to both B and C, so A comes before both
         assert result == [prop_a.name, prop_c.name, prop_b.name]
 

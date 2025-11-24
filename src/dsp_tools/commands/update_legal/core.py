@@ -2,15 +2,16 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.update_legal.csv_operations import ProblemAggregator
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
+from dsp_tools.commands.update_legal.csv_operations import write_problems_to_csv
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions
 from dsp_tools.commands.update_legal.xml_operations import update_one_xml_resource
+from dsp_tools.commands.update_legal.xml_operations import write_final_xml
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import transform_into_localnames
@@ -49,20 +50,10 @@ def update_legal_metadata(
     )
 
     if problems:
-        aggregator = ProblemAggregator(problems)
-        csv_path = aggregator.save_to_csv(input_file)
-        print(f"\n⚠️  Legal metadata contains errors. Please fix them in the CSV file:\n    {csv_path}")
-        print(f"\nAfter fixing the errors, rerun the command with:\n    --fixed_errors={csv_path}")
+        write_problems_to_csv(input_file, problems)
         return False
 
-    # No problems - write the updated XML
-    root_new = etree.ElementTree(root_updated)
-    output_file = input_file.with_stem(f"{input_file.stem}_updated")
-    etree.indent(root_new, space="    ")
-    root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
-
-    print(f"\n✓ Successfully updated legal metadata. Output written to:\n    {output_file}")
-    return True
+    return write_final_xml(input_file, root_updated)
 
 
 def _update_xml_tree(

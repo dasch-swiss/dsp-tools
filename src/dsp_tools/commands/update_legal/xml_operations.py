@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
@@ -117,8 +119,8 @@ def _resolve_metadata_values(
 
 def _extract_license_from_xml(res: etree._Element, license_prop: str) -> str | None:
     """
-    Extract license from XML property. 
-    
+    Extract license from XML property.
+
     - If one license is found and can be parsed, return its parsed value.
     - If the property is absent or empty, return None -> will fall back to default.
     - If multiple licenses are found, or if the license is invalid, return a FIXME string.
@@ -231,3 +233,12 @@ def add_authorship_definitions(root: etree._Element, auth_text_to_id: dict[str, 
         auth_defs.append(auth_def)
     for auth_def in reversed(auth_defs):
         root.insert(0, auth_def)
+
+
+def write_final_xml(input_file: Path, root: etree._Element) -> bool:
+    root_new = etree.ElementTree(root)
+    output_file = input_file.with_stem(f"{input_file.stem}_updated")
+    etree.indent(root_new, space="    ")
+    root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
+    print(f"\n✓ Successfully updated legal metadata. Output written to:\n    {output_file}")
+    return True

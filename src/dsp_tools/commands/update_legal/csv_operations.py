@@ -51,25 +51,6 @@ class ProblemAggregator:
         return output_path
 
 
-def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[str]:
-    """
-    Collect all authorship values from a CSV row.
-
-    Returns:
-        List of authorship values (excluding FIXME markers)
-    """
-    authorships = []
-    i = 1
-    while f"authorship_{i}" in df_columns:
-        auth_val = row[f"authorship_{i}"]
-        if pd.notna(auth_val):
-            auth_str = str(auth_val)
-            if not is_fixme_value(auth_str):
-                authorships.append(auth_str)
-        i += 1
-    return authorships
-
-
 def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     """Read corrected legal metadata from a CSV file, and return a mapping from resource ID to LegalMetadata."""
     df = pd.read_csv(csv_path)
@@ -106,6 +87,32 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     return corrections
 
 
+def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[str]:
+    """
+    Collect all authorship values from a CSV row.
+
+    Returns:
+        List of authorship values (excluding FIXME markers)
+    """
+    authorships = []
+    i = 1
+    while f"authorship_{i}" in df_columns:
+        auth_val = row[f"authorship_{i}"]
+        if pd.notna(auth_val):
+            auth_str = str(auth_val)
+            if not is_fixme_value(auth_str):
+                authorships.append(auth_str)
+        i += 1
+    return authorships
+
+
 def is_fixme_value(value: str | None) -> bool:
     """Check if a value is a FIXME marker"""
     return value is not None and value.startswith("FIXME:")
+
+
+def write_problems_to_csv(input_file: Path, problems: list[Problem]) -> None:
+    aggregator = ProblemAggregator(problems)
+    csv_path = aggregator.save_to_csv(input_file)
+    print(f"\n⚠️  Legal metadata contains errors. Please fix them in the CSV file:\n    {csv_path}")
+    print(f"\nAfter fixing the errors, rerun the command with:\n    --fixed_errors={csv_path}")

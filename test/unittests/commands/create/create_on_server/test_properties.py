@@ -93,8 +93,7 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
 
         # A should come before B, B should come before C
-        assert result.index("PropA") < result.index("PropB")
-        assert result.index("PropB") < result.index("PropC")
+        assert result == ["PropA", "PropB", "PropC"]
 
     def test_sorts_complex_graph_with_multiple_branches(self, multiple_branches_graph):
         # Create graph with multiple branches
@@ -103,8 +102,7 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
 
         # A should come before B, C should come before D
-        assert result.index("PropA") < result.index("PropB")
-        assert result.index("PropC") < result.index("PropD")
+        assert result == ["PropC", "PropD", "PropA", "PropB"]
 
     def test_sorts_diamond_pattern_correctly(self, diamond_graph):
         # Diamond: A has edges to B and C, B and C have edges to D
@@ -113,10 +111,7 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
 
         # A should come first (no incoming edges), D should come last (no outgoing edges)
-        assert result.index("PropA") < result.index("PropB")
-        assert result.index("PropA") < result.index("PropC")
-        assert result.index("PropB") < result.index("PropD")
-        assert result.index("PropC") < result.index("PropD")
+        assert result == ["PropA", "PropC", "PropB", "PropD"]
 
     def test_sorted_order_respects_dependencies(self, complex_dependency_graph):
         # Create a more complex graph
@@ -125,11 +120,7 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
 
         # Verify all dependencies are respected (source before target)
-        assert result.index("A") < result.index("B")
-        assert result.index("A") < result.index("C")
-        assert result.index("B") < result.index("D")
-        assert result.index("C") < result.index("D")
-        assert result.index("D") < result.index("E")
+        assert result == ["A", "C", "B", "D", "E"]
 
 
 class TestGetPropertyCreateOrder:
@@ -141,7 +132,7 @@ class TestGetPropertyCreateOrder:
 
         # Note: The current implementation creates edge A->B (child to parent)
         # So topological sort returns child before parent
-        assert result.index(prop_a.name) < result.index(prop_b.name)
+        assert result == [prop_a.name, prop_b.name]
 
     def test_returns_correct_order_for_complex_hierarchy(self, diamond_props, prop_a, prop_b, prop_c, prop_d):
         # Hierarchy: PropD at top, PropB and PropC inherit from PropD, PropA inherits from PropB and PropC
@@ -150,10 +141,7 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order(diamond_props)
 
         # With edges pointing child->parent, children come before parents
-        assert result.index(prop_a.name) < result.index(prop_b.name)
-        assert result.index(prop_a.name) < result.index(prop_c.name)
-        assert result.index(prop_b.name) < result.index(prop_d.name)
-        assert result.index(prop_c.name) < result.index(prop_d.name)
+        assert result == [prop_a.name, prop_c.name, prop_b.name, prop_d.name]
 
     def test_properties_with_no_internal_dependencies_can_be_in_any_order(self, independent_props):
         # All properties have external supers but no dependencies on each other
@@ -170,8 +158,7 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order(grandparent_hierarchy_props)
 
         # Child comes before Parent, Parent comes before Grandparent
-        assert result.index(prop_child.name) < result.index(prop_parent.name)
-        assert result.index(prop_parent.name) < result.index(prop_grandparent.name)
+        assert result == [prop_child.name, prop_parent.name, prop_grandparent.name]
 
     def test_multiple_inheritance_scenario(self, multiple_inheritance_props, prop_a, prop_b, prop_c):
         prop_a, prop_b, prop_c = multiple_inheritance_props
@@ -179,8 +166,7 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order(multiple_inheritance_props)
 
         # A has edges to both B and C, so A comes before both
-        assert result.index(prop_a.name) < result.index(prop_b.name)
-        assert result.index(prop_a.name) < result.index(prop_c.name)
+        assert result == [prop_a.name, prop_c.name, prop_b.name]
 
     def test_external_supers_do_not_break_sorting(self, prop_factory, prop_a, prop_b):
         prop_b = prop_factory("PropB", supers=[])
@@ -189,7 +175,7 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order([prop_a, prop_b])
 
         # A has edge to B, so A comes before B
-        assert result.index(prop_a.name) < result.index(prop_b.name)
+        assert result == [prop_a.name, prop_b.name]
         # External super should not be in the result
         assert KNORA_SUPER not in result
 
@@ -208,8 +194,7 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order([prop_c, prop_b, prop_a])
 
         # Should still get correct dependency order (children before parents)
-        assert result.index(prop_c.name) < result.index(prop_b.name)
-        assert result.index(prop_b.name) < result.index(prop_a.name)
+        assert result == [prop_c.name, prop_b.name, prop_a.name]
 
     def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props, prop_a, prop_b, prop_c, prop_d):
         prop_a, prop_b, prop_c, prop_d = mixed_dependency_props
@@ -217,8 +202,6 @@ class TestGetPropertyCreateOrder:
         result = _get_property_create_order(mixed_dependency_props)
 
         # Verify internal dependencies are respected (children before parents)
-        assert result.index(prop_c.name) < result.index(prop_d.name)
-        assert result.index(prop_a.name) < result.index(prop_b.name)
-        assert result.index(prop_a.name) < result.index(prop_c.name)
+        assert result == [prop_a.name, prop_c.name, prop_d.name, prop_b.name]
         # Verify we have exactly 4 properties (no external ones)
         assert len(result) == 4

@@ -73,7 +73,7 @@ For each multimedia resource, one or more of these errors may occur:
 4. license not parseable
     - If license information is present, 
       an attempt is made to parse it using [`xmllib.find_license_in_string()`](
-      https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string).
+      https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string).
 
 If there were errors, no output XML is written.
 Instead, you get the file `legal_errors.csv` that lists the problematic resources.

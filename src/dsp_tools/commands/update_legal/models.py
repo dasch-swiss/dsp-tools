@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from dsp_tools.error.exceptions import InputError, InvalidLicenseError
+from dsp_tools.xmllib.general_functions import find_license_in_string
+from dsp_tools.xmllib.models.licenses.recommended import License
+
 
 @dataclass(frozen=True)
 class LegalProperties:
@@ -22,13 +26,26 @@ class LegalMetadata:
     authorships: list[str]
 
 
-@dataclass(frozen=True)
 class LegalMetadataDefaults:
     """Default values to use when legal metadata is missing from XML."""
 
     authorship_default: str | None = None
     copyright_default: str | None = None
-    license_default: str | None = None
+    license_default: License | None = None
+
+    def __init__(
+        self,
+        authorship_default: str | None = None,
+        copyright_default: str | None = None,
+        license_default: str | None = None,
+    ):
+        self.authorship_default = authorship_default
+        self.copyright_default = copyright_default
+        if license_default:
+            if lic := find_license_in_string(license_default):
+                self.license_default = lic
+            else:
+                raise InvalidLicenseError(license_default)
 
 
 @dataclass(frozen=True)

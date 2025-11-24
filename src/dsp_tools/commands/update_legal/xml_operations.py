@@ -92,10 +92,8 @@ def _resolve_metadata_values(
     if license_val is None and properties.license_prop:
         license_val = _extract_license_from_xml(res, properties.license_prop)
     if license_val is None and defaults.license_default:
-        if lic := find_license_in_string(defaults.license_default):
-            license_val = lic.value
-        else:
-            license_val = f"FIXME: Invalid license: {defaults.license_default}"
+        license_val = defaults.license_default.value
+        
 
     # Collect copyright XML, fall back to default
     if copyright_val is None and properties.copyright_prop:

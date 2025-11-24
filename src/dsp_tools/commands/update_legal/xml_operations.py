@@ -9,8 +9,11 @@ from dsp_tools.xmllib.general_functions import find_license_in_string
 
 def _extract_license_from_xml(res: etree._Element, license_prop: str) -> str | None:
     """
-    Extract license from XML property. If the property is absent or empty, return None.
-    If multiple licenses are found, or if the license is invalid, return a FIXME string.
+    Extract license from XML property. 
+    
+    - If one license is found and can be parsed, return its parsed value.
+    - If the property is absent or empty, return None -> will fall back to default.
+    - If multiple licenses are found, or if the license is invalid, return a FIXME string.
     """
     license_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{license_prop}']/text")
     if not license_elems:

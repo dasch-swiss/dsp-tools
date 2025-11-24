@@ -8,19 +8,22 @@ from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 
+KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
+
 
 def make_test_property(
     name: str,
     supers: list[str] | None = None,
     onto_name: str = "test_onto",
 ) -> ParsedProperty:
-    """Helper to create test ParsedProperty objects with minimal required fields."""
+    supr = supers if supers else []
+    supers.append(KNORA_SUPER)
     full_name = f"http://api.knora.org/ontology/0001/{onto_name}/v2#{name}"
     return ParsedProperty(
         name=full_name,
         labels={"en": f"Label for {name}"},
         comments=None,
-        supers=supers or [],
+        supers=supr,
         object=KnoraObjectType.TEXT,
         subject=None,
         gui_element=GuiElement.SIMPLETEXT,
@@ -30,15 +33,17 @@ def make_test_property(
 
 
 class TestMakeGraphToSort:
-    def test_creates_graph_with_no_dependencies(self):
+    def test_creates_graph_with_no_internal_dependencies(self):
+        # Property has external super (knora-api:hasValue) but no internal dependencies
         prop = make_test_property("PropA")
         graph, node_to_iri = _make_graph_to_sort([prop])
 
         assert len(graph) == 1
-        assert graph.num_edges() == 0
+        assert graph.num_edges() == 0  # External supers don't create edges
         assert prop.name in node_to_iri.values()
 
-    def test_creates_graph_with_multiple_properties_no_dependencies(self):
+    def test_creates_graph_with_multiple_properties_no_internal_dependencies(self):
+        # All properties have external supers but no dependencies on each other
         props = [
             make_test_property("PropA"),
             make_test_property("PropB"),
@@ -47,7 +52,7 @@ class TestMakeGraphToSort:
         graph, node_to_iri = _make_graph_to_sort(props)
 
         assert len(graph) == 3
-        assert graph.num_edges() == 0
+        assert graph.num_edges() == 0  # No internal dependencies
         assert all(p.name in node_to_iri.values() for p in props)
 
     def test_creates_graph_with_simple_linear_dependency(self):
@@ -92,6 +97,7 @@ class TestMakeGraphToSort:
         assert graph.num_edges() == 4  # A->B, A->C, B->D, C->D
 
     def test_creates_graph_ignoring_external_supers(self):
+        # Explicitly test that external knora-api supers don't create graph edges
         external_super = "http://api.knora.org/ontology/knora-api/v2#hasValue"
         prop_a = make_test_property("PropA", supers=[external_super])
 
@@ -247,7 +253,8 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_b.name) < result.index(prop_d.name)
         assert result.index(prop_c.name) < result.index(prop_d.name)
 
-    def test_properties_with_no_dependencies_can_be_in_any_order(self):
+    def test_properties_with_no_internal_dependencies_can_be_in_any_order(self):
+        # All properties have external supers but no dependencies on each other
         props = [
             make_test_property("PropA"),
             make_test_property("PropB"),
@@ -256,7 +263,7 @@ class TestGetPropertyCreateOrder:
 
         result = _get_property_create_order(props)
 
-        # All properties should be in the result
+        # All properties should be in the result (order doesn't matter without internal dependencies)
         assert len(result) == 3
         assert all(p.name in result for p in props)
 

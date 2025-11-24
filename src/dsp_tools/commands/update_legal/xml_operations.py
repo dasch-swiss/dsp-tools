@@ -31,7 +31,6 @@ def update_one_xml_resource(
     Returns:
         LegalMetadata with collected values
     """
-    # Resolve metadata values using priority: CSV > XML > defaults
     license_val, copyright_val, authorships = _resolve_metadata_values(
         res=res,
         properties=properties,
@@ -40,8 +39,6 @@ def update_one_xml_resource(
         media_elem=media_elem,
         auth_text_to_id=auth_text_to_id,
     )
-
-    # Apply valid values to the media element
     _apply_metadata_to_element(
         media_elem=media_elem,
         license_val=license_val,
@@ -49,10 +46,7 @@ def update_one_xml_resource(
         authorships=authorships,
         auth_text_to_id=auth_text_to_id,
     )
-
-    # Remove the text properties from XML (they're now attributes on media element)
-    _remove_property_elements(res, properties)
-
+    _remove_text_properties(res, properties)
     return LegalMetadata(
         license=license_val,
         copyright=copyright_val,
@@ -198,9 +192,9 @@ def _apply_metadata_to_element(
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
 
-def _remove_property_elements(res: etree._Element, properties: LegalProperties) -> None:
+def _remove_text_properties(res: etree._Element, properties: LegalProperties) -> None:
     """
-    Remove text property elements from the resource XML.
+    Remove the text properties from XML (they're now attributes on media element).
 
     Args:
         res: The resource element

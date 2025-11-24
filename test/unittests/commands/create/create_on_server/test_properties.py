@@ -29,7 +29,6 @@ def _create_graph(nodes: dict[str, str], edges: list[tuple[str, str]]) -> tuple[
 class TestMakeGraphToSort:
     def test_creates_graph_with_multiple_properties_no_internal_dependencies(self, independent_props):
         graph, node_to_iri = _make_graph_to_sort(independent_props)
-
         assert len(graph) == 3
         assert graph.num_edges() == 0  # No internal dependencies
         assert all(p.name in node_to_iri.values() for p in independent_props)
@@ -46,36 +45,29 @@ class TestMakeGraphToSort:
 
     def test_creates_graph_with_multiple_supers(self, multiple_inheritance_props):
         graph, _node_to_iri = _make_graph_to_sort(multiple_inheritance_props)
-
         assert len(graph) == 3
         assert graph.num_edges() == 2
 
     def test_creates_graph_with_diamond_dependencies(self, diamond_props):
         # Diamond: D at top, B and C in middle (both depend on D), A at bottom (depends on B and C)
         graph, _node_to_iri = _make_graph_to_sort(diamond_props)
-
         assert len(graph) == 4
         assert graph.num_edges() == 4  # A->B, A->C, B->D, C->D
 
-    def test_creates_graph_ignoring_external_supers(self, prop_factory):
-        # Explicitly test that external knora-api supers don't create graph edges
-        prop_a = prop_factory("PropA", supers=[EXTERNAL_SUPER])
-
+    def test_creates_graph_ignoring_external_supers(self, prop_a):
         graph, _node_to_iri = _make_graph_to_sort([prop_a])
-
         assert len(graph) == 1
         assert graph.num_edges() == 0  # External super should not create an edge
 
     def test_creates_correct_node_to_iri_mapping(self, prop_a, prop_b):
         props = [prop_a, prop_b]
         _graph, node_to_iri = _make_graph_to_sort(props)
-
         assert len(node_to_iri) == 2
         iris_in_mapping = set(node_to_iri.values())
         expected_iris = {p.name for p in props}
         assert iris_in_mapping == expected_iris
 
-    def test_graph_edge_count_matches_internal_dependencies(self, prop_factory):
+    def test_graph_edge_count_matches_internal_dependencies(self, prop_factory, prop_a, prop_b, prop_c, prop_d):
         prop_c = prop_factory("PropC")
         prop_b = prop_factory("PropB", supers=[prop_c.name])
         prop_a = prop_factory("PropA", supers=[prop_b.name, prop_c.name])
@@ -141,7 +133,7 @@ class TestSortProperties:
 
 
 class TestGetPropertyCreateOrder:
-    def test_returns_correct_order_for_simple_hierarchy(self, simple_linear_props):
+    def test_returns_correct_order_for_simple_hierarchy(self, simple_linear_props, prop_a, prop_b):
         # PropB is the super, PropA inherits from PropB
         prop_a, prop_b = simple_linear_props
 
@@ -151,7 +143,7 @@ class TestGetPropertyCreateOrder:
         # So topological sort returns child before parent
         assert result.index(prop_a.name) < result.index(prop_b.name)
 
-    def test_returns_correct_order_for_complex_hierarchy(self, diamond_props):
+    def test_returns_correct_order_for_complex_hierarchy(self, diamond_props, prop_a, prop_b, prop_c, prop_d):
         # Hierarchy: PropD at top, PropB and PropC inherit from PropD, PropA inherits from PropB and PropC
         prop_a, prop_b, prop_c, prop_d = diamond_props
 
@@ -181,7 +173,7 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_child.name) < result.index(prop_parent.name)
         assert result.index(prop_parent.name) < result.index(prop_grandparent.name)
 
-    def test_multiple_inheritance_scenario(self, multiple_inheritance_props):
+    def test_multiple_inheritance_scenario(self, multiple_inheritance_props, prop_a, prop_b, prop_c):
         prop_a, prop_b, prop_c = multiple_inheritance_props
 
         result = _get_property_create_order(multiple_inheritance_props)
@@ -190,7 +182,7 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_a.name) < result.index(prop_b.name)
         assert result.index(prop_a.name) < result.index(prop_c.name)
 
-    def test_external_supers_do_not_break_sorting(self, prop_factory):
+    def test_external_supers_do_not_break_sorting(self, prop_factory, prop_a, prop_b):
         prop_b = prop_factory("PropB", supers=[])
         prop_a = prop_factory("PropA", supers=[prop_b.name])
 
@@ -206,7 +198,7 @@ class TestGetPropertyCreateOrder:
 
         assert result == []
 
-    def test_input_order_does_not_affect_output_order(self, prop_factory):
+    def test_input_order_does_not_affect_output_order(self, prop_factory, prop_a, prop_b, prop_c):
         # Create hierarchy: PropA <- PropB <- PropC
         prop_a = prop_factory("PropA")
         prop_b = prop_factory("PropB", supers=[prop_a.name])
@@ -219,7 +211,7 @@ class TestGetPropertyCreateOrder:
         assert result.index(prop_c.name) < result.index(prop_b.name)
         assert result.index(prop_b.name) < result.index(prop_a.name)
 
-    def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props):
+    def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props, prop_a, prop_b, prop_c, prop_d):
         prop_a, prop_b, prop_c, prop_d = mixed_dependency_props
 
         result = _get_property_create_order(mixed_dependency_props)

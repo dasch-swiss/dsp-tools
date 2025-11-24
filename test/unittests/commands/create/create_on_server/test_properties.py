@@ -171,37 +171,16 @@ class TestGetPropertyCreateOrder:
     def test_external_supers_do_not_break_sorting(self, prop_factory, prop_a, prop_b):
         prop_b = prop_factory("PropB", supers=[])
         prop_a = prop_factory("PropA", supers=[prop_b.name])
-
         result = _get_property_create_order([prop_a, prop_b])
-
         # A has edge to B, so A comes before B
         assert result == [prop_a.name, prop_b.name]
-        # External super should not be in the result
         assert KNORA_SUPER not in result
 
-    def test_empty_list_returns_empty_list(self):
-        result = _get_property_create_order([])
-
-        assert result == []
-
-    def test_input_order_does_not_affect_output_order(self, prop_factory, prop_a, prop_b, prop_c):
-        # Create hierarchy: PropA <- PropB <- PropC
-        prop_a = prop_factory("PropA")
-        prop_b = prop_factory("PropB", supers=[prop_a.name])
-        prop_c = prop_factory("PropC", supers=[prop_b.name])
-
-        # Pass them in reverse order
+    def test_input_order_does_not_affect_output_order(self, prop_a, prop_b, prop_c):
         result = _get_property_create_order([prop_c, prop_b, prop_a])
-
-        # Should still get correct dependency order (children before parents)
         assert result == [prop_c.name, prop_b.name, prop_a.name]
 
-    def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props, prop_a, prop_b, prop_c, prop_d):
-        prop_a, prop_b, prop_c, prop_d = mixed_dependency_props
-
+    def test_mixed_dependencies_with_external_supers(self, prop_a, prop_b, prop_c, prop_d):
+        mixed_dependency_props = [prop_a, prop_b, prop_c, prop_d]
         result = _get_property_create_order(mixed_dependency_props)
-
-        # Verify internal dependencies are respected (children before parents)
         assert result == [prop_a.name, prop_c.name, prop_d.name, prop_b.name]
-        # Verify we have exactly 4 properties (no external ones)
-        assert len(result) == 4

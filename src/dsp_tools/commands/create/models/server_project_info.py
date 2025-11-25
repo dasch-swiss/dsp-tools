@@ -71,9 +71,17 @@ class UserNameToIriLookup:
 class CreatedIriCollection:
     classes: set[str] = field(default_factory=set)
     properties: set[str] = field(default_factory=set)
+    failed_classes: set[str] = field(default_factory=set)
+    failed_properties: set[str] = field(default_factory=set)
 
     def __post_init__(self) -> None:
         self.properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
+
+    def property_failed(self, props: set[str]) -> bool:
+        return props.issubset(self.failed_properties)
+
+    def class_failed(self, classes: set[str]) -> bool:
+        return classes.issubset(self.failed_classes)
 
 
 @dataclass

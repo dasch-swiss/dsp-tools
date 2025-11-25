@@ -4,6 +4,7 @@ from typing import Any
 import rustworkx as rx
 from loguru import logger
 from rdflib import Literal
+from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.commands.create.create_on_server.onto_utils import get_onto_lookup
@@ -29,6 +30,17 @@ def create_all_properties(
     prop_lookup = {p.name: p for p in properties}
     problems: CreateProblem = []
     onto_lookup = get_onto_lookup(project_iri_lookup, onto_client)
+    progress_bar = tqdm(upload_order, desc="    Creating properties", dynamic_ncols=True)
+    for p in progress_bar:
+        pass
+
+
+def _check_if_property_can_be_created(prop: ParsedProperty, created_iri: CreatedIriCollection) -> CreateProblem | None:
+    if created_iri.property_failed(set(prop.supers)):
+        return UploadProblem(prop.name, UploadProblemType.PROPERTY_SUPER_FAILED)
+    if created_iri.class_failed(set(str(prop.object))) or created_iri.class_failed(set(prop.subject)):
+        return UploadProblem(prop.name, UploadProblemType.PROPERTY_SUPER_FAILED)
+    return None
 
 
 def _get_property_create_order(properties: list[ParsedProperty]) -> list[str]:

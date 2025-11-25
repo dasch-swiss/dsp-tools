@@ -66,3 +66,5 @@ class UploadProblemType(ProblemType):
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
     CARDINALITY_PROPERTY_NOT_FOUND = "The referenced property does not exist on the server."
     PROPERTY_COULD_NOT_BE_CREATED = "The property could not be created."
+    PROPERTY_SUPER_FAILED = "The property cannot be created, because its super-property was not created."
+    PROPERTY_REFERENCES_FAILED_CLASS = "The property cannot be created, because a class it references was not created."

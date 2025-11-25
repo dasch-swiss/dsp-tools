@@ -135,12 +135,10 @@ def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> list[s
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
     if not auth_elems:
         return []
-
     authorships = []
     for auth_elem in auth_elems:
         if auth_elem.text and (auth_text := auth_elem.text.strip()):
             authorships.append(auth_text)
-
     return authorships
 
 
@@ -165,13 +163,7 @@ def _apply_metadata_to_element(
 
 
 def _remove_text_properties(res: etree._Element, properties: LegalProperties) -> None:
-    """
-    Remove the text properties from XML (they're now attributes on media element).
-
-    Args:
-        res: The resource element
-        properties: Configuration for property names to remove
-    """
+    """Remove the text properties from XML (they're now attributes on media element)."""
     if properties.authorship_prop:
         for prop_elem in res.xpath(f"./text-prop[@name='{properties.authorship_prop}']"):
             res.remove(prop_elem)
@@ -183,23 +175,14 @@ def _remove_text_properties(res: etree._Element, properties: LegalProperties) ->
             res.remove(prop_elem)
 
 
-def add_authorship_definitions(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:
-    """
-    Add authorship definitions to the XML root.
-
-    Args:
-        root: The XML root element
-        auth_text_to_id: Dictionary mapping authorship text to IDs
-    """
+def add_authorship_definitions_to_xml(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:
     auth_defs = []
     for auth_text, auth_id in auth_text_to_id.items():
-        auth_def = etree.Element(
-            "authorship",
-            attrib={"id": f"authorship_{auth_id}"},
-        )
-        auth_child = etree.Element("author")
-        auth_child.text = auth_text
-        auth_def.append(auth_child)
+        auth_def = etree.Element("authorship", attrib={"id": f"authorship_{auth_id}"})
+        for single_auth in auth_text.split(", "):
+            auth_child = etree.Element("author")
+            auth_child.text = single_auth.strip()
+            auth_def.append(auth_child)
         auth_defs.append(auth_def)
     for auth_def in reversed(auth_defs):
         root.insert(0, auth_def)

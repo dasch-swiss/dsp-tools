@@ -29,7 +29,7 @@ class OntoCreateLookup:
     def get_last_mod_date(self, name: str) -> Literal:
         return self.name_to_last_modification_date[name]
 
-    def add_date(self, name: str, last_modification_date: Literal) -> None:
+    def add_last_mod_date(self, name: str, last_modification_date: Literal) -> None:
         self.name_to_last_modification_date[name] = last_modification_date
 
 
@@ -69,13 +69,13 @@ class UserNameToIriLookup:
 
 @dataclass
 class CreatedIriCollection:
-    classes: set[str] = field(default_factory=set)
-    properties: set[str] = field(default_factory=set)
+    created_classes: set[str] = field(default_factory=set)
+    created_properties: set[str] = field(default_factory=set)
     failed_classes: set[str] = field(default_factory=set)
     failed_properties: set[str] = field(default_factory=set)
 
     def __post_init__(self) -> None:
-        self.properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
+        self.created_properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
 
     def property_failed(self, props: set[str]) -> bool:
         return props.issubset(self.failed_properties)

@@ -1,10 +1,20 @@
+from http import HTTPStatus
 from typing import Any
 
+import regex
 import rustworkx as rx
 from loguru import logger
+from rdflib import Literal
+from rdflib import URIRef
 
+from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 from dsp_tools.error.exceptions import CircularOntologyDependency
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def create_all_properties():
@@ -40,3 +50,35 @@ def _sort_properties(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[s
             "A circular dependency of superproperties was found in your project. "
             "It is not possible for an ontology to have circular dependencies."
         ) from None
+
+
+def _create_one_property(
+    prop: ParsedProperty,
+    list_iri: Literal | None,
+    onto_iri: URIRef,
+    last_modification_date: Literal,
+    onto_client: OntologyCreateClient,
+    project_iri: str,
+) -> Literal | CreateProblem:
+    prop_serialised = serialise_property_graph_for_request(prop, list_iri, onto_iri, last_modification_date)
+    request_result = onto_client.post_new_property(prop_serialised)
+    if isinstance(request_result, Literal):
+        return request_result
+    if _should_retry(request_result):
+        new_mod_date = onto_client.get_last_modification_date(project_iri, onto_iri)
+        prop_serialised = serialise_property_graph_for_request(prop, list_iri, onto_iri, new_mod_date)
+        request_result = onto_client.post_new_property(prop_serialised)
+        if isinstance(request_result, Literal):
+            return request_result
+    if request_result.status_code == HTTPStatus.BAD_REQUEST:
+        return UploadProblem(prop.name, request_result.text)
+    return UploadProblem(prop.name, UploadProblemType.PROPERTY_COULD_NOT_BE_CREATED)
+
+
+def _should_retry(response: ResponseCodeAndText) -> bool:
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        if regex.search(r"Ontology .+ modified", response.text):
+            return True
+    elif HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
+        return True
+    return False

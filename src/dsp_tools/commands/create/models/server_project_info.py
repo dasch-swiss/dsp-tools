@@ -21,16 +21,16 @@ class ProjectIriLookup:
 class OntoCreateLookup:
     project_iri: str
     onto_iris: dict[str, URIRef]
-    name_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)
+    iri_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)
 
     def get_onto_iri(self, name: str) -> URIRef:
         return self.onto_iris[name]
 
-    def get_last_mod_date(self, name: str) -> Literal:
-        return self.name_to_last_modification_date[name]
+    def get_last_mod_date(self, iri: str) -> Literal:
+        return self.iri_to_last_modification_date[iri]
 
     def add_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
-        self.name_to_last_modification_date[iri] = last_modification_date
+        self.iri_to_last_modification_date[iri] = last_modification_date
 
 
 @dataclass

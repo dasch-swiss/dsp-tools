@@ -70,7 +70,7 @@ def test_creates_lookup_with_two_ontologies():
     assert len(result.onto_iris) == 2
     assert result.onto_iris["onto1"] == URIRef(onto_iri_1)
     assert result.onto_iris["onto2"] == URIRef(onto_iri_2)
-    assert len(result.name_to_last_modification_date) == 2
+    assert len(result.iri_to_last_modification_date) == 2
     assert result.get_last_mod_date(onto_iri_1) == mod_date_1
     assert result.get_last_mod_date(onto_iri_2) == mod_date_2
     assert mock_client.get_last_modification_date.call_count == 2

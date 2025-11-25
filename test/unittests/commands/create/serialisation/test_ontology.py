@@ -126,7 +126,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_name="onto",
+            onto_iri="onto",
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -147,7 +147,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_name="onto",
+            onto_iri="onto",
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -168,7 +168,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_name="onto",
+            onto_iri="onto",
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -184,7 +184,7 @@ class TestSerialiseProperty:
             subject=str(RESOURCE_IRI),
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_name="onto",
+            onto_iri="onto",
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, KNORA_API.subjectType, URIRef(str(RESOURCE_IRI))) in result_graph
@@ -199,7 +199,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.LIST,
             node_name="node_name",
-            onto_name="onto",
+            onto_iri="onto",
         )
         result_graph = _make_one_property_graph(prop, LIST_IRI)
         gui_attrs = list(result_graph.objects(ONTO_HAS_TEXT, SALSAH_GUI.guiAttribute))
@@ -216,7 +216,7 @@ class TestSerialiseProperty:
             subject=str(RESOURCE_IRI),
             gui_element=GuiElement.TEXTAREA,
             node_name=None,
-            onto_name="onto",
+            onto_iri="onto",
         )
         serialised = serialise_property_graph_for_request(prop, None, ONTO_IRI, LAST_MODIFICATION_DATE)
 
@@ -244,7 +244,7 @@ class TestSerialiseProperty:
 
         # Check guiElement
         assert prop_node["http://api.knora.org/ontology/salsah-gui/v2#guiElement"] == [
-            {"@id": "http://api.knora.org/ontology/knora-api/v2#Textarea"}
+            {"@id": "http://api.knora.org/ontology/salsah-gui/v2#Textarea"}
         ]
 
         # Check labels

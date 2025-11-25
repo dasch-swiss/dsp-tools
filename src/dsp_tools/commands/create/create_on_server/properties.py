@@ -52,7 +52,7 @@ def create_all_properties(
                     list_iri = Literal(f"hlist=<{found}>")
             create_result = _create_one_property(prop, list_iri, onto_lookup, client)
             if isinstance(create_result, Literal):
-                onto_lookup.add_last_mod_date(prop.onto_name, create_result)
+                onto_lookup.add_last_mod_date(prop.onto_iri, create_result)
                 created_iris.created_properties.add(prop.name)
             else:
                 all_problems.append(create_result)
@@ -103,14 +103,14 @@ def _create_one_property(
     client: OntologyCreateClient,
 ) -> Literal | CreateProblem:
     prop_serialised = serialise_property_graph_for_request(
-        prop, list_iri, URIRef(prop.onto_name), onto_lookup.get_last_mod_date(prop.onto_name)
+        prop, list_iri, URIRef(prop.onto_iri), onto_lookup.get_last_mod_date(prop.onto_iri)
     )
     request_result = client.post_new_property(prop_serialised)
     if isinstance(request_result, Literal):
         return request_result
     if should_retry_request(request_result):
-        new_mod_date = client.get_last_modification_date(onto_lookup.project_iri, prop.onto_name)
-        prop_serialised = serialise_property_graph_for_request(prop, list_iri, URIRef(prop.onto_name), new_mod_date)
+        new_mod_date = client.get_last_modification_date(onto_lookup.project_iri, prop.onto_iri)
+        prop_serialised = serialise_property_graph_for_request(prop, list_iri, URIRef(prop.onto_iri), new_mod_date)
         request_result = client.post_new_property(prop_serialised)
         if isinstance(request_result, Literal):
             return request_result

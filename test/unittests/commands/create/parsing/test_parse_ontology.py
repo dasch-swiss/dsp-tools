@@ -65,7 +65,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
         assert result.node_name is None
-        assert result.onto_name == ONTO_NAME
+        assert result.onto_iri == ONTO_NAME
 
     def test_good_list(self, prefixes):
         p_lbl = {"en": "Test List"}
@@ -87,7 +87,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
         assert result.node_name == "node_name"
-        assert result.onto_name == ONTO_NAME
+        assert result.onto_iri == ONTO_NAME
 
     def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -108,7 +108,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.node_name is None
-        assert result.onto_name == ONTO_NAME
+        assert result.onto_iri == ONTO_NAME
 
     def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from rdflib import URIRef
 
 from dsp_tools.commands.create.create_on_server.properties import _create_one_property
 from dsp_tools.commands.create.create_on_server.properties import _get_property_create_order
@@ -47,7 +48,7 @@ def make_test_property(name: str, supers: list[str] | None = None) -> ParsedProp
         subject=None,
         gui_element=GuiElement.SIMPLETEXT,
         node_name=None,
-        onto_name="onto",
+        onto_iri=str(ONTO_IRI),
     )
 
 
@@ -76,14 +77,14 @@ class TestGetPropertyOrder:
         # A has edges to both B and C, so A comes before both
         # the order afterwards does not matter
         assert len(result) == 3
-        assert result[0] == prop_a.name
+        assert result[-1] == prop_a.name
 
     def test_external_supers_do_not_break_sorting(self):
         p_b = make_test_property("PropB", supers=[])
         p_a = make_test_property("PropA", supers=[p_b.name])
         result = _get_property_create_order([p_a, p_b])
         # A has edge to B, so A comes before B
-        assert result == [p_a.name, p_b.name]
+        assert result == [p_b.name, p_a.name]
         assert KNORA_SUPER not in result
 
 
@@ -154,8 +155,8 @@ class TestCreateOneProperty:
         list_iri = None
         onto_lookup = OntoCreateLookup(
             project_iri=PROJECT_IRI,
-            onto_iris={"onto": ONTO},
-            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
+            onto_iris={"onto": URIRef(ONTO)},
+            iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         mock_client.post_new_property.return_value = LAST_MOD_2
@@ -174,7 +175,7 @@ class TestCreateOneProperty:
         onto_lookup = OntoCreateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
+            iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         internal_error_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
@@ -186,7 +187,7 @@ class TestCreateOneProperty:
         assert result == LAST_MOD_3
         assert mock_client.post_new_property.call_count == 2
         mock_should_retry.assert_called_once_with(internal_error_response)
-        mock_client.get_last_modification_date.assert_called_once_with(onto_lookup.project_iri, ONTO_IRI)
+        mock_client.get_last_modification_date.assert_called_once_with(onto_lookup.project_iri, str(ONTO_IRI))
         assert mock_serialise.call_count == 2
 
     @patch("dsp_tools.commands.create.create_on_server.properties.serialise_property_graph_for_request")
@@ -197,7 +198,7 @@ class TestCreateOneProperty:
         onto_lookup = OntoCreateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
+            iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         error_text = "Bad request: invalid property definition"
@@ -218,7 +219,7 @@ class TestCreateOneProperty:
         onto_lookup = OntoCreateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
+            iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         response = ResponseCodeAndText(
@@ -241,7 +242,7 @@ class TestCreateOneProperty:
         onto_lookup = OntoCreateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
+            iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 1")

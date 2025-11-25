@@ -31,6 +31,7 @@ def create_all_properties(
     client: OntologyCreateClient,
 ) -> tuple[CreatedIriCollection, CollectedProblems | None]:
     upload_order = _get_property_create_order(properties)
+    logger.debug(f"Property creation order: {upload_order}")
     prop_lookup = {p.name: p for p in properties}
     all_problems: list[CreateProblem] = []
     onto_lookup = get_onto_lookup(project_iri_lookup, client)

@@ -46,7 +46,9 @@ def one_bitstream_one_iiif() -> etree._Element:
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    root_returned, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(
+        one_bitstream_one_iiif, properties=properties, defaults=defaults
+    )
     assert root_returned is not None
     assert counter is not None
     assert len(root_returned) == 3
@@ -177,7 +179,9 @@ def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
     """Test that when no properties are provided, the function returns None and counter is None with problems."""
     properties = LegalProperties(authorship_prop="", copyright_prop="", license_prop="")
     defaults = LegalMetadataDefaults()
-    root_returned, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(
+        one_bitstream_one_iiif, properties=properties, defaults=defaults
+    )
     assert len(problems) == 2
     assert root_returned is None
     assert counter is None
@@ -679,7 +683,7 @@ res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
     assert res1_metadata.authorships == ["Real Author"]
 
 
-def test_csv_corrections_override_xml(tmp_path: Path) -> None:
+def test_csv_corrections_override_xml() -> None:
     """Test that CSV corrections override XML values (priority: CSV > XML > defaults)."""
     xml = etree.fromstring(f"""
     <knora>

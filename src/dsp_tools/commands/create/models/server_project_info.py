@@ -29,8 +29,8 @@ class OntoCreateLookup:
     def get_last_mod_date(self, name: str) -> Literal:
         return self.name_to_last_modification_date[name]
 
-    def add_last_mod_date(self, name: str, last_modification_date: Literal) -> None:
-        self.name_to_last_modification_date[name] = last_modification_date
+    def add_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
+        self.name_to_last_modification_date[iri] = last_modification_date
 
 
 @dataclass

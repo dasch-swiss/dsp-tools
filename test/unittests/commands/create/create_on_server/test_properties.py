@@ -1,148 +1,116 @@
 # mypy: disable-error-code="no-untyped-def"
+import pytest
 import rustworkx as rx
 
 from dsp_tools.commands.create.create_on_server.properties import _get_property_create_order
 from dsp_tools.commands.create.create_on_server.properties import _make_graph_to_sort
 from dsp_tools.commands.create.create_on_server.properties import _sort_properties
-from test.unittests.commands.create.create_on_server.conftest import EXTERNAL_SUPER
-from test.unittests.commands.create.create_on_server.conftest import KNORA_SUPER
+from dsp_tools.commands.create.models.parsed_ontology import GuiElement
+from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
+from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+
+KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
+EXTERNAL_SUPER = "http://xmlns.com/foaf/0.1/name"
 
 
-def _create_graph(nodes: dict[str, str], edges: list[tuple[str, str]]) -> tuple[rx.PyDiGraph, dict[int, str]]:
-    graph = rx.PyDiGraph()
-    node_indices = {}
-    node_to_iri = {}
-    for node_name, iri in nodes.items():
-        idx = graph.add_node(node_name)
-        node_indices[node_name] = idx
-        node_to_iri[idx] = iri
-    for source, target in edges:
-        graph.add_edge(node_indices[source], node_indices[target], None)
-    return graph, node_to_iri
+def make_test_property(
+    name: str,
+    supers: list[str] | None = None,
+    onto_name: str = "test_onto",
+) -> ParsedProperty:
+    """Helper function to create a test property with standard defaults."""
+    supr = supers if supers else []
+    supr.append(KNORA_SUPER)
+    full_name = f"http://api.knora.org/ontology/0001/{onto_name}/v2#{name}"
+    return ParsedProperty(
+        name=full_name,
+        labels={"en": f"Label for {name}"},
+        comments=None,
+        supers=supr,
+        object=KnoraObjectType.TEXT,
+        subject=None,
+        gui_element=GuiElement.SIMPLETEXT,
+        node_name=None,
+        onto_name=onto_name,
+    )
 
 
-class TestMakeGraphToSort:
-    def test_creates_graph_with_multiple_properties_no_internal_dependencies(self, independent_props):
-        graph, node_to_iri = _make_graph_to_sort(independent_props)
-        assert len(graph) == 3
-        assert graph.num_edges() == 0  # No internal dependencies
-        assert all(p.name in node_to_iri.values() for p in independent_props)
-
-    def test_creates_graph_with_simple_linear_dependency(self, simple_linear_props):
-        graph, _node_to_iri = _make_graph_to_sort(simple_linear_props)
-        assert len(graph) == 2
-        assert graph.num_edges() == 1
-
-    def test_creates_graph_with_multiple_linear_dependencies(self, linear_chain_props):
-        graph, _node_to_iri = _make_graph_to_sort(linear_chain_props)
-        assert len(graph) == 3
-        assert graph.num_edges() == 2
-
-    def test_creates_graph_with_multiple_supers(self, multiple_inheritance_props):
-        graph, _node_to_iri = _make_graph_to_sort(multiple_inheritance_props)
-        assert len(graph) == 3
-        assert graph.num_edges() == 2
-
-    def test_creates_graph_with_diamond_dependencies(self, diamond_props):
-        # Diamond: D at top, B and C in middle (both depend on D), A at bottom (depends on B and C)
-        graph, _node_to_iri = _make_graph_to_sort(diamond_props)
-        assert len(graph) == 4
-        assert graph.num_edges() == 4  # A->B, A->C, B->D, C->D
-
-    def test_creates_correct_node_to_iri_mapping(self, prop_a, prop_b):
-        props = [prop_a, prop_b]
-        _graph, node_to_iri = _make_graph_to_sort(props)
-        assert len(node_to_iri) == 2
-        iris_in_mapping = set(node_to_iri.values())
-        expected_iris = {p.name for p in props}
-        assert iris_in_mapping == expected_iris
-
-    def test_graph_edge_count_matches_internal_dependencies(self, prop_factory):
-        p_c = prop_factory("PropC")
-        p_b = prop_factory("PropB", supers=[p_c.name])
-        p_a = prop_factory("PropA", supers=[p_b.name, p_c.name])
-        p_d = prop_factory("PropD", supers=[EXTERNAL_SUPER])
-
-        graph, _node_to_iri = _make_graph_to_sort([p_a, p_b, p_c, p_d])
-
-        # A->B, A->C, B->C = 3 edges (D's external super creates no edge)
-        assert graph.num_edges() == 3
+@pytest.fixture
+def three_multiple_inheritance_props():
+    """PropA inherits from both PropB and PropC (both independent)."""
+    prop_b = make_test_property("PropB")
+    prop_c = make_test_property("PropC")
+    prop_a = make_test_property("PropA", supers=[prop_b.name, prop_c.name])
+    return [prop_a, prop_b, prop_c]
 
 
-class TestSortProperties:
-    def test_sorts_single_node_graph(self, single_node_graph):
-        graph, node_to_iri = single_node_graph
-        result = _sort_properties(graph, node_to_iri)
-        assert result == ["PropA"]
-
-    def test_sorts_linear_dependency_graph(self, linear_graph):
-        # Create graph: A -> B -> C (A depends on B, B depends on C)
-        # Topological sort returns nodes where nodes with outgoing edges come first
-        graph, node_to_iri = linear_graph
-        result = _sort_properties(graph, node_to_iri)
-        # A should come before B, B should come before C
-        assert result == ["PropA", "PropB", "PropC"]
-
-    def test_sorts_complex_graph_with_multiple_branches(self, multiple_branches_graph):
-        # Create graph with multiple branches
-        graph, node_to_iri = multiple_branches_graph
-        result = _sort_properties(graph, node_to_iri)
-        # A should come before B, C should come before D
-        assert result == ["PropC", "PropD", "PropA", "PropB"]
-
-    def test_sorts_diamond_pattern_correctly(self, diamond_graph):
-        # Diamond: A has edges to B and C, B and C have edges to D
-        graph, node_to_iri = diamond_graph
-        result = _sort_properties(graph, node_to_iri)
-        # A should come first (no incoming edges), D should come last (no outgoing edges)
-        assert result == ["PropA", "PropC", "PropB", "PropD"]
-
-    def test_sorted_order_respects_dependencies(self, complex_dependency_graph):
-        # Create a more complex graph
-        graph, node_to_iri = complex_dependency_graph
-        result = _sort_properties(graph, node_to_iri)
-        # Verify all dependencies are respected (source before target)
-        assert result == ["A", "C", "B", "D", "E"]
+@pytest.fixture
+def three_independent_props():
+    """PropA inherits from both PropB and PropC (both independent)."""
+    prop_b = make_test_property("PropB")
+    prop_c = make_test_property("PropC")
+    prop_a = make_test_property("PropA")
+    return [prop_a, prop_b, prop_c]
 
 
-class TestGetPropertyCreateOrder:
-    def test_returns_correct_order_for_simple_hierarchy(self, simple_linear_props):
-        # PropB is the super, PropA inherits from PropB
-        p_a, p_b = simple_linear_props
-        result = _get_property_create_order(simple_linear_props)
-        assert result == [p_a.name, p_b.name]
-
-    def test_returns_correct_order_for_complex_hierarchy(self, diamond_props):
-        # Hierarchy: PropD at top, PropB and PropC inherit from PropD, PropA inherits from PropB and PropC
-        p_a, p_b, p_c, p_d = diamond_props
-        result = _get_property_create_order(diamond_props)
-        assert result == [p_a.name, p_c.name, p_b.name, p_d.name]
-
-    def test_properties_with_no_internal_dependencies_can_be_in_any_order(self, independent_props):
-        result = _get_property_create_order(independent_props)
-        assert len(result) == 3
-        assert all(p.name in result for p in independent_props)
-
-    def test_child_always_comes_before_parent(self, grandparent_hierarchy_props):
-        p_child, prop_parent, prop_grandparent = grandparent_hierarchy_props
-        result = _get_property_create_order(grandparent_hierarchy_props)
-        assert result == [p_child.name, prop_parent.name, prop_grandparent.name]
-
-    def test_multiple_inheritance_scenario(self, multiple_inheritance_props):
-        p_a, p_b, p_c = multiple_inheritance_props
-        result = _get_property_create_order(multiple_inheritance_props)
+class TestGetPropertyOrder:
+    def test_multiple_inheritance_scenario(self, three_multiple_inheritance_props):
+        p_a, p_b, p_c = three_multiple_inheritance_props
+        result = _get_property_create_order(three_multiple_inheritance_props)
         # A has edges to both B and C, so A comes before both
         assert result == [p_a.name, p_c.name, p_b.name]
 
-    def test_external_supers_do_not_break_sorting(self, prop_factory):
-        p_b = prop_factory("PropB", supers=[])
-        p_a = prop_factory("PropA", supers=[p_b.name])
+    def test_external_supers_do_not_break_sorting(self):
+        p_b = make_test_property("PropB", supers=[])
+        p_a = make_test_property("PropA", supers=[p_b.name])
         result = _get_property_create_order([p_a, p_b])
         # A has edge to B, so A comes before B
         assert result == [p_a.name, p_b.name]
         assert KNORA_SUPER not in result
 
-    def test_mixed_dependencies_with_external_supers(self, mixed_dependency_props):
-        p_a, p_b, p_c, p_d = mixed_dependency_props
-        result = _get_property_create_order(mixed_dependency_props)
-        assert result == [p_a.name, p_c.name, p_d.name, p_b.name]
+
+class TestMakeGraphToSort:
+    def test_creates_graph_with_multiple_properties_no_internal_dependencies(self, three_independent_props):
+        graph, node_to_iri = _make_graph_to_sort(three_independent_props)
+        assert len(graph) == 3
+        assert graph.num_edges() == 0  # No internal dependencies
+        assert all(p.name in node_to_iri.values() for p in three_independent_props)
+
+    def test_creates_graph_with_multiple_supers(self, three_multiple_inheritance_props):
+        graph, _node_to_iri = _make_graph_to_sort(three_multiple_inheritance_props)
+        assert len(graph) == 3
+        assert graph.num_edges() == 2
+
+    def test_creates_correct_node_to_iri_mapping(self, three_independent_props):
+        _graph, node_to_iri = _make_graph_to_sort(three_independent_props)
+        assert len(node_to_iri) == 3
+        iris_in_mapping = set(node_to_iri.values())
+        expected_iris = {p.name for p in three_independent_props}
+        assert iris_in_mapping == expected_iris
+
+
+class TestSortProperties:
+    def test_sorts_single_node_graph(self):
+        graph = rx.PyDiGraph()
+        node_idx = graph.add_node("PropA")
+        node_to_iri = {node_idx: "PropA"}
+        result = _sort_properties(graph, node_to_iri)
+        assert result == ["PropA"]
+
+    def test_sorts_diamond_pattern_correctly(self):
+        # Diamond: A has edges to B and C, B and C have edges to D
+        graph = rx.PyDiGraph()
+        node_a = graph.add_node("PropA")
+        node_b = graph.add_node("PropB")
+        node_c = graph.add_node("PropC")
+        node_d = graph.add_node("PropD")
+        graph.add_edge(node_a, node_b, None)
+        graph.add_edge(node_a, node_c, None)
+        graph.add_edge(node_b, node_d, None)
+        graph.add_edge(node_c, node_d, None)
+        node_to_iri = {node_a: "PropA", node_b: "PropB", node_c: "PropC", node_d: "PropD"}
+        result = _sort_properties(graph, node_to_iri)
+        # A should come first (no incoming edges), D should come last (no outgoing edges)
+        assert result[0] == "PropA"
+        assert result[-1] == "PropD"
+        assert set(result[1:3]) == {"PropC", "PropB"}

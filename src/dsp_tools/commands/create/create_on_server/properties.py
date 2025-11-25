@@ -40,7 +40,9 @@ def create_all_properties(
             all_problems.append(previous_blocker)
             created_iris.failed_properties.add(prop.name)
         else:
-            list_iri = list_lookup.get_iri(prop.node_name)
+            list_iri = None
+            if prop.node_name is not None:
+                list_lookup.get_iri(prop.node_name)
             create_result = _create_one_property(prop, list_iri, onto_lookup, client)
             if isinstance(create_result, Literal):
                 onto_lookup.add_last_mod_date(prop.onto_name, create_result)
@@ -59,8 +61,12 @@ def create_all_properties(
 def _is_property_blocked(prop: ParsedProperty, created_iri: CreatedIriCollection) -> CreateProblem | None:
     if created_iri.property_failed(set(prop.supers)):
         return UploadProblem(prop.name, UploadProblemType.PROPERTY_SUPER_FAILED)
-    if created_iri.class_failed(set(str(prop.object))) or created_iri.class_failed(set(prop.subject)):
-        return UploadProblem(prop.name, UploadProblemType.PROPERTY_SUPER_FAILED)
+    if prop.object:
+        if created_iri.class_failed(set(str(prop.object))):
+            return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
+    if prop.subject:
+        if created_iri.class_failed(set(prop.subject)):
+            return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
     return None
 
 

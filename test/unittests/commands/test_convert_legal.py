@@ -1,9 +1,18 @@
+from pathlib import Path
+
+import pandas as pd
 import pytest
 from lxml import etree
 
 from dsp_tools.commands.update_legal.core import _update_xml_tree
+from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
+from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
+from dsp_tools.commands.update_legal.csv_operations import write_problems_to_csv
+from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import Problem
+from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
 COPY_PROP = ":hasCopyright"
@@ -268,3 +277,449 @@ def test_unknown_license() -> None:
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME: Invalid license: CC FO BA 4.0" in problems[0].license
+
+
+def test_defaults_all_applied() -> None:
+    """Test that default values are applied when XML properties are missing."""
+    xml = etree.fromstring("""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults(
+        authorship_default="Default Author",
+        copyright_default="Default Copyright Holder",
+        license_default="CC BY 4.0",
+    )
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+    assert counter.resources_updated == 1
+    assert counter.licenses_set == 1
+    assert counter.copyrights_set == 1
+    assert counter.authorships_set == 1
+
+    resource = result[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert bitstream.attrib["copyright-holder"] == "Default Copyright Holder"
+    assert bitstream.attrib["authorship-id"] == "authorship_0"
+
+    auth_def = result[0]
+    assert auth_def[0].text == "Default Author"
+
+
+def test_defaults_partial() -> None:
+    """Test that defaults are only applied for missing fields, not overriding XML values."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">XML Author</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults(
+        authorship_default="Default Author",
+        copyright_default="Default Copyright",
+        license_default="CC BY 4.0",
+    )
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+
+    resource = result[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert bitstream.attrib["copyright-holder"] == "Default Copyright"
+    assert bitstream.attrib["authorship-id"] == "authorship_0"
+
+    auth_def = result[0]
+    assert auth_def[0].text == "XML Author"
+
+
+def test_multiple_licenses() -> None:
+    """Test that multiple license values generate a FIXME problem."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}">
+                <text encoding="utf8">CC BY 4.0</text>
+                <text encoding="utf8">CC BY-SA 4.0</text>
+            </text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert len(problems) == 1
+    assert result is None
+    assert counter is None
+    assert problems[0].res_id == "res_1"
+    assert "FIXME: Multiple licenses found" in problems[0].license
+    assert "CC BY 4.0" in problems[0].license
+    assert "CC BY-SA 4.0" in problems[0].license
+
+
+def test_multiple_copyrights() -> None:
+    """Test that multiple copyright values generate a FIXME problem."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{COPY_PROP}">
+                <text encoding="utf8">Copyright Holder 1</text>
+                <text encoding="utf8">Copyright Holder 2</text>
+            </text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(copyright_prop=COPY_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert len(problems) == 1
+    assert result is None
+    assert counter is None
+    assert problems[0].res_id == "res_1"
+    assert "FIXME: Multiple copyrights found" in problems[0].copyright
+    assert "Copyright Holder 1" in problems[0].copyright
+    assert "Copyright Holder 2" in problems[0].copyright
+
+
+def test_multiple_authorships_per_resource() -> None:
+    """Test that multiple authorship text elements are collected into a list."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>test/file.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}">
+                <text encoding="utf8">Author One</text>
+                <text encoding="utf8">Author Two</text>
+                <text encoding="utf8">Author Three</text>
+            </text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults(copyright_default="Default Copy", license_default="CC BY 4.0")
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+    assert len(result) == 4
+
+    auth_def_0 = result[0]
+    assert auth_def_0[0].text == "Author One"
+
+    auth_def_1 = result[1]
+    assert auth_def_1[0].text == "Author Two"
+
+    auth_def_2 = result[2]
+    assert auth_def_2[0].text == "Author Three"
+
+
+def test_counter_accuracy_mixed() -> None:
+    """Test that counters accurately track what metadata was actually applied."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>file2.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author B</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>file3.jpg</bitstream>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert len(problems) == 2
+    assert result is None
+    assert counter is None
+
+
+def test_counter_accuracy_all_complete() -> None:
+    """Test counter accuracy when all resources have complete metadata."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>file2.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author B</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright B</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <iiif-uri>https://iiif.example.org/image.jpg</iiif-uri>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC0</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+    assert counter.resources_updated == 3
+    assert counter.licenses_set == 3
+    assert counter.copyrights_set == 3
+    assert counter.authorships_set == 3
+
+
+def test_resources_without_media_skipped() -> None:
+    """Test that resources without bitstream or iiif-uri are skipped."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <text-prop name="other:prop"><text encoding="utf8">Some value</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>file3.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC0</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+    assert counter.resources_updated == 2
+
+
+def test_property_removal() -> None:
+    """Test that specified text properties are removed after conversion."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+            <text-prop name="other:prop"><text encoding="utf8">Keep this</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    result, counter, _problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    assert result is not None
+    assert counter is not None
+    resource = result[1]
+    assert len(resource) == 2
+
+    bitstream = resource[0]
+    assert bitstream.tag == "bitstream"
+
+    remaining_prop = resource[1]
+    assert remaining_prop.tag == "text-prop"
+    assert remaining_prop.attrib["name"] == "other:prop"
+    assert remaining_prop[0].text == "Keep this"
+
+
+def test_is_fixme_value() -> None:
+    """Test the is_fixme_value helper function."""
+    assert is_fixme_value("FIXME: Some error")
+    assert is_fixme_value("FIXME:")
+    assert is_fixme_value(None)
+    assert not is_fixme_value("Regular value")
+    assert not is_fixme_value("")
+    assert not is_fixme_value("  ")
+
+
+def test_write_problems_to_csv(tmp_path: Path) -> None:
+    """Test writing problems to CSV file."""
+    xml_file = tmp_path / "test.xml"
+    xml_file.write_text("<knora></knora>")
+
+    problems = [
+        Problem(
+            file_or_iiif_uri="file1.jpg",
+            res_id="res_1",
+            license="FIXME: Missing license",
+            copyright="Copyright Holder",
+            authorships=["Author One"],
+        ),
+        Problem(
+            file_or_iiif_uri="file2.jpg",
+            res_id="res_2",
+            license="http://rdfh.ch/licenses/cc-by-4.0",
+            copyright="FIXME: Missing copyright",
+            authorships=["Author Two", "Author Three"],
+        ),
+    ]
+
+    write_problems_to_csv(xml_file, problems)
+
+    csv_file = tmp_path / "test_legal_errors.csv"
+    assert csv_file.exists()
+
+    df = pd.read_csv(csv_file)
+    assert len(df) == 2
+    assert "resource_id" in df.columns
+    assert "bitstream_or_iiif_uri" in df.columns
+    assert "license" in df.columns
+    assert "copyright" in df.columns
+    assert "authorship_1" in df.columns
+    assert "authorship_2" in df.columns
+
+    assert df.iloc[0]["resource_id"] == "res_1"
+    assert df.iloc[0]["license"] == "FIXME: Missing license"
+    assert df.iloc[0]["authorship_1"] == "Author One"
+
+    assert df.iloc[1]["resource_id"] == "res_2"
+    assert df.iloc[1]["authorship_1"] == "Author Two"
+    assert df.iloc[1]["authorship_2"] == "Author Three"
+
+
+def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
+    """Test that writing problems fails if CSV file already exists."""
+    xml_file = tmp_path / "test.xml"
+    xml_file.write_text("<knora></knora>")
+
+    csv_file = tmp_path / "test_legal_errors.csv"
+    csv_file.write_text("existing content")
+
+    problems = [
+        Problem(
+            file_or_iiif_uri="file1.jpg",
+            res_id="res_1",
+            license="FIXME: Missing",
+            copyright="Copyright",
+            authorships=["Author"],
+        )
+    ]
+
+    with pytest.raises(InputError, match="already exists"):
+        write_problems_to_csv(xml_file, problems)
+
+
+def test_read_corrections_csv(tmp_path: Path) -> None:
+    """Test reading corrections from CSV file."""
+    csv_file = tmp_path / "corrections.csv"
+    csv_content = """resource_id,bitstream_or_iiif_uri,license,copyright,authorship_1,authorship_2
+res_1,file1.jpg,http://rdfh.ch/licenses/cc-by-4.0,Copyright Holder,Author One,
+res_2,file2.jpg,http://rdfh.ch/licenses/cc0-1.0,Another Copyright,Author Two,Author Three
+"""
+    csv_file.write_text(csv_content)
+
+    corrections = read_corrections_csv(csv_file)
+
+    assert len(corrections) == 2
+    assert "res_1" in corrections
+    assert "res_2" in corrections
+
+    res1_metadata = corrections["res_1"]
+    assert res1_metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert res1_metadata.copyright == "Copyright Holder"
+    assert res1_metadata.authorships == ["Author One"]
+
+    res2_metadata = corrections["res_2"]
+    assert res2_metadata.license == "http://rdfh.ch/licenses/cc0-1.0"
+    assert res2_metadata.copyright == "Another Copyright"
+    assert res2_metadata.authorships == ["Author Two", "Author Three"]
+
+
+def test_read_corrections_csv_with_fixme_values(tmp_path: Path) -> None:
+    """Test that FIXME values in CSV are treated as None."""
+    csv_file = tmp_path / "corrections.csv"
+    csv_content = """resource_id,bitstream_or_iiif_uri,license,copyright,authorship_1
+res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
+"""
+    csv_file.write_text(csv_content)
+
+    corrections = read_corrections_csv(csv_file)
+
+    res1_metadata = corrections["res_1"]
+    assert res1_metadata.license is None
+    assert res1_metadata.copyright == "Real Copyright"
+    assert res1_metadata.authorships == ["Real Author"]
+
+
+def test_csv_corrections_override_xml(tmp_path: Path) -> None:
+    """Test that CSV corrections override XML values (priority: CSV > XML > defaults)."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">XML Author</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">XML Copyright</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+    </knora>
+    """)
+
+    csv_metadata = {
+        "res_1": LegalMetadata(
+            license="http://rdfh.ch/licenses/cc0-1.0",
+            copyright="CSV Copyright",
+            authorships=["CSV Author"],
+        )
+    }
+
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults(
+        authorship_default="Default Author",
+        copyright_default="Default Copyright",
+        license_default="CC BY-SA 4.0",
+    )
+
+    result, counter, problems = _update_xml_tree(
+        xml, properties=properties, defaults=defaults, csv_corrections=csv_metadata
+    )
+
+    assert result is not None
+    assert counter is not None
+    assert len(problems) == 0
+
+    resource = result[1]
+    bitstream = resource[0]
+
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc0-1.0"
+    assert bitstream.attrib["copyright-holder"] == "CSV Copyright"
+
+    auth_def = result[0]
+    assert auth_def[0].text == "CSV Author"

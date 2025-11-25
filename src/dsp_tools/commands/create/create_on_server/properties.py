@@ -65,7 +65,7 @@ def _is_property_blocked(prop: ParsedProperty, created_iri: CreatedIriCollection
         if created_iri.class_failed({str(prop.object)}):
             return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
     if prop.subject:
-        if created_iri.class_failed(set(prop.subject)):
+        if created_iri.class_failed({prop.subject}):
             return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
     return None
 

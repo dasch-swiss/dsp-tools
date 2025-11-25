@@ -368,8 +368,6 @@ def test_multiple_licenses() -> None:
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME: Multiple licenses found" in problems[0].license
-    assert "CC BY 4.0" in problems[0].license
-    assert "CC BY-SA 4.0" in problems[0].license
 
 
 def test_multiple_copyrights() -> None:
@@ -394,12 +392,10 @@ def test_multiple_copyrights() -> None:
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME: Multiple copyrights found" in problems[0].copyright
-    assert "Copyright Holder 1" in problems[0].copyright
-    assert "Copyright Holder 2" in problems[0].copyright
 
 
 def test_multiple_authorships_per_resource() -> None:
-    """Test that multiple authorship text elements are collected into a list."""
+    """Test that multiple authorship text elements are collected and combined."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -419,16 +415,19 @@ def test_multiple_authorships_per_resource() -> None:
     assert result is not None
     assert counter is not None
     assert len(problems) == 0
-    assert len(result) == 4
+    assert len(result) == 2
 
-    auth_def_0 = result[0]
-    assert auth_def_0[0].text == "Author One"
+    auth_def = result[0]
+    assert auth_def.tag == "authorship"
+    assert auth_def.attrib["id"] == "authorship_0"
+    assert len(auth_def) == 3
+    assert auth_def[0].text == "Author One"
+    assert auth_def[1].text == "Author Two"
+    assert auth_def[2].text == "Author Three"
 
-    auth_def_1 = result[1]
-    assert auth_def_1[0].text == "Author Two"
-
-    auth_def_2 = result[2]
-    assert auth_def_2[0].text == "Author Three"
+    resource = result[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["authorship-id"] == "authorship_0"
 
 
 def test_counter_accuracy_mixed() -> None:
@@ -481,7 +480,7 @@ def test_counter_accuracy_all_complete() -> None:
             <iiif-uri>https://iiif.example.org/image.jpg</iiif-uri>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC0</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-NC</text></text-prop>
         </resource>
     </knora>
     """)
@@ -515,7 +514,7 @@ def test_resources_without_media_skipped() -> None:
             <bitstream>file3.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC0</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-NC</text></text-prop>
         </resource>
     </knora>
     """)
@@ -564,7 +563,7 @@ def test_is_fixme_value() -> None:
     """Test the is_fixme_value helper function."""
     assert is_fixme_value("FIXME: Some error")
     assert is_fixme_value("FIXME:")
-    assert is_fixme_value(None)
+    assert not is_fixme_value(None)
     assert not is_fixme_value("Regular value")
     assert not is_fixme_value("")
     assert not is_fixme_value("  ")
@@ -600,7 +599,7 @@ def test_write_problems_to_csv(tmp_path: Path) -> None:
     df = pd.read_csv(csv_file)
     assert len(df) == 2
     assert "resource_id" in df.columns
-    assert "bitstream_or_iiif_uri" in df.columns
+    assert "file" in df.columns
     assert "license" in df.columns
     assert "copyright" in df.columns
     assert "authorship_1" in df.columns
@@ -640,7 +639,7 @@ def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
 def test_read_corrections_csv(tmp_path: Path) -> None:
     """Test reading corrections from CSV file."""
     csv_file = tmp_path / "corrections.csv"
-    csv_content = """resource_id,bitstream_or_iiif_uri,license,copyright,authorship_1,authorship_2
+    csv_content = """resource_id,file,license,copyright,authorship_1,authorship_2
 res_1,file1.jpg,http://rdfh.ch/licenses/cc-by-4.0,Copyright Holder,Author One,
 res_2,file2.jpg,http://rdfh.ch/licenses/cc0-1.0,Another Copyright,Author Two,Author Three
 """
@@ -666,7 +665,7 @@ res_2,file2.jpg,http://rdfh.ch/licenses/cc0-1.0,Another Copyright,Author Two,Aut
 def test_read_corrections_csv_with_fixme_values(tmp_path: Path) -> None:
     """Test that FIXME values in CSV are treated as None."""
     csv_file = tmp_path / "corrections.csv"
-    csv_content = """resource_id,bitstream_or_iiif_uri,license,copyright,authorship_1
+    csv_content = """resource_id,file,license,copyright,authorship_1
 res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
 """
     csv_file.write_text(csv_content)

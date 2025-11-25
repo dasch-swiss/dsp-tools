@@ -4,6 +4,7 @@ from typing import Any
 import rustworkx as rx
 from loguru import logger
 from rdflib import Literal
+from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
@@ -34,6 +35,7 @@ def create_all_properties(
     all_problems: list[CreateProblem] = []
     onto_lookup = get_onto_lookup(project_iri_lookup, client)
     progress_bar = tqdm(upload_order, desc="    Creating properties", dynamic_ncols=True)
+    logger.debug("Starting property creation")
     for p in progress_bar:
         prop = prop_lookup[p]
         if previous_blocker := _is_property_blocked(prop, created_iris):
@@ -42,7 +44,11 @@ def create_all_properties(
         else:
             list_iri = None
             if prop.node_name is not None:
-                list_lookup.get_iri(prop.node_name)
+                if not (found := list_lookup.get_iri(prop.node_name)):
+                    all_problems.append(UploadProblem(prop.name, UploadProblemType.PROPERTY_LIST_NOT_FOUND))
+                    continue
+                else:
+                    list_iri = Literal(f"hlist=<{found}>")
             create_result = _create_one_property(prop, list_iri, onto_lookup, client)
             if isinstance(create_result, Literal):
                 onto_lookup.add_last_mod_date(prop.onto_name, create_result)
@@ -95,16 +101,15 @@ def _create_one_property(
     onto_lookup: OntoCreateLookup,
     client: OntologyCreateClient,
 ) -> Literal | CreateProblem:
-    onto_iri = onto_lookup.get_onto_iri(prop.onto_name)
     prop_serialised = serialise_property_graph_for_request(
-        prop, list_iri, onto_iri, onto_lookup.get_last_mod_date(prop.onto_name)
+        prop, list_iri, URIRef(prop.onto_name), onto_lookup.get_last_mod_date(prop.onto_name)
     )
     request_result = client.post_new_property(prop_serialised)
     if isinstance(request_result, Literal):
         return request_result
     if should_retry_request(request_result):
-        new_mod_date = client.get_last_modification_date(onto_lookup.project_iri, onto_iri)
-        prop_serialised = serialise_property_graph_for_request(prop, list_iri, onto_iri, new_mod_date)
+        new_mod_date = client.get_last_modification_date(onto_lookup.project_iri, prop.onto_name)
+        prop_serialised = serialise_property_graph_for_request(prop, list_iri, URIRef(prop.onto_name), new_mod_date)
         request_result = client.post_new_property(prop_serialised)
         if isinstance(request_result, Literal):
             return request_result

@@ -24,7 +24,7 @@ def should_retry_request(response: ResponseCodeAndText) -> bool:
 def sort_for_upload(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[str]:
     try:
         node_sorting_order = rx.topological_sort(graph)
-        return [node_to_iri[x] for x in node_sorting_order]
+        return [node_to_iri[x] for x in reversed(node_sorting_order)]
     except rx.DAGHasCycle as e:
         logger.error(e)
         raise CircularOntologyDependency(

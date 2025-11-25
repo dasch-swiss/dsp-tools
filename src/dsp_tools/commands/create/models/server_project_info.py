@@ -78,10 +78,10 @@ class CreatedIriCollection:
         self.created_properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
 
     def property_failed(self, props: set[str]) -> bool:
-        return props.issubset(self.failed_properties)
+        return bool(props.intersection(self.failed_properties))
 
     def class_failed(self, classes: set[str]) -> bool:
-        return classes.issubset(self.failed_classes)
+        return bool( classes.intersection(self.failed_classes))
 
 
 @dataclass

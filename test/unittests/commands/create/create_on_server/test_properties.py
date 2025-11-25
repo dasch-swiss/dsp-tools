@@ -49,11 +49,12 @@ def three_independent_props():
 
 class TestGetPropertyOrder:
     def test_multiple_inheritance_scenario(self, three_multiple_inheritance_props):
+        prop_a, _, _ = three_multiple_inheritance_props
         result = _get_property_create_order(three_multiple_inheritance_props)
         # A has edges to both B and C, so A comes before both
         # the order afterwards does not matter
         assert len(result) == 3
-        assert result[0] == "PropA"
+        assert result[0] == prop_a.name
 
     def test_external_supers_do_not_break_sorting(self):
         p_b = make_test_property("PropB", supers=[])

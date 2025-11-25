@@ -1,9 +1,15 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from unittest.mock import Mock
+
 import pytest
 import rustworkx as rx
+from rdflib import Literal
+from rdflib import URIRef
 
+from dsp_tools.commands.create.create_on_server.onto_utils import get_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.error.exceptions import CircularOntologyDependency
 
 
@@ -42,3 +48,29 @@ class TestSortUploadOrder:
         assert result[0] == "nodeA"
         assert result[-1] == "nodeD"
         assert set(result[1:3]) == {"nodeC", "nodeB"}
+
+
+def test_creates_lookup_with_two_ontologies():
+    project_iri = "http://rdfh.ch/projects/1234"
+    onto_iri_1 = "http://0.0.0.0:3333/ontology/1234/onto1/v2"
+    onto_iri_2 = "http://0.0.0.0:3333/ontology/1234/onto2/v2"
+    mod_date_1 = Literal("2024-01-15T10:30:00Z")
+    mod_date_2 = Literal("2024-02-20T14:45:00Z")
+
+    project_iri_lookup = ProjectIriLookup(project_iri=project_iri)
+    project_iri_lookup.add_onto("onto1", onto_iri_1)
+    project_iri_lookup.add_onto("onto2", onto_iri_2)
+
+    mock_client = Mock()
+    mock_client.get_last_modification_date.side_effect = [mod_date_1, mod_date_2]
+
+    result = get_onto_lookup(project_iri_lookup, mock_client)
+
+    assert result.project_iri == project_iri
+    assert len(result.onto_iris) == 2
+    assert result.onto_iris["onto1"] == URIRef(onto_iri_1)
+    assert result.onto_iris["onto2"] == URIRef(onto_iri_2)
+    assert len(result.name_to_last_modification_date) == 2
+    assert result.get_last_mod_date("onto1") == mod_date_1
+    assert result.get_last_mod_date("onto2") == mod_date_2
+    assert mock_client.get_last_modification_date.call_count == 2

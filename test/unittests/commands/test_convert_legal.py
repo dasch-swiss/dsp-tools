@@ -12,7 +12,6 @@ from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
-from dsp_tools.error.exceptions import InputError
 
 AUTH_PROP = ":hasAuthorship"
 COPY_PROP = ":hasCopyright"
@@ -81,7 +80,7 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
 
 
 def test_incomplete_legal() -> None:
-    """Test that when some fields are missing, problems are generated but values that exist are still applied."""
+    """Test that when some fields are missing, problems are generated and resources are left unchanged."""
     orig = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -104,8 +103,9 @@ def test_incomplete_legal() -> None:
 
     # Should have 3 problems (one for each resource with missing fields)
     assert len(problems) == 3
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
 
     # Check the problems contain FIXME markers
     assert problems[0].res_id == "res_1"
@@ -123,6 +123,11 @@ def test_incomplete_legal() -> None:
     assert "FIXME:" in problems[2].copyright
     assert problems[2].license == "http://rdfh.ch/licenses/cc-by-4.0"
 
+    # Verify that problematic resources still have their text properties (not removed)
+    for res in root_returned.iterchildren(tag="resource"):
+        text_props = res.xpath("text-prop")
+        assert len(text_props) == 1, "Problematic resources should still have their text properties"
+
 
 def test_missing_legal() -> None:
     """Test that when all legal metadata is missing, problems are generated."""
@@ -139,8 +144,9 @@ def test_missing_legal() -> None:
 
     # Should have 1 problem for the resource with all fields missing
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
     assert "FIXME:" in problems[0].copyright
@@ -171,28 +177,31 @@ def test_different_authors() -> None:
 
     # Should have problems because license and copyright are missing
     assert len(problems) == 3
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
 
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
-    """Test that when no properties are provided, the function returns None and counter is None with problems."""
+    """Test that when no properties are provided, problems are generated."""
     properties = LegalProperties(authorship_prop="", copyright_prop="", license_prop="")
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(
         one_bitstream_one_iiif, properties=properties, defaults=defaults
     )
     assert len(problems) == 2
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
 
     properties_empty = LegalProperties()
     result2, counter2, problems2 = _update_xml_tree(
         one_bitstream_one_iiif, properties=properties_empty, defaults=defaults
     )
     assert len(problems2) == 2
-    assert result2 is None
-    assert counter2 is None
+    assert result2 is not None
+    assert counter2 is not None
+    assert counter2.resources_updated == 0
 
 
 def test_empty_author() -> None:
@@ -211,8 +220,9 @@ def test_empty_author() -> None:
 
     # Should have 1 problem for empty authorship
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].authorships[0]
 
@@ -233,8 +243,9 @@ def test_empty_copy() -> None:
 
     # Should have 1 problem for empty copyright
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].copyright
 
@@ -255,8 +266,9 @@ def test_empty_license() -> None:
 
     # Should have 1 problem for empty license
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
 
@@ -277,8 +289,9 @@ def test_unknown_license() -> None:
 
     # Should have 1 problem for unknown license
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert "FIXME: Invalid license: CC FO BA 4.0" in problems[0].license
 
@@ -368,8 +381,9 @@ def test_multiple_licenses() -> None:
     root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     assert problems[0].license == "FIXME: Multiple licenses found. Choose one: CC BY 4.0, CC BY-SA 4.0"
 
@@ -392,8 +406,9 @@ def test_multiple_copyrights() -> None:
     root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 1
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 0
     assert problems[0].res_id == "res_1"
     expected_copyright = "FIXME: Multiple copyrights found. Choose one: Copyright Holder 1, Copyright Holder 2"
     assert problems[0].copyright == expected_copyright
@@ -461,8 +476,9 @@ def test_counter_accuracy_mixed() -> None:
     root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 2
-    assert root_returned is None
-    assert counter is None
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 1
 
 
 def test_counter_accuracy_all_complete() -> None:
@@ -620,7 +636,7 @@ def test_write_problems_to_csv(tmp_path: Path) -> None:
 
 
 def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
-    """Test that writing problems fails if CSV file already exists."""
+    """Test that writing problems creates numbered CSV files when one already exists."""
     xml_file = tmp_path / "test.xml"
     xml_file.write_text("<knora></knora>")
 
@@ -637,8 +653,16 @@ def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
         )
     ]
 
-    with pytest.raises(InputError, match="already exists"):
-        write_problems_to_csv(xml_file, problems)
+    write_problems_to_csv(xml_file, problems)
+
+    # Should create test_legal_errors_1.csv since test_legal_errors.csv exists
+    csv_file_1 = tmp_path / "test_legal_errors_1.csv"
+    assert csv_file_1.exists()
+    assert csv_file.exists()  # Original file should still exist
+
+    df = pd.read_csv(csv_file_1)
+    assert len(df) == 1
+    assert df.iloc[0]["resource_id"] == "res_1"
 
 
 def test_read_corrections_csv(tmp_path: Path) -> None:
@@ -727,3 +751,58 @@ def test_csv_corrections_override_xml() -> None:
 
     auth_def = root_returned[0]
     assert auth_def[0].text == "CSV Author"
+
+
+def test_partial_update_mixed_resources() -> None:
+    """Test that partial updates work correctly: valid resources updated, problematic resources unchanged."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_good">
+            <bitstream>file_good.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Good Author</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Good Copyright</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_bad">
+            <bitstream>file_bad.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Bad Author</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_good2">
+            <bitstream>file_good2.jpg</bitstream>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Good Author 2</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Good Copyright 2</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
+        </resource>
+    </knora>
+    """)
+
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+
+    # Should have 1 problem for res_bad
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_bad"
+    assert root_returned is not None
+    assert counter is not None
+    assert counter.resources_updated == 2
+
+    # Verify the good resources are updated (text props removed, attributes added)
+    res_good = root_returned.xpath('//resource[@id="res_good"]')[0]
+    assert len(res_good.xpath("text-prop")) == 0, "Valid resource should have text props removed"
+    assert res_good[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert res_good[0].attrib["copyright-holder"] == "Good Copyright"
+
+    res_good2 = root_returned.xpath('//resource[@id="res_good2"]')[0]
+    assert len(res_good2.xpath("text-prop")) == 0, "Valid resource should have text props removed"
+    assert res_good2[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-sa-4.0"
+
+    # Verify the bad resource is NOT updated (text props retained, no attributes)
+    res_bad = root_returned.xpath('//resource[@id="res_bad"]')[0]
+    assert len(res_bad.xpath("text-prop")) == 1, "Problematic resource should keep text props"
+    assert "license" not in res_bad[0].attrib, "Problematic resource should not have license attribute"
+    assert "copyright-holder" not in res_bad[0].attrib
+
+    # Verify authorship definitions only include valid resources
+    auth_defs = root_returned.xpath("//authorship")
+    assert len(auth_defs) == 2  # Only from res_good and res_good2

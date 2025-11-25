@@ -51,11 +51,15 @@ def update_legal_metadata(
         csv_corrections=csv_corrections,
     )
 
-    if not root_updated or not counter:
-        write_problems_to_csv(input_file, problems)
-        return False
+    is_already_partial = input_file.stem.endswith("_PARTIALLY_updated")
+
+    if len(problems) == 0:
+        # Success - write fully updated XML with _updated suffix
+        return write_final_xml(input_file, root_updated, counter, partial=False)
     else:
-        return write_final_xml(input_file, root_updated, counter)
+        # Partial update - write both CSV and partial XML
+        write_problems_to_csv(input_file, problems)
+        return write_final_xml(input_file, root_updated, counter, partial=True, overwrite=is_already_partial)
 
 
 def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:
@@ -76,9 +80,11 @@ def _update_xml_tree(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_corrections: dict[str, LegalMetadata] | None = None,
-) -> tuple[etree._Element | None, UpdateCounter | None, list[Problem]]:
+) -> tuple[etree._Element, UpdateCounter, list[Problem]]:
     """
     Update the XML tree with legal metadata, applying corrections and defaults.
+    Resources without problems are fully updated (metadata applied, text properties removed).
+    Resources with problems are left unchanged in the XML, but problems are collected for CSV output.
 
     Args:
         root: The XML root element
@@ -101,16 +107,21 @@ def _update_xml_tree(
         media_elem = media_tag_candidates[0]
         csv_metadata = csv_corrections.get(res_id) if csv_corrections else None
 
+        # First, collect metadata without applying changes to determine if there are problems
+        # We use a temporary auth dict to avoid polluting the main one with problematic resources
+        temp_auth_dict: dict[str, int] = {}
         metadata = update_one_xml_resource(
             res=res,
             media_elem=media_elem,
             properties=properties,
             defaults=defaults,
             csv_metadata=csv_metadata,
-            auth_text_to_id=auth_text_to_id,
+            auth_text_to_id=temp_auth_dict,
+            remove_text_props=False,
         )
 
         if _has_problems(metadata):
+            # This resource has problems - collect for CSV but don't update the XML
             problem = Problem(
                 file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
@@ -120,15 +131,22 @@ def _update_xml_tree(
             )
             problems.append(problem)
         elif metadata.any():
+            # This resource is valid - apply changes using the real auth dict and remove text properties
+            update_one_xml_resource(
+                res=res,
+                media_elem=media_elem,
+                properties=properties,
+                defaults=defaults,
+                csv_metadata=csv_metadata,
+                auth_text_to_id=auth_text_to_id,
+                remove_text_props=True,
+            )
             _update_counter(counter, metadata)
 
     if auth_text_to_id:
         add_authorship_definitions_to_xml(root, auth_text_to_id)
 
-    if len(problems) == 0:
-        return root, counter, []
-    else:
-        return None, None, problems
+    return root, counter, problems
 
 
 def _has_problems(metadata: LegalMetadata) -> bool:

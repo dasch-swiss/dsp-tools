@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
+import regex
 
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import Problem
@@ -56,12 +57,11 @@ class ProblemAggregator:
             Path to the created CSV file
         """
         output_path = input_file.parent / f"{input_file.stem}_legal_errors.csv"
-        if output_path.exists():
-            msg = (
-                f"The file {output_path} already exists. Have you forgotten the flag '--fixed_errors'? "
-                "If you omitted this flag on purpose, please delete/rename the existing file first."
-            )
-            raise InputError(msg)
+        i = 1
+        while output_path.exists():
+            stem_without_suffix = regex.sub(r"_\d+$", "", output_path.stem)
+            output_path = output_path.with_name(f"{stem_without_suffix}_{i}{output_path.suffix}")
+            i += 1
         df = self.to_dataframe()
         df.to_csv(output_path, index=False, mode="x")
         return output_path

@@ -17,6 +17,7 @@ def update_one_xml_resource(
     defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
     auth_text_to_id: dict[str, int],
+    remove_text_props: bool = True,
 ) -> LegalMetadata:
     """
     Collect legal metadata for a resource from CSV, XML properties, or defaults, then apply to media element.
@@ -30,6 +31,7 @@ def update_one_xml_resource(
         defaults: Default values to use when metadata is missing
         csv_metadata: Corrections from CSV file
         auth_text_to_id: Dictionary to track unique authorships
+        remove_text_props: If True, remove text properties after applying metadata
 
     Returns:
         LegalMetadata with collected values
@@ -47,7 +49,8 @@ def update_one_xml_resource(
         authorships=authorships,
         auth_text_to_id=auth_text_to_id,
     )
-    _remove_text_properties(res, properties)
+    if remove_text_props:
+        _remove_text_properties(res, properties)
     return LegalMetadata(
         license=license_val,
         copyright=copyright_val,
@@ -190,12 +193,56 @@ def add_authorship_definitions_to_xml(root: etree._Element, auth_text_to_id: dic
         root.insert(0, auth_def)
 
 
-def write_final_xml(input_file: Path, root: etree._Element, counter: UpdateCounter) -> bool:
+def write_final_xml(
+    input_file: Path,
+    root: etree._Element,
+    counter: UpdateCounter,
+    partial: bool = False,
+    overwrite: bool = False,
+) -> bool:
+    """
+    Write the updated XML to an output file.
+
+    Args:
+        input_file: Path to the input XML file
+        root: The updated XML root element
+        counter: Counter tracking number of updates
+        partial: If True, this is a partial update with some resources still having errors
+        overwrite: If True, overwrite the input file (used when input was already partial)
+
+    Returns:
+        True indicating successful write
+    """
     root_new = etree.ElementTree(root)
-    output_file = input_file.with_stem(f"{input_file.stem}_updated")
+
+    # Extract base filename (remove _PARTIALLY_updated or _updated suffix if present)
+    stem = input_file.stem
+    if stem.endswith("_PARTIALLY_updated"):
+        base_filename = stem[: -len("_PARTIALLY_updated")]
+    elif stem.endswith("_updated"):
+        base_filename = stem[: -len("_updated")]
+    else:
+        base_filename = stem
+
+    if partial and overwrite:
+        # Overwrite the existing partial file
+        output_file = input_file
+    elif partial:
+        # Create new partial file
+        output_file = input_file.with_stem(f"{base_filename}_PARTIALLY_updated")
+    else:
+        # Success - create final updated file
+        output_file = input_file.with_stem(f"{base_filename}_updated")
+
     etree.indent(root_new, space="    ")
     root_new.write(output_file, pretty_print=True, encoding="utf-8", doctype='<?xml version="1.0" encoding="UTF-8"?>')
-    print(f"\n✓ Successfully updated legal metadata. Output written to: {output_file}\n")
+
+    if partial:
+        print(f"\n⚠️  Partial update completed. Output written to: {output_file}")
+        print("   Some resources still have errors - check the CSV error file.\n")
+    else:
+        print(f"\n✓ Successfully updated legal metadata. Output written to: {output_file}\n")
+
     print(f" - Resources updated: {counter.resources_updated}\n")
     print(f" - Licenses set: {counter.licenses_set}\n")
     print(f" - Copyrights set: {counter.copyrights_set}\n")

@@ -30,7 +30,8 @@ class ProblemAggregator:
             # Add authorship columns (authorship_1, authorship_2, etc.)
             for i in range(1, max_authorships + 1):
                 auth_idx = i - 1
-                row_dict[f"authorship_{i}"] = problem.authorships[auth_idx] if auth_idx < len(problem.authorships) else ""
+                authorship_value = problem.authorships[auth_idx] if auth_idx < len(problem.authorships) else ""
+                row_dict[f"authorship_{i}"] = authorship_value
 
             problem_dicts.append(row_dict)
 

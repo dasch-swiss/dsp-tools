@@ -1,4 +1,4 @@
-# Update legal info in XML
+# Update Legal Info In XML
 
 ## Context
 
@@ -15,7 +15,8 @@ in this format:
 Older XML files may contain legal metadata as text properties. 
 This document guides you through the process of updating them to the new format.
 
-## Step 1: Find out the property names and run the command
+
+## Step 1: Find Out The Property Names And Run The Command
 
 Every XML file uses different property names. 
 Therefore, there cannot be an automatism in DSP-TOOLS to treat all XML files equally.
@@ -63,7 +64,8 @@ The output will be written to `data_updated.xml`:
 </knora>
 ```
 
-## Step 2: Fix the update errors in the CSV error file
+
+## Step 2: Fix The Update Errors in The CSV Error File
 
 For each multimedia resource, one or more of these errors may occur:
 
@@ -96,21 +98,25 @@ dsp-tools update-legal \
 data.xml
 ```
 
-### 1. Copyright absent
+
+### 1. Copyright Absent or Multiple Copyrights
 
 CSV Output:
 
-| file    | resource_id | license                             | copyright                | authorship_1  | authorship_2    |
-| ------- | ----------- | ----------------------------------- | ------------------------ | ------------- | --------------- |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Copyright missing | Rita Gautschy | Daniela Subotic |
+| file    | resource_id | license                             | copyright                                                 | authorship_1  | authorship_2    |
+| ------- | ----------- | ----------------------------------- | --------------------------------------------------------- | ------------- | --------------- |
+| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Copyright missing                                  | Rita Gautschy | Daniela Subotic |
+| cat.jpg | res_2       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Multiple licenses found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
 
 Please add a copyright holder to the CSV:
 
 | file    | resource_id | license                             | copyright | authorship_1  | authorship_2    |
 | ------- | ----------- | ----------------------------------- | --------- | ------------- | --------------- |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy | Daniela Subotic |
+| cat.jpg | res_2       | `http://rdfh.ch/licenses/cc-by-4.0` | Louvre    | Rita Gautschy | Daniela Subotic |
 
-### 2. Authorship absent
+
+### 2. Authorship Absent
 
 CSV Output:
 
@@ -124,46 +130,36 @@ Please add at least one authorship to the CSV:
 | ------- | ----------- | ----------------------------------- | --------- | ------------- | ------------ |
 | dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy |              |
 
-### 3. License absent
+
+### 3. License Absent, Not Parseable, or Multiple Licenses Found
 
 CSV Output:
 
-| file    | resource_id | license                | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ---------------------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | FIXME: License missing | DaSCH     | Rita Gautschy |              |
+| file     | resource_id | license                                                     | copyright | authorship_1  | authorship_2 |
+| -------- | ----------- | ----------------------------------------------------------- | --------- | ------------- | ------------ |
+| dog.jpg  | res_1       | FIXME: License missing                                      | DaSCH     | Rita Gautschy |              |
+| cat.jpg  | res_2       | FIXME: Invalid license: Courtesy of DaSCH                   | DaSCH     | Rita Gautschy |              |
+| bird.jpg | res_3       | FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA | DaSCH     | Rita Gautschy |              |
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
 https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string):
 
-| file    | resource_id | license | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | CC BY   | DaSCH     | Rita Gautschy |              |
-
-### 4. License not parseable
-
-CSV Output:
-
-| file    | resource_id | license                                   | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ----------------------------------------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | FIXME: Invalid license: Courtesy of DaSCH | DaSCH     | Rita Gautschy |              |
-
-Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
-[`xmllib.find_license_in_string()`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string):
-
-| file    | resource_id | license | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | unknown | DaSCH     | Rita Gautschy |              |
+| file     | resource_id | license | copyright | authorship_1  | authorship_2 |
+| -------- | ----------- | ------- | --------- | ------------- | ------------ |
+| dog.jpg  | res_1       | CC BY   | DaSCH     | Rita Gautschy |              |
+| cat.jpg  | res_2       | unknown | DaSCH     | Rita Gautschy |              |
+| bird.jpg | res_3       | CC BY   | DaSCH     | Rita Gautschy |              |
 
 
-#### "Courtesy" is not a license
+#### "Courtesy" Is Not A License
 
 It often happens that the provided license does not fulfill the requirements of a legally valid license.
 Examples are "Courtesy of Louvre", or "Mit freundlicher Genehmigung des Louvre".
 In this case, you don't really have a license, hence you have to set it to `unknown`.
 
-## Step 3: Rerun the command
+
+## Step 3: Rerun The Command
 
 Run the command again, this time with a reference to the fixed errors file:
 

@@ -8,6 +8,7 @@ from dsp_tools.commands.create.create_on_server.properties import _sort_properti
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.error.exceptions import CircularOntologyDependency
 
 KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
 EXTERNAL_SUPER = "http://xmlns.com/foaf/0.1/name"
@@ -93,15 +94,15 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
         assert result == ["PropA"]
 
-    def test_sorts_single_node_gdrapha(self):
+    def test_circular_reference_raises(self):
         graph = rx.PyDiGraph()
         node_idxa = graph.add_node("PropA")
         node_idxb = graph.add_node("PropB")
         graph.add_edge(node_idxa, node_idxb, None)
         graph.add_edge(node_idxb, node_idxa, None)
         node_to_iri = {node_idxa: "PropA", node_idxb: "PropB"}
-        result = _sort_properties(graph, node_to_iri)
-        assert result == ["PropA"]
+        with pytest.raises(CircularOntologyDependency):
+            _sort_properties(graph, node_to_iri)
 
     def test_sorts_diamond_pattern_correctly(self):
         # Diamond: A has edges to B and C, B and C have edges to D

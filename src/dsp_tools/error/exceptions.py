@@ -185,3 +185,7 @@ class CreateError(BaseError):
 
 class ProjectNotFoundError(CreateError):
     """Class if a project is expected to exist but could not be found."""
+
+
+class CircularOntologyDependency(CreateError):
+    """Class if a circular dependency was found in the ontology."""

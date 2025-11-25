@@ -41,7 +41,7 @@ def get_onto_lookup(
         project_iri=project_iri_lookup.project_iri,
         onto_iris={name: URIRef(iri) for name, iri in project_iri_lookup.onto_iris.items()},
     )
-    for name, onto_iri in project_iri_lookup.onto_iris.items():
+    for onto_iri in project_iri_lookup.onto_iris.values():
         last_mod = onto_client.get_last_modification_date(project_iri_lookup.project_iri, onto_iri)
-        lookup.add_last_mod_date(name, last_mod)
+        lookup.add_last_mod_date(onto_iri, last_mod)
     return lookup

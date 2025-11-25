@@ -177,5 +177,14 @@ data.xml
     Don't forget to include the path to the fixed errors file with the flag `--fixed_errors`.
 
 If everything is fine, `data_updated.xml` is created.
-If not, a new version of `legal_errors.csv` is created.
+If not, a new version of `data_legal_errors.csv` is created.
 Repeat the steps 2 and 3 until everything is fine.
+
+!!! warning "CSV Values Override Everything"
+
+    When you rerun the command with `--fixed_errors`, the CSV becomes the **single source of truth** for the
+    resources listed in it. This means:
+
+    - Any value you change in the CSV (not just FIXME markers) will be used in the final XML
+    - This allows you to correct extraction errors, but be careful not to accidentally modify correct values
+    - Only resources with errors are included in the CSV; resources not in the CSV are processed normally

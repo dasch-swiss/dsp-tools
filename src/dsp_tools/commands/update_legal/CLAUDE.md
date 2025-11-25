@@ -179,6 +179,7 @@ Result: All licenses normalized to standard IRIs.
    - Replaces FIXME markers with correct values
    - Can add missing values
    - Can choose between multiple values
+   - **Important**: Can modify ANY column (not just FIXME ones) - see "CSV Override Behavior" below
 
 3. **Second run**: User provides `--fixed_errors` flag
    - Command loads corrections from CSV
@@ -197,6 +198,22 @@ A resource has problems if:
 - Authorships is empty list or contains FIXME value
 
 Important: A resource must have ALL THREE components valid to avoid CSV export.
+
+### CSV Override Behavior
+
+**Critical implementation detail:**
+
+When `--fixed_errors` is used, ALL non-None CSV values override XML properties and defaults for resources in that CSV.
+This applies to every column, not just FIXME markers.
+
+**Priority resolution in `_resolve_metadata_values()`:**
+
+1. If CSV has non-None value: use it (skip XML extraction and defaults)
+2. Else if XML has value: use it (skip defaults)
+3. Else if defaults provided: use them
+4. Else: None (triggers validation error)
+
+**Note:** FIXME-prefixed values are converted to None during CSV reading, allowing fallback to XML/defaults.
 
 ### Error Messages
 

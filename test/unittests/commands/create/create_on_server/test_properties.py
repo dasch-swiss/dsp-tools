@@ -6,8 +6,7 @@ from unittest.mock import patch
 
 import pytest
 from rdflib import Literal
-from rdflib import URIRef
-from test.unittests.commands.create.constants import ONTO_IRI, ONTO, PROJECT_IRI, LAST_MODIFICATION_DATE
+
 from dsp_tools.commands.create.create_on_server.properties import _create_one_property
 from dsp_tools.commands.create.create_on_server.properties import _get_property_create_order
 from dsp_tools.commands.create.create_on_server.properties import _is_property_blocked
@@ -24,10 +23,17 @@ from dsp_tools.commands.create.models.server_project_info import ListNameToIriLo
 from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.utils.request_utils import ResponseCodeAndText
+from test.unittests.commands.create.constants import LAST_MOD_2
+from test.unittests.commands.create.constants import LAST_MOD_3
+from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
+from test.unittests.commands.create.constants import ONTO
+from test.unittests.commands.create.constants import ONTO_IRI
+from test.unittests.commands.create.constants import PROJECT_IRI
 
 KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
 EXTERNAL_SUPER = "http://xmlns.com/foaf/0.1/name"
 FAILED_CLASS = "http://api.knora.org/ontology/0001/onto/v2#FailedClass"
+
 
 def make_test_property(name: str, supers: list[str] | None = None) -> ParsedProperty:
     """Helper function to create a test property with standard defaults."""
@@ -145,21 +151,18 @@ class TestCreateOneProperty:
     @patch("dsp_tools.commands.create.create_on_server.properties.serialise_property_graph_for_request")
     @patch("dsp_tools.commands.create.create_on_server.properties.should_retry_request")
     def test_success_on_first_attempt(self, mock_should_retry, mock_serialise):
-        """Test that a successful creation on first attempt returns the Literal."""
         prop = make_test_property("TestProp")
         list_iri = None
-        last_mod_date = Literal("2024-01-01T00:00:00Z")
         onto_lookup = OntoCreateLookup(
-            project_iri="http://api.knora.org/ontology/0001",
+            project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO},
-            name_to_last_modification_date={"onto": last_mod_date},
+            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
-        expected_literal = Literal("2024-01-01T00:00:01Z")
-        mock_client.post_new_property.return_value = expected_literal
+        mock_client.post_new_property.return_value = LAST_MOD_2
         mock_serialise.return_value = {"@graph": []}
         result = _create_one_property(prop, list_iri, onto_lookup, mock_client)
-        assert result == expected_literal
+        assert result == LAST_MOD_2
         mock_client.post_new_property.assert_called_once()
         mock_should_retry.assert_not_called()
         mock_client.get_last_modification_date.assert_not_called()
@@ -167,25 +170,21 @@ class TestCreateOneProperty:
     @patch("dsp_tools.commands.create.create_on_server.properties.serialise_property_graph_for_request")
     @patch("dsp_tools.commands.create.create_on_server.properties.should_retry_request")
     def test_success_after_retry(self, mock_should_retry, mock_serialise):
-        """Test that a successful creation after retry returns the Literal from second attempt."""
         prop = make_test_property("TestProp")
         list_iri = None
-        last_mod_date = Literal("2024-01-01T00:00:00Z")
         onto_lookup = OntoCreateLookup(
-            project_iri="http://api.knora.org/ontology/0001",
+            project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": last_mod_date},
+            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        second_literal = Literal("2024-01-01T00:00:02Z")
-        mock_client.post_new_property.side_effect = [first_response, second_literal]
-        new_mod_date = Literal("2024-01-01T00:00:01Z")
-        mock_client.get_last_modification_date.return_value = new_mod_date
+        mock_client.post_new_property.side_effect = [first_response, LAST_MOD_2]
+        mock_client.get_last_modification_date.return_value = LAST_MOD_3
         mock_serialise.return_value = {"@graph": []}
         mock_should_retry.return_value = True
         result = _create_one_property(prop, list_iri, onto_lookup, mock_client)
-        assert result == second_literal
+        assert result == LAST_MOD_2
         assert mock_client.post_new_property.call_count == 2
         mock_should_retry.assert_called_once_with(first_response)
         mock_client.get_last_modification_date.assert_called_once_with(onto_lookup.project_iri, ONTO_IRI)
@@ -197,11 +196,10 @@ class TestCreateOneProperty:
         """Test that a BAD_REQUEST failure returns UploadProblem with the response text."""
         prop = make_test_property("TestProp")
         list_iri = None
-        last_mod_date = Literal("2024-01-01T00:00:00Z")
         onto_lookup = OntoCreateLookup(
-            project_iri="http://api.knora.org/ontology/0001",
+            project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": last_mod_date},
+            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         error_text = "Bad request: invalid property definition"
@@ -220,11 +218,10 @@ class TestCreateOneProperty:
         """Test that a non-retryable failure returns UploadProblem with generic error type."""
         prop = make_test_property("TestProp")
         list_iri = None
-        last_mod_date = Literal("2024-01-01T00:00:00Z")
         onto_lookup = OntoCreateLookup(
-            project_iri="http://api.knora.org/ontology/0001",
+            project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": last_mod_date},
+            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         response = ResponseCodeAndText(status_code=HTTPStatus.FORBIDDEN, text="Forbidden")
@@ -242,18 +239,16 @@ class TestCreateOneProperty:
         """Test that when retry is triggered but second attempt also fails, appropriate problem is returned."""
         prop = make_test_property("TestProp")
         list_iri = None
-        last_mod_date = Literal("2024-01-01T00:00:00Z")
         onto_lookup = OntoCreateLookup(
-            project_iri="http://api.knora.org/ontology/0001",
+            project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
-            name_to_last_modification_date={"onto": last_mod_date},
+            name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
         second_response = ResponseCodeAndText(status_code=HTTPStatus.FORBIDDEN, text="Forbidden")
         mock_client.post_new_property.side_effect = [first_response, second_response]
-        new_mod_date = Literal("2024-01-01T00:00:01Z")
-        mock_client.get_last_modification_date.return_value = new_mod_date
+        mock_client.get_last_modification_date.return_value = LAST_MOD_2
         mock_serialise.return_value = {"@graph": []}
         mock_should_retry.return_value = True
         result = _create_one_property(prop, list_iri, onto_lookup, mock_client)
@@ -274,12 +269,10 @@ class TestCreateAllProperties:
         properties = [prop1, prop2]
         mock_get_order.return_value = [prop1.name, prop2.name]
         mock_is_blocked.return_value = None
-        literal1 = Literal("2024-01-01T00:00:01Z")
-        literal2 = Literal("2024-01-01T00:00:02Z")
-        mock_create_one.side_effect = [literal1, literal2]
+        mock_create_one.side_effect = [LAST_MOD_2, LAST_MOD_3]
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()
@@ -305,7 +298,7 @@ class TestCreateAllProperties:
         mock_is_blocked.return_value = blocking_problem
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()
@@ -330,11 +323,10 @@ class TestCreateAllProperties:
         properties = [prop1]
         mock_get_order.return_value = [prop1.name]
         mock_is_blocked.return_value = None
-        literal1 = Literal("2024-01-01T00:00:01Z")
-        mock_create_one.return_value = literal1
+        mock_create_one.return_value = LAST_MOD_2
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = MagicMock()
         list_iri = "http://rdfh.ch/lists/0001/testlist"
@@ -355,11 +347,10 @@ class TestCreateAllProperties:
         properties = [prop1]
         mock_get_order.return_value = [prop1.name]
         mock_is_blocked.return_value = None
-        literal1 = Literal("2024-01-01T00:00:01Z")
-        mock_create_one.return_value = literal1
+        mock_create_one.return_value = LAST_MOD_2
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = MagicMock()
         mock_client = MagicMock()
@@ -381,7 +372,7 @@ class TestCreateAllProperties:
         mock_create_one.return_value = creation_problem
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()
@@ -412,7 +403,7 @@ class TestCreateAllProperties:
         mock_create_one.side_effect = [literal1, creation_problem]
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()
@@ -436,7 +427,7 @@ class TestCreateAllProperties:
         mock_get_order.return_value = []
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()
@@ -465,7 +456,7 @@ class TestCreateAllProperties:
         mock_create_one.return_value = problem2
         onto_lookup = MagicMock()
         mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri="http://api.knora.org/ontology/0001")
+        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
         created_iris = CreatedIriCollection()
         list_lookup = ListNameToIriLookup(name2iri={})
         mock_client = MagicMock()

@@ -81,7 +81,7 @@ class CreatedIriCollection:
         return bool(props.intersection(self.failed_properties))
 
     def class_failed(self, classes: set[str]) -> bool:
-        return bool( classes.intersection(self.failed_classes))
+        return bool(classes.intersection(self.failed_classes))
 
 
 @dataclass

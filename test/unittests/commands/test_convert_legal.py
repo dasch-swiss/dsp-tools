@@ -347,7 +347,7 @@ def test_defaults_partial() -> None:
 
 
 def test_multiple_licenses() -> None:
-    """Test that multiple license values generate a FIXME problem."""
+    """Test that multiple license values generate a FIXME problem with license text."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -367,11 +367,11 @@ def test_multiple_licenses() -> None:
     assert result is None
     assert counter is None
     assert problems[0].res_id == "res_1"
-    assert "FIXME: Multiple licenses found" in problems[0].license
+    assert problems[0].license == "FIXME: Multiple licenses found. Choose one: CC BY 4.0, CC BY-SA 4.0"
 
 
 def test_multiple_copyrights() -> None:
-    """Test that multiple copyright values generate a FIXME problem."""
+    """Test that multiple copyright values generate a FIXME problem with copyright text."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -391,7 +391,8 @@ def test_multiple_copyrights() -> None:
     assert result is None
     assert counter is None
     assert problems[0].res_id == "res_1"
-    assert "FIXME: Multiple copyrights found" in problems[0].copyright
+    expected_copyright = "FIXME: Multiple copyrights found. Choose one: Copyright Holder 1, Copyright Holder 2"
+    assert problems[0].copyright == expected_copyright
 
 
 def test_multiple_authorships_per_resource() -> None:

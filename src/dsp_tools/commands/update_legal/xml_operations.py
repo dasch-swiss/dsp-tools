@@ -110,7 +110,8 @@ def _extract_license_from_xml(res: etree._Element, license_prop: str) -> str | N
     if not license_elems:
         return None
     if len(license_elems) > 1:
-        return f"FIXME: Multiple licenses found. Choose one: {license_elems}"
+        license_texts = [elem.text.strip() for elem in license_elems if elem.text and elem.text.strip()]
+        return f"FIXME: Multiple licenses found. Choose one: {', '.join(license_texts)}"
     license_elem = license_elems[0]
     if not license_elem.text or not (license_text := license_elem.text.strip()):
         return None
@@ -124,7 +125,8 @@ def _extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | No
     if not copy_elems:
         return None
     if len(copy_elems) > 1:
-        return f"FIXME: Multiple copyrights found. Choose one: {copy_elems}"
+        copy_texts = [elem.text.strip() for elem in copy_elems if elem.text and elem.text.strip()]
+        return f"FIXME: Multiple copyrights found. Choose one: {', '.join(copy_texts)}"
     copy_elem = copy_elems[0]
     if not copy_elem.text or not (copy_text := copy_elem.text.strip()):
         return None

@@ -64,28 +64,10 @@ The output will be written to `data_updated.xml`:
 </knora>
 ```
 
-
-## Step 2: Fix The Update Errors in The CSV Error File
-
-For each multimedia resource, one or more of these errors may occur:
-
-1. copyright absent
-2. authorship absent
-3. license absent
-4. license not parseable
-    - If license information is present, 
-      an attempt is made to parse it using [`xmllib.find_license_in_string()`](
-      https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string).
-
-If there were errors, no output XML is written.
-Instead, you get the file `<input_file>_legal_errors.csv` that lists the problematic resources.
-Please go through the CSV and fix the errors directly in the CSV.
-
 In case that the properties are present for some resources, but missing for others,
-you will get a lot of repetitive errors.
-If every resource has other legal metadata, the only solution is to fix them case by case.
-But you can also provide default values that will be filled in if a property is missing.
-Delete the CSV and run the command again with the following flags:
+you would get a lot of repetitive errors.
+To prevent this, you can provide default values that will be filled in if a property is missing.
+Run the command with the following flags:
 
 ```bash
 dsp-tools update-legal \
@@ -99,39 +81,59 @@ data.xml
 ```
 
 
-### 1. Copyright Absent or Multiple Copyrights
+## Step 2: Fix The Update Errors in The CSV Error File
+
+For each multimedia resource, one or more of these errors may occur:
+
+1. copyright absent
+2. authorship absent
+3. license absent
+4. license not parseable
+    - If license information is present, 
+      an attempt is made to parse it using [`xmllib.find_license_in_string()`](
+      https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string)
+
+If there were errors, you will get 2 output files:
+
+- `<input_file>_PARTIALLY_updated.xml`
+- `<input_file>_legal_errors.csv`: lists the problematic resources
+
+Please go through the CSV and fix the errors directly in the CSV.
+
+
+### 1. Problem: Copyright Absent or Multiple Copyrights
 
 CSV Output:
 
-| file    | resource_id | license                             | copyright                                                 | authorship_1  | authorship_2    |
-| ------- | ----------- | ----------------------------------- | --------------------------------------------------------- | ------------- | --------------- |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Copyright missing                                  | Rita Gautschy | Daniela Subotic |
-| cat.jpg | res_2       | `http://rdfh.ch/licenses/cc-by-4.0` | FIXME: Multiple licenses found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
+| file    | resource_id | license | copyright                                                 | authorship_1  | authorship_2    |
+| ------- | ----------- | ------- | --------------------------------------------------------- | ------------- | --------------- |
+| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                  | Rita Gautschy | Daniela Subotic |
+| cat.jpg | res_2       | CC BY   | FIXME: Multiple licenses found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
 
 Please add a copyright holder to the CSV:
 
-| file    | resource_id | license                             | copyright | authorship_1  | authorship_2    |
-| ------- | ----------- | ----------------------------------- | --------- | ------------- | --------------- |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy | Daniela Subotic |
-| cat.jpg | res_2       | `http://rdfh.ch/licenses/cc-by-4.0` | Louvre    | Rita Gautschy | Daniela Subotic |
+| file    | resource_id | license | copyright | authorship_1  | authorship_2    |
+| ------- | ----------- | ------- | --------- | ------------- | --------------- |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Rita Gautschy | Daniela Subotic |
+| cat.jpg | res_2       | CC BY   | Louvre    | Rita Gautschy | Daniela Subotic |
 
 
-### 2. Authorship Absent
+### 2. Problem: Authorship Absent
 
 CSV Output:
 
-| file    | resource_id | license                             | copyright | authorship_1              | authorship_2 |
-| ------- | ----------- | ----------------------------------- | --------- | ------------------------- | ------------ |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | FIXME: Authorship missing |              |
+| file    | resource_id | license | copyright | authorship_1              | authorship_2 |
+| ------- | ----------- | ------- | --------- | ------------------------- | ------------ |
+| dog.jpg | res_1       | CC BY   | DaSCH     | FIXME: Authorship missing |              |
 
 Please add at least one authorship to the CSV:
 
-| file    | resource_id | license                             | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ----------------------------------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | `http://rdfh.ch/licenses/cc-by-4.0` | DaSCH     | Rita Gautschy |              |
+| file    | resource_id | license | copyright | authorship_1  | authorship_2 |
+| ------- | ----------- | ------- | --------- | ------------- | ------------ |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Rita Gautschy |              |
 
 
-### 3. License Absent, Not Parseable, or Multiple Licenses Found
+### 3. Problem: License Absent, Not Parseable, or Multiple Licenses Found
 
 CSV Output:
 
@@ -161,23 +163,23 @@ In this case, you don't really have a license, hence you have to set it to `unkn
 
 ## Step 3: Rerun The Command
 
-Run the command again, this time with a reference to the fixed errors file:
+Run the command again, this time with the partially updated XML file and a reference to the fixed errors file:
 
 ```bash
 dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
---fixed_errors="data_legal_errors.csv" \
-data.xml
+--fixed_errors="data_legal_errors.csv" \      # <-- fixed errors file
+data_PARTIALLY_updated.xml                    # <-- partially updated XML file
 ```
 
-!!! warning
-
-    Don't forget to include the path to the fixed errors file with the flag `--fixed_errors`.
-
 If everything is fine, `data_updated.xml` is created.
-If not, a new version of `data_legal_errors.csv` is created.
+If some of your corrections in the CSV turn out to be problematic, the following happens:
+
+- `data_PARTIALLY_updated.xml` is updated (overwritten) 
+- `data_legal_errors_2.csv` is created
+
 Repeat the steps 2 and 3 until everything is fine.
 
 !!! warning "CSV Values Override Everything"

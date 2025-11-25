@@ -46,8 +46,14 @@ class ProblemAggregator:
             Path to the created CSV file
         """
         output_path = input_file.parent / f"{input_file.stem}_legal_errors.csv"
+        if output_path.exists():
+            msg = (
+                f"The file {output_path} already exists. Have you forgotten the flag '--fixed_errors'? "
+                "If you omitted this flag on purpose, please delete/rename the existing file first."
+            )
+            raise InputError(msg)
         df = self.to_dataframe()
-        df.to_csv(output_path, index=False)
+        df.to_csv(output_path, index=False, mode="x")
         return output_path
 
 

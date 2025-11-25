@@ -1,13 +1,14 @@
 from http import HTTPStatus
 from typing import Any
 
-import regex
 import rustworkx as rx
 from loguru import logger
 from rdflib import Literal
-from rdflib import URIRef
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_tools.commands.create.create_on_server.onto_utils import get_onto_lookup
+from dsp_tools.commands.create.create_on_server.onto_utils import should_retry_request
+from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblemType
@@ -16,8 +17,6 @@ from dsp_tools.commands.create.models.server_project_info import CreatedIriColle
 from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
-from dsp_tools.error.exceptions import CircularOntologyDependency
-from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def create_all_properties(
@@ -29,27 +28,13 @@ def create_all_properties(
     upload_order = _get_property_create_order(properties)
     prop_lookup = {p.name: p for p in properties}
     problems: CreateProblem = []
-    onto_lookup = _get_onto_lookup(project_iri_lookup, onto_client)
-
-
-def _get_onto_lookup(
-    project_iri_lookup: ProjectIriLookup,
-    onto_client: OntologyCreateClient,
-) -> OntoCreateLookup:
-    lookup = OntoCreateLookup(
-        project_iri=project_iri_lookup.project_iri,
-        onto_iris={name: URIRef(iri) for name, iri in project_iri_lookup.onto_iris.items()},
-    )
-    for name, onto_iri in project_iri_lookup.onto_iris.items():
-        last_mod = onto_client.get_last_modification_date(project_iri_lookup.project_iri, onto_iri)
-        lookup = lookup.add_date(name, last_mod)
-    return lookup
+    onto_lookup = get_onto_lookup(project_iri_lookup, onto_client)
 
 
 def _get_property_create_order(properties: list[ParsedProperty]) -> list[str]:
     logger.debug("Creating property upload order.")
     graph, node_to_iri = _make_graph_to_sort(properties)
-    return _sort_properties(graph, node_to_iri)
+    return sort_for_upload(graph, node_to_iri)
 
 
 def _make_graph_to_sort(properties: list[ParsedProperty]) -> tuple[rx.PyDiGraph, dict[int, str]]:
@@ -65,18 +50,6 @@ def _make_graph_to_sort(properties: list[ParsedProperty]) -> tuple[rx.PyDiGraph,
     return graph, node_to_iri
 
 
-def _sort_properties(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[str]:
-    try:
-        node_sorting_order = rx.topological_sort(graph)
-        return [node_to_iri[x] for x in node_sorting_order]
-    except rx.DAGHasCycle as e:
-        logger.error(e)
-        raise CircularOntologyDependency(
-            "A circular dependency of superproperties was found in your project. "
-            "It is not possible for an ontology to have circular dependencies."
-        ) from None
-
-
 def _create_one_property(
     prop: ParsedProperty,
     list_iri: Literal | None,
@@ -90,7 +63,7 @@ def _create_one_property(
     request_result = onto_client.post_new_property(prop_serialised)
     if isinstance(request_result, Literal):
         return request_result
-    if _should_retry(request_result):
+    if should_retry_request(request_result):
         new_mod_date = onto_client.get_last_modification_date(lookup.project_iri, onto_iri)
         prop_serialised = serialise_property_graph_for_request(prop, list_iri, onto_iri, new_mod_date)
         request_result = onto_client.post_new_property(prop_serialised)
@@ -99,12 +72,3 @@ def _create_one_property(
     if request_result.status_code == HTTPStatus.BAD_REQUEST:
         return UploadProblem(prop.name, request_result.text)
     return UploadProblem(prop.name, UploadProblemType.PROPERTY_COULD_NOT_BE_CREATED)
-
-
-def _should_retry(response: ResponseCodeAndText) -> bool:
-    if response.status_code == HTTPStatus.BAD_REQUEST:
-        if regex.search(r"Ontology .+ modified", response.text):
-            return True
-    elif HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
-        return True
-    return False

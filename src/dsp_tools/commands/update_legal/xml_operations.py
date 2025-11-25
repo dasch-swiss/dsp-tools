@@ -3,9 +3,10 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
-from dsp_tools.commands.update_legal.models import LegalMetadata, UpdateCounter
+from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.commands.update_legal.models import UpdateCounter
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 
@@ -38,8 +39,6 @@ def update_one_xml_resource(
         properties=properties,
         defaults=defaults,
         csv_metadata=csv_metadata,
-        media_elem=media_elem,
-        auth_text_to_id=auth_text_to_id,
     )
     _apply_metadata_to_element(
         media_elem=media_elem,
@@ -61,19 +60,9 @@ def _resolve_metadata_values(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
-    media_elem: etree._Element,
-    auth_text_to_id: dict[str, int],
 ) -> tuple[str | None, str | None, list[str]]:
     """
     Resolve metadata values using priority: CSV > XML > defaults.
-
-    Args:
-        res: The resource element
-        properties: Configuration for property names
-        defaults: Default values to use
-        csv_metadata: Corrections from CSV file
-        media_elem: The bitstream or iiif-uri element
-        auth_text_to_id: Dictionary to track unique authorships
 
     Returns:
         Tuple of (license_val, copyright_val, authorships)
@@ -105,11 +94,6 @@ def _resolve_metadata_values(
         authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
     if not authorships and defaults.authorship_default:
         authorships = [defaults.authorship_default]
-        # Add to authorship definitions
-        if (auth_id := auth_text_to_id.get(defaults.authorship_default)) is None:
-            auth_id = len(auth_text_to_id)
-            auth_text_to_id[defaults.authorship_default] = auth_id
-        media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
     return license_val, copyright_val, authorships
 
@@ -136,11 +120,11 @@ def _extract_license_from_xml(res: etree._Element, license_prop: str) -> str | N
 
 
 def _extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | None:
-    """Extract copyright from XML property."""
     copy_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{copy_prop}']/text")
     if not copy_elems:
         return None
-    # Use first element if multiple exist
+    if len(copy_elems) > 1:
+        return f"FIXME: Multiple copyrights found. Choose one: {copy_elems}"
     copy_elem = copy_elems[0]
     if not copy_elem.text or not (copy_text := copy_elem.text.strip()):
         return None
@@ -148,7 +132,6 @@ def _extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | No
 
 
 def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> list[str]:
-    """Extract authorships from XML property."""
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
     if not auth_elems:
         return []
@@ -168,26 +151,16 @@ def _apply_metadata_to_element(
     authorships: list[str],
     auth_text_to_id: dict[str, int],
 ) -> None:
-    """
-    Apply valid metadata values as attributes on the media element.
-
-    Args:
-        media_elem: The bitstream or iiif-uri element
-        license_val: The license value (or None)
-        copyright_val: The copyright value (or None)
-        authorships: List of authorship values
-        auth_text_to_id: Dictionary to track unique authorships
-    """
+    """Apply legal metadata as attributes on the bitstream/iiif element."""
     if license_val and not is_fixme_value(license_val):
         media_elem.attrib["license"] = license_val
     if copyright_val and not is_fixme_value(copyright_val):
         media_elem.attrib["copyright-holder"] = copyright_val
-    if authorships and not is_fixme_value(authorships[0]):
-        # Use first authorship for the attribute TODO
-        first_auth = authorships[0]
-        if (auth_id := auth_text_to_id.get(first_auth)) is None:
+    if authorships and not any(is_fixme_value(x) for x in authorships):
+        auth_text = ", ".join([x.strip() for x in authorships])
+        if (auth_id := auth_text_to_id.get(auth_text)) is None:
             auth_id = len(auth_text_to_id)
-            auth_text_to_id[first_auth] = auth_id
+            auth_text_to_id[auth_text] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
 

@@ -2,7 +2,8 @@
 
 ## Purpose
 
-The `update-legal` command converts legal metadata in XML files from the old format (text properties) to the new format (bitstream attributes). This migration is necessary because:
+The `update-legal` command converts legal metadata in XML files from the old format (text properties)
+to the new format (bitstream attributes). This migration is necessary because:
 
 - **Old format**: Legal metadata (authorship, copyright, license) stored as `<text-prop>` elements within resources
 - **New format**: Legal metadata stored as attributes directly on `<bitstream>` or `<iiif-uri>` elements
@@ -51,7 +52,7 @@ Metadata values are resolved using this priority order:
 
 ### [core.py](core.py)
 
-**Main orchestration and validation logic**
+Main orchestration and validation logic:
 
 - `update_legal_metadata()`: Entry point that coordinates entire workflow
 - `_validate_flags()`: Ensures property names exist in XML
@@ -59,14 +60,15 @@ Metadata values are resolved using this priority order:
 - `_has_problems()`: Checks if metadata contains FIXME markers or missing values
 - `_update_counter()`: Tracks statistics for final report
 
-**Key patterns:**
+Key patterns:
+
 - Uses functional approach with pure helper functions
 - Separates concerns: validation, extraction, application, output
 - Authorship deduplication via `auth_text_to_id` dictionary (maps authorship text to unique ID)
 
 ### [models.py](models.py)
 
-**Data structures and configuration**
+Data structures and configuration:
 
 - `LegalProperties`: Configuration for XML property names (e.g., `:hasAuthor`)
 - `LegalMetadata`: Represents legal metadata for a single resource (license, copyright, authorships)
@@ -74,13 +76,15 @@ Metadata values are resolved using this priority order:
 - `Problem`: Represents validation error for CSV export
 - `UpdateCounter`: Statistics tracker for final report
 
-**Important notes:**
-- `LegalMetadataDefaults.__init__()` automatically validates and parses license strings using `xmllib.find_license_in_string()`
+Important notes:
+
+- `LegalMetadataDefaults.__init__()` automatically validates and parses license strings
+  using `xmllib.find_license_in_string()`
 - All dataclasses use frozen=True for immutability where appropriate
 
 ### [csv_operations.py](csv_operations.py)
 
-**CSV I/O for error handling workflow**
+CSV I/O for error handling workflow:
 
 - `ProblemAggregator`: Converts problems to DataFrame with dynamic authorship columns
 - `read_corrections_csv()`: Parses CSV corrections into `dict[resource_id, LegalMetadata]`
@@ -88,17 +92,19 @@ Metadata values are resolved using this priority order:
 - `is_fixme_value()`: Checks if value starts with "FIXME:" prefix
 
 **CSV format:**
+
 - Fixed columns: `file`, `resource_id`, `license`, `copyright`
 - Dynamic columns: `authorship_1`, `authorship_2`, ... (as many as needed)
 - Sorted by resource_id for easy navigation
 
 **Error prevention:**
+
 - Refuses to overwrite existing CSV unless `--fixed_errors` flag provided
 - Helpful error message suggests correct flag usage
 
 ### [xml_operations.py](xml_operations.py)
 
-**XML manipulation and metadata application**
+XML manipulation and metadata application:
 
 - `update_one_xml_resource()`: Main function that collects and applies metadata for one resource
 - `_resolve_metadata_values()`: Implements priority system (CSV > XML > defaults)
@@ -111,12 +117,14 @@ Metadata values are resolved using this priority order:
 - `write_final_xml()`: Writes updated XML with statistics
 
 **Authorship deduplication:**
+
 - Multiple resources can share same authorship (e.g., "Rita Gautschy, Daniela Subotic")
 - `auth_text_to_id` dictionary tracks unique authorships and assigns sequential IDs
 - Authorship definitions added to root as `<authorship id="authorship_0">` elements
 - Media elements reference via `authorship-id="authorship_0"` attribute
 
 **Multiple value detection:**
+
 - If multiple copyright values found: returns `"FIXME: Multiple copyrights found. Choose one: ..."`
 - If multiple license values found: returns `"FIXME: Multiple licenses found. Choose one: ..."`
 - This triggers CSV export for manual resolution
@@ -128,6 +136,7 @@ Metadata values are resolved using this priority order:
 Problem: Multiple resources may share the same authorship (e.g., "Rita Gautschy, Daniela Subotic").
 
 Solution:
+
 1. Maintain `auth_text_to_id: dict[str, int]` throughout tree traversal
 2. When applying authorship to media element:
    - Join all authorship values with ", " separator
@@ -144,11 +153,12 @@ Result: Shared authorships stored once at root, referenced by multiple resources
 Problem: Need to distinguish between missing values and values that need manual correction.
 
 Solution:
+
 - Use "FIXME:" prefix for values that need correction
 - `is_fixme_value()` checks for this prefix
 - During extraction:
-  - Multiple values: `"FIXME: Multiple X found. Choose one: A, B"`
-  - Invalid license: `"FIXME: Invalid license: courtesy of museum"`
+    - Multiple values: `"FIXME: Multiple X found. Choose one: A, B"`
+    - Invalid license: `"FIXME: Invalid license: courtesy of museum"`
 - During validation: FIXME values treated same as missing values
 - During CSV reading: FIXME values converted back to None
 
@@ -156,9 +166,10 @@ Result: Clear distinction between "missing" and "needs correction" in CSV workfl
 
 ### License Parsing
 
-Problem: License strings come in many formats ("CC BY", "CC-BY-4.0", "http://rdfh.ch/licenses/cc-by-4.0").
+Problem: License strings come in many formats (`CC BY`, `CC-BY-4.0`, `http://rdfh.ch/licenses/cc-by-4.0`).
 
 Solution:
+
 - Use `xmllib.find_license_in_string()` to parse license text into standardized License enum
 - If parsing fails, return `"FIXME: Invalid license: {text}"`
 - In defaults, parse license string during `__init__()` to fail fast if invalid
@@ -193,6 +204,7 @@ Result: All licenses normalized to standard IRIs.
 ### Validation Rules
 
 A resource has problems if:
+
 - License is None or FIXME value
 - Copyright is None or FIXME value
 - Authorships is empty list or contains FIXME value
@@ -218,6 +230,7 @@ This applies to every column, not just FIXME markers.
 ### Error Messages
 
 User-facing error messages:
+
 - Missing property: Caught early in `_validate_flags()` with clear message
 - Existing CSV: Suggests using `--fixed_errors` flag
 - Invalid license default: Raised during `LegalMetadataDefaults.__init__()`
@@ -228,6 +241,7 @@ User-facing error messages:
 ### Unit Testing
 
 Test each function in isolation:
+
 - **Extraction functions**: Test with various XML structures (missing, single, multiple values)
 - **Priority resolution**: Test all combinations of CSV/XML/defaults
 - **FIXME detection**: Test all FIXME marker formats
@@ -237,6 +251,7 @@ Test each function in isolation:
 ### Integration Testing
 
 Test file I/O and cross-module interactions:
+
 - **Full workflow**: Input XML → CSV → corrected CSV → output XML
 - **Property validation**: Missing properties raise correct error
 - **Default values**: Applied when XML values missing
@@ -245,6 +260,7 @@ Test file I/O and cross-module interactions:
 ### E2E Testing
 
 Test realistic scenarios:
+
 - **Simple case**: All metadata present and valid
 - **Missing values**: Some resources missing authorship/copyright/license
 - **Invalid licenses**: Test "courtesy" and other invalid formats
@@ -289,6 +305,7 @@ For typical XML files (thousands of resources), performance should be near-insta
 ## Future Improvements
 
 Possible enhancements:
+
 - Batch processing: Process multiple XML files at once
 - Auto-detection: Try to guess property names from XML structure
 - Validation preview: Show what would be changed without modifying XML

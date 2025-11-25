@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
@@ -22,7 +23,7 @@ def add_all_cardinalities(
     ontologies: list[ParsedOntology],
     project_iri_lookup: ProjectIriLookup,
     created_iris: CreatedIriCollection,
-    onto_client: OntologyCreateClientLive,
+    onto_client: OntologyCreateClient,
 ) -> CollectedProblems | None:
     all_problems = []
     for onto in ontologies:

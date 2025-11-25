@@ -5,6 +5,7 @@ from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.models.licenses.recommended import License
 
 
+@dataclass
 class UpdateCounter:
     resources_updated: int = 0
     licenses_set: int = 0

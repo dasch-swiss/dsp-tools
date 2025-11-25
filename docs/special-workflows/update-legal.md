@@ -78,7 +78,7 @@ For each multimedia resource, one or more of these errors may occur:
       https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string).
 
 If there were errors, no output XML is written.
-Instead, you get the file `legal_errors.csv` that lists the problematic resources.
+Instead, you get the file `<input_file>_legal_errors.csv` that lists the problematic resources.
 Please go through the CSV and fix the errors directly in the CSV.
 
 In case that the properties are present for some resources, but missing for others,
@@ -90,7 +90,7 @@ Delete the CSV and run the command again with the following flags:
 ```bash
 dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
---authorship_default="Project Member"
+--authorship_default="Project Member" \
 --copyright_prop=":hasCopyright" \
 --copyright_default="University of Basel" \
 --license_prop=":hasLicense" \
@@ -168,7 +168,7 @@ dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
---fixed_errors="legal_errors.csv" \
+--fixed_errors="data_legal_errors.csv" \
 data.xml
 ```
 

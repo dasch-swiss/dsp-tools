@@ -42,10 +42,7 @@ def update_legal_metadata(
 
     root = parse_xml_file(input_file)
     root = transform_into_localnames(root)
-
-    if not properties.has_any_property():
-        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
-    # TODO: validate "properties": verify that at each of them appears at least once in the XML
+    _validate_flags(root, properties)
 
     root_updated, counter, problems = _update_xml_tree(
         root=root,
@@ -59,6 +56,19 @@ def update_legal_metadata(
         return False
     else:
         return write_final_xml(input_file, root_updated, counter)
+
+
+def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:
+    if not properties.has_any_property():
+        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
+    text_prop_names = {x for x in root.xpath("//text-prop/@name")}
+    inexisting_props = [
+        x
+        for x in [properties.authorship_prop, properties.copyright_prop, properties.license_prop]
+        if x and x not in text_prop_names
+    ]
+    if inexisting_props:
+        raise InputError(f"The following properties do not exist in the XML file: {', '.join(inexisting_props)}")
 
 
 def _update_xml_tree(

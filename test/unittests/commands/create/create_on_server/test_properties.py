@@ -93,6 +93,16 @@ class TestSortProperties:
         result = _sort_properties(graph, node_to_iri)
         assert result == ["PropA"]
 
+    def test_sorts_single_node_gdrapha(self):
+        graph = rx.PyDiGraph()
+        node_idxa = graph.add_node("PropA")
+        node_idxb = graph.add_node("PropB")
+        graph.add_edge(node_idxa, node_idxb, None)
+        graph.add_edge(node_idxb, node_idxa, None)
+        node_to_iri = {node_idxa: "PropA", node_idxb: "PropB"}
+        result = _sort_properties(graph, node_to_iri)
+        assert result == ["PropA"]
+
     def test_sorts_diamond_pattern_correctly(self):
         # Diamond: A has edges to B and C, B and C have edges to D
         graph = rx.PyDiGraph()

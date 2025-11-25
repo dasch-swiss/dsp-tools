@@ -23,17 +23,17 @@ class UserInformationMessage(StrEnum):
 @dataclass
 class CreateProblem:
     problematic_object: str
-    problem: ProblemType
+    problem: ProblemType | str
 
 
 @dataclass
 class InputProblem(CreateProblem):
-    problem: InputProblemType
+    problem: InputProblemType | str
 
 
 @dataclass
 class UploadProblem(CreateProblem):
-    problem: UploadProblemType
+    problem: UploadProblemType | str
 
 
 class ProblemType(StrEnum): ...
@@ -65,3 +65,4 @@ class UploadProblemType(ProblemType):
     # Ontology
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
     CARDINALITY_PROPERTY_NOT_FOUND = "The referenced property does not exist on the server."
+    PROPERTY_COULD_NOT_BE_CREATED = "The property could not be created."

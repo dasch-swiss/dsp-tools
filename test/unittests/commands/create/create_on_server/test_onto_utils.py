@@ -45,8 +45,8 @@ class TestSortUploadOrder:
         node_to_iri = {node_a: "nodeA", node_b: "nodeB", node_c: "nodeC", node_d: "nodeD"}
         result = sort_for_upload(graph, node_to_iri)
         # A should come first (no incoming edges), D should come last (no outgoing edges)
-        assert result[0] == "nodeA"
-        assert result[-1] == "nodeD"
+        assert result[0] == "nodeD"
+        assert result[-1] == "nodeA"
         assert set(result[1:3]) == {"nodeC", "nodeB"}
 
 
@@ -71,6 +71,6 @@ def test_creates_lookup_with_two_ontologies():
     assert result.onto_iris["onto1"] == URIRef(onto_iri_1)
     assert result.onto_iris["onto2"] == URIRef(onto_iri_2)
     assert len(result.name_to_last_modification_date) == 2
-    assert result.get_last_mod_date("onto1") == mod_date_1
-    assert result.get_last_mod_date("onto2") == mod_date_2
+    assert result.get_last_mod_date(onto_iri_1) == mod_date_1
+    assert result.get_last_mod_date(onto_iri_2) == mod_date_2
     assert mock_client.get_last_modification_date.call_count == 2

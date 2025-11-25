@@ -106,7 +106,7 @@ def create_ontologies(
             last_modification_date=ontology_remote.lastModificationDate,
             verbose=verbose,
         )
-        success_collection.classes.update(set(remote_res_classes.keys()))
+        success_collection.created_classes.update(set(remote_res_classes.keys()))
         if not success:
             overall_success = False
 
@@ -121,7 +121,7 @@ def create_ontologies(
             knora_api_prefix=knora_api_prefix,
             verbose=verbose,
         )
-        success_collection.properties.update(property_successes)
+        success_collection.created_properties.update(property_successes)
         created_ontos.append((ontology_definition, ontology_remote, remote_res_classes))
         if not success:
             overall_success = False

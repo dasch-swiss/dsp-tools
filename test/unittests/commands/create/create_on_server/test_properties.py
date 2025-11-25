@@ -13,15 +13,11 @@ KNORA_SUPER = "http://api.knora.org/ontology/knora-api/v2#hasValue"
 EXTERNAL_SUPER = "http://xmlns.com/foaf/0.1/name"
 
 
-def make_test_property(
-    name: str,
-    supers: list[str] | None = None,
-    onto_name: str = "test_onto",
-) -> ParsedProperty:
+def make_test_property(name: str, supers: list[str] | None = None) -> ParsedProperty:
     """Helper function to create a test property with standard defaults."""
     supr = supers if supers else []
     supr.append(KNORA_SUPER)
-    full_name = f"http://api.knora.org/ontology/0001/{onto_name}/v2#{name}"
+    full_name = f"http://api.knora.org/ontology/0001/onto/v2#{name}"
     return ParsedProperty(
         name=full_name,
         labels={"en": f"Label for {name}"},
@@ -31,7 +27,7 @@ def make_test_property(
         subject=None,
         gui_element=GuiElement.SIMPLETEXT,
         node_name=None,
-        onto_name=onto_name,
+        onto_name="onto",
     )
 
 

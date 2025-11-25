@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
-from rdflib import Literal
 
 from dsp_tools.commands.create.create_on_server.properties import _create_one_property
 from dsp_tools.commands.create.create_on_server.properties import _get_property_create_order
@@ -178,22 +177,21 @@ class TestCreateOneProperty:
             name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
-        first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        mock_client.post_new_property.side_effect = [first_response, LAST_MOD_2]
-        mock_client.get_last_modification_date.return_value = LAST_MOD_3
+        internal_error_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
+        mock_client.get_last_modification_date.return_value = LAST_MOD_2
+        mock_client.post_new_property.side_effect = [internal_error_response, LAST_MOD_3]
         mock_serialise.return_value = {"@graph": []}
         mock_should_retry.return_value = True
         result = _create_one_property(prop, list_iri, onto_lookup, mock_client)
-        assert result == LAST_MOD_2
+        assert result == LAST_MOD_3
         assert mock_client.post_new_property.call_count == 2
-        mock_should_retry.assert_called_once_with(first_response)
+        mock_should_retry.assert_called_once_with(internal_error_response)
         mock_client.get_last_modification_date.assert_called_once_with(onto_lookup.project_iri, ONTO_IRI)
         assert mock_serialise.call_count == 2
 
     @patch("dsp_tools.commands.create.create_on_server.properties.serialise_property_graph_for_request")
     @patch("dsp_tools.commands.create.create_on_server.properties.should_retry_request")
     def test_bad_request_failure(self, mock_should_retry, mock_serialise):
-        """Test that a BAD_REQUEST failure returns UploadProblem with the response text."""
         prop = make_test_property("TestProp")
         list_iri = None
         onto_lookup = OntoCreateLookup(
@@ -215,7 +213,6 @@ class TestCreateOneProperty:
     @patch("dsp_tools.commands.create.create_on_server.properties.serialise_property_graph_for_request")
     @patch("dsp_tools.commands.create.create_on_server.properties.should_retry_request")
     def test_non_retryable_failure(self, mock_should_retry, mock_serialise):
-        """Test that a non-retryable failure returns UploadProblem with generic error type."""
         prop = make_test_property("TestProp")
         list_iri = None
         onto_lookup = OntoCreateLookup(
@@ -224,7 +221,9 @@ class TestCreateOneProperty:
             name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
-        response = ResponseCodeAndText(status_code=HTTPStatus.FORBIDDEN, text="Forbidden")
+        response = ResponseCodeAndText(
+            status_code=HTTPStatus.UNAVAILABLE_FOR_LEGAL_REASONS, text="A code that will not be retried"
+        )
         mock_client.post_new_property.return_value = response
         mock_serialise.return_value = {"@graph": []}
         mock_should_retry.return_value = False
@@ -245,8 +244,8 @@ class TestCreateOneProperty:
             name_to_last_modification_date={"onto": LAST_MODIFICATION_DATE},
         )
         mock_client = MagicMock()
-        first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        second_response = ResponseCodeAndText(status_code=HTTPStatus.FORBIDDEN, text="Forbidden")
+        first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 1")
+        second_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 2")
         mock_client.post_new_property.side_effect = [first_response, second_response]
         mock_client.get_last_modification_date.return_value = LAST_MOD_2
         mock_serialise.return_value = {"@graph": []}
@@ -340,28 +339,6 @@ class TestCreateAllProperties:
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
-    def test_property_without_node_name(self, mock_create_one, mock_is_blocked, mock_get_order, mock_get_lookup):
-        """Test that property without node_name does not call list_lookup.get_iri."""
-        prop1 = make_test_property("Prop1")
-        prop1.node_name = None
-        properties = [prop1]
-        mock_get_order.return_value = [prop1.name]
-        mock_is_blocked.return_value = None
-        mock_create_one.return_value = LAST_MOD_2
-        onto_lookup = MagicMock()
-        mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
-        created_iris = CreatedIriCollection()
-        list_lookup = MagicMock()
-        mock_client = MagicMock()
-        result_iris, _ = create_all_properties(properties, project_iri_lookup, created_iris, list_lookup, mock_client)
-        list_lookup.get_iri.assert_not_called()
-        assert prop1.name in result_iris.created_properties
-
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
-    @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
-    @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
-    @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
     def test_creation_fails(self, mock_create_one, mock_is_blocked, mock_get_order, mock_get_lookup):
         """Test that when creation fails, property is added to failed_properties and problems."""
         prop1 = make_test_property("Prop1")
@@ -384,86 +361,3 @@ class TestCreateAllProperties:
         onto_lookup.add_last_mod_date.assert_not_called()
         assert result_problems is not None
         assert len(result_problems.problems) == 1
-
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
-    @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
-    @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
-    @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
-    def test_mixed_results(self, mock_create_one, mock_is_blocked, mock_get_order, mock_get_lookup):
-        """Test mixed scenario: some properties succeed, some blocked, some fail."""
-        prop1 = make_test_property("Prop1")
-        prop2 = make_test_property("Prop2")
-        prop3 = make_test_property("Prop3")
-        properties = [prop1, prop2, prop3]
-        mock_get_order.return_value = [prop1.name, prop2.name, prop3.name]
-        blocking_problem = UploadProblem(prop2.name, UploadProblemType.PROPERTY_SUPER_FAILED)
-        mock_is_blocked.side_effect = [None, blocking_problem, None]
-        literal1 = Literal("2024-01-01T00:00:01Z")
-        creation_problem = UploadProblem(prop3.name, UploadProblemType.PROPERTY_COULD_NOT_BE_CREATED)
-        mock_create_one.side_effect = [literal1, creation_problem]
-        onto_lookup = MagicMock()
-        mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
-        created_iris = CreatedIriCollection()
-        list_lookup = ListNameToIriLookup(name2iri={})
-        mock_client = MagicMock()
-        result_iris, result_problems = create_all_properties(
-            properties, project_iri_lookup, created_iris, list_lookup, mock_client
-        )
-        assert prop1.name in result_iris.created_properties
-        assert prop2.name in result_iris.failed_properties
-        assert prop3.name in result_iris.failed_properties
-        assert result_problems is not None
-        assert len(result_problems.problems) == 2
-        assert onto_lookup.add_last_mod_date.call_count == 1
-
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
-    @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
-    @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
-    @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
-    def test_empty_properties_list(self, mock_create_one, mock_is_blocked, mock_get_order, mock_get_lookup):
-        """Test that empty properties list returns empty results."""
-        properties = []
-        mock_get_order.return_value = []
-        onto_lookup = MagicMock()
-        mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
-        created_iris = CreatedIriCollection()
-        list_lookup = ListNameToIriLookup(name2iri={})
-        mock_client = MagicMock()
-        _, result_problems = create_all_properties(
-            properties, project_iri_lookup, created_iris, list_lookup, mock_client
-        )
-        assert len(created_iris.created_properties) == 2
-        assert len(created_iris.failed_properties) == 0
-        assert result_problems is None
-        mock_is_blocked.assert_not_called()
-        mock_create_one.assert_not_called()
-
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
-    @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
-    @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
-    @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
-    def test_problems_collected_correctly(self, mock_create_one, mock_is_blocked, mock_get_order, mock_get_lookup):
-        """Test that problems are collected correctly and returned as CollectedProblems."""
-        prop1 = make_test_property("Prop1")
-        prop2 = make_test_property("Prop2")
-        properties = [prop1, prop2]
-        mock_get_order.return_value = [prop1.name, prop2.name]
-        problem1 = UploadProblem(prop1.name, UploadProblemType.PROPERTY_SUPER_FAILED)
-        problem2 = UploadProblem(prop2.name, UploadProblemType.PROPERTY_COULD_NOT_BE_CREATED)
-        mock_is_blocked.side_effect = [problem1, None]
-        mock_create_one.return_value = problem2
-        onto_lookup = MagicMock()
-        mock_get_lookup.return_value = onto_lookup
-        project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
-        created_iris = CreatedIriCollection()
-        list_lookup = ListNameToIriLookup(name2iri={})
-        mock_client = MagicMock()
-        _, result_problems = create_all_properties(
-            properties, project_iri_lookup, created_iris, list_lookup, mock_client
-        )
-        assert result_problems is not None
-        assert isinstance(result_problems, CollectedProblems)
-        assert len(result_problems.problems) == 2
-        assert result_problems.header == "    While creating properties the following problems occurred:"

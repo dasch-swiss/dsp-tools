@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from dataclasses import field
 
+from rdflib import Literal
+from rdflib import URIRef
+
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.error.exceptions import InternalError
 
@@ -12,6 +15,22 @@ class ProjectIriLookup:
 
     def add_onto(self, name: str, iri: str) -> None:
         self.onto_iris[name] = iri
+
+
+@dataclass
+class OntoCreateLookup:
+    project_iri: str
+    onto_iris: dict[str, URIRef]
+    name_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)
+
+    def get_onto_iri(self, name: str) -> URIRef:
+        return self.onto_iris[name]
+
+    def get_last_mod_date(self, name: str) -> Literal:
+        return self.name_to_last_modification_date[name]
+
+    def add_date(self, name: str, last_modification_date: Literal) -> None:
+        self.name_to_last_modification_date[name] = last_modification_date
 
 
 @dataclass

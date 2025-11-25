@@ -46,15 +46,15 @@ def one_bitstream_one_iiif() -> etree._Element:
 def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
-    assert result is not None
+    root_returned, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    assert root_returned is not None
     assert counter is not None
-    assert len(result) == 3
+    assert len(root_returned) == 3
     assert len(problems) == 0  # No problems expected
     assert counter.resources_updated == 2
-    auth_def = result[0]
-    resource_1 = result[1]
-    resource_2 = result[2]
+    auth_def = root_returned[0]
+    resource_1 = root_returned[1]
+    resource_2 = root_returned[2]
 
     assert auth_def.tag == "authorship"
     assert auth_def.attrib["id"] == "authorship_0"
@@ -98,11 +98,11 @@ def test_incomplete_legal() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 3 problems (one for each resource with missing fields)
     assert len(problems) == 3
-    assert result is None
+    assert root_returned is None
     assert counter is None
 
     # Check the problems contain FIXME markers
@@ -133,11 +133,11 @@ def test_missing_legal() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have 1 problem for the resource with all fields missing
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
@@ -165,11 +165,11 @@ def test_different_authors() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
     # Should have problems because license and copyright are missing
     assert len(problems) == 3
-    assert result is None
+    assert root_returned is None
     assert counter is None
 
 
@@ -177,9 +177,9 @@ def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:
     """Test that when no properties are provided, the function returns None and counter is None with problems."""
     properties = LegalProperties(authorship_prop="", copyright_prop="", license_prop="")
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(one_bitstream_one_iiif, properties=properties, defaults=defaults)
     assert len(problems) == 2
-    assert result is None
+    assert root_returned is None
     assert counter is None
 
     properties_empty = LegalProperties()
@@ -203,11 +203,11 @@ def test_empty_author() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty authorship
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].authorships[0]
@@ -225,11 +225,11 @@ def test_empty_copy() -> None:
     """)
     properties = LegalProperties(copyright_prop=COPY_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty copyright
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].copyright
@@ -247,11 +247,11 @@ def test_empty_license() -> None:
     """)
     properties = LegalProperties(license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for empty license
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
@@ -269,11 +269,11 @@ def test_unknown_license() -> None:
     """)
     properties = LegalProperties(license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(empty, properties=properties, defaults=defaults)
 
     # Should have 1 problem for unknown license
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert "FIXME: Invalid license: CC FO BA 4.0" in problems[0].license
@@ -294,9 +294,9 @@ def test_defaults_all_applied() -> None:
         copyright_default="Default Copyright Holder",
         license_default="CC BY 4.0",
     )
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
     assert counter.resources_updated == 1
@@ -304,13 +304,13 @@ def test_defaults_all_applied() -> None:
     assert counter.copyrights_set == 1
     assert counter.authorships_set == 1
 
-    resource = result[1]
+    resource = root_returned[1]
     bitstream = resource[0]
     assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
     assert bitstream.attrib["copyright-holder"] == "Default Copyright Holder"
     assert bitstream.attrib["authorship-id"] == "authorship_0"
 
-    auth_def = result[0]
+    auth_def = root_returned[0]
     assert auth_def[0].text == "Default Author"
 
 
@@ -330,19 +330,19 @@ def test_defaults_partial() -> None:
         copyright_default="Default Copyright",
         license_default="CC BY 4.0",
     )
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
 
-    resource = result[1]
+    resource = root_returned[1]
     bitstream = resource[0]
     assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
     assert bitstream.attrib["copyright-holder"] == "Default Copyright"
     assert bitstream.attrib["authorship-id"] == "authorship_0"
 
-    auth_def = result[0]
+    auth_def = root_returned[0]
     assert auth_def[0].text == "XML Author"
 
 
@@ -361,10 +361,10 @@ def test_multiple_licenses() -> None:
     """)
     properties = LegalProperties(license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     assert problems[0].license == "FIXME: Multiple licenses found. Choose one: CC BY 4.0, CC BY-SA 4.0"
@@ -385,10 +385,10 @@ def test_multiple_copyrights() -> None:
     """)
     properties = LegalProperties(copyright_prop=COPY_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 1
-    assert result is None
+    assert root_returned is None
     assert counter is None
     assert problems[0].res_id == "res_1"
     expected_copyright = "FIXME: Multiple copyrights found. Choose one: Copyright Holder 1, Copyright Holder 2"
@@ -411,14 +411,14 @@ def test_multiple_authorships_per_resource() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults(copyright_default="Default Copy", license_default="CC BY 4.0")
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
-    assert len(result) == 2
+    assert len(root_returned) == 2
 
-    auth_def = result[0]
+    auth_def = root_returned[0]
     assert auth_def.tag == "authorship"
     assert auth_def.attrib["id"] == "authorship_0"
     assert len(auth_def) == 3
@@ -426,7 +426,7 @@ def test_multiple_authorships_per_resource() -> None:
     assert auth_def[1].text == "Author Two"
     assert auth_def[2].text == "Author Three"
 
-    resource = result[1]
+    resource = root_returned[1]
     bitstream = resource[0]
     assert bitstream.attrib["authorship-id"] == "authorship_0"
 
@@ -454,10 +454,10 @@ def test_counter_accuracy_mixed() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
     assert len(problems) == 2
-    assert result is None
+    assert root_returned is None
     assert counter is None
 
 
@@ -487,9 +487,9 @@ def test_counter_accuracy_all_complete() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
     assert counter.resources_updated == 3
@@ -521,9 +521,9 @@ def test_resources_without_media_skipped() -> None:
     """)
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
-    result, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
     assert counter.resources_updated == 2
@@ -707,19 +707,19 @@ def test_csv_corrections_override_xml(tmp_path: Path) -> None:
         license_default="CC BY-SA 4.0",
     )
 
-    result, counter, problems = _update_xml_tree(
+    root_returned, counter, problems = _update_xml_tree(
         xml, properties=properties, defaults=defaults, csv_corrections=csv_metadata
     )
 
-    assert result is not None
+    assert root_returned is not None
     assert counter is not None
     assert len(problems) == 0
 
-    resource = result[1]
+    resource = root_returned[1]
     bitstream = resource[0]
 
     assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc0-1.0"
     assert bitstream.attrib["copyright-holder"] == "CSV Copyright"
 
-    auth_def = result[0]
+    auth_def = root_returned[0]
     assert auth_def[0].text == "CSV Author"

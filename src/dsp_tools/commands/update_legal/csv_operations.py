@@ -17,6 +17,8 @@ class ProblemAggregator:
     def to_dataframe(self) -> pd.DataFrame:
         """Convert problems to DataFrame for CSV export."""
         problem_dicts = []
+        max_authorships = max((len(p.authorships) for p in self.problems), default=0)
+
         for problem in self.problems:
             row_dict = {
                 "file": problem.file_or_iiif_uri,
@@ -26,13 +28,20 @@ class ProblemAggregator:
             }
 
             # Add authorship columns (authorship_1, authorship_2, etc.)
-            for i, authorship in enumerate(problem.authorships, start=1):
-                row_dict[f"authorship_{i}"] = authorship
+            for i in range(1, max_authorships + 1):
+                auth_idx = i - 1
+                row_dict[f"authorship_{i}"] = problem.authorships[auth_idx] if auth_idx < len(problem.authorships) else ""
 
             problem_dicts.append(row_dict)
 
         df = pd.DataFrame.from_records(problem_dicts)
         df = df.sort_values(by=["resource_id"])
+
+        # Ensure column order matches documentation
+        base_cols = ["file", "resource_id", "license", "copyright"]
+        auth_cols = [f"authorship_{i}" for i in range(1, max_authorships + 1)]
+        df = df[base_cols + auth_cols]
+
         return df
 
     def save_to_csv(self, input_file: Path) -> Path:

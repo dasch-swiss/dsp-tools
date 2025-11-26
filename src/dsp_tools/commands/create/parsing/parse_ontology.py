@@ -167,7 +167,7 @@ def _parse_classes(
             parsed.append(result)
         else:
             problems.extend(result)
-    return parsed, []
+    return parsed, problems
 
 
 def _parse_one_class(

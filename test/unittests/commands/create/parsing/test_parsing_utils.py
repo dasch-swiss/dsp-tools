@@ -7,7 +7,7 @@ from dsp_tools.commands.create.constants import SALSAH_GUI_STR
 from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
-from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
+from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 EXTERNAL_PREFIXES = {
     "wrong-ending": "http://wrong-ending.org/onto",
@@ -51,14 +51,14 @@ class TestResolveToAbsoluteIri:
         [
             ("hasValue", f"{KNORA_API_STR}hasValue"),
             ("knora-api:hasValue", f"{KNORA_API_STR}hasValue"),
-            ("onto:testBool", f"{ONTO_PREFIX}testBool"),
-            (":testBool", f"{ONTO_PREFIX}testBool"),
+            ("onto:testBool", f"{ONTO_NAMESPACE_STR}testBool"),
+            (":testBool", f"{ONTO_NAMESPACE_STR}testBool"),
             ("http://purl.org/dc/terms/title", "http://purl.org/dc/terms/title"),
             (f"{KNORA_API_STR}hasValue", f"{KNORA_API_STR}hasValue"),
         ],
     )
     def test_good(self, prefixed_iri, expected, prefixes):
-        result = resolve_to_absolute_iri(prefixed_iri, ONTO_PREFIX, prefixes)
+        result = resolve_to_absolute_iri(prefixed_iri, ONTO_NAMESPACE_STR, prefixes)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -68,5 +68,5 @@ class TestResolveToAbsoluteIri:
         ],
     )
     def test_fail(self, prefixed_iri, prefixes):
-        result = resolve_to_absolute_iri(prefixed_iri, ONTO_PREFIX, prefixes)
+        result = resolve_to_absolute_iri(prefixed_iri, ONTO_NAMESPACE_STR, prefixes)
         assert result is None

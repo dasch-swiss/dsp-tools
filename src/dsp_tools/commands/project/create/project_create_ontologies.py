@@ -1,6 +1,5 @@
 from typing import Any
 from typing import Optional
-from typing import cast
 
 import regex
 from loguru import logger
@@ -10,6 +9,7 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
+from dsp_tools.commands.create.create_on_server.properties import create_all_properties
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
@@ -17,7 +17,6 @@ from dsp_tools.commands.create.models.server_project_info import ProjectIriLooku
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.commands.project.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.project.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -30,7 +29,6 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 def create_ontologies(
     con: Connection,
     context: Context,
-    knora_api_prefix: str,
     list_name_2_iri: ListNameToIriLookup,
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
@@ -47,7 +45,6 @@ def create_ontologies(
     Args:
         con: Connection to the DSP server
         context: prefixes and the ontology IRIs they stand for
-        knora_api_prefix: the prefix that stands for the knora-api ontology
         list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
         ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
@@ -79,7 +76,6 @@ def create_ontologies(
     for existing_onto in project_ontologies:
         project_iri_lookup.add_onto(existing_onto.name, existing_onto.iri)
 
-    created_ontos: list[tuple[dict[str, Any], Ontology, dict[str, ResourceClass]]] = []
     for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
             onto_name=ontology_definition["name"],
@@ -98,7 +94,7 @@ def create_ontologies(
             project_iri_lookup.add_onto(ontology_remote.name, ontology_remote.iri)
 
         # add the empty resource classes to the remote ontology
-        last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
+        _, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
             onto_name=ontology_definition["name"],
             resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
@@ -106,25 +102,27 @@ def create_ontologies(
             last_modification_date=ontology_remote.lastModificationDate,
             verbose=verbose,
         )
-        success_collection.classes.update(set(remote_res_classes.keys()))
+        success_collection.created_classes.update(set(remote_res_classes.keys()))
         if not success:
             overall_success = False
 
-        # add the property classes to the remote ontology
-        last_modification_date, success, property_successes = _add_property_classes_to_remote_ontology(
-            onto_name=ontology_definition["name"],
-            property_definitions=ontology_definition.get("properties", []),
-            ontology_remote=ontology_remote,
-            list_name_2_iri=list_name_2_iri,
-            con=con,
-            last_modification_date=last_modification_date,
-            knora_api_prefix=knora_api_prefix,
-            verbose=verbose,
+    all_props = []
+    for onto in parsed_ontologies:
+        all_props.extend(onto.properties)
+    if all_props:
+        print(BOLD + "Processing Properties:" + RESET_TO_DEFAULT)
+        success_collection, property_problems = create_all_properties(
+            properties=all_props,
+            project_iri_lookup=project_iri_lookup,
+            created_iris=success_collection,
+            list_lookup=list_name_2_iri,
+            client=onto_client,
         )
-        success_collection.properties.update(property_successes)
-        created_ontos.append((ontology_definition, ontology_remote, remote_res_classes))
-        if not success:
+        if property_problems:
             overall_success = False
+            print_problem_collection(property_problems)
+    else:
+        logger.info("No properties found in the ontology.")
 
     print(BOLD + "Processing Cardinalities:" + RESET_TO_DEFAULT)
     problems = add_all_cardinalities(
@@ -307,154 +305,3 @@ def _sort_resources(
                 ok_resource_names.append(res_name)
                 resources_to_sort.remove(res)
     return sorted_resources
-
-
-def _add_property_classes_to_remote_ontology(  # noqa: PLR0912
-    onto_name: str,
-    property_definitions: list[dict[str, Any]],
-    ontology_remote: Ontology,
-    list_name_2_iri: ListNameToIriLookup,
-    con: Connection,
-    last_modification_date: DateTimeStamp,
-    knora_api_prefix: str,
-    verbose: bool,
-) -> tuple[DateTimeStamp, bool, set[str]]:
-    """
-    Creates the property classes defined in the "properties" section of an ontology. The
-    containing project and the containing ontology must already be existing on the DSP server.
-    If an error occurs during creation of a property class, it is printed out, the process continues, but the success
-    status will be false.
-
-    Args:
-        onto_name: name of the current ontology
-        property_definitions: the part of the parsed JSON project file that contains the properties of the current onto
-        ontology_remote: representation of the current ontology on the DSP server
-        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
-        con: connection to the DSP server
-        last_modification_date: last modification date of the ontology on the DSP server
-        knora_api_prefix: the prefix that stands for the knora-api ontology
-        verbose: verbose switch
-
-    Returns:
-        a tuple consisting of the last modification date of the ontology, and the success status
-    """
-    property_successes = set()
-    overall_success = True
-    print("    Create property classes...")
-    logger.info("Create property classes...")
-    sorted_prop_classes = _sort_prop_classes(property_definitions, onto_name)
-    for prop_class in sorted_prop_classes:
-        # get the super-property/ies, valid forms are:
-        #   - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be
-        #     defined in the prefixes part.
-        #   - ":super-property" : super-property defined in current ontology
-        #   - "super-property" : super-property defined in the knora-api ontology
-        #   - if omitted, "knora-api:hasValue" is assumed
-        if prop_class.get("super"):
-            super_props = []
-            for super_class in prop_class["super"]:
-                if ":" in super_class:
-                    prefix, _class = super_class.split(":")
-                    super_props.append(super_class if prefix else f"{ontology_remote.name}:{_class}")
-                else:
-                    super_props.append(knora_api_prefix + super_class)
-        else:
-            super_props = ["knora-api:hasValue"]
-
-        # get the "object", valid forms are:
-        #   - "prefix:object_name" : fully qualified object. The prefix has to be defined in the prefixes part.
-        #   - ":object_name" : The object is defined in the current ontology.
-        #   - "object_name" : The object is defined in "knora-api"
-        if ":" in prop_class["object"]:
-            prefix, _object = prop_class["object"].split(":")
-            prop_object = f"{prefix}:{_object}" if prefix else f"{ontology_remote.name}:{_object}"
-        else:
-            prop_object = knora_api_prefix + prop_class["object"]
-
-        # get the gui_attributes
-        gui_attributes = prop_class.get("gui_attributes")
-        if gui_attributes and gui_attributes.get("hlist"):
-            list_name = gui_attributes["hlist"]
-            list_iri = list_name_2_iri.get_iri(list_name)
-            if not list_iri:
-                err_msg = (
-                    f"Unable to create property class '{prop_class['name']}' "
-                    f"because the list with the name '{list_name}' does not exist on the server."
-                )
-                print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg)
-                overall_success = False
-                continue
-
-            gui_attributes["hlist"] = f"<{list_iri}>"
-
-        # create the property class
-        prop_class_local = PropertyClass(
-            con=con,
-            context=ontology_remote.context,
-            label=LangString(prop_class.get("labels")),
-            name=prop_class["name"],
-            ontology_id=ontology_remote.iri,
-            superproperties=super_props,
-            rdf_object=prop_object,
-            rdf_subject=prop_class.get("subject"),
-            gui_element="salsah-gui:" + prop_class["gui_element"],
-            gui_attributes=gui_attributes,
-            comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,
-        )
-        try:
-            last_modification_date, prop_class_created = prop_class_local.create(last_modification_date)
-            ontology_remote.lastModificationDate = last_modification_date
-            if verbose:
-                print(f"    Created property class '{prop_class['name']}'")
-            logger.info(f"Created property class '{prop_class['name']}'")
-            prop_iri = cast(str, prop_class_created.iri)
-            property_successes.add(prop_iri)
-        except BaseError as err:
-            err_msg = f"Unable to create property class '{prop_class['name']}'"
-            if found := regex.search(
-                r"Entity .+ refers to entity (.+), which is in a non-shared ontology that belongs to another project",
-                err.message,
-            ):
-                err_msg += f", because it refers to a class of another project: '{found.group(1)}'."
-            print(f"    WARNING: {err_msg}")
-            logger.exception(err_msg)
-            overall_success = False
-
-    return last_modification_date, overall_success, property_successes
-
-
-def _sort_prop_classes(
-    unsorted_prop_classes: list[dict[str, Any]],
-    onto_name: str,
-) -> list[dict[str, Any]]:
-    """
-    In case of inheritance, parent properties must be uploaded before their children. This method sorts the
-    properties.
-
-    Args:
-        unsorted_prop_classes: list of properties from a parsed JSON project file
-        onto_name: name of the onto
-
-    Returns:
-        sorted list of properties
-    """
-
-    # do not modify the original unsorted_prop_classes, which points to the original JSON project file
-    prop_classes_to_sort = unsorted_prop_classes.copy()
-    sorted_prop_classes: list[dict[str, Any]] = []
-    ok_propclass_names: list[str] = []
-    while prop_classes_to_sort:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
-        for prop in prop_classes_to_sort.copy():
-            prop_name = f"{onto_name}:{prop['name']}"
-            parent_classes = prop.get("super", "hasValue")
-            if isinstance(parent_classes, str):
-                parent_classes = [parent_classes]
-            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
-            parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
-            if all(parent_classes_ok):
-                sorted_prop_classes.append(prop)
-                ok_propclass_names.append(prop_name)
-                prop_classes_to_sort.remove(prop)
-    return sorted_prop_classes

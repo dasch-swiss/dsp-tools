@@ -15,7 +15,7 @@ class OntologyCreateClient(Protocol):
     server: str
     authentication_client: AuthenticationClient
 
-    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> str:
+    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         """Get the last modification date of an ontology"""
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
@@ -23,6 +23,9 @@ class OntologyCreateClient(Protocol):
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Create a property on the server"""
+
+    def post_new_class(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        """Create a class on the server"""
 
 
 class OntologyGetClient(Protocol):

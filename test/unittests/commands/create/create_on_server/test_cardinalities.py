@@ -40,7 +40,9 @@ def onto_client_ok() -> Mock:
 
 @pytest.fixture
 def created_iri_collection() -> CreatedIriCollection:
-    return CreatedIriCollection(classes={str(RESOURCE_IRI), RES_1, RES_2, RES_3}, properties={str(PROP_IRI)})
+    return CreatedIriCollection(
+        created_classes={str(RESOURCE_IRI), RES_1, RES_2, RES_3}, created_properties={str(PROP_IRI)}
+    )
 
 
 class TestAddOneCardinality:

@@ -199,3 +199,14 @@ class InvalidLicenseError(InputError):
             "See https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string"
         )
         super().__init__(msg)
+
+
+class CircularOntologyDependency(CreateError):
+    """Class if a circular dependency was found in the ontology."""
+
+    def __init__(self, dependency_location: str) -> None:
+        msg = (
+            f"A circular dependency of {dependency_location} was found in your project. "
+            f"It is not possible for an ontology to have circular dependencies."
+        )
+        super().__init__(msg)

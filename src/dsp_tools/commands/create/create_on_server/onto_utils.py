@@ -6,7 +6,7 @@ from loguru import logger
 from rdflib import URIRef
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
+from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.error.exceptions import CircularOntologyDependency
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -33,11 +33,11 @@ def sort_for_upload(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[st
         ) from None
 
 
-def get_onto_lookup(
+def get_modification_date_onto_lookup(
     project_iri_lookup: ProjectIriLookup,
     onto_client: OntologyCreateClient,
-) -> OntoCreateLookup:
-    lookup = OntoCreateLookup(
+) -> OntoLastModDateLookup:
+    lookup = OntoLastModDateLookup(
         project_iri=project_iri_lookup.project_iri,
         onto_iris={name: URIRef(iri) for name, iri in project_iri_lookup.onto_iris.items()},
     )

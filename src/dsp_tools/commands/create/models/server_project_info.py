@@ -18,7 +18,7 @@ class ProjectIriLookup:
 
 
 @dataclass
-class OntoCreateLookup:
+class OntoLastModDateLookup:
     project_iri: str
     onto_iris: dict[str, URIRef]
     iri_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)

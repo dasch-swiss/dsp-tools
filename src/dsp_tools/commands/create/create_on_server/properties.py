@@ -8,7 +8,7 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.commands.create.create_on_server.onto_utils import get_onto_lookup
+from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import should_retry_request
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
@@ -18,7 +18,7 @@ from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
-from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
+from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 
@@ -34,7 +34,7 @@ def create_all_properties(
     logger.debug(f"Property creation order: {upload_order}")
     prop_lookup = {p.name: p for p in properties}
     all_problems: list[CreateProblem] = []
-    onto_lookup = get_onto_lookup(project_iri_lookup, client)
+    onto_lookup = get_modification_date_onto_lookup(project_iri_lookup, client)
     progress_bar = tqdm(upload_order, desc="    Creating properties", dynamic_ncols=True)
     logger.debug("Starting property creation")
     for p in progress_bar:
@@ -99,7 +99,7 @@ def _make_graph_to_sort(properties: list[ParsedProperty]) -> tuple[rx.PyDiGraph,
 def _create_one_property(
     prop: ParsedProperty,
     list_iri: Literal | None,
-    onto_lookup: OntoCreateLookup,
+    onto_lookup: OntoLastModDateLookup,
     client: OntologyCreateClient,
 ) -> Literal | CreateProblem:
     prop_serialised = serialise_property_graph_for_request(

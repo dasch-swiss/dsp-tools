@@ -7,7 +7,7 @@ import rustworkx as rx
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.create.create_on_server.onto_utils import get_onto_lookup
+from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.error.exceptions import CircularOntologyDependency
@@ -64,7 +64,7 @@ def test_creates_lookup_with_two_ontologies():
     mock_client = Mock()
     mock_client.get_last_modification_date.side_effect = [mod_date_1, mod_date_2]
 
-    result = get_onto_lookup(project_iri_lookup, mock_client)
+    result = get_modification_date_onto_lookup(project_iri_lookup, mock_client)
 
     assert result.project_iri == project_iri
     assert len(result.onto_iris) == 2

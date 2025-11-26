@@ -20,7 +20,7 @@ from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
-from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
+from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MOD_2
@@ -153,7 +153,7 @@ class TestCreateOneProperty:
     def test_success_on_first_attempt(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": URIRef(ONTO)},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -172,7 +172,7 @@ class TestCreateOneProperty:
     def test_success_after_retry(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -195,7 +195,7 @@ class TestCreateOneProperty:
     def test_bad_request_failure(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -216,7 +216,7 @@ class TestCreateOneProperty:
     def test_non_retryable_failure(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -239,7 +239,7 @@ class TestCreateOneProperty:
         """Test that when retry is triggered but second attempt also fails, appropriate problem is returned."""
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},

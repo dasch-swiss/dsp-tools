@@ -56,7 +56,7 @@ def parse_ontology(ontology_json: dict[str, Any], prefixes: dict[str, str]) -> P
     fails = []
     props, prop_fails = _parse_properties(ontology_json["properties"], current_onto, prefixes)
     fails.extend(prop_fails)
-    classes, cls_fails = _parse_classes(ontology_json["resources"], current_onto)
+    classes, cls_fails = _parse_classes(ontology_json["resources"], current_onto, prefixes)
     fails.extend(cls_fails)
     cards, card_fails = _parse_cardinalities(ontology_json["resources"], current_onto, prefixes)
     fails.extend(card_fails)
@@ -173,7 +173,7 @@ def _parse_classes(
 def _parse_one_class(
     cls: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> ParsedClass | list[CreateProblem]:
-    problems = []
+    problems: list[CreateProblem] = []
     supers = [cls["super"]] if isinstance(cls["super"], str) else cls["super"]
     resolved_supers = []
     for s in supers:

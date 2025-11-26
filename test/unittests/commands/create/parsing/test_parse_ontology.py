@@ -161,9 +161,12 @@ class TestParseClasses:
         cmnt = {"en": "This is a comment"}
         cls = {"name": "TestArchiveRepresentation", "super": "inexistent:Cls", "labels": lbl, "comments": cmnt}
         result = _parse_one_class(cls, ONTO_PREFIX, prefixes)
-        assert isinstance(result, CreateProblem)
-        assert result.problematic_object == 'At class "TestArchiveRepresentation" / Super: "inexistent:Cls"'
-        assert result.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
+        assert isinstance(result, list)
+        assert len(result) == 1
+        problem = result.pop(0)
+        assert isinstance(problem, CreateProblem)
+        assert problem.problematic_object == 'At class "TestArchiveRepresentation" / Super: "inexistent:Cls"'
+        assert problem.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseCardinalities:

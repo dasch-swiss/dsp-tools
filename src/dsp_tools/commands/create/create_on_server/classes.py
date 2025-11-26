@@ -29,8 +29,8 @@ def create_all_classes(
     client: OntologyCreateClient,
 ) -> tuple[CreatedIriCollection, CollectedProblems | None]:
     upload_order = _get_class_create_order(classes)
-    logger.debug(f"Property creation order: {upload_order}")
-    cls_lookup = {p.name: p for p in classes}
+    logger.debug(f"Class creation order: {upload_order}")
+    cls_lookup = {c.name: c for c in classes}
     all_problems: list[CreateProblem] = []
     onto_lookup = get_modification_date_onto_lookup(project_iri_lookup, client)
     progress_bar = tqdm(upload_order, desc="    Creating classes", dynamic_ncols=True)
@@ -54,9 +54,9 @@ def create_all_classes(
     return created_iris, upload_problems
 
 
-def _get_class_create_order(properties: list[ParsedClass]) -> list[str]:
+def _get_class_create_order(classes: list[ParsedClass]) -> list[str]:
     logger.debug("Creating class upload order.")
-    graph, node_to_iri = _make_graph_to_sort(properties)
+    graph, node_to_iri = _make_graph_to_sort(classes)
     return sort_for_upload(graph, node_to_iri)
 
 
@@ -75,7 +75,7 @@ def _make_graph_to_sort(classes: list[ParsedClass]) -> tuple[rx.PyDiGraph, dict[
 
 def _is_class_blocked(cls_name: str, supers: set[str], created_iris: CreatedIriCollection) -> CreateProblem | None:
     if created_iris.any_classes_failed(supers):
-        return UploadProblem(cls_name, UploadProblemType.PROPERTY_SUPER_FAILED)
+        return UploadProblem(cls_name, UploadProblemType.CLASS_SUPER_FAILED)
     return None
 
 

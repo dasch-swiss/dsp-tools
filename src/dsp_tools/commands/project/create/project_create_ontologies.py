@@ -1,15 +1,14 @@
 from typing import Any
 from typing import Optional
 
-import regex
 from loguru import logger
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
-from dsp_tools.commands.create.create_on_server.classes import create_all_classes
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
+from dsp_tools.commands.create.create_on_server.classes import create_all_classes
 from dsp_tools.commands.create.create_on_server.properties import create_all_properties
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
@@ -18,16 +17,13 @@ from dsp_tools.commands.create.models.server_project_info import ProjectIriLooku
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.commands.project.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
-def create_ontologies(
+def create_ontologies(  # noqa:PLR0912 Too many branches
     con: Connection,
     context: Context,
     list_name_2_iri: ListNameToIriLookup,
@@ -213,100 +209,3 @@ def _create_ontology(
             ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 
     return ontology_remote
-
-
-def _add_resource_classes_to_remote_ontology(
-    onto_name: str,
-    resclass_definitions: list[dict[str, Any]],
-    ontology_remote: Ontology,
-    con: Connection,
-    last_modification_date: DateTimeStamp,
-    verbose: bool,
-) -> tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
-    """
-    Creates the resource classes (without cardinalities) defined in the "resources" section of an ontology. The
-    containing project and the containing ontology must already be existing on the DSP server.
-    If an error occurs during creation of a resource class, it is printed out, the process continues, but the success
-    status will be false.
-
-    Args:
-        onto_name: name of the current ontology
-        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
-        ontology_remote: representation of the current ontology on the DSP server
-        con: connection to the DSP server
-        last_modification_date: last modification date of the ontology on the DSP server
-        verbose: verbose switch
-
-    Returns:
-        last modification date of the ontology,
-        new resource classes,
-        success status
-    """
-
-    overall_success = True
-    print("    Create resource classes...")
-    logger.info("Create resource classes...")
-    new_res_classes: dict[str, ResourceClass] = {}
-    sorted_resources = _sort_resources(resclass_definitions, onto_name)
-    for res_class in sorted_resources:
-        super_classes = res_class["super"]
-        if isinstance(super_classes, str):
-            super_classes = [super_classes]
-        res_class_local = ResourceClass(
-            con=con,
-            context=ontology_remote.context,
-            ontology_id=ontology_remote.iri,
-            name=res_class["name"],
-            superclasses=super_classes,
-            label=LangString(res_class.get("labels")),
-            comment=LangString(res_class.get("comments")) if res_class.get("comments") else None,
-        )
-        try:
-            last_modification_date, res_class_remote = res_class_local.create(last_modification_date)
-            new_res_classes[str(res_class_remote.iri)] = res_class_remote
-            ontology_remote.lastModificationDate = last_modification_date
-            if verbose:
-                print(f"    Created resource class '{res_class['name']}'")
-            logger.info(f"Created resource class '{res_class['name']}'")
-        except BaseError:
-            err_msg = f"Unable to create resource class '{res_class['name']}'."
-            print(f"WARNING: {err_msg}")
-            logger.exception(err_msg)
-            overall_success = False
-
-    return last_modification_date, new_res_classes, overall_success
-
-
-def _sort_resources(
-    unsorted_resources: list[dict[str, Any]],
-    onto_name: str,
-) -> list[dict[str, Any]]:
-    """
-    This method sorts the resource classes in an ontology according to their inheritance order (parent classes first).
-
-    Args:
-        unsorted_resources: list of resources from a parsed JSON project file
-        onto_name: name of the onto
-
-    Returns:
-        sorted list of resource classes
-    """
-
-    # do not modify the original unsorted_resources, which points to the original JSON project file
-    resources_to_sort = unsorted_resources.copy()
-    sorted_resources: list[dict[str, Any]] = []
-    ok_resource_names: list[str] = []
-    while resources_to_sort:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
-        for res in resources_to_sort.copy():
-            parent_classes = res["super"]
-            if isinstance(parent_classes, str):
-                parent_classes = [parent_classes]
-            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
-            parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
-            if all(parent_classes_ok):
-                sorted_resources.append(res)
-                res_name = f"{onto_name}:{res['name']}"
-                ok_resource_names.append(res_name)
-                resources_to_sort.remove(res)
-    return sorted_resources

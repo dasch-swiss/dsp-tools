@@ -116,6 +116,28 @@ def sample_property_graph() -> dict[str, object]:
     }
 
 
+@pytest.fixture
+def sample_class_graph() -> dict[str, object]:
+    return {
+        "@id": "http://0.0.0.0:3333/ontology/4124/testonto/v2",
+        "@type": ["http://www.w3.org/2002/07/owl#Ontology"],
+        "http://api.knora.org/ontology/knora-api/v2#lastModificationDate": [
+            {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": str(LAST_MODIFICATION_DATE)}
+        ],
+        "@graph": [
+            {
+                "@id": str(TEST_RES_IRI),
+                "@type": "http://www.w3.org/2002/07/owl#Class",
+                "http://www.w3.org/2000/01/rdf-schema#label": {"@language": "en", "@value": "Test Resource"},
+                "http://www.w3.org/2000/01/rdf-schema#comment": {"@language": "en", "@value": "A test resource class"},
+                "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+                    {"@id": "http://api.knora.org/ontology/knora-api/v2#Resource"}
+                ],
+            }
+        ],
+    }
+
+
 class TestOntologyClientLive:
     def test_post_resource_cardinalities_success(
         self,
@@ -259,6 +281,76 @@ class TestOntologyClientLive:
 
         with pytest.raises(DspToolsRequestException):
             ontology_client.post_new_property(sample_property_graph)
+
+    def test_post_new_class_success(
+        self,
+        ontology_client,
+        sample_class_graph,
+        ok_response_onto_graph,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        # Mock successful response
+        mock_response = Mock(spec=Response)
+        mock_response.ok = True
+        mock_response.status_code = HTTPStatus.OK.value
+        mock_response.text = json.dumps(ok_response_onto_graph)
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+        result = ontology_client.post_new_class(sample_class_graph)
+        assert result == NEW_MODIFICATION_DATE
+
+    def test_post_new_class_forbidden(
+        self,
+        ontology_client: OntologyCreateClientLive,
+        sample_class_graph: dict[str, object],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        mock_response = Mock(spec=Response)
+        mock_response.ok = False
+        mock_response.status_code = HTTPStatus.FORBIDDEN.value
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+        with pytest.raises(BadCredentialsError):
+            ontology_client.post_new_class(sample_class_graph)
+
+    def test_post_new_class_server_error(
+        self,
+        ontology_client: OntologyCreateClientLive,
+        sample_class_graph: dict[str, object],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        mock_response = Mock(spec=Response)
+        mock_response.ok = False
+        mock_response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR.value
+        mock_response.text = "Internal Server Error"
+
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
+            return mock_response
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+        result = ontology_client.post_new_class(sample_class_graph)
+        assert isinstance(result, ResponseCodeAndText)
+        assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR.value
+        assert result.text == "Internal Server Error"
+
+    def test_post_new_class_timeout(
+        self,
+        ontology_client: OntologyCreateClientLive,
+        sample_class_graph: dict[str, object],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        def mock_post_and_log_request(*_args: object, **_kwargs: object) -> None:
+            raise ReadTimeout("Connection timed out")
+
+        monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
+        with pytest.raises(DspToolsRequestException):
+            ontology_client.post_new_class(sample_class_graph)
 
     def test_post_and_log_request_creates_correct_headers(
         self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch

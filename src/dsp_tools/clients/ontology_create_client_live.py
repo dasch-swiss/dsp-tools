@@ -79,6 +79,22 @@ class OntologyCreateClientLive(OntologyCreateClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
+    def post_new_class(self, class_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        url = f"{self.server}/v2/ontologies/classes"
+        try:
+            response = self._post_and_log_request(url, class_graph)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        if response.ok:
+            return _parse_last_modification_date(response.text)
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can create classes. "
+                "Your permissions are insufficient for this action."
+            )
+        return ResponseCodeAndText(response.status_code, response.text)
+
     def _post_and_log_request(
         self,
         url: str,

@@ -185,3 +185,14 @@ class CreateError(BaseError):
 
 class ProjectNotFoundError(CreateError):
     """Class if a project is expected to exist but could not be found."""
+
+
+class CircularOntologyDependency(CreateError):
+    """Class if a circular dependency was found in the ontology."""
+
+    def __init__(self, dependency_location: str) -> None:
+        msg = (
+            f"A circular dependency of {dependency_location} was found in your project. "
+            f"It is not possible for an ontology to have circular dependencies."
+        )
+        super().__init__(msg)

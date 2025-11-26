@@ -205,7 +205,7 @@ def add_authorship_definitions_to_xml(root: etree._Element, auth_text_to_id: dic
         root.insert(0, auth_def)
 
 
-def write_final_xml(
+def write_updated_xml(
     input_file: Path,
     root: etree._Element,
     counter: UpdateCounter,

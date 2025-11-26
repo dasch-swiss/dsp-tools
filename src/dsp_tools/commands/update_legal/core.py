@@ -13,7 +13,7 @@ from dsp_tools.commands.update_legal.models import UpdateCounter
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions_to_xml
 from dsp_tools.commands.update_legal.xml_operations import apply_metadata_to_resource
 from dsp_tools.commands.update_legal.xml_operations import collect_metadata
-from dsp_tools.commands.update_legal.xml_operations import write_final_xml
+from dsp_tools.commands.update_legal.xml_operations import write_updated_xml
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import transform_into_localnames
@@ -54,11 +54,11 @@ def update_legal_metadata(
 
     if len(problems) == 0:
         # Success - write fully updated XML with _updated suffix
-        return write_final_xml(input_file, root_updated, counter, partial=False)
+        return write_updated_xml(input_file, root_updated, counter, partial=False)
     else:
         # Partial update - write both CSV and partial XML
         write_problems_to_csv(input_file, problems)
-        return write_final_xml(input_file, root_updated, counter, partial=True)
+        return write_updated_xml(input_file, root_updated, counter, partial=True)
 
 
 def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:

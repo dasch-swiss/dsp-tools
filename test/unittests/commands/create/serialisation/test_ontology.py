@@ -363,7 +363,7 @@ class TestSerialiseClass:
 
     def test_make_graph_with_multiple_supers(self, class_with_multiple_supers):
         result = _make_one_class_graph(class_with_multiple_supers)
-        assert len(result) == 5
+        assert len(result) == 4
         assert (RESOURCE_IRI, RDF.type, OWL.Class) in result
         assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="en")) in result
         assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result
@@ -372,10 +372,10 @@ class TestSerialiseClass:
 
     def test_make_graph_with_comment(self, class_with_comment):
         result = _make_one_class_graph(class_with_comment)
-        assert len(result) == 7
+        assert len(result) == 6
         assert (RESOURCE_IRI, RDF.type, OWL.Class) in result
-        assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="en")) in result
-        assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="de")) in result
+        assert (RESOURCE_IRI, RDFS.label, Literal("Label EN", lang="en")) in result
+        assert (RESOURCE_IRI, RDFS.label, Literal("Label DE", lang="de")) in result
         assert (RESOURCE_IRI, RDFS.comment, Literal("Comment EN", lang="en")) in result
         assert (RESOURCE_IRI, RDFS.comment, Literal("Kommentar DE", lang="de")) in result
         assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result

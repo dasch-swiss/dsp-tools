@@ -1,3 +1,4 @@
+import time
 from http import HTTPStatus
 
 import regex
@@ -17,6 +18,7 @@ def should_retry_request(response: ResponseCodeAndText) -> bool:
         if regex.search(r"Ontology .+ modified", response.text):
             return True
     elif HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
+        time.sleep(5)
         return True
     return False
 

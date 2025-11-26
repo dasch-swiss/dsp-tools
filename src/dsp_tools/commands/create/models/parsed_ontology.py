@@ -7,6 +7,7 @@ from enum import auto
 from typing import Any
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
+from dsp_tools.commands.create.constants import SALSAH_GUI_STR
 
 
 @dataclass
@@ -35,7 +36,7 @@ class ParsedProperty:
     subject: str | None
     gui_element: GuiElement
     node_name: str | None
-    onto_name: str
+    onto_iri: str
 
 
 class KnoraObjectType(StrEnum):
@@ -52,17 +53,17 @@ class KnoraObjectType(StrEnum):
 
 
 class GuiElement(StrEnum):
-    CHECKBOX = f"{KNORA_API_STR}Checkbox"
-    COLORPICKER = f"{KNORA_API_STR}Colorpicker"
-    DATE = f"{KNORA_API_STR}Date"
-    SPINBOX = f"{KNORA_API_STR}Spinbox"
-    GEONAMES = f"{KNORA_API_STR}Geonames"
-    LIST = f"{KNORA_API_STR}List"
-    SIMPLETEXT = f"{KNORA_API_STR}SimpleText"
-    TEXTAREA = f"{KNORA_API_STR}Textarea"
-    RICHTEXT = f"{KNORA_API_STR}Richtext"
-    SEARCHBOX = f"{KNORA_API_STR}Searchbox"
-    TIME_STAMP = f"{KNORA_API_STR}TimeStamp"
+    CHECKBOX = f"{SALSAH_GUI_STR}Checkbox"
+    COLORPICKER = f"{SALSAH_GUI_STR}Colorpicker"
+    DATE = f"{SALSAH_GUI_STR}Date"
+    SPINBOX = f"{SALSAH_GUI_STR}Spinbox"
+    GEONAMES = f"{SALSAH_GUI_STR}Geonames"
+    LIST = f"{SALSAH_GUI_STR}List"
+    SIMPLETEXT = f"{SALSAH_GUI_STR}SimpleText"
+    TEXTAREA = f"{SALSAH_GUI_STR}Textarea"
+    RICHTEXT = f"{SALSAH_GUI_STR}Richtext"
+    SEARCHBOX = f"{SALSAH_GUI_STR}Searchbox"
+    TIME_STAMP = f"{SALSAH_GUI_STR}TimeStamp"
 
 
 @dataclass

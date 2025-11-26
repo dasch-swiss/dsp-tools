@@ -4,7 +4,6 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
@@ -22,7 +21,7 @@ def add_all_cardinalities(
     ontologies: list[ParsedOntology],
     project_iri_lookup: ProjectIriLookup,
     created_iris: CreatedIriCollection,
-    onto_client: OntologyCreateClientLive,
+    onto_client: OntologyCreateClient,
 ) -> CollectedProblems | None:
     all_problems = []
     for onto in ontologies:
@@ -58,7 +57,7 @@ def _add_all_cardinalities_for_one_onto(
     )
     for c in progress_bar:
         # we do not inform about classes failures here, as it will have been done upstream
-        if c.class_iri not in created_iris.classes:
+        if c.class_iri not in created_iris.created_classes:
             logger.warning(f"CARDINALITY: Class '{c.class_iri}' not in successes, no cardinalities added.")
             continue
         last_modification_date, creation_problems = _add_cardinalities_for_one_class(
@@ -66,7 +65,7 @@ def _add_all_cardinalities_for_one_onto(
             onto_iri=onto_iri,
             last_modification_date=last_modification_date,
             onto_client=onto_client,
-            successful_props=created_iris.properties,
+            successful_props=created_iris.created_properties,
         )
         problems.extend(creation_problems)
     return problems

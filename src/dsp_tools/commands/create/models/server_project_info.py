@@ -18,7 +18,7 @@ class ProjectIriLookup:
 
 
 @dataclass
-class OntoCreateLookup:
+class OntoLastModDateLookup:
     project_iri: str
     onto_iris: dict[str, URIRef]
     iri_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)
@@ -26,7 +26,7 @@ class OntoCreateLookup:
     def get_last_mod_date(self, iri: str) -> Literal:
         return self.iri_to_last_modification_date[iri]
 
-    def add_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
+    def update_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
         self.iri_to_last_modification_date[iri] = last_modification_date
 
 
@@ -74,10 +74,10 @@ class CreatedIriCollection:
     def __post_init__(self) -> None:
         self.created_properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
 
-    def property_failed(self, props: set[str]) -> bool:
+    def any_properties_failed(self, props: set[str]) -> bool:
         return bool(props.intersection(self.failed_properties))
 
-    def class_failed(self, classes: set[str]) -> bool:
+    def any_classes_failed(self, classes: set[str]) -> bool:
         return bool(classes.intersection(self.failed_classes))
 
 

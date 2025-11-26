@@ -20,7 +20,7 @@ from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
-from dsp_tools.commands.create.models.server_project_info import OntoCreateLookup
+from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MOD_2
@@ -74,16 +74,13 @@ class TestGetPropertyOrder:
     def test_multiple_inheritance_scenario(self, three_multiple_inheritance_props):
         prop_a, _, _ = three_multiple_inheritance_props
         result = _get_property_create_order(three_multiple_inheritance_props)
-        # A has edges to both B and C, so A comes before both
-        # the order afterwards does not matter
         assert len(result) == 3
         assert result[-1] == prop_a.name
 
     def test_external_supers_do_not_break_sorting(self):
         p_b = make_test_property("PropB", supers=[])
-        p_a = make_test_property("PropA", supers=[p_b.name])
+        p_a = make_test_property("PropA", supers=[p_b.name, EXTERNAL_SUPER])
         result = _get_property_create_order([p_a, p_b])
-        # A has edge to B, so A comes before B
         assert result == [p_b.name, p_a.name]
         assert KNORA_SUPER not in result
 
@@ -153,7 +150,7 @@ class TestCreateOneProperty:
     def test_success_on_first_attempt(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": URIRef(ONTO)},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -172,7 +169,7 @@ class TestCreateOneProperty:
     def test_success_after_retry(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -195,7 +192,7 @@ class TestCreateOneProperty:
     def test_bad_request_failure(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -216,7 +213,7 @@ class TestCreateOneProperty:
     def test_non_retryable_failure(self, mock_should_retry, mock_serialise):
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -239,7 +236,7 @@ class TestCreateOneProperty:
         """Test that when retry is triggered but second attempt also fails, appropriate problem is returned."""
         prop = make_test_property("TestProp")
         list_iri = None
-        onto_lookup = OntoCreateLookup(
+        onto_lookup = OntoLastModDateLookup(
             project_iri=PROJECT_IRI,
             onto_iris={"onto": ONTO_IRI},
             iri_to_last_modification_date={str(ONTO_IRI): LAST_MODIFICATION_DATE},
@@ -258,7 +255,7 @@ class TestCreateOneProperty:
 
 
 class TestCreateAllProperties:
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -283,9 +280,9 @@ class TestCreateAllProperties:
         assert prop2.name in result_iris.created_properties
         assert len(result_iris.failed_properties) == 0
         assert result_problems is None
-        assert onto_lookup.add_last_mod_date.call_count == 2
+        assert onto_lookup.update_last_mod_date.call_count == 2
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -312,7 +309,7 @@ class TestCreateAllProperties:
         assert isinstance(result_problems, CollectedProblems)
         assert len(result_problems.problems) == 1
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -336,7 +333,7 @@ class TestCreateAllProperties:
         list_lookup.get_iri.assert_called_once_with("TestList")
         assert prop1.name in result_iris.created_properties
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -359,6 +356,6 @@ class TestCreateAllProperties:
         )
         assert prop1.name in result_iris.failed_properties
         assert prop1.name not in result_iris.created_properties
-        onto_lookup.add_last_mod_date.assert_not_called()
+        onto_lookup.update_last_mod_date.assert_not_called()
         assert result_problems is not None
         assert len(result_problems.problems) == 1

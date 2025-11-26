@@ -117,9 +117,9 @@ def _update_xml_tree(
             res=res,
             properties=properties,
             defaults=defaults,
+            counter=counter,
             csv_metadata=csv_metadata,
             treat_invalid_licenses_as_unknown=treat_invalid_licenses_as_unknown,
-            counter=counter,
         )
 
         if _has_problems(metadata):

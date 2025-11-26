@@ -15,31 +15,18 @@ def collect_metadata(
     res: etree._Element,
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
+    counter: UpdateCounter,
     csv_metadata: LegalMetadata | None,
     treat_invalid_licenses_as_unknown: bool = False,
-    counter: UpdateCounter | None = None,
 ) -> LegalMetadata:
-    """
-    Collect legal metadata from CSV corrections, XML properties, or defaults.
-
-    Args:
-        res: The resource element to extract metadata from
-        properties: Configuration for property names to extract from XML
-        defaults: Default values to use when metadata is missing
-        csv_metadata: Corrections from CSV file
-        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
-        counter: Counter for tracking replacements
-
-    Returns:
-        LegalMetadata with collected values
-    """
+    """Collect legal metadata from CSV corrections, XML properties, or defaults."""
     license_val, copyright_val, authorships = _resolve_metadata_values(
         res=res,
         properties=properties,
         defaults=defaults,
+        counter=counter,
         csv_metadata=csv_metadata,
         treat_invalid_licenses_as_unknown=treat_invalid_licenses_as_unknown,
-        counter=counter,
     )
     return LegalMetadata(
         license=license_val,
@@ -80,9 +67,9 @@ def _resolve_metadata_values(
     res: etree._Element,
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
+    counter: UpdateCounter,
     csv_metadata: LegalMetadata | None,
     treat_invalid_licenses_as_unknown: bool = False,
-    counter: UpdateCounter | None = None,
 ) -> tuple[str | None, str | None, list[str]]:
     """
     Resolve metadata values using priority: CSV > XML > defaults.
@@ -91,9 +78,9 @@ def _resolve_metadata_values(
         res: The resource element to extract metadata from
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
+        counter: Counter for tracking replacements
         csv_metadata: Corrections from CSV file
         treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
-        counter: Counter for tracking replacements
 
     Returns:
         Tuple of (license_val, copyright_val, authorships)
@@ -111,7 +98,7 @@ def _resolve_metadata_values(
     # Collect license from XML, fall back to default
     if license_val is None and properties.license_prop:
         license_val = _extract_license_from_xml(
-            res, properties.license_prop, treat_invalid_licenses_as_unknown, counter
+            res, properties.license_prop, counter, treat_invalid_licenses_as_unknown
         )
     if license_val is None and defaults.license_default:
         license_val = defaults.license_default.value
@@ -134,23 +121,17 @@ def _resolve_metadata_values(
 def _extract_license_from_xml(
     res: etree._Element,
     license_prop: str,
+    counter: UpdateCounter,
     treat_invalid_as_unknown: bool = False,
-    counter: UpdateCounter | None = None,
 ) -> str | None:
     """
     Extract license from XML property.
 
     - If one license is found and can be parsed, return its parsed value.
     - If the property is absent or empty, return None -> will fall back to default.
-    - If multiple licenses are found, return a FIXME string (not affected by treat_invalid_as_unknown).
+    - If multiple licenses are found, return a FIXME string.
     - If the license is invalid and treat_invalid_as_unknown is True, return 'unknown' and increment counter.
     - If the license is invalid and treat_invalid_as_unknown is False, return a FIXME string.
-
-    Args:
-        res: The resource element
-        license_prop: Property name for license
-        treat_invalid_as_unknown: If True, replace invalid licenses with 'unknown'
-        counter: Counter for tracking replacements
 
     Returns:
         License value, None, or FIXME string
@@ -166,8 +147,7 @@ def _extract_license_from_xml(
         return None
     if not (lic := find_license_in_string(license_text)):
         if treat_invalid_as_unknown:
-            if counter:
-                counter.invalid_licenses_replaced += 1
+            counter.invalid_licenses_replaced += 1
             return "http://rdfh.ch/licenses/unknown"
         return f"FIXME: Invalid license: {license_text}"
     return lic.value

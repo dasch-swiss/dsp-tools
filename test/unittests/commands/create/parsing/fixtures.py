@@ -8,8 +8,7 @@ import pytest
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.utils.json_parsing import parse_json_file
 
-ONTO_PREFIX = "http://0.0.0.0:3333/ontology/0003/onto/v2#"
-ONTO_NAME = "http://0.0.0.0:3333/ontology/0003/onto/v2"
+ONTO_NAMESPACE_STR = "http://0.0.0.0:3333/ontology/0003/onto/v2#"
 
 
 @pytest.fixture
@@ -20,7 +19,7 @@ def prefixes() -> dict[str, str]:
         "foaf": "http://xmlns.com/foaf/0.1/",
         "in-built": "http://0.0.0.0:3333/ontology/0003/in-built/v2#",
         "knora-api": KNORA_API_STR,
-        "onto": ONTO_PREFIX,
+        "onto": ONTO_NAMESPACE_STR,
         "second-onto": "http://0.0.0.0:3333/ontology/0003/second-onto/v2#",
     }
 

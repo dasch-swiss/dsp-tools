@@ -21,6 +21,7 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
+from test.unittests.commands.create.constants import ONTO_IRI_STR
 
 RESOURCE_IRI = ONTO.Resource
 ONTO_HAS_TEXT = ONTO.hasText
@@ -126,7 +127,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -147,7 +148,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -168,7 +169,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, RDFS.subPropertyOf, URIRef(KNORA_HAS_VALUE)) in result_graph
@@ -184,7 +185,7 @@ class TestSerialiseProperty:
             subject=str(RESOURCE_IRI),
             gui_element=GuiElement.SIMPLETEXT,
             node_name=None,
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         result_graph = _make_one_property_graph(prop, None)
         assert (ONTO_HAS_TEXT, KNORA_API.subjectType, URIRef(str(RESOURCE_IRI))) in result_graph
@@ -199,7 +200,7 @@ class TestSerialiseProperty:
             subject=None,
             gui_element=GuiElement.LIST,
             node_name="node_name",
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         result_graph = _make_one_property_graph(prop, LIST_IRI)
         gui_attrs = list(result_graph.objects(ONTO_HAS_TEXT, SALSAH_GUI.guiAttribute))
@@ -216,7 +217,7 @@ class TestSerialiseProperty:
             subject=str(RESOURCE_IRI),
             gui_element=GuiElement.TEXTAREA,
             node_name=None,
-            onto_iri="onto",
+            onto_iri=ONTO_IRI_STR,
         )
         serialised = serialise_property_graph_for_request(prop, None, ONTO_IRI, LAST_MODIFICATION_DATE)
 

@@ -15,8 +15,8 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from test.unittests.commands.create.parsing.fixtures import ONTO_NAME
-from test.unittests.commands.create.parsing.fixtures import ONTO_PREFIX
+from test.unittests.commands.create.parsing.fixtures import ONTO_IRI_STR
+from test.unittests.commands.create.parsing.fixtures import ONTO_NAMESPACE_STR
 
 
 class TestParseOntology:
@@ -55,9 +55,9 @@ class TestParseProperties:
             "comments": p_cmnt,
             "gui_element": "Date",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, ParsedProperty)
-        assert result.name == f"{ONTO_PREFIX}testDate"
+        assert result.name == f"{ONTO_NAMESPACE_STR}testDate"
         assert result.labels == p_lbl
         assert result.comments == p_cmnt
         assert set(result.supers) == {f"{KNORA_API_STR}hasValue", "http://otherOntology.com/onto/externalDate"}
@@ -65,7 +65,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
         assert result.node_name is None
-        assert result.onto_iri == ONTO_NAME
+        assert result.onto_iri == ONTO_IRI_STR
 
     def test_good_list(self, prefixes):
         p_lbl = {"en": "Test List"}
@@ -77,9 +77,9 @@ class TestParseProperties:
             "gui_element": "List",
             "gui_attributes": {"hlist": "node_name"},
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, ParsedProperty)
-        assert result.name == f"{ONTO_PREFIX}testListProp"
+        assert result.name == f"{ONTO_NAMESPACE_STR}testListProp"
         assert result.labels == p_lbl
         assert result.comments is None
         assert result.supers == [f"{KNORA_API_STR}hasValue"]
@@ -87,7 +87,7 @@ class TestParseProperties:
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
         assert result.node_name == "node_name"
-        assert result.onto_iri == ONTO_NAME
+        assert result.onto_iri == ONTO_IRI_STR
 
     def test_good_link(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -98,17 +98,17 @@ class TestParseProperties:
             "labels": p_lbl,
             "gui_element": "Searchbox",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, ParsedProperty)
-        assert result.name == f"{ONTO_PREFIX}testHasLinkToClassMixedCard"
+        assert result.name == f"{ONTO_NAMESPACE_STR}testHasLinkToClassMixedCard"
         assert result.labels == p_lbl
         assert result.comments is None
-        assert set(result.supers) == {f"{KNORA_API_STR}hasLinkTo", f"{ONTO_PREFIX}internalSuper"}
-        assert result.object == f"{ONTO_PREFIX}ClassMixedCard"
+        assert set(result.supers) == {f"{KNORA_API_STR}hasLinkTo", f"{ONTO_NAMESPACE_STR}internalSuper"}
+        assert result.object == f"{ONTO_NAMESPACE_STR}ClassMixedCard"
         assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
         assert result.node_name is None
-        assert result.onto_iri == ONTO_NAME
+        assert result.onto_iri == ONTO_IRI_STR
 
     def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
@@ -119,7 +119,7 @@ class TestParseProperties:
             "labels": p_lbl,
             "gui_element": "Searchbox",
         }
-        result = _parse_one_property(prop, ONTO_PREFIX, prefixes)
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, list)
         assert len(result) == 1
         prob = result.pop()
@@ -136,7 +136,7 @@ class TestParseClasses:
             "super": "ArchiveRepresentation",
             "labels": {"en": "ArchiveRepresentation"},
         }
-        parsed, problems = _parse_classes([cls], ONTO_PREFIX)
+        parsed, problems = _parse_classes([cls], ONTO_NAMESPACE_STR)
         assert len(parsed) == 1
         assert not problems
 
@@ -149,11 +149,11 @@ class TestParseCardinalities:
             "labels": {"en": "ArchiveRepresentation"},
             "cardinalities": [{"propname": ":testSimpleText", "cardinality": "0-n"}],
         }
-        parsed, failures = _parse_cardinalities([cls], ONTO_PREFIX, prefixes)
+        parsed, failures = _parse_cardinalities([cls], ONTO_NAMESPACE_STR, prefixes)
         assert len(parsed) == 1
         assert len(failures) == 0
         result = parsed.pop(0)
-        assert result.class_iri == f"{ONTO_PREFIX}TestArchiveRepresentation"
+        assert result.class_iri == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
         assert len(result.cards) == 1
 
     def test_parse_cardinalities_no_cards(self, prefixes):
@@ -162,7 +162,7 @@ class TestParseCardinalities:
             "super": "ArchiveRepresentation",
             "labels": {"en": "ArchiveRepresentation"},
         }
-        parsed, failures = _parse_cardinalities([cls], ONTO_PREFIX, prefixes)
+        parsed, failures = _parse_cardinalities([cls], ONTO_NAMESPACE_STR, prefixes)
         assert len(parsed) == 0
         assert len(failures) == 0
 
@@ -173,7 +173,7 @@ class TestParseCardinalities:
             "labels": {"en": "ArchiveRepresentation"},
             "cardinalities": [{"propname": "inexistent:testSimpleText", "cardinality": "0-n"}],
         }
-        parsed, failures = _parse_cardinalities([cls], ONTO_PREFIX, prefixes)
+        parsed, failures = _parse_cardinalities([cls], ONTO_NAMESPACE_STR, prefixes)
         assert len(parsed) == 0
         assert len(failures) == 1
         result = failures.pop(0)
@@ -183,31 +183,31 @@ class TestParseCardinalities:
 
     def test_0_1(self, prefixes):
         card = {"propname": ":testBoolean", "cardinality": "0-1", "gui_order": 0}
-        result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
+        result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{ONTO_PREFIX}testBoolean"
+        assert result.propname == f"{ONTO_NAMESPACE_STR}testBoolean"
         assert result.cardinality == Cardinality.C_0_1
         assert result.gui_order == 0
 
     def test_1(self, prefixes):
         card = {"propname": "onto:testBoolean", "cardinality": "1", "gui_order": 3}
-        result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
+        result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{ONTO_PREFIX}testBoolean"
+        assert result.propname == f"{ONTO_NAMESPACE_STR}testBoolean"
         assert result.cardinality == Cardinality.C_1
         assert result.gui_order == 3
 
     def test_0_n(self, prefixes):
         card = {"propname": ":testBoolean", "cardinality": "0-n"}
-        result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
+        result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{ONTO_PREFIX}testBoolean"
+        assert result.propname == f"{ONTO_NAMESPACE_STR}testBoolean"
         assert result.cardinality == Cardinality.C_0_N
         assert result.gui_order is None
 
     def test_1_n(self, prefixes):
         card = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
-        result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
+        result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
         assert result.propname == f"{KNORA_API_STR}seqnum"
         assert result.cardinality == Cardinality.C_1_N
@@ -215,7 +215,7 @@ class TestParseCardinalities:
 
     def test_fail(self, prefixes):
         card = {"propname": "inexistent:prefix", "cardinality": "1-n", "gui_order": 2}
-        result = _parse_one_cardinality(card, ONTO_PREFIX, prefixes)  # type: ignore[arg-type]
+        result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, CreateProblem)
         assert result.problematic_object == "inexistent:prefix"
         assert result.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED

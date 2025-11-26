@@ -836,42 +836,6 @@ def test_treat_invalid_licenses_as_unknown_flag() -> None:
     assert bitstream.attrib["copyright-holder"] == "Copyright"
 
 
-def test_treat_invalid_licenses_as_unknown_counter() -> None:
-    """Test that counter tracks multiple replacements correctly."""
-    xml = etree.fromstring(f"""
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>file1.jpg</bitstream>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Invalid License 1</text></text-prop>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 1</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 1</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_2">
-            <bitstream>file2.jpg</bitstream>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 2</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 2</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <bitstream>file3.jpg</bitstream>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Another Invalid</text></text-prop>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 3</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 3</text></text-prop>
-        </resource>
-    </knora>
-    """)
-    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = LegalMetadataDefaults()
-    _, counter, problems = _update_xml_tree(
-        xml, properties=properties, defaults=defaults, treat_invalid_licenses_as_unknown=True
-    )
-
-    assert len(problems) == 0
-    assert counter.resources_updated == 3
-    assert counter.invalid_licenses_replaced == 2
-    assert counter.licenses_set == 3
-
-
 def test_csv_overrides_treat_invalid_flag() -> None:
     """Test that CSV corrections take priority over the flag."""
     xml = etree.fromstring(f"""

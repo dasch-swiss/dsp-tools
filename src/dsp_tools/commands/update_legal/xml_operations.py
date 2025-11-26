@@ -74,14 +74,6 @@ def _resolve_metadata_values(
     """
     Resolve metadata values using priority: CSV > XML > defaults.
 
-    Args:
-        res: The resource element to extract metadata from
-        properties: Configuration for property names to extract from XML
-        defaults: Default values to use when metadata is missing
-        counter: Counter for tracking replacements
-        csv_metadata: Corrections from CSV file
-        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
-
     Returns:
         Tuple of (license_val, copyright_val, authorships)
     """

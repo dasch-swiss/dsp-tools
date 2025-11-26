@@ -258,7 +258,7 @@ class TestCreateOneProperty:
 
 
 class TestCreateAllProperties:
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -283,9 +283,9 @@ class TestCreateAllProperties:
         assert prop2.name in result_iris.created_properties
         assert len(result_iris.failed_properties) == 0
         assert result_problems is None
-        assert onto_lookup.add_last_mod_date.call_count == 2
+        assert onto_lookup.update_last_mod_date.call_count == 2
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -312,7 +312,7 @@ class TestCreateAllProperties:
         assert isinstance(result_problems, CollectedProblems)
         assert len(result_problems.problems) == 1
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -336,7 +336,7 @@ class TestCreateAllProperties:
         list_lookup.get_iri.assert_called_once_with("TestList")
         assert prop1.name in result_iris.created_properties
 
-    @patch("dsp_tools.commands.create.create_on_server.properties.get_onto_lookup")
+    @patch("dsp_tools.commands.create.create_on_server.properties.get_modification_date_onto_lookup")
     @patch("dsp_tools.commands.create.create_on_server.properties._get_property_create_order")
     @patch("dsp_tools.commands.create.create_on_server.properties._is_property_blocked")
     @patch("dsp_tools.commands.create.create_on_server.properties._create_one_property")
@@ -359,6 +359,6 @@ class TestCreateAllProperties:
         )
         assert prop1.name in result_iris.failed_properties
         assert prop1.name not in result_iris.created_properties
-        onto_lookup.add_last_mod_date.assert_not_called()
+        onto_lookup.update_last_mod_date.assert_not_called()
         assert result_problems is not None
         assert len(result_problems.problems) == 1

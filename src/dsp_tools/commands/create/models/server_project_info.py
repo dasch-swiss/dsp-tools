@@ -23,9 +23,6 @@ class OntoCreateLookup:
     onto_iris: dict[str, URIRef]
     iri_to_last_modification_date: dict[str, Literal] = field(default_factory=dict)
 
-    def get_onto_iri(self, name: str) -> URIRef:
-        return self.onto_iris[name]
-
     def get_last_mod_date(self, iri: str) -> Literal:
         return self.iri_to_last_modification_date[iri]
 

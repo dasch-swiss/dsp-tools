@@ -10,28 +10,20 @@ from dsp_tools.commands.update_legal.models import UpdateCounter
 from dsp_tools.xmllib.general_functions import find_license_in_string
 
 
-def update_one_xml_resource(
+def collect_metadata(
     res: etree._Element,
-    media_elem: etree._Element,
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
-    auth_text_to_id: dict[str, int],
-    remove_text_props: bool = True,
 ) -> LegalMetadata:
     """
-    Collect legal metadata for a resource from CSV, XML properties, or defaults, then apply to media element.
-    Priority order: CSV corrections > XML properties > defaults > None.
-    The resource is updated in-place, and the collected metadata is returned for further processing.
+    Collect legal metadata from CSV corrections, XML properties, or defaults.
 
     Args:
-        res: The resource element
-        media_elem: The bitstream or iiif-uri element
+        res: The resource element to extract metadata from
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
         csv_metadata: Corrections from CSV file
-        auth_text_to_id: Dictionary to track unique authorships
-        remove_text_props: If True, remove text properties after applying metadata
 
     Returns:
         LegalMetadata with collected values
@@ -42,20 +34,39 @@ def update_one_xml_resource(
         defaults=defaults,
         csv_metadata=csv_metadata,
     )
-    _apply_metadata_to_element(
-        media_elem=media_elem,
-        license_val=license_val,
-        copyright_val=copyright_val,
-        authorships=authorships,
-        auth_text_to_id=auth_text_to_id,
-    )
-    if remove_text_props:
-        _remove_text_properties(res, properties)
     return LegalMetadata(
         license=license_val,
         copyright=copyright_val,
         authorships=authorships,
     )
+
+
+def apply_metadata_to_resource(
+    res: etree._Element,
+    media_elem: etree._Element,
+    metadata: LegalMetadata,
+    properties: LegalProperties,
+    auth_text_to_id: dict[str, int],
+) -> None:
+    """
+    Apply legal metadata to a resource's media element and remove old text properties.
+    This function modifies the XML tree in-place.
+
+    Args:
+        res: The resource element
+        media_elem: The bitstream or iiif-uri element to apply attributes to
+        metadata: The legal metadata to apply
+        properties: Configuration for property names (used for removal)
+        auth_text_to_id: Dictionary to track unique authorships (modified in-place)
+    """
+    _apply_metadata_to_element(
+        media_elem=media_elem,
+        license_val=metadata.license,
+        copyright_val=metadata.copyright,
+        authorships=metadata.authorships,
+        auth_text_to_id=auth_text_to_id,
+    )
+    _remove_text_properties(res, properties)
 
 
 def _resolve_metadata_values(

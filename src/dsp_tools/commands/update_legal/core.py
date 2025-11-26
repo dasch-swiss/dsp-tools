@@ -11,7 +11,8 @@ from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.commands.update_legal.models import UpdateCounter
 from dsp_tools.commands.update_legal.xml_operations import add_authorship_definitions_to_xml
-from dsp_tools.commands.update_legal.xml_operations import update_one_xml_resource
+from dsp_tools.commands.update_legal.xml_operations import apply_metadata_to_resource
+from dsp_tools.commands.update_legal.xml_operations import collect_metadata
 from dsp_tools.commands.update_legal.xml_operations import write_final_xml
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
@@ -107,21 +108,14 @@ def _update_xml_tree(
         media_elem = media_tag_candidates[0]
         csv_metadata = csv_corrections.get(res_id) if csv_corrections else None
 
-        # First, collect metadata without applying changes to determine if there are problems
-        # We use a temporary auth dict to avoid polluting the main one with problematic resources
-        temp_auth_dict: dict[str, int] = {}
-        metadata = update_one_xml_resource(
+        metadata = collect_metadata(
             res=res,
-            media_elem=media_elem,
             properties=properties,
             defaults=defaults,
             csv_metadata=csv_metadata,
-            auth_text_to_id=temp_auth_dict,
-            remove_text_props=False,
         )
 
         if _has_problems(metadata):
-            # This resource has problems - collect for CSV but don't update the XML
             problem = Problem(
                 file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
@@ -131,15 +125,12 @@ def _update_xml_tree(
             )
             problems.append(problem)
         elif metadata.any():
-            # This resource is valid - apply changes using the real auth dict and remove text properties
-            update_one_xml_resource(
+            apply_metadata_to_resource(
                 res=res,
                 media_elem=media_elem,
+                metadata=metadata,
                 properties=properties,
-                defaults=defaults,
-                csv_metadata=csv_metadata,
                 auth_text_to_id=auth_text_to_id,
-                remove_text_props=True,
             )
             _update_counter(counter, metadata)
 

@@ -56,14 +56,15 @@ Main orchestration and validation logic:
 
 - `update_legal_metadata()`: Entry point that coordinates entire workflow
 - `_validate_flags()`: Ensures property names exist in XML
-- `_update_xml_tree()`: Iterates through resources, collects metadata, handles authorship deduplication
+- `_update_xml_tree()`: Iterates through resources, collects metadata once per resource, decides whether to apply changes
 - `_has_problems()`: Checks if metadata contains FIXME markers or missing values
 - `_update_counter()`: Tracks statistics for final report
 
 Key patterns:
 
 - Uses functional approach with pure helper functions
-- Separates concerns: validation, extraction, application, output
+- Clear separation: collection (read-only) vs application (mutations)
+- Single-pass metadata collection eliminates duplicate work
 - Authorship deduplication via `auth_text_to_id` dictionary (maps authorship text to unique ID)
 
 ### [models.py](models.py)
@@ -106,7 +107,8 @@ CSV I/O for error handling workflow:
 
 XML manipulation and metadata application:
 
-- `update_one_xml_resource()`: Main function that collects and applies metadata for one resource
+- `collect_metadata()`: Pure function that collects metadata from CSV, XML, or defaults (read-only)
+- `apply_metadata_to_resource()`: Applies metadata as attributes and removes old text properties (mutations)
 - `_resolve_metadata_values()`: Implements priority system (CSV > XML > defaults)
 - `_extract_license_from_xml()`: Extracts license and validates with `xmllib.find_license_in_string()`
 - `_extract_copyright_from_xml()`: Extracts copyright, detects duplicates
@@ -128,6 +130,35 @@ XML manipulation and metadata application:
 - If multiple copyright values found: returns `"FIXME: Multiple copyrights found. Choose one: ..."`
 - If multiple license values found: returns `"FIXME: Multiple licenses found. Choose one: ..."`
 - This triggers CSV export for manual resolution
+
+## Architectural Improvements
+
+### Separation of Collection and Application
+
+The codebase follows a clear pattern separating read operations from write operations:
+
+**Collection Phase (`collect_metadata()`):**
+
+- Pure function with no side effects
+- Reads from CSV, XML properties, and defaults
+- Returns `LegalMetadata` object
+- Can be called safely without modifying the XML tree
+- Executes exactly once per resource
+
+**Application Phase (`apply_metadata_to_resource()`):**
+
+- Mutates the XML tree in-place
+- Applies metadata as attributes on media elements
+- Removes old text properties
+- Manages authorship deduplication dictionary
+- Only called for valid resources (no problems)
+
+**Benefits:**
+
+- **Performance**: Eliminates duplicate XPath queries (~50% reduction for valid resources)
+- **Clarity**: Clear contract - collection is read-only, application mutates
+- **Safety**: Impossible to accidentally mutate during problem detection
+- **Testability**: Each phase can be tested independently
 
 ## Key Algorithms
 

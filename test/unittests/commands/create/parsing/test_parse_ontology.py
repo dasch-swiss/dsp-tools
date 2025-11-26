@@ -7,12 +7,13 @@ from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_cardinalities
-from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
+from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_class
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from test.unittests.commands.create.constants import ONTO_IRI_STR
@@ -130,15 +131,42 @@ class TestParseProperties:
 
 
 class TestParseClasses:
-    def test_good(self):
+    def test_good_str_super(self, prefixes):
+        lbl = {"en": "ArchiveRepresentation"}
+        cmnt = {"en": "This is a comment"}
+        cls = {"name": "TestArchiveRepresentation", "super": "ArchiveRepresentation", "labels": lbl, "comments": cmnt}
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
+        assert isinstance(result, ParsedClass)
+        assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
+        assert result.labels == lbl
+        assert result.comments == cmnt
+        assert result.supers == [f"{KNORA_API_STR}ArchiveRepresentation"]
+
+    def test_good_list_super(self, prefixes):
+        lbl = {"en": "ArchiveRepresentation"}
         cls = {
             "name": "TestArchiveRepresentation",
-            "super": "ArchiveRepresentation",
-            "labels": {"en": "ArchiveRepresentation"},
+            "super": ["ArchiveRepresentation", ":OntoClass"],
+            "labels": lbl,
         }
-        parsed, problems = _parse_classes([cls], ONTO_NAMESPACE_STR)
-        assert len(parsed) == 1
-        assert not problems
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
+        assert isinstance(result, ParsedClass)
+        assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
+        assert result.labels == lbl
+        assert result.comments is None
+        assert set(result.supers) == {f"{KNORA_API_STR}ArchiveRepresentation", f"{ONTO_NAMESPACE_STR}OntoClass"}
+
+    def test_cannot_resolve_prefix(self, prefixes):
+        lbl = {"en": "ArchiveRepresentation"}
+        cmnt = {"en": "This is a comment"}
+        cls = {"name": "TestArchiveRepresentation", "super": "inexistent:Cls", "labels": lbl, "comments": cmnt}
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
+        assert isinstance(result, list)
+        assert len(result) == 1
+        problem = result.pop(0)
+        assert isinstance(problem, CreateProblem)
+        assert problem.problematic_object == 'At class "TestArchiveRepresentation" / Super: "inexistent:Cls"'
+        assert problem.problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseCardinalities:

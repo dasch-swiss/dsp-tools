@@ -7,6 +7,7 @@ from loguru import logger
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_tools.commands.create.create_on_server.classes import create_all_classes
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.create_on_server.properties import create_all_properties
@@ -93,18 +94,22 @@ def create_ontologies(
         else:
             project_iri_lookup.add_onto(ontology_remote.name, ontology_remote.iri)
 
-        # add the empty resource classes to the remote ontology
-        _, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
-            onto_name=ontology_definition["name"],
-            resclass_definitions=ontology_definition.get("resources", []),
-            ontology_remote=ontology_remote,
-            con=con,
-            last_modification_date=ontology_remote.lastModificationDate,
-            verbose=verbose,
+    all_classes = []
+    for onto in parsed_ontologies:
+        all_classes.extend(onto.classes)
+    if all_classes:
+        print(BOLD + "Processing Classes:" + RESET_TO_DEFAULT)
+        success_collection, cls_problems = create_all_classes(
+            classes=all_classes,
+            project_iri_lookup=project_iri_lookup,
+            created_iris=success_collection,
+            client=onto_client,
         )
-        success_collection.created_classes.update(set(remote_res_classes.keys()))
-        if not success:
+        if cls_problems:
             overall_success = False
+            print_problem_collection(cls_problems)
+    else:
+        logger.info("No classes found in the ontology.")
 
     all_props = []
     for onto in parsed_ontologies:

@@ -74,16 +74,13 @@ class TestGetPropertyOrder:
     def test_multiple_inheritance_scenario(self, three_multiple_inheritance_props):
         prop_a, _, _ = three_multiple_inheritance_props
         result = _get_property_create_order(three_multiple_inheritance_props)
-        # A has edges to both B and C, so A comes before both
-        # the order afterwards does not matter
         assert len(result) == 3
         assert result[-1] == prop_a.name
 
     def test_external_supers_do_not_break_sorting(self):
         p_b = make_test_property("PropB", supers=[])
-        p_a = make_test_property("PropA", supers=[p_b.name])
+        p_a = make_test_property("PropA", supers=[p_b.name, EXTERNAL_SUPER])
         result = _get_property_create_order([p_a, p_b])
-        # A has edge to B, so A comes before B
         assert result == [p_b.name, p_a.name]
         assert KNORA_SUPER not in result
 

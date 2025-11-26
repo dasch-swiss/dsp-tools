@@ -44,7 +44,6 @@ class TestSortUploadOrder:
         graph.add_edge(node_c, node_d, None)
         node_to_iri = {node_a: "nodeA", node_b: "nodeB", node_c: "nodeC", node_d: "nodeD"}
         result = sort_for_upload(graph, node_to_iri)
-        # A should come first (no incoming edges), D should come last (no outgoing edges)
         assert result[0] == "nodeD"
         assert result[-1] == "nodeA"
         assert set(result[1:3]) == {"nodeC", "nodeB"}

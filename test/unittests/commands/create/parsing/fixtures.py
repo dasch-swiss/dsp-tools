@@ -7,8 +7,7 @@ import pytest
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.utils.json_parsing import parse_json_file
-
-ONTO_NAMESPACE_STR = "http://0.0.0.0:3333/ontology/0003/onto/v2#"
+from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
 @pytest.fixture

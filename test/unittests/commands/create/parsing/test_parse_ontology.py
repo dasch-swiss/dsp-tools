@@ -1,5 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from unittests.commands.create.constants import ONTO_NAMESPACE_STR
+
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
@@ -15,8 +17,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_classes
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinality
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from test.unittests.commands.create.parsing.fixtures import ONTO_IRI_STR
-from test.unittests.commands.create.parsing.fixtures import ONTO_NAMESPACE_STR
+from test.unittests.commands.create.constants import ONTO_IRI_STR
 
 
 class TestParseOntology:

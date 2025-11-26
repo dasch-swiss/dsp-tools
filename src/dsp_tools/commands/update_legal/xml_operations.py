@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import regex
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
@@ -209,7 +210,6 @@ def write_final_xml(
     root: etree._Element,
     counter: UpdateCounter,
     partial: bool = False,
-    overwrite: bool = False,
 ) -> bool:
     """
     Write the updated XML to an output file.
@@ -219,23 +219,14 @@ def write_final_xml(
         root: The updated XML root element
         counter: Counter tracking number of updates
         partial: If True, this is a partial update with some resources still having errors
-        overwrite: If True, overwrite the input file (used when input was already partial)
 
     Returns:
         True indicating successful write
     """
     root_new = etree.ElementTree(root)
 
-    # Extract base filename (remove _PARTIALLY_updated or _updated suffix if present)
-    stem = input_file.stem
-    if stem.endswith("_PARTIALLY_updated"):
-        base_filename = stem[: -len("_PARTIALLY_updated")]
-    elif stem.endswith("_updated"):
-        base_filename = stem[: -len("_updated")]
-    else:
-        base_filename = stem
-
-    if partial and overwrite:
+    base_filename = regex.sub(r"(_PARTIALLY_updated|_updated)$", "", input_file.stem)
+    if partial and input_file.stem.endswith("_PARTIALLY_updated"):
         # Overwrite the existing partial file
         output_file = input_file
     elif partial:
@@ -252,7 +243,7 @@ def write_final_xml(
         print(f"\n⚠️  Partial update completed. Output written to: {output_file}")
         print("   Some resources still have errors - check the CSV error file.\n")
     else:
-        print(f"\n✓ Successfully updated legal metadata. Output written to: {output_file}\n")
+        print(f"\n✓ Successfully updated all legal metadata. Output written to: {output_file}\n")
 
     print(f" - Resources updated: {counter.resources_updated}\n")
     print(f" - Licenses set: {counter.licenses_set}\n")

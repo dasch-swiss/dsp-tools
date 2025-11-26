@@ -52,15 +52,13 @@ def update_legal_metadata(
         csv_corrections=csv_corrections,
     )
 
-    is_already_partial = input_file.stem.endswith("_PARTIALLY_updated")
-
     if len(problems) == 0:
         # Success - write fully updated XML with _updated suffix
         return write_final_xml(input_file, root_updated, counter, partial=False)
     else:
         # Partial update - write both CSV and partial XML
         write_problems_to_csv(input_file, problems)
-        return write_final_xml(input_file, root_updated, counter, partial=True, overwrite=is_already_partial)
+        return write_final_xml(input_file, root_updated, counter, partial=True)
 
 
 def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:

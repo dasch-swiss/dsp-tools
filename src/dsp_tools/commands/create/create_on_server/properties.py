@@ -52,7 +52,7 @@ def create_all_properties(
                     list_iri = Literal(f"hlist=<{found}>")
             create_result = _create_one_property(prop, list_iri, onto_lookup, client)
             if isinstance(create_result, Literal):
-                onto_lookup.add_last_mod_date(prop.onto_iri, create_result)
+                onto_lookup.update_last_mod_date(prop.onto_iri, create_result)
                 created_iris.created_properties.add(prop.name)
             else:
                 all_problems.append(create_result)

@@ -29,7 +29,7 @@ class OntoLastModDateLookup:
     def get_last_mod_date(self, iri: str) -> Literal:
         return self.iri_to_last_modification_date[iri]
 
-    def add_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
+    def update_last_mod_date(self, iri: str, last_modification_date: Literal) -> None:
         self.iri_to_last_modification_date[iri] = last_modification_date
 
 

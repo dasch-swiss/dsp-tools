@@ -43,5 +43,5 @@ def get_modification_date_onto_lookup(
     )
     for onto_iri in project_iri_lookup.onto_iris.values():
         last_mod = onto_client.get_last_modification_date(project_iri_lookup.project_iri, onto_iri)
-        lookup.add_last_mod_date(onto_iri, last_mod)
+        lookup.update_last_mod_date(onto_iri, last_mod)
     return lookup

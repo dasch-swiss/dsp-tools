@@ -808,7 +808,7 @@ def test_partial_update_mixed_resources() -> None:
     assert len(auth_defs) == 2  # Only from res_good and res_good2
 
 
-def test_treat_invalid_license_as_unknown_flag() -> None:
+def test_treat_invalid_licenses_as_unknown_flag() -> None:
     """Test that the flag converts invalid licenses to 'unknown'."""
     xml = etree.fromstring(f"""
     <knora>
@@ -823,7 +823,7 @@ def test_treat_invalid_license_as_unknown_flag() -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(
-        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+        xml, properties=properties, defaults=defaults, treat_invalid_licenses_as_unknown=True
     )
 
     assert len(problems) == 0
@@ -836,7 +836,7 @@ def test_treat_invalid_license_as_unknown_flag() -> None:
     assert bitstream.attrib["copyright-holder"] == "Copyright"
 
 
-def test_treat_invalid_license_as_unknown_counter() -> None:
+def test_treat_invalid_licenses_as_unknown_counter() -> None:
     """Test that counter tracks multiple replacements correctly."""
     xml = etree.fromstring(f"""
     <knora>
@@ -863,7 +863,7 @@ def test_treat_invalid_license_as_unknown_counter() -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
     _, counter, problems = _update_xml_tree(
-        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+        xml, properties=properties, defaults=defaults, treat_invalid_licenses_as_unknown=True
     )
 
     assert len(problems) == 0
@@ -900,7 +900,7 @@ def test_csv_overrides_treat_invalid_flag() -> None:
         properties=properties,
         defaults=defaults,
         csv_corrections=csv_metadata,
-        treat_invalid_license_as_unknown=True,
+        treat_invalid_licenses_as_unknown=True,
     )
 
     assert len(problems) == 0
@@ -931,7 +931,7 @@ def test_multiple_licenses_still_fixme_with_flag() -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
     _, counter, problems = _update_xml_tree(
-        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+        xml, properties=properties, defaults=defaults, treat_invalid_licenses_as_unknown=True
     )
 
     assert len(problems) == 1
@@ -970,7 +970,7 @@ def test_treat_invalid_mixed_resources() -> None:
     properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(
-        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+        xml, properties=properties, defaults=defaults, treat_invalid_licenses_as_unknown=True
     )
 
     assert len(problems) == 1

@@ -97,5 +97,5 @@ def call_update_legal(args: argparse.Namespace) -> bool:
         properties=properties,
         defaults=defaults,
         fixed_errors_file=Path(args.fixed_errors) if args.fixed_errors else None,
-        treat_invalid_license_as_unknown=args.treat_invalid_license_as_unknown,
+        treat_invalid_licenses_as_unknown=args.treat_invalid_licenses_as_unknown,
     )

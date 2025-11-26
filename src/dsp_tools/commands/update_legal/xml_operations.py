@@ -16,7 +16,7 @@ def collect_metadata(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
-    treat_invalid_license_as_unknown: bool = False,
+    treat_invalid_licenses_as_unknown: bool = False,
     counter: UpdateCounter | None = None,
 ) -> LegalMetadata:
     """
@@ -27,7 +27,7 @@ def collect_metadata(
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
         csv_metadata: Corrections from CSV file
-        treat_invalid_license_as_unknown: If True, invalid licenses are replaced with 'unknown'
+        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
         counter: Counter for tracking replacements
 
     Returns:
@@ -38,7 +38,7 @@ def collect_metadata(
         properties=properties,
         defaults=defaults,
         csv_metadata=csv_metadata,
-        treat_invalid_license_as_unknown=treat_invalid_license_as_unknown,
+        treat_invalid_licenses_as_unknown=treat_invalid_licenses_as_unknown,
         counter=counter,
     )
     return LegalMetadata(
@@ -81,7 +81,7 @@ def _resolve_metadata_values(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_metadata: LegalMetadata | None,
-    treat_invalid_license_as_unknown: bool = False,
+    treat_invalid_licenses_as_unknown: bool = False,
     counter: UpdateCounter | None = None,
 ) -> tuple[str | None, str | None, list[str]]:
     """
@@ -92,7 +92,7 @@ def _resolve_metadata_values(
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
         csv_metadata: Corrections from CSV file
-        treat_invalid_license_as_unknown: If True, invalid licenses are replaced with 'unknown'
+        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
         counter: Counter for tracking replacements
 
     Returns:
@@ -110,7 +110,9 @@ def _resolve_metadata_values(
 
     # Collect license from XML, fall back to default
     if license_val is None and properties.license_prop:
-        license_val = _extract_license_from_xml(res, properties.license_prop, treat_invalid_license_as_unknown, counter)
+        license_val = _extract_license_from_xml(
+            res, properties.license_prop, treat_invalid_licenses_as_unknown, counter
+        )
     if license_val is None and defaults.license_default:
         license_val = defaults.license_default.value
 

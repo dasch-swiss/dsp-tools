@@ -87,7 +87,7 @@ data.xml
 ### Automatically Treating Invalid Licenses as "Unknown"
 
 If your XML file contains many resources with invalid licenses (licenses that cannot be parsed),
-you can use the `--treat_invalid_license_as_unknown` flag to automatically convert them to `unknown`
+you can use the `--treat-invalid-licenses-as-unknown` flag to automatically convert them to `unknown`
 instead of generating FIXME entries:
 
 ```bash
@@ -95,7 +95,7 @@ dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
---treat_invalid_license_as_unknown \
+--treat-invalid-licenses-as-unknown \
 data.xml
 ```
 

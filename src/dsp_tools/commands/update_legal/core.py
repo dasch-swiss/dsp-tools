@@ -24,7 +24,7 @@ def update_legal_metadata(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     fixed_errors_file: Path | None = None,
-    treat_invalid_license_as_unknown: bool = False,
+    treat_invalid_licenses_as_unknown: bool = False,
 ) -> bool:
     """
     Update legal metadata in an XML file, converting text properties to bitstream attributes.
@@ -34,7 +34,7 @@ def update_legal_metadata(
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
         fixed_errors_file: Path to CSV file with corrected values
-        treat_invalid_license_as_unknown: If True, invalid licenses are replaced with 'unknown'
+        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
 
     Returns:
         True if all legal metadata could be updated, False if CSV error file was created
@@ -52,7 +52,7 @@ def update_legal_metadata(
         properties=properties,
         defaults=defaults,
         csv_corrections=csv_corrections,
-        treat_invalid_license_as_unknown=treat_invalid_license_as_unknown,
+        treat_invalid_licenses_as_unknown=treat_invalid_licenses_as_unknown,
     )
 
     if len(problems) == 0:
@@ -84,7 +84,7 @@ def _update_xml_tree(
     properties: LegalProperties,
     defaults: LegalMetadataDefaults,
     csv_corrections: dict[str, LegalMetadata] | None = None,
-    treat_invalid_license_as_unknown: bool = False,
+    treat_invalid_licenses_as_unknown: bool = False,
 ) -> tuple[etree._Element, UpdateCounter, list[Problem]]:
     """
     Update the XML tree with legal metadata, applying corrections and defaults.
@@ -96,7 +96,7 @@ def _update_xml_tree(
         properties: Configuration for property names to extract from XML
         defaults: Default values to use when metadata is missing
         csv_corrections: Dictionary of corrections from CSV (or None)
-        treat_invalid_license_as_unknown: If True, invalid licenses are replaced with 'unknown'
+        treat_invalid_licenses_as_unknown: If True, invalid licenses are replaced with 'unknown'
 
     Returns:
         Tuple of (updated root element, counter of updated resources, list of problems)
@@ -118,7 +118,7 @@ def _update_xml_tree(
             properties=properties,
             defaults=defaults,
             csv_metadata=csv_metadata,
-            treat_invalid_license_as_unknown=treat_invalid_license_as_unknown,
+            treat_invalid_licenses_as_unknown=treat_invalid_licenses_as_unknown,
             counter=counter,
         )
 

@@ -157,12 +157,44 @@ def _parse_one_property(
 
 
 def _parse_classes(
-    classes_list: list[dict[str, Any]], current_onto_prefix: str
+    classes_list: list[dict[str, Any]], current_onto_prefix: str, prefixes: dict[str, str]
 ) -> tuple[list[ParsedClass], list[CreateProblem]]:
     parsed = []
+    problems = []
     for cls in classes_list:
-        parsed.append(ParsedClass(f"{current_onto_prefix}{cls['name']}", cls))
+        result = _parse_one_class(cls, current_onto_prefix, prefixes)
+        if isinstance(result, ParsedClass):
+            parsed.append(result)
+        else:
+            problems.extend(result)
     return parsed, []
+
+
+def _parse_one_class(
+    cls: dict[str, Any], current_onto_prefix: str, prefixes: dict[str, str]
+) -> ParsedClass | list[CreateProblem]:
+    problems = []
+    supers = [cls["super"]] if isinstance(cls["super"], str) else cls["super"]
+    resolved_supers = []
+    for s in supers:
+        if not (resolved_super := resolve_to_absolute_iri(s, current_onto_prefix, prefixes)):
+            problems.append(
+                InputProblem(
+                    f'At class "{cls["name"]}" / Super: "{s}"',
+                    InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
+        else:
+            resolved_supers.append(resolved_super)
+    if problems:
+        return problems
+    return ParsedClass(
+        name=f"{current_onto_prefix}{cls['name']}",
+        labels=cls["labels"],
+        comments=cls.get("comments"),
+        supers=resolved_supers,
+        onto_iri=current_onto_prefix.rstrip("#"),
+    )
 
 
 def _parse_cardinalities(

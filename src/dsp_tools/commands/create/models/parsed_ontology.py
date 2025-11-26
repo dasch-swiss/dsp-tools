@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import StrEnum
 from enum import auto
-from typing import Any
 
 from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.constants import SALSAH_GUI_STR
@@ -23,7 +22,10 @@ class ParsedOntology:
 @dataclass
 class ParsedClass:
     name: str
-    info: dict[str, Any]
+    labels: dict[str, str]
+    comments: dict[str, str] | None
+    supers: list[str]
+    onto_iri: str
 
 
 @dataclass

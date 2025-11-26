@@ -66,13 +66,13 @@ def create_all_properties(
 
 
 def _is_property_blocked(prop: ParsedProperty, created_iris: CreatedIriCollection) -> CreateProblem | None:
-    if created_iris.property_failed(set(prop.supers)):
+    if created_iris.any_properties_failed(set(prop.supers)):
         return UploadProblem(prop.name, UploadProblemType.PROPERTY_SUPER_FAILED)
     if prop.object:
-        if created_iris.class_failed({str(prop.object)}):
+        if created_iris.any_classes_failed({str(prop.object)}):
             return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
     if prop.subject:
-        if created_iris.class_failed({prop.subject}):
+        if created_iris.any_classes_failed({prop.subject}):
             return UploadProblem(prop.name, UploadProblemType.PROPERTY_REFERENCES_FAILED_CLASS)
     return None
 

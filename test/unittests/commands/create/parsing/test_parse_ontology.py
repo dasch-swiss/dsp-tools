@@ -135,9 +135,9 @@ class TestParseClasses:
         lbl = {"en": "ArchiveRepresentation"}
         cmnt = {"en": "This is a comment"}
         cls = {"name": "TestArchiveRepresentation", "super": "ArchiveRepresentation", "labels": lbl, "comments": cmnt}
-        result = _parse_one_class(cls, ONTO_PREFIX, prefixes)
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, ParsedClass)
-        assert result.name == f"{ONTO_PREFIX}TestArchiveRepresentation"
+        assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
         assert result.labels == lbl
         assert result.comments == cmnt
         assert result.supers == [f"{KNORA_API_STR}ArchiveRepresentation"]
@@ -149,18 +149,18 @@ class TestParseClasses:
             "super": ["ArchiveRepresentation", ":OntoClass"],
             "labels": lbl,
         }
-        result = _parse_one_class(cls, ONTO_PREFIX, prefixes)
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, ParsedClass)
-        assert result.name == f"{ONTO_PREFIX}TestArchiveRepresentation"
+        assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
         assert result.labels == lbl
         assert result.comments is None
-        assert set(result.supers) == {f"{KNORA_API_STR}ArchiveRepresentation", f"{ONTO_PREFIX}OntoClass"}
+        assert set(result.supers) == {f"{KNORA_API_STR}ArchiveRepresentation", f"{ONTO_NAMESPACE_STR}OntoClass"}
 
     def test_cannot_resolve_prefix(self, prefixes):
         lbl = {"en": "ArchiveRepresentation"}
         cmnt = {"en": "This is a comment"}
         cls = {"name": "TestArchiveRepresentation", "super": "inexistent:Cls", "labels": lbl, "comments": cmnt}
-        result = _parse_one_class(cls, ONTO_PREFIX, prefixes)
+        result = _parse_one_class(cls, ONTO_NAMESPACE_STR, prefixes)
         assert isinstance(result, list)
         assert len(result) == 1
         problem = result.pop(0)

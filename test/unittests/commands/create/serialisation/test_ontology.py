@@ -37,8 +37,8 @@ LIST_IRI = Literal("hlist=<http://rdfh.ch/lists/9999/n1>")
 def class_with_comment():
     return ParsedClass(
         name=str(RESOURCE_IRI),
-        labels={"en": "Label"},
-        comments={"en": "Comment"},
+        labels={"en": "Label EN", "de": "Label DE"},
+        comments={"en": "Comment EN", "de": "Kommentar DE"},
         supers=[KNORA_RESOURCE],
         onto_iri=str(ONTO_IRI),
     )
@@ -300,12 +300,82 @@ class TestSerialiseProperty:
 class TestSerialiseClass:
     def test_serialise_with_multiple_supers(self, class_with_multiple_supers):
         result = serialise_class_graph_for_request(class_with_multiple_supers, ONTO_IRI, LAST_MODIFICATION_DATE)
+        # Check ontology-level properties
+        assert result["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+        assert result["@type"] == ["http://www.w3.org/2002/07/owl#Ontology"]
+        assert result["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
+        ]
+        # Check graph contains exactly 1 node (the class)
+        assert len(result["@graph"]) == 1
+        # Find the class node
+        class_node = result["@graph"][0]
+        # Verify class node structure
+        assert class_node["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource"
+        assert class_node["@type"] == ["http://www.w3.org/2002/07/owl#Class"]
+        # Check labels
+        labels = class_node["http://www.w3.org/2000/01/rdf-schema#label"]
+        assert len(labels) == 1
+        assert labels[0]["@language"] == "en"
+        assert labels[0]["@value"] == "Label"
+        # Check multiple super classes
+        super_classes = class_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"]
+        assert len(super_classes) == 2
+        super_ids = {sc["@id"] for sc in super_classes}
+        assert "http://api.knora.org/ontology/knora-api/v2#Resource" in super_ids
+        assert "http://0.0.0.0:3333/ontology/9999/onto/v2#OtherRes" in super_ids
+        # Check no comments
+        assert "http://www.w3.org/2000/01/rdf-schema#comment" not in class_node
 
     def test_serialise_with_comment(self, class_with_comment):
         result = serialise_class_graph_for_request(class_with_comment, ONTO_IRI, LAST_MODIFICATION_DATE)
+        # Check ontology-level properties
+        assert result["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
+        assert result["@type"] == ["http://www.w3.org/2002/07/owl#Ontology"]
+        assert result["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
+        ]
+        # Check graph contains exactly 1 node (the class)
+        assert len(result["@graph"]) == 1
+        # Find the class node
+        class_node = result["@graph"][0]
+        # Verify class node structure
+        assert class_node["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource"
+        assert class_node["@type"] == ["http://www.w3.org/2002/07/owl#Class"]
+        # Check labels
+        labels = class_node["http://www.w3.org/2000/01/rdf-schema#label"]
+        assert len(labels) == 2
+        de_lbl = [x for x in labels if x["@language"] == "de"]
+        assert de_lbl[0]["@value"] == "Label DE"
+        de_lbl = [x for x in labels if x["@language"] == "en"]
+        assert de_lbl[0]["@value"] == "Label EN"
+        # Check comments
+        comments = class_node["http://www.w3.org/2000/01/rdf-schema#comment"]
+        assert len(comments) == 2
+        de_cmnt = [x for x in comments if x["@language"] == "de"]
+        assert de_cmnt[0]["@value"] == "Kommentar DE"
+        en_cmnt = [x for x in comments if x["@language"] == "en"]
+        assert en_cmnt[0]["@value"] == "Comment EN"
+        # Check super classes
+        super_classes = class_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"]
+        assert len(super_classes) == 1
+        assert super_classes[0]["@id"] == "http://api.knora.org/ontology/knora-api/v2#Resource"
 
     def test_make_graph_with_multiple_supers(self, class_with_multiple_supers):
         result = _make_one_class_graph(class_with_multiple_supers)
+        assert len(result) == 5
+        assert (RESOURCE_IRI, RDF.type, OWL.Class) in result
+        assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="en")) in result
+        assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result
+        assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(f"{ONTO}OtherRes")) in result
+        assert len(list(result.objects(RESOURCE_IRI, RDFS.comment))) == 0
 
     def test_make_graph_with_comment(self, class_with_comment):
         result = _make_one_class_graph(class_with_comment)
+        assert len(result) == 7
+        assert (RESOURCE_IRI, RDF.type, OWL.Class) in result
+        assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="en")) in result
+        assert (RESOURCE_IRI, RDFS.label, Literal("Label", lang="de")) in result
+        assert (RESOURCE_IRI, RDFS.comment, Literal("Comment EN", lang="en")) in result
+        assert (RESOURCE_IRI, RDFS.comment, Literal("Kommentar DE", lang="de")) in result
+        assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result

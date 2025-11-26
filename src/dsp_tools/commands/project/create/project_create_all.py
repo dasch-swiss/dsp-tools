@@ -71,8 +71,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
     Returns:
         True if everything went smoothly, False if a warning or error occurred
     """
-
-    knora_api_prefix = "knora-api:"
     overall_success = True
 
     # includes validation
@@ -149,7 +147,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
     success = create_ontologies(
         con=con,
         context=context,
-        knora_api_prefix=knora_api_prefix,
         list_name_2_iri=list_name_2_iri,
         ontology_definitions=legacy_project.ontologies,
         project_remote=project_remote,

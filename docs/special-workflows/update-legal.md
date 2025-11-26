@@ -64,6 +64,9 @@ The output will be written to `data_updated.xml`:
 </knora>
 ```
 
+
+### Set Defaults to Prevent Repetitive Errors
+
 In case that the properties are present for some resources, but missing for others,
 you would get a lot of repetitive errors.
 To prevent this, you can provide default values that will be filled in if a property is missing.
@@ -95,16 +98,6 @@ dsp-tools update-legal \
 --treat_invalid_license_as_unknown \
 data.xml
 ```
-
-When this flag is used:
-
-- Invalid licenses are automatically replaced with `unknown`
-- The final summary shows how many invalid licenses were replaced
-- Resources with **multiple licenses** still generate FIXME entries (they require manual selection)
-- CSV corrections (via `--fixed_errors`) always take priority over automatic conversion
-
-This is useful when you have many resources with text like "Courtesy of Museum X" or
-"Mit freundlicher Genehmigung" that should all be marked as `unknown`.
 
 
 ## Step 2: Fix The Update Errors in The CSV Error File

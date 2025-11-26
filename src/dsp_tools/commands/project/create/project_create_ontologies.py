@@ -110,6 +110,7 @@ def create_ontologies(
     for onto in parsed_ontologies:
         all_props.extend(onto.properties)
     if all_props:
+        print(BOLD + "Processing Properties:" + RESET_TO_DEFAULT)
         success_collection, property_problems = create_all_properties(
             properties=all_props,
             project_iri_lookup=project_iri_lookup,

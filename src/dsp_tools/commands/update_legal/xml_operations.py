@@ -210,19 +210,7 @@ def write_updated_xml(
     root: etree._Element,
     counter: UpdateCounter,
     partial: bool = False,
-) -> bool:
-    """
-    Write the updated XML to an output file.
-
-    Args:
-        input_file: Path to the input XML file
-        root: The updated XML root element
-        counter: Counter tracking number of updates
-        partial: If True, this is a partial update with some resources still having errors
-
-    Returns:
-        True indicating successful write
-    """
+) -> None:
     root_new = etree.ElementTree(root)
 
     base_filename = regex.sub(r"(_PARTIALLY_updated|_updated)$", "", input_file.stem)
@@ -249,4 +237,3 @@ def write_updated_xml(
     print(f" - Licenses set: {counter.licenses_set}\n")
     print(f" - Copyrights set: {counter.copyrights_set}\n")
     print(f" - Authorships set: {counter.authorships_set}\n")
-    return True

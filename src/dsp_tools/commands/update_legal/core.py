@@ -35,7 +35,7 @@ def update_legal_metadata(
         fixed_errors_file: Path to CSV file with corrected values
 
     Returns:
-        True if XML was successfully written, False if CSV error file was created
+        True if all legal metadata could be updated, False if CSV error file was created
     """
     csv_corrections = None
     if fixed_errors_file:
@@ -54,11 +54,13 @@ def update_legal_metadata(
 
     if len(problems) == 0:
         # Success - write fully updated XML with _updated suffix
-        return write_updated_xml(input_file, root_updated, counter, partial=False)
+        write_updated_xml(input_file, root_updated, counter, partial=False)
+        return True
     else:
         # Partial update - write both CSV and partial XML
         write_problems_to_csv(input_file, problems)
-        return write_updated_xml(input_file, root_updated, counter, partial=True)
+        write_updated_xml(input_file, root_updated, counter, partial=True)
+        return False
 
 
 def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:

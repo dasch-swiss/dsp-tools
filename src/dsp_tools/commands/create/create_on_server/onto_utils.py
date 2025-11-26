@@ -29,10 +29,7 @@ def sort_for_upload(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[st
         return [node_to_iri[x] for x in reversed(node_sorting_order)]
     except rx.DAGHasCycle as e:
         logger.error(e)
-        raise CircularOntologyDependency(
-            "A circular dependency of superproperties was found in your project. "
-            "It is not possible for an ontology to have circular dependencies."
-        ) from None
+        raise CircularOntologyDependency("super-properties") from None
 
 
 def get_modification_date_onto_lookup(

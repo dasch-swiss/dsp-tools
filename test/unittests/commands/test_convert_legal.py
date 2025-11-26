@@ -806,3 +806,183 @@ def test_partial_update_mixed_resources() -> None:
     # Verify authorship definitions only include valid resources
     auth_defs = root_returned.xpath("//authorship")
     assert len(auth_defs) == 2  # Only from res_good and res_good2
+
+
+def test_treat_invalid_license_as_unknown_flag() -> None:
+    """Test that the flag converts invalid licenses to 'unknown'."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC FO BA 4.0</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    root_returned, counter, problems = _update_xml_tree(
+        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+    )
+
+    assert len(problems) == 0
+    assert counter.resources_updated == 1
+    assert counter.invalid_licenses_replaced == 1
+
+    resource = root_returned[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/unknown"
+    assert bitstream.attrib["copyright-holder"] == "Copyright"
+
+
+def test_treat_invalid_license_as_unknown_counter() -> None:
+    """Test that counter tracks multiple replacements correctly."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Invalid License 1</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 1</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 1</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_2">
+            <bitstream>file2.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 2</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 2</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <bitstream>file3.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Another Invalid</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author 3</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright 3</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    _, counter, problems = _update_xml_tree(
+        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+    )
+
+    assert len(problems) == 0
+    assert counter.resources_updated == 3
+    assert counter.invalid_licenses_replaced == 2
+    assert counter.licenses_set == 3
+
+
+def test_csv_overrides_treat_invalid_flag() -> None:
+    """Test that CSV corrections take priority over the flag."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Invalid License</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright</text></text-prop>
+        </resource>
+    </knora>
+    """)
+
+    csv_metadata = {
+        "res_1": LegalMetadata(
+            license="http://rdfh.ch/licenses/cc-by-4.0",
+            copyright="CSV Copyright",
+            authorships=["CSV Author"],
+        )
+    }
+
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    root_returned, counter, problems = _update_xml_tree(
+        xml,
+        properties=properties,
+        defaults=defaults,
+        csv_corrections=csv_metadata,
+        treat_invalid_license_as_unknown=True,
+    )
+
+    assert len(problems) == 0
+    assert counter.resources_updated == 1
+    assert counter.invalid_licenses_replaced == 0
+
+    resource = root_returned[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert bitstream.attrib["copyright-holder"] == "CSV Copyright"
+
+
+def test_multiple_licenses_still_fixme_with_flag() -> None:
+    """Test that multiple licenses still create FIXME even with the flag enabled."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_1">
+            <bitstream>file1.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}">
+                <text encoding="utf8">CC BY 4.0</text>
+                <text encoding="utf8">CC BY-SA 4.0</text>
+            </text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    _, counter, problems = _update_xml_tree(
+        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+    )
+
+    assert len(problems) == 1
+    assert counter.resources_updated == 0
+    assert counter.invalid_licenses_replaced == 0
+    assert problems[0].license == "FIXME: Multiple licenses found. Choose one: CC BY 4.0, CC BY-SA 4.0"
+
+
+def test_treat_invalid_mixed_resources() -> None:
+    """Test mixed valid/invalid/multiple licenses with the flag."""
+    xml = etree.fromstring(f"""
+    <knora>
+        <resource label="lbl" restype=":type" id="res_valid">
+            <bitstream>file_valid.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author Valid</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright Valid</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_invalid">
+            <bitstream>file_invalid.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Invalid License</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author Invalid</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright Invalid</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_multiple">
+            <bitstream>file_multiple.jpg</bitstream>
+            <text-prop name="{LICENSE_PROP}">
+                <text encoding="utf8">CC BY</text>
+                <text encoding="utf8">CC BY-SA</text>
+            </text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author Multiple</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright Multiple</text></text-prop>
+        </resource>
+    </knora>
+    """)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
+    defaults = LegalMetadataDefaults()
+    root_returned, counter, problems = _update_xml_tree(
+        xml, properties=properties, defaults=defaults, treat_invalid_license_as_unknown=True
+    )
+
+    assert len(problems) == 1
+    assert problems[0].res_id == "res_multiple"
+    assert counter.resources_updated == 2
+    assert counter.invalid_licenses_replaced == 1
+
+    res_valid = root_returned.xpath('//resource[@id="res_valid"]')[0]
+    assert res_valid[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+
+    res_invalid = root_returned.xpath('//resource[@id="res_invalid"]')[0]
+    assert res_invalid[0].attrib["license"] == "http://rdfh.ch/licenses/unknown"
+
+    res_multiple = root_returned.xpath('//resource[@id="res_multiple"]')[0]
+    assert "license" not in res_multiple[0].attrib

@@ -81,6 +81,32 @@ data.xml
 ```
 
 
+### Automatically Treating Invalid Licenses as "Unknown"
+
+If your XML file contains many resources with invalid licenses (licenses that cannot be parsed),
+you can use the `--treat_invalid_license_as_unknown` flag to automatically convert them to `unknown`
+instead of generating FIXME entries:
+
+```bash
+dsp-tools update-legal \
+--authorship_prop=":hasAuthor" \
+--copyright_prop=":hasCopyright" \
+--license_prop=":hasLicense" \
+--treat_invalid_license_as_unknown \
+data.xml
+```
+
+When this flag is used:
+
+- Invalid licenses are automatically replaced with `unknown`
+- The final summary shows how many invalid licenses were replaced
+- Resources with **multiple licenses** still generate FIXME entries (they require manual selection)
+- CSV corrections (via `--fixed_errors`) always take priority over automatic conversion
+
+This is useful when you have many resources with text like "Courtesy of Museum X" or
+"Mit freundlicher Genehmigung" that should all be marked as `unknown`.
+
+
 ## Step 2: Fix The Update Errors in The CSV Error File
 
 For each multimedia resource, one or more of these errors may occur:

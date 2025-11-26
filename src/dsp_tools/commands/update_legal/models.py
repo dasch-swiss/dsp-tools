@@ -11,6 +11,7 @@ class UpdateCounter:
     licenses_set: int = 0
     copyrights_set: int = 0
     authorships_set: int = 0
+    invalid_licenses_replaced: int = 0
 
 
 @dataclass(frozen=True)

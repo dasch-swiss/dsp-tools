@@ -466,4 +466,9 @@ def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("--copyright_default", type=str, help="Default copyright value when property is missing")
     subparser.add_argument("--license_default", type=str, help="Default license value when property is missing")
     subparser.add_argument("--fixed_errors", type=str, help="Path to the CSV file with corrected legal metadata values")
+    subparser.add_argument(
+        "--treat_invalid_license_as_unknown",
+        action="store_true",
+        help="Treat invalid licenses as 'unknown' instead of creating FIXME entries",
+    )
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")

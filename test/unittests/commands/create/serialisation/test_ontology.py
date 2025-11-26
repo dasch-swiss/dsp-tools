@@ -1,5 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
-
+import pytest
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
@@ -10,12 +10,15 @@ from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinality_graph
+from dsp_tools.commands.create.serialisation.ontology import _make_one_class_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_one_property_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_ontology_base_graph
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
+from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
@@ -26,7 +29,30 @@ RESOURCE_IRI = ONTO.Resource
 ONTO_HAS_TEXT = ONTO.hasText
 ONTO_HAS_TEXT_2 = ONTO.hasText2
 KNORA_HAS_VALUE = KNORA_API.hasValue
+KNORA_RESOURCE = KNORA_API.Resource
 LIST_IRI = Literal("hlist=<http://rdfh.ch/lists/9999/n1>")
+
+
+@pytest.fixture
+def class_with_comment():
+    return ParsedClass(
+        name=str(RESOURCE_IRI),
+        labels={"en": "Label"},
+        comments={"en": "Comment"},
+        supers=[KNORA_RESOURCE],
+        onto_iri=str(ONTO_IRI),
+    )
+
+
+@pytest.fixture
+def class_with_multiple_supers():
+    return ParsedClass(
+        name=str(RESOURCE_IRI),
+        labels={"en": "Label"},
+        comments=None,
+        supers=[KNORA_RESOURCE, f"{ONTO}OtherRes"],
+        onto_iri=str(ONTO_IRI),
+    )
 
 
 def test_creates_graph_with_correct_structure() -> None:
@@ -269,3 +295,17 @@ class TestSerialiseProperty:
         subject_types = prop_node["http://api.knora.org/ontology/knora-api/v2#subjectType"]
         assert len(subject_types) == 1
         assert subject_types[0]["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource"
+
+
+class TestSerialiseClass:
+    def test_serialise_with_multiple_supers(self, class_with_multiple_supers):
+        result = serialise_class_graph_for_request(class_with_multiple_supers, ONTO_IRI, LAST_MODIFICATION_DATE)
+
+    def test_serialise_with_comment(self, class_with_comment):
+        result = serialise_class_graph_for_request(class_with_comment, ONTO_IRI, LAST_MODIFICATION_DATE)
+
+    def test_make_graph_with_multiple_supers(self, class_with_multiple_supers):
+        result = _make_one_class_graph(class_with_multiple_supers)
+
+    def test_make_graph_with_comment(self, class_with_comment):
+        result = _make_one_class_graph(class_with_comment)

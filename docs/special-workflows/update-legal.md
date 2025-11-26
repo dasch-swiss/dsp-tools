@@ -9,7 +9,7 @@ in this format:
 <bitstream 
     license="http://rdfh.ch/licenses/cc-by-4.0" 
     copyright-holder="Louvre" 
-    authorship-id="auth_0">
+    authorship-id="authorship_0">
 ```
 
 Older XML files may contain legal metadata as text properties. 
@@ -164,7 +164,7 @@ CSV Output:
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/helpers/#xmllib.helpers.find_license_in_string):
+https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string):
 
 | file     | resource_id | license | copyright | authorship_1  | authorship_2 |
 | -------- | ----------- | ------- | --------- | ------------- | ------------ |

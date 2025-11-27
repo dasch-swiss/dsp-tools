@@ -1,4 +1,4 @@
-# DSP-TOOLS Exception Hierarchy and Exception Handling Analysis
+# Analysis of Exception Hierarchy and Handling
 
 **Date:** 2025-11-07
 **Updated:** 2025-11-27

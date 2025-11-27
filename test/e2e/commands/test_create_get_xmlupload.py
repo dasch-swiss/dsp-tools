@@ -448,7 +448,7 @@ def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_f
         input_file=test_data_systematic_file,
         creds=creds,
         imgdir=".",
-        config=UploadConfig(do_not_request_resource_metadata_from_db=True),
+        config=UploadConfig(),
     )
     assert success
 

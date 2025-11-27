@@ -412,9 +412,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
     - `logger.error(msg)` -> `logger.exception(msg)`
 - remove `from None`
 
----
-
-## 7. UnknownDOAPException - Exception Misuse
+## 6.3 UnknownDOAPException - Exception Misuse
 
 - Legacy projects have custom DOAP combinations that don't fit the current limited system
 - When downloading existing projects, these legacy DOAPs must be handled gracefully
@@ -441,7 +439,6 @@ except UnknownDOAPException:
     doap = DEFAULT_DOAP_TEXT
 ```
 
-
 Recommended Approach - Result Type:
 
 ```python
@@ -451,11 +448,6 @@ class DOAPResult:
     is_legacy: bool
 
 def parse_doap(...) -> DOAPResult:
-    """Parse DOAP configuration.
-
-    Returns:
-        DOAPResult with parsed value and legacy flag
-    """
     if not recognized:
         return DOAPResult(value=DEFAULT_DOAP_TEXT, is_legacy=True)
     return DOAPResult(value=doap_string, is_legacy=False)

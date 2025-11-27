@@ -279,6 +279,14 @@ except PermanentConnectionError as e:
 - Use `logger.exception()` + `from None` when presenting clean user errors but preserving log context
 - Reserve `from None` alone for converting third-party exceptions to user messages
 
+
+### 3.9 Issues with `parse_json_file()`
+
+`parse_json_file()` in `src/dsp_tools/utils/json_parsing.py`
+doesn't follow the pattern in "How to Handle Exceptions". 
+In addition, it doesn't pass on the parsing error to the user, so the user doesn't have a chance to fix his JSON.
+
+
 ---
 
 ## 4. Error Message Quality - More Involved

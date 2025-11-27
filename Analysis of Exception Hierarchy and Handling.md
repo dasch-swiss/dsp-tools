@@ -280,11 +280,58 @@ except PermanentConnectionError as e:
 - Reserve `from None` alone for converting third-party exceptions to user messages
 
 
-### 3.9 Issues with `parse_json_file()`
 
-`parse_json_file()` in `src/dsp_tools/utils/json_parsing.py`
-doesn't follow the pattern in "How to Handle Exceptions". 
-In addition, it doesn't pass on the parsing error to the user, so the user doesn't have a chance to fix his JSON.
+### 3.9 Duplicate Error Logging
+
+**Problem:** The codebase has several locations where the same error is logged multiple times:
+once when the exception is caught and logged, and again when the exception is re-raised and caught by a caller.
+This creates duplicate log entries that clutter logs and make debugging harder.
+
+**Examples:**
+
+1. **`cli/utils.py` → `entry_point.py` chain:**
+   - In [cli/utils.py:79-87](_check_api_health() function):
+     - Catches exception, logs with `logger.error(e)` and `logger.error(msg)`
+     - Raises `DspApiNotReachableError(msg)`
+   - In [entry_point.py:73-74](run() function):
+     - Catches all `BaseError` exceptions (which includes `DspApiNotReachableError`)
+     - Logs again with `logger.exception(f"The process was terminated because of an Error: {err.message}")`
+   - **Result:** Same error logged 2-3 times
+
+2. **`shacl_cli_validator.py`:**
+   - In [shacl_cli_validator.py:22-29](ShaclCliValidator.validate()):
+     - Logs with `logger.error(e)` at line 22
+     - Logs again with `logger.error(msg)` at line 28
+     - Raises `ShaclValidationCliError`
+   - In [entry_point.py:73-74](run() function):
+     - Catches and logs the `ShaclValidationCliError` again
+   - **Result:** Same error logged 3 times
+
+3. **`json_parsing.py`:**
+   - In [json_parsing.py:44-46](parse_json_file()):
+     - Logs with `logger.error(e)` at line 44
+     - Raises `JSONFileParsingError(msg)` at line 46
+   - Likely caught and logged again by caller through `entry_point.py`
+   - **Result:** Same error logged twice
+
+4. **`xmlupload/stash/` modules:**
+   - In [upload_stashed_xml_texts.py:47-51](upload_xml_texts()):
+     - Catches `BaseError`, calls helper function that logs
+     - Returns failure status that may trigger additional logging
+   - Similar pattern in [upload_stashed_xml_texts.py:120-124](_upload_stash_item())
+
+**Recommendation:**
+
+Follow a consistent pattern:
+
+- **Log at the highest level only:** Let exceptions bubble up to `entry_point.py` where they are logged once
+- **Intermediate handlers should NOT log:** If catching and re-raising, don't log—just transform the exception if needed
+- **Use `from e` for chaining:** Preserve the exception chain instead of using `from None`
+
+**Exception:** Only log at intermediate levels when:
+
+- Converting to user-friendly error and using `logger.exception()` + `from None` pattern
+- The intermediate handler truly has additional context worth logging
 
 
 ---

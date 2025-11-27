@@ -7,7 +7,9 @@
 ## Proposed Steps
 
 1. Nora reviews this document
-2. Fine-tune this document
+    - Some recently added error classes are not considered yet in this report,
+      but this should not hinder us discussing this report.
+2. Based on the feedback, Johannes fine-tunes this document
 3. Johannes creates a project and tickets
     - Implementation order:
         - Hierarchy redesign

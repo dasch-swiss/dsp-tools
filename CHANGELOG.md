@@ -1,5 +1,22 @@
 # Changelog
 
+## [18.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.2.1...v18.3.0) (2025-11-27)
+
+
+### Enhancements
+
+* update legal info in XML to new format (DEV-4838) ([#1680](https://github.com/dasch-swiss/dsp-tools/issues/1680)) ([8c3ba81](https://github.com/dasch-swiss/dsp-tools/commit/8c3ba8195573832a41ac21a2905c5193c99c8147))
+
+
+### Maintenance
+
+* **create:** add code to create properties on server ([#2072](https://github.com/dasch-swiss/dsp-tools/issues/2072)) ([78b4115](https://github.com/dasch-swiss/dsp-tools/commit/78b4115a809aa57d53926655387d34b8e785a32a))
+* **create:** integrate new classes route into command ([#2080](https://github.com/dasch-swiss/dsp-tools/issues/2080)) ([0dc0af5](https://github.com/dasch-swiss/dsp-tools/commit/0dc0af54ef5078b277181e32ea4fd57e53e90f61))
+* **create:** integrate new property creation into command ([#2073](https://github.com/dasch-swiss/dsp-tools/issues/2073)) ([ec82cb1](https://github.com/dasch-swiss/dsp-tools/commit/ec82cb19d75fb927a7c98967791d863f83776356))
+* **create:** make create classes on server ([#2079](https://github.com/dasch-swiss/dsp-tools/issues/2079)) ([eea7158](https://github.com/dasch-swiss/dsp-tools/commit/eea71587cf3b28261946bc4c75a57e048cc330b3))
+* **create:** make create new classes route ([#2078](https://github.com/dasch-swiss/dsp-tools/issues/2078)) ([2261217](https://github.com/dasch-swiss/dsp-tools/commit/226121731b7e4a52dcfb009e9a7df1e7ea66b7a3))
+* **create:** parse and serialise classes ([#2074](https://github.com/dasch-swiss/dsp-tools/issues/2074)) ([958e392](https://github.com/dasch-swiss/dsp-tools/commit/958e3928d5da62345d37f46c3a6295e365bddfbc))
+
 ## [18.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.2.0...v18.2.1) (2025-11-26)
 
 

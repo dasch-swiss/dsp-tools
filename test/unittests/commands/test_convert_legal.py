@@ -13,6 +13,7 @@ from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
+from dsp_tools.xmllib.models import res
 
 AUTH_PROP = ":hasAuthorship"
 COPY_PROP = ":hasCopyright"
@@ -461,92 +462,24 @@ def test_multiple_authorships_per_resource() -> None:
     assert bitstream.attrib["authorship-id"] == "authorship_0"
 
 
-def test_counter_accuracy_mixed() -> None:
-    """Test that counters accurately track what metadata was actually applied."""
-    xml = etree.fromstring(f"""
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>file1.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_2">
-            <bitstream>file2.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author B</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <bitstream>file3.jpg</bitstream>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
-        </resource>
-    </knora>
-    """)
-    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = LegalMetadataDefaults()
-    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
-
-    assert len(problems) == 2
-    assert root_returned is not None
-    assert counter is not None
-    assert counter.resources_updated == 1
-
-
-def test_counter_accuracy_all_complete() -> None:
-    """Test counter accuracy when all resources have complete metadata."""
-    xml = etree.fromstring(f"""
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>file1.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_2">
-            <bitstream>file2.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author B</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright B</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <iiif-uri>https://iiif.example.org/image.jpg</iiif-uri>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-NC</text></text-prop>
-        </resource>
-    </knora>
-    """)
-    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = LegalMetadataDefaults()
-    root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
-
-    assert root_returned is not None
-    assert counter is not None
-    assert len(problems) == 0
-    assert counter.resources_updated == 3
-    assert counter.licenses_set == 3
-    assert counter.copyrights_set == 3
-    assert counter.authorships_set == 3
-
-
 def test_resources_without_media_skipped() -> None:
-    """Test that resources without bitstream or iiif-uri are skipped."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>file1.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Keep this authorship property</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Keep this copyright property</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Keep this license property</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_2">
-            <text-prop name="other:prop"><text encoding="utf8">Some value</text></text-prop>
-        </resource>
-        <resource label="lbl" restype=":type" id="res_3">
-            <bitstream>file3.jpg</bitstream>
+            <bitstream>file1.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author C</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright C</text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-NC</text></text-prop>
+        </resource>
+        <resource label="lbl" restype=":type" id="res_3">
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Keep this authorship property</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Keep this copyright property</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">Keep this license property</text></text-prop>
         </resource>
     </knora>
     """)
@@ -554,55 +487,47 @@ def test_resources_without_media_skipped() -> None:
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    assert root_returned is not None
-    assert counter is not None
     assert len(problems) == 0
-    assert counter.resources_updated == 2
 
+    assert counter.resources_updated == 1
+    assert counter.licenses_set == 1
+    assert counter.copyrights_set == 1
+    assert counter.authorships_set == 1
 
-def test_property_removal() -> None:
-    """Test that specified text properties are removed after conversion."""
-    xml = etree.fromstring(f"""
-    <knora>
-        <resource label="lbl" restype=":type" id="res_1">
-            <bitstream>file1.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Author A</text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">Copyright A</text></text-prop>
-            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
-            <text-prop name="other:prop"><text encoding="utf8">Keep this</text></text-prop>
-        </resource>
-    </knora>
-    """)
-    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
-    defaults = LegalMetadataDefaults()
-    result, counter, _problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
+    res_1 = root_returned[1]
+    assert [x.text for x in res_1.xpath("text-prop/text")] == [
+        "Keep this authorship property",
+        "Keep this copyright property",
+        "Keep this license property",
+    ]
 
-    assert result is not None
-    assert counter is not None
-    resource = result[1]
-    assert len(resource) == 2
+    res_2 = root_returned[2]
+    assert len(res_2) == 1
+    assert res_2[0].tag == "bitstream"
 
-    bitstream = resource[0]
-    assert bitstream.tag == "bitstream"
-
-    remaining_prop = resource[1]
-    assert remaining_prop.tag == "text-prop"
-    assert remaining_prop.attrib["name"] == "other:prop"
-    assert remaining_prop[0].text == "Keep this"
+    res_3 = root_returned[3]
+    assert [x.text for x in res_3.xpath("text-prop/text")] == [
+        "Keep this authorship property",
+        "Keep this copyright property",
+        "Keep this license property",
+    ]
 
 
 def test_is_fixme_value() -> None:
-    """Test the is_fixme_value helper function."""
-    assert is_fixme_value("FIXME: Some error")
-    assert is_fixme_value("FIXME:")
+    assert is_fixme_value("FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre")
+    assert is_fixme_value("FIXME: Copyright missing")
+    assert is_fixme_value("FIXME: License missing")
+    assert is_fixme_value("FIXME: Invalid license: Courtesy of DaSCH")
+    assert is_fixme_value("FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA")
     assert not is_fixme_value(None)
-    assert not is_fixme_value("Regular value")
+    assert not is_fixme_value("CC BY 4.0")
+    assert not is_fixme_value("John Doe")
+    assert not is_fixme_value("unknown")
     assert not is_fixme_value("")
     assert not is_fixme_value("  ")
 
 
 def test_write_problems_to_csv(tmp_path: Path) -> None:
-    """Test writing problems to CSV file."""
     xml_file = tmp_path / "test.xml"
     xml_file.write_text("<knora></knora>")
 
@@ -647,7 +572,6 @@ def test_write_problems_to_csv(tmp_path: Path) -> None:
 
 
 def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
-    """Test that writing problems creates numbered CSV files when one already exists."""
     xml_file = tmp_path / "test.xml"
     xml_file.write_text("<knora></knora>")
 
@@ -666,10 +590,9 @@ def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
 
     write_problems_to_csv(xml_file, problems)
 
-    # Should create test_legal_errors_1.csv since test_legal_errors.csv exists
     csv_file_1 = tmp_path / "test_legal_errors_1.csv"
     assert csv_file_1.exists()
-    assert csv_file.exists()  # Original file should still exist
+    assert csv_file.exists()
 
     df = pd.read_csv(csv_file_1)
     assert len(df) == 1
@@ -677,7 +600,6 @@ def test_write_problems_to_csv_file_exists(tmp_path: Path) -> None:
 
 
 def test_read_corrections_csv(tmp_path: Path) -> None:
-    """Test reading corrections from CSV file."""
     csv_file = tmp_path / "corrections.csv"
     csv_content = """resource_id,file,license,copyright,authorship_1,authorship_2
 res_1,file1.jpg,http://rdfh.ch/licenses/cc-by-4.0,Copyright Holder,Author One,
@@ -703,7 +625,6 @@ res_2,file2.jpg,http://rdfh.ch/licenses/cc0-1.0,Another Copyright,Author Two,Aut
 
 
 def test_read_corrections_csv_with_fixme_values(tmp_path: Path) -> None:
-    """Test that FIXME values in CSV are treated as None."""
     csv_file = tmp_path / "corrections.csv"
     csv_content = """resource_id,file,license,copyright,authorship_1
 res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
@@ -719,7 +640,6 @@ res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
 
 
 def test_csv_corrections_override_xml() -> None:
-    """Test that CSV corrections override XML values (priority: CSV > XML > defaults)."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -750,37 +670,38 @@ def test_csv_corrections_override_xml() -> None:
         xml, properties=properties, defaults=defaults, csv_corrections=csv_metadata
     )
 
-    assert root_returned is not None
-    assert counter is not None
     assert len(problems) == 0
 
-    resource = root_returned[1]
-    bitstream = resource[0]
-
-    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc0-1.0"
-    assert bitstream.attrib["copyright-holder"] == "CSV Copyright"
+    assert counter.resources_updated == 1
+    assert counter.licenses_set == 1
+    assert counter.copyrights_set == 1
+    assert counter.authorships_set == 1
 
     auth_def = root_returned[0]
     assert auth_def[0].text == "CSV Author"
 
+    resource = root_returned[1]
+    bitstream = resource[0]
+    assert bitstream.attrib["license"] == "http://rdfh.ch/licenses/cc0-1.0"
+    assert bitstream.attrib["copyright-holder"] == "CSV Copyright"
+
 
 def test_partial_update_mixed_resources() -> None:
-    """Test that partial updates work correctly: valid resources updated, problematic resources unchanged."""
     xml = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_good">
             <bitstream>file_good.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Good Author</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Surname 1, Given Name 1</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">Good Copyright</text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_bad">
             <bitstream>file_bad.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Bad Author</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Surname 2, Given Name 2</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_good2">
             <bitstream>file_good2.jpg</bitstream>
-            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Good Author 2</text></text-prop>
+            <text-prop name="{AUTH_PROP}"><text encoding="utf8">Surname 3, Given Name 3</text></text-prop>
             <text-prop name="{COPY_PROP}"><text encoding="utf8">Good Copyright 2</text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">CC BY-SA</text></text-prop>
         </resource>
@@ -791,32 +712,30 @@ def test_partial_update_mixed_resources() -> None:
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(xml, properties=properties, defaults=defaults)
 
-    # Should have 1 problem for res_bad
     assert len(problems) == 1
     assert problems[0].res_id == "res_bad"
-    assert root_returned is not None
-    assert counter is not None
-    assert counter.resources_updated == 2
 
-    # Verify the good resources are updated (text props removed, attributes added)
+    assert counter.resources_updated == 2
+    assert counter.licenses_set == 2
+    assert counter.copyrights_set == 2
+    assert counter.authorships_set == 2
+
     res_good = root_returned.xpath('//resource[@id="res_good"]')[0]
-    assert len(res_good.xpath("text-prop")) == 0, "Valid resource should have text props removed"
+    assert len(res_good.xpath("text-prop")) == 0
     assert res_good[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
     assert res_good[0].attrib["copyright-holder"] == "Good Copyright"
 
     res_good2 = root_returned.xpath('//resource[@id="res_good2"]')[0]
-    assert len(res_good2.xpath("text-prop")) == 0, "Valid resource should have text props removed"
+    assert len(res_good2.xpath("text-prop")) == 0
     assert res_good2[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-sa-4.0"
 
-    # Verify the bad resource is NOT updated (text props retained, no attributes)
     res_bad = root_returned.xpath('//resource[@id="res_bad"]')[0]
-    assert len(res_bad.xpath("text-prop")) == 1, "Problematic resource should keep text props"
-    assert "license" not in res_bad[0].attrib, "Problematic resource should not have license attribute"
+    assert len(res_bad.xpath("text-prop")) == 1
+    assert "license" not in res_bad[0].attrib
     assert "copyright-holder" not in res_bad[0].attrib
 
-    # Verify authorship definitions only include valid resources
     auth_defs = root_returned.xpath("//authorship")
-    assert len(auth_defs) == 2  # Only from res_good and res_good2
+    assert len(auth_defs) == 2
 
 
 def test_treat_invalid_licenses_as_unknown_flag() -> None:

@@ -61,6 +61,10 @@ DSP-TOOLS provides the following functionalities:
   to convert data from a tabular format into XML.
 - `dsp-tools id2iri` takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
   The mapping has to be provided with a JSON file.
+- `dsp-tools update-legal` converts legal metadata in XML files from the old format to the new format.
+  Legal metadata (authorship, copyright, license) is migrated from `<text-prop>` elements
+  to attributes on `<bitstream>` or `<iiif-uri>` elements.
+  The command handles validation, error correction via CSV workflow, and authorship deduplication.
 - `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
 
 

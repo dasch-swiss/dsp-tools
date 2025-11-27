@@ -66,6 +66,8 @@ def make_parser(
 
     _add_id2iri(subparsers)
 
+    _add_update_legal(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -449,3 +451,24 @@ def _add_create(
     )
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     subparser.add_argument("project_definition", help="path to the JSON project file")
+
+
+def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    subparser = subparsers.add_parser(
+        name="update-legal",
+        help="Convert the legal metadata of an XML file from text properties to bitstream attributes",
+    )
+    subparser.set_defaults(action="update-legal")
+    subparser.add_argument("--authorship_prop", type=str, help="Property used for the authorship, e.g. ':hasAuthor'")
+    subparser.add_argument("--copyright_prop", type=str, help="Property used for the copyright, e.g. ':hasCopyright'")
+    subparser.add_argument("--license_prop", type=str, help="Property used for the license, e.g. ':hasLicense'")
+    subparser.add_argument("--authorship_default", type=str, help="Default authorship value when property is missing")
+    subparser.add_argument("--copyright_default", type=str, help="Default copyright value when property is missing")
+    subparser.add_argument("--license_default", type=str, help="Default license value when property is missing")
+    subparser.add_argument("--fixed_errors", type=str, help="Path to the CSV file with corrected legal metadata values")
+    subparser.add_argument(
+        "--treat-invalid-licenses-as-unknown",
+        action="store_true",
+        help="Treat invalid licenses as 'unknown' instead of creating FIXME entries",
+    )
+    subparser.add_argument("xmlfile", help="path to the XML file containing the data")

@@ -1,6 +1,7 @@
 # DSP-TOOLS Exception Hierarchy Analysis
 
 **Date:** 2025-11-07
+**Updated:** 2025-11-27
 **Scope:** Analysis of exception handling across DSP-TOOLS codebase with improvement recommendations
 
 ---
@@ -23,11 +24,13 @@ and missing best practices undermine its effectiveness.
 
 ---
 
-## Command Grouping Context
+## 1. General Considerations/Guidelines
+
+### 1.1 There Are 2 Groups Of Commands
 
 DSP-TOOLS commands fall into two categories with different error handling needs:
 
-### 1. Server Interaction Commands (fail-fast acceptable)
+#### 1. Server Interaction Commands (fail-fast acceptable)
 
 Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmlupload`, `resume-xmlupload`):
 
@@ -36,7 +39,7 @@ Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmluploa
 - Users may need developer assistance
 - Bugs can escalate to top-level handler in `entry_point.py`
 
-### 2. Local Validation/Transformation Commands (must report all problems)
+#### 2. Local Validation/Transformation Commands (must report all problems)
 
 Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-data`):
 
@@ -46,14 +49,13 @@ Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-
 - Errors should be handled gracefully with user-friendly messages
 - Bugs can escalate to top-level handler in `entry_point.py`
 
----
 
-## Guidelines: When to Catch vs. Let Fail
+### 1.2 Guidelines: When to Catch vs. Let Fail
 
 All exceptions are caught at the top level (`entry_point.py` > `run()`) to prevent Python tracebacks
 from reaching users.
 
-### In Implementation Code: Do NOT Catch
+#### In Implementation Code: Do NOT Catch
 
 Avoid catching errors from your own code logic (your own programming bugs like type errors, logic mistakes).
 Let them crash immediately because:
@@ -63,7 +65,7 @@ Let them crash immediately because:
 - Test environments exist to surface these issues before production
 - Silent failures or generic error messages make debugging harder
 
-### In Implementation Code: DO Catch
+#### In Implementation Code: DO Catch
 
 Catch exceptions for external operations where failure is expected and recoverable:
 
@@ -73,7 +75,7 @@ Catch exceptions for external operations where failure is expected and recoverab
 - External API calls
 - External library calls that might fail in predictable ways
 
-### Only Catch When You Have a Specific Recovery Strategy
+#### Only Catch When You Have a Specific Recovery Strategy
 
 - Adding crucial diagnostic context not in the traceback
 - Implementing retry logic for transient failures
@@ -82,11 +84,10 @@ Catch exceptions for external operations where failure is expected and recoverab
 This produces a **leaner codebase** focused on handling genuine external failures while bugs fail loudly
 and get fixed quickly.
 
----
 
-## How to Handle Exceptions
+### 1.3 How to Handle Exceptions
 
-### General Principles
+#### General Principles
 
 When catching errors, preserve as much context as possible:
 
@@ -116,7 +117,7 @@ class JSONFileParsingError:
 
 ---
 
-## 1. Proposed Exception Hierarchy Redesign
+## 2. Proposed Change: Exception Hierarchy Redesign
 
 ### Current Issues
 
@@ -175,7 +176,9 @@ BaseError
 9. **Move `Id2IriReplacementError` to `UserError`**: User's ID mapping is incomplete/incorrect
 10. **Keep `CreateError` as `InternalError` subclass**: Functionality-specific grouping is useful
 
-### Entry Point Exception Handling
+---
+
+## 3. Proposed Change: Entry Point Exception Handling
 
 Update `entry_point.py` > `run()`:
 
@@ -204,26 +207,7 @@ Key improvements:
 
 ---
 
-## 2. Semantic Ambiguity Issues
-
-### Issue 2.1: Confusingly Similar Names
-
-**Problem:** `InvalidInputError` vs `InputError` (soon `UserError`)
-
-```python
-class UserError(BaseError):
-    """User input is invalid. Message should be user-friendly."""
-
-class InvalidInputError(BaseError):
-    """API responds with permanent error due to invalid input data"""
-```
-
-These names are too similar but serve different purposes. `InvalidInputError` means the API rejected
-our request (likely a programming error), while `UserError` means the user provided bad input.
-
-**Recommendation:** Rename `InvalidInputError` → `ApiRejectedInputError`
-
-### Issue 2.2: Generic BaseError Raises
+## 4. Proposed Change: Generic BaseError Raises
 
 Multiple locations raise raw `BaseError`:
 
@@ -233,28 +217,11 @@ Multiple locations raise raw `BaseError`:
 
 **Problem:** Raising raw `BaseError` defeats the purpose of having a hierarchy. Cannot catch specific exception types.
 
-**Recommendation:** Use specific exceptions:
-
-- Date parsing errors → `UserError` (user provided bad date)
-- JSON validation → `JSONFileParsingError` (already exists!)
-- Unknown value types → `InternalError` (programming error)
-
-### Issue 2.3: XmlInputConversionError Misclassification
-
-```python
-class XmlInputConversionError(BaseError):
-    """Error during XML input conversion."""
-```
-
-**Problem:** Why isn't this a subclass of `UserError`? XML conversion errors are fundamentally user input
-issues.
-
-**Recommendation:** Make it a subclass of `InternalError` (if conversion fails due to our code) or
-`UserError` (if user's XML is malformed). Clarify the use case.
+**Recommendation:** Use specific exceptions
 
 ---
 
-## 3. Exception Chain Suppression
+## 5. Proposed Change: Do Not Suppress Exception Chain
 
 Found extensive use of `from None`:
 
@@ -285,45 +252,7 @@ except PermanentConnectionError as e:
 
 ---
 
-## 4. Top-Level Exception Handler Issues
-
-Located in [entry_point.py:66-80](src/dsp_tools/cli/entry_point.py#L66-L80):
-
-```python
-try:
-    parsed_arguments = _derive_dsp_ingest_url(...)
-    success = call_requested_action(parsed_arguments)
-except BaseError as err:
-    logger.exception(f"The process was terminated because of an Error: {err.message}")
-    print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
-    success = False
-except Exception as err:  # noqa: BLE001 (blind-except)
-    logger.exception(err)
-    print(InternalError())
-    success = False
-```
-
-### Issue 4.1: Catch-All Catches Too Much
-
-**Problem:** `except Exception` catches everything including:
-
-- `KeyboardInterrupt` (user presses Ctrl+C) → shown as "InternalError"
-- All third-party library exceptions → logged but loses context
-
-**Impact:** Prevents graceful shutdown and confuses users when they interrupt execution.
-
-**Recommendation:** Add explicit `KeyboardInterrupt` handler (see Section 1)
-
-### Issue 4.2: No Distinction Between User and Internal Errors
-
-Currently catches all `BaseError` the same way. Should distinguish:
-
-- User errors → friendly message suggesting fixes
-- Internal errors → message directing users to contact developers
-
----
-
-## 5. Error Message Quality
+## 6. Error Message Quality
 
 ### Strengths
 
@@ -332,16 +261,6 @@ Currently catches all `BaseError` the same way. Should distinguish:
 - `InternalError` provides excellent guidance for contacting developers
 
 ### Issues
-
-#### Issue 5.1: Inconsistent Message Formatting
-
-**Problem:** Some messages include "ERROR:" prefix, others don't.
-
-**Recommendation:** Remove all "ERROR:" prefixes from exception messages. The red color and context
-already indicate it's an error.
-
-Replace: `raise FooError("ERROR: foobar")`
-With: `raise FooError("foobar")`
 
 #### Issue 5.2: Technical Jargon in User-Facing Errors
 
@@ -384,9 +303,9 @@ Errors like `XmlUploadPermissionsNotFoundError`, `XmlUploadAuthorshipsNotFoundEr
 
 ---
 
-## 6. Concrete issues in error handling
+## 7. Concrete issues in error handling (directly fixable in 1 PR each)
 
-### 6.1 ShaclCliValidator Issues
+### 7.1 ShaclCliValidator Issues
 
 Multiple issues in `ShaclCliValidator.validate()`:
 
@@ -404,7 +323,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
 - Replace `ShaclValidationCliError` with `ShaclValidationError` as `InternalError` subclass
 - Use `from e` or `logger.exception()` + `from None` pattern
 
-### 6.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
+### 7.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
 
 - `if not response.ok`  should be moved out of the try-except block
 - except block uses `logger.error()` twice
@@ -412,7 +331,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
     - `logger.error(msg)` -> `logger.exception(msg)`
 - remove `from None`
 
-## 6.3 UnknownDOAPException - Exception Misuse
+### 7.3 UnknownDOAPException - Exception Misuse
 
 - Legacy projects have custom DOAP combinations that don't fit the current limited system
 - When downloading existing projects, these legacy DOAPs must be handled gracefully
@@ -458,6 +377,16 @@ if result.is_legacy:
     logger.info("Using default DOAP for legacy project")
 doap = result.value
 ```
+
+### 7.4: Inconsistent Message Formatting
+
+**Problem:** Some messages include "ERROR:" prefix, others don't.
+
+**Recommendation:** Remove all "ERROR:" prefixes from exception messages. The red color and context
+already indicate it's an error.
+
+Replace: `raise FooError("ERROR: foobar")`
+With: `raise FooError("foobar")`
 
 ---
 

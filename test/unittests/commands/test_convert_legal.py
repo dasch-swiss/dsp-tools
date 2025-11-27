@@ -13,7 +13,6 @@ from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
 from dsp_tools.commands.update_legal.models import Problem
-from dsp_tools.xmllib.models import res
 
 AUTH_PROP = ":hasAuthorship"
 COPY_PROP = ":hasCopyright"

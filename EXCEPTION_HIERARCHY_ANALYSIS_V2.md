@@ -29,16 +29,14 @@ DSP-TOOLS commands fall into two categories with different error handling needs:
 
 ### 1. Server Interaction Commands (fail-fast acceptable)
 
-
 Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmlupload`, `resume-xmlupload`):
 
-- Tested in environments before production
+- Tested in local/test environments before production
 - Can fail fast with context when issues occur
 - Users may need developer assistance
 - Bugs can escalate to top-level handler in `entry_point.py`
 
 ### 2. Local Validation/Transformation Commands (must report all problems)
-
 
 Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-data`):
 
@@ -138,23 +136,25 @@ BaseError
 │   ├── DockerNotReachableError (moved)
 │   ├── DspApiNotReachableError (moved)
 │   ├── InvalidGuiAttributeError (moved)
+│   ├── BadCredentialsError (moved)
+    ├── CreateError (moved)
+    |   └── ProjectNotFoundError
 │   └── XmlUploadUserError (new grouping for xmlupload user errors)
 │       ├── Id2IriReplacementError
 │       ├── XmlUploadPermissionsNotFoundError (XmlUploadError should be merged with this class)
 │       ├── XmlUploadAuthorshipsNotFoundError
 │       └── XmlUploadListNodeNotFoundError
-├── InternalError
-│   ├── UnexpectedApiResponseError (moved)
-│   ├── PermanentConnectionError (moved)
-│   │   ├── BadCredentialsError
-│   │   └── PermanentTimeOutError (moved under PermanentConnectionError)
-│   ├── ShaclValidationError (renamed from ShaclValidationCliError and moved)
-│   ├── XmlInputConversionError (moved)
-│   ├── XmlUploadInterruptedError
-│   └── CreateError
-│       └── ProjectNotFoundError
-└── InvalidInputError (keep as BaseError direct child - API rejection errors)
-    └── InvalidIngestFileNameError
+└── InternalError
+    ├── UnexpectedApiResponseError (moved)
+    ├── PermanentConnectionError (moved)
+    │   └── PermanentTimeOutError (moved under PermanentConnectionError)
+    ├── ShaclValidationError (renamed from ShaclValidationCliError and moved)
+    ├── XmlInputConversionError (moved)
+    ├── XmlUploadInterruptedError
+
+    ├── InvalidIngestFileNameError
+    └── InvalidInputError (should be a subclass of InternalError, and marked as deprecated,
+                           because it's only used by the deprecated `Connection` class and the old `create` code)
 ```
 
 ### Key Changes

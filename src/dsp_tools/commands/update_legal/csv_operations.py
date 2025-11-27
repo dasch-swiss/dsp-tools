@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 import regex
 
+from dsp_tools.commands.update_legal.models import Authorships
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import Problem
 from dsp_tools.error.exceptions import InputError
@@ -103,7 +104,7 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     return corrections
 
 
-def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[str]:
+def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> Authorships:
     """
     Collect all authorship values from a CSV row.
 
@@ -119,7 +120,7 @@ def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> list[
             if not is_fixme_value(auth_str):
                 authorships.append(auth_str)
         i += 1
-    return authorships
+    return Authorships(sorted([x.strip() for x in authorships]))
 
 
 def is_fixme_value(value: str | None) -> bool:

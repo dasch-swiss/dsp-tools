@@ -5,6 +5,7 @@ from lxml import etree
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
 from dsp_tools.commands.update_legal.csv_operations import write_problems_to_csv
+from dsp_tools.commands.update_legal.models import Authorships
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
@@ -101,7 +102,7 @@ def _update_xml_tree(
     Returns:
         Tuple of (updated root element, counter of updated resources, list of problems)
     """
-    auth_text_to_id: dict[str, int] = {}
+    auth_text_to_id: dict[Authorships, int] = {}
     problems: list[Problem] = []
     counter = UpdateCounter()
 
@@ -128,7 +129,7 @@ def _update_xml_tree(
                 res_id=res_id,
                 license=metadata.license or "FIXME: License missing",
                 copyright=metadata.copyright or "FIXME: Copyright missing",
-                authorships=metadata.authorships if metadata.authorships else ["FIXME: Authorship missing"],
+                authorships=metadata.authorships.elems if metadata.authorships else ["FIXME: Authorship missing"],
             )
             problems.append(problem)
         elif metadata.any():
@@ -162,7 +163,7 @@ def _has_problems(metadata: LegalMetadata) -> bool:
 
     if not metadata.authorships:
         has_authorship_problem = True
-    elif any(is_fixme_value(x) for x in metadata.authorships):
+    elif any(is_fixme_value(x) for x in metadata.authorships.elems):
         has_authorship_problem = True
     else:
         has_authorship_problem = False

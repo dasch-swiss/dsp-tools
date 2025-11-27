@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+from dataclasses import field
 
 from dsp_tools.error.exceptions import InvalidLicenseError
 from dsp_tools.xmllib.general_functions import find_license_in_string
@@ -32,10 +35,10 @@ class LegalMetadata:
 
     license: str | None
     copyright: str | None
-    authorships: list[str]
+    authorships: Authorships
 
     def any(self) -> bool:
-        return bool(self.license or self.copyright or (self.authorships and any(x for x in self.authorships)))
+        return bool(self.license or self.copyright or (self.authorships and any(x for x in self.authorships.elems)))
 
 
 class LegalMetadataDefaults:
@@ -69,3 +72,8 @@ class Problem:
     license: str
     copyright: str
     authorships: list[str]
+
+
+@dataclass(frozen=True)
+class Authorships:
+    elems: list[str] = field(default_factory=list)

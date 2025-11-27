@@ -4,6 +4,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
+from dsp_tools.commands.update_legal.models import Authorships
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
@@ -40,7 +41,7 @@ def apply_metadata_to_resource(
     media_elem: etree._Element,
     metadata: LegalMetadata,
     properties: LegalProperties,
-    auth_text_to_id: dict[str, int],
+    auth_text_to_id: dict[Authorships, int],
 ) -> None:
     """
     Apply legal metadata to a resource's media element and remove old text properties.
@@ -70,7 +71,7 @@ def _resolve_metadata_values(
     counter: UpdateCounter,
     csv_metadata: LegalMetadata | None,
     treat_invalid_licenses_as_unknown: bool = False,
-) -> tuple[str | None, str | None, list[str]]:
+) -> tuple[str | None, str | None, Authorships]:
     """
     Resolve metadata values using priority: CSV > XML > defaults.
 
@@ -81,11 +82,11 @@ def _resolve_metadata_values(
     if csv_metadata:
         license_val = csv_metadata.license
         copyright_val = csv_metadata.copyright
-        authorships = csv_metadata.authorships.copy()
+        authorships = csv_metadata.authorships
     else:
         license_val = None
         copyright_val = None
-        authorships = []
+        authorships = Authorships()
 
     # Collect license from XML, fall back to default
     if license_val is None and properties.license_prop:
@@ -105,7 +106,7 @@ def _resolve_metadata_values(
     if not authorships and properties.authorship_prop:
         authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
     if not authorships and defaults.authorship_default:
-        authorships = [defaults.authorship_default]
+        authorships = Authorships([defaults.authorship_default.strip()])
 
     return license_val, copyright_val, authorships
 
@@ -158,34 +159,33 @@ def _extract_copyright_from_xml(res: etree._Element, copy_prop: str) -> str | No
     return copy_text
 
 
-def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> list[str]:
+def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> Authorships:
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
     if not auth_elems:
-        return []
-    authorships = []
+        return Authorships()
+    authorships: list[str] = []
     for auth_elem in auth_elems:
         if auth_elem.text and (auth_text := auth_elem.text.strip()):
             authorships.append(auth_text)
-    return authorships
+    return Authorships(sorted(authorships))
 
 
 def _apply_metadata_to_element(
     media_elem: etree._Element,
     license_val: str | None,
     copyright_val: str | None,
-    authorships: list[str],
-    auth_text_to_id: dict[str, int],
+    authorships: Authorships,
+    auth_text_to_id: dict[Authorships, int],
 ) -> None:
     """Apply legal metadata as attributes on the bitstream/iiif element."""
     if license_val and not is_fixme_value(license_val):
         media_elem.attrib["license"] = license_val
     if copyright_val and not is_fixme_value(copyright_val):
         media_elem.attrib["copyright-holder"] = copyright_val
-    if authorships and not any(is_fixme_value(x) for x in authorships):
-        auth_text = ", ".join([x.strip() for x in authorships])
-        if (auth_id := auth_text_to_id.get(auth_text)) is None:
+    if not any(is_fixme_value(x) for x in authorships.elems):
+        if (auth_id := auth_text_to_id.get(authorships)) is None:
             auth_id = len(auth_text_to_id)
-            auth_text_to_id[auth_text] = auth_id
+            auth_text_to_id[authorships] = auth_id
         media_elem.attrib["authorship-id"] = f"authorship_{auth_id}"
 
 
@@ -202,13 +202,13 @@ def _remove_text_properties(res: etree._Element, properties: LegalProperties) ->
             res.remove(prop_elem)
 
 
-def add_authorship_definitions_to_xml(root: etree._Element, auth_text_to_id: dict[str, int]) -> None:
+def add_authorship_definitions_to_xml(root: etree._Element, auth_text_to_id: dict[Authorships, int]) -> None:
     auth_defs = []
     for auth_text, auth_id in auth_text_to_id.items():
         auth_def = etree.Element("authorship", attrib={"id": f"authorship_{auth_id}"})
-        for single_auth in auth_text.split(", "):
+        for single_auth in auth_text.elems:
             auth_child = etree.Element("author")
-            auth_child.text = single_auth.strip()
+            auth_child.text = single_auth
             auth_def.append(auth_child)
         auth_defs.append(auth_def)
     for auth_def in reversed(auth_defs):

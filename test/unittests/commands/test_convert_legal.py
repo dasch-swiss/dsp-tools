@@ -45,11 +45,15 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     root_returned, counter, problems = _update_xml_tree(
         one_bitstream_one_iiif, properties=properties, defaults=defaults
     )
-    assert root_returned is not None
-    assert counter is not None
-    assert len(root_returned) == 3
+
     assert len(problems) == 0
+
     assert counter.resources_updated == 2
+    assert counter.licenses_set == 2
+    assert counter.copyrights_set == 2
+    assert counter.authorships_set == 2
+
+    assert len(root_returned) == 3
     auth_def = root_returned[0]
     resource_1 = root_returned[1]
     resource_2 = root_returned[2]
@@ -76,7 +80,7 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert str(resource_2[0].text).strip() == "https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg"
 
 
-def test_incomplete_legal() -> None:
+def test_incomplete() -> None:
     """Test that when some fields are missing, problems are generated and resources are left unchanged."""
     orig = etree.fromstring(f"""
     <knora>
@@ -98,13 +102,12 @@ def test_incomplete_legal() -> None:
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
-    # Should have 3 problems (one for each resource with missing fields)
-    assert len(problems) == 3
-    assert root_returned is not None
-    assert counter is not None
     assert counter.resources_updated == 0
+    assert counter.licenses_set == 0
+    assert counter.copyrights_set == 0
+    assert counter.authorships_set == 0
 
-    # Check the problems contain FIXME markers
+    assert len(problems) == 3
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
     assert "FIXME:" in problems[0].copyright
@@ -126,8 +129,7 @@ def test_incomplete_legal() -> None:
         assert len(text_props) == 1, "Problematic resources should still have their text properties"
 
 
-def test_missing_legal() -> None:
-    """Test that when all legal metadata is missing, problems are generated."""
+def test_everything_is_missing() -> None:
     orig = etree.fromstring("""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
@@ -139,11 +141,14 @@ def test_missing_legal() -> None:
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
-    # Should have 1 problem for the resource with all fields missing
-    assert len(problems) == 1
-    assert root_returned is not None
-    assert counter is not None
+    assert root_returned == orig
+
     assert counter.resources_updated == 0
+    assert counter.licenses_set == 0
+    assert counter.copyrights_set == 0
+    assert counter.authorships_set == 0
+    
+    assert len(problems) == 1
     assert problems[0].res_id == "res_1"
     assert "FIXME:" in problems[0].license
     assert "FIXME:" in problems[0].copyright
@@ -151,32 +156,69 @@ def test_missing_legal() -> None:
 
 
 def test_different_authors() -> None:
-    """Test that multiple different authors are handled correctly."""
     orig = etree.fromstring(f"""
     <knora>
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_2">
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Pierre Maillard</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_3">
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">Maurice Chuzeville</text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
+            <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
     </knora>
     """)
-    properties = LegalProperties(authorship_prop=AUTH_PROP)
+    properties = LegalProperties(authorship_prop=AUTH_PROP, copyright_prop=COPY_PROP, license_prop=LICENSE_PROP)
     defaults = LegalMetadataDefaults()
     root_returned, counter, problems = _update_xml_tree(orig, properties=properties, defaults=defaults)
 
-    # Should have problems because license and copyright are missing
-    assert len(problems) == 3
-    assert root_returned is not None
-    assert counter is not None
-    assert counter.resources_updated == 0
+    assert len(problems) == 0
+    assert counter.resources_updated == 3
+    assert counter.authorships_set == 3
+    assert counter.copyrights_set == 3
+    assert counter.licenses_set == 3
+
+    assert len(root_returned) == 5  # 3 resources + 2 authorship definition
+
+    auth_def_0 = root_returned[0]
+    assert auth_def_0.tag == "authorship"
+    assert auth_def_0.attrib["id"] == "authorship_0"
+    assert auth_def_0[0].tag == "author"
+    assert auth_def_0[0].text == "Maurice Chuzeville"
+
+    auth_def_1 = root_returned[1]
+    assert auth_def_1.tag == "authorship"
+    assert auth_def_1.attrib["id"] == "authorship_1"
+    assert auth_def_1[0].tag == "author"
+    assert auth_def_1[0].text == "Pierre Maillard"
+
+    res_1 = root_returned[2]
+    assert len(res_1) == 1
+    assert res_1[0].attrib["authorship-id"] == "authorship_0"
+    assert res_1[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert res_1[0].attrib["copyright-holder"] == "Musée du Louvre"
+
+    res_2 = root_returned[3]
+    assert len(res_2) == 1
+    assert res_2[0].attrib["authorship-id"] == "authorship_1"
+    assert res_2[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert res_2[0].attrib["copyright-holder"] == "Musée du Louvre"
+
+    res_3 = root_returned[4]
+    assert len(res_3) == 1
+    assert res_3[0].attrib["authorship-id"] == "authorship_0"
+    assert res_3[0].attrib["license"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    assert res_3[0].attrib["copyright-holder"] == "Musée du Louvre"
 
 
 def test_no_props(one_bitstream_one_iiif: etree._Element) -> None:

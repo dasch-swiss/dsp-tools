@@ -120,7 +120,7 @@ XML manipulation and metadata application:
 
 **Authorship deduplication:**
 
-- Multiple resources can share same authorship (e.g., "Rita Gautschy, Daniela Subotic")
+- Multiple resources can share same authorship (e.g., "Jane Doe, Alice Jenkins")
 - `auth_text_to_id` dictionary tracks unique authorships and assigns sequential IDs
 - Authorship definitions added to root as `<authorship id="authorship_0">` elements
 - Media elements reference via `authorship-id="authorship_0"` attribute
@@ -164,7 +164,7 @@ The codebase follows a clear pattern separating read operations from write opera
 
 ### Authorship Deduplication
 
-Problem: Multiple resources may share the same authorship (e.g., "Rita Gautschy, Daniela Subotic").
+Problem: Multiple resources may share the same authorship (e.g., "Jane Doe, Alice Jenkins").
 
 Solution:
 

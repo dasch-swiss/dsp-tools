@@ -126,15 +126,15 @@ CSV Output:
 
 | file    | resource_id | license | copyright                                                   | authorship_1  | authorship_2    |
 | ------- | ----------- | ------- | ----------------------------------------------------------- | ------------- | --------------- |
-| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                    | Rita Gautschy | Daniela Subotic |
-| cat.jpg | res_2       | CC BY   | FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
+| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                    | Jane Doe | Alice Jenkins |
+| cat.jpg | res_2       | CC BY   | FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre | Jane Doe | Alice Jenkins |
 
 Please add a copyright holder to the CSV:
 
 | file    | resource_id | license | copyright | authorship_1  | authorship_2    |
 | ------- | ----------- | ------- | --------- | ------------- | --------------- |
-| dog.jpg | res_1       | CC BY   | DaSCH     | Rita Gautschy | Daniela Subotic |
-| cat.jpg | res_2       | CC BY   | Louvre    | Rita Gautschy | Daniela Subotic |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe | Alice Jenkins |
+| cat.jpg | res_2       | CC BY   | Louvre    | Jane Doe | Alice Jenkins |
 
 
 ### 2. Problem: Authorship Absent
@@ -149,7 +149,7 @@ Please add at least one authorship to the CSV:
 
 | file    | resource_id | license | copyright | authorship_1  | authorship_2 |
 | ------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | CC BY   | DaSCH     | Rita Gautschy |              |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe |              |
 
 
 ### 3. Problem: License Absent, Not Parseable, or Multiple Licenses Found
@@ -158,9 +158,9 @@ CSV Output:
 
 | file     | resource_id | license                                                     | copyright | authorship_1  | authorship_2 |
 | -------- | ----------- | ----------------------------------------------------------- | --------- | ------------- | ------------ |
-| dog.jpg  | res_1       | FIXME: License missing                                      | DaSCH     | Rita Gautschy |              |
-| cat.jpg  | res_2       | FIXME: Invalid license: Courtesy of DaSCH                   | DaSCH     | Rita Gautschy |              |
-| bird.jpg | res_3       | FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA | DaSCH     | Rita Gautschy |              |
+| dog.jpg  | res_1       | FIXME: License missing                                      | DaSCH     | Jane Doe |              |
+| cat.jpg  | res_2       | FIXME: Invalid license: Courtesy of DaSCH                   | DaSCH     | Jane Doe |              |
+| bird.jpg | res_3       | FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA | DaSCH     | Jane Doe |              |
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
@@ -168,9 +168,9 @@ https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.
 
 | file     | resource_id | license | copyright | authorship_1  | authorship_2 |
 | -------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg  | res_1       | CC BY   | DaSCH     | Rita Gautschy |              |
-| cat.jpg  | res_2       | unknown | DaSCH     | Rita Gautschy |              |
-| bird.jpg | res_3       | CC BY   | DaSCH     | Rita Gautschy |              |
+| dog.jpg  | res_1       | CC BY   | DaSCH     | Jane Doe |              |
+| cat.jpg  | res_2       | unknown | DaSCH     | Jane Doe |              |
+| bird.jpg | res_3       | CC BY   | DaSCH     | Jane Doe |              |
 
 
 #### "Courtesy" Is Not A License

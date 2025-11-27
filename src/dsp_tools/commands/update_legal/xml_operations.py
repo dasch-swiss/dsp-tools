@@ -106,7 +106,7 @@ def _resolve_metadata_values(
     if not authorships and properties.authorship_prop:
         authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
     if not authorships and defaults.authorship_default:
-        authorships = Authorships([defaults.authorship_default.strip()])
+        authorships = Authorships.from_iterable({defaults.authorship_default})
 
     return license_val, copyright_val, authorships
 
@@ -163,11 +163,7 @@ def _extract_authorships_from_xml(res: etree._Element, auth_prop: str) -> Author
     auth_elems: list[etree._Element] = res.xpath(f"./text-prop[@name='{auth_prop}']/text")
     if not auth_elems:
         return Authorships()
-    authorships: list[str] = []
-    for auth_elem in auth_elems:
-        if auth_elem.text and (auth_text := auth_elem.text.strip()):
-            authorships.append(auth_text)
-    return Authorships(sorted(authorships))
+    return Authorships.from_iterable([auth_elem.text.strip() for auth_elem in auth_elems if auth_elem.text])
 
 
 def _apply_metadata_to_element(

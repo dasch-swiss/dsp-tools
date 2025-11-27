@@ -124,12 +124,13 @@ def _update_xml_tree(
         )
 
         if _has_problems(metadata):
+            authorships = sorted(metadata.authorships.elems) if metadata.authorships else ["FIXME: Authorship missing"]
             problem = Problem(
                 file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
                 license=metadata.license or "FIXME: License missing",
                 copyright=metadata.copyright or "FIXME: Copyright missing",
-                authorships=metadata.authorships.elems if metadata.authorships else ["FIXME: Authorship missing"],
+                authorships=authorships,
             )
             problems.append(problem)
         elif metadata.any():

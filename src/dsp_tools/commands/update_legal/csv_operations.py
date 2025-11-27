@@ -120,7 +120,7 @@ def _collect_authorships_from_row(row: pd.Series, df_columns: pd.Index) -> Autho
             if not is_fixme_value(auth_str):
                 authorships.append(auth_str)
         i += 1
-    return Authorships(sorted([x.strip() for x in authorships]))
+    return Authorships.from_iterable(authorships)
 
 
 def is_fixme_value(value: str | None) -> bool:

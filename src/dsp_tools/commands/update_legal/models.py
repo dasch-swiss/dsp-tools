@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field
 
@@ -76,4 +77,8 @@ class Problem:
 
 @dataclass(frozen=True)
 class Authorships:
-    elems: list[str] = field(default_factory=list)
+    elems: frozenset[str] = field(default_factory=frozenset)
+
+    @classmethod
+    def from_iterable(cls, iterable: Iterable[str]) -> Authorships:
+        return cls(frozenset([x.strip() for x in iterable]))

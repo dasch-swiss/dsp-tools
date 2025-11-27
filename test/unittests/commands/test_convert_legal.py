@@ -684,12 +684,12 @@ res_2,file2.jpg,http://rdfh.ch/licenses/cc0-1.0,Another Copyright,Author Two,Aut
     res1_metadata = corrections["res_1"]
     assert res1_metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
     assert res1_metadata.copyright == "Copyright Holder"
-    assert res1_metadata.authorships.elems == ["Author One"]
+    assert res1_metadata.authorships.elems == {"Author One"}
 
     res2_metadata = corrections["res_2"]
     assert res2_metadata.license == "http://rdfh.ch/licenses/cc0-1.0"
     assert res2_metadata.copyright == "Another Copyright"
-    assert res2_metadata.authorships.elems == sorted(["Author Two", "Author Three"])
+    assert res2_metadata.authorships.elems == {"Author Two", "Author Three"}
 
 
 def test_read_corrections_csv_with_fixme_values(tmp_path: Path) -> None:
@@ -705,7 +705,7 @@ res_1,file1.jpg,FIXME: Choose one,Real Copyright,Real Author
     res1_metadata = corrections["res_1"]
     assert res1_metadata.license is None
     assert res1_metadata.copyright == "Real Copyright"
-    assert res1_metadata.authorships.elems == ["Real Author"]
+    assert res1_metadata.authorships.elems == {"Real Author"}
 
 
 def test_csv_corrections_override_xml() -> None:
@@ -725,7 +725,7 @@ def test_csv_corrections_override_xml() -> None:
         "res_1": LegalMetadata(
             license="http://rdfh.ch/licenses/cc0-1.0",
             copyright="CSV Copyright",
-            authorships=Authorships(["CSV Author"]),
+            authorships=Authorships.from_iterable({"CSV Author"}),
         )
     }
 
@@ -854,7 +854,7 @@ def test_csv_overrides_treat_invalid_flag() -> None:
         "res_1": LegalMetadata(
             license="http://rdfh.ch/licenses/cc-by-4.0",
             copyright="CSV Copyright",
-            authorships=Authorships(["CSV Author"]),
+            authorships=Authorships.from_iterable({"CSV Author"}),
         )
     }
 

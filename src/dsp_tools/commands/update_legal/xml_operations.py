@@ -103,9 +103,9 @@ def _resolve_metadata_values(
         copyright_val = defaults.copyright_default
 
     # Collect authorship from XML, fall back to default
-    if not authorships and properties.authorship_prop:
+    if authorships.is_empty() and properties.authorship_prop:
         authorships = _extract_authorships_from_xml(res, properties.authorship_prop)
-    if not authorships and defaults.authorship_default:
+    if authorships.is_empty() and defaults.authorship_default:
         authorships = Authorships.from_iterable({defaults.authorship_default})
 
     return license_val, copyright_val, authorships

@@ -124,7 +124,7 @@ def _update_xml_tree(
         )
 
         if _has_problems(metadata):
-            authorships = sorted(metadata.authorships.elems) if metadata.authorships else ["FIXME: Authorship missing"]
+            authorships = sorted(x for x in metadata.authorships.elems if x) or ["FIXME: Authorship missing"]
             problem = Problem(
                 file_or_iiif_uri=str(media_elem.text).strip(),
                 res_id=res_id,
@@ -162,7 +162,7 @@ def _has_problems(metadata: LegalMetadata) -> bool:
     has_license_problem = metadata.license is None or is_fixme_value(metadata.license)
     has_copyright_problem = metadata.copyright is None or is_fixme_value(metadata.copyright)
 
-    if not metadata.authorships:
+    if not any(x for x in metadata.authorships.elems if x):
         has_authorship_problem = True
     elif any(is_fixme_value(x) for x in metadata.authorships.elems):
         has_authorship_problem = True

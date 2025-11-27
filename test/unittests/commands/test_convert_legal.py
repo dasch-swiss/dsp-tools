@@ -26,17 +26,13 @@ def one_bitstream_one_iiif() -> etree._Element:
         <resource label="lbl" restype=":type" id="res_1">
             <bitstream>test/file.jpg</bitstream>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">  Maurice Chuzeville  </text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">
-                Musée du Louvre
-            </text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
         <resource label="lbl" restype=":type" id="res_2">
             <iiif-uri>https://iiif.example.org/image/file_1.JP2/full/1338/0/default.jpg</iiif-uri>
             <text-prop name="{AUTH_PROP}"><text encoding="utf8">  Maurice Chuzeville  </text></text-prop>
-            <text-prop name="{COPY_PROP}"><text encoding="utf8">
-                Musée du Louvre
-            </text></text-prop>
+            <text-prop name="{COPY_PROP}"><text encoding="utf8">Musée du Louvre</text></text-prop>
             <text-prop name="{LICENSE_PROP}"><text encoding="utf8">License is: CC BY</text></text-prop>
         </resource>
     </knora>
@@ -52,7 +48,7 @@ def test_simple_good(one_bitstream_one_iiif: etree._Element) -> None:
     assert root_returned is not None
     assert counter is not None
     assert len(root_returned) == 3
-    assert len(problems) == 0  # No problems expected
+    assert len(problems) == 0
     assert counter.resources_updated == 2
     auth_def = root_returned[0]
     resource_1 = root_returned[1]
@@ -441,10 +437,7 @@ def test_multiple_authorships_per_resource() -> None:
     auth_def = root_returned[0]
     assert auth_def.tag == "authorship"
     assert auth_def.attrib["id"] == "authorship_0"
-    assert len(auth_def) == 3
-    assert auth_def[0].text == "Author One"
-    assert auth_def[1].text == "Author Two"
-    assert auth_def[2].text == "Author Three"
+    assert {x.text for x in auth_def} == {"Author One", "Author Two", "Author Three"}
 
     resource = root_returned[1]
     bitstream = resource[0]

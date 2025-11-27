@@ -82,3 +82,6 @@ class Authorships:
     @classmethod
     def from_iterable(cls, iterable: Iterable[str]) -> Authorships:
         return cls(frozenset([x.strip() for x in iterable]))
+
+    def is_empty(self) -> bool:
+        return len(self.elems) == 0

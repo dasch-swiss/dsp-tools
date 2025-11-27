@@ -1,26 +1,19 @@
-# DSP-TOOLS Exception Hierarchy Analysis
+# DSP-TOOLS Exception Hierarchy and Exception Handling Analysis
 
 **Date:** 2025-11-07
 **Updated:** 2025-11-27
 **Scope:** Analysis of exception handling across DSP-TOOLS codebase with improvement recommendations
 
----
+## Proposed Steps
 
-## Executive Summary
-
-The DSP-TOOLS exception system has a clear hierarchy distinguishing user-fixable errors (`InputError`)
-from internal errors (`InternalError`). However, implementation inconsistencies, ambiguous exception semantics,
-and missing best practices undermine its effectiveness.
-
-**Key Findings:**
-
-- ✅ **Strengths:** Clear conceptual hierarchy, good user message formatting, comprehensive logging
-- ⚠️ **Weaknesses:** Inconsistent exception usage, ambiguous naming, inappropriate exception
-  chain suppression
-- 🔴 **Critical Issues:** Raw `BaseError` raises, catch-all exception handler, missing error
-  context
-
-**Overall Assessment:** 6.5/10 - Solid foundation requiring implementation refinement
+1. Nora reviews this document
+2. Fine-tune this document
+3. Johannes creates a project and tickets
+    - Implementation order:
+        - Hierarchy redesign
+        - Concrete issues in error handling (easily fixable in 1 PR each)
+        - Add Architecture Documentation
+        - Error Message Quality - More Involved
 
 ---
 
@@ -33,7 +26,7 @@ and missing best practices undermine its effectiveness.
 - Exception conversion patterns
 - The two command groups and their error handling needs
 
-**Recommendation:** Create `docs/developers/error-handling-guidelines.md` with:
+**Recommendation:** Create guideline with:
 
 1. Command grouping and error handling requirements
 2. Decision tree for choosing exception types
@@ -41,6 +34,8 @@ and missing best practices undermine its effectiveness.
 4. Standard patterns for exception conversion and logging
 5. Guidelines for user-friendly error messages
 6. Examples of good and bad error handling
+
+--> **See the separate file `Draft for Error Handling Guideline.md`**
 
 ---
 
@@ -311,42 +306,3 @@ raise UserError(
 1. State what was expected
 2. State what was found
 3. Suggest how to fix it
-
----
-
-## 13. Summary of Recommended Actions
-
-### Critical (Fix First)
-
-| Priority | Action | Impact |
-|----------|--------|--------|
-| 🔴 High | Add `KeyboardInterrupt` handler in entry_point.py | Proper Ctrl+C handling |
-| 🔴 High | Replace raw `BaseError` raises with specific types | Type-safe exception catching |
-| 🔴 High | Restructure hierarchy: `UserError` and `InternalError` branches | Clear error responsibility |
-
-### High Priority (Important Improvements)
-
-| Priority | Action | Benefit |
-|----------|--------|---------|
-| 🟡 Medium | Rename `InvalidInputError` → `ApiRejectedInputError` | Eliminates naming confusion |
-| 🟡 Medium | Move `PermanentTimeOutError` under `PermanentConnectionError` | Logical hierarchy |
-| 🟡 Medium | Fix `ShaclCliValidator` exception handling | Better error context |
-| 🟡 Medium | Improve xmlupload error messages | Better UX for users |
-| 🟡 Medium | Remove `UnknownDOAPException` - replace with union types | Fix exception misuse |
-
-### Medium Priority (Code Quality)
-
-| Priority | Action | Benefit |
-|----------|--------|---------|
-| 🟢 Low | Remove "ERROR:" prefixes from all exceptions | Consistent formatting |
-| 🟢 Low | Standardize exception chaining (`from e` vs `from None`) | Better debugging |
-| 🟢 Low | Add actionable guidance to user-facing errors | Improved UX |
-| 🟢 Low | Document custom exceptions in function docstrings | Better API docs |
-
-### Low Priority (Nice to Have)
-
-| Priority | Action | Benefit |
-|----------|--------|---------|
-| 🔵 Optional | Create error handling architecture docs | Developer onboarding |
-| 🔵 Optional | Add meta-tests for exception hierarchy | Prevent regressions |
-| 🔵 Optional | Consider merging xmllib exceptions | Reduce duplication |

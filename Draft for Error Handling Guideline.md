@@ -1,12 +1,13 @@
-# Draft for Error Handling Guidelines Document
+# Draft for Error Handling Guideline
 
-This draft
+--> **Please consider only the content of this draft, and ignore its form.**
 
-### 1.1 There Are 2 Groups Of Commands
+
+## 1 There Are 2 Groups Of Commands
 
 DSP-TOOLS commands fall into two categories with different error handling needs:
 
-#### 1. Server Interaction Commands (fail-fast acceptable)
+### 1. Server Interaction Commands (fail-fast acceptable)
 
 Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmlupload`, `resume-xmlupload`):
 
@@ -15,7 +16,7 @@ Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmluploa
 - Users may need developer assistance
 - Bugs can escalate to top-level handler in `entry_point.py`
 
-#### 2. Local Validation/Transformation Commands (must report all problems)
+### 2. Local Validation/Transformation Commands (must report all problems)
 
 Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-data`):
 
@@ -26,12 +27,13 @@ Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-
 - Bugs can escalate to top-level handler in `entry_point.py`
 
 
-### 1.2 Guidelines: When to Catch vs. Let Fail
+
+## 2 Guidelines: When to Catch vs. Let Fail
 
 All exceptions are caught at the top level (`entry_point.py` > `run()`) to prevent Python tracebacks
 from reaching users.
 
-#### In Implementation Code: Do NOT Catch
+### In Implementation Code: Do NOT Catch
 
 Avoid catching errors from your own code logic (your own programming bugs like type errors, logic mistakes).
 Let them crash immediately because:
@@ -41,7 +43,7 @@ Let them crash immediately because:
 - Test environments exist to surface these issues before production
 - Silent failures or generic error messages make debugging harder
 
-#### In Implementation Code: DO Catch
+### In Implementation Code: DO Catch
 
 Catch exceptions for external operations where failure is expected and recoverable:
 
@@ -51,7 +53,7 @@ Catch exceptions for external operations where failure is expected and recoverab
 - External API calls
 - External library calls that might fail in predictable ways
 
-#### Only Catch When You Have a Specific Recovery Strategy
+### Only Catch When You Have a Specific Recovery Strategy
 
 - Adding crucial diagnostic context not in the traceback
 - Implementing retry logic for transient failures
@@ -61,9 +63,10 @@ This produces a **leaner codebase** focused on handling genuine external failure
 and get fixed quickly.
 
 
-### 1.3 How to Handle Exceptions
 
-#### General Principles
+## 3 How to Handle Exceptions
+
+### General Principles
 
 When catching errors, preserve as much context as possible:
 

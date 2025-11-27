@@ -137,8 +137,8 @@ BaseError
 │   ├── DspApiNotReachableError (moved)
 │   ├── InvalidGuiAttributeError (moved)
 │   ├── BadCredentialsError (moved)
-    ├── CreateError (moved)
-    |   └── ProjectNotFoundError
+│   ├── CreateError (moved)
+│   |   └── ProjectNotFoundError
 │   └── XmlUploadUserError (new grouping for xmlupload user errors)
 │       ├── Id2IriReplacementError
 │       ├── XmlUploadPermissionsNotFoundError (XmlUploadError should be merged with this class)
@@ -151,7 +151,6 @@ BaseError
     ├── ShaclValidationError (renamed from ShaclValidationCliError and moved)
     ├── XmlInputConversionError (moved)
     ├── XmlUploadInterruptedError
-
     ├── InvalidIngestFileNameError
     └── InvalidInputError (should be a subclass of InternalError, and marked as deprecated,
                            because it's only used by the deprecated `Connection` class and the old `create` code)
@@ -417,15 +416,6 @@ Multiple issues in `ShaclCliValidator.validate()`:
 
 ## 7. UnknownDOAPException - Exception Misuse
 
-```python
-class UnknownDOAPException(BaseError):
-    """Class for errors that are raised if a DOAP cannot be parsed"""
-```
-
-### Analysis: This is Not an Exception
-
-**The Situation:**
-
 - Legacy projects have custom DOAP combinations that don't fit the current limited system
 - When downloading existing projects, these legacy DOAPs must be handled gracefully
 - A sensible fallback exists (write default text to JSON)
@@ -436,7 +426,7 @@ class UnknownDOAPException(BaseError):
 Exceptions should represent **unexpected errors**, not **expected alternative outcomes**.
 Using exceptions for control flow in expected scenarios is an anti-pattern that makes code harder to reason about.
 
-#### Current Code (problematic)
+Current Code (problematic):
 
 ```python
 def parse_doap(...) -> str:
@@ -451,24 +441,8 @@ except UnknownDOAPException:
     doap = DEFAULT_DOAP_TEXT
 ```
 
-#### Recommended Approach - Option 1: Union Types
 
-```python
-def parse_doap(...) -> str | None:
-    """Parse DOAP configuration.
-
-    Returns:
-        DOAP string if recognized, None if legacy/unrecognized
-    """
-    if not recognized:
-        return None
-    return doap_string
-
-# Calling code (clean and natural)
-doap = parse_doap(...) or DEFAULT_DOAP_TEXT
-```
-
-#### Recommended Approach - Option 2: Result Type (more expressive)
+Recommended Approach - Result Type:
 
 ```python
 @dataclass
@@ -492,18 +466,6 @@ if result.is_legacy:
     logger.info("Using default DOAP for legacy project")
 doap = result.value
 ```
-
-### Benefits of Union/Result Types
-
-1. **Type system clarity**: The "no match" case is explicit in the function signature
-2. **Natural control flow**: No try-except needed for expected cases
-3. **Better performance**: No exception overhead
-4. **Clearer intent**: Signals this is a normal outcome, not an error
-
-### Recommendation
-
-Remove `UnknownDOAPException` entirely and replace with union return types (`str | None`) or result objects.
-This better represents the domain: legacy DOAPs are an expected reality, not an exceptional failure.
 
 ---
 

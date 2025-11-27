@@ -124,10 +124,10 @@ Please go through the CSV and fix the errors directly in the CSV.
 
 CSV Output:
 
-| file    | resource_id | license | copyright                                                 | authorship_1  | authorship_2    |
-| ------- | ----------- | ------- | --------------------------------------------------------- | ------------- | --------------- |
-| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                  | Rita Gautschy | Daniela Subotic |
-| cat.jpg | res_2       | CC BY   | FIXME: Multiple licenses found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
+| file    | resource_id | license | copyright                                                   | authorship_1  | authorship_2    |
+| ------- | ----------- | ------- | ----------------------------------------------------------- | ------------- | --------------- |
+| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                    | Rita Gautschy | Daniela Subotic |
+| cat.jpg | res_2       | CC BY   | FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre | Rita Gautschy | Daniela Subotic |
 
 Please add a copyright holder to the CSV:
 

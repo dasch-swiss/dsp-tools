@@ -69,3 +69,5 @@ class UploadProblemType(ProblemType):
     PROPERTY_LIST_NOT_FOUND = "The property cannot be created, because the list it references does not exist."
     PROPERTY_SUPER_FAILED = "The property cannot be created, because its super-property was not created."
     PROPERTY_REFERENCES_FAILED_CLASS = "The property cannot be created, because a class it references was not created."
+    CLASS_COULD_NOT_BE_CREATED = "The class could not be created."
+    CLASS_SUPER_FAILED = "The class cannot be created, because its super-class was not created."

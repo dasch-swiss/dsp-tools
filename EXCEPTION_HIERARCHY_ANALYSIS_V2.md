@@ -24,100 +24,27 @@ and missing best practices undermine its effectiveness.
 
 ---
 
-## 1. General Considerations/Guidelines
+## 1. Missing Architecture Documentation
 
-### 1.1 There Are 2 Groups Of Commands
+**Current state:** No centralized documentation explaining:
 
-DSP-TOOLS commands fall into two categories with different error handling needs:
+- When to use exceptions vs Problem protocol
+- How to choose between exception types
+- Exception conversion patterns
+- The two command groups and their error handling needs
 
-#### 1. Server Interaction Commands (fail-fast acceptable)
+**Recommendation:** Create `docs/developers/error-handling-guidelines.md` with:
 
-Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmlupload`, `resume-xmlupload`):
-
-- Tested in local/test environments before production
-- Can fail fast with context when issues occur
-- Users may need developer assistance
-- Bugs can escalate to top-level handler in `entry_point.py`
-
-#### 2. Local Validation/Transformation Commands (must report all problems)
-
-Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-data`):
-
-- Must work immediately on user machines
-- Should report ALL problems clearly
-- Users must be able to fix issues themselves without contacting developers
-- Errors should be handled gracefully with user-friendly messages
-- Bugs can escalate to top-level handler in `entry_point.py`
-
-
-### 1.2 Guidelines: When to Catch vs. Let Fail
-
-All exceptions are caught at the top level (`entry_point.py` > `run()`) to prevent Python tracebacks
-from reaching users.
-
-#### In Implementation Code: Do NOT Catch
-
-Avoid catching errors from your own code logic (your own programming bugs like type errors, logic mistakes).
-Let them crash immediately because:
-
-- Standard Python tracebacks pinpoint the failure location and cause
-- Try-except blocks may mask root causes and delay discovery
-- Test environments exist to surface these issues before production
-- Silent failures or generic error messages make debugging harder
-
-#### In Implementation Code: DO Catch
-
-Catch exceptions for external operations where failure is expected and recoverable:
-
-- File I/O operations (file not found, permission denied)
-- Network requests (connection failures, timeouts)
-- User input validation (invalid formats, out-of-range values)
-- External API calls
-- External library calls that might fail in predictable ways
-
-#### Only Catch When You Have a Specific Recovery Strategy
-
-- Adding crucial diagnostic context not in the traceback
-- Implementing retry logic for transient failures
-- Gracefully degrading functionality (e.g., skipping one item in a batch)
-
-This produces a **leaner codebase** focused on handling genuine external failures while bugs fail loudly
-and get fixed quickly.
-
-
-### 1.3 How to Handle Exceptions
-
-#### General Principles
-
-When catching errors, preserve as much context as possible:
-
-- if possible, extract the message from the exception object: `err.msg` / `err.message`
-- log the original stack trace with `logger.exception(err.msg)`
-    - `logger.error()` doesn't preserve the original stack trace -> avoid it
-- if re-raising is wished, do NOT use `from None`
-    - `from None` removes the information about the original error from the stack trace -> avoid it
-- whenever possible, don't compose long error messages outside of the error class.
-  Instead, the message should be composed in the `__str__(self)` method of the error class
-
-```python
-try:
-    return json.load(filepath)
-except json.JSONDecodeError as err:
-    logger.exception(err.msg)  # extract err.msg and preserve the original stack trace
-    raise JSONFileParsingError(filepath, err.msg)
-
-@dataclass
-class JSONFileParsingError:
-    filepath: Path
-    orig_err_msg: str
-
-    def __str__(self) -> str:
-        return f"The input file '{self.filepath}' cannot be parsed due to the following problem: {self.orig_err_msg}"
-```
+1. Command grouping and error handling requirements
+2. Decision tree for choosing exception types
+3. When to catch vs. let fail
+4. Standard patterns for exception conversion and logging
+5. Guidelines for user-friendly error messages
+6. Examples of good and bad error handling
 
 ---
 
-## 2. Proposed Change: Exception Hierarchy Redesign
+## 2. Exception Hierarchy Redesign
 
 ### Current Issues
 
@@ -178,134 +105,9 @@ BaseError
 
 ---
 
-## 3. Proposed Change: Entry Point Exception Handling
+## 3. Concrete issues in error handling (easily fixable in 1 PR each)
 
-Update `entry_point.py` > `run()`:
-
-```python
-try:
-    parsed_arguments = _derive_dsp_ingest_url(...)
-    success = call_requested_action(parsed_arguments)
-except KeyboardInterrupt:
-    logger.info("User interrupted execution")
-    sys.exit(130)  # Standard exit code for SIGINT
-except UserError as err:
-    logger.exception(f"User error: {err.message}")
-    print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
-    success = False
-except Exception as err:  # Catches InternalError and all unexpected exceptions
-    logger.exception("Internal error occurred")
-    print(InternalError(custom_msg=str(err) if not isinstance(err, InternalError) else None))
-    success = False
-```
-
-Key improvements:
-
-1. **Add `KeyboardInterrupt` handler**: Prevent treating Ctrl+C as an internal error
-2. **Catch `UserError` first**: Handle user-fixable errors with appropriate messaging
-3. **Catch broad `Exception`**: Converts all unexpected exceptions to `InternalError`
-
----
-
-## 4. Proposed Change: Generic BaseError Raises
-
-Multiple locations raise raw `BaseError`:
-
-- [date_util.py:46](src/dsp_tools/utils/data_formats/date_util.py#L46): `raise BaseError(f"Invalid calendar type: {s}")`
-- [json_parsing.py:33](src/dsp_tools/utils/json_parsing.py#L33): `raise BaseError("Invalid input: ...")`
-- [make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
-
-**Problem:** Raising raw `BaseError` defeats the purpose of having a hierarchy. Cannot catch specific exception types.
-
-**Recommendation:** Use specific exceptions
-
----
-
-## 5. Proposed Change: Do Not Suppress Exception Chain
-
-Found extensive use of `from None`:
-
-```python
-except PermanentConnectionError as e:
-    raise UserError(e.message) from None  # Suppresses traceback chain
-```
-
-**Locations:** 20+ across the codebase
-
-**Problem:** Using `from None` suppresses exception chains, losing valuable debugging information.
-
-**When appropriate:**
-
-- Converting low-level exceptions to user-friendly messages where technical details aren't relevant
-- After using `logger.exception()` to preserve context in logs
-
-**When problematic:**
-
-- Converting between DSP-TOOLS exceptions
-- In development/debugging scenarios
-
-**Recommendation:**
-
-- Use `from e` for DSP-TOOLS-to-DSP-TOOLS conversions
-- Use `logger.exception()` + `from None` when presenting clean user errors but preserving log context
-- Reserve `from None` alone for converting third-party exceptions to user messages
-
----
-
-## 6. Error Message Quality
-
-### Strengths
-
-- Red color for errors, yellow for warnings
-- Clear separation between user message (stdout) and technical details (logs)
-- `InternalError` provides excellent guidance for contacting developers
-
-### Issues
-
-#### Issue 5.2: Technical Jargon in User-Facing Errors
-
-**Examples:**
-
-- "OntologyConstraintException" (too technical)
-- "INGEST rejected file due to its name" (what's INGEST? What's wrong with the name?)
-
-**Recommendation:** Use plain language and explain what users need to do.
-
-#### Issue 5.3: Missing Actionable Guidance
-
-Many errors state **what** went wrong but not **how** to fix it:
-
-```python
-# Current
-raise UserError(f"{data_model_files} is not a directory.")
-
-# Better
-raise UserError(
-    f"Expected '{data_model_files}' to be a directory, but found a file. "
-    f"Please provide a directory path containing Excel files."
-)
-```
-
-**Recommendation:** All user-facing errors should:
-
-1. State what was expected
-2. State what was found
-3. Suggest how to fix it
-
-#### Issue 5.4: xmlupload Errors Need Better Messages
-
-Errors like `XmlUploadPermissionsNotFoundError`, `XmlUploadAuthorshipsNotFoundError`, and
-`XmlUploadListNodeNotFoundError` need improved messages explaining:
-
-- Which permission/authorship/list node was not found
-- Where in the XML file the reference occurs
-- How to fix it (add the missing definition, fix the reference, etc.)
-
----
-
-## 7. Concrete issues in error handling (directly fixable in 1 PR each)
-
-### 7.1 ShaclCliValidator Issues
+### 3.1 ShaclCliValidator Issues
 
 Multiple issues in `ShaclCliValidator.validate()`:
 
@@ -323,7 +125,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
 - Replace `ShaclValidationCliError` with `ShaclValidationError` as `InternalError` subclass
 - Use `from e` or `logger.exception()` + `from None` pattern
 
-### 7.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
+### 3.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
 
 - `if not response.ok`  should be moved out of the try-except block
 - except block uses `logger.error()` twice
@@ -331,7 +133,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
     - `logger.error(msg)` -> `logger.exception(msg)`
 - remove `from None`
 
-### 7.3 UnknownDOAPException - Exception Misuse
+### 3.3 UnknownDOAPException - Exception Misuse
 
 - Legacy projects have custom DOAP combinations that don't fit the current limited system
 - When downloading existing projects, these legacy DOAPs must be handled gracefully
@@ -378,7 +180,7 @@ if result.is_legacy:
 doap = result.value
 ```
 
-### 7.4: Inconsistent Message Formatting
+### 3.4: Inconsistent Message Formatting
 
 **Problem:** Some messages include "ERROR:" prefix, others don't.
 
@@ -388,9 +190,7 @@ already indicate it's an error.
 Replace: `raise FooError("ERROR: foobar")`
 With: `raise FooError("foobar")`
 
----
-
-## 11. No Meta-Tests for Exception Hierarchy
+### 3.5 Add Meta-Tests for Exception Hierarchy
 
 **Recommendation:** Add tests ensuring:
 
@@ -412,27 +212,105 @@ def test_exception_messages_dont_have_error_prefix():
         pass
 ```
 
+### 3.6. Do Not Raise Bare BaseError
+
+Multiple locations raise raw `BaseError`:
+
+- [date_util.py:46](src/dsp_tools/utils/data_formats/date_util.py#L46): `raise BaseError(f"Invalid calendar type: {s}")`
+- [json_parsing.py:33](src/dsp_tools/utils/json_parsing.py#L33): `raise BaseError("Invalid input: ...")`
+- [make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
+
+**Problem:** Raising raw `BaseError` defeats the purpose of having a hierarchy. Cannot catch specific exception types.
+
+**Recommendation:** Use specific exceptions
+
+
+### 3.7. Improve Entry Point Exception Handling
+
+Update `entry_point.py` > `run()`:
+
+```python
+try:
+    parsed_arguments = _derive_dsp_ingest_url(...)
+    success = call_requested_action(parsed_arguments)
+except KeyboardInterrupt:
+    logger.info("User interrupted execution")
+    sys.exit(130)  # Standard exit code for SIGINT
+except UserError as err:
+    logger.exception(f"User error: {err.message}")
+    print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
+    success = False
+except Exception as err:  # Catches InternalError and all unexpected exceptions
+    logger.exception("Internal error occurred")
+    print(InternalError(custom_msg=str(err) if not isinstance(err, InternalError) else None))
+    success = False
+```
+
+Key improvements:
+
+1. **Add `KeyboardInterrupt` handler**: Prevent treating Ctrl+C as an internal error
+2. **Catch `UserError` first**: Handle user-fixable errors with appropriate messaging
+3. **Catch broad `Exception`**: Converts all unexpected exceptions to `InternalError`
+
+
+### 3.8. Do Not Suppress Exception Chain
+
+Found extensive use of `from None`:
+
+```python
+except PermanentConnectionError as e:
+    raise UserError(e.message) from None  # Suppresses traceback chain
+```
+
+**Locations:** 20+ across the codebase
+
+**Problem:** Using `from None` suppresses exception chains, losing valuable debugging information.
+
+**When appropriate:**
+
+- Converting low-level exceptions to user-friendly messages where technical details aren't relevant
+- After using `logger.exception()` to preserve context in logs
+
+**When problematic:**
+
+- Converting between DSP-TOOLS exceptions
+- In development/debugging scenarios
+
+**Recommendation:**
+
+- Use `from e` for DSP-TOOLS-to-DSP-TOOLS conversions
+- Use `logger.exception()` + `from None` when presenting clean user errors but preserving log context
+- Reserve `from None` alone for converting third-party exceptions to user messages
+
 ---
 
-## 12. Documentation Gaps
+## 4. Error Message Quality - More Involved
 
-### Issue 12.2: Missing Architecture Documentation
+Technical Jargon in User-Facing Errors, e.g.:
 
-**Current state:** No centralized documentation explaining:
+- "OntologyConstraintException" (too technical)
+- "INGEST rejected file due to its name" (what's INGEST? What's wrong with the name?)
 
-- When to use exceptions vs Problem protocol
-- How to choose between exception types
-- Exception conversion patterns
-- The two command groups and their error handling needs
+**Recommendation:** Use plain language and explain what users need to do.
 
-**Recommendation:** Create `docs/developers/error-handling-guidelines.md` with:
+Missing Actionable Guidance: Many errors state **what** went wrong but not **how** to fix it:
 
-1. Command grouping and error handling requirements
-2. Decision tree for choosing exception types
-3. When to catch vs. let fail
-4. Standard patterns for exception conversion and logging
-5. Guidelines for user-friendly error messages
-6. Examples of good and bad error handling
+```python
+# Current
+raise UserError(f"{data_model_files} is not a directory.")
+
+# Better
+raise UserError(
+    f"Expected '{data_model_files}' to be a directory, but found a file. "
+    f"Please provide a directory path containing Excel files."
+)
+```
+
+**Recommendation:** All user-facing errors should:
+
+1. State what was expected
+2. State what was found
+3. Suggest how to fix it
 
 ---
 

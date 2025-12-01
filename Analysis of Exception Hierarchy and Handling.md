@@ -51,54 +51,72 @@
 
 ### Proposed Structure
 
+The central `src/dsp_tools/error/exceptions.py` only contains the base classes.
+In every command package, there is a `exceptions.py` whith classes that inherit from the base classes.
+So the grouping by commands is achieved by the place of the file, not inheritance. 
+
+General exceptions (`src/dsp_tools/error/exceptions.py`):
+
 ```text
 BaseError
-├── UserError (renamed from InputError)
-│   ├── UserFilepathNotFoundError
-│   ├── UserDirectoryNotFoundError
-│   ├── JSONFileParsingError
-│   ├── DuplicateIdsInXmlAndId2IriMapping
-│   ├── DockerNotReachableError (moved)
-│   ├── DspApiNotReachableError (moved)
-│   ├── InvalidGuiAttributeError (moved)
-│   ├── BadCredentialsError (moved)
-│   ├── CreateError (moved)
-│   |   └── ProjectNotFoundError
-│   └── XmlUploadUserError (new grouping for xmlupload user errors)
-│       ├── Id2IriReplacementError
-│       ├── XmlUploadPermissionsNotFoundError (XmlUploadError should be merged with this class)
-│       ├── XmlUploadAuthorshipsNotFoundError
-│       └── XmlUploadListNodeNotFoundError
-└── InternalError
-    ├── UnexpectedApiResponseError (moved)
-    ├── PermanentConnectionError (moved)
-    │   └── PermanentTimeOutError (moved under PermanentConnectionError)
-    ├── ShaclValidationError (renamed from ShaclValidationCliError and moved)
-    ├── XmlInputConversionError (moved)
-    ├── XmlUploadInterruptedError
-    ├── InvalidIngestFileNameError
-    └── InvalidInputError (should be a subclass of InternalError, and marked as deprecated,
-                           because it's only used by the deprecated `Connection` class and the old `create` code)
+├── UserError           # User can fix it themselves. renamed from InputError: Reflects broader scope (not just input issues)
+└── InternalError       # Developer necessary to fix it
 ```
 
-### Key Changes
+Utils (`src/dsp_tools/utils/exceptions.py`):
 
-1. **Rename `InputError` to `UserError`**: Reflects broader scope (not just input issues)
-2. **Create two main branches**: `UserError` (user can fix) and `InternalError` (requires developer intervention)
-3. **Move `PermanentTimeOutError` under `PermanentConnectionError`**: Timeouts are a type of connection failure
-4. **Move infrastructure errors to `UserError`**:
-   - `DockerNotReachableError` (user needs to start Docker)
-   - `DspApiNotReachableError` (user needs to start API)
-5. **Move API/server errors to `InternalError`**:
-   - `UnexpectedApiResponseError` (unexpected behavior we can't handle)
-   - `PermanentConnectionError` (infrastructure issues after retries)
-6. **Rename/improve xmlupload errors**:
-   - `XmlUploadError` → should be merged with `XmlUploadPermissionsNotFoundError`
-   - Group xmlupload user errors under `XmlUploadUserError` for easier catching
-7. **Replace `ShaclValidationCliError` with `ShaclValidationError`**: Make it a subclass of `InternalError`
-8. **Move `InvalidGuiAttributeError` to `UserError`**: User provided invalid attribute
-9. **Move `Id2IriReplacementError` to `UserError`**: User's ID mapping is incomplete/incorrect
-10. **Keep `CreateError` as `InternalError` subclass**: Functionality-specific grouping is useful
+```text
+UserFilepathNotFoundError(UserError)        # used in different places, also in CLI
+JSONFileParsingError(UserError)
+DuplicateIdsInXmlAndId2IriMapping(UserError)
+BadCredentialsError(UserError)              # mostly used by clients in src/dsp_tools/clients
+FatalNonOkApiResponseCode(InternalError)    # mostly used by clients in src/dsp_tools/clients
+PermanentConnectionError(InternalError)     # used by connection class if after all retries no 200 is returned 
+                                            # -> mark as deprecated
+DspToolsRequestException(InternalError)     # raised by log_and_raise_request_exception 
+                                            # -> ingest should use this instead of PermanentConnectionError
+ShaclValidationError(InternalError)     # unknown issues during validation (renamed from ShaclValidationCliError)
+InvalidInputError(InternalError)        # deprecated: if API response contains certain expressions,
+                                        # the deprecated `Connection` class raises this error with the API response as text.
+                                        # Let this escalate ugly. If a user sees it, we should add a better handling
+```
+
+CLI (`src/dsp_tools/cli/exceptions.py`):
+
+```text
+UserDirectoryNotFoundError(UserError)
+DockerNotReachableError(UserError)
+DspApiNotReachableError(UserError)
+MissingInternetConnectivity(UserError)      # should be used by start-stack instead of PermanentConnectionError 
+                                            # (check it already in the CLI)
+```
+
+excel2json (`src/dsp_tools/commands/excel2json/exceptions.py`):
+
+```text
+InvalidGuiAttributeError(UserError)
+```
+
+create (`src/dsp_tools/commands/create/exceptions.py`):
+
+```text
+ProjectNotFoundError(UserError)
+```
+
+xmlupload (`src/dsp_tools/commands/xmlupload/exceptions.py`):
+
+```text
+Id2IriReplacementError(UserError)
+XmlUploadPermissionsNotFoundError(UserError)    # XmlUploadError should be merged with this class
+XmlUploadAuthorshipsNotFoundError(UserError)
+XmlUploadListNodeNotFoundError(UserError)
+InvalidIngestFileNameError(UserError)
+XmlInputConversionError(InputError)             # due to validate-data, this should never happen.
+                                                # If it happens, let it crash ugly.
+XmlUploadInterruptedError(InputError)
+```
+
+
 
 ---
 
@@ -333,6 +351,13 @@ Follow a consistent pattern:
 - Converting to user-friendly error and using `logger.exception()` + `from None` pattern
 - The intermediate handler truly has additional context worth logging
 
+
+
+### 3.10 Get rid of unnecessary PermanentTimeOutError
+
+In the Connection class, the builtins TimeoutError and ReadTimeout are logged and converted into PermanentTimeOutError.
+The xmlupload code adds some text, and then exits Python via a XmlUploadInterruptedError.
+For this, we don't need an own class. The xmlupload can also catch and handle the builtins directly.
 
 ---
 

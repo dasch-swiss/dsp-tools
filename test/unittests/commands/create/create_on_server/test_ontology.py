@@ -13,21 +13,25 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import UploadProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import PROJECT_IRI
+
+ONTO_1_IRI = "http://0.0.0.0:3333/ontology/9999/onto-1/v2"
+ONTO_2_IRI = "http://0.0.0.0:3333/ontology/9999/onto-2/v2"
 
 
 @pytest.fixture
 def onto_1():
     return ParsedOntology(
-        name="test-onto", label="Test Ontology", comment="A test ontology", classes=[], properties=[], cardinalities=[]
+        name="onto-1", label="Test Ontology", comment="A test ontology", classes=[], properties=[], cardinalities=[]
     )
 
 
 @pytest.fixture
 def onto_2():
     return ParsedOntology(
-        name="test-onto-2", label="Test Ontology 2", comment=None, classes=[], properties=[], cardinalities=[]
+        name="onto-2", label="Test Ontology 2", comment=None, classes=[], properties=[], cardinalities=[]
     )
 
 
@@ -98,26 +102,29 @@ class TestCreateOneOntology:
 class TestCreateAllOntologies:
     @patch("dsp_tools.commands.create.create_on_server.ontology._create_one_ontology")
     def test_all_ontologies_succeed(self, mock_create_one, onto_1, onto_2):
+        project_lookup = ProjectIriLookup(PROJECT_IRI)
         ontologies = [onto_1, onto_2]
-        mock_create_one.return_value = None
+        mock_create_one.return_value = [ONTO_1_IRI, ONTO_2_IRI]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, PROJECT_IRI, mock_client)
+        result = create_all_ontologies(ontologies, project_lookup, mock_client)
         assert result is None
         assert mock_create_one.call_count == 2
 
     @patch("dsp_tools.commands.create.create_on_server.ontology._create_one_ontology")
     def test_all_ontologies_fail(self, mock_create_one, onto_1, onto_2):
+        project_lookup = ProjectIriLookup(PROJECT_IRI)
         ontologies = [onto_1, onto_2]
         problem1 = UploadProblem("Error 1", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
         problem2 = UploadProblem("Error 2", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
         mock_create_one.side_effect = [problem1, problem2]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, PROJECT_IRI, mock_client)
+        result = create_all_ontologies(ontologies, project_lookup, mock_client)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 2
 
     @patch("dsp_tools.commands.create.create_on_server.ontology._create_one_ontology")
     def test_some_ontologies_fail(self, mock_create_one, onto_1, onto_2):
+        project_lookup = ProjectIriLookup(PROJECT_IRI)
         ontology3 = ParsedOntology(
             name="test-onto-3", label="Test Ontology 3", comment=None, classes=[], properties=[], cardinalities=[]
         )
@@ -125,6 +132,6 @@ class TestCreateAllOntologies:
         problem = UploadProblem("Error", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
         mock_create_one.side_effect = [None, problem, None]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, PROJECT_IRI, mock_client)
+        result = create_all_ontologies(ontologies, project_lookup, mock_client)
         assert isinstance(result, CollectedProblems)
         assert len(result.problems) == 1

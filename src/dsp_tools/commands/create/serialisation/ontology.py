@@ -22,7 +22,7 @@ from dsp_tools.utils.rdflib_utils import serialise_json
 def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> dict[str, Any]:
     onto_g = _make_ontology_graph_for_request(parsed_ontology, project_iri)
     serialised: dict[str, Any] = serialise_json(onto_g)[0]
-    serialised.pop("@id")
+    serialised.pop("@id")  # this is the ID of the blank node and not meaningful
     return serialised
 
 

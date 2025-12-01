@@ -509,12 +509,12 @@ class TestUtilFunctions:
         assert captured_url == test_url
 
     def test_get_last_modification_date_success(
-        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch, ok_response_new_onto_graph
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch, ok_response_onto_graph
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
-        mock_response.text = json.dumps(ok_response_new_onto_graph)
+        mock_response.text = json.dumps(ok_response_onto_graph)
 
         def mock_get_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response

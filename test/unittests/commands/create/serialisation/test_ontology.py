@@ -3,14 +3,17 @@ import pytest
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
+from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
+from unittests.commands.create.constants import PROJECT_IRI
 
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinality_graph
@@ -19,6 +22,7 @@ from dsp_tools.commands.create.serialisation.ontology import _make_one_property_
 from dsp_tools.commands.create.serialisation.ontology import _make_ontology_base_graph
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
+from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
@@ -380,3 +384,22 @@ class TestSerialiseClass:
         assert (RESOURCE_IRI, RDFS.comment, Literal("Comment EN", lang="en")) in result
         assert (RESOURCE_IRI, RDFS.comment, Literal("Kommentar DE", lang="de")) in result
         assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result
+
+
+class TestSerialiseOntology:
+    def test_serialise_without_comment(self):
+        onto = ParsedOntology("onto", "lbl", None, [], [], [])
+        result = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        assert len(result) == 3
+        assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
+        assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)
+        assert next(result.objects(predicate=RDFS.label)) == Literal("lbl", datatype=XSD.string)
+
+    def test_serialise_with_comment(self):
+        onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
+        result = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        assert len(result) == 4
+        assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
+        assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)
+        assert next(result.objects(predicate=RDFS.label)) == Literal("lbl", datatype=XSD.string)
+        assert next(result.objects(predicate=RDFS.comment)) == Literal("comment", datatype=XSD.string)

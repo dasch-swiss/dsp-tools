@@ -205,6 +205,8 @@ already indicate it's an error.
 Replace: `raise FooError("ERROR: foobar")`
 With: `raise FooError("foobar")`
 
+Optionally, the error class can add the ERROR prefix during serialization.
+
 ### 3.5 Add Meta-Tests for Exception Hierarchy
 
 **Recommendation:** Add tests ensuring:

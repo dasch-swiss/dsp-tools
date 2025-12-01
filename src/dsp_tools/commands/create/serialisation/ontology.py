@@ -23,10 +23,10 @@ def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, projec
     onto_graph = {
         f"{KNORA_API_STR}attachedToProject": {"@id": project_iri},
         f"{KNORA_API_STR}ontologyName": parsed_ontology.name,
-        "http://www.w3.org/2000/01/rdf-schema#label": parsed_ontology.label,
+        str(RDFS.label): parsed_ontology.label,
     }
     if parsed_ontology.comment:
-        onto_graph["http://www.w3.org/2000/01/rdf-schema#comment"] = parsed_ontology.comment
+        onto_graph[str(RDFS.comment)] = parsed_ontology.comment
     return onto_graph
 
 

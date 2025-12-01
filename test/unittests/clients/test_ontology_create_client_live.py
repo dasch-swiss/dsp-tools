@@ -149,6 +149,23 @@ def sample_ontology_graph() -> dict[str, object]:
     }
 
 
+@pytest.fixture
+def ok_response_new_onto_graph() -> dict[str, Any]:
+    return {
+        "knora-api:lastModificationDate": {"@value": str(NEW_MODIFICATION_DATE), "@type": "xsd:dateTimeStamp"},
+        "rdfs:label": "onto label",
+        "knora-api:attachedToProject": {"@id": PROJECT_IRI},
+        "@type": "owl:Ontology",
+        "@id": ONTO_IRI,
+        "@context": {
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "owl": "http://www.w3.org/2002/07/owl#",
+        },
+    }
+
+
 class TestCardinalities:
     def test_post_resource_cardinalities_success(
         self,
@@ -373,14 +390,14 @@ class TestOntology:
         self,
         ontology_client,
         sample_ontology_graph,
-        ok_response_onto_graph,
+        ok_response_new_onto_graph,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         # Mock successful response
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
-        mock_response.text = json.dumps(ok_response_onto_graph)
+        mock_response.text = json.dumps(ok_response_new_onto_graph)
 
         def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response
@@ -492,12 +509,12 @@ class TestUtilFunctions:
         assert captured_url == test_url
 
     def test_get_last_modification_date_success(
-        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch, ok_response_onto_graph
+        self, ontology_client: OntologyCreateClientLive, monkeypatch: pytest.MonkeyPatch, ok_response_new_onto_graph
     ) -> None:
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
-        mock_response.text = json.dumps(ok_response_onto_graph)
+        mock_response.text = json.dumps(ok_response_new_onto_graph)
 
         def mock_get_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response

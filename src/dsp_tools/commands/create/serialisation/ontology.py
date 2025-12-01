@@ -19,7 +19,12 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 
 
-def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> Graph:
+def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> dict[str, Any]:
+    onto_g = _make_ontology_graph_for_request(parsed_ontology, project_iri)
+    return next(serialise_json(onto_g))
+
+
+def _make_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> Graph:
     trips = [
         (KNORA_API.attachedToProject, project_iri),
         (KNORA_API.ontologyName, Literal(parsed_ontology.name, datatype=XSD.string)),

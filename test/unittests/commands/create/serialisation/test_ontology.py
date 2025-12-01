@@ -20,9 +20,9 @@ from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinali
 from dsp_tools.commands.create.serialisation.ontology import _make_one_class_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_one_property_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_ontology_base_graph
+from dsp_tools.commands.create.serialisation.ontology import _make_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
-from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
@@ -389,7 +389,7 @@ class TestSerialiseClass:
 class TestSerialiseOntology:
     def test_serialise_without_comment(self):
         onto = ParsedOntology("onto", "lbl", None, [], [], [])
-        result = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        result = _make_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
         assert len(result) == 3
         assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
         assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)
@@ -397,7 +397,7 @@ class TestSerialiseOntology:
 
     def test_serialise_with_comment(self):
         onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
-        result = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        result = _make_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
         assert len(result) == 4
         assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
         assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)

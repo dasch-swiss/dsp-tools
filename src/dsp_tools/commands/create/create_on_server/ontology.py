@@ -10,6 +10,7 @@ from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
@@ -18,23 +19,27 @@ def create_all_ontologies(
     ontologies: list[ParsedOntology],
     project_iri: str,
     client: OntologyCreateClient,
-) -> CollectedProblems | None:
+) -> tuple[ProjectIriLookup, CollectedProblems | None]:
+    iri_lookup = ProjectIriLookup(project_iri)
     logger.debug("Creating ontologies")
     progress_bar = tqdm(ontologies, "     Creating ontologies", dynamic_ncols=True)
     problems: list[CreateProblem] = []
     for o in progress_bar:
-        if problem := _create_one_ontology(o, project_iri, client):
-            problems.append(problem)
+        result = _create_one_ontology(o, project_iri, client)
+        if isinstance(result, UploadProblem):
+            problems.append(result)
+        else:
+            iri_lookup.add_onto(o.name, result)
     if problems:
-        return CollectedProblems("    While creating ontologies the following problems occurred:", problems)
-    return None
+        return iri_lookup, CollectedProblems("    While creating ontologies the following problems occurred:", problems)
+    return iri_lookup, None
 
 
 def _create_one_ontology(
     onto: ParsedOntology,
     project_iri: str,
     client: OntologyCreateClient,
-) -> UploadProblem | None:
+) -> UploadProblem | str:
     serialised = serialise_ontology_graph_for_request(onto, project_iri)
     result = client.post_new_ontology(serialised)
     if isinstance(result, ResponseCodeAndText):
@@ -42,7 +47,7 @@ def _create_one_ontology(
             result = client.post_new_ontology(serialised)
         if isinstance(result, ResponseCodeAndText):
             return UploadProblem(result.text, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
-    return None
+    return result
 
 
 def _should_retry_request(response: ResponseCodeAndText) -> bool:

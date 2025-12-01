@@ -104,7 +104,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
         if response.ok:
             response_json: dict[str, Any] = response.json()
-            return response_json["@id"]
+            return cast(str, response_json["@id"])
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a SystemAdmin or ProjectAdmin can create new ontologies. "

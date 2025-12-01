@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
@@ -104,7 +103,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             log_and_raise_request_exception(err)
 
         if response.ok:
-            response_json = json.load(response.json())
+            response_json: dict[str, Any] = response.json()
             return response_json["@id"]
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(

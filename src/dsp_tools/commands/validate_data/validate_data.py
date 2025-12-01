@@ -108,6 +108,9 @@ def validate_parsed_resources(
     config: ValidateDataConfig,
     auth: AuthenticationClient,
 ) -> bool:
+    msg = "Starting SHACL schema validation."
+    print(msg)
+    logger.debug(msg)
     rdf_graphs, used_iris, existing_resources_retrieved = prepare_data_for_validation_from_parsed_resource(
         parsed_resources=parsed_resources,
         authorship_lookup=authorship_lookup,

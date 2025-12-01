@@ -1,6 +1,6 @@
 import time
 from http import HTTPStatus
-import regex
+
 from loguru import logger
 from tqdm import tqdm
 
@@ -17,22 +17,23 @@ from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 def create_all_ontologies(
     ontologies: list[ParsedOntology],
-    project_iri: str,
+    project_iri_lookup: ProjectIriLookup,
     client: OntologyCreateClient,
 ) -> tuple[ProjectIriLookup, CollectedProblems | None]:
-    iri_lookup = ProjectIriLookup(project_iri)
     logger.debug("Creating ontologies")
     progress_bar = tqdm(ontologies, "     Creating ontologies", dynamic_ncols=True)
     problems: list[CreateProblem] = []
     for o in progress_bar:
-        result = _create_one_ontology(o, project_iri, client)
+        result = _create_one_ontology(o, project_iri_lookup.project_iri, client)
         if isinstance(result, UploadProblem):
             problems.append(result)
         else:
-            iri_lookup.add_onto(o.name, result)
+            project_iri_lookup.add_onto(o.name, result)
     if problems:
-        return iri_lookup, CollectedProblems("    While creating ontologies the following problems occurred:", problems)
-    return iri_lookup, None
+        return project_iri_lookup, CollectedProblems(
+            "    While creating ontologies the following problems occurred:", problems
+        )
+    return project_iri_lookup, None
 
 
 def _create_one_ontology(
@@ -43,23 +44,11 @@ def _create_one_ontology(
     serialised = serialise_ontology_graph_for_request(onto, project_iri)
     result = client.post_new_ontology(serialised)
     if isinstance(result, ResponseCodeAndText):
-        if _check_exists(result):
-
         if _should_retry_request(result):
             result = client.post_new_ontology(serialised)
         if isinstance(result, ResponseCodeAndText):
-            if result.status_code == HTTPStatus.BAD_REQUEST:
-                if regex.search(r"Ontology .+? cannot be created, because it already exists", result.text):
-                    return
             return UploadProblem(result.text, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
     return result
-
-
-def _check_exists(response: ResponseCodeAndText) -> bool:
-    if response.status_code==HTTPStatus.BAD_REQUEST:
-        if regex.search(r"Ontology .+? cannot be created, because it already exists", response.text):
-            return True
-    return False
 
 
 def _should_retry_request(response: ResponseCodeAndText) -> bool:
@@ -67,4 +56,3 @@ def _should_retry_request(response: ResponseCodeAndText) -> bool:
         time.sleep(5)
         return True
     return False
-

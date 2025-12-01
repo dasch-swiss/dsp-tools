@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -5,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
+from dsp_tools.commands.update_legal.models import LegalProperties
 
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
@@ -103,6 +105,113 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
         json_file=ID_2_IRI_JSON_PATH,
         remove_resource_if_id_in_mapping=True,
     )
+
+
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
+def test_update_legal(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
+    args = (
+        "update-legal "
+        "--authorship_prop :hasAuthorship "
+        "--copyright_prop=:hasCopyright "
+        f"--license_prop :hasLicense {DATA_XML_PATH}"
+    ).split()
+    entry_point.run(args)
+    call_args = update_legal_metadata.call_args_list
+    assert len(call_args) == 1
+    call_args_kwargs = call_args[0].kwargs
+    assert call_args_kwargs["input_file"] == Path(DATA_XML_PATH)
+    assert call_args_kwargs["properties"] == LegalProperties(
+        authorship_prop=":hasAuthorship",
+        copyright_prop=":hasCopyright",
+        license_prop=":hasLicense",
+    )
+    assert call_args_kwargs["defaults"].authorship_default is None
+    assert call_args_kwargs["defaults"].copyright_default is None
+    assert call_args_kwargs["defaults"].license_default is None
+    assert call_args_kwargs["fixed_errors_file"] is None
+
+
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
+def test_update_legal_only_author(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
+    args = f"update-legal --authorship_prop :hasAuthorship {DATA_XML_PATH}".split()
+    entry_point.run(args)
+    call_args = update_legal_metadata.call_args_list
+    assert len(call_args) == 1
+    call_args_kwargs = call_args[0].kwargs
+    assert call_args_kwargs["input_file"] == Path(DATA_XML_PATH)
+    assert call_args_kwargs["properties"] == LegalProperties(
+        authorship_prop=":hasAuthorship",
+        copyright_prop=None,
+        license_prop=None,
+    )
+    assert call_args_kwargs["defaults"].authorship_default is None
+    assert call_args_kwargs["defaults"].copyright_default is None
+    assert call_args_kwargs["defaults"].license_default is None
+    assert call_args_kwargs["fixed_errors_file"] is None
+
+
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
+def test_update_legal_with_defaults(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
+    args = [
+        "update-legal",
+        "--authorship_prop",
+        ":hasAuthorship",
+        "--authorship_default",
+        "Project Member",
+        "--copyright_prop",
+        ":hasCopyright",
+        "--copyright_default",
+        "University of Basel",
+        "--license_prop",
+        ":hasLicense",
+        "--license_default",
+        "CC BY SA",
+        DATA_XML_PATH,
+    ]
+    entry_point.run(args)
+    call_args = update_legal_metadata.call_args_list
+    assert len(call_args) == 1
+    call_args_kwargs = call_args[0].kwargs
+    assert call_args_kwargs["input_file"] == Path(DATA_XML_PATH)
+    assert call_args_kwargs["properties"] == LegalProperties(
+        authorship_prop=":hasAuthorship",
+        copyright_prop=":hasCopyright",
+        license_prop=":hasLicense",
+    )
+    assert call_args_kwargs["defaults"].authorship_default == "Project Member"
+    assert call_args_kwargs["defaults"].copyright_default == "University of Basel"
+    assert call_args_kwargs["defaults"].license_default == "http://rdfh.ch/licenses/cc-by-sa-4.0"
+    assert call_args_kwargs["fixed_errors_file"] is None
+
+
+@patch("dsp_tools.cli.call_action_files_only.update_legal_metadata")
+def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
+    update_legal_metadata.return_value = True
+    args = (
+        "update-legal "
+        "--authorship_prop :hasAuthorship "
+        "--copyright_prop :hasCopyright "
+        "--license_prop :hasLicense "
+        "--fixed_errors testdata/xml-data/legal_errors.csv "
+        f"{DATA_XML_PATH}"
+    ).split()
+    entry_point.run(args)
+    call_args = update_legal_metadata.call_args_list
+    assert len(call_args) == 1
+    call_args_kwargs = call_args[0].kwargs
+    assert call_args_kwargs["input_file"] == Path(DATA_XML_PATH)
+    assert call_args_kwargs["properties"] == LegalProperties(
+        authorship_prop=":hasAuthorship",
+        copyright_prop=":hasCopyright",
+        license_prop=":hasLicense",
+    )
+    assert call_args_kwargs["defaults"].authorship_default is None
+    assert call_args_kwargs["defaults"].copyright_default is None
+    assert call_args_kwargs["defaults"].license_default is None
+    assert call_args_kwargs["fixed_errors_file"] == Path("testdata/xml-data/legal_errors.csv")
 
 
 if __name__ == "__main__":

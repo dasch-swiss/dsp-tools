@@ -54,5 +54,5 @@ class IIIFUriProblem:
     def _good_status_code_bad_regex_msg(self) -> list[str]:
         return [
             "Although the IIIF-server responded as expected, this URI did not pass validation.",
-            "Please contact the dsp-tools development team (at info@dasch.swiss) with this information.",
+            "Please contact the dsp-tools development team (at support@dasch.swiss) with this information.",
         ]

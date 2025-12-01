@@ -28,10 +28,13 @@ class MigrationMetadata:
         msg_list = []
         if self.creation_date and not is_timestamp(self.creation_date):
             msg_list.append(f"The value for creation date is not a valid timestamp: {self.creation_date}")
+            self.creation_date = str(self.creation_date)
         if self.iri and not is_dsp_iri(self.iri):
             msg_list.append(f"The provided IRI is not valid: {self.iri}")
+            self.creation_date = str(self.creation_date)
         if self.ark and not is_dsp_ark(self.ark):
             msg_list.append(f"The provided ARK is not valid: {self.ark}")
+            self.ark = str(self.ark)
         if msg_list:
             msg = f"The migration metadata has the following problem(s):{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg_list)}"
             emit_xmllib_input_warning(MessageInfo(msg, self.res_id))

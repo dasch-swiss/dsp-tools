@@ -71,7 +71,8 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
-    network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
+    always_requires_docker = False if args.skip_validation else True
+    network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, network_requirements)
 
@@ -93,14 +94,17 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     id2iri_file = args.id2iri_file
     if id2iri_file:
         required_files.append(Path(id2iri_file))
-    network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
+    always_requires_docker = False if args.skip_validation else True
+    network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, network_requirements)
 
     if args.validate_only:
-        success = parse_and_validate_xml_file(xml_path)
-        print("The XML file is syntactically correct.")
-        return success
+        if parse_and_validate_xml_file(xml_path):
+            print("The XML file is syntactically correct.")
+            return True
+        else:
+            return False  # detailed error report has already been printed
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         match args.validation_severity:

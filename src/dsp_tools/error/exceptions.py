@@ -29,7 +29,7 @@ class InternalError(BaseError):
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
         default_msg = (
             f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
-            "Please contact the dsp-tools development team (at info@dasch.swiss) with the following information:\n"
+            "Please contact the dsp-tools development team (at support@dasch.swiss) with the following information:\n"
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
             "    - A text file with the terminal output copied into.\n"
@@ -79,7 +79,7 @@ class FatalNonOkApiResponseCode(BaseError):
             f"Status code: {status_code}\n"
             f"Request URL: {request_url}\n"
             f"Original Response: {resp_txt}\n"
-            f"Please contact info@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
+            f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
         )
         super().__init__(msg)
 
@@ -185,3 +185,28 @@ class CreateError(BaseError):
 
 class ProjectNotFoundError(CreateError):
     """Class if a project is expected to exist but could not be found."""
+
+
+class InvalidLicenseError(InputError):
+    """This error is raised when a license string cannot be parsed."""
+
+    license_str: str
+
+    def __init__(self, license_str: str) -> None:
+        msg = (
+            f"The provided license string is invalid and cannot be parsed: '{license_str}'"
+            "You must provide a license that can be parsed by xmllib.find_license_in_string(). "
+            "See https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string"
+        )
+        super().__init__(msg)
+
+
+class CircularOntologyDependency(CreateError):
+    """Class if a circular dependency was found in the ontology."""
+
+    def __init__(self, dependency_location: str) -> None:
+        msg = (
+            f"A circular dependency of {dependency_location} was found in your project. "
+            f"It is not possible for an ontology to have circular dependencies."
+        )
+        super().__init__(msg)

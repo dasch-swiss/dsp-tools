@@ -10,9 +10,8 @@ from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLi
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
-from dsp_tools.commands.create.create_on_server.cardinalities import _serialise_card
-from dsp_tools.commands.create.models.input_problems import ProblemType
-from dsp_tools.commands.create.models.input_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblem
+from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
@@ -41,7 +40,9 @@ def onto_client_ok() -> Mock:
 
 @pytest.fixture
 def created_iri_collection() -> CreatedIriCollection:
-    return CreatedIriCollection(classes={str(RESOURCE_IRI), RES_1, RES_2, RES_3}, properties={str(PROP_IRI)})
+    return CreatedIriCollection(
+        created_classes={str(RESOURCE_IRI), RES_1, RES_2, RES_3}, created_properties={str(PROP_IRI)}
+    )
 
 
 class TestAddOneCardinality:
@@ -72,7 +73,7 @@ class TestAddOneCardinality:
         )
         assert result_date == LAST_MODIFICATION_DATE
         assert isinstance(problem, UploadProblem)
-        assert problem.problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        assert problem.problem == UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
         assert problem.problematic_object == "onto:Resource / onto:hasText"
 
 
@@ -139,7 +140,8 @@ class TestAddCardinalitiesForOneClass:
             resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, successful_props
         )
         assert result_date == NEW_MODIFICATION_DATE
-        assert len(problems) == 0
+        assert len(problems) == 1
+        assert problems[0].problem == UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND
         assert onto_client_ok.post_resource_cardinalities.call_count == 2
 
     def test_handles_partial_failure(self) -> None:
@@ -168,7 +170,7 @@ class TestAddCardinalitiesForOneClass:
         assert str(result_date) == "2025-10-14T14:02:00.000000Z"
         assert len(problems) == 1
         assert isinstance(problems[0], UploadProblem)
-        assert problems[0].problem == ProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        assert problems[0].problem == UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
         assert problems[0].problematic_object == "onto:Resource / onto:hasNumber"
         assert mock_client.post_resource_cardinalities.call_count == 3
 
@@ -197,7 +199,8 @@ class TestAddCardinalitiesForOneClass:
             resource_card, ONTO_IRI, LAST_MODIFICATION_DATE, onto_client_ok, successful_props
         )
         assert result_date == LAST_MODIFICATION_DATE
-        assert len(problems) == 0
+        assert len(problems) == 2
+        assert all([x.problem == UploadProblemType.CARDINALITY_PROPERTY_NOT_FOUND for x in problems])
         assert onto_client_ok.post_resource_cardinalities.call_count == 0
 
     def test_updates_modification_date_sequentially(self) -> None:
@@ -377,46 +380,3 @@ class TestAddAllCardinalities:
         mod_date = next(iter(second_graph_dates["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"]))
         assert mod_date["@value"] == "2025-10-14T14:01:00.000000Z"
         assert len(second_graph_dates["@graph"]) == 2
-
-
-def test_serialise_card():
-    property_card = ParsedPropertyCardinality(
-        propname=str(PROP_IRI),
-        cardinality=Cardinality.C_1,
-        gui_order=None,
-    )
-    serialised = _serialise_card(property_card, RESOURCE_IRI, ONTO_IRI, LAST_MODIFICATION_DATE)
-
-    # Check ontology-level properties
-    assert serialised["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2"
-    assert serialised["@type"] == ["http://www.w3.org/2002/07/owl#Ontology"]
-    assert serialised["http://api.knora.org/ontology/knora-api/v2#lastModificationDate"] == [
-        {"@type": "http://www.w3.org/2001/XMLSchema#dateTimeStamp", "@value": "2025-10-14T13:00:00.000000Z"}
-    ]
-
-    # Check graph contains exactly 2 nodes
-    assert len(serialised["@graph"]) == 2
-
-    # Find the resource and restriction nodes
-    resource_node = next(
-        n for n in serialised["@graph"] if n["@id"] == "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource"
-    )
-    restriction_nodes = [n for n in serialised["@graph"] if n["@id"].startswith("_:")]
-
-    # Verify resource node structure
-    assert resource_node["@type"] == ["http://www.w3.org/2002/07/owl#Class"]
-    assert len(resource_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"]) == 1
-    blank_node_id = resource_node["http://www.w3.org/2000/01/rdf-schema#subClassOf"][0]["@id"]
-    assert blank_node_id.startswith("_:")
-
-    # Verify restriction node structure
-    assert len(restriction_nodes) == 1
-    restriction_node = restriction_nodes[0]
-    assert restriction_node["@id"] == blank_node_id
-    assert restriction_node["@type"] == ["http://www.w3.org/2002/07/owl#Restriction"]
-    assert restriction_node["http://www.w3.org/2002/07/owl#cardinality"] == [
-        {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 1}
-    ]
-    assert restriction_node["http://www.w3.org/2002/07/owl#onProperty"] == [
-        {"@id": "http://0.0.0.0:3333/ontology/9999/onto/v2#hasText"}
-    ]

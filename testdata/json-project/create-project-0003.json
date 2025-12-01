@@ -159,6 +159,9 @@
                         "labels": {
                             "en": "Super Property Date"
                         },
+                        "comments": {
+                            "en": "Comment on property"
+                        },
                         "gui_element": "Date"
                     },
                     {
@@ -304,6 +307,18 @@
                         "object": ":ClassMixedCard",
                         "labels": {
                             "en": "testHasLinkToClassMixedCard"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "testHasLinkToWithSubjectConstraint",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "subject": ":ClassMixedCard",
+                        "object": "Resource",
+                        "labels": {
+                            "en": "testHasLinkTo"
                         },
                         "gui_element": "Searchbox"
                     },

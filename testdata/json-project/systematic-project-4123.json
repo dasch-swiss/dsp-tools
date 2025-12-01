@@ -47,16 +47,8 @@
                     "en": "Test group viewers",
                     "de": "Testgruppe Viewers"
                 },
-                "selfjoin": true,
+                "selfjoin": false,
                 "status": true
-            },
-            {
-                "name": "testgroupInactive",
-                "descriptions": {
-                    "en": "Test group inactive",
-                    "de": "Testgruppe Inaktiv"
-                },
-                "status": false
             }
         ],
         "users": [
@@ -107,18 +99,6 @@
                     ":admin"
                 ],
                 "status": true
-            },
-            {
-                "username": "inactiveUser",
-                "email": "inactive.user@test.org",
-                "givenName": "Inactive",
-                "familyName": "User",
-                "password": "test0815",
-                "lang": "en",
-                "projects": [
-                    ":admin"
-                ],
-                "status": false
             },
             {
                 "username": "member-admin",
@@ -261,11 +241,7 @@
                             "de": "Properties können Kommentare haben",
                             "rm": "Property with a Rumantsch comment"
                         },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasRichtext",
@@ -298,11 +274,7 @@
                         "labels": {
                             "en": "URI"
                         },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
+                        "gui_element": "SimpleText"
                     },
                     {
                         "name": "hasBoolean",
@@ -357,11 +329,7 @@
                         "labels": {
                             "en": "Decimal number"
                         },
-                        "gui_element": "Spinbox",
-                        "gui_attributes": {
-                            "max": 100.0,
-                            "min": 0.0
-                        }
+                        "gui_element": "Spinbox"
                     },
                     {
                         "name": "hasGeoname",
@@ -824,11 +792,7 @@
                         "labels": {
                             "en": "Text"
                         },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
-                        }
+                        "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [

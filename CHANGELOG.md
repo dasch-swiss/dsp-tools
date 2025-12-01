@@ -1,5 +1,57 @@
 # Changelog
 
+## [18.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.2.0...v18.2.1) (2025-11-26)
+
+
+### Maintenance
+
+* **create:** serialise property for request ([#2069](https://github.com/dasch-swiss/dsp-tools/issues/2069)) ([a5dcd89](https://github.com/dasch-swiss/dsp-tools/commit/a5dcd89e9dbaed5c27de582c2086321410bb6383))
+* **start-stack:** bump versions to 2025.11.03 ([#2075](https://github.com/dasch-swiss/dsp-tools/issues/2075)) ([fb4038d](https://github.com/dasch-swiss/dsp-tools/commit/fb4038d74d0746cb509b341b54d7917b80d50fca))
+
+## [18.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.1.0...v18.2.0) (2025-11-21)
+
+
+### Enhancements
+
+* **xmlupload:** disallow whitespaces in restype and property name in XSD schema (DEV-5589) ([#2050](https://github.com/dasch-swiss/dsp-tools/issues/2050)) ([f97b8b1](https://github.com/dasch-swiss/dsp-tools/commit/f97b8b1bc3659afc714a8d434b50068c79411be9))
+
+
+### Bug Fixes
+
+* find `.env` file also when using `uv` (RDU-133) ([#2066](https://github.com/dasch-swiss/dsp-tools/issues/2066)) ([c7d35c1](https://github.com/dasch-swiss/dsp-tools/commit/c7d35c1e2bdbf5d41400e3fd519dd0124cfd8b2d))
+* **start-stack:** app doesn't load due to missing faro settings ([#2044](https://github.com/dasch-swiss/dsp-tools/issues/2044)) ([ed7fc1d](https://github.com/dasch-swiss/dsp-tools/commit/ed7fc1de2badaf600bfbd7ae55fde9bca23650c8))
+* **start-stack:** handle `ConnectionError` during the CLI call (DEV-5608) ([#2051](https://github.com/dasch-swiss/dsp-tools/issues/2051)) ([2961978](https://github.com/dasch-swiss/dsp-tools/commit/2961978979fb030ee8e9bee585e129e40758f97e))
+* **xmllib:** ensure that all empty values are removed before serialisation (DEV-5578) ([#2046](https://github.com/dasch-swiss/dsp-tools/issues/2046)) ([a64b142](https://github.com/dasch-swiss/dsp-tools/commit/a64b142a1a15b483621a3a7a5b74c5efc52837f3))
+* **xmlupload:** add upper limit to IIIF-URI validation (DEV-5628) ([#2065](https://github.com/dasch-swiss/dsp-tools/issues/2065)) ([a08cd63](https://github.com/dasch-swiss/dsp-tools/commit/a08cd63f133e6ed83d026ad687a8010a635cb270))
+* **xmlupload:** don't check docker in case of --skip-validation (DEV-5609) ([#2053](https://github.com/dasch-swiss/dsp-tools/issues/2053)) ([5094906](https://github.com/dasch-swiss/dsp-tools/commit/50949065e5596c1683987151b6ee8145cf82235c))
+
+
+### Maintenance
+
+* **clients:** handle non-ok request status codes and exceptions consistently ([#2034](https://github.com/dasch-swiss/dsp-tools/issues/2034)) ([9055200](https://github.com/dasch-swiss/dsp-tools/commit/9055200a82279ac8efd6e1a83bba9dc22c3509e4))
+* consolidate code paths in XSD validation (DEV-5593) ([#2048](https://github.com/dasch-swiss/dsp-tools/issues/2048)) ([f9b75d8](https://github.com/dasch-swiss/dsp-tools/commit/f9b75d8a2f90747806a3eba165c803e747220f3f))
+* **create:** add code to create all users ([#2057](https://github.com/dasch-swiss/dsp-tools/issues/2057)) ([62f8c50](https://github.com/dasch-swiss/dsp-tools/commit/62f8c50e7677b6e8d3266fca2d877663f1a38f5d))
+* **create:** add create property route to `OntologyCreateClient` ([#2063](https://github.com/dasch-swiss/dsp-tools/issues/2063)) ([383aa2e](https://github.com/dasch-swiss/dsp-tools/commit/383aa2ed6603d4d074a4d15d7544b058adbc6fcd))
+* **create:** add groups client ([#2045](https://github.com/dasch-swiss/dsp-tools/issues/2045)) ([26af604](https://github.com/dasch-swiss/dsp-tools/commit/26af6049cb0729ca8bf546d5d65a1aca3d326332))
+* **create:** create `UserClient` ([#2056](https://github.com/dasch-swiss/dsp-tools/issues/2056)) ([b7e29e1](https://github.com/dasch-swiss/dsp-tools/commit/b7e29e18d0fc6440be938e258b1e86b390c36da2))
+* **create:** implement detailed parsing and serialisation of users and groups ([#2043](https://github.com/dasch-swiss/dsp-tools/issues/2043)) ([ef9b17c](https://github.com/dasch-swiss/dsp-tools/commit/ef9b17ccc74afe2eeedbf43d0ea1a7ba3bbb5c70))
+* **create:** integrate new code for user creation (DEV-5512) ([#2058](https://github.com/dasch-swiss/dsp-tools/issues/2058)) ([78b4e04](https://github.com/dasch-swiss/dsp-tools/commit/78b4e044a0c7efa5fc52cdbef88aba00864251fd))
+* **create:** integrate new groups creation (DEV-5513) ([#2054](https://github.com/dasch-swiss/dsp-tools/issues/2054)) ([009a2e0](https://github.com/dasch-swiss/dsp-tools/commit/009a2e07c52afd23fd66e1a813368cceed1e6d24))
+* **create:** parse properties ([#2061](https://github.com/dasch-swiss/dsp-tools/issues/2061)) ([c3afc14](https://github.com/dasch-swiss/dsp-tools/commit/c3afc14208949398c4feb031676c1e0b80fb577a))
+* **create:** reorganise user problems ([#2062](https://github.com/dasch-swiss/dsp-tools/issues/2062)) ([6ee9755](https://github.com/dasch-swiss/dsp-tools/commit/6ee97555580fcf085c1e3a90805d54a57ce25191))
+* **deps:** bump the all-dependencies group across 1 directory with 9 updates ([#2047](https://github.com/dasch-swiss/dsp-tools/issues/2047)) ([23c3d3d](https://github.com/dasch-swiss/dsp-tools/commit/23c3d3d164cd05965b86490385ff1543d474f7f1))
+* **start-stack:** bump versions to 2025.11.02 ([#2068](https://github.com/dasch-swiss/dsp-tools/issues/2068)) ([be29843](https://github.com/dasch-swiss/dsp-tools/commit/be29843966096967109e9174adf1f734f67efce8))
+* use 401 vs 403 response codes correctly in all clients (DEV-5615) ([#2059](https://github.com/dasch-swiss/dsp-tools/issues/2059)) ([30c83b3](https://github.com/dasch-swiss/dsp-tools/commit/30c83b3386124492eadadadc0346b4c427061dfd))
+* use support@dasch.swiss when printing errors (DEV-5590) ([#2060](https://github.com/dasch-swiss/dsp-tools/issues/2060)) ([be1209c](https://github.com/dasch-swiss/dsp-tools/commit/be1209cefcffccb57c34d7088e11a379914aeba0))
+* validate username in json schema ([#2029](https://github.com/dasch-swiss/dsp-tools/issues/2029)) ([3a50e8c](https://github.com/dasch-swiss/dsp-tools/commit/3a50e8c22636f965dd3a0e64952443b4abdda96c))
+* **xmlupload:** remove redundant `ProjectClient` ([#2038](https://github.com/dasch-swiss/dsp-tools/issues/2038)) ([c5cdbf8](https://github.com/dasch-swiss/dsp-tools/commit/c5cdbf861187417cbc293fd58df78732be8c361e))
+
+
+### Documentation
+
+* link to daschland-scripts instead of deprecated repos (RDU-136) ([#2067](https://github.com/dasch-swiss/dsp-tools/issues/2067)) ([3d74760](https://github.com/dasch-swiss/dsp-tools/commit/3d74760cd1230aee7b6f13345be156e29d677398))
+* **validate:** adapt wording (DEV-5596) ([#2052](https://github.com/dasch-swiss/dsp-tools/issues/2052)) ([419686d](https://github.com/dasch-swiss/dsp-tools/commit/419686d883d99363dac66a2288400cbb70b62d7d))
+
 ## [18.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.0.0...v18.1.0) (2025-11-05)
 
 

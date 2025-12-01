@@ -32,7 +32,7 @@ def request_exception() -> RequestException:
 
 @pytest.fixture
 def empty_validator() -> IIIFUriValidator:
-    return IIIFUriValidator([])
+    return IIIFUriValidator()
 
 
 @pytest.mark.parametrize(
@@ -79,7 +79,7 @@ def test_validate_with_exception(
     mock_network_call: Mock, request_exception: RequestException, empty_validator: IIIFUriValidator
 ) -> None:
     mock_network_call.return_value = request_exception
-    result = empty_validator._validate_one_uri("http://example.com")
+    result = empty_validator.validate_one_uri("http://example.com")
     assert isinstance(result, IIIFUriProblem)
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
@@ -92,7 +92,7 @@ def test_validate_with_bad_status_code(
     mock_network_call: Mock, response_404: Response, empty_validator: IIIFUriValidator
 ) -> None:
     mock_network_call.return_value = response_404
-    result = empty_validator._validate_one_uri("http://example.com")
+    result = empty_validator.validate_one_uri("http://example.com")
     assert isinstance(result, IIIFUriProblem)
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
@@ -105,7 +105,7 @@ def test_validate_with_good_status_code(
     mock_network_call: Mock, response_200: Response, empty_validator: IIIFUriValidator
 ) -> None:
     mock_network_call.return_value = response_200
-    result = empty_validator._validate_one_uri(
+    result = empty_validator.validate_one_uri(
         "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
     )
     assert not result
@@ -116,7 +116,7 @@ def test_validate_with_failed_regex_good_status_code(
     mock_network_call: Mock, response_200: Response, empty_validator: IIIFUriValidator
 ) -> None:
     mock_network_call.return_value = response_200
-    result = empty_validator._validate_one_uri("http://example.com")
+    result = empty_validator.validate_one_uri("http://example.com")
     assert isinstance(result, IIIFUriProblem)
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<knora xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- Resource 1: Complete and valid -->
+    <resource label="Good Resource" restype=":ImageThing" id="res_good">
+        <bitstream>images/good.jpg</bitstream>
+        <text-prop name=":hasAuthorship"><text encoding="utf8">Doe, John</text></text-prop>
+        <text-prop name=":hasCopyright"><text encoding="utf8">University of Basel</text></text-prop>
+        <text-prop name=":hasLicense"><text encoding="utf8">CC BY 4.0</text></text-prop>
+    </resource>
+
+    <!-- Resource 2: Missing copyright -->
+    <resource label="Missing Copyright" restype=":ImageThing" id="res_missing_copyright">
+        <bitstream>images/missing_copyright.jpg</bitstream>
+        <text-prop name=":hasAuthorship"><text encoding="utf8">Smith, Jane</text></text-prop>
+        <text-prop name=":hasLicense"><text encoding="utf8">CC BY-SA 4.0</text></text-prop>
+    </resource>
+
+    <!-- Resource 3: Invalid license -->
+    <resource label="Invalid License" restype=":ImageThing" id="res_invalid_license">
+        <bitstream>images/invalid_license.jpg</bitstream>
+        <text-prop name=":hasAuthorship"><text encoding="utf8">Brown, Alice</text></text-prop>
+        <text-prop name=":hasCopyright"><text encoding="utf8">Louvre Museum</text></text-prop>
+        <text-prop name=":hasLicense"><text encoding="utf8">Courtesy of the Museum</text></text-prop>
+    </resource>
+
+</knora>

@@ -78,6 +78,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- data type for property and resource class names (no whitespace allowed) -->
+    <xs:simpleType name="string_without_space">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^\s]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- encoding types -->
     <xs:simpleType name="encoding_types">
         <xs:restriction base="xs:string">
@@ -271,7 +278,7 @@
         <xs:sequence>
             <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- colorprop_type -->
@@ -279,7 +286,7 @@
         <xs:sequence>
             <xs:element name="color" type="color_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- dateprop_type -->
@@ -287,7 +294,7 @@
         <xs:sequence>
             <xs:element name="date" type="date_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- floatprop_type -->
@@ -295,7 +302,7 @@
         <xs:sequence>
             <xs:element name="float" type="float_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- geonameprop_type -->
@@ -303,7 +310,7 @@
         <xs:sequence>
             <xs:element name="geoname" type="geoname_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- listprop_type -->
@@ -311,7 +318,7 @@
         <xs:sequence>
             <xs:element name="list" type="list_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
         <xs:attribute name="list" type="xs:string" use="required"/>
     </xs:complexType>
 
@@ -320,7 +327,7 @@
         <xs:sequence>
             <xs:element name="integer" type="integer_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- periodprop_type -->
@@ -328,7 +335,7 @@
         <xs:sequence>
             <xs:element name="period" type="period_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- resptrprop_type -->
@@ -336,7 +343,7 @@
         <xs:sequence>
             <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- timeprop_type -->
@@ -344,7 +351,7 @@
         <xs:sequence>
             <xs:element name="time" type="time_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- decimalprop_type -->
@@ -352,7 +359,7 @@
         <xs:sequence>
             <xs:element name="decimal" type="decimal_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- uriprop_type -->
@@ -360,7 +367,7 @@
         <xs:sequence>
             <xs:element name="uri" type="uri_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- booleanprop_type -->
@@ -368,7 +375,7 @@
         <xs:sequence>
             <xs:element name="boolean" type="boolean_type" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
 
     <!-- builtin_hasComment_prop_type -->
@@ -464,7 +471,7 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="restype" type="xs:string" use="required"/>
+        <xs:attribute name="restype" type="string_without_space" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
@@ -583,8 +590,10 @@
     <xs:element name="knora">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="authorship" type="authorship_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="authorship" type="authorship_type" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">

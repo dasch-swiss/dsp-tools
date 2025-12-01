@@ -4,6 +4,7 @@ from typing import Protocol
 from rdflib import Literal
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 class OntologyCreateClient(Protocol):
@@ -14,11 +15,17 @@ class OntologyCreateClient(Protocol):
     server: str
     authentication_client: AuthenticationClient
 
-    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> str:
+    def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         """Get the last modification date of an ontology"""
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
         """Add cardinalities to an existing resource class."""
+
+    def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        """Create a property on the server"""
+
+    def post_new_class(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        """Create a class on the server"""
 
 
 class OntologyGetClient(Protocol):

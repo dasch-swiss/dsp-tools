@@ -5,8 +5,18 @@
        xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="4123"
        default-ontology="testonto">
+    
 
-    <!-- permissions: see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
+    <authorship id="authorship_1">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorship>
+    <authorship id="authorship_2">
+        <author>Johannes Nussbaum</author>
+    </authorship>
+
+
     <permissions id="public">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
@@ -29,14 +39,6 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
-    <authorship id="authorship_1">
-        <author>
-            Cavanagh, Annie
-        </author>
-    </authorship>
-    <authorship id="authorship_2">
-        <author>Johannes Nussbaum</author>
-    </authorship>
     <authorship id="authorship_3">
         <author>Lukas Rosenthaler</author>
     </authorship>
@@ -47,6 +49,7 @@
         <author>Nora Ammann</author>
         <author>Johannes Nussbaum</author>
     </authorship>
+
     <authorship id="authorship_6">
         <author>Johannes Nussbaum</author>
         <author>Perplexity.ai</author>
@@ -115,7 +118,6 @@
                 <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
-                <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">test_thing_with_iri_1</a>
             </text>
             <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
             <text encoding="xml">Text with a footnote<footnote content="footnote text"/>.</text>

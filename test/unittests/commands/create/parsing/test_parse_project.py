@@ -1,8 +1,12 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from dsp_tools.commands.create.models.create_problems import InputProblem
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
+from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologies
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
 from dsp_tools.commands.create.parsing.parse_project import _parse_lists
@@ -29,8 +33,8 @@ class TestParseProject:
         assert result.project_metadata.shortname == "systematic-tp"
         assert len(result.ontologies) == 2
         assert len(result.lists) == 2
-        assert len(result.groups) == 3
-        assert len(result.users) == 7
+        assert len(result.groups) == 2
+        assert len(result.users) == 6
 
     def test_parse_project_failure(self, minimal_failing_project):
         result = _parse_project(minimal_failing_project, "http://0.0.0.0:3333")
@@ -76,7 +80,7 @@ class TestParseGroups:
 
     def test_parse_groups_with_groups(self, project_json_systematic):
         result = _parse_groups(project_json_systematic["project"])
-        assert len(result) == 3
+        assert len(result) == 2
 
     def test_parse_groups_missing_key(self, minimal_project_json):
         result = _parse_groups(minimal_project_json)
@@ -94,23 +98,28 @@ class TestParseGroups:
 
 class TestParseUsers:
     def test_parse_users_empty(self, project_json_create):
-        users, memberships = _parse_users(project_json_create["project"])
+        users, memberships, problems = _parse_users(project_json_create["project"])
         assert len(users) == 3
         assert len(memberships) == 3
+        assert not problems
 
     def test_parse_users_with_users(self, project_json_systematic):
-        users, memberships = _parse_users(project_json_systematic["project"])
-        assert len(users) == 7
-        assert len(memberships) == 7
+        users, memberships, problems = _parse_users(project_json_systematic["project"])
+        assert len(users) == 6
+        assert len(memberships) == 6
+        assert not problems
 
     def test_parse_users_missing_key(self, minimal_project_json):
-        users, memberships = _parse_users(minimal_project_json)
+        users, memberships, problems = _parse_users(minimal_project_json)
         assert len(users) == 0
         assert len(memberships) == 0
+        assert not problems
 
     def test_only_mandatory(self, project_json_create):
         user = project_json_create["project"]["users"][0]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "user_only_mandatory"
         assert parsed_u.email == "user-1@test.org"
         assert parsed_u.given_name == "user"
@@ -123,7 +132,9 @@ class TestParseUsers:
 
     def test_admin(self, project_json_create):
         user = project_json_create["project"]["users"][1]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "User_admin"
         assert parsed_u.email == "user-2@test.org"
         assert parsed_u.given_name == "user"
@@ -136,7 +147,9 @@ class TestParseUsers:
 
     def test_with_group(self, project_json_create):
         user = project_json_create["project"]["users"][2]
-        parsed_u, parsed_mem = _parse_one_user(user)
+        result = _parse_one_user(user)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
         assert parsed_u.username == "User_member_and_group"
         assert parsed_u.email == "user-3@test.org"
         assert parsed_u.given_name == "user"
@@ -146,6 +159,58 @@ class TestParseUsers:
         assert parsed_mem.username == "User_member_and_group"
         assert not parsed_mem.is_admin
         assert parsed_mem.groups == ["testGroup"]
+
+    def test_password_from_user_dict(self, monkeypatch):
+        monkeypatch.setenv("DSP_USER_PASSWORD", "env_password")
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "dict_password",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
+        assert isinstance(parsed_u, ParsedUser)
+        assert isinstance(parsed_mem, ParsedUserMemberShipInfo)
+        assert parsed_u.password == "dict_password"
+        assert parsed_u.username == "test_user"
+        assert parsed_u.email == "test@example.com"
+        assert parsed_u.given_name == "Test"
+        assert parsed_u.family_name == "User"
+        assert parsed_u.lang == "en"
+
+    def test_password_from_env_var(self, monkeypatch):
+        monkeypatch.setenv("DSP_USER_PASSWORD", "env_password")
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, tuple)
+        parsed_u, parsed_mem = result
+        assert isinstance(parsed_u, ParsedUser)
+        assert isinstance(parsed_mem, ParsedUserMemberShipInfo)
+        assert parsed_u.password == "env_password"
+        assert parsed_u.username == "test_user"
+
+    def test_no_password_no_env_var(self, monkeypatch):
+        monkeypatch.delenv("DSP_USER_PASSWORD", raising=False)
+        user_dict = {
+            "username": "test_user",
+            "email": "test@example.com",
+            "givenName": "Test",
+            "familyName": "User",
+            "password": "",
+        }
+        result = _parse_one_user(user_dict)
+        assert isinstance(result, InputProblem)
+        assert result.problematic_object == "test_user"
+        assert result.problem == InputProblemType.USER_PASSWORD_NOT_SET
 
 
 class TestParseLists:

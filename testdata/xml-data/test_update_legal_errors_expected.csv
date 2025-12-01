@@ -1,0 +1,3 @@
+file,resource_id,license,copyright,authorship_1
+images/invalid_license.jpg,res_invalid_license,FIXME: Invalid license: Courtesy of the Museum,Louvre Museum,"Brown, Alice"
+images/missing_copyright.jpg,res_missing_copyright,http://rdfh.ch/licenses/cc-by-sa-4.0,FIXME: Copyright missing,"Smith, Jane"

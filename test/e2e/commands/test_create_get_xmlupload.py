@@ -212,10 +212,13 @@ def _compare_users(
     Fails with a message if the sections are not identical.
 
     In order to do so, this method modifies the original as follows:
-     - remove the users that are not in the current project
      - set all passwords to ""
-     - add default values, in case they were omitted,
+     - add default values, in case they were omitted
+     - for users without a "projects" field, set projects to ["{project_shortname}:member"]
      - expand ":xyz" to "project_shortname:xyz"
+
+    Note: ALL users defined in the JSON are automatically added as project members during the "create" command,
+    even if they don't have a "projects" field.
 
     Args:
         users_original: "users" section of the original file.
@@ -225,18 +228,6 @@ def _compare_users(
     # avoid mutable default argument
     users_original = users_original or []
     users_returned = users_returned or []
-
-    # remove users that are not in current project (they won't be returned by the "get" command)
-    if users_original:
-        current_project_membership_strings = [
-            ":admin",
-            ":member",
-            f"{project_shortname}:admin",
-            f"{project_shortname}:member",
-        ]
-        users_original = [
-            u for u in users_original if any(p in u.get("projects", []) for p in current_project_membership_strings)
-        ]
 
     # bring the "users" section of original into the form that is returned by the "get" command
     for user in users_original:
@@ -251,7 +242,12 @@ def _compare_users(
         # expand ":xyz" to "project_shortname:xyz"
         if user.get("groups"):
             users_original[index]["groups"] = [regex.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
-        if proj_memberships := user.get("projects"):
+        # handle project memberships
+        proj_memberships = user.get("projects", [])
+        if not proj_memberships:
+            # Users without a "projects" field are automatically added as members during create
+            users_original[index]["projects"] = [f"{project_shortname}:member"]
+        else:
             proj_memberships_expanded = [regex.sub("^:", f"{project_shortname}:", p) for p in proj_memberships]
             if f"{project_shortname}:admin" in proj_memberships_expanded:
                 with contextlib.suppress(ValueError):
@@ -452,7 +448,7 @@ def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_f
         input_file=test_data_systematic_file,
         creds=creds,
         imgdir=".",
-        config=UploadConfig(do_not_request_resource_metadata_from_db=True),
+        config=UploadConfig(),
     )
     assert success
 

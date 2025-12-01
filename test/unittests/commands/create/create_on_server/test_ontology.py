@@ -20,12 +20,7 @@ from test.unittests.commands.create.constants import PROJECT_IRI
 @pytest.fixture
 def onto_1():
     return ParsedOntology(
-        name="test-onto",
-        label="Test Ontology",
-        comment="A test ontology",
-        classes=[],
-        properties=[],
-        cardinalities=[],
+        name="test-onto", label="Test Ontology", comment="A test ontology", classes=[], properties=[], cardinalities=[]
     )
 
 

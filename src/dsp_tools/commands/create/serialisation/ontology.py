@@ -3,6 +3,7 @@ from typing import Any
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -11,10 +12,26 @@ from rdflib import URIRef
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
+
+
+def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> Graph:
+    trips = [
+        (KNORA_API.attachedToProject, project_iri),
+        (KNORA_API.ontologyName, Literal(parsed_ontology.name, datatype=XSD.string)),
+        (RDFS.label, Literal(parsed_ontology.label, datatype=XSD.string)),
+    ]
+    if parsed_ontology.comment:
+        trips.append((RDFS.comment, Literal(parsed_ontology.comment, datatype=XSD.string)))
+    g = Graph()
+    bn = BNode()
+    for p, o in trips:
+        g.add((bn, p, o))
+    return g
 
 
 def _make_ontology_base_graph(onto_iri: URIRef, last_modification_date: Literal) -> Graph:

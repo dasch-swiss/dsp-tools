@@ -45,5 +45,5 @@ class OntologyGetClient(Protocol):
     def get_ontologies(self) -> tuple[list[str], list[str]]:
         """Get all project ontologies."""
 
-    def get_one_ontology(self, ontology_iri: str) -> str:
+    def _get_one_ontology(self, ontology_iri: str) -> str:
         """Get one ontology by its IRI."""

@@ -47,7 +47,7 @@ class TestOntologyClient:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response) as mock_get:
-            result = ontology_client.get_one_ontology("iri")
+            result = ontology_client._get_one_ontology("iri")
         assert result == "Turtle Text"
         assert mock_get.call_args_list[0][1]["url"] == "iri"
         assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
@@ -64,7 +64,7 @@ class TestOntologyClient:
         with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
             with pytest.raises(DspToolsRequestException):
-                ontology_client.get_one_ontology("iri")
+                ontology_client._get_one_ontology("iri")
 
 
 if __name__ == "__main__":

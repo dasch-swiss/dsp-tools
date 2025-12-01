@@ -7,7 +7,6 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
@@ -409,15 +408,30 @@ class TestSerialiseOntology:
     def test_serialise_graph_without_comment(self):
         onto = ParsedOntology("onto", "lbl", None, [], [], [])
         serialised = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
-        assert serialised[f"{KNORA_API_STR}attachedToProject"]["@id"] == PROJECT_IRI
-        assert serialised[f"{KNORA_API_STR}ontologyName"] == "onto"
-        assert serialised[str(RDFS.label)] == "lbl"
-        assert not serialised.get(str(RDFS.comment))
+        expected = {
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": [{"@id": PROJECT_IRI}],
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "onto"}
+            ],
+            "http://www.w3.org/2000/01/rdf-schema#label": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "lbl"}
+            ],
+        }
+        assert serialised == expected
 
     def test_serialise_graph_with_comment(self):
         onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
         serialised = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
-        assert serialised[f"{KNORA_API_STR}attachedToProject"]["@id"] == PROJECT_IRI
-        assert serialised[f"{KNORA_API_STR}ontologyName"] == "onto"
-        assert serialised[str(RDFS.label)] == "lbl"
-        assert serialised[str(RDFS.comment)] == "comment"
+        expected = {
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": [{"@id": PROJECT_IRI}],
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "onto"}
+            ],
+            "http://www.w3.org/2000/01/rdf-schema#label": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "lbl"}
+            ],
+            "http://www.w3.org/2000/01/rdf-schema#comment": [
+                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "comment"}
+            ],
+        }
+        assert serialised == expected

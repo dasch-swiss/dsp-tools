@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
@@ -95,7 +96,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
-    def post_new_ontology(self, onto_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+    def post_new_ontology(self, onto_graph: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies"
         try:
             response = self._post_and_log_request(url, onto_graph)
@@ -103,7 +104,8 @@ class OntologyCreateClientLive(OntologyCreateClient):
             log_and_raise_request_exception(err)
 
         if response.ok:
-            return _parse_last_modification_date(response.text)
+            response_json = json.load(response.json())
+            return response_json["@id"]
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a SystemAdmin or ProjectAdmin can create new ontologies. "

@@ -1,6 +1,6 @@
 import time
 from http import HTTPStatus
-
+import regex
 from loguru import logger
 from tqdm import tqdm
 
@@ -43,11 +43,23 @@ def _create_one_ontology(
     serialised = serialise_ontology_graph_for_request(onto, project_iri)
     result = client.post_new_ontology(serialised)
     if isinstance(result, ResponseCodeAndText):
+        if _check_exists(result):
+
         if _should_retry_request(result):
             result = client.post_new_ontology(serialised)
         if isinstance(result, ResponseCodeAndText):
+            if result.status_code == HTTPStatus.BAD_REQUEST:
+                if regex.search(r"Ontology .+? cannot be created, because it already exists", result.text):
+                    return
             return UploadProblem(result.text, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
     return result
+
+
+def _check_exists(response: ResponseCodeAndText) -> bool:
+    if response.status_code==HTTPStatus.BAD_REQUEST:
+        if regex.search(r"Ontology .+? cannot be created, because it already exists", response.text):
+            return True
+    return False
 
 
 def _should_retry_request(response: ResponseCodeAndText) -> bool:
@@ -55,3 +67,4 @@ def _should_retry_request(response: ResponseCodeAndText) -> bool:
         time.sleep(5)
         return True
     return False
+

@@ -6,7 +6,6 @@ from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
-from unittests.commands.create.constants import PROJECT_IRI
 
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
@@ -29,6 +28,7 @@ from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
 from test.unittests.commands.create.constants import ONTO_IRI_STR
+from test.unittests.commands.create.constants import PROJECT_IRI
 
 RESOURCE_IRI = ONTO.Resource
 ONTO_HAS_TEXT = ONTO.hasText

@@ -49,7 +49,7 @@ def _create_one_ontology(
 def _should_retry_request(response: ResponseCodeAndText) -> bool:
     if response.status_code == HTTPStatus.BAD_REQUEST:
         if regex.search(r"Ontology .+? cannot be created, because it already exists", response.text):
-            return True
+            return False
     elif HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
         time.sleep(5)
         return True

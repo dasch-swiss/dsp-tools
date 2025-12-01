@@ -3,26 +3,23 @@
 --> **Please consider only the content of this draft, and ignore its form.**
 
 
-## 1 There Are 2 Groups Of Commands
+## 1 Whenever An Exception Is Raised, Either Of 2 Situations Applies
 
-DSP-TOOLS commands fall into two categories with different error handling needs:
+Actions taken by DSP-TOOLS fall into two categories with different error handling needs.
+Whenever an exception is raised, the developer must decide which situation applies.
 
-### 1. Server Interaction Commands (fail-fast acceptable)
+### 1. Developer assistance necessary: Fail-fast acceptable
 
-Commands that interact with DSP servers (`create`, `xmlupload`, `ingest-xmlupload`, `resume-xmlupload`):
-
-- Tested in local/test environments before production
-- Can fail fast with context when issues occur
-- Users may need developer assistance
+- For commands that are tested in local/test environments before production
+- For situations when it's acceptable that users need developer assistance to resolve the issue
+- The exception might escalate ugly.
 - Bugs can escalate to top-level handler in `entry_point.py`
 
-### 2. Local Validation/Transformation Commands (must report all problems)
+### 2. Situations that must be fixable by the user 
 
-Commands running locally (`excel2json`, `excel2xml`, `xmllib`, `get`, `validate-data`):
-
-- Must work immediately on user machines
-- Should report ALL problems clearly
+- Local validation/transformation commands must work immediately on user machines.
 - Users must be able to fix issues themselves without contacting developers
+- They must report all problems aggregated in a user-friendly way.
 - Errors should be handled gracefully with user-friendly messages
 - Bugs can escalate to top-level handler in `entry_point.py`
 

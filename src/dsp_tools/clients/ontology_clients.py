@@ -27,6 +27,9 @@ class OntologyCreateClient(Protocol):
     def post_new_class(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Create a class on the server"""
 
+    def post_new_ontology(self, onto_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+        """Create a new ontology on the server"""
+
 
 class OntologyGetClient(Protocol):
     """
@@ -41,3 +44,6 @@ class OntologyGetClient(Protocol):
 
     def get_ontologies(self) -> tuple[list[str], list[str]]:
         """Get all project ontologies."""
+
+    def _get_one_ontology(self, ontology_iri: str) -> str:
+        """Get one ontology by its IRI."""

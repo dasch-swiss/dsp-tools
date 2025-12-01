@@ -13,7 +13,6 @@ from rdflib import Namespace
 from rdflib import URIRef
 from requests import ReadTimeout
 from requests import Response
-from unittests.clients.constants import PROJECT_IRI
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
@@ -25,6 +24,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import ResponseCodeAndText
+from test.unittests.clients.constants import PROJECT_IRI
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 ONTO_IRI = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")

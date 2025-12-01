@@ -43,7 +43,7 @@ class OntologyGetClientLive(OntologyGetClient):
             list of ontologies and IRIs
         """
         ontology_iris = self._get_ontology_iris()
-        ontologies = [self._get_one_ontology(x) for x in ontology_iris]
+        ontologies = [self.get_one_ontology(x) for x in ontology_iris]
         return ontologies, ontology_iris
 
     def _get_ontology_iris(self) -> list[str]:
@@ -64,7 +64,7 @@ class OntologyGetClientLive(OntologyGetClient):
         output = cast(list[str], ontos)
         return output
 
-    def _get_one_ontology(self, ontology_iri: str) -> str:
+    def get_one_ontology(self, ontology_iri: str) -> str:
         url = ontology_iri
         headers = {"Accept": "text/turtle"}
         timeout = 30

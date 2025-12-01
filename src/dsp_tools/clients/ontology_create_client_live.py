@@ -95,6 +95,9 @@ class OntologyCreateClientLive(OntologyCreateClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
+    def post_new_ontology(self, onto_graph: dict[str, Any]):
+        pass
+
     def _post_and_log_request(
         self,
         url: str,

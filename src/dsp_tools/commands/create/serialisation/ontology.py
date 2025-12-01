@@ -3,12 +3,12 @@ from typing import Any
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
-from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
@@ -19,26 +19,15 @@ from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_utils import serialise_json
 
 
-def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> dict[str, Any]:
-    onto_g = _make_ontology_graph_for_request(parsed_ontology, project_iri)
-    serialised: dict[str, Any] = serialise_json(onto_g)[0]
-    serialised.pop("@id")  # this is the ID of the blank node and not meaningful
-    return serialised
-
-
-def _make_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: URIRef) -> Graph:
-    trips = [
-        (KNORA_API.attachedToProject, project_iri),
-        (KNORA_API.ontologyName, Literal(parsed_ontology.name, datatype=XSD.string)),
-        (RDFS.label, Literal(parsed_ontology.label, datatype=XSD.string)),
-    ]
+def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: str) -> dict[str, Any]:
+    onto_graph = {
+        f"{KNORA_API_STR}attachedToProject": {"@id": project_iri},
+        f"{KNORA_API_STR}ontologyName": parsed_ontology.name,
+        "http://www.w3.org/2000/01/rdf-schema#label": parsed_ontology.label,
+    }
     if parsed_ontology.comment:
-        trips.append((RDFS.comment, Literal(parsed_ontology.comment, datatype=XSD.string)))
-    g = Graph()
-    bn = BNode()
-    for p, o in trips:
-        g.add((bn, p, o))
-    return g
+        onto_graph["http://www.w3.org/2000/01/rdf-schema#comment"] = parsed_ontology.comment
+    return onto_graph
 
 
 def _make_ontology_base_graph(onto_iri: URIRef, last_modification_date: Literal) -> Graph:

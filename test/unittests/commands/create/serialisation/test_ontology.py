@@ -3,7 +3,6 @@ import pytest
 from rdflib import OWL
 from rdflib import RDF
 from rdflib import RDFS
-from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -19,7 +18,6 @@ from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinali
 from dsp_tools.commands.create.serialisation.ontology import _make_one_class_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_one_property_graph
 from dsp_tools.commands.create.serialisation.ontology import _make_ontology_base_graph
-from dsp_tools.commands.create.serialisation.ontology import _make_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
@@ -388,50 +386,27 @@ class TestSerialiseClass:
 
 
 class TestSerialiseOntology:
-    def test_make_graph_without_comment(self):
-        onto = ParsedOntology("onto", "lbl", None, [], [], [])
-        result = _make_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
-        assert len(result) == 3
-        assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
-        assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)
-        assert next(result.objects(predicate=RDFS.label)) == Literal("lbl", datatype=XSD.string)
-
-    def test_make_graph_with_comment(self):
-        onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
-        result = _make_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
-        assert len(result) == 4
-        assert next(result.objects(predicate=KNORA_API.attachedToProject)) == URIRef(PROJECT_IRI)
-        assert next(result.objects(predicate=KNORA_API.ontologyName)) == Literal("onto", datatype=XSD.string)
-        assert next(result.objects(predicate=RDFS.label)) == Literal("lbl", datatype=XSD.string)
-        assert next(result.objects(predicate=RDFS.comment)) == Literal("comment", datatype=XSD.string)
-
     def test_serialise_graph_without_comment(self):
         onto = ParsedOntology("onto", "lbl", None, [], [], [])
-        serialised = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        serialised = serialise_ontology_graph_for_request(onto, PROJECT_IRI)
         expected = {
-            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": [{"@id": PROJECT_IRI}],
-            "http://api.knora.org/ontology/knora-api/v2#ontologyName": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "onto"}
-            ],
-            "http://www.w3.org/2000/01/rdf-schema#label": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "lbl"}
-            ],
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "http://rdfh.ch/projects/projectIRI"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": "onto",
+            "http://www.w3.org/2000/01/rdf-schema#label": "lbl",
         }
         assert serialised == expected
 
     def test_serialise_graph_with_comment(self):
         onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
-        serialised = serialise_ontology_graph_for_request(onto, URIRef(PROJECT_IRI))
+        serialised = serialise_ontology_graph_for_request(onto, PROJECT_IRI)
         expected = {
-            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": [{"@id": PROJECT_IRI}],
-            "http://api.knora.org/ontology/knora-api/v2#ontologyName": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "onto"}
-            ],
-            "http://www.w3.org/2000/01/rdf-schema#label": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "lbl"}
-            ],
-            "http://www.w3.org/2000/01/rdf-schema#comment": [
-                {"@type": "http://www.w3.org/2001/XMLSchema#string", "@value": "comment"}
-            ],
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "http://rdfh.ch/projects/projectIRI"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": "onto",
+            "http://www.w3.org/2000/01/rdf-schema#comment": "comment",
+            "http://www.w3.org/2000/01/rdf-schema#label": "lbl",
         }
         assert serialised == expected

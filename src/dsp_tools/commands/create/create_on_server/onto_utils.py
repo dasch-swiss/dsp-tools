@@ -67,7 +67,7 @@ def _get_name_to_iri_lookup(ontologies: list[str]) -> dict[str, str]:
     lookup = {}
     for onto in ontologies:
         g = Graph()
-        g.parse(onto, format="ttl")
+        g.parse(data=onto, format="ttl")
         iri = next(g.subjects(RDF.type, OWL.Ontology))
         name = next(g.objects(iri, RDFS.label))
         lookup[str(name)] = str(iri)

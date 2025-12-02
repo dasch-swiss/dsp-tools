@@ -31,6 +31,7 @@ def create_ontologies(
     overall_success = True
 
     logger.info("Processing Ontology Section")
+    print(BOLD + "Processing Ontology Section:" + RESET_TO_DEFAULT)
     project_iri_lookup, ontology_problems = _create_ontologies_on_server(
         ontologies=parsed_ontologies,
         project_iri=project_iri,
@@ -43,7 +44,7 @@ def create_ontologies(
     if not project_iri_lookup.onto_iris:
         msg = "No ontologies could be created on the server."
         logger.error(msg)
-        print(BOLD_RED + msg + RESET_TO_DEFAULT)
+        print(BOLD_RED + "    " + msg + RESET_TO_DEFAULT)
         return False
 
     all_classes = []

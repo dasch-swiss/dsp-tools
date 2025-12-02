@@ -45,7 +45,7 @@ class TestCreateOneOntology:
         mock_client.post_new_ontology.assert_called_once()
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.utils.request_utils.is_server_error")
+    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
     def test_success_after_retry(self, mock_is_server_error, mock_serialise, onto_1):
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
@@ -58,7 +58,7 @@ class TestCreateOneOntology:
         mock_is_server_error.assert_called_once_with(first_response)
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.utils.request_utils.is_server_error")
+    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
     def test_failure_after_retry(self, mock_is_server_error, mock_serialise, onto_1):
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 1")
@@ -73,7 +73,7 @@ class TestCreateOneOntology:
         assert mock_client.post_new_ontology.call_count == 2
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.utils.request_utils.is_server_error")
+    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
     def test_non_retryable_failure(self, mock_is_server_error, mock_serialise, onto_1):
         mock_client = MagicMock()
         error_text = "Invalid ontology definition"

@@ -14,7 +14,7 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.request_utils import is_server_error
 
 
-def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient) -> str | CollectedProblems:
+def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient) -> str:
     client = ProjectClientLive(auth.server, auth)
     try:
         project_iri = client.get_project_iri(project.shortcode)

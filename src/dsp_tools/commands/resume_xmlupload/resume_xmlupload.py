@@ -9,7 +9,7 @@ from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.project_client import ProjectInfoClient
-from dsp_tools.clients.project_client_live import ProjectInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -51,7 +51,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     else:
         ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode, ".")
 
-    project_client: ProjectInfoClient = ProjectInfoClientLive(auth.server)
+    project_client: ProjectInfoClient = ProjectClientLive(auth.server, auth)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri(upload_state.config.shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
     clients = UploadClients(ingest_client, list_client, legal_info_client)

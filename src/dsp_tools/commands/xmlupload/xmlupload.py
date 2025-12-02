@@ -197,7 +197,7 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectInfoClient = ProjectClientLive(auth.server)
+    project_client: ProjectInfoClient = ProjectClientLive(auth.server, auth)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(

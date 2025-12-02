@@ -6,6 +6,7 @@ from typing import cast
 import requests
 from requests import RequestException
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.project_client import ProjectInfoClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
@@ -19,10 +20,11 @@ from dsp_tools.utils.request_utils import log_response
 
 @dataclass
 class ProjectClientLive(ProjectInfoClient):
-    api_url: str
+    server: str
+    auth: AuthenticationClient
 
     def get_project_iri(self, shortcode: str) -> str:
-        url = f"{self.api_url}/admin/projects/shortcode/{shortcode}"
+        url = f"{self.server}/admin/projects/shortcode/{shortcode}"
         timeout = 30
         params = RequestParameters("GET", url, timeout)
         log_request(params)
@@ -40,12 +42,13 @@ class ProjectClientLive(ProjectInfoClient):
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
-        url = f"{self.api_url}/admin/projects"
+        url = f"{self.server}/admin/projects"
         timeout = 30
         params = RequestParameters("POST", url, timeout, data=project_info)
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         log_request(params)
         try:
-            response = requests.post(params.url, timeout=params.timeout, data=params.data_serialized)
+            response = requests.post(params.url, timeout=params.timeout, headers=headers, data=params.data_serialized)
         except RequestException as err:
             log_and_raise_request_exception(err)
 

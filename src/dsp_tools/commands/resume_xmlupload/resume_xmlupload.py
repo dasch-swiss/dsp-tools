@@ -51,7 +51,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     else:
         ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode, ".")
 
-    project_client: ProjectInfoClient = ProjectClientLive(auth.server)
+    project_client: ProjectInfoClient = ProjectClientLive(auth.server, auth)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri(upload_state.config.shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
     clients = UploadClients(ingest_client, list_client, legal_info_client)

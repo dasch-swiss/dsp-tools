@@ -28,7 +28,8 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
         print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
         return True
 
-    project_info = ProjectClientLive(creds.server)
+    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    project_info = ProjectClientLive(creds.server, auth)
     try:
         project_iri = project_info.get_project_iri(project_metadata.shortcode)
     except ProjectNotFoundError:
@@ -39,7 +40,6 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
             f"If you wish to create an entire project, please use the `create` command without the flag."
         ) from None
 
-    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     _, problems = create_lists(parsed_lists, project_metadata.shortcode, auth, project_iri)
     if problems:
         print_problem_collection(problems)

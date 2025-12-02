@@ -160,7 +160,7 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
 
 def _get_live_clients(con: Connection, config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
     ingest_client = BulkIngestedAssetClient()
-    project_client = ProjectClientLive(auth.server)
+    project_client = ProjectClientLive(auth.server, auth)
     list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
     return UploadClients(ingest_client, list_client, legal_info_client)

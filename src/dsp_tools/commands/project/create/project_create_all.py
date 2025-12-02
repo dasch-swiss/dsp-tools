@@ -140,8 +140,8 @@ def create_project(  # noqa: PLR0912 (Too many branches)
 
     # create the ontologies
     success = create_ontologies(
-        list_name_2_iri=list_name_2_iri,
         parsed_ontologies=parsed_project.ontologies,
+        list_name_2_iri=list_name_2_iri,
         project_iri=project_iri,
         shortcode=parsed_project.project_metadata.shortcode,
         auth=auth,

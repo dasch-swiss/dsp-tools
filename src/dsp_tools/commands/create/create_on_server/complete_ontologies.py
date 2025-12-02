@@ -20,8 +20,8 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_ontologies(
-    list_name_2_iri: ListNameToIriLookup,
     parsed_ontologies: list[ParsedOntology],
+    list_name_2_iri: ListNameToIriLookup,
     project_iri: str,
     shortcode: str,
     auth: AuthenticationClient,

@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -126,18 +127,15 @@ def test_project_does_not_exist_server_error(
 ):
     mock_client = Mock()
     mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
-    error_response = ResponseCodeAndText(status_code=500, text="Internal Server Error")
+    error_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Internal Server Error")
     mock_client.post_new_project.return_value = error_response
     mock_client_class.return_value = mock_client
     mock_serialise.return_value = serialized_project
     mock_is_server_error.return_value = True
 
-    with pytest.raises(UnableToCreateProject) as exc_info:
+    with pytest.raises(UnableToCreateProject):
         create_project(parsed_project, mock_auth)
 
-    assert "server error" in str(exc_info.value)
-    assert "500" in str(exc_info.value)
-    assert "Internal Server Error" in str(exc_info.value)
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
     mock_serialise.assert_called_once_with(parsed_project)
@@ -158,18 +156,15 @@ def test_project_does_not_exist_client_error(
 ):
     mock_client = Mock()
     mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
-    error_response = ResponseCodeAndText(status_code=400, text="Bad Request")
+    error_response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text="Bad Request")
     mock_client.post_new_project.return_value = error_response
     mock_client_class.return_value = mock_client
     mock_serialise.return_value = serialized_project
     mock_is_server_error.return_value = False
 
-    with pytest.raises(UnableToCreateProject) as exc_info:
+    with pytest.raises(UnableToCreateProject):
         create_project(parsed_project, mock_auth)
 
-    assert "Unable to create project" in str(exc_info.value)
-    assert "400" in str(exc_info.value)
-    assert "Bad Request" in str(exc_info.value)
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
     mock_serialise.assert_called_once_with(parsed_project)

@@ -449,7 +449,6 @@ def _add_create(
         action="store_true",
         help="create only the lists (prerequisite: the project exists on the server)",
     )
-    subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     subparser.add_argument("project_definition", help="path to the JSON project file")
 
 

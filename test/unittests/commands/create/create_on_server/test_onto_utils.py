@@ -8,9 +8,13 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
+from dsp_tools.commands.create.create_on_server.onto_utils import get_project_iri_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.error.exceptions import CircularOntologyDependency
+
+PROJECT_IRI = "http://rdfh.ch/projects/1234"
+API_URL = "http://0.0.0.0:3333"
 
 
 class TestSortUploadOrder:
@@ -50,13 +54,12 @@ class TestSortUploadOrder:
 
 
 def test_creates_lookup_with_two_ontologies():
-    project_iri = "http://rdfh.ch/projects/1234"
     onto_iri_1 = "http://0.0.0.0:3333/ontology/1234/onto1/v2"
     onto_iri_2 = "http://0.0.0.0:3333/ontology/1234/onto2/v2"
     mod_date_1 = Literal("2024-01-15T10:30:00Z")
     mod_date_2 = Literal("2024-02-20T14:45:00Z")
 
-    project_iri_lookup = ProjectIriLookup(project_iri=project_iri)
+    project_iri_lookup = ProjectIriLookup(project_iri=PROJECT_IRI)
     project_iri_lookup.add_onto("onto1", onto_iri_1)
     project_iri_lookup.add_onto("onto2", onto_iri_2)
 
@@ -65,7 +68,7 @@ def test_creates_lookup_with_two_ontologies():
 
     result = get_modification_date_onto_lookup(project_iri_lookup, mock_client)
 
-    assert result.project_iri == project_iri
+    assert result.project_iri == PROJECT_IRI
     assert len(result.onto_iris) == 2
     assert result.onto_iris["onto1"] == URIRef(onto_iri_1)
     assert result.onto_iris["onto2"] == URIRef(onto_iri_2)
@@ -73,3 +76,35 @@ def test_creates_lookup_with_two_ontologies():
     assert result.get_last_mod_date(onto_iri_1) == mod_date_1
     assert result.get_last_mod_date(onto_iri_2) == mod_date_2
     assert mock_client.get_last_modification_date.call_count == 2
+
+
+class TestOntoLookup:
+    def test_with_ontos(self):
+        onto_1_iri = "http://0.0.0.0:3333/ontology/1234/onto/v2"
+        onto_2_iri = "http://0.0.0.0:3333/ontology/1234/second-onto/v2"
+        prefixes = """
+        PREFIX knora-api:   <http://api.knora.org/ontology/knora-api/v2#>
+        PREFIX owl:         <http://www.w3.org/2002/07/owl#>
+        PREFIX rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>"""
+        onto_1 = f"""
+        <{onto_1_iri}>
+            rdf:type                        owl:Ontology;
+            rdfs:label                      "Ontology";
+            knora-api:attachedToProject     <{PROJECT_IRI}>;
+            knora-api:lastModificationDate  "2025-12-02T07:25:20.084934632Z"^^xsd:dateTimeStamp .
+        """
+        onto_2 = f"""
+        <{onto_2_iri}>
+            rdf:type                        owl:Ontology;
+            rdfs:label                      "Second Ontology";
+            knora-api:attachedToProject     <{PROJECT_IRI}>;
+            knora-api:lastModificationDate  "2025-12-02T07:25:20.296635591Z"^^xsd:dateTimeStamp ."""
+        response = [f"{prefixes}{onto_1}", f"{prefixes}{onto_2}"]
+        mock_client = Mock()
+        mock_client.get_ontologies.response = response, []
+
+        result = get_project_iri_lookup(API_URL, "1234", PROJECT_IRI)
+        assert result.project_iri == PROJECT_IRI
+        expected = {"Ontology": onto_1_iri, "Second Ontology": onto_2_iri}
+        assert result.onto_iris == expected

@@ -39,13 +39,13 @@ class ProjectInfoClientLive(ProjectInfoClient):
             raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def create_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
+    def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.api_url}/admin/projects"
         timeout = 30
         params = RequestParameters("POST", url, timeout, data=project_info)
         log_request(params)
         try:
-            response = requests.get(params.url, timeout=params.timeout, data=params.data_serialized)
+            response = requests.post(params.url, timeout=params.timeout, data=params.data_serialized)
         except RequestException as err:
             log_and_raise_request_exception(err)
 

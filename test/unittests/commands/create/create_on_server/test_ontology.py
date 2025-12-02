@@ -104,34 +104,36 @@ class TestCreateAllOntologies:
     def test_all_ontologies_succeed(self, mock_create_one, onto_1, onto_2):
         project_lookup = ProjectIriLookup(PROJECT_IRI)
         ontologies = [onto_1, onto_2]
-        mock_create_one.return_value = [ONTO_1_IRI, ONTO_2_IRI]
+        mock_create_one.side_effect = [ONTO_1_IRI, ONTO_2_IRI]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, project_lookup, mock_client)
-        assert result is None
+        result_lookup, problems = create_all_ontologies(ontologies, project_lookup, mock_client)
+        assert problems is None
         assert mock_create_one.call_count == 2
+        expected_lookup = {onto_1.name: ONTO_1_IRI, onto_2.name: ONTO_2_IRI}
+        assert result_lookup.onto_iris == expected_lookup
 
     @patch("dsp_tools.commands.create.create_on_server.ontology._create_one_ontology")
     def test_all_ontologies_fail(self, mock_create_one, onto_1, onto_2):
         project_lookup = ProjectIriLookup(PROJECT_IRI)
         ontologies = [onto_1, onto_2]
-        problem1 = UploadProblem("Error 1", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
-        problem2 = UploadProblem("Error 2", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
+        problem1 = UploadProblem(onto_1.name, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
+        problem2 = UploadProblem(onto_2.name, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
         mock_create_one.side_effect = [problem1, problem2]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, project_lookup, mock_client)
-        assert isinstance(result, CollectedProblems)
-        assert len(result.problems) == 2
+        result_lookup, problems = create_all_ontologies(ontologies, project_lookup, mock_client)
+        assert isinstance(problems, CollectedProblems)
+        assert len(problems.problems) == 2
+        assert result_lookup.onto_iris == {}
 
     @patch("dsp_tools.commands.create.create_on_server.ontology._create_one_ontology")
     def test_some_ontologies_fail(self, mock_create_one, onto_1, onto_2):
         project_lookup = ProjectIriLookup(PROJECT_IRI)
-        ontology3 = ParsedOntology(
-            name="test-onto-3", label="Test Ontology 3", comment=None, classes=[], properties=[], cardinalities=[]
-        )
-        ontologies = [onto_1, onto_2, ontology3]
-        problem = UploadProblem("Error", UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
-        mock_create_one.side_effect = [None, problem, None]
+        ontologies = [onto_1, onto_2]
+        problem = UploadProblem(onto_2.name, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
+        mock_create_one.side_effect = [ONTO_1_IRI, problem]
         mock_client = MagicMock()
-        result = create_all_ontologies(ontologies, project_lookup, mock_client)
-        assert isinstance(result, CollectedProblems)
-        assert len(result.problems) == 1
+        result_lookup, problems = create_all_ontologies(ontologies, project_lookup, mock_client)
+        assert isinstance(problems, CollectedProblems)
+        assert len(problems.problems) == 1
+        assert problems.problems[0].problematic_object == onto_2.name
+        assert result_lookup.onto_iris == {onto_1.name: ONTO_1_IRI}

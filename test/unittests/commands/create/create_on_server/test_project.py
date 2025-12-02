@@ -25,6 +25,7 @@ def mock_auth() -> Mock:
 def parsed_project() -> Mock:
     project = Mock(spec=ParsedProjectMetadata)
     project.shortcode = "9999"
+    project.shortname = "name"
     return project
 
 

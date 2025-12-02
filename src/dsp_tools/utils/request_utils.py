@@ -7,6 +7,7 @@ import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
+from http import HTTPStatus
 from typing import Any
 from typing import Literal
 from typing import Never
@@ -229,3 +230,9 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     )
     logger.warning(msg)
     warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))
+
+
+def is_server_error(response: ResponseCodeAndText) -> bool:
+    if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
+        return True
+    return False

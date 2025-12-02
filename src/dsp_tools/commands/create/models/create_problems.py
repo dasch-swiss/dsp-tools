@@ -71,3 +71,4 @@ class UploadProblemType(ProblemType):
     PROPERTY_REFERENCES_FAILED_CLASS = "The property cannot be created, because a class it references was not created."
     CLASS_COULD_NOT_BE_CREATED = "The class could not be created."
     CLASS_SUPER_FAILED = "The class cannot be created, because its super-class was not created."
+    ONTOLOGY_COULD_NOT_BE_CREATED = "The ontology cannot be created."

@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
@@ -20,8 +21,13 @@ def api_url() -> str:
 
 
 @pytest.fixture
-def project_client(api_url: str) -> ProjectClientLive:
-    return ProjectClientLive(api_url=api_url)
+def auth(api_url) -> AuthenticationClientLive:
+    return AuthenticationClientLive(api_url, "email@example.ch", "pw")
+
+
+@pytest.fixture
+def project_client(api_url: str, auth) -> ProjectClientLive:
+    return ProjectClientLive(server=api_url, auth=auth)
 
 
 @pytest.fixture
@@ -50,7 +56,7 @@ class TestProjectGetIri:
         with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
             result = project_client.get_project_iri("0001")
         assert result == "http://rdfh.ch/projects/0001"
-        assert mock_get.call_args[0][0] == f"{project_client.api_url}/admin/projects/shortcode/0001"
+        assert mock_get.call_args[0][0] == f"{project_client.server}/admin/projects/shortcode/0001"
 
     def test_get_project_iri_not_found(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
@@ -85,7 +91,7 @@ class TestPostNewProject:
         with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response) as mock_post:
             result = project_client.post_new_project(project_info)
         assert result == "http://rdfh.ch/projects/0003"
-        assert mock_post.call_args.args[0] == f"{project_client.api_url}/admin/projects"
+        assert mock_post.call_args.args[0] == f"{project_client.server}/admin/projects"
         assert mock_post.call_args.kwargs["timeout"] == 30
 
     def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:

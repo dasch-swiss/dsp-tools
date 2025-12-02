@@ -27,7 +27,7 @@ from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-ONTO_IRI_STR = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")
+ONTO_IRI_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2"
 ONTO_IRI = URIRef(ONTO_IRI_STR)
 
 TEST_RES_IRI = ONTO.TestResource

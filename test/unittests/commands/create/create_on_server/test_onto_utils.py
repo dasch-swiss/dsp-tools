@@ -13,6 +13,7 @@ from dsp_tools.commands.create.create_on_server.onto_utils import get_project_ir
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.error.exceptions import CircularOntologyDependency
+from dsp_tools.error.exceptions import ProjectOntologyNotFound
 
 PROJECT_IRI = "http://rdfh.ch/projects/1234"
 API_URL = "http://0.0.0.0:3333"
@@ -112,3 +113,12 @@ class TestOntoLookup:
         assert result.project_iri == PROJECT_IRI
         expected = {"Ontology": onto_1_iri, "Second Ontology": onto_2_iri}
         assert result.onto_iris == expected
+
+    @patch("dsp_tools.commands.create.create_on_server.onto_utils.OntologyGetClientLive")
+    def test_without_ontos(self, mock_client_class):
+        mock_client = Mock()
+        mock_client.get_ontologies.side_effect = ProjectOntologyNotFound("No ontology")
+        mock_client_class.return_value = mock_client
+        result = get_project_iri_lookup(API_URL, "1234", PROJECT_IRI)
+        assert result.project_iri == PROJECT_IRI
+        assert result.onto_iris == {}

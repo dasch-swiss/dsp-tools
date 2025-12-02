@@ -55,7 +55,8 @@ def get_modification_date_onto_lookup(
 def get_project_iri_lookup(server: str, shortcode: str, project_iri: str) -> ProjectIriLookup:
     client = OntologyGetClientLive(server, shortcode)
     try:
-        ontologies, _ = client.get_ontologies()
+        ontologies, onto_iris = client.get_ontologies()
+        logger.debug(f"Project ontologies found: {', '.join(onto_iris)}")
         lookup = _get_name_to_iri_lookup(ontologies)
         return ProjectIriLookup(project_iri, lookup)
     except ProjectOntologyNotFound:

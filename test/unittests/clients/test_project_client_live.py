@@ -1,3 +1,4 @@
+from typing import Any
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -5,9 +6,11 @@ import pytest
 import requests
 
 from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import ProjectNotFoundError
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 @pytest.fixture
@@ -18,6 +21,19 @@ def api_url() -> str:
 @pytest.fixture
 def project_client(api_url: str) -> ProjectClientLive:
     return ProjectClientLive(api_url=api_url)
+
+
+@pytest.fixture
+def project_info() -> dict[str, Any]:
+    return {
+        "shortcode": "0003",
+        "shortname": "test-proj",
+        "longname": "Long Project Name",
+        "description": [{"value": "project description", "language": "en"}],
+        "keywords": ["Test"],
+        "status": True,
+        "selfjoin": False,
+    }
 
 
 class TestProjectGetIri:
@@ -53,6 +69,44 @@ class TestProjectGetIri:
         with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCode):
                 project_client.get_project_iri("0001")
+
+
+class TestPostNewProject:
+    def test_good(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {
+            "project": {
+                "id": "http://rdfh.ch/projects/0003",
+                "shortcode": "0003",
+                "shortname": "test-proj",
+            }
+        }
+        with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response) as mock_post:
+            result = project_client.post_new_project(project_info)
+        assert result == "http://rdfh.ch/projects/0003"
+        assert mock_post.call_args.kwargs["url"] == f"{project_client.api_url}/admin/projects"
+        assert mock_post.call_args.kwargs["timeout"] == 30
+
+    def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
+        with patch("dsp_tools.clients.project_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspToolsRequestException):
+                project_client.post_new_project(project_info)
+
+    def test_bad_credentials(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
+        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                project_client.post_new_project(project_info)
+
+    def test_non_ok(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response):
+            result = project_client.post_new_project(project_info)
+        assert isinstance(result, ResponseCodeAndText)
+        assert result.status_code == 500
+        assert result.text == "Internal Server Error"
 
 
 if __name__ == "__main__":

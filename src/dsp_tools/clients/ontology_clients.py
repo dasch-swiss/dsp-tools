@@ -27,7 +27,7 @@ class OntologyCreateClient(Protocol):
     def post_new_class(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Create a class on the server"""
 
-    def post_new_ontology(self, onto_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+    def post_new_ontology(self, onto_graph: dict[str, Any]) -> str | ResponseCodeAndText:
         """Create a new ontology on the server"""
 
 

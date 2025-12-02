@@ -27,7 +27,8 @@ from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-ONTO_IRI = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2")
+ONTO_IRI_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2"
+ONTO_IRI = URIRef(ONTO_IRI_STR)
 
 TEST_RES_IRI = ONTO.TestResource
 TEST_PROP_IRI = ONTO.hasText
@@ -59,7 +60,7 @@ def ok_response_onto_graph() -> dict[str, Any]:
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "xsd": "http://www.w3.org/2001/XMLSchema#",
         },
-        "@id": str(ONTO_IRI),
+        "@id": ONTO_IRI_STR,
         "knora-api:lastModificationDate": {
             "@value": str(NEW_MODIFICATION_DATE),
             "@type": "xsd:dateTimeStamp",
@@ -156,7 +157,7 @@ def ok_response_new_onto_graph() -> dict[str, Any]:
         "rdfs:label": "onto label",
         "knora-api:attachedToProject": {"@id": PROJECT_IRI},
         "@type": "owl:Ontology",
-        "@id": ONTO_IRI,
+        "@id": ONTO_IRI_STR,
         "@context": {
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "xsd": "http://www.w3.org/2001/XMLSchema#",
@@ -321,7 +322,6 @@ class TestClasses:
         ok_response_onto_graph,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        # Mock successful response
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
@@ -397,14 +397,14 @@ class TestOntology:
         mock_response = Mock(spec=Response)
         mock_response.ok = True
         mock_response.status_code = HTTPStatus.OK.value
-        mock_response.text = json.dumps(ok_response_new_onto_graph)
+        mock_response.json.return_value = ok_response_new_onto_graph
 
         def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
         result = ontology_client.post_new_ontology(sample_ontology_graph)
-        assert result == NEW_MODIFICATION_DATE
+        assert result == ONTO_IRI_STR
 
     def test_post_new_ontology_forbidden(
         self,

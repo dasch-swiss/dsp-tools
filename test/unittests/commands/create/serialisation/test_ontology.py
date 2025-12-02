@@ -11,6 +11,7 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.serialisation.ontology import _make_one_cardinality_graph
@@ -19,12 +20,14 @@ from dsp_tools.commands.create.serialisation.ontology import _make_one_property_
 from dsp_tools.commands.create.serialisation.ontology import _make_ontology_base_graph
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
+from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
 from test.unittests.commands.create.constants import ONTO_IRI_STR
+from test.unittests.commands.create.constants import PROJECT_IRI
 
 RESOURCE_IRI = ONTO.Resource
 ONTO_HAS_TEXT = ONTO.hasText
@@ -380,3 +383,30 @@ class TestSerialiseClass:
         assert (RESOURCE_IRI, RDFS.comment, Literal("Comment EN", lang="en")) in result
         assert (RESOURCE_IRI, RDFS.comment, Literal("Kommentar DE", lang="de")) in result
         assert (RESOURCE_IRI, RDFS.subClassOf, URIRef(KNORA_RESOURCE)) in result
+
+
+class TestSerialiseOntology:
+    def test_serialise_graph_without_comment(self):
+        onto = ParsedOntology("onto", "lbl", None, [], [], [])
+        serialised = serialise_ontology_graph_for_request(onto, PROJECT_IRI)
+        expected = {
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "http://rdfh.ch/projects/projectIRI"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": "onto",
+            "http://www.w3.org/2000/01/rdf-schema#label": "lbl",
+        }
+        assert serialised == expected
+
+    def test_serialise_graph_with_comment(self):
+        onto = ParsedOntology("onto", "lbl", "comment", [], [], [])
+        serialised = serialise_ontology_graph_for_request(onto, PROJECT_IRI)
+        expected = {
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "http://rdfh.ch/projects/projectIRI"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#ontologyName": "onto",
+            "http://www.w3.org/2000/01/rdf-schema#comment": "comment",
+            "http://www.w3.org/2000/01/rdf-schema#label": "lbl",
+        }
+        assert serialised == expected

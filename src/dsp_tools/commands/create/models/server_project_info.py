@@ -16,6 +16,9 @@ class ProjectIriLookup:
     def add_onto(self, name: str, iri: str) -> None:
         self.onto_iris[name] = iri
 
+    def does_onto_exist(self, name: str) -> bool:
+        return bool(self.onto_iris.get(name))
+
 
 @dataclass
 class OntoLastModDateLookup:

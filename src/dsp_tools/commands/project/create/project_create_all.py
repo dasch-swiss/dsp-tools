@@ -15,18 +15,16 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
+from dsp_tools.commands.create.create_on_server.complete_ontologies import create_ontologies
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
 from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
-from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
-from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
@@ -40,10 +38,9 @@ from dsp_tools.utils.json_parsing import parse_json_input
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
-def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
+def create_project(  # noqa: PLR0912 (Too many branches)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
-    verbose: bool = False,
 ) -> bool:
     """
     Creates a project from a JSON project file on a DSP server.
@@ -82,7 +79,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # required for the legacy code
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    context = Context(project_json.get("prefixes", {}))
     legacy_project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
@@ -97,7 +93,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         con=con,
     )
     project_iri = cast(str, project_remote.iri)
-    project_iri_lookup = ProjectIriLookup(project_iri)
     if not success:
         overall_success = False
 
@@ -145,14 +140,10 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # create the ontologies
     success = create_ontologies(
-        con=con,
-        context=context,
-        list_name_2_iri=list_name_2_iri,
-        ontology_definitions=legacy_project.ontologies,
-        project_remote=project_remote,
-        verbose=verbose,
         parsed_ontologies=parsed_project.ontologies,
-        project_iri_lookup=project_iri_lookup,
+        list_name_2_iri=list_name_2_iri,
+        project_iri=project_iri,
+        shortcode=parsed_project.project_metadata.shortcode,
         auth=auth,
     )
     if not success:

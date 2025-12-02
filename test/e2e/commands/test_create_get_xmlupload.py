@@ -14,7 +14,7 @@ import regex
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
@@ -46,7 +46,7 @@ def test_directories() -> Generator[dict[str, Path], None, None]:
 
 @pytest.mark.order(1)
 def test_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
-    success = create_project(
+    success = create(
         project_file_as_path_or_parsed=test_project_systematic_file.absolute(),
         creds=creds,
     )

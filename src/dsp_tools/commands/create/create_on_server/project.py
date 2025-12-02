@@ -8,12 +8,16 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadat
 from dsp_tools.commands.create.serialisation.project import serialise_project
 from dsp_tools.error.exceptions import ProjectNotFoundError
 from dsp_tools.error.exceptions import UnableToCreateProject
+from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.request_utils import is_server_error
 
 
 def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient) -> str:
+    info_str = f"Creating project '{project.shortname}' ({project.shortcode})"
+    print(BOLD + info_str + RESET_TO_DEFAULT)
+    logger.debug(info_str)
     client = ProjectClientLive(auth.server, auth)
     try:
         project_iri = client.get_project_iri(project.shortcode)

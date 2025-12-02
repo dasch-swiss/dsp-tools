@@ -12,7 +12,7 @@ from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
@@ -198,7 +198,7 @@ def call_create(args: argparse.Namespace) -> bool:
             success = validate_project(args.project_definition)
             print("JSON project file is syntactically correct and passed validation.")
         case False, False:
-            success = create_project(
+            success = create(
                 project_file_as_path_or_parsed=args.project_definition,
                 creds=get_creds(args),
             )

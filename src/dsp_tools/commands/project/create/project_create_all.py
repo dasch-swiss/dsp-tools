@@ -1,9 +1,5 @@
-"""This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
-of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
-
 from pathlib import Path
 from typing import Any
-from typing import cast
 
 from dotenv import find_dotenv
 from dotenv import load_dotenv
@@ -11,8 +7,6 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.complete_ontologies import create_ontologies
@@ -21,53 +15,19 @@ from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
+from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
-from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
-from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.json_parsing import parse_json_input
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
-def create_project(  # noqa: PLR0912 (Too many branches)
+def create(  # noqa: PLR0912 (Too many branches)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
 ) -> bool:
-    """
-    Creates a project from a JSON project file on a DSP server.
-    A project must contain at least one ontology,
-    and it may contain lists, users, and groups.
-    Severe errors lead to a BaseError,
-    while other errors are printed without interrupting the process.
-
-    Args:
-        project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
-        creds: credentials to connect to the DSP server
-        verbose: prints more information if set to True
-
-    Raises:
-        InputError:
-          - if the project cannot be created
-          - if the login fails
-          - if an ontology cannot be created
-
-        BaseError:
-          - if the input is invalid
-          - if an Excel file referenced in the "lists" section cannot be expanded
-          - if the validation doesn't pass
-
-    Returns:
-        True if everything went smoothly, False if a warning or error occurred
-    """
     overall_success = True
 
     # includes validation
@@ -77,24 +37,10 @@ def create_project(  # noqa: PLR0912 (Too many branches)
             print_problem_collection(problem)
         return False
 
-    # required for the legacy code
-    project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    legacy_project = parse_project_json(project_json)
-
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    con = ConnectionLive(creds.server, auth)
 
-    # create project on DSP server
-    info_str = f"Create project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode}):"
-    print(BOLD + info_str + RESET_TO_DEFAULT)
-    logger.info(info_str)
-    project_remote, success = _create_project_on_server(
-        project_definition=legacy_project.metadata,
-        con=con,
-    )
-    project_iri = cast(str, project_remote.iri)
-    if not success:
-        overall_success = False
+    # create project
+    project_iri = create_project(parsed_project.project_metadata, auth)
 
     # create the lists
     if parsed_project.lists:
@@ -150,12 +96,12 @@ def create_project(  # noqa: PLR0912 (Too many branches)
         overall_success = False
 
     # create the default permissions (DOAPs)
-    perm_client = PermissionsClient(auth, str(project_remote.iri))
+    perm_client = PermissionsClient(auth, project_iri)
     success = create_default_permissions(
-        perm_client,
-        legacy_project.metadata.default_permissions,
-        legacy_project.metadata.default_permissions_overrule,
-        legacy_project.metadata.shortcode,
+        perm_client=perm_client,
+        default_permissions=parsed_project.permissions.default_permissions,
+        default_permissions_overrule=parsed_project.permissions.default_permissions_overrule,
+        shortcode=parsed_project.project_metadata.shortcode,
     )
     if not success:
         overall_success = False
@@ -163,15 +109,15 @@ def create_project(  # noqa: PLR0912 (Too many branches)
     # final steps
     if overall_success:
         msg = (
-            f"Successfully created project '{legacy_project.metadata.shortname}' "
-            f"({legacy_project.metadata.shortcode}) with all its ontologies. "
+            f"Successfully created project '{parsed_project.project_metadata.shortname}' "
+            f"({parsed_project.project_metadata.shortcode}) with all its ontologies. "
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
-            f"The project '{legacy_project.metadata.shortname}' ({legacy_project.metadata.shortcode}) "
+            f"The project '{parsed_project.project_metadata.shortname}' ({parsed_project.project_metadata.shortcode}) "
             f"with its ontologies could be created, "
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
@@ -179,57 +125,3 @@ def create_project(  # noqa: PLR0912 (Too many branches)
         logger.warning(msg)
 
     return overall_success
-
-
-def _create_project_on_server(
-    project_definition: ProjectMetadata,
-    con: Connection,
-) -> tuple[Project, bool]:
-    """
-    Create the project on the DSP server.
-    If it already exists: update its longname, description, and keywords.
-
-    Args:
-        project_definition: object with information about the project
-        con: connection to the DSP server
-
-    Raises:
-        InputError: if the project cannot be created on the DSP server
-
-    Returns:
-        a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
-    """
-    all_projects = Project.getAllProjects(con=con)
-    if remote_project := next((x for x in all_projects if project_definition.shortcode == x.shortcode), None):
-        msg = (
-            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server. "
-            f"No changes were made to the project metadata. "
-            f"Continue with the upload of lists and ontologies ..."
-        )
-        print(f"WARNING: {msg}")
-        logger.warning(msg)
-        return remote_project, False
-
-    success = True
-    project_local = Project(
-        con=con,
-        shortcode=project_definition.shortcode,
-        shortname=project_definition.shortname,
-        longname=project_definition.longname,
-        description=LangString(project_definition.descriptions),  # type: ignore[arg-type]
-        keywords=set(project_definition.keywords) if project_definition.keywords else None,
-        enabled_licenses=set(project_definition.enabled_licenses) if project_definition.enabled_licenses else None,
-        selfjoin=False,
-        status=True,
-    )
-    try:
-        project_remote = project_local.create()
-    except BaseError:
-        err_msg = (
-            f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
-        )
-        logger.exception(err_msg)
-        raise InputError(err_msg) from None
-    print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
-    return project_remote, success

@@ -55,12 +55,12 @@ class TestCreate:
         validate_project.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.create_project")
-    def test_project_create(self, create_project: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.create")
+    def test_project_create(self, create: Mock, check_docker: Mock) -> None:
         args = f"create {PROJECT_JSON_PATH}".split()
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
-        create_project.assert_called_once_with(
+        create.assert_called_once_with(
             project_file_as_path_or_parsed=PROJECT_JSON_PATH,
             creds=creds,
         )

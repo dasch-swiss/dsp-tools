@@ -63,7 +63,6 @@ class TestCreate:
         create_project.assert_called_once_with(
             project_file_as_path_or_parsed=PROJECT_JSON_PATH,
             creds=creds,
-            verbose=False,
         )
 
 

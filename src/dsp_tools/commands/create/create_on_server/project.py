@@ -7,7 +7,7 @@ from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.serialisation.project import serialise_project
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.error.exceptions import UnableToCreateProject
+from dsp_tools.error.exceptions import UnableToCreateProjectError
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.request_utils import is_server_error
@@ -41,6 +41,6 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient) -
         msg = "Due to a server error it was not possible to create the project. "
     else:
         msg = "Unable to create project."
-    raise UnableToCreateProject(
+    raise UnableToCreateProjectError(
         msg + f"\nOriginal response code: {result.status_code}\nOriginal response message: {result.text}"
     )

@@ -25,7 +25,6 @@ from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
-from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
@@ -39,10 +38,9 @@ from dsp_tools.utils.json_parsing import parse_json_input
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
-def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
+def create_project(  # noqa: PLR0912 (Too many branches)
     project_file_as_path_or_parsed: str | Path | dict[str, Any],
     creds: ServerCredentials,
-    verbose: bool = False,
 ) -> bool:
     """
     Creates a project from a JSON project file on a DSP server.
@@ -81,7 +79,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # required for the legacy code
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    context = Context(project_json.get("prefixes", {}))
     legacy_project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)

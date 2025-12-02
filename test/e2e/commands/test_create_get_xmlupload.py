@@ -49,7 +49,6 @@ def test_create_project(creds: ServerCredentials, test_project_systematic_file: 
     success = create_project(
         project_file_as_path_or_parsed=test_project_systematic_file.absolute(),
         creds=creds,
-        verbose=True,
     )
     assert success
 

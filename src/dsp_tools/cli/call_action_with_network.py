@@ -201,6 +201,5 @@ def call_create(args: argparse.Namespace) -> bool:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
                 creds=get_creds(args),
-                verbose=args.verbose,
             )
     return success

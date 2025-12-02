@@ -1,0 +1,177 @@
+# mypy: disable-error-code="no-untyped-def"
+
+from unittest.mock import Mock
+from unittest.mock import patch
+
+import pytest
+
+from dsp_tools.commands.create.create_on_server.project import create_project
+from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
+from dsp_tools.error.exceptions import ProjectNotFoundError
+from dsp_tools.error.exceptions import UnableToCreateProject
+from dsp_tools.utils.request_utils import ResponseCodeAndText
+from test.unittests.commands.create.constants import PROJECT_IRI
+
+
+@pytest.fixture
+def mock_auth() -> Mock:
+    auth = Mock()
+    auth.server = "http://0.0.0.0:3333"
+    return auth
+
+
+@pytest.fixture
+def parsed_project() -> Mock:
+    project = Mock(spec=ParsedProjectMetadata)
+    project.shortcode = "9999"
+    return project
+
+
+@pytest.fixture
+def existing_project_iri() -> str:
+    return PROJECT_IRI
+
+
+@pytest.fixture
+def new_project_iri() -> str:
+    return "http://rdfh.ch/projects/newProjectIRI"
+
+
+@pytest.fixture
+def serialized_project() -> dict[str, str]:
+    return {"shortcode": "9999", "shortname": "test-project"}
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("builtins.input")
+def test_project_exists_user_continues(
+    mock_input: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    existing_project_iri: str,
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = existing_project_iri
+    mock_client_class.return_value = mock_client
+    mock_input.return_value = "y"
+
+    result = create_project(parsed_project, mock_auth)
+
+    assert result == existing_project_iri
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.sys.exit")
+@patch("builtins.input")
+def test_project_exists_user_exits(
+    mock_input: Mock,
+    mock_exit: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    existing_project_iri: str,
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = existing_project_iri
+    mock_client_class.return_value = mock_client
+    mock_input.return_value = "n"
+    mock_exit.side_effect = SystemExit(1)
+
+    with pytest.raises(SystemExit):
+        create_project(parsed_project, mock_auth)
+
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+    mock_exit.assert_called_once_with(1)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.serialise_project")
+def test_project_does_not_exist_successful_creation(
+    mock_serialise: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    new_project_iri: str,
+    serialized_project: dict[str, str],
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
+    mock_client.post_new_project.return_value = new_project_iri
+    mock_client_class.return_value = mock_client
+    mock_serialise.return_value = serialized_project
+
+    result = create_project(parsed_project, mock_auth)
+
+    assert result == new_project_iri
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+    mock_serialise.assert_called_once_with(parsed_project)
+    mock_client.post_new_project.assert_called_once_with(serialized_project)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.serialise_project")
+@patch("dsp_tools.commands.create.create_on_server.project.is_server_error")
+def test_project_does_not_exist_server_error(
+    mock_is_server_error: Mock,
+    mock_serialise: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    serialized_project: dict[str, str],
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
+    error_response = ResponseCodeAndText(status_code=500, text="Internal Server Error")
+    mock_client.post_new_project.return_value = error_response
+    mock_client_class.return_value = mock_client
+    mock_serialise.return_value = serialized_project
+    mock_is_server_error.return_value = True
+
+    with pytest.raises(UnableToCreateProject) as exc_info:
+        create_project(parsed_project, mock_auth)
+
+    assert "server error" in str(exc_info.value)
+    assert "500" in str(exc_info.value)
+    assert "Internal Server Error" in str(exc_info.value)
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+    mock_serialise.assert_called_once_with(parsed_project)
+    mock_client.post_new_project.assert_called_once_with(serialized_project)
+    mock_is_server_error.assert_called_once_with(error_response)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.serialise_project")
+@patch("dsp_tools.commands.create.create_on_server.project.is_server_error")
+def test_project_does_not_exist_client_error(
+    mock_is_server_error: Mock,
+    mock_serialise: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    serialized_project: dict[str, str],
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
+    error_response = ResponseCodeAndText(status_code=400, text="Bad Request")
+    mock_client.post_new_project.return_value = error_response
+    mock_client_class.return_value = mock_client
+    mock_serialise.return_value = serialized_project
+    mock_is_server_error.return_value = False
+
+    with pytest.raises(UnableToCreateProject) as exc_info:
+        create_project(parsed_project, mock_auth)
+
+    assert "Unable to create project" in str(exc_info.value)
+    assert "400" in str(exc_info.value)
+    assert "Bad Request" in str(exc_info.value)
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+    mock_serialise.assert_called_once_with(parsed_project)
+    mock_client.post_new_project.assert_called_once_with(serialized_project)
+    mock_is_server_error.assert_called_once_with(error_response)

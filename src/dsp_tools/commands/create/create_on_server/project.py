@@ -4,7 +4,6 @@ from loguru import logger
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
-from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.serialisation.project import serialise_project
 from dsp_tools.error.exceptions import ProjectNotFoundError

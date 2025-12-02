@@ -187,7 +187,7 @@ class ProjectNotFoundError(CreateError):
     """Class if a project is expected to exist but could not be found."""
 
 
-class UnableToCreateProject(CreateError):
+class UnableToCreateProjectError(CreateError):
     """Class if a project cannot be created."""
 
 

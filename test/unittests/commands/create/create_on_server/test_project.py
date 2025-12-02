@@ -9,7 +9,7 @@ import pytest
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.error.exceptions import UnableToCreateProject
+from dsp_tools.error.exceptions import UnableToCreateProjectError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import PROJECT_IRI
 
@@ -133,7 +133,7 @@ def test_project_does_not_exist_server_error(
     mock_serialise.return_value = serialized_project
     mock_is_server_error.return_value = True
 
-    with pytest.raises(UnableToCreateProject):
+    with pytest.raises(UnableToCreateProjectError):
         create_project(parsed_project, mock_auth)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
@@ -162,7 +162,7 @@ def test_project_does_not_exist_client_error(
     mock_serialise.return_value = serialized_project
     mock_is_server_error.return_value = False
 
-    with pytest.raises(UnableToCreateProject):
+    with pytest.raises(UnableToCreateProjectError):
         create_project(parsed_project, mock_auth)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)

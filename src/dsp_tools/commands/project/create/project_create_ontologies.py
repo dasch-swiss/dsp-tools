@@ -104,11 +104,12 @@ def _create_ontologies_on_server(
         if not project_iri_lookup.does_onto_exist(parsed_onto.name):
             new_ontologies.append(parsed_onto)
     if not new_ontologies:
-        msg = (
-            "No new ontologies were found in the project. "
-            "All ontologies already exist on the server. Continuing adding information to the ontologies."
-        )
-        logger.info(msg)
-        print(BOLD + "    " + msg + RESET_TO_DEFAULT)
+        if project_iri_lookup.onto_iris:
+            msg = (
+                "No new ontologies were found in the project. "
+                "All ontologies already exist on the server. Continuing adding information to the ontologies."
+            )
+            logger.info(msg)
+            print(BOLD + "    " + msg + RESET_TO_DEFAULT)
         return project_iri_lookup, None
     return create_all_ontologies(new_ontologies, project_iri_lookup, client)

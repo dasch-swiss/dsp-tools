@@ -106,7 +106,7 @@ class TestOntoLookup:
             knora-api:lastModificationDate  "2025-12-02T07:25:20.296635591Z"^^xsd:dateTimeStamp ."""
         ontologies = [f"{prefixes}{onto_1}", f"{prefixes}{onto_2}"]
         mock_client = Mock()
-        mock_client.get_ontologies.return_value = (ontologies, [])
+        mock_client.get_ontologies.return_value = (ontologies, [onto_1_iri, onto_2_iri])
         mock_client_class.return_value = mock_client
 
         result = get_project_iri_lookup(API_URL, "1234", PROJECT_IRI)

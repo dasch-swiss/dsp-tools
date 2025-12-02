@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import json
 from dataclasses import dataclass
 from http import HTTPStatus

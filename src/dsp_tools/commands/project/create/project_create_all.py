@@ -21,7 +21,6 @@ from dsp_tools.commands.create.create_on_server.group_users import get_existing_
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
@@ -97,7 +96,6 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
         con=con,
     )
     project_iri = cast(str, project_remote.iri)
-    project_iri_lookup = ProjectIriLookup(project_iri)
     if not success:
         overall_success = False
 
@@ -145,14 +143,10 @@ def create_project(  # noqa: PLR0915,PLR0912 (too many statements & branches)
 
     # create the ontologies
     success = create_ontologies(
-        con=con,
-        context=context,
         list_name_2_iri=list_name_2_iri,
-        ontology_definitions=legacy_project.ontologies,
-        project_remote=project_remote,
-        verbose=verbose,
         parsed_ontologies=parsed_project.ontologies,
-        project_iri_lookup=project_iri_lookup,
+        project_iri=project_iri,
+        shortcode=parsed_project.project_metadata.shortcode,
         auth=auth,
     )
     if not success:

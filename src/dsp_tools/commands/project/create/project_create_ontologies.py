@@ -1,94 +1,50 @@
-from typing import Any
-from typing import Optional
-
 from loguru import logger
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.create_on_server.classes import create_all_classes
+from dsp_tools.commands.create.create_on_server.onto_utils import get_project_iri_lookup
+from dsp_tools.commands.create.create_on_server.ontology import create_all_ontologies
 from dsp_tools.commands.create.create_on_server.properties import create_all_properties
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.commands.project.legacy_models.context import Context
-from dsp_tools.commands.project.legacy_models.ontology import Ontology
-from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BOLD
+from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
-def create_ontologies(  # noqa:PLR0912 Too many branches
-    con: Connection,
-    context: Context,
+def create_ontologies(
     list_name_2_iri: ListNameToIriLookup,
-    ontology_definitions: list[dict[str, Any]],
-    project_remote: Project,
-    verbose: bool,
     parsed_ontologies: list[ParsedOntology],
-    project_iri_lookup: ProjectIriLookup,
+    project_iri: str,
+    shortcode: str,
     auth: AuthenticationClient,
 ) -> bool:
-    """
-    Iterates over the ontologies in a JSON project file and creates the ontologies that don't exist on the DSP server
-    yet. For every ontology, it first creates the resource classes, then the properties, and then adds the cardinalities
-    to the resource classes.
-
-    Args:
-        con: Connection to the DSP server
-        context: prefixes and the ontology IRIs they stand for
-        list_name_2_iri: IRIs of list nodes that were already created and are available on the DSP server
-        ontology_definitions: the "ontologies" section of the parsed JSON project file
-        project_remote: representation of the project on the DSP server
-        verbose: verbose switch
-        parsed_ontologies: parsed ontologies
-        project_iri_lookup: lookup for IRIs
-        auth: Authentication Client
-
-    Raises:
-        InputError: if an error occurs during the creation of an ontology.
-        All other errors are printed, the process continues, but the success status will be false.
-
-    Returns:
-        True if everything went smoothly, False otherwise
-    """
     success_collection = CreatedIriCollection()
     onto_client = OntologyCreateClientLive(auth.server, auth)
-
     overall_success = True
+
     logger.info("Processing Ontology Section")
-    try:
-        project_ontologies = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
-    except BaseError:
-        err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
-        print(f"    WARNING: {err_msg}")
-        logger.exception(err_msg)
-        project_ontologies = []
-
-    for existing_onto in project_ontologies:
-        project_iri_lookup.add_onto(existing_onto.name, existing_onto.iri)
-
-    for ontology_definition in ontology_definitions:
-        ontology_remote = _create_ontology(
-            onto_name=ontology_definition["name"],
-            onto_label=ontology_definition["label"],
-            onto_comment=ontology_definition.get("comment"),
-            project_ontologies=project_ontologies,
-            con=con,
-            project_remote=project_remote,
-            context=context,
-            verbose=verbose,
-        )
-        if not ontology_remote:
-            overall_success = False
-            continue
-        else:
-            project_iri_lookup.add_onto(ontology_remote.name, ontology_remote.iri)
+    project_iri_lookup, ontology_problems = _create_ontologies_on_server(
+        ontologies=parsed_ontologies,
+        project_iri=project_iri,
+        shortcode=shortcode,
+        client=onto_client,
+    )
+    if ontology_problems:
+        overall_success = False
+        print_problem_collection(ontology_problems)
+    if not project_iri_lookup.onto_iris:
+        msg = "No ontologies could be created on the server."
+        logger.error(msg)
+        print(BOLD_RED + msg + RESET_TO_DEFAULT)
+        return False
 
     all_classes = []
     for onto in parsed_ontologies:
@@ -139,73 +95,20 @@ def create_ontologies(  # noqa:PLR0912 Too many branches
     return overall_success
 
 
-def _create_ontology(
-    onto_name: str,
-    onto_label: str,
-    onto_comment: Optional[str],
-    project_ontologies: list[Ontology],
-    con: Connection,
-    project_remote: Project,
-    context: Context,
-    verbose: bool,
-) -> Optional[Ontology]:
-    """
-    Create an ontology on the DSP server,
-    and add the prefixes defined in the JSON file to its context.
-    If the ontology already exists on the DSP server, it is skipped.
-
-    Args:
-        onto_name: name of the ontology
-        onto_label: label of the ontology
-        onto_comment: comment of the ontology
-        project_ontologies: ontologies existing on the DSP server
-        con: Connection to the DSP server
-        project_remote: representation of the project on the DSP server
-        context: prefixes and the ontology IRIs they stand for
-        verbose: verbose switch
-
-    Raises:
-        InputError: if the ontology cannot be created on the DSP server
-
-    Returns:
-        representation of the created ontology on the DSP server, or None if it already existed
-    """
-    # skip if it already exists on the DSP server
-    if onto_name in [onto.name for onto in project_ontologies]:
-        err_msg = f"Ontology '{onto_name}' already exists on the DSP server. Skipping..."
-        print(f"WARNING: {err_msg}")
-        logger.warning(err_msg)
-        return None
-
-    print(BOLD + f"Processing ontology '{onto_name}':" + RESET_TO_DEFAULT)
-    logger.info(f"Processing ontology '{onto_name}'")
-    ontology_local = Ontology(
-        con=con,
-        project=project_remote,
-        label=onto_label,
-        name=onto_name,
-        comment=onto_comment,
-    )
-    try:
-        ontology_remote = ontology_local.create()
-    except BaseError:
-        # if ontology cannot be created, let the error escalate
-        logger.exception(f"ERROR while trying to create ontology '{onto_name}'.")
-        raise InputError(f"ERROR while trying to create ontology '{onto_name}'.") from None
-
-    if verbose:
-        print(f"    Created ontology '{onto_name}'.")
-    logger.info(f"Created ontology '{onto_name}'.")
-
-    context.add_context(
-        ontology_remote.name,
-        ontology_remote.iri + ("" if ontology_remote.iri.endswith("#") else "#"),
-    )
-
-    # add the prefixes defined in the JSON file
-    for onto_prefix, onto_info in context:
-        if onto_info and str(onto_prefix) not in ontology_remote.context:
-            onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
-            ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
-
-    return ontology_remote
+def _create_ontologies_on_server(
+    ontologies: list[ParsedOntology], project_iri: str, shortcode: str, client: OntologyCreateClient
+) -> tuple[ProjectIriLookup, CollectedProblems | None]:
+    project_iri_lookup = get_project_iri_lookup(client.server, shortcode, project_iri)
+    new_ontologies = []
+    for parsed_onto in ontologies:
+        if not project_iri_lookup.does_onto_exist(parsed_onto.name):
+            new_ontologies.append(parsed_onto)
+    if not new_ontologies:
+        msg = (
+            "No new ontologies were found in the project. "
+            "All ontologies already exist on the server. Continuing adding information to the ontologies."
+        )
+        logger.info(msg)
+        print(BOLD + "    " + msg + RESET_TO_DEFAULT)
+        return project_iri_lookup, None
+    return create_all_ontologies(new_ontologies, project_iri_lookup, client)

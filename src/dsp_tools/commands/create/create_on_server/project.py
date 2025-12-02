@@ -19,7 +19,7 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient) -
     try:
         project_iri = client.get_project_iri(project.shortcode)
         msg = (
-            f"A project with the {project.shortcode} already exists on the server. "
+            f"A project with the shortcode '{project.shortcode}' already exists on the server. "
             f"Do you wish to continue uploading additional information? [y/n] "
         )
         logger.debug(msg)

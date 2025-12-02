@@ -21,7 +21,7 @@ def create_all_ontologies(
     client: OntologyCreateClient,
 ) -> tuple[ProjectIriLookup, CollectedProblems | None]:
     logger.debug("Creating ontologies")
-    progress_bar = tqdm(ontologies, "    Creating ontologies", dynamic_ncols=True)
+    progress_bar = tqdm(ontologies, "     Creating ontologies", dynamic_ncols=True)
     problems: list[CreateProblem] = []
     for o in progress_bar:
         result = _create_one_ontology(o, project_iri_lookup.project_iri, client)

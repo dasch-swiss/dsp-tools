@@ -6,7 +6,6 @@ import rustworkx as rx
 from loguru import logger
 from rdflib import OWL
 from rdflib import RDF
-from rdflib import RDFS
 from rdflib import Graph
 from rdflib import URIRef
 

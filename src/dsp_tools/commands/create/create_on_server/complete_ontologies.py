@@ -105,7 +105,7 @@ def _create_ontologies_on_server(
         if not project_iri_lookup.does_onto_exist(parsed_onto.name):
             new_ontologies.append(parsed_onto)
     if not new_ontologies:
-        if project_iri_lookup.onto_iris:
+        if len(ontologies) > 0:
             msg = (
                 "No new ontologies were found in the project. "
                 "All ontologies already exist on the server. Continuing adding information to the ontologies."

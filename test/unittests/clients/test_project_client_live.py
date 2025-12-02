@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Any
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -73,7 +74,7 @@ class TestProjectGetIri:
 
 class TestPostNewProject:
     def test_good(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
-        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response = Mock(status_code=HTTPStatus.OK.value, ok=True, headers={})
         mock_response.json.return_value = {
             "project": {
                 "id": "http://rdfh.ch/projects/0003",
@@ -84,7 +85,7 @@ class TestPostNewProject:
         with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response) as mock_post:
             result = project_client.post_new_project(project_info)
         assert result == "http://rdfh.ch/projects/0003"
-        assert mock_post.call_args.kwargs["url"] == f"{project_client.api_url}/admin/projects"
+        assert mock_post.call_args.args[0] == f"{project_client.api_url}/admin/projects"
         assert mock_post.call_args.kwargs["timeout"] == 30
 
     def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
@@ -93,19 +94,21 @@ class TestPostNewProject:
                 project_client.post_new_project(project_info)
 
     def test_bad_credentials(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
-        mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
+        mock_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 project_client.post_new_project(project_info)
 
     def test_non_ok(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
-        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response = Mock(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, ok=False, headers={}, text="Internal Server Error"
+        )
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.project_client_live.requests.post", return_value=mock_response):
             result = project_client.post_new_project(project_info)
         assert isinstance(result, ResponseCodeAndText)
-        assert result.status_code == 500
+        assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         assert result.text == "Internal Server Error"
 
 

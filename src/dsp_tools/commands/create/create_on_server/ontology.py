@@ -1,5 +1,4 @@
 import time
-from http import HTTPStatus
 
 from loguru import logger
 from tqdm import tqdm
@@ -13,6 +12,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_tools.utils.request_utils import is_server_error
 
 
 def create_all_ontologies(
@@ -44,15 +44,9 @@ def _create_one_ontology(
     serialised = serialise_ontology_graph_for_request(onto, project_iri)
     result = client.post_new_ontology(serialised)
     if isinstance(result, ResponseCodeAndText):
-        if _should_retry_request(result):
+        if is_server_error(result):
+            time.sleep(5)
             result = client.post_new_ontology(serialised)
         if isinstance(result, ResponseCodeAndText):
             return UploadProblem(result.text, UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED)
     return result
-
-
-def _should_retry_request(response: ResponseCodeAndText) -> bool:
-    if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
-        time.sleep(5)
-        return True
-    return False

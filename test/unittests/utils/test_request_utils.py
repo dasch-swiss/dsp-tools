@@ -1,9 +1,12 @@
 import json
 from dataclasses import dataclass
+from http import HTTPStatus
 from typing import Any
 from typing import cast
 from unittest.mock import patch
 
+from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_tools.utils.request_utils import is_server_error
 from dsp_tools.utils.request_utils import log_response
 
 
@@ -31,3 +34,13 @@ class ResponseMock:
 
     def json(self) -> dict[str, Any]:
         return cast(dict[str, Any], json.loads(self.text))
+
+
+class TestIsServerError:
+    def test_bad_request_without_matching_pattern_returns_false(self):
+        response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text="Invalid ontology definition")
+        assert is_server_error(response) is False
+
+    def test_internal_server_error_returns_true(self):
+        response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
+        assert is_server_error(response) is True

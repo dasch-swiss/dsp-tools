@@ -7,7 +7,6 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.commands.create.create_on_server.ontology import _create_one_ontology
-from dsp_tools.commands.create.create_on_server.ontology import _should_retry_request
 from dsp_tools.commands.create.create_on_server.ontology import create_all_ontologies
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import UploadProblem
@@ -33,16 +32,6 @@ def onto_2():
     return ParsedOntology(
         name="onto-2", label="Test Ontology 2", comment=None, classes=[], properties=[], cardinalities=[]
     )
-
-
-class TestShouldRetryRequest:
-    def test_bad_request_without_matching_pattern_returns_false(self):
-        response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text="Invalid ontology definition")
-        assert _should_retry_request(response) is False
-
-    def test_internal_server_error_returns_true(self):
-        response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        assert _should_retry_request(response) is True
 
 
 class TestCreateOneOntology:

@@ -13,7 +13,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client_live import ProjectInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
@@ -160,7 +160,7 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
 
 def _get_live_clients(con: Connection, config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
     ingest_client = BulkIngestedAssetClient()
-    project_client = ProjectInfoClientLive(auth.server)
+    project_client = ProjectClientLive(auth.server)
     list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
     return UploadClients(ingest_client, list_client, legal_info_client)

@@ -18,7 +18,7 @@ from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
-class ProjectInfoClientLive(ProjectInfoClient):
+class ProjectClientLive(ProjectInfoClient):
     api_url: str
 
     def get_project_iri(self, shortcode: str) -> str:

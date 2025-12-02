@@ -5,7 +5,7 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.project_client_live import ProjectInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
@@ -28,7 +28,7 @@ def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any
         print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
         return True
 
-    project_info = ProjectInfoClientLive(creds.server)
+    project_info = ProjectClientLive(creds.server)
     try:
         project_iri = project_info.get_project_iri(project_metadata.shortcode)
     except ProjectNotFoundError:

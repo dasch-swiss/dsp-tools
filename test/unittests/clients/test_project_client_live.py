@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 from http import HTTPStatus
 from typing import Any
 from unittest.mock import Mock
@@ -6,7 +8,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
@@ -21,13 +23,16 @@ def api_url() -> str:
 
 
 @pytest.fixture
-def auth(api_url) -> AuthenticationClientLive:
-    return AuthenticationClientLive(api_url, "email@example.ch", "pw")
+def mock_auth_client() -> Mock:
+    mock = Mock(spec=AuthenticationClient)
+    mock.server = "http://0.0.0.0:3333"
+    mock.get_token.return_value = "test-token-123"
+    return mock
 
 
 @pytest.fixture
-def project_client(api_url: str, auth) -> ProjectClientLive:
-    return ProjectClientLive(server=api_url, auth=auth)
+def project_client(api_url: str, mock_auth_client) -> ProjectClientLive:
+    return ProjectClientLive(server=api_url, auth=mock_auth_client)
 
 
 @pytest.fixture

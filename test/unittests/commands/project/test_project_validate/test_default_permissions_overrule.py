@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.project.create.project_validate import _check_for_invalid_default_permissions_overrule
+from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.error.exceptions import BaseError
 
 

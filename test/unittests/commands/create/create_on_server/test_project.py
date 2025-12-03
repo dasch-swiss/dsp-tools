@@ -13,6 +13,8 @@ from dsp_tools.error.exceptions import UnableToCreateProjectError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import PROJECT_IRI
 
+NEW_PROJECT_IRI = "http://rdfh.ch/projects/newProjectIRI"
+
 
 @pytest.fixture
 def mock_auth() -> Mock:
@@ -29,16 +31,6 @@ def parsed_project() -> Mock:
 
 
 @pytest.fixture
-def existing_project_iri() -> str:
-    return PROJECT_IRI
-
-
-@pytest.fixture
-def new_project_iri() -> str:
-    return "http://rdfh.ch/projects/newProjectIRI"
-
-
-@pytest.fixture
 def serialized_project() -> dict[str, str]:
     return {"shortcode": "9999", "shortname": "test-project"}
 
@@ -50,16 +42,15 @@ def test_project_exists_user_continues(
     mock_client_class: Mock,
     mock_auth: Mock,
     parsed_project: Mock,
-    existing_project_iri: str,
 ):
     mock_client = Mock()
-    mock_client.get_project_iri.return_value = existing_project_iri
+    mock_client.get_project_iri.return_value = PROJECT_IRI
     mock_client_class.return_value = mock_client
     mock_input.return_value = "y"
 
     result = create_project(parsed_project, mock_auth)
 
-    assert result == existing_project_iri
+    assert result == PROJECT_IRI
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
 
@@ -73,10 +64,9 @@ def test_project_exists_user_exits(
     mock_client_class: Mock,
     mock_auth: Mock,
     parsed_project: Mock,
-    existing_project_iri: str,
 ):
     mock_client = Mock()
-    mock_client.get_project_iri.return_value = existing_project_iri
+    mock_client.get_project_iri.return_value = PROJECT_IRI
     mock_client_class.return_value = mock_client
     mock_input.return_value = "n"
     mock_exit.side_effect = SystemExit(1)
@@ -96,18 +86,17 @@ def test_project_does_not_exist_successful_creation(
     mock_client_class: Mock,
     mock_auth: Mock,
     parsed_project: Mock,
-    new_project_iri: str,
     serialized_project: dict[str, str],
 ):
     mock_client = Mock()
     mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
-    mock_client.post_new_project.return_value = new_project_iri
+    mock_client.post_new_project.return_value = NEW_PROJECT_IRI
     mock_client_class.return_value = mock_client
     mock_serialise.return_value = serialized_project
 
     result = create_project(parsed_project, mock_auth)
 
-    assert result == new_project_iri
+    assert result == NEW_PROJECT_IRI
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
     mock_serialise.assert_called_once_with(parsed_project)

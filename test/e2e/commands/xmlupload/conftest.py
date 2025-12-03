@@ -7,7 +7,7 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create
+from dsp_tools.commands.create.project_create_all import create
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 

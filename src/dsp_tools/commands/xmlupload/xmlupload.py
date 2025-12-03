@@ -22,7 +22,7 @@ from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.project_client import ProjectInfoClient
-from dsp_tools.clients.project_client_live import ProjectInfoClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
@@ -197,7 +197,7 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectInfoClient = ProjectInfoClientLive(auth.server)
+    project_client: ProjectInfoClient = ProjectClientLive(auth.server, auth)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(

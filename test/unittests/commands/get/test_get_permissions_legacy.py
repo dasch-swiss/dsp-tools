@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
-from dsp_tools.commands.project.get.get_permissions_legacy import parse_legacy_doaps
+from dsp_tools.commands.get.get_permissions import _parse_default_permissions
+from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.error.exceptions import UnknownDOAPException
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"

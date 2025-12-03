@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.project.create.project_validate import _find_duplicate_listnodes
+from dsp_tools.commands.create.project_validate import _find_duplicate_listnodes
 
 
 @pytest.fixture

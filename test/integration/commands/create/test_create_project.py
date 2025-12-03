@@ -5,13 +5,13 @@ from typing import Any
 import pytest
 import regex
 
-from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_res_and_props
-from dsp_tools.commands.project.create.project_validate import _check_for_undefined_cardinalities
-from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_property
-from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_resource
-from dsp_tools.commands.project.create.project_validate import _collect_link_properties
-from dsp_tools.commands.project.create.project_validate import _identify_problematic_cardinalities
-from dsp_tools.commands.project.create.project_validate import validate_project
+from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
+from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
+from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
+from dsp_tools.commands.create.project_validate import _check_for_undefined_super_resource
+from dsp_tools.commands.create.project_validate import _collect_link_properties
+from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
+from dsp_tools.commands.create.project_validate import validate_project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import JSONFileParsingError

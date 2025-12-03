@@ -7,7 +7,7 @@ import pytest
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
-from dsp_tools.commands.project.legacy_models.ontology import Ontology
+from dsp_tools.commands.get.legacy_models.ontology import Ontology
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)

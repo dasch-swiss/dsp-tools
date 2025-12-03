@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
+from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
 
 
 @pytest.fixture

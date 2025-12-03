@@ -9,12 +9,12 @@ import requests
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 
 
 @pytest.fixture(scope="module")
 def _create_project_0003(creds: ServerCredentials):
-    assert create_project(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
+    assert create(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
 
 
 @pytest.fixture(scope="module")

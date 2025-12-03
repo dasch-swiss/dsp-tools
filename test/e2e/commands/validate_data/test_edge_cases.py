@@ -10,7 +10,7 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -34,9 +34,9 @@ METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds)
-    assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds)
-    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
+    assert create(Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds)
+    assert create(Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds)
+    assert create(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
 
 
 @pytest.fixture(scope="module")

@@ -7,7 +7,7 @@ import requests
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 
 PROJECT_SHORTCODE = "4125"
 E2E_TESTONTO_PREFIX = "e2e-testonto"
@@ -29,7 +29,7 @@ def second_onto_iri(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/generic-e2e-project-4125.json"), creds)
+    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds)
 
 
 @pytest.fixture(scope="module")

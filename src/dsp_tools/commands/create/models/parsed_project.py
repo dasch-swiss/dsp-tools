@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 
@@ -31,7 +30,7 @@ class ParsedProjectMetadata:
 @dataclass
 class ParsedPermissions:
     default_permissions: str
-    default_permissions_overrule: dict[str, Any] | None
+    default_permissions_overrule: dict[str, str | list[str]] | None
 
 
 @dataclass

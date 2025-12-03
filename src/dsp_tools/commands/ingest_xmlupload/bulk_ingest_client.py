@@ -18,6 +18,9 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import Upl
 from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
@@ -45,7 +48,6 @@ class BulkIngestClient:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
-        self.session.headers["Authorization"] = f"Bearer {self.authentication_client.get_token()}"
 
     def upload_file(
         self,
@@ -59,20 +61,25 @@ class BulkIngestClient:
         # noqa: DAR101
         # noqa: DAR201
         """
+        logger.debug(f"Uploading file '{filepath}'")
         timeout = 9 * 60
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
-        headers = {"Content-Type": "application/octet-stream"}
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+        }
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
         try:
-            logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")
             with open(self.imgdir / filepath, "rb") as binary_io:
                 res = self.session.post(
-                    url=url,
-                    headers=headers,
+                    url=params.url,
+                    headers=params.headers,
                     data=binary_io,  # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
-                    timeout=timeout,
+                    timeout=params.timeout,
                 )
-            logger.debug(f"RESPONSE: {res.status_code}")
+            log_response(res)
         except RequestException as e:
             logger.exception(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
@@ -104,9 +111,11 @@ class BulkIngestClient:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
-        logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
-        res = self.session.post(url, timeout=timeout)
-        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
+        headers = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
+        res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
+        log_response(res)
         if res.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
         if res.status_code == HTTPStatus.NOT_FOUND:
@@ -147,9 +156,11 @@ class BulkIngestClient:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
-            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}")
-            res = self.session.get(url, timeout=timeout)
-            logger.debug(f"RESPONSE: {res.status_code}")
+            headers = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
+            params = RequestParameters("GET", url, timeout, headers=headers)
+            log_request(params)
+            res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)
+            log_response(res)
             if res.status_code == HTTPStatus.CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")

@@ -1,6 +1,7 @@
 from typing import Any
 
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
+from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
 
 
@@ -25,3 +26,19 @@ def serialise_one_user_for_creation(user: ParsedUser) -> dict[str, Any]:
         "status": True,
         "systemAdmin": False,
     }
+
+
+def serialise_project(project: ParsedProjectMetadata) -> dict[str, Any]:
+    descriptions = [{"value": value, "language": lang} for lang, value in project.descriptions.items()]
+    info = {
+        "shortcode": project.shortcode,
+        "shortname": project.shortname,
+        "longname": project.longname,
+        "description": descriptions,
+        "keywords": project.keywords,
+        "status": True,
+        "selfjoin": False,
+    }
+    if project.enabled_licenses:
+        info["enabledLicenses"] = project.enabled_licenses
+    return info

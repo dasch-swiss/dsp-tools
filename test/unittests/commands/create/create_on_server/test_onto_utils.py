@@ -111,7 +111,7 @@ class TestOntoLookup:
 
         result = get_project_iri_lookup(API_URL, "1234", PROJECT_IRI)
         assert result.project_iri == PROJECT_IRI
-        expected = {"Ontology": onto_1_iri, "Second Ontology": onto_2_iri}
+        expected = {"onto": onto_1_iri, "second-onto": onto_2_iri}
         assert result.onto_iris == expected
 
     @patch("dsp_tools.commands.create.create_on_server.onto_utils.OntologyGetClientLive")

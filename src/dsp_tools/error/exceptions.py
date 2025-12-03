@@ -187,6 +187,10 @@ class ProjectNotFoundError(CreateError):
     """Class if a project is expected to exist but could not be found."""
 
 
+class UnableToCreateProjectError(CreateError):
+    """Class if a project cannot be created."""
+
+
 class InvalidLicenseError(InputError):
     """This error is raised when a license string cannot be parsed."""
 

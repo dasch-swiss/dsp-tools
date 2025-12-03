@@ -9,7 +9,7 @@ from dsp_tools.commands.project.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.project.get.get_permissions import _get_prefixed_iri
 from dsp_tools.commands.project.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.project.get.get_permissions import _validate_doap_categories
-from dsp_tools.commands.project.models.permissions_models import DoapCategories
+from dsp_tools.commands.project.get.models.permissions_models import DoapCategories
 from dsp_tools.error.exceptions import UnknownDOAPException
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"

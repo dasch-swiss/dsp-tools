@@ -6,7 +6,7 @@ import regex
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.project.get.get_permissions_legacy import parse_legacy_doaps
-from dsp_tools.commands.project.models.permissions_models import DoapCategories
+from dsp_tools.commands.project.get.models.permissions_models import DoapCategories
 from dsp_tools.error.exceptions import UnknownDOAPException
 
 

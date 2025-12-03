@@ -38,4 +38,5 @@ DSP_NAME_TO_PREFIX = {"knora-api": KNORA_API_PREFIX, "salsah-gui": SALSAH_GUI_PR
 API_SHAPES_PREFIX = "http://api.knora.org/ontology/knora-api/shapes/v2#"
 API_SHAPES = Namespace(API_SHAPES_PREFIX)
 DATA = Namespace("http://data/")
-DASH = Namespace("http://datashapes.org/dash#")
+DASH_PREFIX = "http://datashapes.org/dash#"
+DASH = Namespace(DASH_PREFIX)

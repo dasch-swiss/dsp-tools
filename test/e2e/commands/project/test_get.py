@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from dsp_tools.commands.project.get.get import get_project
 
 TESTFILE_PATH = Path("testdata/json-project/generic-e2e-project-4125.json")
@@ -16,7 +16,7 @@ PROJECT_SHORTCODE = "4125"
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create_project(TESTFILE_PATH, creds)
+    assert create(TESTFILE_PATH, creds)
 
 
 @pytest.fixture(scope="module")

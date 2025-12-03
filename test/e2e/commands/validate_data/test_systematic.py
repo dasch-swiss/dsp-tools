@@ -5,14 +5,14 @@ from pathlib import Path
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 
 
 @pytest.fixture(scope="module")
 def create_project_systematic(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/systematic-project-4123.json"), creds)
+    assert create(Path("testdata/json-project/systematic-project-4123.json"), creds)
 
 
 @pytest.fixture(scope="module")

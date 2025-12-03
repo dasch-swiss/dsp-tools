@@ -10,7 +10,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.project.create.project_create_all import create
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.containers import ContainerMetadata
 from test.e2e.setup_testcontainers.setup import get_containers
@@ -56,7 +56,7 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 
 @pytest.fixture(scope="module")
 def _create_project_0001(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json"), creds)
+    assert create(Path("testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json"), creds)
 
 
 @pytest.mark.usefixtures("_create_project_0001")

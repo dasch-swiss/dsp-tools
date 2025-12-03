@@ -7,7 +7,7 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.create.project_create_all import create
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files

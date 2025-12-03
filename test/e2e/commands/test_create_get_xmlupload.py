@@ -13,7 +13,7 @@ import pytest
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.create.project_create_all import create
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig

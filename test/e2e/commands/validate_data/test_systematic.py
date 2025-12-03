@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.create.project_create_all import create
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 

@@ -7,8 +7,8 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import get_creds
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.create.project_create_all import create
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files

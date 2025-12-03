@@ -7,7 +7,7 @@ import requests
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.create.project_create_all import create
+from dsp_tools.commands.create.create import create
 
 PROJECT_SHORTCODE = "4125"
 E2E_TESTONTO_PREFIX = "e2e-testonto"

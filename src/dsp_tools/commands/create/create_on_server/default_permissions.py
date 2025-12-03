@@ -1,9 +1,9 @@
 from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
-from dsp_tools.commands.create.constants import KNORA_ADMIN_STR
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.rdflib_constants import KNORA_ADMIN_PREFIX
 
 
 def create_default_permissions(
@@ -45,14 +45,14 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
 
 def _create_new_doap(perm_client: PermissionsClient, default_permissions: str) -> bool:
     perm = [
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectAdmin", "name": "CR", "permissionCode": None},
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectMember", "name": "D", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
     ]
     if default_permissions == "public":
-        perm.append({"additionalInformation": f"{KNORA_ADMIN_STR}KnownUser", "name": "V", "permissionCode": None})
-        perm.append({"additionalInformation": f"{KNORA_ADMIN_STR}UnknownUser", "name": "V", "permissionCode": None})
+        perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}KnownUser", "name": "V", "permissionCode": None})
+        perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "V", "permissionCode": None})
     payload = {
-        "forGroup": f"{KNORA_ADMIN_STR}ProjectMember",
+        "forGroup": f"{KNORA_ADMIN_PREFIX}ProjectMember",
         "forProject": perm_client.proj_iri,
         "hasPermissions": perm,
     }
@@ -96,8 +96,8 @@ def _create_overrules(
 
 def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | None, prop_iri: str | None) -> bool:
     perm = [
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectAdmin", "name": "CR", "permissionCode": None},
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectMember", "name": "D", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
     ]
     payload = {
         "forProperty": prop_iri,
@@ -112,10 +112,10 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
     # This makes only sense for the knora-api:hasStillImageFileValue property of image classes
     # To set it for all image classes, set img_class_iri to None
     perm = [
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectAdmin", "name": "CR", "permissionCode": None},
-        {"additionalInformation": f"{KNORA_ADMIN_STR}ProjectMember", "name": "D", "permissionCode": None},
-        {"additionalInformation": f"{KNORA_ADMIN_STR}KnownUser", "name": "RV", "permissionCode": None},
-        {"additionalInformation": f"{KNORA_ADMIN_STR}UnknownUser", "name": "RV", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}KnownUser", "name": "RV", "permissionCode": None},
+        {"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "RV", "permissionCode": None},
     ]
     payload = {
         "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",

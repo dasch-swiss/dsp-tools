@@ -26,17 +26,17 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 FILE_TYPE_TO_PROP = {
-    KnoraValueType.ARCHIVE_FILE: f"{KNORA_API_STR}hasArchiveFileValue",
-    KnoraValueType.AUDIO_FILE: f"{KNORA_API_STR}hasAudioFileValue",
-    KnoraValueType.DOCUMENT_FILE: f"{KNORA_API_STR}hasDocumentFileValue",
-    KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_STR}hasMovingImageFileValue",
-    KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_STR}hasStillImageFileValue",
-    KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_STR}hasStillImageFileValue",
-    KnoraValueType.TEXT_FILE: f"{KNORA_API_STR}hasTextFileValue",
+    KnoraValueType.ARCHIVE_FILE: f"{KNORA_API_PREFIX}hasArchiveFileValue",
+    KnoraValueType.AUDIO_FILE: f"{KNORA_API_PREFIX}hasAudioFileValue",
+    KnoraValueType.DOCUMENT_FILE: f"{KNORA_API_PREFIX}hasDocumentFileValue",
+    KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_PREFIX}hasMovingImageFileValue",
+    KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraValueType.TEXT_FILE: f"{KNORA_API_PREFIX}hasTextFileValue",
 }
 
 # Mappers from internal representation to API format

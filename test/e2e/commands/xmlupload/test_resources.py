@@ -10,7 +10,7 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
 from test.e2e.commands.xmlupload.utils import util_get_copyright_holders
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
@@ -134,7 +134,7 @@ class TestResources:
 class TestDspResources:
     @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
     def test_region(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}Region"
+        cls_iri_str = f"{KNORA_API_PREFIX}Region"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
@@ -151,7 +151,7 @@ class TestDspResources:
 
     @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
     def test_link_obj(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}LinkObj"
+        cls_iri_str = f"{KNORA_API_PREFIX}LinkObj"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
@@ -166,7 +166,7 @@ class TestDspResources:
 
     @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
     def test_audio_segment(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}AudioSegment"
+        cls_iri_str = f"{KNORA_API_PREFIX}AudioSegment"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1
@@ -185,7 +185,7 @@ class TestDspResources:
 
     @pytest.mark.usefixtures("_xmlupload_minimal_correct_9999")
     def test_video_segment(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}VideoSegment"
+        cls_iri_str = f"{KNORA_API_PREFIX}VideoSegment"
         g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         resource_iris = list(g.subjects(RDF.type, URIRef(cls_iri_str)))
         expected_number_of_resources = 1

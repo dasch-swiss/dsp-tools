@@ -21,7 +21,7 @@ from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -143,7 +143,7 @@ class TestResource:
         assert len(result.values) == 1
         file_value = result.values.pop(0)
         assert isinstance(file_value, RdfLikeValue)
-        assert file_value.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
+        assert file_value.user_facing_prop == f"{KNORA_API_PREFIX}hasStillImageFileValue"
         assert file_value.user_facing_value == "file.jpg"
         assert file_value.knora_type == KnoraValueType.STILL_IMAGE_FILE
         assert len(file_value.value_metadata) == 4
@@ -331,25 +331,25 @@ class TestValues:
                     {"x": 0.8, "y": 0.9},
                     {"x": 0.7, "y": 0.6}]
                     }"""
-        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", geometry, KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", geometry, KnoraValueType.GEOM_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasGeometry"
         assert res.user_facing_value is not None
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
 
     def test_geom_wrong(self):
-        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "invalid", KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "invalid", KnoraValueType.GEOM_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasGeometry"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
 
     def test_geom_none(self):
-        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", None, KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", None, KnoraValueType.GEOM_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasGeometry"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
@@ -363,7 +363,7 @@ class TestValues:
         assert not res.value_metadata
 
     def test_interval_corr(self):
-        val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
@@ -456,7 +456,7 @@ class TestFileValue:
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
         res = _get_file_value(val, AUTHORSHIP_LOOKUP)
         assert isinstance(res, RdfLikeValue)
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
+        assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasStillImageFileValue"
         assert res.user_facing_value == "https://this/is/a/uri.jpg"
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF
         assert not res.value_metadata

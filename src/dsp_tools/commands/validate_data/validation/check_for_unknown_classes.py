@@ -4,7 +4,7 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
 
 
 def check_for_unknown_resource_classes(
@@ -30,9 +30,9 @@ def check_for_unknown_resource_classes(
 
 def _get_all_onto_classes(rdf_graphs: RDFGraphs) -> set[str]:
     ontos = rdf_graphs.ontos + rdf_graphs.knora_api
-    is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
+    is_resource_iri = URIRef(KNORA_API_PREFIX + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    is_usable = URIRef(KNORA_API_STR + "canBeInstantiated")
+    is_usable = URIRef(KNORA_API_PREFIX + "canBeInstantiated")
     usable_resource_classes = set(ontos.subjects(is_usable, Literal(True)))
     user_facing = usable_resource_classes.intersection(resource_classes)
     return {str(x) for x in user_facing}

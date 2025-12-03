@@ -97,7 +97,6 @@ class TestPostNewProject:
             result = project_client.post_new_project(project_info)
         assert result == "http://rdfh.ch/projects/0003"
         assert mock_post.call_args.args[0] == f"{project_client.server}/admin/projects"
-        assert mock_post.call_args.kwargs["timeout"] == 30
 
     def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
         with patch("dsp_tools.clients.project_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):

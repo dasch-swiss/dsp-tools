@@ -1,8 +1,8 @@
 from typing import Optional
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.project.legacy_models.group import Group
-from dsp_tools.commands.project.legacy_models.project import Project
+from dsp_tools.commands.project.get.legacy_models import Group
+from dsp_tools.commands.project.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 
 

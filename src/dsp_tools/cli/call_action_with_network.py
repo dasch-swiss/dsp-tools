@@ -11,10 +11,10 @@ from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
 from dsp_tools.commands.create.project_validate import validate_project
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
+from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler

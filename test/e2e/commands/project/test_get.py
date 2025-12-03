@@ -8,7 +8,7 @@ import pytest
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
-from dsp_tools.commands.project.get.get import get_project
+from dsp_tools.commands.get.get import get_project
 
 TESTFILE_PATH = Path("testdata/json-project/generic-e2e-project-4125.json")
 PROJECT_SHORTCODE = "4125"

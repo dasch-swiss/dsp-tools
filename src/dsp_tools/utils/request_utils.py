@@ -19,8 +19,8 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.commands.project.get.legacy_models.context import Context
-from dsp_tools.commands.project.get.legacy_models.helpers import OntoIri
+from dsp_tools.commands.get.legacy_models.context import Context
+from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import DspToolsRequestException

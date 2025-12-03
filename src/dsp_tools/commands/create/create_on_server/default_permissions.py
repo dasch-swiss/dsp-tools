@@ -1,6 +1,6 @@
 from loguru import logger
 
-from dsp_tools.commands.project.models.permissions_client import PermissionsClient
+from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 

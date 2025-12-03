@@ -8,8 +8,10 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
+from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.complete_ontologies import create_ontologies
+from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
 from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
@@ -18,8 +20,6 @@ from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.commands.project.create.project_create_default_permissions import create_default_permissions
-from dsp_tools.commands.project.models.permissions_client import PermissionsClient
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 

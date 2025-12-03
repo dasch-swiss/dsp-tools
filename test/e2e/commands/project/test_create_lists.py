@@ -8,8 +8,8 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.project.create.project_create_all import create
 
 
 @pytest.fixture(scope="module")

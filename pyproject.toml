@@ -102,18 +102,8 @@ show_column_numbers = true
 strict = true
 enable_error_code = ["possibly-undefined"]
 exclude = [
-    "src/dsp_tools/legacy_models/datetimestamp.py",
-    "src/dsp_tools/legacy_models/langstring.py",
-    "src/dsp_tools/legacy_models/projectContext.py",
-    "src/dsp_tools/commands/project/legacy_models/context.py",
-    "src/dsp_tools/commands/project/legacy_models/group.py",
-    "src/dsp_tools/commands/project/legacy_models/helpers.py",
-    "src/dsp_tools/commands/project/legacy_models/listnode.py",
-    "src/dsp_tools/commands/project/legacy_models/ontology.py",
-    "src/dsp_tools/commands/project/legacy_models/project.py",
-    "src/dsp_tools/commands/project/legacy_models/propertyclass.py",
-    "src/dsp_tools/commands/project/legacy_models/resourceclass.py",
-    "src/dsp_tools/commands/project/legacy_models/user.py",
+    "src/dsp_tools/legacy_models/*",
+    "src/dsp_tools/commands/get/legacy_models/*",
 ]
 
 

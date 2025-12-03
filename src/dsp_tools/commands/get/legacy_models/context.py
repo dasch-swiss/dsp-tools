@@ -4,8 +4,8 @@ from typing import Optional
 
 import regex
 
-from dsp_tools.commands.project.legacy_models.helpers import ContextType
-from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.commands.get.legacy_models.helpers import ContextType
+from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.data_formats.iri_util import is_iri
 

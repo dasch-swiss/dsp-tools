@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any
 from typing import cast
 
 import requests
@@ -43,12 +42,14 @@ class ProjectClientLive(ProjectInfoClient):
 
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/admin/projects"
-        timeout = 30
-        params = RequestParameters("POST", url, timeout, data=project_info)
+        timeout = 10
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, timeout, headers=headers, data=project_info)
         log_request(params)
         try:
-            response = requests.post(params.url, timeout=params.timeout, headers=headers, data=params.data_serialized)
+            response = requests.post(
+                params.url, timeout=params.timeout, headers=params.headers, data=params.data_serialized
+            )
         except RequestException as err:
             log_and_raise_request_exception(err)
 

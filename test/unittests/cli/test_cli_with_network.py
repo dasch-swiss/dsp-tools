@@ -31,6 +31,7 @@ class TestCreate:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_from_project")
     def test_lists_validate(self, validate_lists_section_from_project: Mock, check_docker: Mock) -> None:
+        validate_lists_section_from_project.return_value = (True, {})
         args = f"create --lists-only --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
         validate_lists_section_from_project.assert_called_once_with(PROJECT_JSON_PATH)
@@ -50,6 +51,7 @@ class TestCreate:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.parse_and_validate_project")
     def test_project_validate(self, parse_and_validate_project: Mock, check_docker: Mock) -> None:
+        parse_and_validate_project.return_value = (True, {})
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
         parse_and_validate_project.assert_called_once_with(PROJECT_JSON_PATH)

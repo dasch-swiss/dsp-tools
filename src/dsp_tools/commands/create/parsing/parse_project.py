@@ -28,9 +28,9 @@ load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def parse_lists_only(
-    project_file_as_path_or_parsed: str | Path | dict[str, Any],
+    project_file: Path,
 ) -> tuple[ParsedProjectMetadata, list[ParsedList]] | CollectedProblems:
-    complete_json = _parse_and_validate(project_file_as_path_or_parsed)
+    complete_json = _parse_and_validate(project_file)
     project_json = complete_json["project"]
     project_metadata = _parse_metadata(project_json)
     parsed_lists, problems = _parse_lists(project_json)
@@ -39,10 +39,8 @@ def parse_lists_only(
     return project_metadata, parsed_lists
 
 
-def parse_project(
-    project_file_as_path_or_parsed: str | Path | dict[str, Any], api_url: str
-) -> ParsedProject | list[CollectedProblems]:
-    complete_json = _parse_and_validate(project_file_as_path_or_parsed)
+def parse_project(project_file: Path, api_url: str) -> ParsedProject | list[CollectedProblems]:
+    complete_json = _parse_and_validate(project_file)
     return _parse_project(complete_json, api_url)
 
 

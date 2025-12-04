@@ -192,15 +192,15 @@ def call_create(args: argparse.Namespace) -> bool:
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
             success = create_lists_only(
-                project_file_as_path_or_parsed=project_file,
+                project_file=project_file,
                 creds=get_creds(args),
             )
         case False, True:
-            success = parse_and_validate_project(project_file)
+            success, _ = parse_and_validate_project(project_file)
             print("JSON project file is syntactically correct and passed validation.")
         case False, False:
             success = create(
-                project_file_as_path_or_parsed=project_file,
+                project_json=project_file,
                 creds=get_creds(args),
             )
     return success

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 from dotenv import find_dotenv
 from dotenv import load_dotenv
@@ -25,13 +24,12 @@ load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def create(  # noqa: PLR0912 (Too many branches)
-    project_file_as_path_or_parsed: str | Path | dict[str, Any],
-    creds: ServerCredentials,
+    project_json: Path, creds: ServerCredentials
 ) -> bool:
     overall_success = True
 
     # includes validation
-    parsed_project = parse_project(project_file_as_path_or_parsed, creds.server)
+    parsed_project = parse_project(project_json, creds.server)
     if not isinstance(parsed_project, ParsedProject):
         for problem in parsed_project:
             print_problem_collection(problem)

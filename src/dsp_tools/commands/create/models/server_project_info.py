@@ -4,8 +4,8 @@ from dataclasses import field
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.error.exceptions import InternalError
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 
 
 @dataclass
@@ -75,7 +75,7 @@ class CreatedIriCollection:
     failed_properties: set[str] = field(default_factory=set)
 
     def __post_init__(self) -> None:
-        self.created_properties.update({f"{KNORA_API_STR}seqnum", f"{KNORA_API_STR}isPartOf"})
+        self.created_properties.update({f"{KNORA_API_PREFIX}seqnum", f"{KNORA_API_PREFIX}isPartOf"})
 
     def any_properties_failed(self, props: set[str]) -> bool:
         return bool(props.intersection(self.failed_properties))

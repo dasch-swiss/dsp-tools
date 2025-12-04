@@ -7,7 +7,7 @@ from pathlib import Path
 
 from rdflib import Graph
 
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 
 @dataclass

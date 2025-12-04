@@ -3,7 +3,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 

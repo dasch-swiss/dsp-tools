@@ -12,7 +12,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 # values that need special considerations during the graph construction

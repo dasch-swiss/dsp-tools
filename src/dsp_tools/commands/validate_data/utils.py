@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 
 def get_temp_directory() -> TemporaryDirectory[str]:

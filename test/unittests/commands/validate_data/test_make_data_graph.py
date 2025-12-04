@@ -17,11 +17,11 @@ from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_resource
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_value
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_property_objects_graph
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import DATA
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import DATA
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -283,7 +283,7 @@ class TestIntervalValue:
         seg_start = PropertyObject(TriplePropertyType.KNORA_INTERVAL_START, "1", TripleObjectType.DECIMAL)
         seg_end = PropertyObject(TriplePropertyType.KNORA_INTERVAL_END, "2", TripleObjectType.DECIMAL)
         val = RdfLikeValue(
-            user_facing_prop=f"{KNORA_API_STR}hasSegmentBounds",
+            user_facing_prop=f"{KNORA_API_PREFIX}hasSegmentBounds",
             user_facing_value=None,
             knora_type=KnoraValueType.INTERVAL_VALUE,
             value_metadata=[seg_start, seg_end],
@@ -433,7 +433,7 @@ def test_make_property_objects_graph():
 class TestFileValue:
     def test_make_file_value_graph_real_file(self):
         file_value = RdfLikeValue(
-            user_facing_prop=f"{KNORA_API_STR}hasArchiveFileValue",
+            user_facing_prop=f"{KNORA_API_PREFIX}hasArchiveFileValue",
             user_facing_value="test.zip",
             knora_type=KnoraValueType.ARCHIVE_FILE,
             value_metadata=[],
@@ -447,7 +447,7 @@ class TestFileValue:
     def test_make_file_value_graph_iiif_uri(self):
         uri = "https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"
         file_value = RdfLikeValue(
-            user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
+            user_facing_prop=f"{KNORA_API_PREFIX}hasStillImageFileValue",
             user_facing_value=uri,
             knora_type=KnoraValueType.STILL_IMAGE_IIIF,
             value_metadata=[],

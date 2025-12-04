@@ -1,7 +1,7 @@
 from rdflib import XSD
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 # paths for the validation files used by the docker container
 

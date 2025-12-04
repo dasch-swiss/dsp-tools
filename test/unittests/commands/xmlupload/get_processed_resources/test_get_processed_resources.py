@@ -36,7 +36,7 @@ from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
 from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -475,11 +475,11 @@ class TestValues:
         assert not result.comment
 
     def test_geometry_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeometry)
         assert result.value == "{}"
-        assert result.prop_iri == f"{KNORA_API_STR}hasGeometry"
+        assert result.prop_iri == f"{KNORA_API_PREFIX}hasGeometry"
         assert not result.permissions
         assert not result.comment
 
@@ -502,12 +502,12 @@ class TestValues:
         assert not result.comment
 
     def test_interval_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedInterval)
         assert result.value.start == 1.0
         assert result.value.end == 2.0
-        assert result.prop_iri == f"{KNORA_API_STR}hasSegmentBounds"
+        assert result.prop_iri == f"{KNORA_API_PREFIX}hasSegmentBounds"
         assert not result.permissions
         assert not result.comment
 

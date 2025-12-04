@@ -31,7 +31,7 @@ from dsp_tools.commands.validate_data.validate_data import _get_validation_statu
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
-from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 

@@ -183,23 +183,23 @@ def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies([Path(args.project_definition)])
     check_input_dependencies(path_dependencies, network_dependencies)
-
+    file_path = Path(args.project_definition)
     success = False
     match args.lists_only, args.validate_only:
         case True, True:
-            success = validate_lists_section_with_schema(args.project_definition)
+            success = validate_lists_section_with_schema(file_path)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
             success = create_lists_only(
-                project_file_as_path_or_parsed=args.project_definition,
+                project_file_as_path_or_parsed=file_path,
                 creds=get_creds(args),
             )
         case False, True:
-            success = validate_project(args.project_definition)
+            success = validate_project(file_path)
             print("JSON project file is syntactically correct and passed validation.")
         case False, False:
             success = create(
-                project_file_as_path_or_parsed=args.project_definition,
+                project_file_as_path_or_parsed=file_path,
                 creds=get_creds(args),
             )
     return success

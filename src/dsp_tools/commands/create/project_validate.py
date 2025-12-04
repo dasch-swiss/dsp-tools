@@ -4,7 +4,6 @@ import importlib.resources
 import json
 from pathlib import Path
 from typing import Any
-from typing import Union
 
 import jsonpath_ng
 import jsonpath_ng.ext
@@ -12,78 +11,20 @@ import jsonschema
 import networkx as nx
 import regex
 
+from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.json_parsing import parse_json_input
 
 
-def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
-    """
-    Validates a JSON project definition file.
+def validate_project(input_file: Path) -> bool:
+    project_definition = parse_json_input(input_file)
+    return _call_all_validation(project_definition, str(input_file))
 
-    First, the Excel files referenced in the "lists" section are expanded
-    (unless this behaviour is disabled).
 
-    Then, the project is validated against the JSON schema.
-
-    Next, some checks are performed that are too complex for JSON schema.
-
-    At last, a check is performed
-    if this project's ontologies contain properties derived from hasLinkTo
-    that form a circular reference.
-    If so, these properties must have the cardinality 0-1 or 0-n,
-    because during the xmlupload process,
-    these values are temporarily removed.
-
-    Args:
-        input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
-
-    Raises:
-        BaseError: detailed error report if the validation doesn't pass
-
-    Returns:
-        True if the project passed validation.
-    """
-
-    # parse input
-    if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
-        project_definition = input_file_or_json
-    elif (
-        isinstance(input_file_or_json, str)
-        and Path(input_file_or_json).is_file()
-        and regex.search(r"\.json$", input_file_or_json)
-    ):
-        with open(input_file_or_json, encoding="utf-8") as f:
-            project_definition = json.load(f)
-    else:
-        raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
-
+def _call_all_validation(project_definition: dict[str, Any], filepath: str) -> bool:
     # validate the project definition against the schema
-    with (
-        importlib.resources.files("dsp_tools")
-        .joinpath("resources/schema/project.json")
-        .open(encoding="utf-8") as schema_file
-    ):
-        project_schema = json.load(schema_file)
-    try:
-        jsonschema.validate(instance=project_definition, schema=project_schema)
-    except jsonschema.ValidationError as err:
-        # Check for the specific case of missing 'default_permissions'
-        if "'default_permissions' is a required property" in err.message:
-            raise BaseError("You forgot to specify the 'default_permissions'") from None
-        # Check for the specific case of private permissions with overrule
-        if (
-            "should not be valid under {'required': ['default_permissions_overrule']}" in err.message
-            and project_definition.get("project", {}).get("default_permissions") == "private"
-        ):
-            raise BaseError(
-                "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
-                "Private permissions cannot be overruled."
-            ) from None
-
-        raise BaseError(
-            f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
-            f"The error occurred at {err.json_path}:\n{err.instance}"
-        ) from None
+    _validate_project_json_with_schema(project_definition, filepath)
 
     # make some checks that are too complex for JSON schema
     _check_for_invalid_default_permissions_overrule(project_definition)
@@ -97,6 +38,37 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
+
+
+def _validate_project_json_with_schema(project_definition: dict[str, Any], filepath: str) -> None:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/project.json")
+        .open(encoding="utf-8") as schema_file
+    ):
+        project_schema = json.load(schema_file)
+    try:
+        jsonschema.validate(instance=project_definition, schema=project_schema)
+    except jsonschema.ValidationError as err:
+        # Check for the specific case of missing 'default_permissions'
+        if "'default_permissions' is a required property" in err.message:
+            raise ProjectJsonSchemaValidationError(
+                filepath, "You forgot to specify the 'default_permissions'"
+            ) from None
+        # Check for the specific case of private permissions with overrule
+        if (
+            "should not be valid under {'required': ['default_permissions_overrule']}" in err.message
+            and project_definition.get("project", {}).get("default_permissions") == "private"
+        ):
+            raise ProjectJsonSchemaValidationError(
+                filepath,
+                "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
+                "Private permissions cannot be overruled.",
+            ) from None
+
+        raise ProjectJsonSchemaValidationError(
+            filepath, f"{err.message}.\nThe error occurred at {err.json_path}:\n{err.instance}"
+        ) from None
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:

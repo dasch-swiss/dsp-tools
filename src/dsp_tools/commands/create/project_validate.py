@@ -11,6 +11,7 @@ import jsonschema
 import networkx as nx
 import regex
 
+from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
@@ -548,7 +549,7 @@ def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bo
         for prop_duplicate in sorted(prop_duplicates):
             err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
 
-    raise BaseError(err_msg)
+    raise DuplicateClassAndPropertiesError(err_msg)
 
 
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:

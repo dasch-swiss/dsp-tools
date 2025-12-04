@@ -44,6 +44,11 @@ class UndefinedPropertyInCardinalityError(UserError):
         super().__init__(err_msg)
 
 
+class DuplicateClassAndPropertiesError(UserError):
+    def __init__(self, msg: str) -> None:
+        super().__init__(msg)
+
+
 class CircularOntologyDependency(UserError):
     """Class if a circular dependency was found in the ontology."""
 

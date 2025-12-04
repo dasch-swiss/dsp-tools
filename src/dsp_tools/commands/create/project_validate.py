@@ -4,7 +4,6 @@ import importlib.resources
 import json
 from pathlib import Path
 from typing import Any
-from typing import Union
 
 import jsonpath_ng
 import jsonpath_ng.ext
@@ -14,49 +13,15 @@ import regex
 
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.json_parsing import parse_json_file
 
 
-def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
-    """
-    Validates a JSON project definition file.
+def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]]:
+    project_definition = parse_json_file(project_file)
+    return _validate_parsed_project(project_definition), project_definition
 
-    First, the Excel files referenced in the "lists" section are expanded
-    (unless this behaviour is disabled).
 
-    Then, the project is validated against the JSON schema.
-
-    Next, some checks are performed that are too complex for JSON schema.
-
-    At last, a check is performed
-    if this project's ontologies contain properties derived from hasLinkTo
-    that form a circular reference.
-    If so, these properties must have the cardinality 0-1 or 0-n,
-    because during the xmlupload process,
-    these values are temporarily removed.
-
-    Args:
-        input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
-
-    Raises:
-        BaseError: detailed error report if the validation doesn't pass
-
-    Returns:
-        True if the project passed validation.
-    """
-
-    # parse input
-    if isinstance(input_file_or_json, dict) and "project" in input_file_or_json:
-        project_definition = input_file_or_json
-    elif (
-        isinstance(input_file_or_json, str)
-        and Path(input_file_or_json).is_file()
-        and regex.search(r"\.json$", input_file_or_json)
-    ):
-        with open(input_file_or_json, encoding="utf-8") as f:
-            project_definition = json.load(f)
-    else:
-        raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
-
+def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
     # validate the project definition against the schema
     with (
         importlib.resources.files("dsp_tools")

@@ -15,9 +15,9 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.shared import simplify_name
+from dsp_tools.utils.json_parsing import parse_json_file
 
 
 def old_excel2lists(
@@ -274,49 +274,23 @@ def _read_and_check_workbook(excelpath: Path) -> Worksheet:
     return all_worksheets[0]
 
 
-def validate_lists_section_with_schema(
-    path_to_json_project_file: Optional[str] = None,
-    lists_section: Optional[list[dict[str, Any]]] = None,
-) -> bool:
-    """
-    This function checks if a "lists" section of a JSON project is valid according to the schema. The "lists" section
-    can be passed as path to the JSON project file, or as Python object. Only one of the two arguments should be passed.
+def validate_lists_section_from_project(project_file: Path) -> bool:
+    project = parse_json_file(project_file)
+    lists_section = project["project"].get("lists")
+    if not lists_section:
+        raise InputError(
+            f"Cannot validate 'lists' section of {project_file}, because there is no 'lists' section in this file."
+        )
+    return validate_lists_section_with_schema(lists_section)
 
-    Args:
-        path_to_json_project_file: path to the JSON project file that contains the "lists" section to validate
-        lists_section: the "lists" section as Python object
 
-    Raises:
-        InputError: if the validation fails
-        BaseError: if this function is called with invalid parameters
-
-    Returns:
-        True if the "lists" section passed validation
-    """
-    err_msg = "Validation of the 'lists' section works only if exactly one of the two arguments is given."
-    match path_to_json_project_file, lists_section:
-        case None, None:
-            raise BaseError(err_msg)
-        case str(), list():
-            raise BaseError(err_msg)
-
+def validate_lists_section_with_schema(lists_section: list[dict[str, Any]]) -> bool:
     with (
         importlib.resources.files("dsp_tools")
         .joinpath("resources/schema/lists-only.json")
         .open(encoding="utf-8") as schema_file
     ):
         lists_schema = json.load(schema_file)
-
-    if path_to_json_project_file:
-        with open(path_to_json_project_file, encoding="utf-8") as f:
-            project = json.load(f)
-            lists_section = project["project"].get("lists")
-            if not lists_section:
-                raise InputError(
-                    f"Cannot validate 'lists' section of {path_to_json_project_file}, "
-                    "because there is no 'lists' section in this file."
-                )
-
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
@@ -324,7 +298,6 @@ def validate_lists_section_with_schema(
             f"'lists' section did not pass validation. The error message is: {err.message}\n"
             f"The error occurred at {err.json_path}"
         ) from None
-
     return True
 
 

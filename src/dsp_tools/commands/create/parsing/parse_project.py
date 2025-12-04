@@ -22,16 +22,15 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShip
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
-from dsp_tools.commands.create.project_validate import validate_project
-from dsp_tools.utils.json_parsing import parse_json_input
+from dsp_tools.commands.create.project_validate import parse_and_validate_project
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def parse_lists_only(
-    project_file_as_path_or_parsed: str | Path | dict[str, Any],
+    project_file: Path,
 ) -> tuple[ParsedProjectMetadata, list[ParsedList]] | CollectedProblems:
-    complete_json = _parse_and_validate(project_file_as_path_or_parsed)
+    complete_json = _parse_and_validate(project_file)
     project_json = complete_json["project"]
     project_metadata = _parse_metadata(project_json)
     parsed_lists, problems = _parse_lists(project_json)
@@ -40,10 +39,8 @@ def parse_lists_only(
     return project_metadata, parsed_lists
 
 
-def parse_project(
-    project_file_as_path_or_parsed: str | Path | dict[str, Any], api_url: str
-) -> ParsedProject | list[CollectedProblems]:
-    complete_json = _parse_and_validate(project_file_as_path_or_parsed)
+def parse_project(project_file: Path, api_url: str) -> ParsedProject | list[CollectedProblems]:
+    complete_json = _parse_and_validate(project_file)
     return _parse_project(complete_json, api_url)
 
 
@@ -71,9 +68,8 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
     )
 
 
-def _parse_and_validate(project_file_as_path_or_parsed: str | Path | dict[str, Any]) -> dict[str, Any]:
-    project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    validate_project(project_json)
+def _parse_and_validate(json_file: Path) -> dict[str, Any]:
+    _, project_json = parse_and_validate_project(json_file)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
     return project_json

@@ -11,12 +11,12 @@ from dsp_tools.commands.create.project_validate import _check_for_undefined_supe
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_resource
 from dsp_tools.commands.create.project_validate import _collect_link_properties
 from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
-from dsp_tools.commands.create.project_validate import validate_project
+from dsp_tools.commands.create.project_validate import _validate_parsed_project
+from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import JSONFileParsingError
-from dsp_tools.error.exceptions import UserFilepathNotFoundError
-from dsp_tools.utils.json_parsing import parse_json_input
+from dsp_tools.utils.json_parsing import parse_json_file
 
 
 @pytest.fixture
@@ -42,19 +42,16 @@ def tp_circular_ontology() -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
-    assert validate_project(tp_systematic) is True
-
-    with pytest.raises(BaseError, match=regex.escape("Input 'fantasy.xyz' is neither a file path nor a JSON object.")):
-        validate_project("fantasy.xyz")
+    assert _validate_parsed_project(tp_systematic) is True
 
     with pytest.raises(BaseError, match=regex.escape("validation error: 'hasColor' does not match")):
-        validate_project("testdata/invalid-testdata/json-project/invalid-super-property.json")
+        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
 
     with pytest.raises(BaseError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
-        validate_project(tp_circular_ontology)
+        _validate_parsed_project(tp_circular_ontology)
 
     with pytest.raises(InputError, match=regex.escape("Listnode names must be unique across all lists")):
-        validate_project("testdata/invalid-testdata/json-project/duplicate-listnames.json")
+        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
@@ -115,18 +112,12 @@ def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> No
     assert sorted(errors) == sorted(expected_errors)
 
 
-def test_parse_json_input_file_not_found() -> None:
-    err_msg = regex.escape("The provided filepath does not exist: foo/bar")
-    with pytest.raises(UserFilepathNotFoundError, match=err_msg):
-        parse_json_input(Path("foo/bar"))
-
-
-def test_parse_json_input_invalid_file() -> None:
+def test_parse_json_file_invalid_file() -> None:
     err_msg = regex.escape(
         "The input file 'testdata/xml-data/test-data-systematic-4123.xml' cannot be parsed to a JSON object."
     )
     with pytest.raises(JSONFileParsingError, match=err_msg):
-        parse_json_input("testdata/xml-data/test-data-systematic-4123.xml")
+        parse_json_file(Path("testdata/xml-data/test-data-systematic-4123.xml"))
 
 
 def test_check_for_duplicate_resources() -> None:

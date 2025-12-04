@@ -10,6 +10,7 @@ import jsonpath_ng.ext
 import jsonschema
 import networkx as nx
 import regex
+from loguru import logger
 
 from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
 from dsp_tools.commands.create.exceptions import DuplicateListNamesError
@@ -42,6 +43,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.ValidationError as err:
+        logger.error(err)
         # Check for the specific case of missing 'default_permissions'
         if "'default_permissions' is a required property" in err.message:
             raise ProjectJsonSchemaValidationError("You forgot to specify the 'default_permissions'") from None

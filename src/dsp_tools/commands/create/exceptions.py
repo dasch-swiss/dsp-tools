@@ -49,6 +49,13 @@ class DuplicateClassAndPropertiesError(UserError):
         super().__init__(msg)
 
 
+class DuplicateListNamesError(UserError):
+    def __init__(self, duplicates: set[str]) -> None:
+        err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
+        err_msg += "\n - " + "\n - ".join(duplicates)
+        super().__init__(err_msg)
+
+
 class CircularOntologyDependency(UserError):
     """Class if a circular dependency was found in the ontology."""
 

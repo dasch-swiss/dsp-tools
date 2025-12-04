@@ -12,13 +12,13 @@ import networkx as nx
 import regex
 
 from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
+from dsp_tools.commands.create.exceptions import DuplicateListNamesError
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
 from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
 from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -554,9 +554,7 @@ def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bo
 
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
     if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
-        err_msg += "\n - " + "\n - ".join(listnode_duplicates)
-        raise InputError(err_msg)
+        raise DuplicateListNamesError(listnode_duplicates)
 
 
 def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)

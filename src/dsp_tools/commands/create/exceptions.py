@@ -59,6 +59,23 @@ class DuplicateListNamesError(UserError):
         super().__init__(err_msg)
 
 
+class MinCardinalityOneWithCircleError(UserError):
+    """Class if a circular dependency was found in the ontology."""
+
+    def __init__(self, circles: list[tuple[str, str]]) -> None:
+        error_message = (
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "between resources. This is not a problem in itself, but if you try to upload data that actually "
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+            "cardinality of 0-1 or 0-n. \n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+        )
+        for error in circles:
+            error_message = f"{error_message}\n    - Resource {error[0]}, property {error[1]}"
+        super().__init__(error_message)
+
+
 class CircularOntologyDependency(UserError):
     """Class if a circular dependency was found in the ontology."""
 

@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def"
 import json
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,7 @@ import regex
 
 from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
 from dsp_tools.commands.create.exceptions import DuplicateListNamesError
+from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
 from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
@@ -45,17 +47,26 @@ def tp_circular_ontology() -> dict[str, Any]:
     return tp_circular_ontology
 
 
-def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
+def test_validate_project(tp_systematic: dict[str, Any]) -> None:
     assert _validate_parsed_project(tp_systematic) is True
 
+
+def test_json_schema_validation_error():
     with pytest.raises(
         ProjectJsonSchemaValidationError, match=regex.escape("validation error: 'hasColor' does not match")
     ):
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
 
-    with pytest.raises(ValueError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
+
+def test_circular_reference_error(tp_circular_ontology):
+    with pytest.raises(
+        MinCardinalityOneWithCircleError,
+        match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'"),
+    ):
         _validate_parsed_project(tp_circular_ontology)
 
+
+def test_duplicate_list_error():
     with pytest.raises(DuplicateListNamesError, match=regex.escape("Listnode names must be unique across all lists")):
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
 

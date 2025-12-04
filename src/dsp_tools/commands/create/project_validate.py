@@ -14,11 +14,11 @@ import regex
 from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
 from dsp_tools.commands.create.exceptions import DuplicateListNamesError
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
+from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
 from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
 from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -360,38 +360,12 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
-    """
-    Check a JSON project file if it contains properties derived from hasLinkTo that form a circular reference. If so,
-    these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
-    are temporarily removed.
-
-    Args:
-        project_definition: dictionary with a DSP project (as defined in a JSON project file)
-
-    Raises:
-        BaseError: if there is a circle with at least one element that has a cardinality of "1" or "1-n"
-
-    Returns:
-        True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
-    """
-
     link_properties = _collect_link_properties(project_definition)
     errors = _identify_problematic_cardinalities(project_definition, link_properties)
 
     if len(errors) == 0:
         return True
-
-    error_message = (
-        "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
-        "between resources. This is not a problem in itself, but if you try to upload data that actually "
-        "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
-        "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-        "cardinality of 0-1 or 0-n. \n"
-        "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
-    )
-    for error in errors:
-        error_message = f"{error_message}\n    - Resource {error[0]}, property {error[1]}"
-    raise BaseError(error_message)
+    raise MinCardinalityOneWithCircleError(errors)
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:

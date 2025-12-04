@@ -7,8 +7,8 @@ import regex
 
 from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
+from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
-from dsp_tools.commands.create.project_validate import _check_for_undefined_super_resource
 from dsp_tools.commands.create.project_validate import _collect_link_properties
 from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
 from dsp_tools.commands.create.project_validate import _validate_parsed_project
@@ -91,7 +91,7 @@ def test_check_for_undefined_super_resource(tp_systematic: dict[str, Any]) -> No
     with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
 
-    assert _check_for_undefined_super_resource(tp_systematic) is True
+    assert _check_for_undefined_super_class(tp_systematic) is True
 
     with pytest.raises(
         BaseError,
@@ -99,7 +99,7 @@ def test_check_for_undefined_super_resource(tp_systematic: dict[str, Any]) -> No
         r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': "
         r"\[':SuperResourceThatWasNotDefined'\]",
     ):
-        _check_for_undefined_super_resource(tp_nonexisting_super_resource)
+        _check_for_undefined_super_class(tp_nonexisting_super_resource)
 
 
 def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> None:

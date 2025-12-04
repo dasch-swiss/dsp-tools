@@ -13,6 +13,7 @@ import regex
 
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
 from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
@@ -63,7 +64,7 @@ def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
     # make some checks that are too complex for JSON schema
     _check_for_invalid_default_permissions_overrule(project_definition)
     _check_for_undefined_super_property(project_definition)
-    _check_for_undefined_super_resource(project_definition)
+    _check_for_undefined_super_class(project_definition)
     _check_for_undefined_cardinalities(project_definition)
     _check_for_duplicate_res_and_props(project_definition)
     if lists_section := project_definition["project"].get("lists"):
@@ -226,20 +227,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superproperties that claim to point to a property defined in the same JSON project.
-    Check if the property they point to actually exists.
-    (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superproperty is not existent
-
-    Returns:
-        True if the superproperties are valid
-    """
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -265,7 +252,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
 
     if errors:
-        UndefinedSuperPropertiesError(errors)
+        raise UndefinedSuperPropertiesError(errors)
     return True
 
 
@@ -311,21 +298,7 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
-def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superresources that claim to point to a resource defined in the same JSON project.
-    Check if the resource they point to actually exists.
-    (DSP base resources and resources from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superresource is not existent
-
-    Returns:
-        True if the superresource are valid
-    """
+def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool:
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -351,10 +324,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
 
     if errors:
-        err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        raise UndefinedSuperClassError(errors)
     return True
 
 

@@ -7,9 +7,9 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.commands.create.create_on_server.project import create_project
+from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.error.exceptions import UnableToCreateProjectError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import PROJECT_IRI
 

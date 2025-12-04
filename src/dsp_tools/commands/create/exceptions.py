@@ -36,6 +36,14 @@ class UndefinedSuperClassError(UserError):
         super().__init__(err_msg)
 
 
+class UndefinedPropertyInCardinalityError(UserError):
+    def __init__(self, error_locations: dict[str, list[str]]) -> None:
+        err_msg = "Your data model contains cardinalities with invalid propnames:\n" + "\n".join(
+            f" - {loc}: {invalids}" for loc, invalids in error_locations.items()
+        )
+        super().__init__(err_msg)
+
+
 class CircularOntologyDependency(UserError):
     """Class if a circular dependency was found in the ontology."""
 

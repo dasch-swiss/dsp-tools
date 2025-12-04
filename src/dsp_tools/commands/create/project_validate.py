@@ -13,6 +13,7 @@ import regex
 
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
 from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
 from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.error.exceptions import BaseError
@@ -329,19 +330,6 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    """
-    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
-    section. (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a cardinality is used that is not defined
-
-    Returns:
-        True if all cardinalities are defined in the "properties" section
-    """
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -367,10 +355,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
 
     if errors:
-        err_msg = "Your data model contains cardinalities with invalid propnames:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        raise UndefinedPropertyInCardinalityError(errors)
     return True
 
 

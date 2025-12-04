@@ -13,6 +13,7 @@ import regex
 
 from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_file
@@ -264,10 +265,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
 
     if errors:
-        err_msg = "Your data model contains properties that are derived from an invalid super-property:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        UndefinedSuperPropertiesError(errors)
     return True
 
 

@@ -10,9 +10,16 @@ import jsonpath_ng.ext
 import jsonschema
 import networkx as nx
 import regex
+from loguru import logger
 
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
+from dsp_tools.commands.create.exceptions import DuplicateListNamesError
+from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
+from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
+from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
+from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
+from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -22,7 +29,11 @@ def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]
 
 
 def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
-    # validate the project definition against the schema
+    _validate_with_json_schema(project_definition)
+    return _complex_project_validation(project_definition)
+
+
+def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
     with (
         importlib.resources.files("dsp_tools")
         .joinpath("resources/schema/project.json")
@@ -32,33 +43,35 @@ def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)
     except jsonschema.ValidationError as err:
+        logger.error(err)
         # Check for the specific case of missing 'default_permissions'
         if "'default_permissions' is a required property" in err.message:
-            raise BaseError("You forgot to specify the 'default_permissions'") from None
+            raise ProjectJsonSchemaValidationError("You forgot to specify the 'default_permissions'") from None
         # Check for the specific case of private permissions with overrule
         if (
             "should not be valid under {'required': ['default_permissions_overrule']}" in err.message
             and project_definition.get("project", {}).get("default_permissions") == "private"
         ):
-            raise BaseError(
+            raise ProjectJsonSchemaValidationError(
                 "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
                 "Private permissions cannot be overruled."
             ) from None
 
-        raise BaseError(
+        raise ProjectJsonSchemaValidationError(
             f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
             f"The error occurred at {err.json_path}:\n{err.instance}"
         ) from None
 
+
+def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
     # make some checks that are too complex for JSON schema
     _check_for_invalid_default_permissions_overrule(project_definition)
     _check_for_undefined_super_property(project_definition)
-    _check_for_undefined_super_resource(project_definition)
+    _check_for_undefined_super_class(project_definition)
     _check_for_undefined_cardinalities(project_definition)
     _check_for_duplicate_res_and_props(project_definition)
     if lists_section := project_definition["project"].get("lists"):
         _check_for_duplicate_listnodes(lists_section)
-    _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
@@ -169,15 +182,6 @@ def _is_subclass_of_still_image_representation(
 def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
     """
     Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a class in limited_view doesn't have the correct superclass
-
-    Returns:
-        True if all classes in limited_view are subclasses of StillImageRepresentation
     """
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
         return True
@@ -220,35 +224,11 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             )
 
     if errors:
-        err_msg = (
-            "All classes in project.default_permissions_overrule.limited_view "
-            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
-            "permission is only implemented for images (i.e. blurring, watermarking). \n"
-            "In order to check, the classes must be provided in the form \n"
-            '    "limited_view": ["ontoname:Classname", ...]\n\n'
-            "The following classes do not meet this requirement:\n"
-        )
-        err_msg += "\n".join(f" - {loc}: {error}" for loc, error in errors.items())
-        raise BaseError(err_msg)
-
+        raise InvalidPermissionsOverruleError(errors)
     return True
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superproperties that claim to point to a property defined in the same JSON project.
-    Check if the property they point to actually exists.
-    (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superproperty is not existent
-
-    Returns:
-        True if the superproperties are valid
-    """
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -274,10 +254,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
 
     if errors:
-        err_msg = "Your data model contains properties that are derived from an invalid super-property:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        raise UndefinedSuperPropertiesError(errors)
     return True
 
 
@@ -323,21 +300,7 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
-def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superresources that claim to point to a resource defined in the same JSON project.
-    Check if the resource they point to actually exists.
-    (DSP base resources and resources from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superresource is not existent
-
-    Returns:
-        True if the superresource are valid
-    """
+def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool:
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -363,27 +326,11 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
 
     if errors:
-        err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        raise UndefinedSuperClassError(errors)
     return True
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    """
-    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
-    section. (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a cardinality is used that is not defined
-
-    Returns:
-        True if all cardinalities are defined in the "properties" section
-    """
     errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -409,46 +356,17 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
 
     if errors:
-        err_msg = "Your data model contains cardinalities with invalid propnames:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
+        raise UndefinedPropertyInCardinalityError(errors)
     return True
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
-    """
-    Check a JSON project file if it contains properties derived from hasLinkTo that form a circular reference. If so,
-    these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
-    are temporarily removed.
-
-    Args:
-        project_definition: dictionary with a DSP project (as defined in a JSON project file)
-
-    Raises:
-        BaseError: if there is a circle with at least one element that has a cardinality of "1" or "1-n"
-
-    Returns:
-        True if no circle was detected, or if all elements of all circles are of cardinality "0-1" or "0-n".
-    """
-
     link_properties = _collect_link_properties(project_definition)
     errors = _identify_problematic_cardinalities(project_definition, link_properties)
 
     if len(errors) == 0:
         return True
-
-    error_message = (
-        "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
-        "between resources. This is not a problem in itself, but if you try to upload data that actually "
-        "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
-        "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-        "cardinality of 0-1 or 0-n. \n"
-        "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
-    )
-    for error in errors:
-        error_message = f"{error_message}\n    - Resource {error[0]}, property {error[1]}"
-    raise BaseError(error_message)
+    raise MinCardinalityOneWithCircleError(errors)
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
@@ -580,18 +498,6 @@ def _find_circles_with_min_one_cardinality(
 
 
 def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
-    """
-    Check that the resource names and property names are unique.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if there is a duplicate resource name / property name
-
-    Returns:
-        True if the resource/property names are unique
-    """
     propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
 
     if not resnames_duplicates and not propnames_duplicates:
@@ -605,15 +511,9 @@ def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bo
         for prop_duplicate in sorted(prop_duplicates):
             err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
 
-    raise BaseError(err_msg)
+    raise DuplicateClassAndPropertiesError(err_msg)
 
 
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
     if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
-        err_msg += "\n - " + "\n - ".join(listnode_duplicates)
-        raise InputError(err_msg)
-
-
-def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)
-    return True
+        raise DuplicateListNamesError(listnode_duplicates)

@@ -11,9 +11,9 @@ from rdflib import URIRef
 
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
+from dsp_tools.commands.create.exceptions import CircularOntologyDependency
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.error.exceptions import CircularOntologyDependency
 from dsp_tools.error.exceptions import ProjectOntologyNotFound
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 

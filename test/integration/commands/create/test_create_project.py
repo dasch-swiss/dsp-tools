@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-untyped-def"
 import json
 from pathlib import Path
 from typing import Any
@@ -5,16 +6,21 @@ from typing import Any
 import pytest
 import regex
 
+from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
+from dsp_tools.commands.create.exceptions import DuplicateListNamesError
+from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
+from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
+from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
+from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
 from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
+from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
-from dsp_tools.commands.create.project_validate import _check_for_undefined_super_resource
 from dsp_tools.commands.create.project_validate import _collect_link_properties
 from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
 from dsp_tools.commands.create.project_validate import _validate_parsed_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import JSONFileParsingError
 from dsp_tools.utils.json_parsing import parse_json_file
 
@@ -41,16 +47,27 @@ def tp_circular_ontology() -> dict[str, Any]:
     return tp_circular_ontology
 
 
-def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
+def test_validate_project(tp_systematic: dict[str, Any]) -> None:
     assert _validate_parsed_project(tp_systematic) is True
 
-    with pytest.raises(BaseError, match=regex.escape("validation error: 'hasColor' does not match")):
+
+def test_json_schema_validation_error():
+    with pytest.raises(
+        ProjectJsonSchemaValidationError, match=regex.escape("validation error: 'hasColor' does not match")
+    ):
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
 
-    with pytest.raises(BaseError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
+
+def test_circular_reference_error(tp_circular_ontology):
+    with pytest.raises(
+        MinCardinalityOneWithCircleError,
+        match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'"),
+    ):
         _validate_parsed_project(tp_circular_ontology)
 
-    with pytest.raises(InputError, match=regex.escape("Listnode names must be unique across all lists")):
+
+def test_duplicate_list_error():
+    with pytest.raises(DuplicateListNamesError, match=regex.escape("Listnode names must be unique across all lists")):
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
 
 
@@ -62,7 +79,7 @@ def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> Non
     assert _check_for_undefined_cardinalities(tp_systematic) is True
 
     with pytest.raises(
-        BaseError,
+        UndefinedPropertyInCardinalityError,
         match=r"Your data model contains cardinalities with invalid propnames:\n"
         r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': "
         r"\[':CardinalityThatWasNotDefinedInPropertiesSection'\]",
@@ -78,7 +95,7 @@ def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> No
     assert _check_for_undefined_super_property(tp_systematic) is True
 
     with pytest.raises(
-        BaseError,
+        UndefinedSuperPropertiesError,
         match=r"Your data model contains properties that are derived from an invalid super-property:\n"
         r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': "
         r"\[':SuperPropertyThatWasNotDefined'\]",
@@ -86,20 +103,20 @@ def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> No
         _check_for_undefined_super_property(tp_nonexisting_super_property)
 
 
-def test_check_for_undefined_super_resource(tp_systematic: dict[str, Any]) -> None:
+def test_check_for_undefined_super_class(tp_systematic: dict[str, Any]) -> None:
     tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
     with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
 
-    assert _check_for_undefined_super_resource(tp_systematic) is True
+    assert _check_for_undefined_super_class(tp_systematic) is True
 
     with pytest.raises(
-        BaseError,
+        UndefinedSuperClassError,
         match=r"Your data model contains resources that are derived from an invalid super-resource:\n"
         r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': "
         r"\[':SuperResourceThatWasNotDefined'\]",
     ):
-        _check_for_undefined_super_resource(tp_nonexisting_super_resource)
+        _check_for_undefined_super_class(tp_nonexisting_super_resource)
 
 
 def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> None:
@@ -126,7 +143,7 @@ def test_check_for_duplicate_resources() -> None:
         tp_duplicate_resource: dict[str, Any] = json.load(json_file)
 
     with pytest.raises(
-        BaseError,
+        DuplicateClassAndPropertiesError,
         match=r"Resource names and property names must be unique inside every ontology\.\n"
         r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
         r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n",
@@ -139,7 +156,7 @@ def test_check_for_duplicate_properties() -> None:
     with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
         tp_duplicate_property: dict[str, Any] = json.load(json_file)
     with pytest.raises(
-        BaseError,
+        DuplicateClassAndPropertiesError,
         match=r"Resource names and property names must be unique inside every ontology\.\n"
         r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
         r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n",

@@ -65,6 +65,13 @@ class InputError(BaseError):
     """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
 
+class UserError(BaseError):
+    """
+    This is a base class for all the errors that are raised when the user input is invalid.
+    The message should be as user-friendly as possible.
+    """
+
+
 class InvalidGuiAttributeError(BaseError):
     """This error is raised when a invalid gui-attribute is used."""
 
@@ -179,16 +186,8 @@ class ProjectOntologyNotFound(BaseError):
         super().__init__(msg)
 
 
-class CreateError(BaseError):
-    """Errors for the create command."""
-
-
-class ProjectNotFoundError(CreateError):
+class ProjectNotFoundError(InputError):
     """Class if a project is expected to exist but could not be found."""
-
-
-class UnableToCreateProjectError(CreateError):
-    """Class if a project cannot be created."""
 
 
 class InvalidLicenseError(InputError):
@@ -201,16 +200,5 @@ class InvalidLicenseError(InputError):
             f"The provided license string is invalid and cannot be parsed: '{license_str}'"
             "You must provide a license that can be parsed by xmllib.find_license_in_string(). "
             "See https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string"
-        )
-        super().__init__(msg)
-
-
-class CircularOntologyDependency(CreateError):
-    """Class if a circular dependency was found in the ontology."""
-
-    def __init__(self, dependency_location: str) -> None:
-        msg = (
-            f"A circular dependency of {dependency_location} was found in your project. "
-            f"It is not possible for an ontology to have circular dependencies."
         )
         super().__init__(msg)

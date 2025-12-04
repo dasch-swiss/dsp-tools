@@ -15,7 +15,7 @@ EXIT_CODE_TWO = 2
 # ruff: noqa: ARG002 Unused function argument
 
 
-PROJECT_JSON_PATH = "testdata/json-project/systematic-project-4123.json"
+PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
 
@@ -43,7 +43,7 @@ class TestCreate:
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
         create_lists.assert_called_once_with(
-            project_json=PROJECT_JSON_PATH,
+            project_file=PROJECT_JSON_PATH,
             creds=creds,
         )
 
@@ -76,7 +76,7 @@ class TestGet:
         entry_point.run(args)
         get_project.assert_called_once_with(
             project_identifier=project,
-            outfile_path=PROJECT_JSON_PATH,
+            outfile_path=str(PROJECT_JSON_PATH),
             creds=creds,
             verbose=False,
         )

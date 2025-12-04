@@ -200,7 +200,7 @@ def call_create(args: argparse.Namespace) -> bool:
             print("JSON project file is syntactically correct and passed validation.")
         case False, False:
             success = create(
-                project_json=project_file,
+                project_file=project_file,
                 creds=get_creds(args),
             )
     return success

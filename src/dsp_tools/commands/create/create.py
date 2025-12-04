@@ -24,12 +24,12 @@ load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
 def create(  # noqa: PLR0912 (Too many branches)
-    project_json: Path, creds: ServerCredentials
+    project_file: Path, creds: ServerCredentials
 ) -> bool:
     overall_success = True
 
     # includes validation
-    parsed_project = parse_project(project_json, creds.server)
+    parsed_project = parse_project(project_file, creds.server)
     if not isinstance(parsed_project, ParsedProject):
         for problem in parsed_project:
             print_problem_collection(problem)

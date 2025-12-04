@@ -10,7 +10,7 @@ from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
 from dsp_tools.commands.create.project_validate import validate_project
-from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
+from dsp_tools.commands.excel2json.old_lists import validate_lists_section_from_project
 from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
@@ -183,23 +183,24 @@ def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies([Path(args.project_definition)])
     check_input_dependencies(path_dependencies, network_dependencies)
+    project_file = Path(args.project_definition)
 
     success = False
     match args.lists_only, args.validate_only:
         case True, True:
-            success = validate_lists_section_with_schema(args.project_definition)
+            success = validate_lists_section_from_project(project_file)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
             success = create_lists_only(
-                project_file_as_path_or_parsed=args.project_definition,
+                project_file_as_path_or_parsed=project_file,
                 creds=get_creds(args),
             )
         case False, True:
-            success = validate_project(args.project_definition)
+            success = validate_project(project_file)
             print("JSON project file is syntactically correct and passed validation.")
         case False, False:
             success = create(
-                project_file_as_path_or_parsed=args.project_definition,
+                project_file_as_path_or_parsed=project_file,
                 creds=get_creds(args),
             )
     return success

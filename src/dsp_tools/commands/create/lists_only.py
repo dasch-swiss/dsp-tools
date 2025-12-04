@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 from loguru import logger
 
@@ -15,7 +14,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
-def create_lists_only(project_file_as_path_or_parsed: str | Path | dict[str, Any], creds: ServerCredentials) -> bool:
+def create_lists_only(project_file_as_path_or_parsed: Path, creds: ServerCredentials) -> bool:
     result = parse_lists_only(project_file_as_path_or_parsed)
     if isinstance(result, CollectedProblems):
         print_problem_collection(result)

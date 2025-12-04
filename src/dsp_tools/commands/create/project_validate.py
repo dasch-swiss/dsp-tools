@@ -28,7 +28,6 @@ def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]
 
 
 def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
-    # validate the project definition against the schema
     _validate_with_json_schema(project_definition)
     return _complex_project_validation(project_definition)
 
@@ -497,18 +496,6 @@ def _find_circles_with_min_one_cardinality(
 
 
 def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
-    """
-    Check that the resource names and property names are unique.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if there is a duplicate resource name / property name
-
-    Returns:
-        True if the resource/property names are unique
-    """
     propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
 
     if not resnames_duplicates and not propnames_duplicates:

@@ -71,7 +71,6 @@ def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
     _check_for_duplicate_res_and_props(project_definition)
     if lists_section := project_definition["project"].get("lists"):
         _check_for_duplicate_listnodes(lists_section)
-    _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
@@ -555,7 +554,3 @@ def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bo
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
     if listnode_duplicates := _find_duplicate_listnodes(lists_section):
         raise DuplicateListNamesError(listnode_duplicates)
-
-
-def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)
-    return True

@@ -18,10 +18,10 @@ from dsp_tools.utils.json_parsing import parse_json_file
 
 def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]]:
     project_definition = parse_json_file(project_file)
-    return validate_parsed_project(project_definition), project_definition
+    return _validate_parsed_project(project_definition), project_definition
 
 
-def validate_parsed_project(project_definition: dict[str, Any]) -> bool:
+def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
     # validate the project definition against the schema
     with (
         importlib.resources.files("dsp_tools")

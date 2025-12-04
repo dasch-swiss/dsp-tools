@@ -29,11 +29,11 @@ def test_invalid_arguments() -> None:
 
 class TestCreate:
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_with_schema")
-    def test_lists_validate(self, validate_lists: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_from_project")
+    def test_lists_validate(self, validate_lists_section_from_project: Mock, check_docker: Mock) -> None:
         args = f"create --lists-only --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_lists.assert_called_once_with(PROJECT_JSON_PATH)
+        validate_lists_section_from_project.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create_lists_only")
@@ -43,16 +43,16 @@ class TestCreate:
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
         create_lists.assert_called_once_with(
-            project_file_as_path_or_parsed=PROJECT_JSON_PATH,
+            project_json=PROJECT_JSON_PATH,
             creds=creds,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.validate_project")
-    def test_project_validate(self, validate_project: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.parse_and_validate_project")
+    def test_project_validate(self, parse_and_validate_project: Mock, check_docker: Mock) -> None:
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_project.assert_called_once_with(PROJECT_JSON_PATH)
+        parse_and_validate_project.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create")
@@ -61,7 +61,7 @@ class TestCreate:
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
         create.assert_called_once_with(
-            project_file_as_path_or_parsed=PROJECT_JSON_PATH,
+            project_file=PROJECT_JSON_PATH,
             creds=creds,
         )
 

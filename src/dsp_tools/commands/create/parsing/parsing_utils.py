@@ -4,8 +4,8 @@ import regex
 
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.utils.rdflib_constants import DSP_NAME_TO_PREFIX
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import DSP_NAME_TO_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 
 
 def resolve_to_absolute_iri(prefixed: str, current_onto: str, prefix_lookup: dict[str, str]) -> str | None:

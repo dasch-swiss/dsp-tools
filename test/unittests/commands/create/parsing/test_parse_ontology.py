@@ -15,7 +15,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinal
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_class
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.create.constants import ONTO_IRI_STR
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 

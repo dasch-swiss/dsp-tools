@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from dsp_tools.utils.json_parsing import parse_json_file
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 

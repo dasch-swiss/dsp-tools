@@ -4,9 +4,9 @@ import pytest
 
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
-from dsp_tools.utils.rdflib_constants import DSP_NAME_TO_PREFIX
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
-from dsp_tools.utils.rdflib_constants import SALSAH_GUI_PREFIX
+from dsp_tools.utils.rdf_constants import DSP_NAME_TO_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 EXTERNAL_PREFIXES = {

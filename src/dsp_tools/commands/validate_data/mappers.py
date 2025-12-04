@@ -24,9 +24,9 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PR
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 FILE_TYPE_TO_PROP = {

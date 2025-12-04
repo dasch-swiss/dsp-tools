@@ -4,7 +4,7 @@ from copy import deepcopy
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type

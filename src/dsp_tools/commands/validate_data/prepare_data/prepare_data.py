@@ -22,10 +22,10 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
-from dsp_tools.utils.rdflib_constants import API_SHAPES_PREFIX
-from dsp_tools.utils.rdflib_constants import DASH_PREFIX
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
-from dsp_tools.utils.rdflib_constants import SALSAH_GUI_PREFIX
+from dsp_tools.utils.rdf_constants import API_SHAPES_PREFIX
+from dsp_tools.utils.rdf_constants import DASH_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources

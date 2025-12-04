@@ -20,7 +20,7 @@ from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import ShaclValidationError
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 LIST_SEPARATOR = "\n    - "
 

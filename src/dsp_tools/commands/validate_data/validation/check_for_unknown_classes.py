@@ -4,7 +4,7 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 
 
 def check_for_unknown_resource_classes(

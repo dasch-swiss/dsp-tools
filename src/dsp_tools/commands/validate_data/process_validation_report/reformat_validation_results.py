@@ -17,8 +17,8 @@ from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
     SH.Violation: Severity.VIOLATION,

@@ -17,11 +17,11 @@ from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_resource
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_one_value
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import _make_property_objects_graph
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import DATA
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import DATA
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 

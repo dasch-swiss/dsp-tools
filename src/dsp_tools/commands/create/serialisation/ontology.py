@@ -13,9 +13,9 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
-from dsp_tools.utils.rdflib_constants import SALSAH_GUI
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI
 from dsp_tools.utils.rdflib_utils import serialise_json
 
 

@@ -5,8 +5,8 @@ from enum import Enum
 from enum import StrEnum
 from enum import auto
 
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
-from dsp_tools.utils.rdflib_constants import SALSAH_GUI_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 
 
 @dataclass

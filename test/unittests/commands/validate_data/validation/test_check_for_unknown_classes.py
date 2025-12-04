@@ -8,7 +8,7 @@ from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"

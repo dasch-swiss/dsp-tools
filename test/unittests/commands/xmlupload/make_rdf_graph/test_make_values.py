@@ -36,7 +36,7 @@ from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 

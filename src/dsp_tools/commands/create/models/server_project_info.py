@@ -5,7 +5,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.utils.rdflib_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 
 
 @dataclass

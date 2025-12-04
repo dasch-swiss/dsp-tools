@@ -3,7 +3,7 @@ from loguru import logger
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.rdflib_constants import KNORA_ADMIN_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 
 
 def create_default_permissions(

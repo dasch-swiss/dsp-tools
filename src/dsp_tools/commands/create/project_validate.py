@@ -11,6 +11,7 @@ import jsonschema
 import networkx as nx
 import regex
 
+from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_file
@@ -23,6 +24,11 @@ def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]
 
 def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
     # validate the project definition against the schema
+    _validate_with_json_schema(project_definition)
+    return _complex_project_validation(project_definition)
+
+
+def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
     with (
         importlib.resources.files("dsp_tools")
         .joinpath("resources/schema/project.json")
@@ -34,22 +40,24 @@ def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
     except jsonschema.ValidationError as err:
         # Check for the specific case of missing 'default_permissions'
         if "'default_permissions' is a required property" in err.message:
-            raise BaseError("You forgot to specify the 'default_permissions'") from None
+            raise ProjectJsonSchemaValidationError("You forgot to specify the 'default_permissions'") from None
         # Check for the specific case of private permissions with overrule
         if (
             "should not be valid under {'required': ['default_permissions_overrule']}" in err.message
             and project_definition.get("project", {}).get("default_permissions") == "private"
         ):
-            raise BaseError(
+            raise ProjectJsonSchemaValidationError(
                 "When default_permissions is 'private', default_permissions_overrule cannot be specified. "
                 "Private permissions cannot be overruled."
             ) from None
 
-        raise BaseError(
+        raise ProjectJsonSchemaValidationError(
             f"The JSON project file cannot be created due to the following validation error: {err.message}.\n"
             f"The error occurred at {err.json_path}:\n{err.instance}"
         ) from None
 
+
+def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
     # make some checks that are too complex for JSON schema
     _check_for_invalid_default_permissions_overrule(project_definition)
     _check_for_undefined_super_property(project_definition)

@@ -2,6 +2,11 @@ from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
+class ProjectJsonSchemaValidationError(UserError):
+    def __init__(self, detail_msg: str) -> None:
+        super().__init__(detail_msg)
+
+
 class CircularOntologyDependency(UserError):
     """Class if a circular dependency was found in the ontology."""
 

@@ -2,18 +2,18 @@
 
 import pytest
 
-from dsp_tools.commands.create.constants import KNORA_API_STR
-from dsp_tools.commands.create.constants import SALSAH_GUI_STR
-from dsp_tools.commands.create.constants import UNIVERSAL_PREFIXES
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_to_absolute_iri
+from dsp_tools.utils.rdf_constants import DSP_NAME_TO_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 EXTERNAL_PREFIXES = {
     "wrong-ending": "http://wrong-ending.org/onto",
     "with-slash": "http://with-slash.org/onto/",
     "with-hashtag": "http://with-hashtag.org/onto#",
-} | UNIVERSAL_PREFIXES
+} | DSP_NAME_TO_PREFIX
 
 
 class TestPrefixLookup:
@@ -23,8 +23,8 @@ class TestPrefixLookup:
             "project": {"shortcode": "0003", "ontologies": [{"name": "onto"}]},
         }
         expected = {
-            "knora-api": KNORA_API_STR,
-            "salsah-gui": SALSAH_GUI_STR,
+            "knora-api": KNORA_API_PREFIX,
+            "salsah-gui": SALSAH_GUI_PREFIX,
             "onto": "http://0.0.0.0:3333/ontology/0003/onto/v2#",
             "with-hashtag": "http://with-hashtag.org/onto#",
             "with-slash": "http://with-slash.org/onto/",
@@ -36,8 +36,8 @@ class TestPrefixLookup:
     def test_without_prefixes(self):
         project_json = {"project": {"shortcode": "0003", "ontologies": [{"name": "onto1"}, {"name": "onto2"}]}}
         expected = {
-            "knora-api": KNORA_API_STR,
-            "salsah-gui": SALSAH_GUI_STR,
+            "knora-api": KNORA_API_PREFIX,
+            "salsah-gui": SALSAH_GUI_PREFIX,
             "onto1": "http://0.0.0.0:3333/ontology/0003/onto1/v2#",
             "onto2": "http://0.0.0.0:3333/ontology/0003/onto2/v2#",
         }
@@ -49,12 +49,12 @@ class TestResolveToAbsoluteIri:
     @pytest.mark.parametrize(
         ("prefixed_iri", "expected"),
         [
-            ("hasValue", f"{KNORA_API_STR}hasValue"),
-            ("knora-api:hasValue", f"{KNORA_API_STR}hasValue"),
+            ("hasValue", f"{KNORA_API_PREFIX}hasValue"),
+            ("knora-api:hasValue", f"{KNORA_API_PREFIX}hasValue"),
             ("onto:testBool", f"{ONTO_NAMESPACE_STR}testBool"),
             (":testBool", f"{ONTO_NAMESPACE_STR}testBool"),
             ("http://purl.org/dc/terms/title", "http://purl.org/dc/terms/title"),
-            (f"{KNORA_API_STR}hasValue", f"{KNORA_API_STR}hasValue"),
+            (f"{KNORA_API_PREFIX}hasValue", f"{KNORA_API_PREFIX}hasValue"),
         ],
     )
     def test_good(self, prefixed_iri, expected, prefixes):

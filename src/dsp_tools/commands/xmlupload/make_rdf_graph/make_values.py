@@ -38,7 +38,7 @@ from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import StartEnd
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 type LiteralValueTypesAlias = Union[
     ProcessedBoolean,

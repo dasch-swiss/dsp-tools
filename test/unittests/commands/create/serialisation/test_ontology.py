@@ -6,7 +6,6 @@ from rdflib import RDFS
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
@@ -22,7 +21,8 @@ from dsp_tools.commands.create.serialisation.ontology import serialise_cardinali
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.commands.create.serialisation.ontology import serialise_property_graph_for_request
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import SALSAH_GUI
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI

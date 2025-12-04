@@ -12,9 +12,9 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
 from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
@@ -155,7 +155,7 @@ class TestValues:
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
     def test_geometry(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}Region"
+        cls_iri_str = f"{KNORA_API_PREFIX}Region"
         res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "region", KNORA_API.hasGeometry)
         val_triples = list(res_g.triples((val_iri, None, None)))
@@ -186,7 +186,7 @@ class TestValues:
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
     def test_interval(self, auth_header, project_iri_9999, creds):
-        cls_iri_str = f"{KNORA_API_STR}AudioSegment"
+        cls_iri_str = f"{KNORA_API_PREFIX}AudioSegment"
         res_g = util_request_resources_by_class(cls_iri_str, auth_header, project_iri_9999, creds)
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(res_g, "audio_segment", KNORA_API.hasSegmentBounds)
         val_triples = list(res_g.triples((val_iri, None, None)))

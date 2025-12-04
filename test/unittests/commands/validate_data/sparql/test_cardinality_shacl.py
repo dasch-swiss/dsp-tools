@@ -14,9 +14,9 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import DASH
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import DASH
+from dsp_tools.utils.rdf_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 

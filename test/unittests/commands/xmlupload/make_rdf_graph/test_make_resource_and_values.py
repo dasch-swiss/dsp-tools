@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 RESOURCE_TYPE = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource")

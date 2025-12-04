@@ -6,7 +6,7 @@ from lxml import etree
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -23,10 +23,10 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResou
         res_type = iri_lookup[res.attrib["restype"]]
         all_res.append(_parse_one_resource(res, res_type, iri_lookup))
     for res in root.iterdescendants(tag="region"):
-        res_type = f"{KNORA_API_STR}Region"
+        res_type = f"{KNORA_API_PREFIX}Region"
         all_res.append(_parse_one_resource(res, res_type, iri_lookup))
     for res in root.iterdescendants(tag="link"):
-        res_type = f"{KNORA_API_STR}LinkObj"
+        res_type = f"{KNORA_API_PREFIX}LinkObj"
         all_res.append(_parse_one_resource(res, res_type, iri_lookup))
     for res in root.iterdescendants(tag="video-segment"):
         all_res.append(_parse_segment(res, "Video"))
@@ -48,12 +48,12 @@ def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url
 def _get_one_absolute_iri(local_name: str, shortcode: str, default_ontology: str, api_url: str) -> str:
     split_name = local_name.split(":")
     if len(split_name) == 1:
-        return f"{KNORA_API_STR}{local_name}"
+        return f"{KNORA_API_PREFIX}{local_name}"
     if len(split_name) == 2:
         if split_name[0] == "":
             return f"{_construct_namespace(api_url, shortcode, default_ontology)}{split_name[1]}"
         if split_name[0] == "knora-api":
-            return f"{KNORA_API_STR}{split_name[1]}"
+            return f"{KNORA_API_PREFIX}{split_name[1]}"
         return f"{_construct_namespace(api_url, shortcode, split_name[0])}{split_name[1]}"
     raise InputError(
         f"It is not permissible to have a colon in a property or resource class name. "
@@ -70,7 +70,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
     migration_metadata = _parse_migration_metadata(segment)
     return ParsedResource(
         res_id=segment.attrib["id"],
-        res_type=f"{KNORA_API_STR}{segment_type}Segment",
+        res_type=f"{KNORA_API_PREFIX}{segment_type}Segment",
         label=segment.attrib["label"],
         permissions_id=segment.attrib.get("permissions"),
         values=values,
@@ -83,11 +83,11 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
     values: list[ParsedValue] = []
     value: str | tuple[str, str] | None
     for val in segment.iterchildren():
-        prop = f"{KNORA_API_STR}{val.tag!s}"
+        prop = f"{KNORA_API_PREFIX}{val.tag!s}"
         match val.tag:
             case "isSegmentOf":
                 val_type = KnoraValueType.LINK_VALUE
-                prop = f"{KNORA_API_STR}is{segment_type}SegmentOf"
+                prop = f"{KNORA_API_PREFIX}is{segment_type}SegmentOf"
                 value = val.text.strip() if val.text else None
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE

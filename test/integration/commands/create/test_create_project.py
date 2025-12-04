@@ -6,14 +6,14 @@ import pytest
 import regex
 
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
-from dsp_tools.commands.create.project_validate import _call_all_validation
 from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_resource
 from dsp_tools.commands.create.project_validate import _collect_link_properties
 from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
-from dsp_tools.commands.create.project_validate import validate_project
+from dsp_tools.commands.create.project_validate import _validate_entire_project
+from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import JSONFileParsingError
@@ -44,23 +44,23 @@ def tp_circular_ontology() -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
-    assert _call_all_validation(tp_systematic, "systematic-project-4123.json") is True
+    assert _validate_entire_project(tp_systematic, "systematic-project-4123.json") is True
 
     with pytest.raises(
         JSONFileParsingError, match=regex.escape("Input 'fantasy.xyz' is neither a file path nor a JSON object.")
     ):
-        validate_project(Path("testdata/xml-data/test-data-e2e-4125.xml"))
+        parse_and_validate_project(Path("testdata/xml-data/test-data-e2e-4125.xml"))
 
     with pytest.raises(
         ProjectJsonSchemaValidationError, match=regex.escape("validation error: 'hasColor' does not match")
     ):
-        validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
+        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
 
     with pytest.raises(BaseError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
-        _call_all_validation(tp_circular_ontology, "circular-ontology.json")
+        _validate_entire_project(tp_circular_ontology, "circular-ontology.json")
 
     with pytest.raises(InputError, match=regex.escape("Listnode names must be unique across all lists")):
-        validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:

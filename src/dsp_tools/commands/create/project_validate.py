@@ -17,27 +17,14 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.json_parsing import parse_json_input
 
 
-def validate_project(input_file: Path) -> bool:
+def parse_and_validate_project(input_file: Path) -> bool:
     project_definition = parse_json_input(input_file)
-    return _call_all_validation(project_definition, str(input_file))
+    return _validate_entire_project(project_definition, str(input_file))
 
 
-def _call_all_validation(project_definition: dict[str, Any], filepath: str) -> bool:
-    # validate the project definition against the schema
+def _validate_entire_project(project_definition: dict[str, Any], filepath: str) -> bool:
     _validate_project_json_with_schema(project_definition, filepath)
-
-    # make some checks that are too complex for JSON schema
-    _check_for_invalid_default_permissions_overrule(project_definition)
-    _check_for_undefined_super_property(project_definition)
-    _check_for_undefined_super_resource(project_definition)
-    _check_for_undefined_cardinalities(project_definition)
-    _check_for_duplicate_res_and_props(project_definition)
-    if lists_section := project_definition["project"].get("lists"):
-        _check_for_duplicate_listnodes(lists_section)
-    _check_for_deprecated_syntax(project_definition)
-
-    # cardinalities check for circular references
-    return _check_cardinalities_of_circular_references(project_definition)
+    return _do_all_checks(project_definition)
 
 
 def _validate_project_json_with_schema(project_definition: dict[str, Any], filepath: str) -> None:
@@ -69,6 +56,21 @@ def _validate_project_json_with_schema(project_definition: dict[str, Any], filep
         raise ProjectJsonSchemaValidationError(
             filepath, f"{err.message}.\nThe error occurred at {err.json_path}:\n{err.instance}"
         ) from None
+
+
+def _do_all_checks(project_definition: dict[str, Any]) -> bool:
+    # make some checks that are too complex for JSON schema
+    _check_for_invalid_default_permissions_overrule(project_definition)
+    _check_for_undefined_super_property(project_definition)
+    _check_for_undefined_super_resource(project_definition)
+    _check_for_undefined_cardinalities(project_definition)
+    _check_for_duplicate_res_and_props(project_definition)
+    if lists_section := project_definition["project"].get("lists"):
+        _check_for_duplicate_listnodes(lists_section)
+    _check_for_deprecated_syntax(project_definition)
+
+    # cardinalities check for circular references
+    return _check_cardinalities_of_circular_references(project_definition)
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:

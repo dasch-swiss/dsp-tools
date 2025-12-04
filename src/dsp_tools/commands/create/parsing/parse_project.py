@@ -22,7 +22,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShip
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
-from dsp_tools.commands.create.project_validate import validate_project
+from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.utils.json_parsing import parse_json_input
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
@@ -73,7 +73,7 @@ def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject
 
 def _parse_and_validate(project_file_as_path_or_parsed: str | Path | dict[str, Any]) -> dict[str, Any]:
     project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    validate_project(project_json)
+    parse_and_validate_project(project_json)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
     return project_json

@@ -14,7 +14,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12, <3.14.1"
 dependencies = [
     "argparse",
     "jinja2",

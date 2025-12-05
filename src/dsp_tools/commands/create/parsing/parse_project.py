@@ -24,7 +24,11 @@ from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 
-load_dotenv(dotenv_path=find_dotenv(usecwd=True))
+# Load .env file only if it exists in the current working directory
+# This allows CI to set environment variables directly without interference
+dotenv_file = find_dotenv(usecwd=True)
+if dotenv_file:
+    load_dotenv(dotenv_path=dotenv_file, override=False)
 
 
 def parse_lists_only(

@@ -1,5 +1,23 @@
 # Changelog
 
+## [18.3.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.3.0...v18.3.1) (2025-12-05)
+
+
+### Bug Fixes
+
+* set upper bound of 3.14.0 for python (RDU-144) ([#2102](https://github.com/dasch-swiss/dsp-tools/issues/2102)) ([9a06cab](https://github.com/dasch-swiss/dsp-tools/commit/9a06caba428892054d954417436a113630185f11))
+
+
+### Maintenance
+
+* add standard logging to BulkIngestClient ([#2093](https://github.com/dasch-swiss/dsp-tools/issues/2093)) ([744c81a](https://github.com/dasch-swiss/dsp-tools/commit/744c81a23d97442b324b9f37bcd84375501e4436))
+* **create:** modularise json validation functions ([#2099](https://github.com/dasch-swiss/dsp-tools/issues/2099)) ([5c9853e](https://github.com/dasch-swiss/dsp-tools/commit/5c9853e3248e12024d77be699be9be294c55f519))
+* **create:** remove union path or parsed option from functions ([#2098](https://github.com/dasch-swiss/dsp-tools/issues/2098)) ([51b3398](https://github.com/dasch-swiss/dsp-tools/commit/51b33980f621c62e182687b105892211a80fbee7))
+* **create:** reorganise directory structure ([#2092](https://github.com/dasch-swiss/dsp-tools/issues/2092)) ([6207a05](https://github.com/dasch-swiss/dsp-tools/commit/6207a0579f1ea93cee0095b02c896fd96a096a74))
+* **deps:** bump the all-dependencies group across 1 directory with 14 updates ([#2103](https://github.com/dasch-swiss/dsp-tools/issues/2103)) ([84af80d](https://github.com/dasch-swiss/dsp-tools/commit/84af80d79d9e85bd52ddeffd5a768b151fd81cb2))
+* **deps:** replace abandoned dotenv, specify version constraints for libraries &lt;1.0 ([#2101](https://github.com/dasch-swiss/dsp-tools/issues/2101)) ([e354551](https://github.com/dasch-swiss/dsp-tools/commit/e35455198d73ae73062f702eca6c0cf4d77cadee))
+* move all RDF prefixes into constants file ([#2096](https://github.com/dasch-swiss/dsp-tools/issues/2096)) ([7105381](https://github.com/dasch-swiss/dsp-tools/commit/71053814cb9d77f97ae12ccc0f6adc4e32422b7a))
+
 ## [18.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.2.1...v18.3.0) (2025-12-03)
 
 

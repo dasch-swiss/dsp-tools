@@ -44,7 +44,7 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
     """Assert a value is a tuple."""
     match value:
         case tuple() as t:
-            if len(t) == 2 and t[0] and t[1]:
+            if len(t) == 2 and isinstance(t[0], str) and isinstance(t[1], str):
                 return cast(tuple[str, str], t)
             raise XmlInputConversionError(f"Expected tuple with two elements but got {value}")
         case FormattedTextValue() as xml:

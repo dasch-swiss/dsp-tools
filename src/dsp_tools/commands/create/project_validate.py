@@ -82,15 +82,6 @@ def _complex_project_validation(project_definition: dict[str, Any]) -> list[Coll
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
-    """
-    Build a lookup dictionary for resources by ontology and name.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Returns:
-        Dictionary mapping ontology names to resource names to resource definitions
-    """
     resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
     for onto in project_definition["project"]["ontologies"]:
         resource_lookup[onto["name"]] = {}
@@ -184,12 +175,6 @@ def _is_subclass_of_still_image_representation(
 
 
 def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    """
-    Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
-
-    Returns:
-        List of InputProblems (empty if no problems found)
-    """
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
         return None
     if not (limited_view := default_permissions_overrule.get("limited_view")):
@@ -256,12 +241,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    """
-    Check for undefined super-properties in the project definition.
-
-    Returns:
-        List of InputProblems (empty if no problems found)
-    """
     problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -339,12 +318,6 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
 
 
 def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    """
-    Check for undefined super-classes in the project definition.
-
-    Returns:
-        List of InputProblems (empty if no problems found)
-    """
     problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -380,12 +353,6 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> Coll
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    """
-    Check for undefined properties in cardinalities.
-
-    Returns:
-        List of InputProblems (empty if no problems found)
-    """
     problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
@@ -437,15 +404,6 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
-    """
-    Maps the properties derived from hasLinkTo to the resource classes they point to.
-
-    Args:
-        project_definition: parsed JSON file
-
-    Returns:
-        A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-    """
     ontos = project_definition["project"]["ontologies"]
     hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf"}
     link_properties: dict[str, list[str]] = {}
@@ -488,17 +446,6 @@ def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]],
 ) -> list[CreateProblem]:
-    """
-    Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
-
-    Args:
-        project_definition: parsed JSON file
-        link_properties: mapping of hasLinkTo-properties to classes they point to,
-            e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-
-    Returns:
-        a (possibly empty) list of (resource, problematic_cardinality) tuples
-    """
     cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
     graph = _make_cardinality_dependency_graph(dependencies)
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)

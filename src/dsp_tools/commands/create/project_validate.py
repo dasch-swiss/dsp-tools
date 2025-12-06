@@ -404,6 +404,13 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
+    """
+    Maps the properties derived from hasLinkTo to the resource classes they point to.
+    Args:
+        project_definition: parsed JSON file
+    Returns:
+        A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
+    """
     ontos = project_definition["project"]["ontologies"]
     hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf"}
     link_properties: dict[str, list[str]] = {}
@@ -446,6 +453,15 @@ def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]],
 ) -> list[CreateProblem]:
+    """
+    Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
+    Args:
+        project_definition: parsed JSON file
+        link_properties: mapping of hasLinkTo-properties to classes they point to,
+            e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
+    Returns:
+        a (possibly empty) list of (resource, problematic_cardinality) tuples
+    """
     cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
     graph = _make_cardinality_dependency_graph(dependencies)
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)

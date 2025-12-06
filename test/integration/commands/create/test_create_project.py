@@ -10,9 +10,7 @@ from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesErro
 from dsp_tools.commands.create.exceptions import DuplicateListNamesError
 from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
-from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
-from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
-from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
@@ -76,15 +74,14 @@ def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> Non
     with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
         tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
 
-    assert _check_for_undefined_cardinalities(tp_systematic) is True
+    assert _check_for_undefined_cardinalities(tp_systematic) == []
 
-    with pytest.raises(
-        UndefinedPropertyInCardinalityError,
-        match=r"Your data model contains cardinalities with invalid propnames:\n"
-        r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': "
-        r"\[':CardinalityThatWasNotDefinedInPropertiesSection'\]",
-    ):
-        _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
+    problems = _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
+    assert "nonexisting-cardinality-onto:TestThing" in problems[0].problematic_object
+    assert ":CardinalityThatWasNotDefinedInPropertiesSection" in problems[0].problematic_object
 
 
 def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> None:
@@ -92,15 +89,14 @@ def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> No
     with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
 
-    assert _check_for_undefined_super_property(tp_systematic) is True
+    assert _check_for_undefined_super_property(tp_systematic) == []
 
-    with pytest.raises(
-        UndefinedSuperPropertiesError,
-        match=r"Your data model contains properties that are derived from an invalid super-property:\n"
-        r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': "
-        r"\[':SuperPropertyThatWasNotDefined'\]",
-    ):
-        _check_for_undefined_super_property(tp_nonexisting_super_property)
+    problems = _check_for_undefined_super_property(tp_nonexisting_super_property)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.UNDEFINED_SUPER_PROPERTY
+    assert "nonexisting-super-property-onto:hasSimpleText" in problems[0].problematic_object
+    assert ":SuperPropertyThatWasNotDefined" in problems[0].problematic_object
 
 
 def test_check_for_undefined_super_class(tp_systematic: dict[str, Any]) -> None:
@@ -108,15 +104,14 @@ def test_check_for_undefined_super_class(tp_systematic: dict[str, Any]) -> None:
     with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
 
-    assert _check_for_undefined_super_class(tp_systematic) is True
+    assert _check_for_undefined_super_class(tp_systematic) == []
 
-    with pytest.raises(
-        UndefinedSuperClassError,
-        match=r"Your data model contains resources that are derived from an invalid super-resource:\n"
-        r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': "
-        r"\[':SuperResourceThatWasNotDefined'\]",
-    ):
-        _check_for_undefined_super_class(tp_nonexisting_super_resource)
+    problems = _check_for_undefined_super_class(tp_nonexisting_super_resource)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.UNDEFINED_SUPER_CLASS
+    assert "nonexisting-super-resource-onto:TestThing2" in problems[0].problematic_object
+    assert ":SuperResourceThatWasNotDefined" in problems[0].problematic_object
 
 
 def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> None:

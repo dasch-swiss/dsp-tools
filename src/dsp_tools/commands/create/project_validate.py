@@ -209,7 +209,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             problems.append(
                 InputProblem(
                     problematic_object=f"{class_ref} (Invalid format, expected 'ontology:ClassName')",
-                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
             continue
@@ -221,7 +221,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
             problems.append(
                 InputProblem(
                     problematic_object=f"{ontology_name}:{class_name} (Ontology '{ontology_name}' not found)",
-                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
                 )
             )
             continue
@@ -234,7 +234,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
                         f"{ontology_name}:{class_name} "
                         f"(Resource '{class_name}' not found in ontology '{ontology_name}')"
                     ),
-                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                    problem=InputProblemType.UNDEFINED_REFERENCE,
                 )
             )
             continue

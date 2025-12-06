@@ -52,6 +52,7 @@ class InputProblemType(ProblemType):
         "This class cannot be used in limited_view permissions "
         "because it is not a subclass of StillImageRepresentation."
     )
+    UNDEFINED_REFERENCE = "Reference not defined in the project."
     UNDEFINED_SUPER_PROPERTY = "This property is derived from an invalid super-property."
     UNDEFINED_SUPER_CLASS = "This resource is derived from an invalid super-class."
     UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."

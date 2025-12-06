@@ -503,7 +503,7 @@ def _identify_problematic_cardinalities(
     graph = _make_cardinality_dependency_graph(dependencies)
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
     return [
-        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY)
+        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE)
         for (res, prop) in errors
     ]
 

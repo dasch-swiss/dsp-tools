@@ -12,10 +12,9 @@ import networkx as nx
 import regex
 from loguru import logger
 
-from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
-from dsp_tools.commands.create.exceptions import DuplicateListNamesError
-from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.utils.json_parsing import parse_json_file
@@ -61,18 +60,25 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
+def _complex_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
+    problems: list[CollectedProblems] = []
     # make some checks that are too complex for JSON schema
-    _check_for_invalid_default_permissions_overrule(project_definition)
-    _check_for_undefined_super_property(project_definition)
-    _check_for_undefined_super_class(project_definition)
-    _check_for_undefined_cardinalities(project_definition)
-    _check_for_duplicate_res_and_props(project_definition)
+    if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
+        problems.append(perm_res)
+    if prop_problem := _check_for_undefined_super_property(project_definition):
+        problems.append(prop_problem)
+    if cls_problems := _check_for_undefined_super_class(project_definition):
+        problems.append(cls_problems)
+    if card_problem := _check_for_undefined_cardinalities(project_definition):
+        problems.append(card_problem)
+    duplicated = _check_for_duplicate_res_and_props(project_definition)
+    problems.extend(duplicated)
     if lists_section := project_definition["project"].get("lists"):
-        _check_for_duplicate_listnodes(lists_section)
-
-    # cardinalities check for circular references
-    return _check_cardinalities_of_circular_references(project_definition)
+        if list_prob := _check_for_duplicate_listnodes(lists_section):
+            problems.append(list_prob)
+    if card_probs := _check_cardinalities_of_circular_references(project_definition):
+        problems.append(card_probs)
+    return problems
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -177,7 +183,7 @@ def _is_subclass_of_still_image_representation(
     return False
 
 
-def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> list[InputProblem]:
+def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> CollectedProblems | None:
     """
     Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
 
@@ -185,13 +191,13 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
         List of InputProblems (empty if no problems found)
     """
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
-        return []
+        return None
     if not (limited_view := default_permissions_overrule.get("limited_view")):
-        return []
+        return None
 
     # If limited_view is "all", no validation needed - it applies to all image classes
     if limited_view == "all":
-        return []
+        return None
 
     problems: list[InputProblem] = []
     resource_lookup = _build_resource_lookup(project_definition)
@@ -244,11 +250,12 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
                     problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
                 )
             )
+    if problems:
+        return CollectedProblems("The permissions section has the following problems:", problems)
+    return None
 
-    return problems
 
-
-def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> list[InputProblem]:
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> CollectedProblems | None:
     """
     Check for undefined super-properties in the project definition.
 
@@ -284,8 +291,9 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> l
                         problem=InputProblemType.UNDEFINED_SUPER_PROPERTY,
                     )
                 )
-
-    return problems
+    if problems:
+        return CollectedProblems("The following properties have undefined super-properties:", problems)
+    return None
 
 
 def _find_duplicate_res_and_props(
@@ -330,7 +338,7 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
-def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> list[InputProblem]:
+def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> CollectedProblems | None:
     """
     Check for undefined super-classes in the project definition.
 
@@ -366,11 +374,12 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> list
                         problem=InputProblemType.UNDEFINED_SUPER_CLASS,
                     )
                 )
+    if problems:
+        return CollectedProblems("The following classes have undefined super-classes:", problems)
+    return None
 
-    return problems
 
-
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> list[InputProblem]:
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
     """
     Check for undefined properties in cardinalities.
 
@@ -406,17 +415,25 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> li
                         problem=InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
                     )
                 )
+    if problems:
+        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
+    return None
 
-    return problems
 
-
-def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
+def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:
     link_properties = _collect_link_properties(project_definition)
     errors = _identify_problematic_cardinalities(project_definition, link_properties)
-
-    if len(errors) == 0:
-        return True
-    raise MinCardinalityOneWithCircleError(errors)
+    if errors:
+        msg = (
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "between resources. This is not a problem in itself, but if you try to upload data that actually "
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+            "cardinality of 0-1 or 0-n. \n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+        )
+        return CollectedProblems(msg, errors)
+    return None
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
@@ -470,7 +487,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
 def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]],
-) -> list[tuple[str, str]]:
+) -> list[CreateProblem]:
     """
     Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
 
@@ -485,7 +502,10 @@ def _identify_problematic_cardinalities(
     cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
     graph = _make_cardinality_dependency_graph(dependencies)
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
-    return sorted(errors, key=lambda x: x[0])
+    return [
+        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY)
+        for (res, prop) in errors
+    ]
 
 
 def _extract_cardinalities_from_project(
@@ -547,23 +567,37 @@ def _find_circles_with_min_one_cardinality(
     return errors
 
 
-def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
+    problems = []
 
-    if not resnames_duplicates and not propnames_duplicates:
-        return True
-
-    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    res_problems = []
     for ontoname, res_duplicates in resnames_duplicates.items():
-        for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+        res_problems.extend(
+            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_CLASS_NAME) for dup in res_duplicates]
+        )
+    if res_problems:
+        problems.append(
+            CollectedProblems("The following class names appear multiple times in one ontology:", res_problems)
+        )
+
+    prop_problems = []
     for ontoname, prop_duplicates in propnames_duplicates.items():
-        for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+        prop_problems.extend(
+            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_PROPERTY_NAME) for dup in prop_duplicates]
+        )
+    if prop_problems:
+        problems.append(
+            CollectedProblems("The following property names appear multiple times in one ontology:", prop_problems)
+        )
 
-    raise DuplicateClassAndPropertiesError(err_msg)
+    return problems
 
 
-def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
+def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:
     if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        raise DuplicateListNamesError(listnode_duplicates)
+        return CollectedProblems(
+            "The following list node names are used multiple times in your project:",
+            [InputProblem(", ".join(listnode_duplicates), InputProblemType.DUPLICATE_LIST_NAME)],
+        )
+    return None

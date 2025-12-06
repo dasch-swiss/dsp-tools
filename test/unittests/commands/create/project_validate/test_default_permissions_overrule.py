@@ -1,9 +1,10 @@
+# mypy: disable-error-code="no-untyped-def"
 from typing import Any
 
 import pytest
 
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
-from dsp_tools.error.exceptions import BaseError
 
 
 @pytest.fixture
@@ -226,104 +227,96 @@ def project_limited_view_all() -> dict[str, Any]:
 
 def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
     """Test that validation passes when no default_permissions_overrule exists"""
-    assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is True
+    assert _check_for_invalid_default_permissions_overrule(project_no_overrule) == []
 
 
 def test_check_overrule_no_limited_view(project_no_limited_view: dict[str, Any]) -> None:
     """Test that validation passes when no limited_view exists"""
-    assert _check_for_invalid_default_permissions_overrule(project_no_limited_view) is True
+    assert _check_for_invalid_default_permissions_overrule(project_no_limited_view) == []
 
 
 def test_check_overrule_valid_direct_inheritance(project_valid_direct_inheritance: dict[str, Any]) -> None:
     """Test that validation passes for direct inheritance from StillImageRepresentation"""
-    assert _check_for_invalid_default_permissions_overrule(project_valid_direct_inheritance) is True
+    assert _check_for_invalid_default_permissions_overrule(project_valid_direct_inheritance) == []
 
 
 def test_check_overrule_valid_indirect_inheritance(project_valid_indirect_inheritance: dict[str, Any]) -> None:
     """Test that validation passes for indirect inheritance through another resource"""
-    assert _check_for_invalid_default_permissions_overrule(project_valid_indirect_inheritance) is True
+    assert _check_for_invalid_default_permissions_overrule(project_valid_indirect_inheritance) == []
 
 
 def test_check_overrule_valid_multiple_inheritance(project_valid_multiple_inheritance: dict[str, Any]) -> None:
     """Test that validation passes for multiple inheritance (list format)"""
-    assert _check_for_invalid_default_permissions_overrule(project_valid_multiple_inheritance) is True
+    assert _check_for_invalid_default_permissions_overrule(project_valid_multiple_inheritance) == []
 
 
 def test_check_overrule_valid_cross_ontology_inheritance(project_cross_ontology_inheritance: dict[str, Any]) -> None:
     """Test that validation passes for cross-ontology inheritance"""
-    assert _check_for_invalid_default_permissions_overrule(project_cross_ontology_inheritance) is True
+    assert _check_for_invalid_default_permissions_overrule(project_cross_ontology_inheritance) == []
 
 
 def test_check_overrule_invalid_wrong_superclass(project_invalid_wrong_superclass: dict[str, Any]) -> None:
     """Test that validation fails for wrong superclass"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_invalid_wrong_superclass)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "PDFResource" in error_message
-    assert "directly or through inheritance" in error_message
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_wrong_superclass)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:PDFResource" in problems[0].problematic_object
+    assert "StillImageRepresentation" in problems[0].problematic_object
 
 
 def test_check_overrule_invalid_missing_resource(project_invalid_missing_resource: dict[str, Any]) -> None:
     """Test that validation fails for non-existent resource"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_invalid_missing_resource)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "NonExistentResource" in error_message
-    assert "not found in ontology" in error_message
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_missing_resource)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:NonExistentResource" in problems[0].problematic_object
+    assert "not found in ontology" in problems[0].problematic_object
 
 
 def test_check_overrule_invalid_missing_ontology(project_invalid_missing_ontology: dict[str, Any]) -> None:
     """Test that validation fails for non-existent ontology"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_invalid_missing_ontology)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "nonexistent-onto" in error_message
-    assert "not found" in error_message
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_missing_ontology)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "nonexistent-onto:ImageResource" in problems[0].problematic_object
+    assert "not found" in problems[0].problematic_object
 
 
 def test_check_overrule_invalid_format(project_invalid_format: dict[str, Any]) -> None:
     """Test that validation fails for invalid class reference format"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_invalid_format)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "InvalidFormat" in error_message
-    assert "Invalid format, expected 'ontology:ClassName'" in error_message
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_format)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "InvalidFormat" in problems[0].problematic_object
+    assert "Invalid format" in problems[0].problematic_object
 
 
 def test_check_overrule_circular_reference(project_circular_reference: dict[str, Any]) -> None:
     """Test that validation handles circular references gracefully"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_circular_reference)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "Resource1" in error_message
-    assert "directly or through inheritance" in error_message
+    problems = _check_for_invalid_default_permissions_overrule(project_circular_reference)
+    assert problems
+    assert len(problems) == 1
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:Resource1" in problems[0].problematic_object
+    assert "StillImageRepresentation" in problems[0].problematic_object
 
 
 def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
     """Test validation with mixed valid and invalid classes"""
-    with pytest.raises(BaseError) as exc_info:
-        _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
-
-    error_message = str(exc_info.value)
-    assert "must be subclasses of 'StillImageRepresentation'" in error_message
-    assert "PDFResource" in error_message
-    # Should not mention the valid classes
-    assert "ImageResource" not in error_message or "Class reference 'test-onto:ImageResource'" not in error_message
-    assert (
-        "SubImageResource" not in error_message or "Class reference 'test-onto:SubImageResource'" not in error_message
-    )
+    problems = _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
+    assert problems
+    assert len(problems) == 1  # Only PDFResource should have a problem
+    assert problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:PDFResource" in problems[0].problematic_object
+    # Should not mention the valid classes in the problematic object
+    assert "ImageResource" not in problems[0].problematic_object
+    assert "SubImageResource" not in problems[0].problematic_object
 
 
 def test_check_overrule_limited_view_all(project_limited_view_all: dict[str, Any]) -> None:
     """Test that validation passes when limited_view is 'all'"""
-    assert _check_for_invalid_default_permissions_overrule(project_limited_view_all)
+    assert _check_for_invalid_default_permissions_overrule(project_limited_view_all) == []

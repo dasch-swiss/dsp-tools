@@ -14,12 +14,10 @@ from loguru import logger
 
 from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
 from dsp_tools.commands.create.exceptions import DuplicateListNamesError
-from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
 from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
-from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
-from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
-from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
+from dsp_tools.commands.create.models.create_problems import InputProblem
+from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -179,57 +177,85 @@ def _is_subclass_of_still_image_representation(
     return False
 
 
-def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
+def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> list[InputProblem]:
     """
     Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
+
+    Returns:
+        List of InputProblems (empty if no problems found)
     """
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
-        return True
+        return []
     if not (limited_view := default_permissions_overrule.get("limited_view")):
-        return True
+        return []
 
     # If limited_view is "all", no validation needed - it applies to all image classes
     if limited_view == "all":
-        return True
+        return []
 
-    errors: dict[str, str] = {}
+    problems: list[InputProblem] = []
     resource_lookup = _build_resource_lookup(project_definition)
 
     # Check each class in limited_view (when it's a list)
     for class_ref in limited_view:
         parsed_ref = _parse_class_reference(class_ref)
         if not parsed_ref:
-            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
+            problems.append(
+                InputProblem(
+                    problematic_object=f"{class_ref} (Invalid format, expected 'ontology:ClassName')",
+                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                )
+            )
             continue
 
         ontology_name, class_name = parsed_ref
 
         # Check if the ontology exists
         if ontology_name not in resource_lookup:
-            errors[f"Class reference '{class_ref}'"] = f"Ontology '{ontology_name}' not found"
+            problems.append(
+                InputProblem(
+                    problematic_object=f"{ontology_name}:{class_name} (Ontology '{ontology_name}' not found)",
+                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                )
+            )
             continue
 
         # Check if the resource exists in the ontology
         if class_name not in resource_lookup[ontology_name]:
-            errors[f"Class reference '{class_ref}'"] = (
-                f"Resource '{class_name}' not found in ontology '{ontology_name}'"
+            problems.append(
+                InputProblem(
+                    problematic_object=(
+                        f"{ontology_name}:{class_name} "
+                        f"(Resource '{class_name}' not found in ontology '{ontology_name}')"
+                    ),
+                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                )
             )
             continue
 
         # Check if the resource is a subclass of StillImageRepresentation
         if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
-            errors[f"Class reference '{class_ref}'"] = (
-                f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
-                f"(directly or through inheritance)"
+            problems.append(
+                InputProblem(
+                    problematic_object=(
+                        f"{ontology_name}:{class_name} "
+                        f"(Must be a subclass of 'StillImageRepresentation' directly or through inheritance)"
+                    ),
+                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                )
             )
 
-    if errors:
-        raise InvalidPermissionsOverruleError(errors)
-    return True
+    return problems
 
 
-def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> list[InputProblem]:
+    """
+    Check for undefined super-properties in the project definition.
+
+    Returns:
+        List of InputProblems (empty if no problems found)
+    """
+    problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [p["name"] for p in onto["properties"]]
@@ -251,11 +277,15 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
             if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
-                errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
+                invalid_refs_str = ", ".join(invalid_references)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{prop['name']} (invalid super-properties: {invalid_refs_str})",
+                        problem=InputProblemType.UNDEFINED_SUPER_PROPERTY,
+                    )
+                )
 
-    if errors:
-        raise UndefinedSuperPropertiesError(errors)
-    return True
+    return problems
 
 
 def _find_duplicate_res_and_props(
@@ -300,8 +330,14 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
-def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> list[InputProblem]:
+    """
+    Check for undefined super-classes in the project definition.
+
+    Returns:
+        List of InputProblems (empty if no problems found)
+    """
+    problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         resnames = [r["name"] for r in onto["resources"]]
@@ -323,15 +359,25 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
             if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
+                invalid_refs_str = ", ".join(invalid_references)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{res['name']} (invalid super-classes: {invalid_refs_str})",
+                        problem=InputProblemType.UNDEFINED_SUPER_CLASS,
+                    )
+                )
 
-    if errors:
-        raise UndefinedSuperClassError(errors)
-    return True
+    return problems
 
 
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> list[InputProblem]:
+    """
+    Check for undefined properties in cardinalities.
+
+    Returns:
+        List of InputProblems (empty if no problems found)
+    """
+    problems: list[InputProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
@@ -353,11 +399,15 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
 
             if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
+                invalid_cards_str = ", ".join(invalid_cardnames)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{res['name']} (invalid cardinalities: {invalid_cards_str})",
+                        problem=InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
+                    )
+                )
 
-    if errors:
-        raise UndefinedPropertyInCardinalityError(errors)
-    return True
+    return problems
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:

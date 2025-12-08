@@ -54,7 +54,7 @@ class TestCreate:
         validate_project_only.return_value = True
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH)
+        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH, "http://0.0.0.0:3333")
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create")

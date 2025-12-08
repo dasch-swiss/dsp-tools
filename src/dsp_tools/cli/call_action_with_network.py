@@ -184,6 +184,7 @@ def call_create(args: argparse.Namespace) -> bool:
     path_dependencies = PathDependencies([Path(args.project_definition)])
     check_input_dependencies(path_dependencies, network_dependencies)
     project_file = Path(args.project_definition)
+    creds = get_creds(args)
 
     success = False
     match args.lists_only, args.validate_only:
@@ -193,13 +194,13 @@ def call_create(args: argparse.Namespace) -> bool:
         case True, False:
             success = create_lists_only(
                 project_file=project_file,
-                creds=get_creds(args),
+                creds=creds,
             )
         case False, True:
-            success = validate_project_only(project_file)
+            success = validate_project_only(project_file, creds.server)
         case False, False:
             success = create(
                 project_file=project_file,
-                creds=get_creds(args),
+                creds=creds,
             )
     return success

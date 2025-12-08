@@ -14,13 +14,13 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_group
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
-from dsp_tools.commands.create.parsing.parse_project import _parse_project
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
+from dsp_tools.commands.create.parsing.parse_project import parse_project
 
 
 class TestParseProject:
     def test_parse_project_success(self, project_json_systematic):
-        result = _parse_project(project_json_systematic, "http://0.0.0.0:3333")
+        result = parse_project(project_json_systematic, "http://0.0.0.0:3333")
         assert isinstance(result, ParsedProject)
         assert isinstance(result.prefixes, dict)
         assert isinstance(result.project_metadata, ParsedProjectMetadata)
@@ -37,7 +37,7 @@ class TestParseProject:
         assert len(result.users) == 6
 
     def test_parse_project_failure(self, minimal_failing_project):
-        result = _parse_project(minimal_failing_project, "http://0.0.0.0:3333")
+        result = parse_project(minimal_failing_project, "http://0.0.0.0:3333")
         assert isinstance(result, list)
         assert len(result) == 1
 

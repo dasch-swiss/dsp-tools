@@ -25,10 +25,10 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
-def validate_project_only(project_file: Path) -> bool:
-    problems, _ = parse_and_validate_project(project_file)
-    if problems:
-        print_all_problem_collections(problems)
+def validate_project_only(project_file: Path, server: str) -> bool:
+    result = parse_and_validate_project(project_file, server)
+    if not isinstance(result, ParsedProject):
+        print_all_problem_collections(result)
         return False
     print(
         BACKGROUND_BOLD_GREEN + "JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT

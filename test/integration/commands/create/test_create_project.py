@@ -56,6 +56,7 @@ def test_json_schema_validation_error():
 
 def test_circular_reference_error(tp_circular_ontology):
     result = _validate_parsed_json_project(tp_circular_ontology, SERVER)
+    assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
     # we do not know which of the two links we get returned through the graph diagnostics
@@ -69,9 +70,8 @@ def test_circular_reference_error(tp_circular_ontology):
 
 
 def test_duplicate_list_error():
-    result, _ = parse_and_validate_project(
-        Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"), SERVER
-    )
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"), SERVER)
+    assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
     assert problem.problems[0].problematic_object == "first node of testlist"

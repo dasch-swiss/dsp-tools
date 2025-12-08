@@ -1,10 +1,8 @@
 import os
-from pathlib import Path
 from typing import Any
 
 from dotenv import find_dotenv
 from dotenv import load_dotenv
-from loguru import logger
 
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
@@ -22,7 +20,6 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShip
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
-from dsp_tools.commands.create.project_validate import parse_and_validate_project
 
 # Load .env file only if it exists in the current working directory
 # This allows CI to set environment variables directly without interference
@@ -53,13 +50,6 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
         lists=parsed_lists,
         ontologies=ontologies,
     )
-
-
-def _parse_and_validate(json_file: Path) -> dict[str, Any]:
-    _, project_json = parse_and_validate_project(json_file)
-    print("    JSON project file is syntactically correct and passed validation.")
-    logger.info("JSON project file is syntactically correct and passed validation.")
-    return project_json
 
 
 def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:

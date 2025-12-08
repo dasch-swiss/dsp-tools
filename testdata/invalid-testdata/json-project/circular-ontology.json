@@ -67,6 +67,32 @@
                                 "cardinality": "1-n"
                             }
                         ]
+                    },
+                    {
+                        "name": "ClassCardinalityOk1",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "ClassCardinalityOk"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToClass1",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ClassCardinalityOk2",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "ClassCardinalityOk"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":linkToClass2",
+                                "cardinality": "0-1"
+                            }
+                        ]
                     }
                 ]
             }

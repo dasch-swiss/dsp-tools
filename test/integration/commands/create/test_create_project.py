@@ -67,11 +67,11 @@ def test_circular_reference_error(tp_circular_ontology):
 
 
 def test_duplicate_list_error():
-    result = _validate_parsed_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+    result, _ = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
     assert len(result) == 1
     problem = result[0]
-    assert problem.problems[0].problematic_object == "asdf"
-    assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
+    assert problem.problems[0].problematic_object == "first node of testlist"
+    assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NAME
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:

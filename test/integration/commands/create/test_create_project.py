@@ -9,6 +9,7 @@ import regex
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
@@ -44,7 +45,8 @@ def tp_circular_ontology() -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
-    assert _validate_parsed_json_project(tp_systematic, SERVER) == []
+    result = _validate_parsed_json_project(tp_systematic, SERVER)
+    assert isinstance(result, ParsedProject)
 
 
 def test_json_schema_validation_error():

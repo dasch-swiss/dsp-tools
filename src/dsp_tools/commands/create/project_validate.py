@@ -198,7 +198,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     if limited_view == "all":
         return None
 
-    problems: list[InputProblem] = []
+    problems: list[CreateProblem] = []
     resource_lookup = _build_resource_lookup(project_definition)
 
     # Check each class in limited_view (when it's a list)
@@ -263,7 +263,7 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[InputProblem] = []
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [p["name"] for p in onto["properties"]]
@@ -340,7 +340,7 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
 
 
 def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[InputProblem] = []
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         resnames = [r["name"] for r in onto["resources"]]
@@ -375,7 +375,7 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> Coll
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[InputProblem] = []
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
@@ -554,9 +554,9 @@ def _find_circles_with_min_one_cardinality(
 
 def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
-    problems = []
+    problems: list[CollectedProblems] = []
 
-    res_problems = []
+    res_problems: list[CreateProblem] = []
     for ontoname, res_duplicates in resnames_duplicates.items():
         res_problems.extend(
             [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_CLASS_NAME) for dup in res_duplicates]
@@ -566,7 +566,7 @@ def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> li
             CollectedProblems("The following class names appear multiple times in one ontology:", res_problems)
         )
 
-    prop_problems = []
+    prop_problems: list[CreateProblem] = []
     for ontoname, prop_duplicates in propnames_duplicates.items():
         prop_problems.extend(
             [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_PROPERTY_NAME) for dup in prop_duplicates]

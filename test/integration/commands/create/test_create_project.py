@@ -11,14 +11,12 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
-from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
-from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import JSONFileParsingError
 from dsp_tools.utils.json_parsing import parse_json_file
 
-SERVER = "https://server.che"
+SERVER = "http://0.0.0.0:3333"
 
 
 @pytest.fixture
@@ -93,11 +91,9 @@ def test_check_for_undefined_cardinalities() -> None:
 
 
 def test_check_for_undefined_super_property() -> None:
-    tp_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
-    with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
-        tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
-
-    problems = _check_for_undefined_super_property(tp_nonexisting_super_property)
+    problems = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/nonexisting-super-property.json"), SERVER
+    )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.UNDEFINED_SUPER_PROPERTY
@@ -106,11 +102,9 @@ def test_check_for_undefined_super_property() -> None:
 
 
 def test_check_for_undefined_super_class() -> None:
-    tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
-    with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
-        tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
-
-    problems = _check_for_undefined_super_class(tp_nonexisting_super_resource)
+    problems = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/nonexisting-super-resource.json"), SERVER
+    )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.UNDEFINED_SUPER_CLASS

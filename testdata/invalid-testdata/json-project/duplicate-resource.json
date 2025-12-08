@@ -10,6 +10,7 @@
         "keywords": [
             "minimal"
         ],
+        "default_permissions": "public",
         "ontologies": [
             {
                 "name": "testonto",
@@ -61,13 +62,6 @@
                         "super": "Resource",
                         "labels": {
                             "en": "Another Resource"
-                        }
-                    },
-                    {
-                        "name": "anotherResource",
-                        "super": "Resource",
-                        "labels": {
-                            "en": "Another Resource with another label"
                         }
                     }
                 ]

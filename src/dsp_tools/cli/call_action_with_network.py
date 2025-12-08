@@ -9,7 +9,7 @@ from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.create.project_validate import parse_and_validate_project
+from dsp_tools.commands.create.project_validate import validate_project_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_from_project
 from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
@@ -196,8 +196,7 @@ def call_create(args: argparse.Namespace) -> bool:
                 creds=get_creds(args),
             )
         case False, True:
-            success, _ = parse_and_validate_project(project_file)
-            print("JSON project file is syntactically correct and passed validation.")
+            success = validate_project_only(project_file)
         case False, False:
             success = create(
                 project_file=project_file,

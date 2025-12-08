@@ -49,12 +49,12 @@ class TestCreate:
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.parse_and_validate_project")
-    def test_project_validate(self, parse_and_validate_project: Mock, check_docker: Mock) -> None:
-        parse_and_validate_project.return_value = (True, {})
+    @patch("dsp_tools.cli.call_action_with_network.validate_project_only")
+    def test_project_validate(self, validate_project_only: Mock, check_docker: Mock) -> None:
+        validate_project_only.return_value = True
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        parse_and_validate_project.assert_called_once_with(PROJECT_JSON_PATH)
+        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create")

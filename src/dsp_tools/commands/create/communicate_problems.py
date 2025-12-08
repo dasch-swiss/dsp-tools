@@ -7,6 +7,11 @@ from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
+def print_all_problem_collections(problems: list[CollectedProblems]) -> None:
+    for prob in problems:
+        print_problem_collection(prob)
+
+
 def print_problem_collection(problem_collection: CollectedProblems) -> None:
     individual_problems = _create_individual_problem_strings(problem_collection.problems)
     logger.error(problem_collection.header + individual_problems)

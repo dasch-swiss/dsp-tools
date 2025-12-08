@@ -48,6 +48,19 @@ class InputProblemType(ProblemType):
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."
     )
+    INVALID_PERMISSIONS_OVERRULE = (
+        "This class cannot be used in limited_view permissions "
+        "because it is not a subclass of StillImageRepresentation."
+    )
+    UNDEFINED_REFERENCE = "Reference not defined in the project."
+    UNDEFINED_SUPER_PROPERTY = "This property is derived from an invalid super-property."
+    UNDEFINED_SUPER_CLASS = "This resource is derived from an invalid super-class."
+    UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."
+    DUPLICATE_CLASS_NAME = "This class name appears multiple times in the same ontology."
+    DUPLICATE_PROPERTY_NAME = "This property name appears multiple times in the same ontology."
+    MIN_CARDINALITY_ONE_WITH_CIRCLE = (
+        "This property is part of a circular reference and must have cardinality 0-1 or 0-n."
+    )
 
 
 class UploadProblemType(ProblemType):

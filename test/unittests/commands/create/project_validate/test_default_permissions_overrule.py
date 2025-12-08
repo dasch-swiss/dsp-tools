@@ -118,36 +118,6 @@ def project_invalid_missing_resource() -> dict[str, Any]:
 
 
 @pytest.fixture
-def project_invalid_missing_ontology() -> dict[str, Any]:
-    """Project with reference to non-existent ontology"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["nonexistent-onto:ImageResource"]},
-            "ontologies": [
-                {"name": "test-onto", "resources": [{"name": "ImageResource", "super": "StillImageRepresentation"}]}
-            ],
-        }
-    }
-
-
-@pytest.fixture
-def project_invalid_format() -> dict[str, Any]:
-    """Project with invalid class reference format"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["InvalidFormat"]},
-            "ontologies": [
-                {"name": "test-onto", "resources": [{"name": "ImageResource", "super": "StillImageRepresentation"}]}
-            ],
-        }
-    }
-
-
-@pytest.fixture
 def project_cross_ontology_inheritance() -> dict[str, Any]:
     """Project with cross-ontology inheritance"""
     return {
@@ -280,10 +250,9 @@ def test_check_overrule_circular_reference(project_circular_reference: dict[str,
 def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
     problems = _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
     assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1  # Only PDFResource should have a problem
+    assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
     assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    # Should not mention the valid classes in the problematic object
     assert "ImageResource" not in problems.problems[0].problematic_object
     assert "SubImageResource" not in problems.problems[0].problematic_object
 

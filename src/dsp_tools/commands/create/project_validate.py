@@ -236,7 +236,15 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
                 )
             )
     if problems:
-        return CollectedProblems("The permissions section has the following problems:", problems)
+        err_msg = (
+            "All classes in project.default_permissions_overrule.limited_view "
+            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
+            "permission is only implemented for images (i.e. blurring, watermarking). \n"
+            "In order to check, the classes must be provided in the form \n"
+            '    "limited_view": ["ontoname:Classname", ...]\n\n'
+            "The following classes do not meet this requirement:\n"
+        )
+        return CollectedProblems(err_msg, problems)
     return None
 
 

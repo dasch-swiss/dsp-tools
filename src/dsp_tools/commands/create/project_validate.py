@@ -46,14 +46,9 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
     parsing_result = parse_project(json_project, server)
     if not isinstance(parsing_result, ParsedProject):
         return parsing_result
-    if json_validation_problems := _validate_json_project(json_project):
+    if json_validation_problems := _complex_project_validation(json_project):
         return json_validation_problems
     return parsing_result
-
-
-def _validate_json_project(project_definition: dict[str, Any]) -> list[CollectedProblems]:
-    _validate_with_json_schema(project_definition)
-    return _complex_project_validation(project_definition)
 
 
 def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:

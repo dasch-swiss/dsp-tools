@@ -12,12 +12,27 @@ import networkx as nx
 import regex
 from loguru import logger
 
+from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_file
+
+
+def validate_project_only(project_file: Path) -> bool:
+    problems, _ = parse_and_validate_project(project_file)
+    if problems:
+        for prob in problems:
+            print_problem_collection(prob)
+        return False
+    print(
+        BACKGROUND_BOLD_GREEN + "JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT
+    )
+    return True
 
 
 def parse_and_validate_project(project_file: Path) -> tuple[list[CollectedProblems], dict[str, Any]]:

@@ -97,8 +97,6 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
         problems.append(cls_problems)
     if card_problem := _check_for_undefined_cardinalities(project_definition):
         problems.append(card_problem)
-    duplicated = _check_for_duplicate_res_and_props(project_definition)
-    problems.extend(duplicated)
     if lists_section := project_definition["project"].get("lists"):
         if list_prob := _check_for_duplicate_listnodes(lists_section):
             problems.append(list_prob)
@@ -129,20 +127,6 @@ def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | Non
             "The following class names were used more than once:",
             [
                 InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_CLASS_NAME)
-                for x in cleaned_iris
-            ],
-        )
-    return None
-
-
-def _check_for_duplicate_properties(prop_list: list[str]) -> CollectedProblems | None:
-    if duplicates := _find_duplicates_in_list(prop_list):
-        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
-        return CollectedProblems(
-            "It is not permissible to have multiple properties with the same name in one ontology. "
-            "The following class names were used more than once:",
-            [
-                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_PROPERTY_NAME)
                 for x in cleaned_iris
             ],
         )
@@ -353,32 +337,6 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> C
     if problems:
         return CollectedProblems("The following properties have undefined super-properties:", problems)
     return None
-
-
-def _find_duplicate_res_and_props(
-    project_definition: dict[str, Any],
-) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
-    resnames_duplicates: dict[str, set[str]] = {}
-    propnames_duplicates: dict[str, set[str]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        resnames = [r["name"] for r in onto["resources"]]
-        if len(set(resnames)) != len(resnames):
-            for elem in resnames:
-                if resnames.count(elem) > 1:
-                    if resnames_duplicates.get(onto["name"]):
-                        resnames_duplicates[onto["name"]].add(elem)
-                    else:
-                        resnames_duplicates[onto["name"]] = {elem}
-
-        propnames = [p["name"] for p in onto["properties"]]
-        if len(set(propnames)) != len(propnames):
-            for elem in propnames:
-                if propnames.count(elem) > 1:
-                    if propnames_duplicates.get(onto["name"]):
-                        propnames_duplicates[onto["name"]].add(elem)
-                    else:
-                        propnames_duplicates[onto["name"]] = {elem}
-    return propnames_duplicates, resnames_duplicates
 
 
 def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
@@ -608,33 +566,6 @@ def _find_circles_with_min_one_cardinality(
             if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
     return errors
-
-
-def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> list[CollectedProblems]:
-    propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
-    problems: list[CollectedProblems] = []
-
-    res_problems: list[CreateProblem] = []
-    for ontoname, res_duplicates in resnames_duplicates.items():
-        res_problems.extend(
-            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_CLASS_NAME) for dup in res_duplicates]
-        )
-    if res_problems:
-        problems.append(
-            CollectedProblems("The following class names appear multiple times in one ontology:", res_problems)
-        )
-
-    prop_problems: list[CreateProblem] = []
-    for ontoname, prop_duplicates in propnames_duplicates.items():
-        prop_problems.extend(
-            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_PROPERTY_NAME) for dup in prop_duplicates]
-        )
-    if prop_problems:
-        problems.append(
-            CollectedProblems("The following property names appear multiple times in one ontology:", prop_problems)
-        )
-
-    return problems
 
 
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:

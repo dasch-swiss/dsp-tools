@@ -112,43 +112,24 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         cls_iris.extend([x.name for x in o.classes])
         prop_iris.extend([x.name for x in o.properties])
     problems = []
-    if dup_cls := _check_for_duplicate_classes(cls_iris):
+    if dup_cls := _check_for_duplicates(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
         problems.append(dup_cls)
-    if dup_props := _check_for_duplicate_properties(prop_iris):
+    if dup_props := _check_for_duplicates(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
         problems.append(dup_props)
     return problems
 
 
-def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | None:
-    if duplicates := _find_duplicates_in_list(cls_list):
+def _check_for_duplicates(
+    input_list: list[str], input_problem_type: InputProblemType, location: str
+) -> CollectedProblems | None:
+    if duplicates := [item for item, count in Counter(input_list).items() if count > 1]:
         cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
         return CollectedProblems(
-            "It is not permissible to have multiple classes with the same name in one ontology. "
-            "The following class names were used more than once:",
-            [
-                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_CLASS_NAME)
-                for x in cleaned_iris
-            ],
+            f"It is not permissible to have multiple {location} with the same name in one ontology. "
+            "The following names were used more than once:",
+            [InputProblem(x, input_problem_type) for x in cleaned_iris],
         )
     return None
-
-
-def _check_for_duplicate_properties(prop_iris: list[str]) -> CollectedProblems | None:
-    if duplicates := _find_duplicates_in_list(prop_iris):
-        cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
-        return CollectedProblems(
-            "It is not permissible to have multiple properties with the same name in one ontology. "
-            "The following class names were used more than once:",
-            [
-                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_PROPERTY_NAME)
-                for x in cleaned_iris
-            ],
-        )
-    return None
-
-
-def _find_duplicates_in_list(input_list: list[str]) -> list[str]:
-    return [item for item, count in Counter(input_list).items() if count > 1]
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:

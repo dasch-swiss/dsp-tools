@@ -112,14 +112,14 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         cls_iris.extend([x.name for x in o.classes])
         prop_iris.extend([x.name for x in o.properties])
     problems = []
-    if dup_cls := _check_for_duplicates(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
+    if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
         problems.append(dup_cls)
-    if dup_props := _check_for_duplicates(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
+    if dup_props := _check_for_duplicate_iris(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
         problems.append(dup_props)
     return problems
 
 
-def _check_for_duplicates(
+def _check_for_duplicate_iris(
     input_list: list[str], input_problem_type: InputProblemType, location: str
 ) -> CollectedProblems | None:
     if duplicates := [item for item, count in Counter(input_list).items() if count > 1]:

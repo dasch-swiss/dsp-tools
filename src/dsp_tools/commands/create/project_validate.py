@@ -12,23 +12,34 @@ import networkx as nx
 import regex
 from loguru import logger
 
-from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
-from dsp_tools.commands.create.exceptions import DuplicateListNamesError
-from dsp_tools.commands.create.exceptions import InvalidPermissionsOverruleError
-from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
+from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
-from dsp_tools.commands.create.exceptions import UndefinedPropertyInCardinalityError
-from dsp_tools.commands.create.exceptions import UndefinedSuperClassError
-from dsp_tools.commands.create.exceptions import UndefinedSuperPropertiesError
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
+from dsp_tools.commands.create.models.create_problems import CreateProblem
+from dsp_tools.commands.create.models.create_problems import InputProblem
+from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
-def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]]:
+def validate_project_only(project_file: Path) -> bool:
+    problems, _ = parse_and_validate_project(project_file)
+    if problems:
+        print_all_problem_collections(problems)
+        return False
+    print(
+        BACKGROUND_BOLD_GREEN + "JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT
+    )
+    return True
+
+
+def parse_and_validate_project(project_file: Path) -> tuple[list[CollectedProblems], dict[str, Any]]:
     project_definition = parse_json_file(project_file)
     return _validate_parsed_project(project_definition), project_definition
 
 
-def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
+def _validate_parsed_project(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     _validate_with_json_schema(project_definition)
     return _complex_project_validation(project_definition)
 
@@ -63,30 +74,28 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_project_validation(project_definition: dict[str, Any]) -> bool:
+def _complex_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
+    problems: list[CollectedProblems] = []
     # make some checks that are too complex for JSON schema
-    _check_for_invalid_default_permissions_overrule(project_definition)
-    _check_for_undefined_super_property(project_definition)
-    _check_for_undefined_super_class(project_definition)
-    _check_for_undefined_cardinalities(project_definition)
-    _check_for_duplicate_res_and_props(project_definition)
+    if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
+        problems.append(perm_res)
+    if prop_problem := _check_for_undefined_super_property(project_definition):
+        problems.append(prop_problem)
+    if cls_problems := _check_for_undefined_super_class(project_definition):
+        problems.append(cls_problems)
+    if card_problem := _check_for_undefined_cardinalities(project_definition):
+        problems.append(card_problem)
+    duplicated = _check_for_duplicate_res_and_props(project_definition)
+    problems.extend(duplicated)
     if lists_section := project_definition["project"].get("lists"):
-        _check_for_duplicate_listnodes(lists_section)
-
-    # cardinalities check for circular references
-    return _check_cardinalities_of_circular_references(project_definition)
+        if list_prob := _check_for_duplicate_listnodes(lists_section):
+            problems.append(list_prob)
+    if card_probs := _check_cardinalities_of_circular_references(project_definition):
+        problems.append(card_probs)
+    return problems
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
-    """
-    Build a lookup dictionary for resources by ontology and name.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Returns:
-        Dictionary mapping ontology names to resource names to resource definitions
-    """
     resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
     for onto in project_definition["project"]["ontologies"]:
         resource_lookup[onto["name"]] = {}
@@ -179,57 +188,82 @@ def _is_subclass_of_still_image_representation(
     return False
 
 
-def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> bool:
-    """
-    Check if classes in default_permissions_overrule.limited_view are subclasses of StillImageRepresentation.
-    """
+def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> CollectedProblems | None:
     if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
-        return True
+        return None
     if not (limited_view := default_permissions_overrule.get("limited_view")):
-        return True
+        return None
 
     # If limited_view is "all", no validation needed - it applies to all image classes
     if limited_view == "all":
-        return True
+        return None
 
-    errors: dict[str, str] = {}
+    problems: list[CreateProblem] = []
     resource_lookup = _build_resource_lookup(project_definition)
 
     # Check each class in limited_view (when it's a list)
     for class_ref in limited_view:
         parsed_ref = _parse_class_reference(class_ref)
         if not parsed_ref:
-            errors[f"Class reference '{class_ref}'"] = "Invalid format, expected 'ontology:ClassName'"
+            problems.append(
+                InputProblem(
+                    problematic_object=f"{class_ref} (Invalid format, expected 'ontology:ClassName')",
+                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
             continue
 
         ontology_name, class_name = parsed_ref
 
         # Check if the ontology exists
         if ontology_name not in resource_lookup:
-            errors[f"Class reference '{class_ref}'"] = f"Ontology '{ontology_name}' not found"
+            problems.append(
+                InputProblem(
+                    problematic_object=f"{ontology_name}:{class_name} (Ontology '{ontology_name}' not found)",
+                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
+                )
+            )
             continue
 
         # Check if the resource exists in the ontology
         if class_name not in resource_lookup[ontology_name]:
-            errors[f"Class reference '{class_ref}'"] = (
-                f"Resource '{class_name}' not found in ontology '{ontology_name}'"
+            problems.append(
+                InputProblem(
+                    problematic_object=(
+                        f"{ontology_name}:{class_name} "
+                        f"(Resource '{class_name}' not found in ontology '{ontology_name}')"
+                    ),
+                    problem=InputProblemType.UNDEFINED_REFERENCE,
+                )
             )
             continue
 
         # Check if the resource is a subclass of StillImageRepresentation
         if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
-            errors[f"Class reference '{class_ref}'"] = (
-                f"Resource '{class_name}' must be a subclass of 'StillImageRepresentation' "
-                f"(directly or through inheritance)"
+            problems.append(
+                InputProblem(
+                    problematic_object=(
+                        f"{ontology_name}:{class_name} "
+                        f"(Must be a subclass of 'StillImageRepresentation' directly or through inheritance)"
+                    ),
+                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
+                )
             )
+    if problems:
+        err_msg = (
+            "All classes in project.default_permissions_overrule.limited_view "
+            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
+            "permission is only implemented for images (i.e. blurring, watermarking). \n"
+            "In order to check, the classes must be provided in the form \n"
+            '    "limited_view": ["ontoname:Classname", ...]\n\n'
+            "The following classes do not meet this requirement:\n"
+        )
+        return CollectedProblems(err_msg, problems)
+    return None
 
-    if errors:
-        raise InvalidPermissionsOverruleError(errors)
-    return True
 
-
-def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [p["name"] for p in onto["properties"]]
@@ -251,11 +285,16 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
             if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
-                errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
-
-    if errors:
-        raise UndefinedSuperPropertiesError(errors)
-    return True
+                invalid_refs_str = ", ".join(invalid_references)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{prop['name']} (invalid super-properties: {invalid_refs_str})",
+                        problem=InputProblemType.UNDEFINED_SUPER_PROPERTY,
+                    )
+                )
+    if problems:
+        return CollectedProblems("The following properties have undefined super-properties:", problems)
+    return None
 
 
 def _find_duplicate_res_and_props(
@@ -300,8 +339,8 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
-def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         resnames = [r["name"] for r in onto["resources"]]
@@ -323,15 +362,20 @@ def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> bool
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
             if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
+                invalid_refs_str = ", ".join(invalid_references)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{res['name']} (invalid super-classes: {invalid_refs_str})",
+                        problem=InputProblemType.UNDEFINED_SUPER_CLASS,
+                    )
+                )
+    if problems:
+        return CollectedProblems("The following classes have undefined super-classes:", problems)
+    return None
 
-    if errors:
-        raise UndefinedSuperClassError(errors)
-    return True
 
-
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    errors: dict[str, list[str]] = {}
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
@@ -353,29 +397,39 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
 
             if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
+                invalid_cards_str = ", ".join(invalid_cardnames)
+                problems.append(
+                    InputProblem(
+                        problematic_object=f"{ontoname}:{res['name']} (invalid cardinalities: {invalid_cards_str})",
+                        problem=InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
+                    )
+                )
+    if problems:
+        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
+    return None
 
-    if errors:
-        raise UndefinedPropertyInCardinalityError(errors)
-    return True
 
-
-def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
+def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:
     link_properties = _collect_link_properties(project_definition)
     errors = _identify_problematic_cardinalities(project_definition, link_properties)
-
-    if len(errors) == 0:
-        return True
-    raise MinCardinalityOneWithCircleError(errors)
+    if errors:
+        msg = (
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "between resources. This is not a problem in itself, but if you try to upload data that actually "
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+            "cardinality of 0-1 or 0-n. \n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+        )
+        return CollectedProblems(msg, errors)
+    return None
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
     """
     Maps the properties derived from hasLinkTo to the resource classes they point to.
-
     Args:
         project_definition: parsed JSON file
-
     Returns:
         A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
     """
@@ -420,22 +474,23 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
 def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]],
-) -> list[tuple[str, str]]:
+) -> list[CreateProblem]:
     """
     Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
-
     Args:
         project_definition: parsed JSON file
         link_properties: mapping of hasLinkTo-properties to classes they point to,
             e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-
     Returns:
         a (possibly empty) list of (resource, problematic_cardinality) tuples
     """
     cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
     graph = _make_cardinality_dependency_graph(dependencies)
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
-    return sorted(errors, key=lambda x: x[0])
+    return [
+        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE)
+        for (res, prop) in errors
+    ]
 
 
 def _extract_cardinalities_from_project(
@@ -497,23 +552,37 @@ def _find_circles_with_min_one_cardinality(
     return errors
 
 
-def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
+    problems: list[CollectedProblems] = []
 
-    if not resnames_duplicates and not propnames_duplicates:
-        return True
-
-    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    res_problems: list[CreateProblem] = []
     for ontoname, res_duplicates in resnames_duplicates.items():
-        for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+        res_problems.extend(
+            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_CLASS_NAME) for dup in res_duplicates]
+        )
+    if res_problems:
+        problems.append(
+            CollectedProblems("The following class names appear multiple times in one ontology:", res_problems)
+        )
+
+    prop_problems: list[CreateProblem] = []
     for ontoname, prop_duplicates in propnames_duplicates.items():
-        for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+        prop_problems.extend(
+            [InputProblem(f"{ontoname}:{dup}", InputProblemType.DUPLICATE_PROPERTY_NAME) for dup in prop_duplicates]
+        )
+    if prop_problems:
+        problems.append(
+            CollectedProblems("The following property names appear multiple times in one ontology:", prop_problems)
+        )
 
-    raise DuplicateClassAndPropertiesError(err_msg)
+    return problems
 
 
-def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
+def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:
     if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        raise DuplicateListNamesError(listnode_duplicates)
+        return CollectedProblems(
+            "The following list node names are used multiple times in your project:",
+            [InputProblem(", ".join(listnode_duplicates), InputProblemType.DUPLICATE_LIST_NAME)],
+        )
+    return None

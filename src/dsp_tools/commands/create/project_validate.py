@@ -121,7 +121,7 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
 
 def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | None:
     if duplicates := _find_duplicates_in_list(cls_list):
-        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+        cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
         return CollectedProblems(
             "It is not permissible to have multiple classes with the same name in one ontology. "
             "The following class names were used more than once:",
@@ -135,7 +135,7 @@ def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | Non
 
 def _check_for_duplicate_properties(prop_iris: list[str]) -> CollectedProblems | None:
     if duplicates := _find_duplicates_in_list(prop_iris):
-        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+        cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
         return CollectedProblems(
             "It is not permissible to have multiple properties with the same name in one ontology. "
             "The following class names were used more than once:",

@@ -24,6 +24,8 @@ jobs:
         run: just ruff-format-check
       - name: Linting with mypy
         run: just mypy
+      - name: Find dead code with vulture
+        run: just vulture
       - name: yamllint
         run: just yamllint
       - name: Check formatting of YAML files

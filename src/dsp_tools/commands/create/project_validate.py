@@ -20,12 +20,12 @@ from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
-def parse_and_validate_project(project_file: Path) -> tuple[bool, dict[str, Any]]:
+def parse_and_validate_project(project_file: Path) -> tuple[list[CollectedProblems], dict[str, Any]]:
     project_definition = parse_json_file(project_file)
     return _validate_parsed_project(project_definition), project_definition
 
 
-def _validate_parsed_project(project_definition: dict[str, Any]) -> bool:
+def _validate_parsed_project(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     _validate_with_json_schema(project_definition)
     return _complex_project_validation(project_definition)
 

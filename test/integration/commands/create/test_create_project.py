@@ -13,8 +13,6 @@ from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
-from dsp_tools.commands.create.project_validate import _collect_link_properties
-from dsp_tools.commands.create.project_validate import _identify_problematic_cardinalities
 from dsp_tools.commands.create.project_validate import _validate_parsed_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import JSONFileParsingError
@@ -56,12 +54,24 @@ def test_json_schema_validation_error():
 
 def test_circular_reference_error(tp_circular_ontology):
     result = _validate_parsed_project(tp_circular_ontology)
-    assert not result
+    assert len(result) == 1
+    problem = result[0]
+    # we do not know which of the two links we get returned through the graph diagnostics
+    # it is either one of those two which form the circle
+    circle_options = [
+        "Class: circular-onto:AnyResource / Property: circular-onto:linkToTestThing1",
+        "Class: circular-onto:TestThing3 / Property: circular-onto:linkToResource",
+    ]
+    assert problem.problems[0].problematic_object in circle_options
+    assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
 
 
 def test_duplicate_list_error():
-    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
-    assert not result
+    result = _validate_parsed_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+    assert len(result) == 1
+    problem = result[0]
+    assert problem.problems[0].problematic_object == "asdf"
+    assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
@@ -109,16 +119,6 @@ def test_check_for_undefined_super_class(tp_systematic: dict[str, Any]) -> None:
     assert ":SuperResourceThatWasNotDefined" in problems.problems[0].problematic_object
 
 
-def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> None:
-    link_properties = _collect_link_properties(tp_circular_ontology)
-    errors = _identify_problematic_cardinalities(tp_circular_ontology, link_properties)
-    expected_errors = [
-        ("circular-onto:AnyResource", "circular-onto:linkToTestThing1"),
-        ("circular-onto:TestThing3", "circular-onto:linkToResource"),
-    ]
-    assert sorted(errors) == sorted(expected_errors)
-
-
 def test_parse_json_file_invalid_file() -> None:
     err_msg = regex.escape(
         "The input file 'testdata/xml-data/test-data-systematic-4123.xml' cannot be parsed to a JSON object."
@@ -133,7 +133,10 @@ def test_check_for_duplicate_resources() -> None:
         tp_duplicate_resource: dict[str, Any] = json.load(json_file)
 
     result = _check_for_duplicate_res_and_props(tp_duplicate_resource)
-    assert not result
+    assert len(result) == 1
+    problem = result[0]
+    assert problem.problems[0].problematic_object == "testonto:minimalResource"
+    assert problem.problems[0].problem == InputProblemType.DUPLICATE_CLASS_NAME
 
 
 def test_check_for_duplicate_properties() -> None:
@@ -141,7 +144,10 @@ def test_check_for_duplicate_properties() -> None:
     with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
         tp_duplicate_property: dict[str, Any] = json.load(json_file)
     result = _check_for_duplicate_res_and_props(tp_duplicate_property)
-    assert not result
+    assert len(result) == 1
+    problem = result[0]
+    assert problem.problems[0].problematic_object == "testonto:hasInt"
+    assert problem.problems[0].problem == InputProblemType.DUPLICATE_PROPERTY_NAME
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.resources
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -18,10 +19,12 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -46,8 +49,10 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
     parsing_result = parse_project(json_project, server)
     if not isinstance(parsing_result, ParsedProject):
         return parsing_result
-    if json_validation_problems := _complex_json_project_validation(json_project):
-        return json_validation_problems
+    validation_problems = _complex_json_project_validation(json_project)
+    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies))
+    if validation_problems:
+        return validation_problems
     return parsing_result
 
 
@@ -100,6 +105,52 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     if card_probs := _check_cardinalities_of_circular_references(project_definition):
         problems.append(card_probs)
     return problems
+
+
+def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list[CollectedProblems]:
+    cls_iris = []
+    prop_iris = []
+    for o in ontologies:
+        cls_iris.extend([x.name for x in o.classes])
+        prop_iris.extend([x.name for x in o.properties])
+    problems = []
+    if dup_cls := _check_for_duplicate_classes(cls_iris):
+        problems.append(dup_cls)
+    if dup_props := _check_for_duplicate_classes(prop_iris):
+        problems.append(dup_props)
+    return problems
+
+
+def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | None:
+    if duplicates := _find_duplicates_in_list(cls_list):
+        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+        return CollectedProblems(
+            "It is not permissible to have multiple classes with the same name in one ontology. "
+            "The following class names were used more than once:",
+            [
+                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_CLASS_NAME)
+                for x in cleaned_iris
+            ],
+        )
+    return None
+
+
+def _check_for_duplicate_properties(prop_list: list[str]) -> CollectedProblems | None:
+    if duplicates := _find_duplicates_in_list(prop_list):
+        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+        return CollectedProblems(
+            "It is not permissible to have multiple properties with the same name in one ontology. "
+            "The following class names were used more than once:",
+            [
+                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_PROPERTY_NAME)
+                for x in cleaned_iris
+            ],
+        )
+    return None
+
+
+def _find_duplicates_in_list(input_list: list[str]) -> list[str]:
+    return [item for item, count in Counter(input_list).items() if count > 1]
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:

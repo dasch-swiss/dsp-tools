@@ -150,7 +150,7 @@ def _check_for_undefined_supers(
     input_problem: InputProblemType,
     location: str,
 ) -> CollectedProblems | None:
-    problems = []
+    problems: list[CreateProblem] = []
     for ele in parsed_info:
         if undefined_supers := _check_has_undefined_references(ele.supers, all_iris):
             supers = sorted(from_dsp_iri_to_prefixed_iri(x) for x in undefined_supers)

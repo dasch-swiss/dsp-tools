@@ -18,6 +18,8 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.json_parsing import parse_json_file
@@ -34,12 +36,22 @@ def validate_project_only(project_file: Path) -> bool:
     return True
 
 
-def parse_and_validate_project(project_file: Path) -> tuple[list[CollectedProblems], dict[str, Any]]:
-    project_definition = parse_json_file(project_file)
-    return _validate_parsed_project(project_definition), project_definition
+def parse_and_validate_project(project_file: Path, server: str) -> list[CollectedProblems] | ParsedProject:
+    json_project = parse_json_file(project_file)
+    return _validate_parsed_json_project(json_project, server)
 
 
-def _validate_parsed_project(project_definition: dict[str, Any]) -> list[CollectedProblems]:
+def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:
+    _validate_with_json_schema(json_project)
+    parsing_result = parse_project(json_project, server)
+    if not isinstance(parsing_result, ParsedProject):
+        return parsing_result
+    if json_validation_problems := _validate_json_project(json_project):
+        return json_validation_problems
+    return parsing_result
+
+
+def _validate_json_project(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     _validate_with_json_schema(project_definition)
     return _complex_project_validation(project_definition)
 

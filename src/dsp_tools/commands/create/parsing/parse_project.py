@@ -43,12 +43,7 @@ def parse_lists_only(
     return project_metadata, parsed_lists
 
 
-def parse_project(project_file: Path, api_url: str) -> ParsedProject | list[CollectedProblems]:
-    complete_json = _parse_and_validate(project_file)
-    return _parse_project(complete_json, api_url)
-
-
-def _parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject | list[CollectedProblems]:
+def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject | list[CollectedProblems]:
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)

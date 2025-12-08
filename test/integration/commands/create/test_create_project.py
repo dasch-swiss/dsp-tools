@@ -13,10 +13,12 @@ from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
-from dsp_tools.commands.create.project_validate import _validate_parsed_project
+from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import JSONFileParsingError
 from dsp_tools.utils.json_parsing import parse_json_file
+
+SERVER = "https://server.che"
 
 
 @pytest.fixture
@@ -42,18 +44,18 @@ def tp_circular_ontology() -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
-    assert _validate_parsed_project(tp_systematic) == []
+    assert _validate_parsed_json_project(tp_systematic, SERVER) == []
 
 
 def test_json_schema_validation_error():
     with pytest.raises(
         ProjectJsonSchemaValidationError, match=regex.escape("validation error: 'hasColor' does not match")
     ):
-        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"))
+        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"), SERVER)
 
 
 def test_circular_reference_error(tp_circular_ontology):
-    result = _validate_parsed_project(tp_circular_ontology)
+    result = _validate_parsed_json_project(tp_circular_ontology, SERVER)
     assert len(result) == 1
     problem = result[0]
     # we do not know which of the two links we get returned through the graph diagnostics
@@ -67,7 +69,9 @@ def test_circular_reference_error(tp_circular_ontology):
 
 
 def test_duplicate_list_error():
-    result, _ = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+    result, _ = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"), SERVER
+    )
     assert len(result) == 1
     problem = result[0]
     assert problem.problems[0].problematic_object == "first node of testlist"

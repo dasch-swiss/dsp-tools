@@ -114,7 +114,7 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
     problems = []
     if dup_cls := _check_for_duplicate_classes(cls_iris):
         problems.append(dup_cls)
-    if dup_props := _check_for_duplicate_classes(prop_iris):
+    if dup_props := _check_for_duplicate_properties(prop_iris):
         problems.append(dup_props)
     return problems
 
@@ -127,6 +127,20 @@ def _check_for_duplicate_classes(cls_list: list[str]) -> CollectedProblems | Non
             "The following class names were used more than once:",
             [
                 InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_CLASS_NAME)
+                for x in cleaned_iris
+            ],
+        )
+    return None
+
+
+def _check_for_duplicate_properties(prop_iris: list[str]) -> CollectedProblems | None:
+    if duplicates := _find_duplicates_in_list(prop_iris):
+        cleaned_iris = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+        return CollectedProblems(
+            "It is not permissible to have multiple properties with the same name in one ontology. "
+            "The following class names were used more than once:",
+            [
+                InputProblem(from_dsp_iri_to_prefixed_iri(x), InputProblemType.DUPLICATE_PROPERTY_NAME)
                 for x in cleaned_iris
             ],
         )

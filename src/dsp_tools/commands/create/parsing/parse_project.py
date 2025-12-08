@@ -31,18 +31,6 @@ if dotenv_file:
     load_dotenv(dotenv_path=dotenv_file, override=False)
 
 
-def parse_lists_only(
-    project_file: Path,
-) -> tuple[ParsedProjectMetadata, list[ParsedList]] | CollectedProblems:
-    complete_json = _parse_and_validate(project_file)
-    project_json = complete_json["project"]
-    project_metadata = _parse_metadata(project_json)
-    parsed_lists, problems = _parse_lists(project_json)
-    if isinstance(problems, CollectedProblems):
-        return problems
-    return project_metadata, parsed_lists
-
-
 def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject | list[CollectedProblems]:
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]

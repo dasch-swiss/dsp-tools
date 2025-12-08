@@ -25,17 +25,21 @@ def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:
             print_all_problem_collections(parsing_result)
             return False
         case ParsedProject():
-            list_result = parsing_result.lists
-            match list_result:
-                case None:
-                    msg = "Your file did not contain any lists, therefore no lists were created on the server."
-                    logger.info(msg)
-                    print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
-                    return False
-                case list():
-                    return _execute_list_creation(parsing_result.project_metadata, list_result, creds)
-                case _:
-                    raise InternalError("Unreachable result of project parsing.")
+            return _handle_parsed_project_result(parsing_result, creds)
+        case _:
+            raise InternalError("Unreachable result of project parsing.")
+
+
+def _handle_parsed_project_result(parsed_project: ParsedProject, creds: ServerCredentials) -> bool:
+    list_result = parsed_project.lists
+    match list_result:
+        case None:
+            msg = "Your file did not contain any lists, therefore no lists were created on the server."
+            logger.info(msg)
+            print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
+            return False
+        case list():
+            return _execute_list_creation(parsed_project.project_metadata, list_result, creds)
         case _:
             raise InternalError("Unreachable result of project parsing.")
 

@@ -59,8 +59,8 @@ def test_circular_reference_error(tp_circular_ontology):
     # we do not know which of the two links we get returned through the graph diagnostics
     # it is either one of those two which form the circle
     circle_options = [
-        "Class: circular-onto:AnyResource / Property: circular-onto:linkToTestThing1",
-        "Class: circular-onto:TestThing3 / Property: circular-onto:linkToResource",
+        "Class: circular-onto:Class1 / Property: circular-onto:linkToClass2",
+        "Class: circular-onto:Class2 / Property: circular-onto:linkToClass1",
     ]
     assert problem.problems[0].problematic_object in circle_options
     assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE

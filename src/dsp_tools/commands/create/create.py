@@ -20,17 +20,23 @@ from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
-def create(project_file: Path, creds: ServerCredentials) -> bool:
+def create(project_file: Path, creds: ServerCredentials) -> bool:  # noqa: PLR0912 (Too many branches)
     overall_success = True
 
     parsed_project = parse_and_validate_project(project_file, creds.server)
     if not isinstance(parsed_project, ParsedProject):
         print_all_problem_collections(parsed_project)
         return False
+    else:
+        msg = "JSON project file is syntactically correct and passed validation."
+        print(BOLD_GREEN + "    JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT)
+        logger.info(msg)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
 

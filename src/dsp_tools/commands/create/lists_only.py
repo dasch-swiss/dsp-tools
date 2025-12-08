@@ -12,6 +12,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import ProjectNotFoundError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
@@ -20,6 +21,10 @@ def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:
     if not isinstance(result, ParsedProject):
         print_all_problem_collections(result)
         return False
+    else:
+        msg = "JSON project file is syntactically correct and passed validation."
+        print(BOLD_GREEN + "    JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT)
+        logger.info(msg)
     project_metadata, parsed_lists = result.project_metadata, result.lists
 
     if not parsed_lists:

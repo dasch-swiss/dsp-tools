@@ -42,7 +42,7 @@ def tp_circular_ontology() -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
-    assert _validate_parsed_project(tp_systematic) is True
+    assert _validate_parsed_project(tp_systematic) == []
 
 
 def test_json_schema_validation_error():

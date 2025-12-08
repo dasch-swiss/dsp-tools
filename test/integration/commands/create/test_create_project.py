@@ -7,7 +7,6 @@ import pytest
 import regex
 
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
-from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
@@ -91,10 +90,12 @@ def test_check_for_undefined_cardinalities() -> None:
 
 
 def test_check_for_undefined_super_property() -> None:
-    problems = parse_and_validate_project(
+    result = parse_and_validate_project(
         Path("testdata/invalid-testdata/json-project/nonexisting-super-property.json"), SERVER
     )
-    assert isinstance(problems, CollectedProblems)
+    assert isinstance(result, list)
+    assert len(result) == 1
+    problems = result[0]
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.UNDEFINED_SUPER_PROPERTY
     assert "nonexisting-super-property-onto:hasSimpleText" in problems.problems[0].problematic_object
@@ -102,11 +103,12 @@ def test_check_for_undefined_super_property() -> None:
 
 
 def test_check_for_undefined_super_class() -> None:
-    problems = parse_and_validate_project(
+    result = parse_and_validate_project(
         Path("testdata/invalid-testdata/json-project/nonexisting-super-resource.json"), SERVER
     )
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
+    assert isinstance(result, list)
+    assert len(result) == 1
+    problems = result[0]
     assert problems.problems[0].problem == InputProblemType.UNDEFINED_SUPER_CLASS
     assert "nonexisting-super-resource-onto:TestThing2" in problems.problems[0].problematic_object
     assert ":SuperResourceThatWasNotDefined" in problems.problems[0].problematic_object

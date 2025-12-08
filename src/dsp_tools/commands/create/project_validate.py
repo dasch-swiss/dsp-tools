@@ -161,7 +161,9 @@ def _check_for_undefined_supers(
                 )
             )
     if problems:
-        return CollectedProblems(f"The following {location} have undefined supers:", problems)
+        return CollectedProblems(
+            f"The following {location} have undefined supers:", sorted(problems, key=lambda x: x.problematic_object)
+        )
     return None
 
 

@@ -46,7 +46,7 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
     parsing_result = parse_project(json_project, server)
     if not isinstance(parsing_result, ParsedProject):
         return parsing_result
-    if json_validation_problems := _complex_project_validation(json_project):
+    if json_validation_problems := _complex_json_project_validation(json_project):
         return json_validation_problems
     return parsing_result
 
@@ -81,7 +81,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
+def _complex_json_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
     problems: list[CollectedProblems] = []
     # make some checks that are too complex for JSON schema
     if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):

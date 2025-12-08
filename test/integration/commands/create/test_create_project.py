@@ -6,9 +6,6 @@ from typing import Any
 import pytest
 import regex
 
-from dsp_tools.commands.create.exceptions import DuplicateClassAndPropertiesError
-from dsp_tools.commands.create.exceptions import DuplicateListNamesError
-from dsp_tools.commands.create.exceptions import MinCardinalityOneWithCircleError
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
@@ -58,16 +55,13 @@ def test_json_schema_validation_error():
 
 
 def test_circular_reference_error(tp_circular_ontology):
-    with pytest.raises(
-        MinCardinalityOneWithCircleError,
-        match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'"),
-    ):
-        _validate_parsed_project(tp_circular_ontology)
+    result = _validate_parsed_project(tp_circular_ontology)
+    assert not result
 
 
 def test_duplicate_list_error():
-    with pytest.raises(DuplicateListNamesError, match=regex.escape("Listnode names must be unique across all lists")):
-        parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"))
+    assert not result
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
@@ -138,26 +132,16 @@ def test_check_for_duplicate_resources() -> None:
     with open(tp_duplicate_resource_file, encoding="utf-8") as json_file:
         tp_duplicate_resource: dict[str, Any] = json.load(json_file)
 
-    with pytest.raises(
-        DuplicateClassAndPropertiesError,
-        match=r"Resource names and property names must be unique inside every ontology\.\n"
-        r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
-        r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n",
-    ):
-        _check_for_duplicate_res_and_props(tp_duplicate_resource)
+    result = _check_for_duplicate_res_and_props(tp_duplicate_resource)
+    assert not result
 
 
 def test_check_for_duplicate_properties() -> None:
     tp_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
     with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
         tp_duplicate_property: dict[str, Any] = json.load(json_file)
-    with pytest.raises(
-        DuplicateClassAndPropertiesError,
-        match=r"Resource names and property names must be unique inside every ontology\.\n"
-        r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
-        r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n",
-    ):
-        _check_for_duplicate_res_and_props(tp_duplicate_property)
+    result = _check_for_duplicate_res_and_props(tp_duplicate_property)
+    assert not result
 
 
 if __name__ == "__main__":

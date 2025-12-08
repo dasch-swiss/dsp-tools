@@ -8,31 +8,41 @@ from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
+from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ProjectNotFoundError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:
-    result = parse_and_validate_project(project_file, creds.server)
-    if not isinstance(result, ParsedProject):
-        print_all_problem_collections(result)
-        return False
-    else:
-        msg = "JSON project file is syntactically correct and passed validation."
-        print(BOLD_GREEN + "    JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT)
-        logger.info(msg)
-    project_metadata, parsed_lists = result.project_metadata, result.lists
+    parsing_result = parse_and_validate_project(project_file, creds.server)
+    match parsing_result:
+        case list():
+            print_all_problem_collections(parsing_result)
+            return False
+        case ParsedProject():
+            list_result = parsing_result.lists
+            match list_result:
+                case None:
+                    msg = "Your file did not contain any lists, therefore no lists were created on the server."
+                    logger.info(msg)
+                    print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
+                    return False
+                case list():
+                    return _execute_list_creation(parsing_result.project_metadata, list_result, creds)
+                case _:
+                    raise InternalError("Unreachable result of project parsing.")
+        case _:
+            raise InternalError("Unreachable result of project parsing.")
 
-    if not parsed_lists:
-        msg = "Your file did not contain any lists, therefore no lists were created on the server."
-        logger.info(msg)
-        print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
-        return True
 
+def _execute_list_creation(
+    project_metadata: ParsedProjectMetadata, parsed_lists: list[ParsedList], creds: ServerCredentials
+) -> bool:
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     project_info = ProjectClientLive(creds.server, auth)
     try:

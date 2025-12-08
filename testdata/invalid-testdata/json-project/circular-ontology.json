@@ -39,6 +39,30 @@
                             "en": "has region"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToClassOk1",
+                        "super": [
+                            "foaf:fantasy",
+                            "isPartOf"
+                        ],
+                        "object": ":ClassCardinalityOk1",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToClassOk2",
+                        "super": [
+                            "foaf:fantasy",
+                            "isPartOf"
+                        ],
+                        "object": ":ClassCardinalityOk2",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
                     }
                 ],
                 "resources": [
@@ -76,7 +100,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToClass1",
+                                "propname": ":linkToClassOk2",
                                 "cardinality": "0-n"
                             }
                         ]
@@ -89,7 +113,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToClass2",
+                                "propname": ":linkToClassOk1",
                                 "cardinality": "0-1"
                             }
                         ]

@@ -129,12 +129,30 @@ def _get_dsp_tools_versions() -> tuple[Version, Version] | None:
     return installed, latest
 
 
+def _print_version_info() -> None:
+    """
+    Print version information including installed version and latest available version from PyPI.
+    If PyPI cannot be reached, only print the installed version.
+    """
+    installed_version = version("dsp-tools")
+    print(f"DSP-TOOLS version {installed_version}")
+
+    versioning_result = _get_dsp_tools_versions()
+    if versioning_result:
+        installed, latest = versioning_result
+        if latest > installed:
+            print(f"Latest version available: {latest}")
+        elif latest == installed:
+            print("You are using the latest version")
+
+
 def _parse_arguments(
     user_args: Sequence[str],
     parser: argparse.ArgumentParser,
 ) -> argparse.Namespace:
     """
     Parse the user-provided CLI arguments.
+    If --version flag is provided, print version information and exit.
     If no action is provided,
     print the help text and exit with error code 1.
 
@@ -146,6 +164,9 @@ def _parse_arguments(
         parsed arguments
     """
     args = parser.parse_args(user_args)
+    if hasattr(args, "version") and args.version:
+        _print_version_info()
+        sys.exit(0)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
         sys.exit(1)

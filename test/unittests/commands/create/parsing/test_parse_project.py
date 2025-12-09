@@ -2,6 +2,7 @@
 
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -60,17 +61,36 @@ class TestParseMetadata:
 
 
 class TestParsePermissions:
-    def test_parse_permissions_without_overrule(self, project_json_create):
-        result = _parse_permissions(project_json_create["project"])
+    def test_parse_permissions_without_overrule(self, project_json_create, prefixes):
+        result = _parse_permissions(project_json_create["project"], prefixes)
         assert isinstance(result, ParsedPermissions)
-        assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is None
+        assert result.default_permissions == DefaultPermissions.PRIVATE
+        assert result.overrule_private is None
+        assert result.overrule_limited_view is False
 
-    def test_parse_permissions_with_overrule(self, project_json_systematic):
-        result = _parse_permissions(project_json_systematic["project"])
+    def test_parse_permissions_with_overrule_all(self, project_json_systematic, prefixes):
+        result = _parse_permissions(project_json_systematic["project"], prefixes)
+        assert isinstance(result, ParsedPermissions)
+        assert result.default_permissions == DefaultPermissions.PUBLIC
+        assert result.overrule_private == ["asdf"]
+        assert result.overrule_limited_view is True
+
+    def test_parse_permissions_with_overrule_some(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {
+                "private": ["my-onto:PrivateResource", "my-onto:privateProp"],
+                "limited_view": [
+                    "my-onto:Image1",
+                    "my-onto:Image2",
+                ],
+            },
+        }
+        result = _parse_permissions(proj, prefixes)
         assert isinstance(result, ParsedPermissions)
         assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is not None
+        assert result.overrule_private is None
+        assert result.overrule_limited_view is True
 
 
 class TestParseGroups:

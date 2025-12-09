@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 
@@ -27,10 +28,22 @@ class ParsedProjectMetadata:
     enabled_licenses: list[str]
 
 
+class DefaultPermissions(Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
+@dataclass
+class LimitedViewPermissions:
+    all_limited: bool
+    limited_selection: list[str] | None
+
+
 @dataclass
 class ParsedPermissions:
-    default_permissions: str
-    default_permissions_overrule: dict[str, str | list[str]] | None
+    default_permissions: DefaultPermissions
+    overrule_private: list[str] | None
+    overrule_limited_view: LimitedViewPermissions | None
 
 
 @dataclass

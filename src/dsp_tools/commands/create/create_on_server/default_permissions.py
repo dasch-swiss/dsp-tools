@@ -4,12 +4,12 @@ from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions, DefaultPermissions
 
 
 def create_default_permissions(
     perm_client: PermissionsClient,
-    default_permissions: str,
-    default_permissions_overrule: dict[str, str | list[str]] | None,
+    parsed_permissions: ParsedPermissions,
     shortcode: str,
 ) -> bool:
     print(BOLD + "Processing default permissions:" + RESET_TO_DEFAULT)
@@ -18,12 +18,12 @@ def create_default_permissions(
         print("    WARNING: Cannot delete the existing default permissions")
         logger.warning("Cannot delete the existing default permissions")
         return False
-    if not _create_new_doap(perm_client, default_permissions):
+    if not _create_new_doap(perm_client, parsed_permissions.default_permissions):
         print("    WARNING: Cannot create default permissions")
         logger.warning("Cannot create default permissions")
         return False
-    if default_permissions_overrule:
-        if not _create_overrules(perm_client, default_permissions_overrule, shortcode):
+    if parsed_permissions.overrule_private or parsed_permissions.overrule_limited_view:
+        if not _create_overrules(perm_client, parsed_permissions, shortcode):
             print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
@@ -43,12 +43,12 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
     return True
 
 
-def _create_new_doap(perm_client: PermissionsClient, default_permissions: str) -> bool:
+def _create_new_doap(perm_client: PermissionsClient, default_permissions: DefaultPermissions) -> bool:
     perm = [
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
     ]
-    if default_permissions == "public":
+    if default_permissions == DefaultPermissions.PUBLIC:
         perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}KnownUser", "name": "V", "permissionCode": None})
         perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "V", "permissionCode": None})
     payload = {
@@ -60,21 +60,22 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: str) -
 
 
 def _create_overrules(
-    perm_client: PermissionsClient, default_permissions_overrule: dict[str, str | list[str]], shortcode: str
+    perm_client: PermissionsClient, parsed_permissions: ParsedPermissions, shortcode: str
 ) -> bool:
     overall_success = True
-
-    # Handle private overrules
-    for entity in default_permissions_overrule.get("private", []):
-        first_letter = entity.split(":")[-1][0]
-        is_res = first_letter.upper() == first_letter
-        entity_iri = _get_iri_from_prefixed_name(entity, shortcode, perm_client.auth.server)
-        if is_res:
-            success = _create_one_private_overrule(perm_client=perm_client, res_iri=entity_iri, prop_iri=None)
-        else:
-            success = _create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=entity_iri)
-        if not success:
-            overall_success = False
+    if parsed_permissions.overrule_private:
+        # Handle private overrules
+        for entity in parsed_permissions.overrule_private:
+            first_letter = entity.split(":")[-1][0]
+            # TODO: what is the diagnostics here?
+            is_res = first_letter.upper() == first_letter
+            entity_iri = _get_iri_from_prefixed_name(entity, shortcode, perm_client.auth.server)
+            if is_res:
+                success = _create_one_private_overrule(perm_client=perm_client, res_iri=entity_iri, prop_iri=None)
+            else:
+                success = _create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=entity_iri)
+            if not success:
+                overall_success = False
 
     # Handle limited_view overrules
     if not (limited_view := default_permissions_overrule.get("limited_view")):

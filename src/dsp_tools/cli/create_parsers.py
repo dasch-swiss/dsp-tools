@@ -32,6 +32,7 @@ def make_parser(
     parser = ArgumentParser(
         description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)"
     )
+    parser.add_argument("--version", action="store_true", help="print the installed and latest verison of dsp-tools")
     subparsers = parser.add_subparsers(
         title="Subcommands", description="Valid subcommands are", help="sub-command help"
     )

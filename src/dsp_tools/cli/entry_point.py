@@ -11,6 +11,7 @@ from importlib.metadata import version
 import regex
 import requests
 from loguru import logger
+from packaging.version import Version
 from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
@@ -92,14 +93,10 @@ def _check_version() -> None:
     If the base version (i.e. the major.minor.micro part of the version) is outdated,
     ask the user if they want to exit or continue anyway.
     """
-    try:
-        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=5)
-    except (requests.ConnectionError, requests.ReadTimeout):
+    versioning_result = _get_dsp_tools_versions()
+    if not versioning_result:
         return
-    if not response.ok:
-        return
-    latest = parse(response.json()["info"]["version"])
-    installed = parse(version("dsp-tools"))
+    installed, latest = versioning_result
     if latest <= installed:  # in the release-please PR, the installed version is always greater than the latest
         return
 
@@ -120,12 +117,42 @@ def _check_version() -> None:
     sys.exit(1)
 
 
+def _get_dsp_tools_versions() -> tuple[Version, Version] | None:
+    try:
+        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=5)
+    except (requests.ConnectionError, requests.ReadTimeout):
+        return None
+    if not response.ok:
+        return None
+    latest = parse(response.json()["info"]["version"])
+    installed = parse(version("dsp-tools"))
+    return installed, latest
+
+
+def _print_version_info() -> None:
+    """
+    Print version information including installed version and latest available version from PyPI.
+    If PyPI cannot be reached, only print the installed version.
+    """
+    installed_version = version("dsp-tools")
+    print(f"DSP-TOOLS version {installed_version}")
+
+    versioning_result = _get_dsp_tools_versions()
+    if versioning_result:
+        installed, latest = versioning_result
+        if latest > installed:
+            print(f"Latest version available: {latest}")
+        elif latest == installed:
+            print("You are using the latest version")
+
+
 def _parse_arguments(
     user_args: Sequence[str],
     parser: argparse.ArgumentParser,
 ) -> argparse.Namespace:
     """
     Parse the user-provided CLI arguments.
+    If --version flag is provided, print version information and exit.
     If no action is provided,
     print the help text and exit with error code 1.
 
@@ -137,6 +164,9 @@ def _parse_arguments(
         parsed arguments
     """
     args = parser.parse_args(user_args)
+    if hasattr(args, "version") and args.version:
+        _print_version_info()
+        sys.exit(0)
     if not hasattr(args, "action"):
         parser.print_help(sys.stderr)
         sys.exit(1)

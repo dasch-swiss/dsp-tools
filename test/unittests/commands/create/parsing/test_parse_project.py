@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
@@ -72,7 +73,7 @@ class TestParsePermissions:
         assert perm.overrule_private is None
         assert perm.overrule_limited_view is None
 
-    def test_parse_permissions_with_overrule_all(self, project_json_systematic, prefixes):
+    def test_parse_permissions_limited_view_all(self, project_json_systematic, prefixes):
         proj = {
             "default_permissions": "public",
             "default_permissions_overrule": {"limited_view": "all"},
@@ -99,6 +100,18 @@ class TestParsePermissions:
         assert isinstance(perm.overrule_limited_view, LimitedViewPermissions)
         assert perm.overrule_limited_view.all_limited is False
         assert perm.overrule_limited_view.limited_selection == [f"{ONTO_NAMESPACE_STR}Image"]
+
+    def test_parse_permissions_unresolvable_prefix(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"private": ["inexistent:privateProp"]},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert perm is None
+        assert isinstance(problems, CollectedProblems)
+        assert len(problems.problems) == 1
+        assert problems.problems[0].problematic_object == "inexistent:privateProp"
+        assert problems.problems[0].problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseGroups:

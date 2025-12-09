@@ -90,6 +90,8 @@ def _parse_permissions(
         resolved_private, resolving_problems = resolve_all_to_absolute_iri(private, None, prefix_lookup)
         if resolving_problems:
             problems.extend(resolving_problems)
+    else:
+        resolved_private = None
     limited_view = found_overrule.get("limited_view")
     limited_resolved, limited_problems = _get_limited_view(limited_view, prefix_lookup)
     problems.extend(limited_problems)
@@ -98,8 +100,8 @@ def _parse_permissions(
             "During the parsing of the permissions the following problems were found:", problems
         )
     return ParsedPermissions(
-        default_permissions=default_perm,  # type: ignore[possibly-undefined]
-        overrule_private=resolved_private,  # type: ignore[possibly-undefined]
+        default_permissions=default_perm,
+        overrule_private=resolved_private,
         overrule_limited_view=limited_resolved,
     ), None
 

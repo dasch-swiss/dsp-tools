@@ -1,10 +1,11 @@
 from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
-from dsp_tools.commands.create.models.parsed_project import ParsedPermissions, DefaultPermissions
 
 
 def create_default_permissions(
@@ -59,9 +60,7 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
     return perm_client.create_new_doap(payload)
 
 
-def _create_overrules(
-    perm_client: PermissionsClient, parsed_permissions: ParsedPermissions, shortcode: str
-) -> bool:
+def _create_overrules(perm_client: PermissionsClient, parsed_permissions: ParsedPermissions, shortcode: str) -> bool:
     overall_success = True
     if parsed_permissions.overrule_private:
         # Handle private overrules

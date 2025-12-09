@@ -29,7 +29,7 @@ def second_onto_iri(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds)
+    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds, False)
 
 
 @pytest.fixture(scope="module")

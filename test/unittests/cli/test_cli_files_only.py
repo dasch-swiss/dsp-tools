@@ -214,5 +214,15 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
     assert call_args_kwargs["fixed_errors_file"] == Path("testdata/xml-data/legal_errors.csv")
 
 
+@patch("dsp_tools.cli.entry_point._print_version_info")
+def test_version_flag(print_version_info: Mock) -> None:
+    """Test that --version flag calls _print_version_info and exits with code 0."""
+    args = ["--version"]
+    with pytest.raises(SystemExit) as exc_info:
+        entry_point.run(args)
+    assert exc_info.value.code == 0
+    print_version_info.assert_called_once()
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

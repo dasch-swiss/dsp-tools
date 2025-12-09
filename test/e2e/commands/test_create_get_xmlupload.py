@@ -46,10 +46,7 @@ def test_directories() -> Generator[dict[str, Path], None, None]:
 
 @pytest.mark.order(1)
 def test_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
-    success = create(
-        project_file=test_project_systematic_file.absolute(),
-        creds=creds,
-    )
+    success = create(project_file=test_project_systematic_file.absolute(), creds=creds, exit_if_exists=False)
     assert success
 
 

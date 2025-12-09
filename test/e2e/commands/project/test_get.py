@@ -16,7 +16,7 @@ PROJECT_SHORTCODE = "4125"
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create(TESTFILE_PATH, creds)
+    assert create(TESTFILE_PATH, creds, False)
 
 
 @pytest.fixture(scope="module")

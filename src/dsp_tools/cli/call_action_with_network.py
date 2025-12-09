@@ -202,5 +202,6 @@ def call_create(args: argparse.Namespace) -> bool:
             success = create(
                 project_file=project_file,
                 creds=creds,
+                exit_if_exists=args.exit_if_exists,
             )
     return success

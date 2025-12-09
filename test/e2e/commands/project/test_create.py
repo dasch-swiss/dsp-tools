@@ -16,8 +16,6 @@ PROPS_IN_E2E_TESTONTO_JSON = 1
 RESCLASSES_IN_E2E_TESTONTO_JSON = 3
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
-EXIT_IF_EXISTS = True
-
 
 @pytest.fixture(scope="module")
 def e2e_testonto_iri(creds: ServerCredentials) -> str:
@@ -31,7 +29,7 @@ def second_onto_iri(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
-    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds, EXIT_IF_EXISTS)
+    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds, False)
 
 
 @pytest.fixture(scope="module")

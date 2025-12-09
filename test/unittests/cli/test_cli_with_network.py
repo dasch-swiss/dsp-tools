@@ -43,10 +43,7 @@ class TestCreate:
         args = f"create --lists-only {PROJECT_JSON_PATH}".split()
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
-        create_lists.assert_called_once_with(
-            project_file=PROJECT_JSON_PATH,
-            creds=creds,
-        )
+        create_lists.assert_called_once_with(project_file=PROJECT_JSON_PATH, creds=creds, exit_if_exists=False)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.validate_project_only")
@@ -54,7 +51,7 @@ class TestCreate:
         validate_project_only.return_value = True
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH, "http://0.0.0.0:3333")
+        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH, "http://0.0.0.0:3333", exit_if_exists=False)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create")
@@ -62,10 +59,15 @@ class TestCreate:
         args = f"create {PROJECT_JSON_PATH}".split()
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
-        create.assert_called_once_with(
-            project_file=PROJECT_JSON_PATH,
-            creds=creds,
-        )
+        create.assert_called_once_with(project_file=PROJECT_JSON_PATH, creds=creds, exit_if_exists=False)
+
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.create")
+    def test_project_create_exit_if_exists(self, create: Mock, check_docker: Mock) -> None:
+        args = f"create {PROJECT_JSON_PATH} --exit-if-exists".split()
+        creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        entry_point.run(args)
+        create.assert_called_once_with(project_file=PROJECT_JSON_PATH, creds=creds, exit_if_exists=True)
 
 
 class TestGet:

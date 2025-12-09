@@ -31,8 +31,8 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, e
 def _exit_if_create_should_not_continue(shortcode: str, exit_if_exists: bool) -> None:
     if exit_if_exists:
         msg = (
-            "Project already exists on the server, the flag '--exit-if-exists' was set. "
-            "Therefore, the process is aborted without further uploads."
+            "The project already exists on the server and the flag '--exit-if-exists' was set. "
+            "The process is aborted without further uploads."
         )
         logger.info(msg)
         print(BACKGROUND_BOLD_CYAN + msg + RESET_TO_DEFAULT)

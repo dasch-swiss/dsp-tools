@@ -14,7 +14,7 @@ from dsp_tools.commands.create.lists_only import create_lists_only
 
 @pytest.fixture(scope="module")
 def _create_project_0003(creds: ServerCredentials):
-    assert create(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
+    assert create(Path("testdata/json-project/create-project-no-lists-0003.json"), creds, False)
 
 
 @pytest.fixture(scope="module")

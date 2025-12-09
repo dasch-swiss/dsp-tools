@@ -199,8 +199,5 @@ def call_create(args: argparse.Namespace) -> bool:
         case False, True:
             success = validate_project_only(project_file, creds.server)
         case False, False:
-            success = create(
-                project_file=project_file,
-                creds=creds,
-            )
+            success = create(project_file=project_file, creds=creds, exit_if_exists=args.exit_if_exists)
     return success

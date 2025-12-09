@@ -11,6 +11,7 @@ from importlib.metadata import version
 import regex
 import requests
 from loguru import logger
+from packaging.version import Version
 from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
@@ -92,14 +93,10 @@ def _check_version() -> None:
     If the base version (i.e. the major.minor.micro part of the version) is outdated,
     ask the user if they want to exit or continue anyway.
     """
-    try:
-        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=5)
-    except (requests.ConnectionError, requests.ReadTimeout):
+    versioning_result = _get_dsp_tools_versions()
+    if not versioning_result:
         return
-    if not response.ok:
-        return
-    latest = parse(response.json()["info"]["version"])
-    installed = parse(version("dsp-tools"))
+    installed, latest = versioning_result
     if latest <= installed:  # in the release-please PR, the installed version is always greater than the latest
         return
 
@@ -118,6 +115,18 @@ def _check_version() -> None:
     if resp == "y":
         return
     sys.exit(1)
+
+
+def _get_dsp_tools_versions() -> tuple[Version, Version] | None:
+    try:
+        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=5)
+    except (requests.ConnectionError, requests.ReadTimeout):
+        return None
+    if not response.ok:
+        return None
+    latest = parse(response.json()["info"]["version"])
+    installed = parse(version("dsp-tools"))
+    return installed, latest
 
 
 def _parse_arguments(

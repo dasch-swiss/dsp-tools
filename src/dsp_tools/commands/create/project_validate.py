@@ -124,10 +124,10 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         props_flattened, set(prop_iris), InputProblemType.UNDEFINED_SUPER_PROPERTY, "Property"
     ):
         problems.append(undefined_super_prop)
-    if undefined_super_prop := _check_for_undefined_supers(
+    if undefined_super_cls := _check_for_undefined_supers(
         cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
     ):
-        problems.append(undefined_super_prop)
+        problems.append(undefined_super_cls)
     return problems
 
 

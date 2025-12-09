@@ -439,6 +439,11 @@ def _add_create(
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument(
+        "--exit-if-exists",
+        action="store_true",
+        help="exit gracefully without further uploads if the project already exists",
+    )
+    subparser.add_argument(
         "-V",
         "--validate-only",
         action="store_true",

@@ -14,4 +14,4 @@ def shacl_validator() -> ShaclCliValidator:
 
 @pytest.fixture(scope="module")
 def create_generic_project(creds: ServerCredentials) -> None:
-    assert create(Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds)
+    assert create(Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds, True)

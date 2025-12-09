@@ -15,6 +15,8 @@ from test.unittests.commands.create.constants import PROJECT_IRI
 
 NEW_PROJECT_IRI = "http://rdfh.ch/projects/newProjectIRI"
 
+DO_NOT_EXIST_IF_EXISTS = False
+
 
 @pytest.fixture
 def mock_auth() -> Mock:
@@ -49,11 +51,32 @@ def test_project_exists_user_continues(
     mock_client_class.return_value = mock_client
     mock_input.return_value = "y"
 
-    result = create_project(parsed_project, mock_auth)
+    result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     assert result == PROJECT_IRI
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.sys.exit")
+def test_project_exit_through_flag(
+    mock_exit: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = PROJECT_IRI
+    mock_client_class.return_value = mock_client
+    mock_exit.side_effect = SystemExit(0)
+
+    with pytest.raises(SystemExit):
+        create_project(parsed_project, mock_auth, True)
+
+    mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
+    mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+    mock_exit.assert_called_once_with(0)
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
@@ -73,7 +96,7 @@ def test_project_exists_user_exits(
     mock_exit.side_effect = SystemExit(1)
 
     with pytest.raises(SystemExit):
-        create_project(parsed_project, mock_auth)
+        create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
@@ -95,7 +118,7 @@ def test_project_does_not_exist_successful_creation(
     mock_client_class.return_value = mock_client
     mock_serialise.return_value = serialized_project
 
-    result = create_project(parsed_project, mock_auth)
+    result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     assert result == NEW_PROJECT_IRI
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
@@ -124,7 +147,7 @@ def test_project_does_not_exist_server_error(
     mock_is_server_error.return_value = True
 
     with pytest.raises(UnableToCreateProjectError):
-        create_project(parsed_project, mock_auth)
+        create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
@@ -153,7 +176,7 @@ def test_project_does_not_exist_client_error(
     mock_is_server_error.return_value = False
 
     with pytest.raises(UnableToCreateProjectError):
-        create_project(parsed_project, mock_auth)
+        create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)

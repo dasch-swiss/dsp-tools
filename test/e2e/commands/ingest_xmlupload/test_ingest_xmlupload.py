@@ -20,6 +20,7 @@ XML_FILE = Path("e2e-ingest-0001.xml")
 MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")
 MULTIMEDIA_FILE_2 = Path("Bilder Projekt 2024/Côté gauche/Dokument B (2).pdf")
 SHORTCODE = "0001"
+EXIT_IF_EXISTS = True
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +57,9 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 
 @pytest.fixture(scope="module")
 def _create_project_0001(creds: ServerCredentials) -> None:
-    assert create(Path("testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json"), creds)
+    assert create(
+        Path("testdata/dsp-ingest-data/e2e-sample-project/e2e-ingest-project-0001.json"), creds, EXIT_IF_EXISTS
+    )
 
 
 @pytest.mark.usefixtures("_create_project_0001")

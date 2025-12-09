@@ -7,7 +7,7 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.project_client import ProjectInfoClient
+from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import ProjectNotFoundError
@@ -19,7 +19,7 @@ from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
-class ProjectClientLive(ProjectInfoClient):
+class ProjectClientLive(ProjectClient):
     server: str
     auth: AuthenticationClient
 

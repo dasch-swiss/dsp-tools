@@ -11,7 +11,7 @@ from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
-from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissions
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedList
@@ -108,12 +108,12 @@ def _parse_permissions(
 
 def _get_limited_view(
     original_input: str | list[str] | None, prefixes: dict[str, str]
-) -> tuple[LimitedViewPermissions | None, list[CreateProblem]]:
+) -> tuple[LimitedViewPermissionsSelection | None, list[CreateProblem]]:
     limited_view_list = []
     match original_input:
         case str():
             if original_input == "all":
-                return LimitedViewPermissions(all_limited=True, limited_selection=None), []
+                return LimitedViewPermissionsSelection(all_limited=True, limited_selection=None), []
             limited_view_list = [original_input]
         case list():
             limited_view_list = original_input
@@ -124,7 +124,7 @@ def _get_limited_view(
     all_resolved, resolving_problems = resolve_all_to_absolute_iri(limited_view_list, None, prefixes)
     if resolving_problems:
         return None, resolving_problems
-    return LimitedViewPermissions(all_limited=False, limited_selection=all_resolved), []
+    return LimitedViewPermissionsSelection(all_limited=False, limited_selection=all_resolved), []
 
 
 def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:

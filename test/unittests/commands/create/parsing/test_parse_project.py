@@ -4,7 +4,7 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
-from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissions
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -83,7 +83,7 @@ class TestParsePermissions:
         assert isinstance(perm, ParsedPermissions)
         assert perm.default_permissions == DefaultPermissions.PUBLIC
         assert perm.overrule_private is None
-        assert isinstance(perm.overrule_limited_view, LimitedViewPermissions)
+        assert isinstance(perm.overrule_limited_view, LimitedViewPermissionsSelection)
         assert perm.overrule_limited_view.all_limited is True
         assert perm.overrule_limited_view.limited_selection is None
 
@@ -97,7 +97,7 @@ class TestParsePermissions:
         assert isinstance(perm, ParsedPermissions)
         assert perm.default_permissions == DefaultPermissions.PUBLIC
         assert perm.overrule_private == [f"{ONTO_NAMESPACE_STR}privateProp"]
-        assert isinstance(perm.overrule_limited_view, LimitedViewPermissions)
+        assert isinstance(perm.overrule_limited_view, LimitedViewPermissionsSelection)
         assert perm.overrule_limited_view.all_limited is False
         assert perm.overrule_limited_view.limited_selection == [f"{ONTO_NAMESPACE_STR}Image"]
 

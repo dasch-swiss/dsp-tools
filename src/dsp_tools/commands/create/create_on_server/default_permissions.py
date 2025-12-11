@@ -151,11 +151,3 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
-
-
-def _get_iri_from_prefixed_name(prefixed_name: str, proj_shortcode: str, server: str) -> str:
-    onto, name = prefixed_name.split(":")
-    host_iri = server.replace("https://", "http://")
-    if onto == "knora-api":
-        return f"http://api.knora.org/ontology/knora-api/v2#{name}"
-    return f"{host_iri}/ontology/{proj_shortcode}/{onto}/v2#{name}"

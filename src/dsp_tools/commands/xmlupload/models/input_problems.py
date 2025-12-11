@@ -59,6 +59,6 @@ class IIIFUriProblem:
 
 
 @dataclass
-class ImageNotFoundProblem:
+class MultimediaFileNotFoundProblem:
     res_id: str
     filepath: str

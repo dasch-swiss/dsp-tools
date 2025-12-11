@@ -7,7 +7,7 @@ from lxml import etree
 from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
-from dsp_tools.utils.dotenv import read_dotenv_if_exists
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal.serialise_file_value import serialise_file_value

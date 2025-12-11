@@ -4,7 +4,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from dsp_tools.utils.dotenv import read_dotenv_if_exists
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
 read_dotenv_if_exists()
 

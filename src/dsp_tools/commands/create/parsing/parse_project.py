@@ -17,7 +17,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShip
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
-from dsp_tools.utils.dotenv import read_dotenv_if_exists
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
 read_dotenv_if_exists()
 

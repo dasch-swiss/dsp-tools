@@ -19,9 +19,9 @@ from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.utils.ansi_colors import BOLD_GREEN
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.dotenv import read_dotenv_if_exists
+from dsp_tools.setup.ansi_colors import BOLD_GREEN
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
 read_dotenv_if_exists()
 

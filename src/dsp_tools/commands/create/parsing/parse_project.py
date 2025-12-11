@@ -2,9 +2,6 @@ import os
 from typing import Any
 from typing import cast
 
-from dotenv import find_dotenv
-from dotenv import load_dotenv
-
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
@@ -26,12 +23,9 @@ from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_all_to_absolute_iri
 
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
-# Load .env file only if it exists in the current working directory
-# This allows CI to set environment variables directly without interference
-dotenv_file = find_dotenv(usecwd=True)
-if dotenv_file:
-    load_dotenv(dotenv_path=dotenv_file, override=False)
+read_dotenv_if_exists()
 
 
 def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject | list[CollectedProblems]:

@@ -16,13 +16,13 @@ from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.config.logger_config import logger_config
-from dsp_tools.config.warnings_config import initialize_warnings
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.logger_config import logger_config
+from dsp_tools.setup.warnings_config import initialize_warnings
 
 
 def main() -> None:

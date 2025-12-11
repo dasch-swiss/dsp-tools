@@ -9,9 +9,9 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
-from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ShaclValidationCliError
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 
 
 class ShaclCliValidator:

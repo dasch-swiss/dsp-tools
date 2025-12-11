@@ -30,14 +30,14 @@ from dsp_tools.commands.validate_data.validation.get_validation_report import ge
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_CYAN
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import BOLD_CYAN
-from dsp_tools.utils.ansi_colors import BOLD_RED
-from dsp_tools.utils.ansi_colors import BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_CYAN
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import BOLD_CYAN
+from dsp_tools.setup.ansi_colors import BOLD_RED
+from dsp_tools.setup.ansi_colors import BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 

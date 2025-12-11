@@ -6,8 +6,6 @@ from typing import Any
 from typing import Never
 
 import regex
-from dotenv import find_dotenv
-from dotenv import load_dotenv
 
 from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
 from dsp_tools.error.xmllib_errors import XmllibInputError
@@ -17,8 +15,9 @@ from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.utils.ansi_colors import BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.dotenv import read_dotenv_if_exists
 
-load_dotenv(dotenv_path=find_dotenv(usecwd=True))
+read_dotenv_if_exists()
 
 
 def initialise_warning_file() -> None:

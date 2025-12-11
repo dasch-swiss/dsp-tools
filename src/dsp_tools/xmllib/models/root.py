@@ -10,8 +10,6 @@ from typing import Union
 from uuid import uuid4
 
 import pandas as pd
-from dotenv import find_dotenv
-from dotenv import load_dotenv
 from loguru import logger
 from lxml import etree
 
@@ -21,6 +19,7 @@ from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.utils.ansi_colors import BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.dotenv import read_dotenv_if_exists
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_emit_user_message
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
@@ -36,7 +35,7 @@ from dsp_tools.xmllib.models.res import Resource
 
 type AnyResource = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
-load_dotenv(dotenv_path=find_dotenv(usecwd=True))
+read_dotenv_if_exists()
 
 
 @dataclass

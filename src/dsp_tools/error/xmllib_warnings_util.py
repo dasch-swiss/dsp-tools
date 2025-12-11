@@ -15,8 +15,8 @@ from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.error.xmllib_warnings import UserMessageSeverity
 from dsp_tools.error.xmllib_warnings import XmllibInputInfo
 from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.utils.ansi_colors import BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 

@@ -6,8 +6,8 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 
 

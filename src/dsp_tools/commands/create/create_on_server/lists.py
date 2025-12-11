@@ -20,9 +20,9 @@ from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import BOLD_CYAN
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD
+from dsp_tools.setup.ansi_colors import BOLD_CYAN
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_lists(

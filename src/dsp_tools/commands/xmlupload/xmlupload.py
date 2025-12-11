@@ -50,9 +50,9 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
-from dsp_tools.utils.ansi_colors import BOLD_RED
-from dsp_tools.utils.ansi_colors import BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD_RED
+from dsp_tools.setup.ansi_colors import BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.fuseki_bloating import communicate_fuseki_bloating
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids

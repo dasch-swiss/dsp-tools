@@ -14,9 +14,9 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ListNameToIriLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import BOLD_RED
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD
+from dsp_tools.setup.ansi_colors import BOLD_RED
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_ontologies(

@@ -5,9 +5,9 @@ from loguru import logger
 from dsp_tools.clients.fuseki_metrics import FusekiBloatingLevel
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.config.logger_config import LOGGER_SAVEPATH
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_RED
-from dsp_tools.utils.ansi_colors import BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
+from dsp_tools.setup.ansi_colors import BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 _1_GB_IN_BYTES = 1_000_000_000
 WARNING_BLOATING = 10 * _1_GB_IN_BYTES

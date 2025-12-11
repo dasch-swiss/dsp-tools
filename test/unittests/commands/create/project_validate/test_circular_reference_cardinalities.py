@@ -69,46 +69,38 @@ class TestMakeCardinalityDependencyGraphRustworkx:
 
 class TestFindCirclesWithMandatoryCardinalities:
     def test_find_simple_two_node_cycle(self):
-        """A->B->A cycle should be detected and both class/property pairs reported."""
         graph: rx.PyDiGraph = rx.PyDiGraph()
         node_a = graph.add_node("ClassA")
         node_b = graph.add_node("ClassB")
         node_c = graph.add_node("ClassC")
-        graph.add_edge(node_a, node_b, "linkToB")
+        graph.add_edge(node_a, node_b, "linkToB-1")
+        graph.add_edge(node_a, node_b, "linkToB-2")
         graph.add_edge(node_a, node_c, "linkToC")
         graph.add_edge(node_b, node_a, "linkToA")
-        mandatory_links = {
-            "ClassA": ["linkToB", "linkToC"],
-            "ClassB": ["linkToA"],
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
+        expected = {
+            "Class 'ClassA' / Property 'linkToB-1'",
+            "Class 'ClassA' / Property 'linkToB-2'",
+            "Class 'ClassB' / Property 'linkToA'",
         }
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, mandatory_links)
-        assert len(errors) == 2
+        assert len(errors) == len(expected)
         error_objects = [e.problematic_object for e in errors]
-        assert set(error_objects) == {"ClassA", "ClassB"}
+        assert set(error_objects) == expected
         assert all(e.problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE for e in errors)
 
     def test_find_no_cycles_in_linear_graph(self):
-        """A->B->C (no cycle) should not produce errors."""
         graph: rx.PyDiGraph = rx.PyDiGraph()
         node_a = graph.add_node("ClassA")
         node_b = graph.add_node("ClassB")
         node_c = graph.add_node("ClassC")
         graph.add_edge(node_a, node_b, "linkToB")
         graph.add_edge(node_b, node_c, "linkToC")
-        mandatory_links = {
-            "ClassA": ["linkToB"],
-            "ClassB": ["linkToC"],
-        }
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, mandatory_links)
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
         assert len(errors) == 0
 
     def test_deduplication_of_errors(self):
         graph: rx.PyDiGraph = rx.PyDiGraph()
         node_a = graph.add_node("ClassA")
         graph.add_edge(node_a, node_a, "selfLink")  # self-loop
-        mandatory_links = {
-            "ClassA": ["selfLink"],
-        }
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, mandatory_links)
-        # Should only report the error once, not multiple times
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
         assert len(errors) == 1

@@ -71,8 +71,8 @@ def test_duplicate_list_error():
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
-    assert problem.problems[0].problematic_object == "first node of testlist"
-    assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NAME
+    assert problem.problems[0].problematic_object == "Node name 'first node of testlist'"
+    assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NODE_NAME
 
 
 def test_check_for_undefined_cardinalities() -> None:

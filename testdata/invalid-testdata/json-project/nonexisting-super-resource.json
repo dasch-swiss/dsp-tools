@@ -10,6 +10,7 @@
         "keywords": [
             "test"
         ],
+        "default_permissions": "public",
         "ontologies": [
             {
                 "name": "nonexisting-super-resource-onto",

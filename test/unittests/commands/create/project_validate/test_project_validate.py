@@ -5,7 +5,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.project_validate import _check_for_duplicates_in_list_section
-from dsp_tools.commands.create.project_validate import _flatten_all_list
+from dsp_tools.commands.create.project_validate import _flatten_all_lists
 
 
 @pytest.fixture
@@ -174,7 +174,7 @@ def list_with_duplicate_list_name_and_node_name() -> list[ParsedList]:
 
 
 def test_(two_nested_lists_ok):
-    result = _flatten_all_list(two_nested_lists_ok)
+    result = _flatten_all_lists(two_nested_lists_ok)
     expected = {"node1", "node1-1", "node1-1-1", "node1-1-1-1", "node2-1", "node2-2", "node2-2-1"}
     assert len(result) == len(expected)
     assert set(result) == expected

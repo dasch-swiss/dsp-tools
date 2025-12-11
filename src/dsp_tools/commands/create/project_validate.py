@@ -207,7 +207,7 @@ def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> Non
         problems.extend(
             [InputProblem(f"List name '{x}'", InputProblemType.DUPLICATE_LIST_NAME) for x in duplicate_list_names]
         )
-    all_nodes = _flatten_all_list(parsed_lists)
+    all_nodes = _flatten_all_lists(parsed_lists)
     if duplicate_nodes := _get_duplicates_in_list(all_nodes):
         problems.extend(
             [InputProblem(f"Node name '{x}'", InputProblemType.DUPLICATE_LIST_NODE_NAME) for x in duplicate_nodes]
@@ -217,7 +217,7 @@ def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> Non
     return None
 
 
-def _flatten_all_list(parsed_lists: list[ParsedList]) -> list[str]:
+def _flatten_all_lists(parsed_lists: list[ParsedList]) -> list[str]:
     all_nodes = []
     for li in parsed_lists:
         all_nodes.extend(_get_all_children(li.children, []))

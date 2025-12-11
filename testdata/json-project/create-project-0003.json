@@ -21,7 +21,7 @@
             "http://rdfh.ch/licenses/unknown",
             "http://rdfh.ch/licenses/ai-generated"
         ],
-        "default_permissions": "public",
+        "default_permissions": "private",
         "groups": [
             {
                 "name": "testGroup",

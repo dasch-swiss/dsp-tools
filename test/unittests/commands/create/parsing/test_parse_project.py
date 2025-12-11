@@ -1,7 +1,11 @@
 # mypy: disable-error-code="no-untyped-def"
 
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -16,6 +20,7 @@ from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
 from dsp_tools.commands.create.parsing.parse_project import parse_project
+from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
 class TestParseProject:
@@ -60,17 +65,51 @@ class TestParseMetadata:
 
 
 class TestParsePermissions:
-    def test_parse_permissions_without_overrule(self, project_json_create):
-        result = _parse_permissions(project_json_create["project"])
-        assert isinstance(result, ParsedPermissions)
-        assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is None
+    def test_parse_permissions_without_overrule(self, prefixes):
+        proj = {"default_permissions": "private"}
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PRIVATE
+        assert perm.overrule_private is None
+        assert perm.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
-    def test_parse_permissions_with_overrule(self, project_json_systematic):
-        result = _parse_permissions(project_json_systematic["project"])
-        assert isinstance(result, ParsedPermissions)
-        assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is not None
+    def test_parse_permissions_limited_view_all(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"limited_view": "all"},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PUBLIC
+        assert perm.overrule_private is None
+        assert perm.overrule_limited_view == GlobalLimitedViewPermission.ALL
+
+    def test_parse_permissions_with_overrule_some(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"private": ["onto:privateProp"], "limited_view": ["onto:Image"]},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PUBLIC
+        assert perm.overrule_private == [f"{ONTO_NAMESPACE_STR}privateProp"]
+        assert isinstance(perm.overrule_limited_view, LimitedViewPermissionsSelection)
+        assert perm.overrule_limited_view.limited_selection == [f"{ONTO_NAMESPACE_STR}Image"]
+
+    def test_parse_permissions_unresolvable_prefix(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"private": ["inexistent:privateProp"]},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert perm is None
+        assert isinstance(problems, CollectedProblems)
+        assert len(problems.problems) == 1
+        assert problems.problems[0].problematic_object == "inexistent:privateProp"
+        assert problems.problems[0].problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseGroups:

@@ -72,7 +72,6 @@ def _create_overrules(
         if not success:
             overall_success = False
 
-    # Handle limited_view overrules
     if isinstance(parsed_permissions.overrule_limited_view, GlobalLimitedViewPermission):
         if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
             return overall_success
@@ -109,7 +108,6 @@ def _handle_limited_view_overrule(
 ) -> bool:
     overall_success = True
     if isinstance(overrule_limited_view, LimitedViewPermissionsSelection):
-        # limited_view is a list of prefixed class names
         for ele in overrule_limited_view.limited_selection:
             success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
             if not success:

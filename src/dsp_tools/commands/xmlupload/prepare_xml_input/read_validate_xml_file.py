@@ -54,5 +54,5 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
         pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
         if not Path(imgdir / pth).is_file():
             raise InputError(
-                f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."
+                f"Bitstream '{pth!s}' of resource wit the id '{res.attrib['id']}' does not exist in the imgdir '{imgdir}'."
             )

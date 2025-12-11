@@ -77,11 +77,18 @@ class TestFindCirclesWithMandatoryCardinalities:
         graph.add_edge(node_a, node_b, "linkToB-2")
         graph.add_edge(node_a, node_c, "linkToC")
         graph.add_edge(node_b, node_a, "linkToA")
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
+        link_prop_to_object = {
+            "linkToB-1": "ClassB",
+            "linkToB-2": "ClassB",
+            "linkToC": "ClassC",
+            "linkToA": "ClassA",
+        }
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
         expected = {
-            "Class 'ClassA' / Property 'linkToB-1'",
-            "Class 'ClassA' / Property 'linkToB-2'",
-            "Class 'ClassB' / Property 'linkToA'",
+            "Cycle (Class -- Property --> Object Class):\n"
+            "    - ClassA -- linkToB-1 --> ClassB\n"
+            "    - ClassA -- linkToB-2 --> ClassB\n"
+            "    - ClassB -- linkToA --> ClassA"
         }
         assert len(errors) == len(expected)
         error_objects = [e.problematic_object for e in errors]
@@ -95,12 +102,15 @@ class TestFindCirclesWithMandatoryCardinalities:
         node_c = graph.add_node("ClassC")
         graph.add_edge(node_a, node_b, "linkToB")
         graph.add_edge(node_b, node_c, "linkToC")
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, {})
         assert len(errors) == 0
 
-    def test_deduplication_of_errors(self):
+    def test_self_link(self):
         graph: rx.PyDiGraph = rx.PyDiGraph()
         node_a = graph.add_node("ClassA")
-        graph.add_edge(node_a, node_a, "selfLink")  # self-loop
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
+        graph.add_edge(node_a, node_a, "selfLink")
+        link_prop_to_object = {"selfLink": "ClassA"}
+        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
         assert len(errors) == 1
+        expected = "Cycle (Class -- Property --> Object Class):\n    - ClassA -- selfLink --> ClassA"
+        assert errors[0].problematic_object == expected

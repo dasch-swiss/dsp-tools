@@ -411,7 +411,7 @@ def _check_circular_references_in_mandatory_property_cardinalities(
     if not mandatory_links:
         return None
     graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
-    errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph)
+    errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
     if errors:
         msg = (
             "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
@@ -461,11 +461,14 @@ def _make_cardinality_dependency_graph_rustworkx(
     return graph
 
 
-def _find_circles_with_mandatory_cardinalities_rustworkx(graph: rx.PyDiGraph[Any, Any]) -> list[CreateProblem]:
-    error_strings = set()
+def _find_circles_with_mandatory_cardinalities_rustworkx(
+    graph: rx.PyDiGraph[Any, Any], link_prop_to_object: dict[str, str]
+) -> list[CreateProblem]:
+    error_strings = []
     cycles = list(rx.simple_cycles(graph))
 
     for cycle in cycles:
+        cycle_strings = []
         # Iterate through consecutive pairs of nodes in the cycle
         for i in range(len(cycle)):
             current_node_idx = cycle[i]
@@ -473,10 +476,14 @@ def _find_circles_with_mandatory_cardinalities_rustworkx(graph: rx.PyDiGraph[Any
             edge_data_list = graph.get_all_edge_data(current_node_idx, next_node_idx)
             for prop_iri in edge_data_list:
                 class_iri = graph[current_node_idx]
-                error_strings.add(
-                    f"Class '{from_dsp_iri_to_prefixed_iri(class_iri)}' / "
-                    f"Property '{from_dsp_iri_to_prefixed_iri(prop_iri)}'"
+                cycle_strings.append(
+                    f"{from_dsp_iri_to_prefixed_iri(class_iri)} -- "
+                    f"{from_dsp_iri_to_prefixed_iri(prop_iri)} --> "
+                    f"{from_dsp_iri_to_prefixed_iri(link_prop_to_object[prop_iri])}"
                 )
+        error_strings.append(
+            "Cycle (Class -- Property --> Object Class):\n    - " + "\n    - ".join(sorted(cycle_strings))
+        )
     problems: list[CreateProblem] = [
         InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
     ]

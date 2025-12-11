@@ -227,7 +227,7 @@ def _flatten_all_list(parsed_lists: list[ParsedList]) -> list[str]:
 def _get_all_children(children: list[ParsedListNode], existing_nodes: list[str]) -> list[str]:
     for child in children:
         existing_nodes.append(child.node_info.name)
-        existing_nodes.extend(_get_all_children(child.children, existing_nodes))
+        existing_nodes.extend(_get_all_children(child.children, []))
     return existing_nodes
 
 
@@ -543,28 +543,3 @@ def _find_circles_with_min_one_cardinality(
             if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
     return errors
-
-
-def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:
-    if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        return CollectedProblems(
-            "The following list node names are used multiple times in your project:",
-            [InputProblem(", ".join(listnode_duplicates), InputProblemType.DUPLICATE_LIST_NAME)],
-        )
-    return None
-
-
-def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
-    def _process_sublist(sublist: dict[str, Any]) -> None:
-        existing_nodenames.append(sublist["name"])
-        if nodes := sublist.get("nodes"):
-            if isinstance(nodes, dict) and list(nodes.keys()) == ["folder"]:
-                return
-            for x in nodes:
-                _process_sublist(x)
-
-    existing_nodenames: list[str] = []
-    for lst in lists_section:
-        _process_sublist(lst)
-
-    return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}

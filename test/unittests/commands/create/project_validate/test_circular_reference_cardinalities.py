@@ -7,8 +7,8 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.project_validate import _extract_mandatory_link_props_per_class
-from dsp_tools.commands.create.project_validate import _find_circles_with_mandatory_cardinalities_rustworkx
-from dsp_tools.commands.create.project_validate import _make_cardinality_dependency_graph_rustworkx
+from dsp_tools.commands.create.project_validate import _find_circles_with_mandatory_cardinalities
+from dsp_tools.commands.create.project_validate import _make_cardinality_dependency_graph
 
 
 class TestExtractMandatoryLinkPropsPerClass:
@@ -35,7 +35,7 @@ class TestMakeCardinalityDependencyGraphRustworkx:
         """Graph should have correct nodes and edges for a simple A->B relationship."""
         mandatory_links = {"ClassA": ["linkToB"]}
         link_prop_to_object = {"linkToB": "ClassB"}
-        graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
+        graph = _make_cardinality_dependency_graph(mandatory_links, link_prop_to_object)
         assert graph.num_nodes() == 2
         assert graph.num_edges() == 1
         node_data = {graph[i] for i in range(graph.num_nodes())}
@@ -51,7 +51,7 @@ class TestMakeCardinalityDependencyGraphRustworkx:
             "linkToB": "ClassB",
             "linkToA": "ClassA",
         }
-        graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
+        graph = _make_cardinality_dependency_graph(mandatory_links, link_prop_to_object)
         assert graph.num_nodes() == 2
         assert graph.num_edges() == 2
 
@@ -62,7 +62,7 @@ class TestMakeCardinalityDependencyGraphRustworkx:
             "linkToB1": "ClassB",
             "linkToB2": "ClassB",
         }
-        graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
+        graph = _make_cardinality_dependency_graph(mandatory_links, link_prop_to_object)
         assert graph.num_nodes() == 2
         assert graph.num_edges() == 2
 
@@ -83,12 +83,12 @@ class TestFindCirclesWithMandatoryCardinalities:
             "linkToC": "ClassC",
             "linkToA": "ClassA",
         }
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
+        errors = _find_circles_with_mandatory_cardinalities(graph, link_prop_to_object)
         expected = {
-            "Cycle (Class -- Property --> Object Class):\n"
-            "    - ClassA -- linkToB-1 --> ClassB\n"
-            "    - ClassA -- linkToB-2 --> ClassB\n"
-            "    - ClassB -- linkToA --> ClassA"
+            "Cycle:\n"
+            "    ClassA -- linkToB-1 --> ClassB\n"
+            "    ClassA -- linkToB-2 --> ClassB\n"
+            "    ClassB -- linkToA --> ClassA"
         }
         assert len(errors) == len(expected)
         error_objects = [e.problematic_object for e in errors]
@@ -102,15 +102,23 @@ class TestFindCirclesWithMandatoryCardinalities:
         node_c = graph.add_node("ClassC")
         graph.add_edge(node_a, node_b, "linkToB")
         graph.add_edge(node_b, node_c, "linkToC")
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, {})
+        errors = _find_circles_with_mandatory_cardinalities(graph, {})
         assert len(errors) == 0
 
     def test_self_link(self):
         graph: rx.PyDiGraph = rx.PyDiGraph()
         node_a = graph.add_node("ClassA")
+        node_b = graph.add_node("ClassB")
+        node_c = graph.add_node("ClassC")
         graph.add_edge(node_a, node_a, "selfLink")
-        link_prop_to_object = {"selfLink": "ClassA"}
-        errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
-        assert len(errors) == 1
-        expected = "Cycle (Class -- Property --> Object Class):\n    - ClassA -- selfLink --> ClassA"
-        assert errors[0].problematic_object == expected
+        graph.add_edge(node_b, node_c, "linkToC")
+        graph.add_edge(node_c, node_b, "linkToB")
+        link_prop_to_object = {"selfLink": "ClassA", "linkToC": "ClassC", "linkToB": "ClassB"}
+        errors = _find_circles_with_mandatory_cardinalities(graph, link_prop_to_object)
+        assert len(errors) == 2
+        expected = {
+            "Cycle:\n    ClassA -- selfLink --> ClassA",
+            "Cycle:\n    ClassB -- linkToC --> ClassC\n    ClassC -- linkToB --> ClassB",
+        }
+        strings = {x.problematic_object for x in errors}
+        assert strings == expected

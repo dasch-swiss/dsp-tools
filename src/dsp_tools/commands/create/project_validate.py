@@ -7,10 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-import jsonpath_ng
-import jsonpath_ng.ext
 import jsonschema
-import networkx as nx
 import regex
 import rustworkx as rx
 from loguru import logger
@@ -104,8 +101,6 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     if lists_section := project_definition["project"].get("lists"):
         if list_prob := _check_for_duplicate_listnodes(lists_section):
             problems.append(list_prob)
-    if card_probs := _check_cardinalities_of_circular_references(project_definition):
-        problems.append(card_probs)
     return problems
 
 
@@ -410,16 +405,17 @@ def _check_circular_references_in_mandatory_property_cardinalities(
     mandatory_links = _extract_mandatory_link_props_per_class(parsed_cardinalities, list(link_prop_to_object.keys()))
     if not mandatory_links:
         return None
-    graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
-    errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, link_prop_to_object)
+    graph = _make_cardinality_dependency_graph(mandatory_links, link_prop_to_object)
+    errors = _find_circles_with_mandatory_cardinalities(graph, link_prop_to_object)
     if errors:
         msg = (
-            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
             "between resources. This is not a problem in itself, but if you try to upload data that actually "
             "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
             "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-            "cardinality of 0-1 or 0-n. \n"
-            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+            "cardinality of 0-1 or 0-n.\n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n.\n"
+            "Cycles are displayed in: Class -- Property --> Object Class"
         )
         return CollectedProblems(msg, errors)
     return None
@@ -437,7 +433,7 @@ def _extract_mandatory_link_props_per_class(
     return lookup
 
 
-def _make_cardinality_dependency_graph_rustworkx(
+def _make_cardinality_dependency_graph(
     mandatory_links: dict[str, list[str]],
     link_prop_to_object: dict[str, str],
 ) -> rx.PyDiGraph[Any, Any]:
@@ -461,7 +457,7 @@ def _make_cardinality_dependency_graph_rustworkx(
     return graph
 
 
-def _find_circles_with_mandatory_cardinalities_rustworkx(
+def _find_circles_with_mandatory_cardinalities(
     graph: rx.PyDiGraph[Any, Any], link_prop_to_object: dict[str, str]
 ) -> list[CreateProblem]:
     error_strings = []
@@ -481,156 +477,11 @@ def _find_circles_with_mandatory_cardinalities_rustworkx(
                     f"{from_dsp_iri_to_prefixed_iri(prop_iri)} --> "
                     f"{from_dsp_iri_to_prefixed_iri(link_prop_to_object[prop_iri])}"
                 )
-        error_strings.append(
-            "Cycle (Class -- Property --> Object Class):\n    - " + "\n    - ".join(sorted(cycle_strings))
-        )
+        error_strings.append("Cycle:\n    " + "\n    ".join(sorted(cycle_strings)))
     problems: list[CreateProblem] = [
         InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
     ]
     return problems
-
-
-def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:
-    link_properties = _collect_link_properties(project_definition)
-    errors = _identify_problematic_cardinalities(project_definition, link_properties)
-    if errors:
-        msg = (
-            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
-            "between resources. This is not a problem in itself, but if you try to upload data that actually "
-            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
-            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-            "cardinality of 0-1 or 0-n. \n"
-            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
-        )
-        return CollectedProblems(msg, errors)
-    return None
-
-
-def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
-    """
-    Maps the properties derived from hasLinkTo to the resource classes they point to.
-    Args:
-        project_definition: parsed JSON file
-    Returns:
-        A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-    """
-    ontos = project_definition["project"]["ontologies"]
-    hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf"}
-    link_properties: dict[str, list[str]] = {}
-    for index, onto in enumerate(ontos):
-        hasLinkTo_matches = []
-        # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
-        for _ in range(5):
-            for hasLinkTo_prop in hasLinkTo_props:
-                hasLinkTo_matches.extend(
-                    jsonpath_ng.ext.parse(
-                        f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
-                    ).find(project_definition)
-                )
-            # make the children from this iteration to the parents of the next iteration
-            hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}
-        prop_obj_pair: dict[str, list[str]] = {}
-        for match in hasLinkTo_matches:
-            prop = onto["name"] + ":" + match.value["name"]
-            target = match.value["object"]
-            if target != "Resource":
-                # make the target a fully qualified name (with the ontology's name prefixed)
-                target = regex.sub(r"^:([^:]+)$", f"{onto['name']}:\\1", target)
-            prop_obj_pair[prop] = [target]
-        link_properties.update(prop_obj_pair)
-
-    # in case the object of a property is "Resource", the link can point to any resource class
-    all_res_names: list[str] = []
-    for onto in ontos:
-        matches = jsonpath_ng.ext.parse("$.resources[*].name").find(onto)
-        tmp = [f"{onto['name']}:{match.value}" for match in matches]
-        all_res_names.extend(tmp)
-    for prop, targ in link_properties.items():
-        if "Resource" in targ:
-            link_properties[prop] = all_res_names
-
-    return link_properties
-
-
-def _identify_problematic_cardinalities(
-    project_definition: dict[Any, Any],
-    link_properties: dict[str, list[str]],
-) -> list[CreateProblem]:
-    """
-    Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
-    Args:
-        project_definition: parsed JSON file
-        link_properties: mapping of hasLinkTo-properties to classes they point to,
-            e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-    Returns:
-        a (possibly empty) list of (resource, problematic_cardinality) tuples
-    """
-    cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
-    graph = _make_cardinality_dependency_graph(dependencies)
-    errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
-    return [
-        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE)
-        for (res, prop) in errors
-    ]
-
-
-def _extract_cardinalities_from_project(
-    project_definition: dict[Any, Any],
-    link_properties: dict[str, list[str]],
-) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, list[str]]]]:
-    # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}
-    dependencies: dict[str, dict[str, list[str]]] = {}
-    # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
-    cardinalities: dict[str, dict[str, str]] = {}
-
-    for onto in project_definition["project"]["ontologies"]:
-        for resource in onto["resources"]:
-            resname: str = onto["name"] + ":" + resource["name"]
-            for card in resource.get("cardinalities", []):
-                # make the cardinality a fully qualified name (with the ontology's name prefixed)
-                cardname = regex.sub(r"^(:?)([^:]+)$", f"{onto['name']}:\\2", card["propname"])
-                if cardname in link_properties:
-                    # Look out: if `targets` is created with `targets = link_properties[cardname]`, the ex-
-                    # pression `dependencies[resname][cardname] = targets` causes `dependencies[resname][cardname]`
-                    # to point to `link_properties[cardname]`. Due to that, the expression
-                    # `dependencies[resname][cardname].extend(targets)` will modify "link_properties"!
-                    # For this reason, `targets` must be created with `targets = list(link_properties[cardname])`
-                    targets = list(link_properties[cardname])
-                    if resname not in dependencies:
-                        dependencies[resname] = {cardname: targets}
-                        cardinalities[resname] = {cardname: card["cardinality"]}
-                    elif cardname not in dependencies[resname]:
-                        dependencies[resname][cardname] = targets
-                        cardinalities[resname][cardname] = card["cardinality"]
-                    else:
-                        dependencies[resname][cardname].extend(targets)
-    return cardinalities, dependencies
-
-
-def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph[Any]:
-    graph: nx.MultiDiGraph[Any] = nx.MultiDiGraph()
-    for start, cards in dependencies.items():
-        for edge, targets in cards.items():
-            for target in targets:
-                graph.add_edge(start, target, edge)
-    return graph
-
-
-def _find_circles_with_min_one_cardinality(
-    graph: nx.MultiDiGraph[Any], cardinalities: dict[str, dict[str, str]], dependencies: dict[str, dict[str, list[str]]]
-) -> set[tuple[str, str]]:
-    errors: set[tuple[str, str]] = set()
-    circles = list(nx.algorithms.cycles.simple_cycles(graph))
-    for circle in circles:
-        for index, resource in enumerate(circle):
-            target = circle[(index + 1) % len(circle)]
-            prop = ""
-            for _property, targets in dependencies[resource].items():
-                if target in targets:
-                    prop = _property
-            if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
-                errors.add((resource, prop))
-    return errors
 
 
 def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.resources
 import json
 from collections import Counter
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +31,7 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
+from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
 
 def validate_project_only(project_file: Path, server: str) -> bool:
@@ -178,11 +180,12 @@ def _check_has_undefined_references(references: list[str], existing_iris: set[st
 def _check_for_undefined_properties_in_cardinalities(
     cardinalities: list[ParsedClassCardinalities], property_iris: list[str]
 ) -> CollectedProblems | None:
+    allowed_props = deepcopy(property_iris) + deepcopy(KNORA_PROPERTIES_FOR_DIRECT_USE)
     problems: list[CreateProblem] = []
     for cls_card in cardinalities:
         prefixed_cls = from_dsp_iri_to_prefixed_iri(cls_card.class_iri)
         for card in cls_card.cards:
-            if card.propname not in property_iris:
+            if card.propname not in allowed_props:
                 problems.append(
                     InputProblem(
                         f"Class '{prefixed_cls}' / Property '{from_dsp_iri_to_prefixed_iri(card.propname)}'",

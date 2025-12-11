@@ -32,6 +32,8 @@ SALSAH_GUI = Namespace(SALSAH_GUI_PREFIX)
 
 DSP_NAME_TO_PREFIX = {"knora-api": KNORA_API_PREFIX, "salsah-gui": SALSAH_GUI_PREFIX}
 
+KNORA_PROPERTIES_FOR_DIRECT_USE = [f"{KNORA_API_PREFIX}seqnum", f"{KNORA_API_PREFIX}isPartOf"]
+
 
 #####
 # For validate-data

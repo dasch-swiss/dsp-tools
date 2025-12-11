@@ -9,7 +9,6 @@ import regex
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import JSONFileParsingError
@@ -77,16 +76,18 @@ def test_duplicate_list_error():
 
 
 def test_check_for_undefined_cardinalities() -> None:
-    tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
-    with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
-        tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
-
-    problems = _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
-    assert problems
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
-    assert "nonexisting-cardinality-onto:TestThing" in problems.problems[0].problematic_object
-    assert ":CardinalityThatWasNotDefinedInPropertiesSection" in problems.problems[0].problematic_object
+    result = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/nonexisting-cardinality.json"), SERVER
+    )
+    assert isinstance(result, list)
+    assert len(result) == 1
+    problem = result[0]
+    assert len(problem.problems) == 1
+    assert (
+        problem.problems[0].problematic_object
+        == "Class 'onto:TestThing' / Property 'onto:CardinalityThatWasNotDefinedInPropertiesSection'"
+    )
+    assert problem.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
 
 
 def test_check_for_undefined_super_property() -> None:

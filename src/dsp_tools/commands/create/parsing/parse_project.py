@@ -76,6 +76,7 @@ def _parse_permissions(
 ) -> tuple[ParsedPermissions | None, CollectedProblems | None]:
     problems: list[CreateProblem] = []
     default_found = project_json["default_permissions"]
+    default_perm = None
     match default_found:
         case "private":
             default_perm = DefaultPermissions.PRIVATE
@@ -101,9 +102,9 @@ def _parse_permissions(
             "During the parsing of the permissions the following problems were found:", problems
         )
     return ParsedPermissions(
-        default_permissions=default_perm,
+        default_permissions=cast(DefaultPermissions, default_perm),
         overrule_private=resolved_private,
-        overrule_limited_view=limited_resolved,
+        overrule_limited_view=cast(LimitedViewPermissionsSelection | GlobalLimitedViewPermission, limited_resolved),
     ), None
 
 

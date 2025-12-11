@@ -45,7 +45,7 @@ def create_ontologies(
         msg = "No ontologies could be created on the server."
         logger.error(msg)
         print(BOLD_RED + "    " + msg + RESET_TO_DEFAULT)
-        return False
+        return False, success_collection
 
     all_classes = []
     for onto in parsed_ontologies:

@@ -68,13 +68,14 @@ def _create_overrules(
 ) -> bool:
     overall_success = True
     if parsed_permissions.overrule_private:
-        success = _create_private_overrule(parsed_permissions, perm_client, created_collection)
+        success = _create_private_overrule(parsed_permissions.overrule_private, perm_client, created_collection)
         if not success:
             overall_success = False
 
     # Handle limited_view overrules
-    if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
-        return overall_success
+    if isinstance(parsed_permissions.overrule_limited_view, GlobalLimitedViewPermission):
+        if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
+            return overall_success
 
     success = _handle_limited_view_overrule(parsed_permissions.overrule_limited_view, perm_client)
     if not success:
@@ -107,16 +108,16 @@ def _handle_limited_view_overrule(
     overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection, perm_client: PermissionsClient
 ) -> bool:
     overall_success = True
-    if overrule_limited_view == GlobalLimitedViewPermission.ALL:
-        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
-        if not success:
-            overall_success = False
-    else:
+    if isinstance(overrule_limited_view, LimitedViewPermissionsSelection):
         # limited_view is a list of prefixed class names
         for ele in overrule_limited_view.limited_selection:
             success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
             if not success:
                 overall_success = False
+    else:
+        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
+        if not success:
+            overall_success = False
     return overall_success
 
 

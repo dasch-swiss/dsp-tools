@@ -20,6 +20,7 @@ from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
@@ -94,8 +95,6 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     # make some checks that are too complex for JSON schema
     if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
         problems.append(perm_res)
-    if card_problem := _check_for_undefined_cardinalities(project_definition):
-        problems.append(card_problem)
     if lists_section := project_definition["project"].get("lists"):
         if list_prob := _check_for_duplicate_listnodes(lists_section):
             problems.append(list_prob)
@@ -109,11 +108,13 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
     prop_iris = []
     cls_flattened = []
     props_flattened = []
+    cards_flattened = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
         cls_flattened.extend(o.classes)
         prop_iris.extend([x.name for x in o.properties])
         props_flattened.extend(o.properties)
+        cards_flattened.extend(o.cardinalities)
 
     problems = []
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
@@ -128,6 +129,8 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
     ):
         problems.append(undefined_super_cls)
+    if undefined_cards := _check_for_undefined_properties_in_cardinalities(cards_flattened, prop_iris):
+        problems.append(undefined_cards)
     return problems
 
 
@@ -170,6 +173,25 @@ def _check_for_undefined_supers(
 def _check_has_undefined_references(references: list[str], existing_iris: set[str]) -> set[str]:
     proj_iris = {x for x in references if is_dsp_project_iri(x)}
     return proj_iris - existing_iris
+
+
+def _check_for_undefined_properties_in_cardinalities(
+    cardinalities: list[ParsedClassCardinalities], property_iris: list[str]
+) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
+    for cls_card in cardinalities:
+        prefixed_cls = from_dsp_iri_to_prefixed_iri(cls_card.class_iri)
+        for card in cls_card.cards:
+            if card.propname not in property_iris:
+                problems.append(
+                    InputProblem(
+                        f"Class '{prefixed_cls}' / Property '{from_dsp_iri_to_prefixed_iri(card.propname)}'",
+                        InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
+                    )
+                )
+    if problems:
+        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
+    return None
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -353,41 +375,6 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
         _process_sublist(lst)
 
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
-
-
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[CreateProblem] = []
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        propnames = [prop["name"] for prop in onto["properties"]]
-        for res in onto["resources"]:
-            cardnames = [card["propname"] for card in res.get("cardinalities", [])]
-            # form of the cardnames:
-            #  - isSegmentOf   # DSP base property
-            #  - other:prop    # other onto
-            #  - same:prop     # same onto
-            #  - :prop         # same onto (short form)
-
-            # filter out DSP base properties
-            cardnames = [card for card in cardnames if ":" in card]
-            # extend short form
-            cardnames = [regex.sub(r"^:", f"{ontoname}:", card) for card in cardnames]
-            # filter out other ontos
-            cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
-            # convert to short form
-            cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
-
-            if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
-                invalid_cards_str = ", ".join(invalid_cardnames)
-                problems.append(
-                    InputProblem(
-                        problematic_object=f"{ontoname}:{res['name']} (invalid cardinalities: {invalid_cards_str})",
-                        problem=InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
-                    )
-                )
-    if problems:
-        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
-    return None
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:

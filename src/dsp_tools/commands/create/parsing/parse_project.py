@@ -11,6 +11,7 @@ from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
@@ -108,23 +109,27 @@ def _parse_permissions(
 
 def _get_limited_view(
     original_input: str | list[str] | None, prefixes: dict[str, str]
-) -> tuple[LimitedViewPermissionsSelection | None, list[CreateProblem]]:
-    limited_view_list = []
+) -> tuple[LimitedViewPermissionsSelection | GlobalLimitedViewPermission | None, list[CreateProblem]]:
     match original_input:
         case str():
             if original_input == "all":
-                return LimitedViewPermissionsSelection(all_limited=True, limited_selection=None), []
-            limited_view_list = [original_input]
+                return GlobalLimitedViewPermission.ALL, []
+            return _handle_limited_view_list([original_input], prefixes)
         case list():
-            limited_view_list = original_input
+            return _handle_limited_view_list(original_input, prefixes)
         case None:
-            return None, []
+            return GlobalLimitedViewPermission.NONE, []
         case _:
             return None, [InputProblem(original_input, InputProblemType.LIMITED_VIEW_PERMISSIONS_NOT_CORRECT)]
+
+
+def _handle_limited_view_list(
+    limited_view_list: list[str], prefixes: dict[str, str]
+) -> tuple[LimitedViewPermissionsSelection | None, list[CreateProblem]]:
     all_resolved, resolving_problems = resolve_all_to_absolute_iri(limited_view_list, None, prefixes)
     if resolving_problems:
         return None, resolving_problems
-    return LimitedViewPermissionsSelection(all_limited=False, limited_selection=all_resolved), []
+    return LimitedViewPermissionsSelection(all_resolved), []
 
 
 def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:

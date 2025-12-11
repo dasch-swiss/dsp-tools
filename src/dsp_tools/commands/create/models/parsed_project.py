@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
+from enum import auto
 
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 
@@ -36,6 +37,7 @@ class DefaultPermissions(Enum):
 class GlobalLimitedViewPermission(Enum):
     ALL = auto()
     NONE = auto()
+
 
 @dataclass
 class LimitedViewPermissionsSelection:

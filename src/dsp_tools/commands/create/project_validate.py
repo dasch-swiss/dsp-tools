@@ -24,6 +24,8 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_project import ParsedList
+from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
@@ -56,7 +58,7 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
     if not isinstance(parsing_result, ParsedProject):
         return parsing_result
     validation_problems = _complex_json_project_validation(json_project)
-    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies))
+    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies, parsing_result.lists))
     if validation_problems:
         return validation_problems
     return parsing_result
@@ -97,15 +99,14 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     # make some checks that are too complex for JSON schema
     if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
         problems.append(perm_res)
-    if lists_section := project_definition["project"].get("lists"):
-        if list_prob := _check_for_duplicate_listnodes(lists_section):
-            problems.append(list_prob)
     if card_probs := _check_cardinalities_of_circular_references(project_definition):
         problems.append(card_probs)
     return problems
 
 
-def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list[CollectedProblems]:
+def _complex_parsed_project_validation(
+    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList]
+) -> list[CollectedProblems]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -133,13 +134,15 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         problems.append(undefined_super_cls)
     if undefined_cards := _check_for_undefined_properties_in_cardinalities(cards_flattened, prop_iris):
         problems.append(undefined_cards)
+    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
+        problems.append(duplicates_in_lists)
     return problems
 
 
 def _check_for_duplicate_iris(
     input_list: list[str], input_problem_type: InputProblemType, location: str
 ) -> CollectedProblems | None:
-    if duplicates := [item for item, count in Counter(input_list).items() if count > 1]:
+    if duplicates := _get_duplicates_in_list(input_list):
         cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
         return CollectedProblems(
             f"It is not permissible to have multiple {location} with the same name in one ontology. "
@@ -195,6 +198,41 @@ def _check_for_undefined_properties_in_cardinalities(
     if problems:
         return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
     return None
+
+
+def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> None | CollectedProblems:
+    problems: list[CreateProblem] = []
+    list_names = [x.list_info.name for x in parsed_lists]
+    if duplicate_list_names := _get_duplicates_in_list(list_names):
+        problems.extend(
+            [InputProblem(f"List name '{x}'", InputProblemType.DUPLICATE_LIST_NAME) for x in duplicate_list_names]
+        )
+    all_nodes = _flatten_all_list(parsed_lists)
+    if duplicate_nodes := _get_duplicates_in_list(all_nodes):
+        problems.extend(
+            [InputProblem(f"Node name '{x}'", InputProblemType.DUPLICATE_LIST_NODE_NAME) for x in duplicate_nodes]
+        )
+    if problems:
+        return CollectedProblems("The list section has the following problems:", problems)
+    return None
+
+
+def _flatten_all_list(parsed_lists: list[ParsedList]) -> list[str]:
+    all_nodes = []
+    for li in parsed_lists:
+        all_nodes.extend(_get_all_children(li.children, []))
+    return all_nodes
+
+
+def _get_all_children(children: list[ParsedListNode], existing_nodes: list[str]) -> list[str]:
+    for child in children:
+        existing_nodes.append(child.node_info.name)
+        existing_nodes.extend(_get_all_children(child.children, existing_nodes))
+    return existing_nodes
+
+
+def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
+    return [item for item, count in Counter(input_list).items() if count > 1]
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -364,22 +402,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     return None
 
 
-def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
-    def _process_sublist(sublist: dict[str, Any]) -> None:
-        existing_nodenames.append(sublist["name"])
-        if nodes := sublist.get("nodes"):
-            if isinstance(nodes, dict) and list(nodes.keys()) == ["folder"]:
-                return
-            for x in nodes:
-                _process_sublist(x)
-
-    existing_nodenames: list[str] = []
-    for lst in lists_section:
-        _process_sublist(lst)
-
-    return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
-
-
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:
     link_properties = _collect_link_properties(project_definition)
     errors = _identify_problematic_cardinalities(project_definition, link_properties)
@@ -530,3 +552,19 @@ def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None 
             [InputProblem(", ".join(listnode_duplicates), InputProblemType.DUPLICATE_LIST_NAME)],
         )
     return None
+
+
+def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
+    def _process_sublist(sublist: dict[str, Any]) -> None:
+        existing_nodenames.append(sublist["name"])
+        if nodes := sublist.get("nodes"):
+            if isinstance(nodes, dict) and list(nodes.keys()) == ["folder"]:
+                return
+            for x in nodes:
+                _process_sublist(x)
+
+    existing_nodenames: list[str] = []
+    for lst in lists_section:
+        _process_sublist(lst)
+
+    return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}

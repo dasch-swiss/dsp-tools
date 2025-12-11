@@ -44,6 +44,7 @@ class InputProblemType(ProblemType):
         "This user cannot be created as no password is specified and no default password is saved in a .env file."
     )
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
+    DUPLICATE_LIST_NODE_NAME = "You have list nodes in your project with the same name, this is not permitted."
     PREFIX_COULD_NOT_BE_RESOLVED = (
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."

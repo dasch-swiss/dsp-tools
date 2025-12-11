@@ -1,5 +1,14 @@
 # Changelog
 
+## [18.4.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.4.0...v18.4.1) (2025-12-11)
+
+
+### Maintenance
+
+* **create:** use `ParsedOntology` to check if references exist ([#2110](https://github.com/dasch-swiss/dsp-tools/issues/2110)) ([db86ea9](https://github.com/dasch-swiss/dsp-tools/commit/db86ea9fd8a53dcd2dd8d14101f23e2c2acf6d49))
+* **deps:** bump deps and move dotenv handling into function ([#2116](https://github.com/dasch-swiss/dsp-tools/issues/2116)) ([0384f95](https://github.com/dasch-swiss/dsp-tools/commit/0384f95d6499c97d14d499ea0d2c8012843ea9d3))
+* **xmlupload:** collect all missing multimedia files before raising an error ([#2115](https://github.com/dasch-swiss/dsp-tools/issues/2115)) ([f4170ae](https://github.com/dasch-swiss/dsp-tools/commit/f4170ae993d4e2b58b5bc7ff67c530801e44f9aa))
+
 ## [18.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.3.0...v18.4.0) (2025-12-11)
 
 

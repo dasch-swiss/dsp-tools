@@ -31,9 +31,9 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
-from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import StartEnd

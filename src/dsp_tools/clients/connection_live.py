@@ -14,9 +14,9 @@ from requests import Session
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
-from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import InvalidInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts

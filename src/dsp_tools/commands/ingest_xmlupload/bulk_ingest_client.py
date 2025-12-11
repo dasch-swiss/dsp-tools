@@ -15,9 +15,9 @@ from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response

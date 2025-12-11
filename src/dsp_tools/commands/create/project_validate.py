@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.resources
 import json
 from collections import Counter
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,10 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
@@ -388,6 +392,25 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> Co
     if problems:
         return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
     return None
+
+
+def _check_circular_references_in_mandatory_property_cardinalities(
+    parsed_cardinalities: list[ParsedClassCardinalities], parsed_properties: list[ParsedProperty]
+) -> CollectedProblems | None:
+    link_prop_to_object = {x.name: x.object for x in parsed_properties if x.gui_element == GuiElement.SEARCHBOX}
+    mandatory_links = _extract_mandatory_link_props_per_class(parsed_cardinalities, list(link_prop_to_object.keys()))
+
+
+def _extract_mandatory_link_props_per_class(
+    parsed_cardinalities: list[ParsedClassCardinalities], link_prop_iris: list[str]
+) -> dict[str, list[str]]:
+    lookup = defaultdict(list)
+    for cls_card in parsed_cardinalities:
+        for card in cls_card.cards:
+            if card.propname in link_prop_iris:
+                if card.cardinality in [Cardinality.C_1, Cardinality.C_1_N]:
+                    lookup[cls_card.class_iri].append(card.propname)
+    return lookup
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:

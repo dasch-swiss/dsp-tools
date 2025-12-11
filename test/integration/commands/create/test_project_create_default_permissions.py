@@ -5,6 +5,7 @@ import pytest
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
@@ -16,7 +17,7 @@ def mock_permissions_client() -> MagicMock:
     mock_client = MagicMock()
     mock_client.proj_iri = "http://rdfh.ch/projects/test-project"
     mock_client.auth = MagicMock()
-    mock_client.auth.server = "https://api.dev.dasch.swiss"
+    mock_client.auth.server = "http://0.0.0.0:3333"
 
     # Mock successful API calls
     # Return a list with some existing DOAPs to avoid the logic issue in _delete_existing_doaps
@@ -97,14 +98,14 @@ def test_create_default_permissions_with_limited_view_all(
 def test_create_default_permissions_with_limited_view_specific_classes(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = [f"{ONTO_NAMESPACE_STR}ImageResource", f"{ONTO_NAMESPACE_STR}PhotoResource"]
+    limited_view_iris = [f"{ONTO_NAMESPACE_STR}ImageResource", f"{ONTO_NAMESPACE_STR}PhotoResource"]
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         parsed_permissions=ParsedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
-            overrule_limited_view=GlobalLimitedViewPermission(limited_view),
+            overrule_limited_view=LimitedViewPermissionsSelection(limited_view_iris),
         ),
         created_iris=created_iris,
     )
@@ -125,12 +126,7 @@ def test_create_default_permissions_with_limited_view_specific_classes(
 
     # Verify that both calls have specific resource class IRIs (not None)
     resource_class_iris = [call["forResourceClass"] for call in limited_view_calls]
-    expected_iris = [
-        "http://api.dev.dasch.swiss/ontology/1234/test-onto/v2#ImageResource",
-        "http://api.dev.dasch.swiss/ontology/1234/test-onto/v2#PhotoResource",
-    ]
-
-    assert set(resource_class_iris) == set(expected_iris)
+    assert set(resource_class_iris) == set(limited_view_iris)
 
 
 def test_create_default_permissions_no_overrule(

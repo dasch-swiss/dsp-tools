@@ -22,7 +22,6 @@ from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
 from dsp_tools.commands.create.parsing.parsing_utils import resolve_all_to_absolute_iri
-
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
 read_dotenv_if_exists()

@@ -12,6 +12,7 @@ import jsonpath_ng.ext
 import jsonschema
 import networkx as nx
 import regex
+import rustworkx as rx
 from loguru import logger
 
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
@@ -113,11 +114,13 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
     prop_iris = []
     cls_flattened = []
     props_flattened = []
+    cardinalities_flattened = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
         cls_flattened.extend(o.classes)
         prop_iris.extend([x.name for x in o.properties])
         props_flattened.extend(o.properties)
+        cardinalities_flattened.extend(o.cardinalities)
 
     problems = []
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
@@ -132,6 +135,10 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
     ):
         problems.append(undefined_super_cls)
+    if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
+        cardinalities_flattened, props_flattened
+    ):
+        problems.append(card_probs)
     return problems
 
 
@@ -398,7 +405,24 @@ def _check_circular_references_in_mandatory_property_cardinalities(
     parsed_cardinalities: list[ParsedClassCardinalities], parsed_properties: list[ParsedProperty]
 ) -> CollectedProblems | None:
     link_prop_to_object = {x.name: x.object for x in parsed_properties if x.gui_element == GuiElement.SEARCHBOX}
+    if not link_prop_to_object:
+        return None
     mandatory_links = _extract_mandatory_link_props_per_class(parsed_cardinalities, list(link_prop_to_object.keys()))
+    if not mandatory_links:
+        return None
+    graph = _make_cardinality_dependency_graph_rustworkx(mandatory_links, link_prop_to_object)
+    errors = _find_circles_with_mandatory_cardinalities_rustworkx(graph, mandatory_links)
+    if errors:
+        msg = (
+            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "between resources. This is not a problem in itself, but if you try to upload data that actually "
+            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+            "cardinality of 0-1 or 0-n. \n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+        )
+        return CollectedProblems(msg, errors)
+    return None
 
 
 def _extract_mandatory_link_props_per_class(
@@ -411,6 +435,62 @@ def _extract_mandatory_link_props_per_class(
                 if card.cardinality in [Cardinality.C_1, Cardinality.C_1_N]:
                     lookup[cls_card.class_iri].append(card.propname)
     return lookup
+
+
+def _make_cardinality_dependency_graph_rustworkx(
+    mandatory_links: dict[str, list[str]],
+    link_prop_to_object: dict[str, str],
+) -> rx.PyDiGraph[Any, Any]:
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    all_classes = set(mandatory_links.keys())
+    all_target_classes = set(link_prop_to_object.values())
+    all_classes.update(all_target_classes)
+
+    class_to_node_idx = {}
+    for class_iri in all_classes:
+        node_idx = graph.add_node(class_iri)
+        class_to_node_idx[class_iri] = node_idx
+
+    for source_class, prop_iris in mandatory_links.items():
+        source_idx = class_to_node_idx[source_class]
+        for prop_iri in prop_iris:
+            target_class = link_prop_to_object[prop_iri]
+            target_idx = class_to_node_idx[target_class]
+            graph.add_edge(source_idx, target_idx, prop_iri)
+
+    return graph
+
+
+def _find_circles_with_mandatory_cardinalities_rustworkx(
+    graph: rx.PyDiGraph[Any, Any],
+    mandatory_links: dict[str, list[str]],
+) -> list[CreateProblem]:
+    errors: list[CreateProblem] = []
+    cycles = list(rx.simple_cycles(graph))
+
+    for cycle in cycles:
+        for node_idx in cycle:
+            class_iri = graph[node_idx]
+            # All properties from this class are problematic if they're in the cycle
+            if class_iri in mandatory_links:
+                for prop_iri in mandatory_links[class_iri]:
+                    errors.append(
+                        InputProblem(
+                            f"Class: {from_dsp_iri_to_prefixed_iri(class_iri)} / "
+                            f"Property: {from_dsp_iri_to_prefixed_iri(prop_iri)}",
+                            InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE,
+                        )
+                    )
+
+    # Remove duplicates
+    seen = set()
+    unique_errors = []
+    for error in errors:
+        if error.problematic_object not in seen:
+            seen.add(error.problematic_object)
+            unique_errors.append(error)
+
+    return unique_errors
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:

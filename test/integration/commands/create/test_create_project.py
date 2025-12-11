@@ -32,14 +32,6 @@ def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
     return onto
 
 
-@pytest.fixture
-def tp_circular_ontology() -> dict[str, Any]:
-    tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
-    with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
-        tp_circular_ontology: dict[str, Any] = json.load(json_file)
-    return tp_circular_ontology
-
-
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
     result = _validate_parsed_json_project(tp_systematic, SERVER)
     assert isinstance(result, ParsedProject)
@@ -52,18 +44,18 @@ def test_json_schema_validation_error():
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"), SERVER)
 
 
-def test_circular_reference_error(tp_circular_ontology):
-    result = _validate_parsed_json_project(tp_circular_ontology, SERVER)
+def test_circular_reference_error():
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/circular-ontology.json"), SERVER)
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
-    # we do not know which of the two links we get returned through the graph diagnostics
-    # it is either one of those two which form the circle
-    circle_options = [
-        "Class: circular-onto:Class1 / Property: circular-onto:linkToClass2",
-        "Class: circular-onto:Class2 / Property: circular-onto:linkToClass1",
-    ]
-    assert problem.problems[0].problematic_object in circle_options
+    result_strings = {x.problematic_object for x in problem.problems}
+    expected = {
+        "Cycle:\n"
+        "    circular-onto:Class1 -- circular-onto:linkToClass2 --> circular-onto:Class2\n"
+        "    circular-onto:Class2 -- circular-onto:linkToClass1 --> circular-onto:Class1"
+    }
+    assert result_strings == expected
     assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
 
 

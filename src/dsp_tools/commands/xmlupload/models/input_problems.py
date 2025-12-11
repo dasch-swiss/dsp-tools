@@ -56,3 +56,9 @@ class IIIFUriProblem:
             "Although the IIIF-server responded as expected, this URI did not pass validation.",
             "Please contact the dsp-tools development team (at support@dasch.swiss) with this information.",
         ]
+
+
+@dataclass
+class MultimediaFileNotFoundProblem:
+    res_id: str
+    filepath: str

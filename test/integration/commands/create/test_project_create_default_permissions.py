@@ -3,6 +3,11 @@ from unittest.mock import MagicMock
 import pytest
 
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
 @pytest.fixture
@@ -22,15 +27,26 @@ def mock_permissions_client() -> MagicMock:
     return mock_client
 
 
-def test_create_default_permissions_with_limited_view_all(mock_permissions_client: MagicMock) -> None:
+@pytest.fixture
+def created_iris() -> CreatedIriCollection:
+    return CreatedIriCollection(
+        created_classes={f"{ONTO_NAMESPACE_STR}ImageResource", f"{ONTO_NAMESPACE_STR}PhotoResource"}
+    )
+
+
+def test_create_default_permissions_with_limited_view_all(
+    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
+) -> None:
     """Test that limited_view: 'all' creates a DOAP without class restriction."""
-    default_permissions_overrule: dict[str, str | list[str]] = {"private": [], "limited_view": "all"}
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        default_permissions="public",
-        default_permissions_overrule=default_permissions_overrule,
-        shortcode="1234",
+        parsed_permissions=ParsedPermissions(
+            default_permissions=DefaultPermissions.PUBLIC,
+            overrule_private=None,
+            overrule_limited_view=GlobalLimitedViewPermission.ALL,
+        ),
+        created_iris=created_iris,
     )
 
     assert result is True
@@ -78,17 +94,19 @@ def test_create_default_permissions_with_limited_view_all(mock_permissions_clien
     assert limited_view_call["hasPermissions"] == expected_permissions
 
 
-def test_create_default_permissions_with_limited_view_specific_classes(mock_permissions_client: MagicMock) -> None:
-    default_permissions_overrule: dict[str, str | list[str]] = {
-        "private": [],
-        "limited_view": ["test-onto:ImageResource", "test-onto:PhotoResource"],
-    }
+def test_create_default_permissions_with_limited_view_specific_classes(
+    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
+) -> None:
+    limited_view = [f"{ONTO_NAMESPACE_STR}ImageResource", f"{ONTO_NAMESPACE_STR}PhotoResource"]
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        default_permissions="public",
-        default_permissions_overrule=default_permissions_overrule,
-        shortcode="1234",
+        parsed_permissions=ParsedPermissions(
+            default_permissions=DefaultPermissions.PUBLIC,
+            overrule_private=None,
+            overrule_limited_view=GlobalLimitedViewPermission(limited_view),
+        ),
+        created_iris=created_iris,
     )
 
     assert result is True
@@ -115,13 +133,18 @@ def test_create_default_permissions_with_limited_view_specific_classes(mock_perm
     assert set(resource_class_iris) == set(expected_iris)
 
 
-def test_create_default_permissions_no_overrule(mock_permissions_client: MagicMock) -> None:
+def test_create_default_permissions_no_overrule(
+    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
+) -> None:
     """Test that default permissions work without any overrules."""
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        default_permissions="public",
-        default_permissions_overrule=None,
-        shortcode="1234",
+        parsed_permissions=ParsedPermissions(
+            default_permissions=DefaultPermissions.PUBLIC,
+            overrule_private=None,
+            overrule_limited_view=GlobalLimitedViewPermission.NONE,
+        ),
+        created_iris=created_iris,
     )
 
     assert result is True
@@ -135,18 +158,20 @@ def test_create_default_permissions_no_overrule(mock_permissions_client: MagicMo
     assert payload["forProject"] == "http://rdfh.ch/projects/test-project"
 
 
-def test_create_default_permissions_api_failure(mock_permissions_client: MagicMock) -> None:
+def test_create_default_permissions_api_failure(
+    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
+) -> None:
     """Test handling of API failures."""
     # Mock API failure
     mock_permissions_client.create_new_doap.return_value = False
-
-    default_permissions_overrule: dict[str, str | list[str]] = {"private": [], "limited_view": "all"}
-
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        default_permissions="public",
-        default_permissions_overrule=default_permissions_overrule,
-        shortcode="1234",
+        parsed_permissions=ParsedPermissions(
+            default_permissions=DefaultPermissions.PUBLIC,
+            overrule_private=None,
+            overrule_limited_view=GlobalLimitedViewPermission.ALL,
+        ),
+        created_iris=created_iris,
     )
 
     assert result is False

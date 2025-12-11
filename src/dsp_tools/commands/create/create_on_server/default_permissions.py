@@ -2,7 +2,10 @@ from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
+from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.utils.ansi_colors import BOLD
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
@@ -11,7 +14,7 @@ from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 def create_default_permissions(
     perm_client: PermissionsClient,
     parsed_permissions: ParsedPermissions,
-    shortcode: str,
+    created_iris: CreatedIriCollection,
 ) -> bool:
     print(BOLD + "Processing default permissions:" + RESET_TO_DEFAULT)
     logger.info("Processing default permissions:")
@@ -24,7 +27,7 @@ def create_default_permissions(
         logger.warning("Cannot create default permissions")
         return False
     if parsed_permissions.overrule_private or parsed_permissions.overrule_limited_view:
-        if not _create_overrules(perm_client, parsed_permissions, shortcode):
+        if not _create_overrules(parsed_permissions, perm_client, created_iris):
             print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
@@ -60,37 +63,60 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
     return perm_client.create_new_doap(payload)
 
 
-def _create_overrules(perm_client: PermissionsClient, parsed_permissions: ParsedPermissions, shortcode: str) -> bool:
+def _create_overrules(
+    parsed_permissions: ParsedPermissions, perm_client: PermissionsClient, created_collection: CreatedIriCollection
+) -> bool:
     overall_success = True
     if parsed_permissions.overrule_private:
-        # Handle private overrules
-        for entity in parsed_permissions.overrule_private:
-            first_letter = entity.split(":")[-1][0]
-            # TODO: what is the diagnostics here?
-            is_res = first_letter.upper() == first_letter
-            entity_iri = _get_iri_from_prefixed_name(entity, shortcode, perm_client.auth.server)
-            if is_res:
-                success = _create_one_private_overrule(perm_client=perm_client, res_iri=entity_iri, prop_iri=None)
-            else:
-                success = _create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=entity_iri)
-            if not success:
-                overall_success = False
+        success = _create_private_overrule(parsed_permissions, perm_client, created_collection)
+        if not success:
+            overall_success = False
 
     # Handle limited_view overrules
-    if not (limited_view := default_permissions_overrule.get("limited_view")):
+    if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
         return overall_success
-    if limited_view == "all":
+
+    success = _handle_limited_view_overrule(parsed_permissions.overrule_limited_view, perm_client)
+    if not success:
+        overall_success = False
+
+    return overall_success
+
+
+def _create_private_overrule(
+    private_overrule: list[str], perm_client: PermissionsClient, created_collection: CreatedIriCollection
+) -> bool:
+    results = []
+    props, cls = _separate_props_and_classes(private_overrule, created_collection)
+    for p in props:
+        results.append(_create_one_private_overrule(perm_client=perm_client, res_iri=None, prop_iri=p))
+    for c in cls:
+        results.append(_create_one_private_overrule(perm_client=perm_client, res_iri=c, prop_iri=None))
+    return all(results)
+
+
+def _separate_props_and_classes(
+    iris: list[str], created_collection: CreatedIriCollection
+) -> tuple[list[str], list[str]]:
+    props = [x for x in iris if x in created_collection.created_properties]
+    cls = [x for x in iris if x in created_collection.created_classes]
+    return props, cls
+
+
+def _handle_limited_view_overrule(
+    overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection, perm_client: PermissionsClient
+) -> bool:
+    overall_success = True
+    if overrule_limited_view == GlobalLimitedViewPermission.ALL:
         success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
         if not success:
             overall_success = False
     else:
         # limited_view is a list of prefixed class names
-        for prefixed_img_class in limited_view:
-            img_class_iri = _get_iri_from_prefixed_name(prefixed_img_class, shortcode, perm_client.auth.server)
-            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=img_class_iri)
+        for ele in overrule_limited_view.limited_selection:
+            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
             if not success:
                 overall_success = False
-
     return overall_success
 
 

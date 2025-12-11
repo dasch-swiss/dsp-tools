@@ -9,10 +9,10 @@ from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.serialisation.project import serialise_project
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import BOLD_RED
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import BOLD
+from dsp_tools.setup.ansi_colors import BOLD_RED
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.request_utils import is_server_error
 
 

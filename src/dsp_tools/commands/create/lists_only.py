@@ -14,8 +14,8 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadat
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ProjectNotFoundError
-from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:

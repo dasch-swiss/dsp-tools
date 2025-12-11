@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from dotenv import find_dotenv
-from dotenv import load_dotenv
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
@@ -21,10 +19,11 @@ from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.utils.ansi_colors import BOLD_GREEN
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD_GREEN
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
-load_dotenv(dotenv_path=find_dotenv(usecwd=True))
+read_dotenv_if_exists()
 
 
 def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -> bool:

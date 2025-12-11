@@ -5,7 +5,7 @@ LIST_SEPARATOR = "\n   - "
 
 
 class ImageNotFoundError(UserError):
-    def __int__(self, imgdir: str, problems: list[ImageNotFoundProblem]) -> None:
+    def __init__(self, imgdir: str, problems: list[ImageNotFoundProblem]) -> None:
         image_str = [f"Resource ID: {i.res_id} | Filepath: {i.filepath}" for i in problems]
         msg = (
             f"The following images do not exist in the provided image directory '{imgdir}':"

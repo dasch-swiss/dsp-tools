@@ -19,12 +19,15 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
+from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
 
 
@@ -91,10 +94,6 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     # make some checks that are too complex for JSON schema
     if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
         problems.append(perm_res)
-    if prop_problem := _check_for_undefined_super_property(project_definition):
-        problems.append(prop_problem)
-    if cls_problems := _check_for_undefined_super_class(project_definition):
-        problems.append(cls_problems)
     if card_problem := _check_for_undefined_cardinalities(project_definition):
         problems.append(card_problem)
     if lists_section := project_definition["project"].get("lists"):
@@ -108,14 +107,27 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
 def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list[CollectedProblems]:
     cls_iris = []
     prop_iris = []
+    cls_flattened = []
+    props_flattened = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
+        cls_flattened.extend(o.classes)
         prop_iris.extend([x.name for x in o.properties])
+        props_flattened.extend(o.properties)
+
     problems = []
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
         problems.append(dup_cls)
     if dup_props := _check_for_duplicate_iris(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
         problems.append(dup_props)
+    if undefined_super_prop := _check_for_undefined_supers(
+        props_flattened, set(prop_iris), InputProblemType.UNDEFINED_SUPER_PROPERTY, "Property"
+    ):
+        problems.append(undefined_super_prop)
+    if undefined_super_cls := _check_for_undefined_supers(
+        cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
+    ):
+        problems.append(undefined_super_cls)
     return problems
 
 
@@ -130,6 +142,34 @@ def _check_for_duplicate_iris(
             [InputProblem(x, input_problem_type) for x in cleaned_iris],
         )
     return None
+
+
+def _check_for_undefined_supers(
+    parsed_info: list[ParsedProperty] | list[ParsedClass],
+    all_iris: set[str],
+    input_problem: InputProblemType,
+    location: str,
+) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
+    for ele in parsed_info:
+        if undefined_supers := _check_has_undefined_references(ele.supers, all_iris):
+            supers = sorted(from_dsp_iri_to_prefixed_iri(x) for x in undefined_supers)
+            problems.append(
+                InputProblem(
+                    f"{location}: {from_dsp_iri_to_prefixed_iri(ele.name)} / Undefined-Super: {', '.join(supers)}",
+                    input_problem,
+                )
+            )
+    if problems:
+        return CollectedProblems(
+            f"The following {location} have undefined supers:", sorted(problems, key=lambda x: x.problematic_object)
+        )
+    return None
+
+
+def _check_has_undefined_references(references: list[str], existing_iris: set[str]) -> set[str]:
+    proj_iris = {x for x in references if is_dsp_project_iri(x)}
+    return proj_iris - existing_iris
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -299,41 +339,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     return None
 
 
-def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[CreateProblem] = []
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        propnames = [p["name"] for p in onto["properties"]]
-        for prop in onto["properties"]:
-            supers = prop["super"]
-            # form of supers:
-            #  - isSegmentOf   # DSP base property
-            #  - other:prop    # other onto
-            #  - same:prop     # same onto
-            #  - :prop         # same onto (short form)
-
-            # filter out DSP base properties
-            supers = [s for s in supers if ":" in s]
-            # extend short form
-            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
-            # filter out other ontos
-            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
-            # convert to short form
-            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
-
-            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
-                invalid_refs_str = ", ".join(invalid_references)
-                problems.append(
-                    InputProblem(
-                        problematic_object=f"{ontoname}:{prop['name']} (invalid super-properties: {invalid_refs_str})",
-                        problem=InputProblemType.UNDEFINED_SUPER_PROPERTY,
-                    )
-                )
-    if problems:
-        return CollectedProblems("The following properties have undefined super-properties:", problems)
-    return None
-
-
 def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     def _process_sublist(sublist: dict[str, Any]) -> None:
         existing_nodenames.append(sublist["name"])
@@ -348,41 +353,6 @@ def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
         _process_sublist(lst)
 
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
-
-
-def _check_for_undefined_super_class(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[CreateProblem] = []
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        resnames = [r["name"] for r in onto["resources"]]
-        for res in onto["resources"]:
-            supers = res["super"] if isinstance(res["super"], list) else [res["super"]]
-            # form of supers:
-            #  - Resource      # DSP base resource
-            #  - other:res     # other onto
-            #  - same:res      # same onto
-            #  - :res          # same onto (short form)
-
-            # filter out DSP base resources
-            supers = [s for s in supers if ":" in s]
-            # extend short form
-            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
-            # filter out other ontos
-            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
-            # convert to short form
-            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
-
-            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
-                invalid_refs_str = ", ".join(invalid_references)
-                problems.append(
-                    InputProblem(
-                        problematic_object=f"{ontoname}:{res['name']} (invalid super-classes: {invalid_refs_str})",
-                        problem=InputProblemType.UNDEFINED_SUPER_CLASS,
-                    )
-                )
-    if problems:
-        return CollectedProblems("The following classes have undefined super-classes:", problems)
-    return None
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:

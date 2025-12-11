@@ -7,10 +7,11 @@ from loguru import logger
 from lxml import etree
 from tqdm import tqdm
 
+from dsp_tools.commands.xmlupload.errors import ImageNotFoundError
 from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
+from dsp_tools.commands.xmlupload.models.input_problems import ImageNotFoundProblem
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
 
 
 def validate_iiif_uris(root: etree._Element) -> None:
@@ -50,9 +51,10 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     logger.debug("Checking if filepaths exist.")
     multimedia_resources = [x for x in root if any(y.tag == "bitstream" for y in x.iter())]
     progress_bar = tqdm(multimedia_resources, desc="Checking multimedia filepaths", dynamic_ncols=True)
+    all_problems = []
     for res in progress_bar:
         pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
         if not Path(imgdir / pth).is_file():
-            raise InputError(
-                f"Bitstream '{pth!s}' of resource wit the id '{res.attrib['id']}' does not exist in the imgdir '{imgdir}'."
-            )
+            all_problems.append(ImageNotFoundProblem(res.attrib["id"], str(pth)))
+    if all_problems:
+        raise ImageNotFoundError(imgdir, all_problems)

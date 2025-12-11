@@ -22,7 +22,7 @@
                         "super": [
                             "hasLinkTo"
                         ],
-                        "object": "Resource",
+                        "object": ":Class1",
                         "labels": {
                             "en": "has region"
                         },

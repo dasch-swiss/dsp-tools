@@ -10,7 +10,6 @@ from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationErro
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_class
 from dsp_tools.commands.create.project_validate import _check_for_undefined_super_property
@@ -80,12 +79,10 @@ def test_duplicate_list_error():
     assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NAME
 
 
-def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
+def test_check_for_undefined_cardinalities() -> None:
     tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
     with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
         tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
-
-    assert _check_for_undefined_cardinalities(tp_systematic) is None
 
     problems = _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
     assert problems
@@ -95,12 +92,10 @@ def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> Non
     assert ":CardinalityThatWasNotDefinedInPropertiesSection" in problems.problems[0].problematic_object
 
 
-def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> None:
+def test_check_for_undefined_super_property() -> None:
     tp_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
     with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
-
-    assert _check_for_undefined_super_property(tp_systematic) is None
 
     problems = _check_for_undefined_super_property(tp_nonexisting_super_property)
     assert isinstance(problems, CollectedProblems)
@@ -110,12 +105,10 @@ def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> No
     assert ":SuperPropertyThatWasNotDefined" in problems.problems[0].problematic_object
 
 
-def test_check_for_undefined_super_class(tp_systematic: dict[str, Any]) -> None:
+def test_check_for_undefined_super_class() -> None:
     tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
     with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
-
-    assert _check_for_undefined_super_class(tp_systematic) is None
 
     problems = _check_for_undefined_super_class(tp_nonexisting_super_resource)
     assert isinstance(problems, CollectedProblems)
@@ -134,11 +127,8 @@ def test_parse_json_file_invalid_file() -> None:
 
 
 def test_check_for_duplicate_resources() -> None:
-    tp_duplicate_resource_file = "testdata/invalid-testdata/json-project/duplicate-resource.json"
-    with open(tp_duplicate_resource_file, encoding="utf-8") as json_file:
-        tp_duplicate_resource: dict[str, Any] = json.load(json_file)
-
-    result = _check_for_duplicate_res_and_props(tp_duplicate_resource)
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-resource.json"), SERVER)
+    assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
     assert problem.problems[0].problematic_object == "testonto:minimalResource"
@@ -146,10 +136,8 @@ def test_check_for_duplicate_resources() -> None:
 
 
 def test_check_for_duplicate_properties() -> None:
-    tp_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
-    with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
-        tp_duplicate_property: dict[str, Any] = json.load(json_file)
-    result = _check_for_duplicate_res_and_props(tp_duplicate_property)
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-property.json"), SERVER)
+    assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
     assert problem.problems[0].problematic_object == "testonto:hasInt"

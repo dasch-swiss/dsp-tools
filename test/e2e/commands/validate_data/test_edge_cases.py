@@ -30,13 +30,20 @@ SHORTCODE_SPECIAL_CHAR_0012 = "0012"
 SHORTCODE_INHERITANCE_0011 = "0011"
 SHORTCODE_ERRONEOUS_ONTO_0009 = "0009"
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
+EXIT_IF_EXISTS = True
 
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
-    assert create(Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds)
-    assert create(Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds)
-    assert create(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
+    assert create(
+        Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds, EXIT_IF_EXISTS
+    )
+    assert create(
+        Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds, EXIT_IF_EXISTS
+    )
+    assert create(
+        Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds, EXIT_IF_EXISTS
+    )
 
 
 @pytest.fixture(scope="module")

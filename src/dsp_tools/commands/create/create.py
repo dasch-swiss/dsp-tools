@@ -27,11 +27,11 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 load_dotenv(dotenv_path=find_dotenv(usecwd=True))
 
 
-def create(project_file: Path, creds: ServerCredentials) -> bool:
+def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -> bool:
     parsing_result = parse_and_validate_project(project_file, creds.server)
     match parsing_result:
         case ParsedProject():
-            return _execute_create(parsing_result, creds)
+            return _execute_create(parsing_result, creds, exit_if_exists)
         case list():
             print_all_problem_collections(parsing_result)
             return False
@@ -39,7 +39,7 @@ def create(project_file: Path, creds: ServerCredentials) -> bool:
             raise InternalError("Unreachable result of project parsing.")
 
 
-def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials) -> bool:
+def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exit_if_exists: bool) -> bool:
     msg = "JSON project file is syntactically correct and passed validation."
     print(BOLD_GREEN + "    JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT)
     logger.info(msg)
@@ -47,7 +47,7 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials) -> 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
 
     # create project
-    project_iri = create_project(parsed_project.project_metadata, auth)
+    project_iri = create_project(parsed_project.project_metadata, auth, exit_if_exists)
 
     # create the lists
     if parsed_project.lists:

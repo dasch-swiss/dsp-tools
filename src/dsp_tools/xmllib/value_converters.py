@@ -628,12 +628,22 @@ def _from_english_BC_or_CE_range(
     else:
         start_era = end_era
 
+    if start_era == "CE" and end_era == "BC":
+        return None
+
     if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
         return None
     if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
         return None
+    
+    start_year = int(start_year_match.group(0))
+    end_year = int(end_year_match.group(0))
+    if start_era == "CE" and end_era == "CE" and end_year < start_year:
+        return None
+    if start_era == "BC" and end_era == "BC" and end_year > start_year:
+        return None
 
-    return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
+    return f"GREGORIAN:{start_era}:{start_year}:{end_era}:{end_year}"
 
 
 def _find_french_bc_dates(

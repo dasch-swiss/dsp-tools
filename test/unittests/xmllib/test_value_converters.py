@@ -369,7 +369,7 @@ class TestFindDate:
         assert find_dates_in_string("x 1811-10 x") == set()
         assert find_dates_in_string("x 1811/10 x") == set()
 
-    @pytest.mark.parametrize("string", ["9 BC", "9 B.C.", "9 BCE", "9 B.C.E."])
+    @pytest.mark.parametrize("string", ["x 9 BC x", "9 B.C.", "9 BCE", "9 B.C.E."])
     def test_find_dates_in_string_bc_different_notations(self, string: str) -> None:
         assert find_dates_in_string(string) == {"GREGORIAN:BC:9:BC:9"}
 
@@ -380,15 +380,21 @@ class TestFindDate:
     @pytest.mark.parametrize(
         ("string", "expected"),
         [
-            ("x 9 BC x", {"GREGORIAN:BC:9:BC:9"}),
-            ("x 10000 BC x", {"GREGORIAN:BC:10000:BC:10000"}),
+            ("x 100 AD - 120 AD x", {"GREGORIAN:CE:100:CE:120"}),
+            ("x 100 CE - 120 CE x", {"GREGORIAN:CE:100:CE:120"}),
+            ("x 100 AD - 100 AD x", {"GREGORIAN:CE:100:CE:100"}),
+            ("x 100 CE - 100 CE x", {"GREGORIAN:CE:100:CE:100"}),
             ("x 170 BC - 90 BC x", {"GREGORIAN:BC:170:BC:90"}),
             ("x 170-90 BCE x", {"GREGORIAN:BC:170:BC:90"}),
             ("x 20 BCE-50 CE x", {"GREGORIAN:BC:20:CE:50"}),
             ("x 20 BCE - 50 C.E. x", {"GREGORIAN:BC:20:CE:50"}),
+            ("x 20 BCE - 20 BC x", {"GREGORIAN:BC:20:BC:20"}),
+            ("x 20 BCE - 50 BC x", set()),
+            ("x 50 AD - 20 AD x", set()),
+            ("x 50 CE - 20 CE x", set()),
         ],
     )
-    def test_find_dates_in_string_bc(self, string: str, expected: set[str]) -> None:
+    def test_find_dates_in_string_ce_and_bc_ranges(self, string: str, expected: set[str]) -> None:
         assert find_dates_in_string(string) == expected
 
     def test_find_dates_in_string_french_bc(self) -> None:

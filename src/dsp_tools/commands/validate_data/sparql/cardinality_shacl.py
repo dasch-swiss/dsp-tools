@@ -255,12 +255,16 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
     if results := onto_graph.query(query_s):
         cards = []
         for res in results.bindings:
+            if str(res["cardProp"]).endswith("#cardinality"):
+                crd = "1"
+            else:
+                crd = "1-n"
             cards.append(
                 CardinalitiesThatMayCreateAProblematicCircle(
                     subject=str(res["class"]),
                     prop=str(res["prop"]),
                     object_cls=str(res["objectType"]),
-                    card=str(res["cardProp"]),
+                    card=crd,
                 )
             )
         return cards

@@ -118,7 +118,7 @@ def get_msg_str_for_potential_problematic_circles(
         "Because we upload resources sequentially we must break up any circles in your data. "
         "Because of the generic nature of the object constraint we cannot infer from the ontology "
         "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
-        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes. "
+        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"
         "The following classes contain potentially problematic links:"
     )
     detail_strings = []

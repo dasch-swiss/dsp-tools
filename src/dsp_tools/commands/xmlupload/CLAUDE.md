@@ -81,6 +81,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
     - `StandoffStash`: Manages stashed RichtextValue with standoff markup
     - `StandoffStashItem`: Individual stashed RichtextValue
     - `LinkObjStash`: Manages stashed LinkValue references
+- **graph_models.py**: Graph-related data models for circular reference analysis
 - **stash_circular_references.py**: Logic for detecting and stashing circular references
 - **analyse_circular_reference_graph.py**: Graph analysis for upload ordering
 - **create_info_for_graph.py**: Graph information extraction

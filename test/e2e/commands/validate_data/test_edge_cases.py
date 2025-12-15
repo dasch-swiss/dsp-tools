@@ -172,6 +172,13 @@ def test_validate_ontology_violation(authentication) -> None:
     )
     assert not result.cardinalities_with_potential_circle
     assert not result.no_problems
+    assert isinstance(result.cardinalities_with_potential_circle, list)
+    assert len(result.cardinalities_with_potential_circle) == 1
+    potential_circle = result.cardinalities_with_potential_circle[0]
+    assert potential_circle.subject == ""
+    assert potential_circle.prop == ""
+    assert potential_circle.object_cls == ""
+    assert potential_circle.card == ""
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
     erroneous_cards_msg = {

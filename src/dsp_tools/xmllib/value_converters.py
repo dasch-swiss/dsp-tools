@@ -635,21 +635,22 @@ def _from_english_BC_or_CE_range(
 
     start_year = int(start_year_match.group(0))
     end_year = int(end_year_match.group(0))
-    _validate_and_warn_english_BC_or_CE_range(string, start_era, end_era, start_year, end_year)
+    if not _is_BC_or_CE_range_valid(start_era, end_era, start_year, end_year):
+        err_msg = MessageInfo(f"The start date must be before the end date. Please review your input: '{string}'.")
+        emit_xmllib_input_warning(err_msg)
+        return None
 
     return f"GREGORIAN:{start_era}:{start_year}:{end_era}:{end_year}"
 
 
-def _validate_and_warn_english_BC_or_CE_range(
-    orig_str: str, start_era: str, end_era: str, start_year: int, end_year: int
-) -> None:
-    err_msg = MessageInfo(f"The start date must be before the end date. Please review your input: '{orig_str}'.")
+def _is_BC_or_CE_range_valid(start_era: str, end_era: str, start_year: int, end_year: int) -> bool:
     if start_era == "CE" and end_era == "BC":
-        emit_xmllib_input_warning(err_msg)
+        return False
     if start_era == "CE" and end_era == "CE" and end_year < start_year:
-        emit_xmllib_input_warning(err_msg)
+        return False
     if start_era == "BC" and end_era == "BC" and end_year > start_year:
-        emit_xmllib_input_warning(err_msg)
+        return False
+    return True
 
 
 def _find_french_bc_dates(

@@ -14,9 +14,7 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from dsp_tools.commands.validate_data.sparql.cardinality_shacl import (
-    get_min_cardinality_link_prop_for_potentially_problematic_circle,
-)
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.utils.rdf_constants import API_SHAPES
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.rdf_constants import KNORA_API
@@ -281,7 +279,7 @@ class TestIdentifyPossibleMandatoryCircle:
         """
         onto_g = knora_subset
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g)
         assert len(result) == 1
 
     def test_resource_with_min(self, knora_subset):
@@ -306,7 +304,7 @@ class TestIdentifyPossibleMandatoryCircle:
         """
         onto_g = knora_subset
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g)
         assert len(result) == 1
 
     def test_segment_with_min(self, knora_subset):
@@ -331,7 +329,7 @@ class TestIdentifyPossibleMandatoryCircle:
         """
         onto_g = knora_subset
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g)
         assert len(result) == 1
 
     def test_representation_no_min(self, knora_subset):
@@ -356,7 +354,7 @@ class TestIdentifyPossibleMandatoryCircle:
         """
         onto_g = knora_subset
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g)
         assert len(result) == 0
 
     def test_representation_not_a_knora_resource(self, knora_subset):
@@ -381,7 +379,7 @@ class TestIdentifyPossibleMandatoryCircle:
         """
         onto_g = knora_subset
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g)
         assert len(result) == 0
 
 

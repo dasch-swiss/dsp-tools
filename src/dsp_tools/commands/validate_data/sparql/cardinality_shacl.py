@@ -211,7 +211,14 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     return Graph()
 
 
-def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_graph: Graph, knora_api_resources: list[str]):
+def get_list_of_potentially_problematic_cardinalities(onto_graph: Graph, knora_api: Graph) -> list[str]:
+    knora_resources = _get_knora_resources(knora_api)
+    return _get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_graph, knora_resources)
+
+
+def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
+    onto_graph: Graph, knora_api_resources: list[str]
+):
     logger.debug("Get resources with potentially problematic link property cardinalities.")
     knora_api_resources = [f"<{x}>" for x in knora_api_resources]
     api_classes = " ".join(knora_api_resources)

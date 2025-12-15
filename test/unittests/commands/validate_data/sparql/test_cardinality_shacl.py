@@ -283,10 +283,10 @@ class TestIdentifyPossibleMandatoryCircle:
         onto_g.parse(data=onto_str, format="ttl")
         result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
-        assert result[0].subject == "http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource"
-        assert result[0].prop == "http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation"
-        assert result[0].object_cls == "http://api.knora.org/ontology/knora-api/v2#Representation"
-        assert result[0].card == "http://www.w3.org/2002/07/owl#minCardinality"
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasRepresentation"
+        assert result[0].object_cls == "knora-api:Representation"
+        assert result[0].card == "1-n"
 
     def test_resource_with_min(self, knora_subset):
         onto_str = f"""{PREFIXES}
@@ -312,10 +312,10 @@ class TestIdentifyPossibleMandatoryCircle:
         onto_g.parse(data=onto_str, format="ttl")
         result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
-        assert result[0].subject == "http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource"
-        assert result[0].prop == "http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource"
-        assert result[0].object_cls == "http://api.knora.org/ontology/knora-api/v2#Resource"
-        assert result[0].card == "http://www.w3.org/2002/07/owl#cardinality"
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasResource"
+        assert result[0].object_cls == "knora-api:Resource"
+        assert result[0].card == "1"
 
     def test_segment_with_min(self, knora_subset):
         onto_str = f"""{PREFIXES}
@@ -341,10 +341,10 @@ class TestIdentifyPossibleMandatoryCircle:
         onto_g.parse(data=onto_str, format="ttl")
         result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
-        assert result[0].subject == "http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource"
-        assert result[0].prop == "http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment"
-        assert result[0].object_cls == "http://api.knora.org/ontology/knora-api/v2#VideoSegment"
-        assert result[0].card == "http://www.w3.org/2002/07/owl#minCardinality"
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasVideoSegment"
+        assert result[0].object_cls == "knora-api:VideoSegment"
+        assert result[0].card == "1-n"
 
     def test_representation_no_min(self, knora_subset):
         onto_str = f"""{PREFIXES}

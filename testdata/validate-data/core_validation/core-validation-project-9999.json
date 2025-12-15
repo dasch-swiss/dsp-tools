@@ -474,6 +474,11 @@
                 "propname": ":testBoolean",
                 "cardinality": "1",
                 "gui_order": 0
+              },
+              {
+                "propname": ":testHasLinkTo",
+                "cardinality": "1-n",
+                "gui_order": 1
               }
             ]
           },

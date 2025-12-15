@@ -45,6 +45,14 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
+class UnreachableCodeError(BaseError):
+    """Class that is raised if certain code is not reachable."""
+
+    def __init__(self) -> None:
+        msg = "This error should be unreachable, some bug is in the code."
+        super().__init__(msg)
+
+
 class DockerNotReachableError(BaseError):
     """This error is raised when docker is not running."""
 

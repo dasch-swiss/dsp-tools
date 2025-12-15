@@ -11,10 +11,9 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
+from dsp_tools.commands.validate_data.validate_data import _execute_validation
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
-
-# ruff: noqa: ARG001 Unused function argument
 
 CONFIG = ValidateDataConfig(
     xml_file=Path(),
@@ -27,6 +26,8 @@ CONFIG = ValidateDataConfig(
 )
 SHORTCODE = "9999"
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
+DUPLICATE_FILE_WARNINGS = None
+POTENTIAL_CIRCLES_IN_DATA = None
 
 
 @pytest.fixture(scope="module")
@@ -39,7 +40,7 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 def test_minimal_correct(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/minimal_correct.xml")
     graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
-    validation_result = _validate_data(
+    validation_result = _execute_validation(
         graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
@@ -51,21 +52,34 @@ def test_minimal_correct(authentication) -> None:
 @pytest.mark.usefixtures("create_generic_project")
 def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/cardinality_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        shacl_validator=shacl_validator,
+        graphs=graphs,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
+        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
+        config=CONFIG,
+        shortcode=SHORTCODE,
     )
     assert validation_result.no_problems
     assert not validation_result.problems
+    assert not validation_result.cardinalities_with_potential_circle
     assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/content_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        shacl_validator=shacl_validator,
+        graphs=graphs,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
+        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
+        config=CONFIG,
+        shortcode=SHORTCODE,
     )
     assert validation_result.no_problems
     assert not validation_result.problems
@@ -75,9 +89,15 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
 @pytest.mark.usefixtures("create_generic_project")
 def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/file_value_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        shacl_validator=shacl_validator,
+        graphs=graphs,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
+        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
+        config=CONFIG,
+        shortcode=SHORTCODE,
     )
     assert validation_result.no_problems
     assert not validation_result.problems
@@ -87,9 +107,15 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
 @pytest.mark.usefixtures("create_generic_project")
 def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/dsp_inbuilt_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        shacl_validator=shacl_validator,
+        graphs=graphs,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
+        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
+        config=CONFIG,
+        shortcode=SHORTCODE,
     )
     assert validation_result.no_problems
     assert not validation_result.problems

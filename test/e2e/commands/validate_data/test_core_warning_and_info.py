@@ -15,8 +15,8 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
+from dsp_tools.commands.validate_data.validate_data import _execute_validation
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
-from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import InputError
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -50,7 +50,7 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    return _execute_validation(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 @pytest.fixture(scope="module")
@@ -75,7 +75,7 @@ def with_iri_references(
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
     id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
     graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    return _execute_validation(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
 
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
@@ -147,7 +147,7 @@ class TestSortedProblems:
             do_not_request_resource_metadata_from_db=False,
         )
         graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+        result = _execute_validation(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
         expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)

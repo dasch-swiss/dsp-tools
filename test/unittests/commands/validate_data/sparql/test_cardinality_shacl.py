@@ -277,9 +277,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
         """
-        onto_g = knora_subset
+        onto_g = Graph()
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
 
     def test_resource_with_min(self, knora_subset):
@@ -302,9 +302,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
         """
-        onto_g = knora_subset
+        onto_g = Graph()
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
 
     def test_segment_with_min(self, knora_subset):
@@ -327,9 +327,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> ] .
         """
-        onto_g = knora_subset
+        onto_g = Graph()
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 1
 
     def test_representation_no_min(self, knora_subset):
@@ -352,9 +352,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
         """
-        onto_g = knora_subset
+        onto_g = Graph()
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 0
 
     def test_representation_not_a_knora_resource(self, knora_subset):
@@ -377,9 +377,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasLinkToCardOneResource> ] .
         """
-        onto_g = knora_subset
+        onto_g = Graph()
         onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g)
+        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
         assert len(result) == 0
 
 

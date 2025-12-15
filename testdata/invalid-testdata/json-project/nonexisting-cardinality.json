@@ -10,9 +10,10 @@
         "keywords": [
             "test"
         ],
+        "default_permissions": "public",
         "ontologies": [
             {
-                "name": "nonexisting-cardinality-onto",
+                "name": "onto",
                 "label": "nonexisting-cardinality-onto",
                 "properties": [
                     {

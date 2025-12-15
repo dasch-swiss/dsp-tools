@@ -255,5 +255,8 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
     assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
 
 
+def test_get_min_cardinality_link_prop_for_potentially_problematic_circle(knora_subset):
+    pass
+
 if __name__ == "__main__":
     pytest.main([__file__])

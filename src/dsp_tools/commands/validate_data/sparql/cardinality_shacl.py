@@ -207,3 +207,48 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_knora: Graph) -> Graph:
+    logger.debug("Get resources with potentially problematic link property cardinalities.")
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+    
+    SELECT * WHERE {
+    
+      {
+        ?objectType rdfs:subClassOf* knora-api:Representation .
+      }
+      UNION
+      {
+        VALUES ?objectType {
+          knora-api:LinkObj
+          knora-api:Region
+          knora-api:AudioSegment
+          knora-api:VideoSegment
+          knora-api:Resource
+        }
+      }
+      
+      ?prop a owl:ObjectProperty ;
+            knora-api:objectType ?objectType .
+      
+      ?class a owl:Class ;
+            knora-api:isResourceClass true ;
+            knora-api:canBeInstantiated true ;
+            rdfs:subClassOf ?restriction .
+      
+       ?restriction a owl:Restriction ;
+          owl:onProperty ?prop ;
+          ?cardProp 1 .
+      
+      VALUES ?cardProp { owl:minCardinality owl:cardinality }
+    
+    }
+    """
+    if results_graph := onto_with_knora.query(query_s).graph:
+        return results_graph
+    return Graph()

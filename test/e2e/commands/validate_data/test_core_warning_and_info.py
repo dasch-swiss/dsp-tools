@@ -17,6 +17,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValidateDataR
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _execute_validation
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
+from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import InputError
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -36,6 +37,8 @@ CONFIG = ValidateDataConfig(
 
 SHORTCODE = "9999"
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
+DUPLICATE_FILE_WARNINGS = None
+POTENTIAL_CIRCLES_IN_DATA = None
 
 
 @pytest.fixture(scope="module")
@@ -74,8 +77,16 @@ def with_iri_references(
 ) -> ValidateDataResult:
     xml_file = Path("testdata/validate-data/core_validation/references_to_iri_in_db.xml")
     id2iri_file = "testdata/validate-data/core_validation/references_to_iri_in_db_id2iri.json"
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
-    return _execute_validation(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    graphs, _, _ = prepare_data_for_validation_from_file(xml_file, authentication, id2iri_file)
+    return _validate_data(
+        shacl_validator=shacl_validator,
+        graphs=graphs,
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
+        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
+        config=CONFIG,
+        shortcode=SHORTCODE,
+    )
 
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):

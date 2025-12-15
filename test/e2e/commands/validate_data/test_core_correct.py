@@ -93,3 +93,10 @@ def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator)
     assert validation_result.no_problems
     assert not validation_result.problems
     assert not validation_result.report_graphs
+    assert isinstance(validation_result.cardinalities_with_potential_circle, list)
+    assert len(validation_result.cardinalities_with_potential_circle) == 1
+    card_warning = validation_result.cardinalities_with_potential_circle[0]
+    assert card_warning.subject == "onto:ClassInheritedCardinalityOverwriting"
+    assert card_warning.prop == "onto:testHasLinkTo"
+    assert card_warning.object_cls == "knora-api:Resource"
+    assert card_warning.card == "1-n"

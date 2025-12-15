@@ -1,3 +1,5 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
@@ -25,7 +27,7 @@ def knora_subset() -> Graph:
 
 
 @pytest.fixture(scope="module")
-def onto_graph(knora_subset) -> Graph:
+def onto_graph(knora_subset):
     g = knora_subset
     g.parse("testdata/validate-data/onto.ttl")
     return g

@@ -3,6 +3,7 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import InternalError
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 
 
 def construct_cardinality_node_shapes(onto: Graph) -> Graph:
@@ -261,9 +262,9 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
                 crd = "1-n"
             cards.append(
                 CardinalitiesThatMayCreateAProblematicCircle(
-                    subject=str(res["class"]),
-                    prop=str(res["prop"]),
-                    object_cls=str(res["objectType"]),
+                    subject=from_dsp_iri_to_prefixed_iri(str(res["class"])),
+                    prop=from_dsp_iri_to_prefixed_iri(str(res["prop"])),
+                    object_cls=from_dsp_iri_to_prefixed_iri(str(res["objectType"])),
                     card=crd,
                 )
             )

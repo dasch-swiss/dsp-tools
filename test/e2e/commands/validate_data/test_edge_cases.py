@@ -61,6 +61,7 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
         graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR_0012, METADATA_RETRIEVAL_SUCCESS
     )
     assert result.no_problems
+    assert not result.cardinalities_with_potential_circle
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
@@ -132,6 +133,7 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
         graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE_0011, METADATA_RETRIEVAL_SUCCESS
     )
     assert result.no_problems
+    assert not result.cardinalities_with_potential_circle
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
@@ -168,6 +170,7 @@ def test_validate_ontology_violation(authentication) -> None:
     result = _validate_data(
         graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO_0009, METADATA_RETRIEVAL_SUCCESS
     )
+    assert not result.cardinalities_with_potential_circle
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)

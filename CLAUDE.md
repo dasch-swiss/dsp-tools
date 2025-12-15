@@ -177,6 +177,7 @@ The system follows this general flow for XML processing:
   Perhaps there is an important aspect that I forgot, or perhaps I have misunderstood the problem.
 - When I ask you to do something, you should always think critically about it.
   If you think it doesn't make sense, then you should push back, but you should also cite evidence.
+- Ask me one question after another, and provide a structured form where I can submit my answers.
 
 ### Writing code
 
@@ -190,6 +191,9 @@ The system follows this general flow for XML processing:
   Comments should be evergreen and describe the code as it is, not how it evolved or was recently changed.
 - NEVER name things as 'improved' or 'new' or 'enhanced', etc.
   Code naming should be evergreen. What is new someday will be "old" someday.
+- Only write docstrings for high-level functions, or if the purpose of a function cannot be derived from its name alone.
+  The names of lower-level functions should be self-explanatory, so it would be a duplication to write docstrings.
+  In test codes, we most often don't need docstrings.
 
 ### Code quality
 
@@ -215,6 +219,7 @@ The system follows this general flow for XML processing:
 - Run the test to confirm success
 - Refactor code to improve design while keeping tests green
 - Repeat the cycle for each new feature or bugfix
+- If you want to adjust a test for any reason, ask for confirmation, even if you suspect the test to contain the error.
 
 ### Learning-Focused Error Response
 
@@ -228,7 +233,7 @@ When encountering tool failures (ruff, pytest, etc.):
 ### Technology preferences
 
 - never install python packages globally with `pip3 install <package>`.
-  Always use virtual environments, with `uv` (see <https://docs.astral.sh/uv/>).
+  Always use virtual environments, with `uv`.
 - Always use `pathlib` for paths. Avoid `os.path`, and avoid passing around paths as strings.
 - Please use modern python syntax and modern patterns.
 - Avoid writing classes with a lot of state and behaviour.

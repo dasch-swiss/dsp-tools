@@ -5,13 +5,17 @@ description: This action contains some setup steps that are common to several wo
 runs:
   using: "composite"
   steps:
+    - name: Install python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
     - name: Install just
       uses: taiki-e/install-action@just
-    - name: Install Python dependencies (uv will install python automatically, if no appropriate version is installed)
+    - name: Install Python dependencies
       run: uv sync --all-extras --dev
       shell: bash
     - name: Enable dsp-tools log file in cwd

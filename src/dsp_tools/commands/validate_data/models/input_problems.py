@@ -8,6 +8,7 @@ from enum import auto
 import pandas as pd
 import regex
 
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 
@@ -16,6 +17,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 class ValidateDataResult:
     no_problems: bool
     problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
+    cardinalities_with_potential_circle: list[CardinalitiesThatMayCreateAProblematicCircle] | None
     report_graphs: None | ValidationReportGraphs
 
 

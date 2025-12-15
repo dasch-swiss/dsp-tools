@@ -14,12 +14,14 @@ from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import ShaclValidationError
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 LIST_SEPARATOR = "\n    - "
@@ -105,3 +107,30 @@ def get_msg_str_ontology_validation_violation(onto_violations: OntologyValidatio
         f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
         f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
     )
+
+
+def get_msg_str_for_potential_problematic_circles(
+    circle_info: list[CardinalitiesThatMayCreateAProblematicCircle],
+) -> tuple[str, str]:
+    header = "Potentially problematic cardinalities found that may cause an upload to fail."
+    detail_start = (
+        "Your ontology contains cardinalities with a minimum of 1 that points to a generic knora-api Resource.\n"
+        "Because we upload resources sequentially we must break up any circles in your data. "
+        "Because of the generic nature of the object constraint we cannot infer from the ontology "
+        "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
+        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes. "
+        "The following classes contain potentially problematic links:"
+    )
+    detail_strings = []
+    for problem in circle_info:
+        if problem.card.endswith("#cardinality"):
+            crd = "1"
+        else:
+            crd = "1-n"
+        detail = (
+            f"Class: {from_dsp_iri_to_prefixed_iri(problem.subject)} | "
+            f"Property: {from_dsp_iri_to_prefixed_iri(problem.prop)} | "
+            f"Object Class: {from_dsp_iri_to_prefixed_iri(problem.object_cls)} | Cardinality: {crd}"
+        )
+        detail_strings.append(detail)
+    return header, detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)

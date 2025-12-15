@@ -23,10 +23,12 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
+from dsp_tools.commands.validate_data.validation.do_python_checks import check_for_cardinalities_that_may_cause_a_circle
+from dsp_tools.commands.validate_data.validation.do_python_checks import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
+from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import BaseError
@@ -122,6 +124,15 @@ def validate_parsed_resources(
     validation_result = _validate_data(
         rdf_graphs, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
     )
+    if validation_result.cardinalities_with_potential_circle:
+        header, detail = get_msg_str_for_potential_problematic_circles(
+            validation_result.cardinalities_with_potential_circle
+        )
+        logger.warning(header, detail)
+        print(BACKGROUND_BOLD_YELLOW + header + RESET_TO_DEFAULT)
+        print(detail)
+    else:
+        logger.debug("No cardinalities found that may cause a problematic circle in the data.")
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
@@ -156,15 +167,27 @@ def _validate_data(
     existing_resources_retrieved: ExistingResourcesRetrieved,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
+    # check for cardinalities that may cause a circle in the data that may not be broken up
+    potential_circles = check_for_cardinalities_that_may_cause_a_circle(graphs.ontos, graphs.knora_api)
     # Check if unknown classes are used
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
-        return ValidateDataResult(False, unknown_classes, None)
+        return ValidateDataResult(
+            no_problems=False,
+            problems=unknown_classes,
+            cardinalities_with_potential_circle=potential_circles,
+            report_graphs=None,
+        )
     shacl_validator = ShaclCliValidator()
     if not config.skip_ontology_validation:
         # Validation of the ontology
         onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, config)
         if onto_validation_result:
-            return ValidateDataResult(False, onto_validation_result, None)
+            return ValidateDataResult(
+                no_problems=False,
+                problems=onto_validation_result,
+                cardinalities_with_potential_circle=potential_circles,
+                report_graphs=None,
+            )
     # Validation of the data
     duplicate_file_warnings = None
     if not config.ignore_duplicate_files_warning:
@@ -172,7 +195,12 @@ def _validate_data(
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
         if not duplicate_file_warnings:
-            return ValidateDataResult(True, None, None)
+            return ValidateDataResult(
+                no_problems=True,
+                problems=None,
+                cardinalities_with_potential_circle=potential_circles,
+                report_graphs=None,
+            )
         else:
             sorted_problems = SortedProblems(
                 unique_violations=[],
@@ -180,10 +208,20 @@ def _validate_data(
                 user_info=[],
                 unexpected_shacl_validation_components=[],
             )
-            return ValidateDataResult(False, sorted_problems, report)
+            return ValidateDataResult(
+                no_problems=False,
+                problems=sorted_problems,
+                cardinalities_with_potential_circle=potential_circles,
+                report_graphs=report,
+            )
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, existing_resources_retrieved)
-    return ValidateDataResult(False, sorted_problems, report)
+    return ValidateDataResult(
+        no_problems=False,
+        problems=sorted_problems,
+        cardinalities_with_potential_circle=potential_circles,
+        report_graphs=report,
+    )
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

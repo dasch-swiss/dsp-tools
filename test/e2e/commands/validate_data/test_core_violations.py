@@ -29,7 +29,7 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _validate_data
-from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
+from dsp_tools.commands.validate_data.validation.do_python_checks import check_for_duplicate_files
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource

@@ -1,6 +1,8 @@
 from loguru import logger
 from rdflib import Graph
 
+from dsp_tools.error.exceptions import InternalError
+
 
 def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     """
@@ -209,8 +211,10 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     return Graph()
 
 
-def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_knora: Graph):
+def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_graph: Graph, knora_api_resources: list[str]):
     logger.debug("Get resources with potentially problematic link property cardinalities.")
+    knora_api_resources = [f"<{x}>" for x in knora_api_resources]
+    api_classes = " ".join(knora_api_resources)
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -219,20 +223,10 @@ def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_k
     
     SELECT ?class ?prop ?objectType ?cardProp WHERE {
     
-      {
-        ?objectType rdfs:subClassOf* knora-api:Representation .
-      }
-      UNION
-      {
-        VALUES ?objectType {
-          knora-api:LinkObj
-          knora-api:Region
-          knora-api:AudioSegment
-          knora-api:VideoSegment
-          knora-api:Resource
-        }
-      }
-      
+    VALUES ?objectType {
+        %(api_classes)s
+    }
+    
       ?prop a owl:ObjectProperty ;
             knora-api:objectType ?objectType .
       
@@ -246,9 +240,21 @@ def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_k
           ?cardProp 1 .
       
       VALUES ?cardProp { owl:minCardinality owl:cardinality }
-    
     }
-    """
-    if results := onto_with_knora.query(query_s).graph:
+    """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
+    if results := onto_graph.query(query_s).graph:
         return results
     return []
+
+
+def _get_knora_resources(knora_api: Graph) -> list[str]:
+    query_s = """
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    
+    SELECT ?knoraClass WHERE {
+        ?knoraClass rdfs:subClassOf* knora-api:Resource ;
+                    knora-api:isResourceClass true . 
+   """
+    if results := knora_api.query(query_s).graph:
+        return results
+    raise InternalError("Unreachable code, no classes in knora-api ontology.")

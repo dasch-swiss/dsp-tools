@@ -1,6 +1,7 @@
 from loguru import logger
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import InternalError
 
 
@@ -211,7 +212,9 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     return Graph()
 
 
-def get_list_of_potentially_problematic_cardinalities(onto_graph: Graph, knora_api: Graph) -> list[str]:
+def get_list_of_potentially_problematic_cardinalities(
+    onto_graph: Graph, knora_api: Graph
+) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
     knora_resources = _get_knora_resources(knora_api)
     return _get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_graph, knora_resources)
 
@@ -249,8 +252,18 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
       VALUES ?cardProp { owl:minCardinality owl:cardinality }
     }
     """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
-    if results := onto_graph.query(query_s).graph:
-        return results
+    if results := onto_graph.query(query_s):
+        cards = []
+        for res in results.bindings:
+            cards.append(
+                CardinalitiesThatMayCreateAProblematicCircle(
+                    subject=str(res["class"]),
+                    prop=str(res["prop"]),
+                    object_cls=str(res["objectType"]),
+                    card=str(res["cardProp"]),
+                )
+            )
+        return cards
     return []
 
 
@@ -259,9 +272,9 @@ def _get_knora_resources(knora_api: Graph) -> list[str]:
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     
     SELECT ?knoraClass WHERE {
-        ?knoraClass rdfs:subClassOf* knora-api:Resource ;
-                    knora-api:isResourceClass true . 
+        ?knoraClass rdfs:subClassOf* knora-api:Resource . 
+    }
    """
-    if results := knora_api.query(query_s).graph:
-        return results
+    if results := knora_api.query(query_s):
+        return [str(x["knoraClass"]) for x in results.bindings]
     raise InternalError("Unreachable code, no classes in knora-api ontology.")

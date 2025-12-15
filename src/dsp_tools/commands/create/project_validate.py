@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any
 
 import jsonschema
-import regex
 import rustworkx as rx
 from loguru import logger
 
@@ -131,6 +130,8 @@ def _complex_parsed_project_validation(
         cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
     ):
         problems.append(undefined_super_cls)
+    if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
+        problems.append(undefined_cards)
     if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
         cardinalities_flattened, props_flattened
     ):
@@ -401,9 +402,6 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
         )
         return CollectedProblems(err_msg, problems)
     return None
-
-
-
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

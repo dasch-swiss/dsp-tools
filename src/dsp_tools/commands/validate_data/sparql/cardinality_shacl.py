@@ -1,5 +1,6 @@
 from loguru import logger
 from rdflib import Graph
+from rdflib import Variable
 
 from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import InternalError
@@ -256,15 +257,15 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
     if results := onto_graph.query(query_s):
         cards = []
         for res in results.bindings:
-            if str(res["cardProp"]).endswith("#cardinality"):
+            if str(res[Variable("cardProp")]).endswith("#cardinality"):
                 crd = "1"
             else:
                 crd = "1-n"
             cards.append(
                 CardinalitiesThatMayCreateAProblematicCircle(
-                    subject=from_dsp_iri_to_prefixed_iri(str(res["class"])),
-                    prop=from_dsp_iri_to_prefixed_iri(str(res["prop"])),
-                    object_cls=from_dsp_iri_to_prefixed_iri(str(res["objectType"])),
+                    subject=from_dsp_iri_to_prefixed_iri(str(res[Variable("class")])),
+                    prop=from_dsp_iri_to_prefixed_iri(str(res[Variable("prop")])),
+                    object_cls=from_dsp_iri_to_prefixed_iri(str(res[Variable("objectType")])),
                     card=crd,
                 )
             )
@@ -281,5 +282,5 @@ def _get_knora_resources(knora_api: Graph) -> list[str]:
     }
    """
     if results := knora_api.query(query_s):
-        return [str(x["knoraClass"]) for x in results.bindings]
+        return [str(x[Variable("knoraClass")]) for x in results.bindings]
     raise InternalError("Unreachable code, no classes in knora-api ontology.")

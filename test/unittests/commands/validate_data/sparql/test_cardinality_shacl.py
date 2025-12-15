@@ -14,6 +14,9 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import (
+    get_min_cardinality_link_prop_for_potentially_problematic_circle,
+)
 from dsp_tools.utils.rdf_constants import API_SHAPES
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.rdf_constants import KNORA_API
@@ -255,8 +258,132 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
     assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
 
 
-def test_get_min_cardinality_link_prop_for_potentially_problematic_circle(knora_subset):
-    pass
+class TestIdentifyPossibleMandatoryCircle:
+    def test_representation_with_min(self, knora_subset):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
+        rdfs:label "Target is any Representation" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Representation ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasRepresentation .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
+        """
+        onto_g = knora_subset
+        onto_g.parse(data=onto_str, format="ttl")
+        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        assert len(result) == 1
+
+    def test_resource_with_min(self, knora_subset):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource> a owl:ObjectProperty ;
+        rdfs:label "Target is any Resource" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Resource ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
+        """
+        onto_g = knora_subset
+        onto_g.parse(data=onto_str, format="ttl")
+        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        assert len(result) == 1
+
+    def test_segment_with_min(self, knora_subset):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> a owl:ObjectProperty ;
+        rdfs:label "Target is any VideoSegment" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:VideoSegment ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> ] .
+        """
+        onto_g = knora_subset
+        onto_g.parse(data=onto_str, format="ttl")
+        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        assert len(result) == 1
+
+    def test_representation_no_min(self, knora_subset):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
+        rdfs:label "Target is any Representation" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Representation ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasRepresentation .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
+        """
+        onto_g = knora_subset
+        onto_g.parse(data=onto_str, format="ttl")
+        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        assert len(result) == 0
+
+    def test_representation_not_a_knora_resource(self, knora_subset):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> a owl:ObjectProperty ;
+        rdfs:label "Super-class" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasLinkToCardOneResource> ] .
+        """
+        onto_g = knora_subset
+        onto_g.parse(data=onto_str, format="ttl")
+        result = get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_g)
+        assert len(result) == 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

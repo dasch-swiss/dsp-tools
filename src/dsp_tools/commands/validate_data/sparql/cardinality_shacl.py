@@ -209,7 +209,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     return Graph()
 
 
-def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_knora: Graph) -> Graph:
+def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_knora: Graph):
     logger.debug("Get resources with potentially problematic link property cardinalities.")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
@@ -217,7 +217,7 @@ def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_k
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
     
-    SELECT * WHERE {
+    SELECT ?class ?prop ?objectType ?cardProp WHERE {
     
       {
         ?objectType rdfs:subClassOf* knora-api:Representation .
@@ -249,6 +249,6 @@ def get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_with_k
     
     }
     """
-    if results_graph := onto_with_knora.query(query_s).graph:
-        return results_graph
-    return Graph()
+    if results := onto_with_knora.query(query_s).graph:
+        return results
+    return []

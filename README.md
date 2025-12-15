@@ -37,6 +37,38 @@ The remainder of this README explains these commands in more detail.
 
 
 
+## Recommended Setup for Claude Code
+
+### `feature-dev`: A comprehensive, structured workflow for feature development with specialized agents 
+
+Multiple specialized agents often perform better than 1 single agent.
+A well-structured and orchestrated workflow often yields more qualitative results than 1 agent quickly running forward.
+The [`feature-dev`](https://github.com/anthropics/claude-code/tree/main/plugins/feature-dev) plugin
+is Anthropic's solution for this problem.
+
+To install, run this inside Claude Code: 
+
+```bash
+/plugin marketplace add anthropics/claude-code
+/plugin install feature-dev@anthropics-claude-code
+```
+
+Then, invoke it inside Claude Code with `/feature-dev`.
+
+
+### Linear MCP
+
+Give Claude Code access to Linear tickets in an effective way.
+Run this in a Terminal inside your project (doesn't work globally, only per project):
+
+```bash
+claude mcp add --transport http linear-server https://mcp.linear.app/mcp
+```
+
+Then run `/mcp` inside Claude Code to trigger the login.
+
+
+
 ## Using UV to manage Python installations, virtual environments, and dependencies
 
 Curious what uv is and why we use it? 

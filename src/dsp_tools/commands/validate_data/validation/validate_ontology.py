@@ -113,8 +113,8 @@ def get_msg_str_for_potential_problematic_circles(
 ) -> tuple[str, str]:
     header = "Potentially problematic cardinalities found that may cause an upload to fail."
     detail_start = (
-        "Your ontology contains cardinalities with a minimum of 1 that points to a generic knora-api Resource.\n"
-        "Because we upload resources sequentially we must break up any circles in your data. "
+        "Your ontology contains cardinalities with a minimum of 1 that point to a generic knora-api Resource.\n"
+        "Because we upload resources sequentially, we must break up any circles in your data. "
         "Because of the generic nature of the object constraint we cannot infer from the ontology "
         "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
         "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"

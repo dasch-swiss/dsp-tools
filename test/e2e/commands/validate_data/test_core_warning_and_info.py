@@ -50,7 +50,9 @@ def no_violations_with_warnings_do_not_ignore_duplicate_files(
 ) -> ValidateDataResult:
     file = Path("testdata/validate-data/core_validation/no_violations_with_warnings.xml")
     graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    return _validate_data(
+        graphs, triple_stores, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +79,9 @@ def with_iri_references(
     graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(
         xml_file, authentication, id2iri_file
     )
-    return _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    return _validate_data(
+        graphs, triple_stores, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+    )
 
 
 def test_metadata_retrival(create_generic_project, iri_reference_upload, authentication):
@@ -149,7 +153,9 @@ class TestSortedProblems:
             do_not_request_resource_metadata_from_db=False,
         )
         graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-        result = _validate_data(graphs, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+        result = _validate_data(
+            graphs, triple_stores, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        )
         expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)

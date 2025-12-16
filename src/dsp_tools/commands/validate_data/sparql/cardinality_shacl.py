@@ -1,11 +1,13 @@
+from typing import cast
+
 from loguru import logger
+from pyoxigraph import QuerySolution
 from pyoxigraph import Store
 from pyoxigraph import Variable
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import TripleStores
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 
 
@@ -256,23 +258,23 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
       VALUES ?cardProp { owl:minCardinality owl:cardinality }
     }
     """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
-    if results := onto_graph.query(query_s):
-        cards = []
-        for res in results:
-            if str(res[Variable("cardProp")]).endswith("#cardinality"):
-                crd = "1"
-            else:
-                crd = "1-n"
-            cards.append(
-                CardinalitiesThatMayCreateAProblematicCircle(
-                    subject=from_dsp_iri_to_prefixed_iri(str(res[Variable("class")])),
-                    prop=from_dsp_iri_to_prefixed_iri(str(res[Variable("prop")])),
-                    object_cls=from_dsp_iri_to_prefixed_iri(str(res[Variable("objectType")])),
-                    card=crd,
-                )
+    q_res = onto_graph.query(query_s)
+    results = cast(QuerySolution, q_res)
+    cards = []
+    for res in results:
+        if str(res[Variable("cardProp")]).endswith("#cardinality"):
+            crd = "1"
+        else:
+            crd = "1-n"
+        cards.append(
+            CardinalitiesThatMayCreateAProblematicCircle(
+                subject=from_dsp_iri_to_prefixed_iri(str(res[Variable("class")])),
+                prop=from_dsp_iri_to_prefixed_iri(str(res[Variable("prop")])),
+                object_cls=from_dsp_iri_to_prefixed_iri(str(res[Variable("objectType")])),
+                card=crd,
             )
-        return cards
-    return []
+        )
+    return cards
 
 
 def _get_knora_resources(knora_api: Store) -> list[str]:
@@ -284,6 +286,6 @@ def _get_knora_resources(knora_api: Store) -> list[str]:
         ?knoraClass rdfs:subClassOf* knora-api:Resource . 
     }
    """
-    if results := knora_api.query(query_s):
-        return [str(r[Variable("knoraClass")]) for r in results]
-    raise InternalError("Unreachable code, no classes in knora-api ontology.")
+    q_res = knora_api.query(query_s)
+    results = cast(QuerySolution, q_res)
+    return [str(r[Variable("knoraClass")]) for r in results]

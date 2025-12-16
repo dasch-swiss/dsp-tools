@@ -27,8 +27,8 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
+from dsp_tools.commands.validate_data.validation.python_checks import check_for_cardinalities_that_may_cause_a_circle
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
-from dsp_tools.commands.validate_data.validation.python_checks import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -161,7 +161,7 @@ def _validate_data(
     existing_resources_retrieved: ExistingResourcesRetrieved,
 ) -> ValidateDataResult:
     logger.debug(f"Validate-data called with the following config: {vars(config)}")
-    potential_circles = get_list_of_potentially_problematic_cardinalities(triple_stores)
+    potential_circles = check_for_cardinalities_that_may_cause_a_circle(triple_stores)
     # Check if unknown classes are used
     if unknown_classes := check_for_unknown_resource_classes(graphs, used_iris):
         return ValidateDataResult(

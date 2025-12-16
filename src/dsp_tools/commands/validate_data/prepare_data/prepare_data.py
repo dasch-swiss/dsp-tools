@@ -177,7 +177,7 @@ def _get_project_ontos(onto_client: OntologyGetClient) -> tuple[Graph, Store, li
         og.parse(data=onto, format="ttl")
         onto_g += og
         onto_stores.load(input=onto, format=RdfFormat.TURTLE)
-    return onto_g, onto_iris, onto_stores
+    return onto_g, onto_stores, onto_iris
 
 
 def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:

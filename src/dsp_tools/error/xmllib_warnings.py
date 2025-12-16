@@ -17,10 +17,12 @@ class UserMessageSeverity(StrEnum):
 @dataclass
 class MessageInfo:
     """
-    message: message about what went wrong
-    resource_id: ID of the affected resource
-    prop_name: property name of the affected property (if applicable)
-    field: information about which field of the resource is affected (if not the property), e.g. "resource id", "label"
+    Args:
+        message: message about what went wrong
+        resource_id: ID of the affected resource
+        prop_name: property name of the affected property (if applicable)
+        field: information about which field of the resource is affected (if not the property),
+            e.g. "resource id", "label"
     """
 
     message: str

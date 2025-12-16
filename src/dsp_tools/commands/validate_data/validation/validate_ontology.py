@@ -122,14 +122,10 @@ def get_msg_str_for_potential_problematic_circles(
     )
     detail_strings = []
     for problem in circle_info:
-        if problem.card.endswith("#cardinality"):
-            crd = "1"
-        else:
-            crd = "1-n"
         detail = (
             f"Class: {problem.subject} | "
             f"Property: {problem.prop} | "
-            f"Object Class: {problem.object_cls} | Cardinality: {crd}"
+            f"Object Class: {problem.object_cls} | Cardinality: {problem.card}"
         )
         detail_strings.append(detail)
     return header, detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)

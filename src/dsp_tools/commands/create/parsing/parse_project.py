@@ -81,8 +81,6 @@ def _parse_permissions(
 
     found_overrule = project_json.get("default_permissions_overrule", {})
     if private := found_overrule.get("private"):
-        if isinstance(private, str):
-            private = [private]
         resolved_private, resolving_problems = resolve_all_to_absolute_iri(private, None, prefix_lookup)
         if resolving_problems:
             problems.extend(resolving_problems)
@@ -106,10 +104,8 @@ def _get_limited_view(
     original_input: str | list[str] | None, prefixes: dict[str, str]
 ) -> tuple[LimitedViewPermissionsSelection | GlobalLimitedViewPermission | None, list[CreateProblem]]:
     match original_input:
-        case str():
-            if original_input == "all":
-                return GlobalLimitedViewPermission.ALL, []
-            return _handle_limited_view_list([original_input], prefixes)
+        case "all":
+            return GlobalLimitedViewPermission.ALL, []
         case list():
             return _handle_limited_view_list(original_input, prefixes)
         case None:

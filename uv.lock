@@ -481,7 +481,7 @@ requires-dist = [
     { name = "pandas", extras = ["excel"] },
     { name = "polars" },
     { name = "pyld" },
-    { name = "pyoxigraph", specifier = ">=0.5.2" },
+    { name = "pyoxigraph", specifier = "~=0.5.2" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "rdflib" },

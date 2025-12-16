@@ -6,6 +6,7 @@ from typing import assert_never
 from typing import cast
 
 import pytest
+from dsp_tools.commands.validate_data.validation.check_duplicate_files import check_for_duplicate_files
 from rdflib import SH
 from rdflib import BNode
 from rdflib import URIRef
@@ -27,11 +28,9 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 )
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
-from dsp_tools.commands.validate_data.validate_data import _execute_validation
 from dsp_tools.commands.validate_data.validate_data import _get_validation_status
 from dsp_tools.commands.validate_data.validate_data import _validate_data
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
-from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
@@ -50,8 +49,6 @@ CONFIG = ValidateDataConfig(
 )
 SHORTCODE = "9999"
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
-DUPLICATE_FILE_WARNINGS = None
-POTENTIAL_CIRCLES_IN_DATA = None
 
 
 @pytest.fixture(scope="module")
@@ -240,8 +237,8 @@ class TestWithReportGraphs:
 @pytest.mark.usefixtures("create_generic_project")
 def test_check_for_unknown_resource_classes(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/unknown_classes.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
-    result = _execute_validation(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     problems = result.problems
     assert isinstance(problems, UnknownClassesInData)
@@ -250,18 +247,10 @@ def test_check_for_unknown_resource_classes(authentication) -> None:
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_content_violation(authentication, shacl_validator) -> None:
+def test_reformat_content_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/content_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
     expected_info_tuples = [
         (
@@ -402,18 +391,10 @@ def test_reformat_content_violation(authentication, shacl_validator) -> None:
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_cardinality_violation(authentication, shacl_validator) -> None:
+def test_reformat_cardinality_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/cardinality_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("card_1_missing", ProblemType.MIN_CARD),
@@ -437,18 +418,10 @@ def test_reformat_cardinality_violation(authentication, shacl_validator) -> None
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_value_type_violation(authentication, shacl_validator) -> None:
+def test_reformat_value_type_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/value_type_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
@@ -484,18 +457,10 @@ def test_reformat_value_type_violation(authentication, shacl_validator) -> None:
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_unique_value_violation(authentication, shacl_validator) -> None:
+def test_reformat_unique_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/unique_value_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_ids = [
         "identical_values_LinkValue",
@@ -519,18 +484,10 @@ def test_reformat_unique_value_violation(authentication, shacl_validator) -> Non
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_file_value_violation(authentication, shacl_validator) -> None:
+def test_reformat_file_value_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/file_value_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_violation = [
         ("archive_missing", ProblemType.FILE_VALUE_MISSING),
@@ -571,18 +528,10 @@ def test_reformat_file_value_violation(authentication, shacl_validator) -> None:
 
 
 @pytest.mark.usefixtures("create_generic_project")
-def test_reformat_dsp_inbuilt_violation(authentication, shacl_validator) -> None:
+def test_reformat_dsp_inbuilt_violation(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/dsp_inbuilt_violation.xml")
-    graphs, _, _ = prepare_data_for_validation_from_file(file, authentication)
-    result = _validate_data(
-        shacl_validator=shacl_validator,
-        graphs=graphs,
-        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
-        duplicate_file_warnings=DUPLICATE_FILE_WARNINGS,
-        potential_circles=POTENTIAL_CIRCLES_IN_DATA,
-        config=CONFIG,
-        shortcode=SHORTCODE,
-    )
+    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    result = _validate_data(graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS)
     assert not result.no_problems
     expected_info_tuples = [
         ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),

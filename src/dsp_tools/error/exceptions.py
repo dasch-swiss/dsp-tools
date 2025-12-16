@@ -48,8 +48,9 @@ class InternalError(BaseError):
 class UnreachableCodeError(BaseError):
     """Class that is raised if certain code is not reachable."""
 
-    def __init__(self) -> None:
-        msg = "This error should be unreachable, some bug is in the code."
+    def __init__(self, msg: str | None = None) -> None:
+        if not msg:
+            msg = "This error should be unreachable, some bug is in the code."
         super().__init__(msg)
 
 

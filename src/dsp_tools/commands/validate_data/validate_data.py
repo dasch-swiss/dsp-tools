@@ -31,7 +31,7 @@ from dsp_tools.commands.validate_data.validation.python_checks import check_for_
 from dsp_tools.commands.validate_data.validation.python_checks import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_CYAN
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
@@ -148,7 +148,7 @@ def validate_parsed_resources(
         _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
         return _get_validation_status(validation_result.problems, config.is_on_prod_server)
     else:
-        raise BaseError(f"Unknown validate data problems: {validation_result.problems!s}")
+        raise UnreachableCodeError(f"Unknown validate data problems: {validation_result.problems!s}")
 
 
 def _validate_data(

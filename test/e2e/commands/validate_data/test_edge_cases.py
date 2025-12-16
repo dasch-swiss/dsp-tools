@@ -82,6 +82,7 @@ def test_reformat_special_characters_violation(authentication) -> None:
         SHORTCODE_SPECIAL_CHAR_0012,
         METADATA_RETRIEVAL_SUCCESS,
     )
+    assert not result.cardinalities_with_potential_circle
     assert not result.no_problems
     expected_tuples = [
         (
@@ -149,6 +150,7 @@ def test_inheritance_correct(authentication: AuthenticationClient) -> None:
         SHORTCODE_INHERITANCE_0011,
         METADATA_RETRIEVAL_SUCCESS,
     )
+    assert not result.cardinalities_with_potential_circle
     assert result.no_problems
 
 
@@ -198,6 +200,13 @@ def test_validate_ontology_violation(authentication) -> None:
         SHORTCODE_ERRONEOUS_ONTO_0009,
         METADATA_RETRIEVAL_SUCCESS,
     )
+    assert isinstance(result.cardinalities_with_potential_circle, list)
+    assert len(result.cardinalities_with_potential_circle) == 1
+    potential_circle = result.cardinalities_with_potential_circle[0]
+    assert potential_circle.subject == "error:ResourceWithPotentialCircularReference"
+    assert potential_circle.prop == "error:hasLink"
+    assert potential_circle.object_cls == "knora-api:Resource"
+    assert potential_circle.card == "1-n"
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
@@ -244,5 +253,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
         METADATA_RETRIEVAL_SUCCESS,
     )
     assert not result.no_problems
+    # we check the details in another test
+    assert isinstance(result.cardinalities_with_potential_circle, list)
     all_problems = result.problems
     assert isinstance(all_problems, SortedProblems)

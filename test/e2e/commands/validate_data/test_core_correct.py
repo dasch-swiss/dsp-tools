@@ -44,6 +44,7 @@ def test_minimal_correct(authentication) -> None:
     )
     assert validation_result.no_problems
     assert not validation_result.problems
+    assert not validation_result.cardinalities_with_potential_circle
     assert not validation_result.report_graphs
 
 

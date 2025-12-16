@@ -5,6 +5,7 @@ from enum import Enum
 from enum import auto
 from pathlib import Path
 
+from pyoxigraph import Store
 from rdflib import Graph
 
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
@@ -24,6 +25,12 @@ class RDFGraphs:
     content_shapes: Graph
     knora_api: Graph
     resources_in_db_graph: Graph
+
+
+@dataclass
+class TripleStores:
+    ontos: Store
+    knora_api: Store
 
 
 @dataclass
@@ -104,3 +111,11 @@ class ReformattedIRI:
     res_id: str
     res_type: str
     prop_name: str
+
+
+@dataclass
+class CardinalitiesThatMayCreateAProblematicCircle:
+    subject: str
+    prop: str
+    object_cls: str
+    card: str

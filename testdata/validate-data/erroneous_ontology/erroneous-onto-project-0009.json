@@ -29,6 +29,17 @@
             "gui_element": "Searchbox"
           },
           {
+            "name": "hasLink",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Resource",
+            "labels": {
+              "en": "link"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
             "name": "testSeqnum",
             "super": [
               "seqnum"
@@ -47,6 +58,20 @@
             "labels": {
               "en": "Resource"
             }
+          },
+          {
+            "name": "ResourceWithPotentialCircularReference",
+            "super": "Resource",
+            "labels": {
+              "en": "ResourceWithPotentialCircularReference"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasLink",
+                "gui_order": 1,
+                "cardinality": "1-n"
+              }
+            ]
           },
           {
             "name": "ImageWithKnoraProp_ErroneousCards",

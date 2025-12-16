@@ -275,6 +275,7 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
 
 def _get_knora_resources(knora_api: Graph) -> list[str]:
     query_s = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     
     SELECT ?knoraClass WHERE {

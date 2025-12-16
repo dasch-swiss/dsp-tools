@@ -21,7 +21,7 @@ dependencies = [
     "jinja2",
     "jsonpath-ng",
     "jsonschema",
-    "loguru~=0.7.3",  # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
+    "loguru~=0.7.3", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
     "lxml",
     "openpyxl",
     "packaging",
@@ -29,12 +29,13 @@ dependencies = [
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "polars",
     "pyld",
+    "pyoxigraph>=0.5.2",
     "python-dotenv",
     "pyyaml",
     "rdflib",
     "regex",
     "requests",
-    "rustworkx~=0.17.1",  # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
+    "rustworkx~=0.17.1", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
     "tqdm",
     "typing-extensions",
 ]

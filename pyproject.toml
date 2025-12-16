@@ -29,7 +29,7 @@ dependencies = [
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "polars",
     "pyld",
-    "pyoxigraph>=0.5.2",
+    "pyoxigraph~=0.5.2",
     "python-dotenv",
     "pyyaml",
     "rdflib",

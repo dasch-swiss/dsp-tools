@@ -43,11 +43,18 @@ to ensure data conforms to ontological constraints before upload.
 
 - **query_validation_result.py**: Processes SHACL validation results into user-friendly formats
 - **get_user_validation_message.py**: Converts validation problems into user messages
+- **reformat_validation_results.py**: Reformats validation results for output
 
-### API Clients (`api_clients.py`)
+### API Client Usage
 
-- **OntologyClient**: Fetches project ontologies and knora-api ontology from DSP server
+The validate_data module uses clients from the shared `src/dsp_tools/clients/` module:
+
+- **OntologyGetClient**: Fetches project ontologies and knora-api ontology from DSP server
 - **ListClient**: Retrieves and reformats project lists for validation
+- **MetadataClient**: Retrieves project metadata
+- **LegalInfoClient**: Fetches legal information for validation
+
+See [src/dsp_tools/clients/CLAUDE.md](../../clients/CLAUDE.md) for client architecture details.
 
 ### Models
 

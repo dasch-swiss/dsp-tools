@@ -633,7 +633,24 @@ def _from_english_BC_or_CE_range(
     if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
         return None
 
-    return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
+    start_year = int(start_year_match.group(0))
+    end_year = int(end_year_match.group(0))
+    if not _is_BC_or_CE_range_valid(start_era, end_era, start_year, end_year):
+        err_msg = MessageInfo(f"The start date must be before the end date. Please review your input: '{string}'.")
+        emit_xmllib_input_warning(err_msg)
+        return None
+
+    return f"GREGORIAN:{start_era}:{start_year}:{end_era}:{end_year}"
+
+
+def _is_BC_or_CE_range_valid(start_era: str, end_era: str, start_year: int, end_year: int) -> bool:
+    if start_era == "CE" and end_era == "BC":
+        return False
+    if start_era == "CE" and end_era == "CE" and end_year < start_year:
+        return False
+    if start_era == "BC" and end_era == "BC" and end_year > start_year:
+        return False
+    return True
 
 
 def _find_french_bc_dates(
@@ -653,6 +670,9 @@ def _find_french_bc_dates(
         start_year = int(year_range.group(1))
         end_year = int(year_range.group(2))
         if end_year > start_year:
+            emit_xmllib_input_warning(
+                MessageInfo(f"The start date must be before the end date. Please review your input: '{string}'.")
+            )
             continue
         results_new.add(f"GREGORIAN:BC:{start_year}:BC:{end_year}")
         remaining_string = _remove_used_spans(remaining_string, [year_range.span()])
@@ -703,6 +723,8 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     except ValueError:
         return None
     if enddate < startdate:
+        err_msg = f"The start date must be before the end date. Please review your input: '{eur_date_range.string}'."
+        emit_xmllib_input_warning(MessageInfo(err_msg))
         return None
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 
@@ -761,7 +783,9 @@ def _from_year_range(year_range: Match[str]) -> str | None:
     elif endyear // 100 == 0:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
-    if endyear <= startyear:
+    if endyear < startyear:
+        err_msg = f"The start date must be before the end date. Please review your input: '{year_range.string}'."
+        emit_xmllib_input_warning(MessageInfo(err_msg))
         return None
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 

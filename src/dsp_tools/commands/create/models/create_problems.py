@@ -43,6 +43,12 @@ class InputProblemType(ProblemType):
     USER_PASSWORD_NOT_SET = (
         "This user cannot be created as no password is specified and no default password is saved in a .env file."
     )
+    DEFAULT_PERMISSIONS_NOT_CORRECT = (
+        "Defining 'default_permissions' is mandatory and must either be 'public' or 'private'."
+    )
+    LIMITED_VIEW_PERMISSIONS_NOT_CORRECT = (
+        "Your input for the 'limited_view' permissions is invalid. It must be either 'all' or a list of image classes."
+    )
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name. List names must be unique."
     DUPLICATE_LIST_NODE_NAME = "You have list nodes in your project with the same name. List node names must be unique."
     PREFIX_COULD_NOT_BE_RESOLVED = (

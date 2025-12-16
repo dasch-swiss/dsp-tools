@@ -1,6 +1,8 @@
 # mypy: disable-error-code="no-untyped-def"
 
 import pytest
+from pyoxigraph import RdfFormat
+from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -9,6 +11,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_1_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_n_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_1_cardinality
@@ -259,7 +262,7 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
 
 
 class TestIdentifyPossibleMandatoryCircle:
-    def test_representation_with_min(self, knora_subset):
+    def test_representation_with_min(self, knora_store):
         onto_str = f"""{PREFIXES}
     <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
         rdfs:label "Target is any Representation" ;
@@ -279,16 +282,16 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
         """
-        onto_g = Graph()
-        onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
         assert len(result) == 1
         assert result[0].subject == "in-built:TestNormalResource"
         assert result[0].prop == "in-built:testHasRepresentation"
         assert result[0].object_cls == "knora-api:Representation"
         assert result[0].card == "1-n"
 
-    def test_resource_with_min(self, knora_subset):
+    def test_resource_with_min(self, knora_store):
         onto_str = f"""{PREFIXES}
     <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource> a owl:ObjectProperty ;
         rdfs:label "Target is any Resource" ;
@@ -308,16 +311,16 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:cardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource> ] .
         """
-        onto_g = Graph()
-        onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
         assert len(result) == 1
         assert result[0].subject == "in-built:TestNormalResource"
         assert result[0].prop == "in-built:testHasResource"
         assert result[0].object_cls == "knora-api:Resource"
         assert result[0].card == "1"
 
-    def test_segment_with_min(self, knora_subset):
+    def test_segment_with_min(self, knora_store):
         onto_str = f"""{PREFIXES}
     <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> a owl:ObjectProperty ;
         rdfs:label "Target is any VideoSegment" ;
@@ -337,16 +340,16 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> ] .
         """
-        onto_g = Graph()
-        onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
         assert len(result) == 1
         assert result[0].subject == "in-built:TestNormalResource"
         assert result[0].prop == "in-built:testHasVideoSegment"
         assert result[0].object_cls == "knora-api:VideoSegment"
         assert result[0].card == "1-n"
 
-    def test_representation_no_min(self, knora_subset):
+    def test_representation_no_min(self, knora_store):
         onto_str = f"""{PREFIXES}
     <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
         rdfs:label "Target is any Representation" ;
@@ -366,12 +369,12 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
         """
-        onto_g = Graph()
-        onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
         assert len(result) == 0
 
-    def test_representation_not_a_knora_resource(self, knora_subset):
+    def test_representation_not_a_knora_resource(self, knora_store):
         onto_str = f"""{PREFIXES}
     <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> a owl:ObjectProperty ;
         rdfs:label "Super-class" ;
@@ -391,9 +394,9 @@ class TestIdentifyPossibleMandatoryCircle:
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasLinkToCardOneResource> ] .
         """
-        onto_g = Graph()
-        onto_g.parse(data=onto_str, format="ttl")
-        result = get_list_of_potentially_problematic_cardinalities(onto_g, knora_subset)
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
         assert len(result) == 0
 
 

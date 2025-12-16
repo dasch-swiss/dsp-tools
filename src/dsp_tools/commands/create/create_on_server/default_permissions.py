@@ -6,6 +6,7 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
@@ -107,15 +108,18 @@ def _handle_limited_view_overrule(
     overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection, perm_client: PermissionsClient
 ) -> bool:
     overall_success = True
-    if isinstance(overrule_limited_view, LimitedViewPermissionsSelection):
-        for ele in overrule_limited_view.limited_selection:
-            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
+    match overrule_limited_view:
+        case LimitedViewPermissionsSelection():
+            for ele in overrule_limited_view.limited_selection:
+                success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
+                if not success:
+                    overall_success = False
+        case GlobalLimitedViewPermission.ALL:
+            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
             if not success:
                 overall_success = False
-    else:
-        success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
-        if not success:
-            overall_success = False
+        case _:
+            raise UnreachableCodeError(f"Unknown overrule_limited_view: {overrule_limited_view!s}")
     return overall_success
 
 

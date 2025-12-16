@@ -1,6 +1,7 @@
 from loguru import logger
+from pyoxigraph import Store
+from pyoxigraph import Variable
 from rdflib import Graph
-from rdflib import Variable
 
 from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import InternalError
@@ -222,7 +223,7 @@ def get_list_of_potentially_problematic_cardinalities(
 
 
 def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
-    onto_graph: Graph, knora_api_resources: list[str]
+    onto_graph: Store, knora_api_resources: list[str]
 ) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
     logger.debug("Get resources with potentially problematic link property cardinalities.")
     knora_api_resources = [f"<{x}>" for x in knora_api_resources]
@@ -256,7 +257,7 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
     """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
     if results := onto_graph.query(query_s):
         cards = []
-        for res in results.bindings:
+        for res in results:
             if str(res[Variable("cardProp")]).endswith("#cardinality"):
                 crd = "1"
             else:
@@ -273,7 +274,7 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
     return []
 
 
-def _get_knora_resources(knora_api: Graph) -> list[str]:
+def _get_knora_resources(knora_api: Store) -> list[str]:
     query_s = """
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
@@ -283,5 +284,5 @@ def _get_knora_resources(knora_api: Graph) -> list[str]:
     }
    """
     if results := knora_api.query(query_s):
-        return [str(x[Variable("knoraClass")]) for x in results.bindings]
+        return [str(r[Variable("knoraClass")]) for r in results]
     raise InternalError("Unreachable code, no classes in knora-api ontology.")

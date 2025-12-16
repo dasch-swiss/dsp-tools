@@ -91,7 +91,7 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
             overall_success = False
 
     # create the ontologies
-    success = create_ontologies(
+    success, created_iris = create_ontologies(
         parsed_ontologies=parsed_project.ontologies,
         list_name_2_iri=list_name_2_iri,
         project_iri=project_iri,
@@ -105,9 +105,8 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
     perm_client = PermissionsClient(auth, project_iri)
     success = create_default_permissions(
         perm_client=perm_client,
-        default_permissions=parsed_project.permissions.default_permissions,
-        default_permissions_overrule=parsed_project.permissions.default_permissions_overrule,
-        shortcode=parsed_project.project_metadata.shortcode,
+        parsed_permissions=parsed_project.permissions,
+        created_iris=created_iris,
     )
     if not success:
         overall_success = False

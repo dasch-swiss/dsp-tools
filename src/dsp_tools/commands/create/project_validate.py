@@ -3,14 +3,13 @@ from __future__ import annotations
 import importlib.resources
 import json
 from collections import Counter
+from collections import defaultdict
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
-import jsonpath_ng
-import jsonpath_ng.ext
 import jsonschema
-import networkx as nx
-import regex
+import rustworkx as rx
 from loguru import logger
 
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
@@ -19,9 +18,14 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_ontology import Cardinality
+from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_project import ParsedList
+from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
@@ -29,6 +33,7 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
+from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
 
 def validate_project_only(project_file: Path, server: str) -> bool:
@@ -53,7 +58,7 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
     if not isinstance(parsing_result, ParsedProject):
         return parsing_result
     validation_problems = _complex_json_project_validation(json_project)
-    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies))
+    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies, parsing_result.lists))
     if validation_problems:
         return validation_problems
     return parsing_result
@@ -94,26 +99,23 @@ def _complex_json_project_validation(project_definition: dict[str, Any]) -> list
     # make some checks that are too complex for JSON schema
     if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
         problems.append(perm_res)
-    if card_problem := _check_for_undefined_cardinalities(project_definition):
-        problems.append(card_problem)
-    if lists_section := project_definition["project"].get("lists"):
-        if list_prob := _check_for_duplicate_listnodes(lists_section):
-            problems.append(list_prob)
-    if card_probs := _check_cardinalities_of_circular_references(project_definition):
-        problems.append(card_probs)
     return problems
 
 
-def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list[CollectedProblems]:
+def _complex_parsed_project_validation(
+    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList]
+) -> list[CollectedProblems]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
     props_flattened = []
+    cardinalities_flattened = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
         cls_flattened.extend(o.classes)
         prop_iris.extend([x.name for x in o.properties])
         props_flattened.extend(o.properties)
+        cardinalities_flattened.extend(o.cardinalities)
 
     problems = []
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
@@ -128,13 +130,21 @@ def _complex_parsed_project_validation(ontologies: list[ParsedOntology]) -> list
         cls_flattened, set(cls_iris), InputProblemType.UNDEFINED_SUPER_CLASS, "Class"
     ):
         problems.append(undefined_super_cls)
+    if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
+        problems.append(undefined_cards)
+    if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
+        cardinalities_flattened, props_flattened
+    ):
+        problems.append(card_probs)
+    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
+        problems.append(duplicates_in_lists)
     return problems
 
 
 def _check_for_duplicate_iris(
     input_list: list[str], input_problem_type: InputProblemType, location: str
 ) -> CollectedProblems | None:
-    if duplicates := [item for item, count in Counter(input_list).items() if count > 1]:
+    if duplicates := _get_duplicates_in_list(input_list):
         cleaned_iris = sorted(from_dsp_iri_to_prefixed_iri(x) for x in duplicates)
         return CollectedProblems(
             f"It is not permissible to have multiple {location} with the same name in one ontology. "
@@ -170,6 +180,61 @@ def _check_for_undefined_supers(
 def _check_has_undefined_references(references: list[str], existing_iris: set[str]) -> set[str]:
     proj_iris = {x for x in references if is_dsp_project_iri(x)}
     return proj_iris - existing_iris
+
+
+def _check_for_undefined_properties_in_cardinalities(
+    cardinalities: list[ParsedClassCardinalities], property_iris: list[str]
+) -> CollectedProblems | None:
+    allowed_props = deepcopy(property_iris) + deepcopy(KNORA_PROPERTIES_FOR_DIRECT_USE)
+    problems: list[CreateProblem] = []
+    for cls_card in cardinalities:
+        prefixed_cls = from_dsp_iri_to_prefixed_iri(cls_card.class_iri)
+        for card in cls_card.cards:
+            if card.propname not in allowed_props:
+                problems.append(
+                    InputProblem(
+                        f"Class '{prefixed_cls}' / Property '{from_dsp_iri_to_prefixed_iri(card.propname)}'",
+                        InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
+                    )
+                )
+    if problems:
+        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
+    return None
+
+
+def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> None | CollectedProblems:
+    problems: list[CreateProblem] = []
+    list_names = [x.list_info.name for x in parsed_lists]
+    if duplicate_list_names := _get_duplicates_in_list(list_names):
+        problems.extend(
+            [InputProblem(f"List name '{x}'", InputProblemType.DUPLICATE_LIST_NAME) for x in duplicate_list_names]
+        )
+    all_nodes = _flatten_all_lists(parsed_lists)
+    if duplicate_nodes := _get_duplicates_in_list(all_nodes):
+        problems.extend(
+            [InputProblem(f"Node name '{x}'", InputProblemType.DUPLICATE_LIST_NODE_NAME) for x in duplicate_nodes]
+        )
+    if problems:
+        return CollectedProblems("The list section has the following problems:", problems)
+    return None
+
+
+def _flatten_all_lists(parsed_lists: list[ParsedList]) -> list[str]:
+    all_nodes = []
+    for li in parsed_lists:
+        all_nodes.extend(_get_all_children(li.children, []))
+    return all_nodes
+
+
+def _get_all_children(children: list[ParsedListNode], existing_nodes: list[str]) -> list[str]:
+    for child in children:
+        existing_nodes.append(child.node_info.name)
+        existing_nodes.extend(_get_all_children(child.children, []))
+    return existing_nodes
+
+
+def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
+    return [item for item, count in Counter(input_list).items() if count > 1]
 
 
 def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -339,204 +404,89 @@ def _check_for_invalid_default_permissions_overrule(project_definition: dict[str
     return None
 
 
-def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
-    def _process_sublist(sublist: dict[str, Any]) -> None:
-        existing_nodenames.append(sublist["name"])
-        if nodes := sublist.get("nodes"):
-            if isinstance(nodes, dict) and list(nodes.keys()) == ["folder"]:
-                return
-            for x in nodes:
-                _process_sublist(x)
-
-    existing_nodenames: list[str] = []
-    for lst in lists_section:
-        _process_sublist(lst)
-
-    return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
-
-
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    problems: list[CreateProblem] = []
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        propnames = [prop["name"] for prop in onto["properties"]]
-        for res in onto["resources"]:
-            cardnames = [card["propname"] for card in res.get("cardinalities", [])]
-            # form of the cardnames:
-            #  - isSegmentOf   # DSP base property
-            #  - other:prop    # other onto
-            #  - same:prop     # same onto
-            #  - :prop         # same onto (short form)
-
-            # filter out DSP base properties
-            cardnames = [card for card in cardnames if ":" in card]
-            # extend short form
-            cardnames = [regex.sub(r"^:", f"{ontoname}:", card) for card in cardnames]
-            # filter out other ontos
-            cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
-            # convert to short form
-            cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
-
-            if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
-                invalid_cards_str = ", ".join(invalid_cardnames)
-                problems.append(
-                    InputProblem(
-                        problematic_object=f"{ontoname}:{res['name']} (invalid cardinalities: {invalid_cards_str})",
-                        problem=InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY,
-                    )
-                )
-    if problems:
-        return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
-    return None
-
-
-def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> CollectedProblems | None:
-    link_properties = _collect_link_properties(project_definition)
-    errors = _identify_problematic_cardinalities(project_definition, link_properties)
+def _check_circular_references_in_mandatory_property_cardinalities(
+    parsed_cardinalities: list[ParsedClassCardinalities], parsed_properties: list[ParsedProperty]
+) -> CollectedProblems | None:
+    link_prop_to_object = {x.name: x.object for x in parsed_properties if x.gui_element == GuiElement.SEARCHBOX}
+    if not link_prop_to_object:
+        return None
+    mandatory_links = _extract_mandatory_link_props_per_class(parsed_cardinalities, list(link_prop_to_object.keys()))
+    if not mandatory_links:
+        return None
+    graph = _make_cardinality_dependency_graph(mandatory_links, link_prop_to_object)
+    errors = _find_circles_with_mandatory_cardinalities(graph, link_prop_to_object)
     if errors:
         msg = (
-            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+            "Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
             "between resources. This is not a problem in itself, but if you try to upload data that actually "
             "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
             "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-            "cardinality of 0-1 or 0-n. \n"
-            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+            "cardinality of 0-1 or 0-n.\n"
+            "Please make sure that the following properties have a cardinality of 0-1 or 0-n.\n"
+            "Cycles are displayed in: Class -- Property --> Object Class"
         )
         return CollectedProblems(msg, errors)
     return None
 
 
-def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:
-    """
-    Maps the properties derived from hasLinkTo to the resource classes they point to.
-    Args:
-        project_definition: parsed JSON file
-    Returns:
-        A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-    """
-    ontos = project_definition["project"]["ontologies"]
-    hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf"}
-    link_properties: dict[str, list[str]] = {}
-    for index, onto in enumerate(ontos):
-        hasLinkTo_matches = []
-        # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
-        for _ in range(5):
-            for hasLinkTo_prop in hasLinkTo_props:
-                hasLinkTo_matches.extend(
-                    jsonpath_ng.ext.parse(
-                        f"$.project.ontologies[{index}].properties[?super[*] == {hasLinkTo_prop}]"
-                    ).find(project_definition)
-                )
-            # make the children from this iteration to the parents of the next iteration
-            hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}
-        prop_obj_pair: dict[str, list[str]] = {}
-        for match in hasLinkTo_matches:
-            prop = onto["name"] + ":" + match.value["name"]
-            target = match.value["object"]
-            if target != "Resource":
-                # make the target a fully qualified name (with the ontology's name prefixed)
-                target = regex.sub(r"^:([^:]+)$", f"{onto['name']}:\\1", target)
-            prop_obj_pair[prop] = [target]
-        link_properties.update(prop_obj_pair)
-
-    # in case the object of a property is "Resource", the link can point to any resource class
-    all_res_names: list[str] = []
-    for onto in ontos:
-        matches = jsonpath_ng.ext.parse("$.resources[*].name").find(onto)
-        tmp = [f"{onto['name']}:{match.value}" for match in matches]
-        all_res_names.extend(tmp)
-    for prop, targ in link_properties.items():
-        if "Resource" in targ:
-            link_properties[prop] = all_res_names
-
-    return link_properties
+def _extract_mandatory_link_props_per_class(
+    parsed_cardinalities: list[ParsedClassCardinalities], link_prop_iris: list[str]
+) -> dict[str, list[str]]:
+    lookup = defaultdict(list)
+    for cls_card in parsed_cardinalities:
+        for card in cls_card.cards:
+            if card.propname in link_prop_iris:
+                if card.cardinality in [Cardinality.C_1, Cardinality.C_1_N]:
+                    lookup[cls_card.class_iri].append(card.propname)
+    return lookup
 
 
-def _identify_problematic_cardinalities(
-    project_definition: dict[Any, Any],
-    link_properties: dict[str, list[str]],
-) -> list[CreateProblem]:
-    """
-    Make an error list with all cardinalities that are part of a circle but have a cardinality of "1" or "1-n".
-    Args:
-        project_definition: parsed JSON file
-        link_properties: mapping of hasLinkTo-properties to classes they point to,
-            e.g. {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
-    Returns:
-        a (possibly empty) list of (resource, problematic_cardinality) tuples
-    """
-    cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
-    graph = _make_cardinality_dependency_graph(dependencies)
-    errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
-    return [
-        InputProblem(f"Class: {res} / Property: {prop}", InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE)
-        for (res, prop) in errors
-    ]
+def _make_cardinality_dependency_graph(
+    mandatory_links: dict[str, list[str]],
+    link_prop_to_object: dict[str, str],
+) -> rx.PyDiGraph[Any, Any]:
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    all_classes = set(mandatory_links.keys())
+    all_target_classes = set(link_prop_to_object.values())
+    all_classes.update(all_target_classes)
 
+    class_to_node_idx = {}
+    for class_iri in all_classes:
+        node_idx = graph.add_node(class_iri)
+        class_to_node_idx[class_iri] = node_idx
 
-def _extract_cardinalities_from_project(
-    project_definition: dict[Any, Any],
-    link_properties: dict[str, list[str]],
-) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, list[str]]]]:
-    # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}
-    dependencies: dict[str, dict[str, list[str]]] = {}
-    # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
-    cardinalities: dict[str, dict[str, str]] = {}
+    for source_class, prop_iris in mandatory_links.items():
+        source_idx = class_to_node_idx[source_class]
+        for prop_iri in prop_iris:
+            target_class = link_prop_to_object[prop_iri]
+            target_idx = class_to_node_idx[target_class]
+            graph.add_edge(source_idx, target_idx, prop_iri)
 
-    for onto in project_definition["project"]["ontologies"]:
-        for resource in onto["resources"]:
-            resname: str = onto["name"] + ":" + resource["name"]
-            for card in resource.get("cardinalities", []):
-                # make the cardinality a fully qualified name (with the ontology's name prefixed)
-                cardname = regex.sub(r"^(:?)([^:]+)$", f"{onto['name']}:\\2", card["propname"])
-                if cardname in link_properties:
-                    # Look out: if `targets` is created with `targets = link_properties[cardname]`, the ex-
-                    # pression `dependencies[resname][cardname] = targets` causes `dependencies[resname][cardname]`
-                    # to point to `link_properties[cardname]`. Due to that, the expression
-                    # `dependencies[resname][cardname].extend(targets)` will modify "link_properties"!
-                    # For this reason, `targets` must be created with `targets = list(link_properties[cardname])`
-                    targets = list(link_properties[cardname])
-                    if resname not in dependencies:
-                        dependencies[resname] = {cardname: targets}
-                        cardinalities[resname] = {cardname: card["cardinality"]}
-                    elif cardname not in dependencies[resname]:
-                        dependencies[resname][cardname] = targets
-                        cardinalities[resname][cardname] = card["cardinality"]
-                    else:
-                        dependencies[resname][cardname].extend(targets)
-    return cardinalities, dependencies
-
-
-def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph[Any]:
-    graph: nx.MultiDiGraph[Any] = nx.MultiDiGraph()
-    for start, cards in dependencies.items():
-        for edge, targets in cards.items():
-            for target in targets:
-                graph.add_edge(start, target, edge)
     return graph
 
 
-def _find_circles_with_min_one_cardinality(
-    graph: nx.MultiDiGraph[Any], cardinalities: dict[str, dict[str, str]], dependencies: dict[str, dict[str, list[str]]]
-) -> set[tuple[str, str]]:
-    errors: set[tuple[str, str]] = set()
-    circles = list(nx.algorithms.cycles.simple_cycles(graph))
-    for circle in circles:
-        for index, resource in enumerate(circle):
-            target = circle[(index + 1) % len(circle)]
-            prop = ""
-            for _property, targets in dependencies[resource].items():
-                if target in targets:
-                    prop = _property
-            if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
-                errors.add((resource, prop))
-    return errors
+def _find_circles_with_mandatory_cardinalities(
+    graph: rx.PyDiGraph[Any, Any], link_prop_to_object: dict[str, str]
+) -> list[CreateProblem]:
+    error_strings = []
+    cycles = list(rx.simple_cycles(graph))
 
-
-def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None | CollectedProblems:
-    if listnode_duplicates := _find_duplicate_listnodes(lists_section):
-        return CollectedProblems(
-            "The following list node names are used multiple times in your project:",
-            [InputProblem(", ".join(listnode_duplicates), InputProblemType.DUPLICATE_LIST_NAME)],
-        )
-    return None
+    for cycle in cycles:
+        cycle_strings = []
+        # Iterate through consecutive pairs of nodes in the cycle
+        for i in range(len(cycle)):
+            current_node_idx = cycle[i]
+            next_node_idx = cycle[(i + 1) % len(cycle)]  # Wrap around to first node
+            edge_data_list = graph.get_all_edge_data(current_node_idx, next_node_idx)
+            for prop_iri in edge_data_list:
+                class_iri = graph[current_node_idx]
+                cycle_strings.append(
+                    f"{from_dsp_iri_to_prefixed_iri(class_iri)} -- "
+                    f"{from_dsp_iri_to_prefixed_iri(prop_iri)} --> "
+                    f"{from_dsp_iri_to_prefixed_iri(link_prop_to_object[prop_iri])}"
+                )
+        error_strings.append("Cycle:\n    " + "\n    ".join(sorted(cycle_strings)))
+    problems: list[CreateProblem] = [
+        InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
+    ]
+    return problems

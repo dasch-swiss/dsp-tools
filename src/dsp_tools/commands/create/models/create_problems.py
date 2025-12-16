@@ -47,7 +47,8 @@ class InputProblemType(ProblemType):
         "Defining 'default_permissions' is mandatory and must either be 'public' or 'private'."
     )
     LIMITED_VIEW_PERMISSIONS_NOT_CORRECT = "Your input for the 'limited_view' permissions is invalid."
-    DUPLICATE_LIST_NAME = "You have lists in your project with the same name, this is not permitted."
+    DUPLICATE_LIST_NAME = "You have lists in your project with the same name. List names must be unique."
+    DUPLICATE_LIST_NODE_NAME = "You have list nodes in your project with the same name. List node names must be unique."
     PREFIX_COULD_NOT_BE_RESOLVED = (
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."

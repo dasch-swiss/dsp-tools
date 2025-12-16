@@ -9,7 +9,6 @@ import regex
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.error.exceptions import JSONFileParsingError
@@ -32,14 +31,6 @@ def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
     return onto
 
 
-@pytest.fixture
-def tp_circular_ontology() -> dict[str, Any]:
-    tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
-    with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
-        tp_circular_ontology: dict[str, Any] = json.load(json_file)
-    return tp_circular_ontology
-
-
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
     result = _validate_parsed_json_project(tp_systematic, SERVER)
     assert isinstance(result, ParsedProject)
@@ -52,18 +43,18 @@ def test_json_schema_validation_error():
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"), SERVER)
 
 
-def test_circular_reference_error(tp_circular_ontology):
-    result = _validate_parsed_json_project(tp_circular_ontology, SERVER)
+def test_circular_reference_error():
+    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/circular-ontology.json"), SERVER)
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
-    # we do not know which of the two links we get returned through the graph diagnostics
-    # it is either one of those two which form the circle
-    circle_options = [
-        "Class: circular-onto:Class1 / Property: circular-onto:linkToClass2",
-        "Class: circular-onto:Class2 / Property: circular-onto:linkToClass1",
-    ]
-    assert problem.problems[0].problematic_object in circle_options
+    result_strings = {x.problematic_object for x in problem.problems}
+    expected = {
+        "Cycle:\n"
+        "    circular-onto:Class1 -- circular-onto:linkToClass2 --> circular-onto:Class2\n"
+        "    circular-onto:Class2 -- circular-onto:linkToClass1 --> circular-onto:Class1"
+    }
+    assert result_strings == expected
     assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
 
 
@@ -72,21 +63,23 @@ def test_duplicate_list_error():
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
-    assert problem.problems[0].problematic_object == "first node of testlist"
-    assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NAME
+    assert problem.problems[0].problematic_object == "Node name 'first node of testlist'"
+    assert problem.problems[0].problem == InputProblemType.DUPLICATE_LIST_NODE_NAME
 
 
 def test_check_for_undefined_cardinalities() -> None:
-    tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
-    with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
-        tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
-
-    problems = _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
-    assert problems
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
-    assert "nonexisting-cardinality-onto:TestThing" in problems.problems[0].problematic_object
-    assert ":CardinalityThatWasNotDefinedInPropertiesSection" in problems.problems[0].problematic_object
+    result = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/nonexisting-cardinality.json"), SERVER
+    )
+    assert isinstance(result, list)
+    assert len(result) == 1
+    problem = result[0]
+    assert len(problem.problems) == 1
+    assert (
+        problem.problems[0].problematic_object
+        == "Class 'onto:TestThing' / Property 'onto:CardinalityThatWasNotDefinedInPropertiesSection'"
+    )
+    assert problem.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
 
 
 def test_check_for_undefined_super_property() -> None:

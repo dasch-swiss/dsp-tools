@@ -21,15 +21,9 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture(scope="module")
-def knora_subset() -> Graph:
+def onto_graph():
     g = Graph()
-    g.parse("testdata/validate-data/knora-api-subset.ttl")
-    return g
-
-
-@pytest.fixture(scope="module")
-def onto_graph(knora_subset):
-    g = knora_subset
+    g.parse("testdata/validate-data/onto.ttl")
     g.parse("testdata/validate-data/onto.ttl")
     return g
 

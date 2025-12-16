@@ -226,10 +226,9 @@ def get_list_of_potentially_problematic_cardinalities(
 
 
 def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
-    onto_graph: Store, knora_api_resources: list[str]
+    onto_store: Store, knora_api_resources: list[str]
 ) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
     logger.debug("Get resources with potentially problematic link property cardinalities.")
-    knora_api_resources = [f"<{x}>" for x in knora_api_resources]
     api_classes = " ".join(knora_api_resources)
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
@@ -258,11 +257,11 @@ def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
       VALUES ?cardProp { owl:minCardinality owl:cardinality }
     }
     """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
-    q_res = onto_graph.query(query_s)
+    q_res = onto_store.query(query_s)
     results = cast(QuerySolution, q_res)
     cards = []
     for res in results:
-        if str(res[Variable("cardProp")]).endswith("#cardinality"):
+        if str(res[Variable("cardProp")]).endswith("#cardinality>"):
             crd = "1"
         else:
             crd = "1-n"

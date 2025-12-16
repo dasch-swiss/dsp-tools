@@ -37,7 +37,7 @@ def onto_graph(knora_subset):
 @pytest.fixture(scope="module")
 def knora_store() -> Store:
     store = Store()
-    store.load("testdata/validate-data/knora-api-subset.ttl")
+    store.load(path="testdata/validate-data/knora-api-subset.ttl")
     return store
 
 

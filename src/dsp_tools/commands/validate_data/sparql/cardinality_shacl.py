@@ -4,6 +4,7 @@ from pyoxigraph import Variable
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
+from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 
@@ -216,10 +217,10 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
 
 
 def get_list_of_potentially_problematic_cardinalities(
-    onto_graph: Graph, knora_api: Graph
+    triple_store: TripleStores,
 ) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
-    knora_resources = _get_knora_resources(knora_api)
-    return _get_min_cardinality_link_prop_for_potentially_problematic_circle(onto_graph, knora_resources)
+    knora_resources = _get_knora_resources(triple_store.knora_api)
+    return _get_min_cardinality_link_prop_for_potentially_problematic_circle(triple_store.ontos, knora_resources)
 
 
 def _get_min_cardinality_link_prop_for_potentially_problematic_circle(

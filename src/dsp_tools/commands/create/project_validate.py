@@ -251,34 +251,6 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
     return [item for item, count in Counter(input_list).items() if count > 1]
 
 
-def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
-    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        resource_lookup[onto["name"]] = {}
-        for resource in onto["resources"]:
-            resource_lookup[onto["name"]][resource["name"]] = resource
-    return resource_lookup
-
-
-def _parse_class_reference(class_ref: str) -> tuple[str, str] | None:
-    """
-    Parse a class reference in the format 'ontology:ClassName'.
-
-    Args:
-        class_ref: Class reference string
-
-    Returns:
-        Tuple of (ontology_name, class_name) or None if invalid format
-    """
-    if ":" not in class_ref:
-        return None
-
-    parts = class_ref.split(":")
-    if len(parts) != 2:
-        return None
-
-    return parts[0], parts[1]
-
 
 def _is_subclass_of_still_image_representation(
     ontology_name: str, class_name: str, resource_lookup: dict[str, dict[str, dict[str, Any]]]

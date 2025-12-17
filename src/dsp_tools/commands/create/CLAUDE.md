@@ -80,27 +80,26 @@ therefore the code stops and the user is informed.
 
 #### Phase 3: Complex Validation (`project_validate.py`)
 
-After parsing to typed models, complex semantic validations are performed:
+After parsing to typed models, complex semantic validations are performed in `_complex_parsed_project_validation()`:
 
-**On JSON level** (`_complex_json_project_validation()`):
-
-- Invalid `default_permissions_overrule.limited_view` classes
-    - Must be subclasses of `StillImageRepresentation` (traverses inheritance chain)
-    - Validates class references and ontology existence
-
-**On Parsed Models** (`_complex_parsed_project_validation()`):
-
-- Duplicate class names within one ontology
-- Duplicate property names within one ontology
-- Undefined super classes (references to non-existent classes)
-- Undefined super properties (references to non-existent properties)
-- Undefined properties in cardinalities
-- Circular references in mandatory property cardinalities
+- **Duplicate class names** within one ontology
+- **Duplicate property names** within one ontology
+- **Undefined super classes** (references to non-existent classes)
+- **Undefined super properties** (references to non-existent properties)
+- **Undefined properties in cardinalities**
+- **Circular references in mandatory property cardinalities**
     - Detects cycles using `rustworkx` graph analysis
     - Warns if mandatory (`1` or `1-n`) cardinalities exist in cycles
     - Required because circular data needs temporary property removal during upload
-- Duplicate list names
-- Duplicate node names across all lists
+- **Duplicate list names**
+- **Duplicate node names** across all lists
+- **Invalid default_permissions_overrule** (`_check_for_invalid_default_permissions_overrule()`):
+    - Skipped when `default_permissions` is `private` (cannot be overruled)
+    - For `overrule_private`: validates all referenced IRIs exist in the ontology (properties or classes)
+    - For `overrule_limited_view`:
+        - If selection mode: validates that all referenced IRIs exist and are `StillImageRepresentation` subclasses
+        - If `ALL` or `NONE`: no validation needed
+    - Still image class detection traverses the complete inheritance chain from `knora-api:StillImageRepresentation`
 
 ### Problem Collection Pattern
 

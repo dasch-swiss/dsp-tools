@@ -162,34 +162,6 @@ The system follows this general flow for XML processing:
 - **E2E tests**: Test full workflows with testcontainers running DSP stack (database, backend, frontend)
 - **Benchmarking tests**: Performance testing for critical algorithms
 
-### Python Version Compatibility Strategy
-
-DSP-TOOLS supports Python 3.12 through 3.14. This means that 
-
-- 3.13/14-only syntax is forbidden,
-- the code should yield the same results, regardless if it is run by Python 3.12/13/14.
-
-The gold standard to achieve this would be to run the test suite separately for every supported version,
-which adds complexity and makes the PR tests run much longer.
-
-As a trade-off, we decided to use a simpler, layered approach to ensure compatibility:
-
-- **Static analysis (immediate protection)**:
-    - `ruff` is configured with `target-version = "py312"` to catch Python 3.13/14-only syntax at lint time
-    - `mypy` is configured with `python_version = "3.12"` to check types against Python 3.12 stdlib
-    - These settings work regardless of which Python version is installed locally
-    - Run `just lint` to verify compatibility before committing
-- **PR testing (early detection of issues with latest Python release)**:
-    - All PR tests run on the latest Python 3.14.x to catch issues with new Python version issues early
-    - Located in `.github/workflows/tests.yml` and `.github/workflows/tests-e2e.yml`
-- **Scheduled testing (Python 3.12 validation)**:
-    - Nightly tests on Python 3.12 validate compatibility with the minimum supported version
-    - Runs at 2 AM UTC via `.github/workflows/test-python-versions.yml`
-    - Catches runtime-only issues that slip through static analysis
-    - Can be triggered manually via GitHub Actions if needed
-
-This multi-layered approach ensures compatibility without adding overhead to PRs.
-
 ### Configuration
 
 - **pyproject.toml**: Project metadata, dependencies, and tool configurations

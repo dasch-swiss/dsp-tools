@@ -90,8 +90,8 @@ After parsing to typed models, complex semantic validations are performed:
 
 **On Parsed Models** (`_complex_parsed_project_validation()`):
 
-- Duplicate class names across ontologies
-- Duplicate property names across ontologies
+- Duplicate class names within one ontology
+- Duplicate property names within one ontology
 - Undefined super classes (references to non-existent classes)
 - Undefined super properties (references to non-existent properties)
 - Undefined properties in cardinalities
@@ -393,17 +393,3 @@ All entity references use prefix resolution:
 - Integration tests verify the full workflow
 - E2E tests use testcontainers for complete server interaction
 - Mock clients for testing without server dependencies
-
-## Key Files Reference
-
-When working on create functionality:
-
-- `create.py` - Main workflow orchestration
-- `project_validate.py` - Validation orchestration and complex checks
-- `parsing/parse_project.py` - JSON parsing orchestration
-- `parsing/parse_ontology.py` - Ontology parsing
-- `create_on_server/complete_ontologies.py` - Ontology creation orchestration
-- `serialisation/ontology.py` - RDF serialization
-- `models/parsed_project.py` - Project data models
-- `models/parsed_ontology.py` - Ontology data models
-- `models/create_problems.py` - Problem tracking models

@@ -1,0 +1,50 @@
+---
+
+name: Python Version Compatibility Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Every day at 2 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: read
+
+env:
+  DSP_TOOLS_TESTING: true
+
+jobs:
+  test-python-3-12:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v5
+      - name: Install python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install just
+        uses: taiki-e/install-action@just
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Enable dsp-tools log file in cwd
+        run: echo 'DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true' >> .env
+      - name: Run linting
+        run: just lint
+      - name: Run unit tests
+        run: just unittests
+      - name: Run integration tests
+        run: just integration-tests
+      - name: Run e2e tests
+        run: just e2e-tests
+      - name: make logging file available
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logging.log
+          path: logging.log
+          compression-level: 0

@@ -67,8 +67,6 @@ def main() -> None:
     xmllib_dir = repo_root / "src" / "dsp_tools" / "xmllib"
     docs_dir = repo_root / "docs"
 
-    print(f"{BOLD_CYAN}Validating docstring links in xmllib...{RESET_TO_DEFAULT}\n")
-
     # Find all documentation links
     links = find_urls_in_docstrings(xmllib_dir)
 
@@ -77,29 +75,20 @@ def main() -> None:
     external_links = [link for link in links if link.category == LinkCategory.DSP_API_EXTERNAL]
     ignored_links = [link for link in links if link.category == LinkCategory.OTHER]
 
-    print(f"Found {len(links)} documentation link(s):")
-    print(f"  - Internal DSP-TOOLS: {len(internal_links)}")
-    print(f"  - External DSP-API: {len(external_links)}")
-    print(f"  - Other (ignored): {len(ignored_links)}")
-    print()
-
     # Validate links
     errors: list[ValidationResult] = []
 
-    print("Validating internal DSP-TOOLS links...")
     for link in internal_links:
         error = validate_internal_link(link, docs_dir)
         if error:
             errors.append(error)
 
-    print("Validating external DSP-API links...")
     for link in external_links:
         error = validate_external_link(link)
         if error:
             errors.append(error)
 
     # Report results
-    print()
     report_errors(errors)
 
     # Exit with appropriate code
@@ -113,7 +102,7 @@ def find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
     """Use grep to find all documentation URLs with line numbers."""
     cmd = ["grep", "-rn", "https://docs.dasch.swiss", str(directory), "--include=*.py"]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
     # Parse grep output
     url_pattern = re.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]]+")
@@ -231,7 +220,7 @@ def validate_external_link(link: LinkReference) -> ValidationResult | None:
         )
 
     except requests.RequestException as e:
-        return ValidationResult(link=link, error_type="network_error", details=f"Network error: {str(e)}")
+        return ValidationResult(link=link, error_type="network_error", details=f"Network error: {e!s}")
 
 
 def report_errors(errors: list[ValidationResult]) -> None:

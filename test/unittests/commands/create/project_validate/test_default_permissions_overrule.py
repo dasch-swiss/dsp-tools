@@ -1,11 +1,14 @@
 # mypy: disable-error-code="no-untyped-def"
-from typing import Any
 
 import pytest
 
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.commands.create.project_validate import _get_still_image_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -14,149 +17,83 @@ from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 KNORA_STILL_IMAGE = f"{KNORA_API_PREFIX}StillImageRepresentation"
 
-
-@pytest.fixture
-def project_no_overrule() -> dict[str, Any]:
-    """Project definition without default_permissions_overrule"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "ontologies": [{"name": "test-onto", "resources": [{"name": "TestResource", "super": "Resource"}]}],
-        }
-    }
-
-
-# TODO: not possible make "private"
-def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is None
-
-
-# TODO: make public no overrule
+TEST_STILL_IMAGE = f"{ONTO_NAMESPACE_STR}TestStillImage"
+TEST_RESOURCE = f"{ONTO_NAMESPACE_STR}TestResource"
+TEST_PROPERTY = f"{ONTO_NAMESPACE_STR}hasName"
 
 
 @pytest.fixture
-def project_no_limited_view() -> dict[str, Any]:
-    """Project definition with overrule but no limited_view"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"private": ["test-onto:TestResource"]},
-            "ontologies": [{"name": "test-onto", "resources": [{"name": "TestResource", "super": "Resource"}]}],
-        }
-    }
-
-
-def test_check_overrule_no_limited_view(project_no_limited_view: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_no_limited_view) is None
+def known_props() -> list[str]:
+    return [TEST_PROPERTY]
 
 
 @pytest.fixture
-def project_limited_view_all() -> dict[str, Any]:
-    """Project definition with limited_view: 'all'"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions": "public",
-            "default_permissions_overrule": {"limited_view": "all"},
-            "ontologies": [{"name": "test-onto", "resources": [{"name": "Img", "super": "StillImageRepresentation"}]}],
-        }
-    }
-
-
-def test_check_overrule_limited_view_all(project_limited_view_all: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_limited_view_all) is None
+def known_classes() -> list[str]:
+    return [TEST_STILL_IMAGE, TEST_RESOURCE]
 
 
 @pytest.fixture
-def project_valid_direct_inheritance() -> dict[str, Any]:
-    """Project with valid direct inheritance from StillImageRepresentation"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["test-onto:ImageResource"]},
-            "ontologies": [
-                {"name": "test-onto", "resources": [{"name": "ImageResource", "super": "StillImageRepresentation"}]}
-            ],
-        }
-    }
+def still_image_classes() -> set[str]:
+    return {TEST_STILL_IMAGE, f"{ONTO_NAMESPACE_STR}TestStillImage2"}
 
 
-# TODO: move to get is-stillimage
-def test_check_overrule_valid_direct_inheritance(project_valid_direct_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_direct_inheritance) is None
+def test_check_overrule_no_overrule_private(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PRIVATE,
+        overrule_private=None,
+        overrule_limited_view=GlobalLimitedViewPermission.NONE,
+    )
+    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert result is None
 
 
-@pytest.fixture
-def project_valid_indirect_inheritance() -> dict[str, Any]:
-    """Project with valid indirect inheritance through another resource"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["test-onto:SubImageResource"]},
-            "ontologies": [
-                {
-                    "name": "test-onto",
-                    "resources": [
-                        {"name": "ImageResource", "super": "StillImageRepresentation"},
-                        {"name": "SubImageResource", "super": ":ImageResource"},
-                    ],
-                }
-            ],
-        }
-    }
+def test_check_overrule_no_overrule_public(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=None,
+        overrule_limited_view=GlobalLimitedViewPermission.NONE,
+    )
+    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert result is None
 
 
-# TODO: move to get is-stillimage
-def test_check_overrule_valid_indirect_inheritance(project_valid_indirect_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_indirect_inheritance) is None
+def test_check_overrule_no_limited_view(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=[TEST_RESOURCE],
+        overrule_limited_view=GlobalLimitedViewPermission.NONE,
+    )
+    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert result is None
 
 
-@pytest.fixture
-def project_valid_multiple_inheritance() -> dict[str, Any]:
-    """Project with valid multiple inheritance (list format)"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["test-onto:ImageResource"]},
-            "ontologies": [
-                {
-                    "name": "test-onto",
-                    "resources": [{"name": "ImageResource", "super": ["StillImageRepresentation", "Resource"]}],
-                }
-            ],
-        }
-    }
+def test_check_overrule_limited_view_all(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=None,
+        overrule_limited_view=GlobalLimitedViewPermission.ALL,
+    )
+    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert result is None
 
 
-# TODO: move to get is-stillimage
-def test_check_overrule_valid_multiple_inheritance(project_valid_multiple_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_multiple_inheritance) is None
+def test_check_overrule_valid_direct_inheritance(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=None,
+        overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
+    )
+    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert result is None
 
 
-@pytest.fixture
-def project_invalid_wrong_superclass() -> dict[str, Any]:
-    """Project with invalid superclass (not StillImageRepresentation)"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["test-onto:PDFResource"]},
-            "ontologies": [
-                {"name": "test-onto", "resources": [{"name": "PDFResource", "super": "DocumentRepresentation"}]}
-            ],
-        }
-    }
-
-
-# TODO: move is-stillimage
-def test_check_overrule_invalid_wrong_superclass(project_invalid_wrong_superclass: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_invalid_wrong_superclass)
+def test_check_overrule_unknown_private(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=[f"{ONTO_NAMESPACE_STR}Unknown"],
+        overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
+    )
+    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
@@ -164,73 +101,32 @@ def test_check_overrule_invalid_wrong_superclass(project_invalid_wrong_superclas
     assert "StillImageRepresentation" in problems.problems[0].problematic_object
 
 
-@pytest.fixture
-def project_circular_reference() -> dict[str, Any]:
-    """Project with circular inheritance (should be handled gracefully)"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["test-onto:Resource1"]},
-            "ontologies": [
-                {
-                    "name": "test-onto",
-                    "resources": [
-                        {"name": "Resource1", "super": ":Resource2"},
-                        {"name": "Resource2", "super": ":Resource1"},
-                    ],
-                }
-            ],
-        }
-    }
-
-
-# TODO: check should not be here
-def test_check_overrule_circular_reference(project_circular_reference: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_circular_reference)
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:Resource1" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
-
-
-@pytest.fixture
-def project_mixed_valid_invalid() -> dict[str, Any]:
-    """Project with mixed valid and invalid classes"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {
-                "limited_view": [
-                    "test-onto:ImageResource",  # Valid
-                    "test-onto:PDFResource",  # Invalid
-                    "test-onto:SubImageResource",  # Valid
-                ]
-            },
-            "ontologies": [
-                {
-                    "name": "test-onto",
-                    "resources": [
-                        {"name": "ImageResource", "super": "StillImageRepresentation"},
-                        {"name": "PDFResource", "super": "DocumentRepresentation"},
-                        {"name": "SubImageResource", "super": ":ImageResource"},
-                    ],
-                }
-            ],
-        }
-    }
-
-
-def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
+def test_check_overrule_unknown_limited_view(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=None,
+        overrule_limited_view=LimitedViewPermissionsSelection([f"{ONTO_NAMESPACE_STR}Unknown"]),
+    )
+    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
     assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "ImageResource" not in problems.problems[0].problematic_object
-    assert "SubImageResource" not in problems.problems[0].problematic_object
+    assert "StillImageRepresentation" in problems.problems[0].problematic_object
+
+
+def test_check_overrule_invalid_wrong_superclass(known_props, known_classes, still_image_classes) -> None:
+    perm = ParsedPermissions(
+        default_permissions=DefaultPermissions.PUBLIC,
+        overrule_private=None,
+        overrule_limited_view=LimitedViewPermissionsSelection([TEST_RESOURCE]),
+    )
+    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
+    assert "StillImageRepresentation" in problems.problems[0].problematic_object
 
 
 class TestGetStillImageClasses:

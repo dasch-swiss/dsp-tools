@@ -20,6 +20,10 @@ def project_no_overrule() -> dict[str, Any]:
     }
 
 
+def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is None
+
+
 @pytest.fixture
 def project_no_limited_view() -> dict[str, Any]:
     """Project definition with overrule but no limited_view"""
@@ -31,6 +35,10 @@ def project_no_limited_view() -> dict[str, Any]:
             "ontologies": [{"name": "test-onto", "resources": [{"name": "TestResource", "super": "Resource"}]}],
         }
     }
+
+
+def test_check_overrule_no_limited_view(project_no_limited_view: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_no_limited_view) is None
 
 
 @pytest.fixture
@@ -46,6 +54,10 @@ def project_valid_direct_inheritance() -> dict[str, Any]:
             ],
         }
     }
+
+
+def test_check_overrule_valid_direct_inheritance(project_valid_direct_inheritance: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_valid_direct_inheritance) is None
 
 
 @pytest.fixture
@@ -69,6 +81,10 @@ def project_valid_indirect_inheritance() -> dict[str, Any]:
     }
 
 
+def test_check_overrule_valid_indirect_inheritance(project_valid_indirect_inheritance: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_valid_indirect_inheritance) is None
+
+
 @pytest.fixture
 def project_valid_multiple_inheritance() -> dict[str, Any]:
     """Project with valid multiple inheritance (list format)"""
@@ -87,6 +103,30 @@ def project_valid_multiple_inheritance() -> dict[str, Any]:
     }
 
 
+def test_check_overrule_valid_multiple_inheritance(project_valid_multiple_inheritance: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_valid_multiple_inheritance) is None
+
+
+@pytest.fixture
+def project_cross_ontology_inheritance() -> dict[str, Any]:
+    """Project with cross-ontology inheritance"""
+    return {
+        "project": {
+            "shortcode": "1234",
+            "shortname": "test-project",
+            "default_permissions_overrule": {"limited_view": ["onto2:SubImageResource"]},
+            "ontologies": [
+                {"name": "onto1", "resources": [{"name": "ImageResource", "super": "StillImageRepresentation"}]},
+                {"name": "onto2", "resources": [{"name": "SubImageResource", "super": "onto1:ImageResource"}]},
+            ],
+        }
+    }
+
+
+def test_check_overrule_valid_cross_ontology_inheritance(project_cross_ontology_inheritance: dict[str, Any]) -> None:
+    assert _check_for_invalid_default_permissions_overrule(project_cross_ontology_inheritance) is None
+
+
 @pytest.fixture
 def project_invalid_wrong_superclass() -> dict[str, Any]:
     """Project with invalid superclass (not StillImageRepresentation)"""
@@ -100,6 +140,15 @@ def project_invalid_wrong_superclass() -> dict[str, Any]:
             ],
         }
     }
+
+
+def test_check_overrule_invalid_wrong_superclass(project_invalid_wrong_superclass: dict[str, Any]) -> None:
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_wrong_superclass)
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
+    assert "StillImageRepresentation" in problems.problems[0].problematic_object
 
 
 @pytest.fixture
@@ -117,20 +166,13 @@ def project_invalid_missing_resource() -> dict[str, Any]:
     }
 
 
-@pytest.fixture
-def project_cross_ontology_inheritance() -> dict[str, Any]:
-    """Project with cross-ontology inheritance"""
-    return {
-        "project": {
-            "shortcode": "1234",
-            "shortname": "test-project",
-            "default_permissions_overrule": {"limited_view": ["onto2:SubImageResource"]},
-            "ontologies": [
-                {"name": "onto1", "resources": [{"name": "ImageResource", "super": "StillImageRepresentation"}]},
-                {"name": "onto2", "resources": [{"name": "SubImageResource", "super": "onto1:ImageResource"}]},
-            ],
-        }
-    }
+def test_check_overrule_invalid_missing_resource(project_invalid_missing_resource: dict[str, Any]) -> None:
+    problems = _check_for_invalid_default_permissions_overrule(project_invalid_missing_resource)
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.UNDEFINED_REFERENCE
+    assert "test-onto:NonExistentResource" in problems.problems[0].problematic_object
+    assert "not found in ontology" in problems.problems[0].problematic_object
 
 
 @pytest.fixture
@@ -152,6 +194,15 @@ def project_circular_reference() -> dict[str, Any]:
             ],
         }
     }
+
+
+def test_check_overrule_circular_reference(project_circular_reference: dict[str, Any]) -> None:
+    problems = _check_for_invalid_default_permissions_overrule(project_circular_reference)
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:Resource1" in problems.problems[0].problematic_object
+    assert "StillImageRepresentation" in problems.problems[0].problematic_object
 
 
 @pytest.fixture
@@ -182,6 +233,16 @@ def project_mixed_valid_invalid() -> dict[str, Any]:
     }
 
 
+def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
+    problems = _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
+    assert "ImageResource" not in problems.problems[0].problematic_object
+    assert "SubImageResource" not in problems.problems[0].problematic_object
+
+
 @pytest.fixture
 def project_limited_view_all() -> dict[str, Any]:
     """Project definition with limited_view: 'all'"""
@@ -194,67 +255,6 @@ def project_limited_view_all() -> dict[str, Any]:
             "ontologies": [{"name": "test-onto", "resources": [{"name": "Img", "super": "StillImageRepresentation"}]}],
         }
     }
-
-
-def test_check_overrule_no_overrule(project_no_overrule: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_no_overrule) is None
-
-
-def test_check_overrule_no_limited_view(project_no_limited_view: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_no_limited_view) is None
-
-
-def test_check_overrule_valid_direct_inheritance(project_valid_direct_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_direct_inheritance) is None
-
-
-def test_check_overrule_valid_indirect_inheritance(project_valid_indirect_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_indirect_inheritance) is None
-
-
-def test_check_overrule_valid_multiple_inheritance(project_valid_multiple_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_valid_multiple_inheritance) is None
-
-
-def test_check_overrule_valid_cross_ontology_inheritance(project_cross_ontology_inheritance: dict[str, Any]) -> None:
-    assert _check_for_invalid_default_permissions_overrule(project_cross_ontology_inheritance) is None
-
-
-def test_check_overrule_invalid_wrong_superclass(project_invalid_wrong_superclass: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_invalid_wrong_superclass)
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
-
-
-def test_check_overrule_invalid_missing_resource(project_invalid_missing_resource: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_invalid_missing_resource)
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.UNDEFINED_REFERENCE
-    assert "test-onto:NonExistentResource" in problems.problems[0].problematic_object
-    assert "not found in ontology" in problems.problems[0].problematic_object
-
-
-def test_check_overrule_circular_reference(project_circular_reference: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_circular_reference)
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:Resource1" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
-
-
-def test_check_overrule_mixed_valid_invalid(project_mixed_valid_invalid: dict[str, Any]) -> None:
-    problems = _check_for_invalid_default_permissions_overrule(project_mixed_valid_invalid)
-    assert isinstance(problems, CollectedProblems)
-    assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "ImageResource" not in problems.problems[0].problematic_object
-    assert "SubImageResource" not in problems.problems[0].problematic_object
 
 
 def test_check_overrule_limited_view_all(project_limited_view_all: dict[str, Any]) -> None:

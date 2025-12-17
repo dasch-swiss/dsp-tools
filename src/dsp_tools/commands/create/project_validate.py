@@ -251,7 +251,6 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
     return [item for item, count in Counter(input_list).items() if count > 1]
 
 
-
 def _is_subclass_of_still_image_representation(
     ontology_name: str, class_name: str, resource_lookup: dict[str, dict[str, dict[str, Any]]]
 ) -> bool:

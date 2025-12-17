@@ -142,7 +142,6 @@ def _complex_parsed_project_validation(
         problems.append(undefined_super_cls)
     if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
         problems.append(undefined_cards)
-    # TODO: do we check for undefined list references?
     # CARDINALITY PROBLEMS
     if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
         cardinalities_flattened, props_flattened
@@ -150,10 +149,10 @@ def _complex_parsed_project_validation(
         problems.append(card_probs)
     # PERMISSIONS
     still_image_classes = _get_still_image_classes(cls_flattened)
-    if perm_res := _check_for_invalid_default_permissions_overrule(
+    if perm_problem := _check_for_invalid_default_permissions_overrule(
         parsed_permissions, prop_iris, cls_iris, still_image_classes
     ):
-        problems.append(perm_res)
+        problems.append(perm_problem)
     return problems
 
 
@@ -260,7 +259,7 @@ def _check_for_invalid_default_permissions_overrule(
         return None
 
     defined_iris_in_ontology = set(properties + classes)
-    problems = []
+    problems: list[CreateProblem] = []
     if parsed_permissions.overrule_private is not None:
         overrule_private_iris = set(parsed_permissions.overrule_private)
         _, unknown_private = _get_list_with_unknown_iris(
@@ -271,7 +270,9 @@ def _check_for_invalid_default_permissions_overrule(
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
             problems.extend(
-                _check_limited_view_selection(parsed_permissions, defined_iris_in_ontology, still_image_classes)
+                _check_limited_view_selection(
+                    parsed_permissions.overrule_limited_view, defined_iris_in_ontology, still_image_classes
+                )
             )
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             # no checks necessary
@@ -286,10 +287,10 @@ def _check_for_invalid_default_permissions_overrule(
 
 
 def _check_limited_view_selection(
-    parsed_permissions: ParsedPermissions, defined_iris_in_ontology: set[str], still_image_classes: set[str]
+    limited_view: LimitedViewPermissionsSelection, defined_iris_in_ontology: set[str], still_image_classes: set[str]
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
-    limited_iris = set(parsed_permissions.overrule_limited_view.limited_selection)
+    limited_iris = set(limited_view.limited_selection)
     unknown_iris, unknown_limited = _get_list_with_unknown_iris(
         limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
     )

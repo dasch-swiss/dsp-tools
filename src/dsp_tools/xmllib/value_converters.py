@@ -363,7 +363,7 @@ def find_dates_in_string(string: str) -> set[str]:
     Checks if a string contains date values (single dates, or date ranges),
     and return all found dates as set of DSP-formatted strings.
     Returns an empty set if no date was found.
-    [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
+    [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#date).
 
     Notes:
         - If no era or calendar is given, dates are interpreted in the Common Era and the Gregorian calendar.

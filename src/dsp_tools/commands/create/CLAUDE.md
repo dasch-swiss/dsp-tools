@@ -74,7 +74,7 @@ The validation process happens in three distinct phases:
 
 During the parsing the prefixes are resolved to absolute IRIs.
 If a prefix is not defined, the prefix and a `InputProblem` is returned.
-After all the objects are parsed either `ParsedProject` or `list[CollectedProblems]` is returned.
+After all the objects are parsed, either `ParsedProject` or `list[CollectedProblems]` is returned.
 In case of the `list[CollectedProblems]` further validations are not possible,
 therefore the code stops and the user is informed.
 
@@ -190,19 +190,20 @@ All creation follows strict sequential order because of dependencies.
 
 **5. Ontologies** (`complete_ontologies.py: create_ontologies()`)
 
-The order is important because first the ontology must exist to add information to.
-Classes may be referenced in properties (as `object` or `subject`) of a link property.
-As cardinalities reference both classes and properties they must come last.
+The order is important because the ontology must exist before information can be added to it.
+Classes may be referenced by link properties (as `object` or `subject`).
+As cardinalities reference both classes and properties, they must come last.
 
 It is not possible to upload all classes / properties of one ontology and then move to the next,
 as there may be inter-ontology references. Therefore, all are put together and a topological sorting is done.
 
 A challenge here is the `lastModificationDate` of the ontology. It must always be provided in the API request.
 As we have to mix the ontologies in the call, it is important to keep track of the dates.
-In order not to stop a creation unnecessarily we handle a wrong modification date once.
+In order not to stop a creation unnecessarily we try to recover from a wrong modification date by repeating the API call once.
 
-So that we have the highest safety we create a lookup of the modification dates before each, `create_all_properties()`
-and `create_all_classes()`. Cardinalities can be sorted by ontology as they do not have any inter-ontology dependencies.
+So that we have the highest safety, we create a lookup of the modification dates before `create_all_properties()`
+and before `create_all_classes()`. 
+Cardinalities can be sorted by ontology, as they do not have any inter-ontology dependencies.
 
 - Sequential sub-stages:
     - a. Create a ontology (`ontology.py: create_all_ontologies()`)

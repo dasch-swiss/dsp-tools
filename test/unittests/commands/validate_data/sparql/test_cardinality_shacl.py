@@ -1,4 +1,8 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
+from pyoxigraph import RdfFormat
+from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -7,6 +11,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_1_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_n_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_1_cardinality
@@ -14,6 +19,7 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.utils.rdf_constants import API_SHAPES
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.rdf_constants import KNORA_API
@@ -253,6 +259,145 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
     assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
     assert next(result.objects(bn, SH.severity)) == SH.Violation
     assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
+
+
+class TestIdentifyPossibleMandatoryCircle:
+    def test_representation_with_min(self, knora_store):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
+        rdfs:label "Target is any Representation" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Representation ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasRepresentation .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
+        """
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
+        assert len(result) == 1
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasRepresentation"
+        assert result[0].object_cls == "knora-api:Representation"
+        assert result[0].card == "1-n"
+
+    def test_resource_with_min(self, knora_store):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource> a owl:ObjectProperty ;
+        rdfs:label "Target is any Resource" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Resource ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:cardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasResource> ] .
+        """
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
+        assert len(result) == 1
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasResource"
+        assert result[0].object_cls == "knora-api:Resource"
+        assert result[0].card == "1"
+
+    def test_segment_with_min(self, knora_store):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> a owl:ObjectProperty ;
+        rdfs:label "Target is any VideoSegment" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:VideoSegment ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasVideoSegment> ] .
+        """
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
+        assert len(result) == 1
+        assert result[0].subject == "in-built:TestNormalResource"
+        assert result[0].prop == "in-built:testHasVideoSegment"
+        assert result[0].object_cls == "knora-api:VideoSegment"
+        assert result[0].card == "1-n"
+
+    def test_representation_no_min(self, knora_store):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
+        rdfs:label "Target is any Representation" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Representation ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasRepresentation .
+        
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ] .
+        """
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
+        assert len(result) == 0
+
+    def test_representation_not_a_knora_resource(self, knora_store):
+        onto_str = f"""{PREFIXES}
+    <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> a owl:ObjectProperty ;
+        rdfs:label "Super-class" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+
+    <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+        rdfs:label "Resource" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf        
+         [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasLinkToCardOneResource> ] .
+        """
+        onto_store = Store()
+        onto_store.load(onto_str, format=RdfFormat.TURTLE)
+        result = get_list_of_potentially_problematic_cardinalities(TripleStores(onto_store, knora_store))
+        assert len(result) == 0
 
 
 if __name__ == "__main__":

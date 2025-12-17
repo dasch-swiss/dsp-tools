@@ -1,5 +1,14 @@
+from typing import cast
+
 from loguru import logger
+from pyoxigraph import QuerySolution
+from pyoxigraph import Store
+from pyoxigraph import Variable
 from rdflib import Graph
+
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
+from dsp_tools.commands.validate_data.models.validation import TripleStores
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 
 
 def construct_cardinality_node_shapes(onto: Graph) -> Graph:
@@ -207,3 +216,75 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def get_list_of_potentially_problematic_cardinalities(
+    triple_store: TripleStores,
+) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
+    knora_resources = _get_knora_resources(triple_store.knora_api)
+    return _get_min_cardinality_link_prop_for_potentially_problematic_circle(triple_store.ontos, knora_resources)
+
+
+def _get_min_cardinality_link_prop_for_potentially_problematic_circle(
+    onto_store: Store, knora_api_resources: list[str]
+) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
+    logger.debug("Get resources with potentially problematic link property cardinalities.")
+    api_classes = " ".join(knora_api_resources)
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+    
+    SELECT ?class ?prop ?objectType ?cardProp WHERE {
+    
+    VALUES ?objectType {
+        %(api_classes)s
+    }
+    
+      ?prop a owl:ObjectProperty ;
+            knora-api:objectType ?objectType .
+      
+      ?class a owl:Class ;
+            knora-api:isResourceClass true ;
+            knora-api:canBeInstantiated true ;
+            rdfs:subClassOf ?restriction .
+      
+       ?restriction a owl:Restriction ;
+          owl:onProperty ?prop ;
+          ?cardProp 1 .
+      
+      VALUES ?cardProp { owl:minCardinality owl:cardinality }
+    }
+    """ % {"api_classes": api_classes}  # noqa: UP031 (printf-string-formatting)
+    q_res = onto_store.query(query_s)
+    results = cast(QuerySolution, q_res)
+    cards = []
+    for res in results:
+        if str(res[Variable("cardProp")]).endswith("#cardinality>"):
+            crd = "1"
+        else:
+            crd = "1-n"
+        cards.append(
+            CardinalitiesThatMayCreateAProblematicCircle(
+                subject=from_dsp_iri_to_prefixed_iri(str(res[Variable("class")])),
+                prop=from_dsp_iri_to_prefixed_iri(str(res[Variable("prop")])),
+                object_cls=from_dsp_iri_to_prefixed_iri(str(res[Variable("objectType")])),
+                card=crd,
+            )
+        )
+    return cards
+
+
+def _get_knora_resources(knora_api: Store) -> list[str]:
+    query_s = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    
+    SELECT ?knoraClass WHERE {
+        ?knoraClass rdfs:subClassOf* knora-api:Resource . 
+    }
+   """
+    q_res = knora_api.query(query_s)
+    results = cast(QuerySolution, q_res)
+    return [str(r[Variable("knoraClass")]) for r in results]

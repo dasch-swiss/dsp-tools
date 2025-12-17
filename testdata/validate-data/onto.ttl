@@ -1,1806 +1,1806 @@
-@prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
-@prefix ns2: <http://api.knora.org/ontology/salsah-gui/v2#> .
+@prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2> a owl:Ontology ;
     rdfs:label "in-built" ;
-    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
-    ns1:lastModificationDate "2025-01-16T14:30:11.397268550Z"^^xsd:dateTimeStamp ;
+    knora-api:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    knora-api:lastModificationDate "2025-01-16T14:30:11.397268550Z"^^xsd:dateTimeStamp ;
     rdfs:comment "Ontology focusing on knora-api in-built properties and classes" .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithInheritedSeqnum> a owl:Class ;
     rdfs:label "StillImageRepresentation using sub-properties of seqnum" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:onProperty knora-api:hasStillImageFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        ns1:StillImageRepresentation .
+            owl:onProperty knora-api:arkUrl ],
+        knora-api:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithInheritedSeqnumErroneousCard> a owl:Class ;
     rdfs:label "StillImageRepresentation using sub-properties of seqnum and erroneous cardinality" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:onProperty knora-api:hasStillImageFileValue ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> ],
-        ns1:StillImageRepresentation .
+        knora-api:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithSeqnum> a owl:Class ;
     rdfs:label "StillImageRepresentation with knora-api:seqnum" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isPartOf ],
+            owl:onProperty knora-api:isPartOf ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:onProperty knora-api:hasStillImageFileValue ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:seqnum ],
+            owl:onProperty knora-api:seqnum ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isPartOfValue ],
+            owl:onProperty knora-api:isPartOfValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        ns1:StillImageRepresentation .
+            owl:onProperty knora-api:hasPermissions ],
+        knora-api:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithSeqnumErroneousCard> a owl:Class ;
     rdfs:label "StillImageRepresentation with knora-api:seqnum and erroneous cardinality" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:isPartOfValue ],
+            owl:onProperty knora-api:isPartOfValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:seqnum ],
+            owl:onProperty knora-api:seqnum ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:isPartOf ],
+            owl:onProperty knora-api:isPartOf ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:onProperty knora-api:hasStillImageFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        ns1:StillImageRepresentation .
+            owl:onProperty knora-api:isDeleted ],
+        knora-api:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
     rdfs:label "Ontology" ;
-    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
-    ns1:lastModificationDate "2025-01-16T14:30:10.260885674Z"^^xsd:dateTimeStamp .
+    knora-api:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    knora-api:lastModificationDate "2025-01-16T14:30:10.260885674Z"^^xsd:dateTimeStamp .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassInheritedCardinality> a owl:Class ;
     rdfs:label "Subclass Resource" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
-            ns2:guiOrder 0 ;
+            knora-api:isInherited true ;
+            salsah-gui:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting> a owl:Class ;
     rdfs:label "Subclass Resource that overwrites inherited cardinality" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:cardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> a owl:Class ;
     rdfs:label "Resource with all cardinality options" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns2:guiOrder 2 ;
+            salsah-gui:guiOrder 2 ;
             owl:minCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:cardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:cardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResourceValue> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 3 ;
+            salsah-gui:guiOrder 3 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        ns1:Resource .
+            owl:onProperty knora-api:deleteDate ],
+        knora-api:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> a owl:Class ;
     rdfs:label "Resource with every property" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns2:guiOrder 13 ;
+            salsah-gui:guiOrder 13 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testColor> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 16 ;
+            salsah-gui:guiOrder 16 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToValue> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns2:guiOrder 2 ;
+            salsah-gui:guiOrder 2 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 18 ;
+            salsah-gui:guiOrder 18 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRepresentation> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 18 ;
+            salsah-gui:guiOrder 18 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRepresentationValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 6 ;
+            salsah-gui:guiOrder 6 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 4 ;
+            salsah-gui:guiOrder 4 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns2:guiOrder 3 ;
+            salsah-gui:guiOrder 3 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate2> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 14 ;
+            salsah-gui:guiOrder 14 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 8 ;
+            salsah-gui:guiOrder 8 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 10 ;
+            salsah-gui:guiOrder 10 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 19 ;
+            salsah-gui:guiOrder 19 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOf> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 17 ;
+            salsah-gui:guiOrder 17 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResourceValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 16 ;
+            salsah-gui:guiOrder 16 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 17 ;
+            salsah-gui:guiOrder 17 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns2:guiOrder 19 ;
+            salsah-gui:guiOrder 19 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOfValue> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns2:guiOrder 15 ;
+            salsah-gui:guiOrder 15 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasComment> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 12 ;
+            salsah-gui:guiOrder 12 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 5 ;
+            salsah-gui:guiOrder 5 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns2:guiOrder 11 ;
+            salsah-gui:guiOrder 11 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 7 ;
+            salsah-gui:guiOrder 7 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns2:guiOrder 9 ;
+            salsah-gui:guiOrder 9 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp> ],
-        ns1:Resource .
+        knora-api:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> a owl:Class ;
     rdfs:label "ArchiveRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasArchiveFileValue ],
+            owl:onProperty knora-api:hasArchiveFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        ns1:ArchiveRepresentation .
+            owl:onProperty knora-api:versionDate ],
+        knora-api:ArchiveRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestAudioRepresentation> a owl:Class ;
     rdfs:label "AudioRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasAudioFileValue ],
+            owl:onProperty knora-api:hasAudioFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        ns1:AudioRepresentation .
+            owl:onProperty knora-api:isDeleted ],
+        knora-api:AudioRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestDocumentRepresentation> a owl:Class ;
     rdfs:label "DocumentRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasDocumentFileValue ],
+            owl:onProperty knora-api:hasDocumentFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        ns1:DocumentRepresentation .
+            owl:onProperty knora-api:lastModificationDate ],
+        knora-api:DocumentRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> a owl:Class ;
     rdfs:label "MovingImageRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasMovingImageFileValue ],
+            owl:onProperty knora-api:hasMovingImageFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        ns1:MovingImageRepresentation .
+            owl:onProperty knora-api:attachedToUser ],
+        knora-api:MovingImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestTextRepresentation> a owl:Class ;
     rdfs:label "TextRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasTextFileValue ],
+            owl:onProperty knora-api:hasTextFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        ns1:TextRepresentation .
+            owl:onProperty knora-api:hasStandoffLinkTo ],
+        knora-api:TextRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSeqnum> a owl:ObjectProperty ;
     rdfs:label "Test Seqnum" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:IntValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:seqnum .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:IntValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:seqnum .
 
 <http://0.0.0.0:3333/ontology/9999/second-onto/v2> a owl:Ontology ;
     rdfs:label "Second Ontology" ;
-    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
-    ns1:lastModificationDate "2025-01-16T14:30:10.489304632Z"^^xsd:dateTimeStamp .
+    knora-api:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    knora-api:lastModificationDate "2025-01-16T14:30:10.489304632Z"^^xsd:dateTimeStamp .
 
 <http://0.0.0.0:3333/ontology/9999/second-onto/v2#SecondOntoClass> a owl:Class ;
     rdfs:label "Resource" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/second-onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        ns1:Resource .
+            owl:onProperty knora-api:versionArkUrl ],
+        knora-api:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
     rdfs:label "Resource" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImage> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            salsah-gui:guiOrder 1 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImageValue> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        ns1:Resource .
+            owl:onProperty knora-api:versionArkUrl ],
+        knora-api:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
     rdfs:label "Target is any Representation" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:Representation ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentation .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:Representation ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImage> a owl:ObjectProperty ;
     rdfs:label "Target must be a StillImageRepresentation" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:StillImageRepresentation ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentation .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:StillImageRepresentation ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImageValue> a owl:ObjectProperty ;
     rdfs:label "Target must be a StillImageRepresentation" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentationValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentationValue .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationValue> a owl:ObjectProperty ;
     rdfs:label "Target is any Representation" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentationValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentationValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> a owl:Class ;
     rdfs:label "StillImageRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:onProperty knora-api:hasIncomingLinkValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:onProperty knora-api:hasStillImageFileValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
-        ns1:StillImageRepresentation .
+            owl:onProperty knora-api:creationDate ],
+        knora-api:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testColor> a owl:ObjectProperty ;
     rdfs:label "Test Color" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:ColorValue ;
-    ns2:guiElement ns2:Colorpicker ;
-    rdfs:subPropertyOf ns1:hasColor .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:ColorValue ;
+    salsah-gui:guiElement salsah-gui:Colorpicker ;
+    rdfs:subPropertyOf knora-api:hasColor .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText> a owl:ObjectProperty ;
     rdfs:label "Test Decimal" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:DecimalValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DecimalValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox> a owl:ObjectProperty ;
     rdfs:label "Test Decimal" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:DecimalValue ;
-    ns2:guiAttribute "max=10.0",
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DecimalValue ;
+    salsah-gui:guiAttribute "max=10.0",
         "min=0.0" ;
-    ns2:guiElement ns2:Spinbox ;
-    rdfs:subPropertyOf ns1:hasValue .
+    salsah-gui:guiElement salsah-gui:Spinbox ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasComment> a owl:ObjectProperty ;
     rdfs:label "In-built Comment" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:TextValue ;
-    ns2:guiElement ns2:Richtext ;
-    rdfs:subPropertyOf ns1:hasComment .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:TextValue ;
+    salsah-gui:guiElement salsah-gui:Richtext ;
+    rdfs:subPropertyOf knora-api:hasComment .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo> a owl:ObjectProperty ;
     rdfs:label "Test In-built hasLinkTo" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:Resource ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasLinkTo .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:Resource ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasLinkTo .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToValue> a owl:ObjectProperty ;
     rdfs:label "Test In-built hasLinkTo" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasLinkToValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasLinkToValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRepresentation> a owl:ObjectProperty ;
     rdfs:label "Represented by" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:Representation ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentation .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:Representation ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRepresentationValue> a owl:ObjectProperty ;
     rdfs:label "Represented by" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasRepresentationValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasRepresentationValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText> a owl:ObjectProperty ;
     rdfs:label "Test Integer" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:IntValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:IntValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox> a owl:ObjectProperty ;
     rdfs:label "Test Integer" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:IntValue ;
-    ns2:guiAttribute "max=10.0",
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:IntValue ;
+    salsah-gui:guiAttribute "max=10.0",
         "min=0.0" ;
-    ns2:guiElement ns2:Spinbox ;
-    rdfs:subPropertyOf ns1:hasValue .
+    salsah-gui:guiElement salsah-gui:Spinbox ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOf> a owl:ObjectProperty ;
     rdfs:label "is part of" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:isPartOf .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:isPartOf .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOfValue> a owl:ObjectProperty ;
     rdfs:label "is part of" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:isPartOfValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:isPartOfValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp> a owl:ObjectProperty ;
     rdfs:label "Test List" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:ListValue ;
-    ns2:guiAttribute "hlist=<http://rdfh.ch/lists/9999/UHGpV4eZRhSropBDy4EyQA>" ;
-    ns2:guiElement ns2:List ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:ListValue ;
+    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/UHGpV4eZRhSropBDy4EyQA>" ;
+    salsah-gui:guiElement salsah-gui:List ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext> a owl:ObjectProperty ;
     rdfs:label "Test Richtext" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:TextValue ;
-    ns2:guiElement ns2:Richtext ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:TextValue ;
+    salsah-gui:guiElement salsah-gui:Richtext ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1> a owl:ObjectProperty ;
     rdfs:label "Sub Property Date 1" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:DateValue ;
-    ns2:guiElement ns2:Date ;
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DateValue ;
+    salsah-gui:guiElement salsah-gui:Date ;
     rdfs:subPropertyOf <http://0.0.0.0:3333/ontology/9999/onto/v2#testSuperDate>,
-        ns1:hasValue .
+        knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate2> a owl:ObjectProperty ;
     rdfs:label "Sub Property Date 2" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:DateValue ;
-    ns2:guiElement ns2:Date ;
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DateValue ;
+    salsah-gui:guiElement salsah-gui:Date ;
     rdfs:subPropertyOf <http://0.0.0.0:3333/ontology/9999/onto/v2#testSuperDate>,
-        ns1:hasValue .
+        knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea> a owl:ObjectProperty ;
     rdfs:label "Test Textarea" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:TextValue ;
-    ns2:guiElement ns2:Textarea ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:TextValue ;
+    salsah-gui:guiElement salsah-gui:Textarea ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue> a owl:ObjectProperty ;
     rdfs:label "Test Time" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:TimeValue ;
-    ns2:guiElement ns2:TimeStamp ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:TimeValue ;
+    salsah-gui:guiElement salsah-gui:TimeStamp ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> a owl:ObjectProperty ;
     rdfs:label "Test URI" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:UriValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:UriValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/second-onto/v2#testBoolean> a owl:ObjectProperty ;
     rdfs:label "Test Boolean of the second onto" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:BooleanValue ;
-    ns2:guiElement ns2:Checkbox ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:BooleanValue ;
+    salsah-gui:guiElement salsah-gui:Checkbox ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> a owl:ObjectProperty ;
     rdfs:label "is part of" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:isPartOf .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:isPartOf .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> a owl:ObjectProperty ;
     rdfs:label "is part of" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:isPartOfValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:isPartOfValue .
 
 <http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> a owl:ObjectProperty ;
     rdfs:label "has sequence Number" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:IntValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:seqnum .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:IntValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:seqnum .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> a owl:ObjectProperty ;
     rdfs:label "Test Geoname" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:GeonameValue ;
-    ns2:guiElement ns2:Geonames ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:GeonameValue ;
+    salsah-gui:guiElement salsah-gui:Geonames ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> a owl:ObjectProperty ;
     rdfs:label "Super-class" ;
-    ns1:isEditable true ;
-    ns1:isLinkProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasLinkTo .
+    knora-api:isEditable true ;
+    knora-api:isLinkProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasLinkTo .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResourceValue> a owl:ObjectProperty ;
     rdfs:label "Super-class" ;
-    ns1:isEditable true ;
-    ns1:isLinkValueProperty true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:LinkValue ;
-    ns2:guiElement ns2:Searchbox ;
-    rdfs:subPropertyOf ns1:hasLinkToValue .
+    knora-api:isEditable true ;
+    knora-api:isLinkValueProperty true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:LinkValue ;
+    salsah-gui:guiElement salsah-gui:Searchbox ;
+    rdfs:subPropertyOf knora-api:hasLinkToValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSuperDate> a owl:ObjectProperty ;
     rdfs:label "Super Property Date" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:DateValue ;
-    ns2:guiElement ns2:Date ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DateValue ;
+    salsah-gui:guiElement salsah-gui:Date ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> a owl:Class ;
     rdfs:label "Resource with One Cardinality" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty knora-api:arkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty knora-api:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty knora-api:deletedBy ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:onProperty knora-api:deleteComment ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty knora-api:hasPermissions ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty knora-api:attachedToProject ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty knora-api:versionDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
+            owl:onProperty knora-api:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty knora-api:isDeleted ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty knora-api:versionArkUrl ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty knora-api:deleteDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            salsah-gui:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty knora-api:lastModificationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty knora-api:userHasPermission ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty knora-api:creationDate ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            knora-api:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        ns1:Resource .
+            owl:onProperty knora-api:hasIncomingLinkValue ],
+        knora-api:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> a owl:ObjectProperty ;
     rdfs:label "Test SimpleText" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:TextValue ;
-    ns2:guiElement ns2:SimpleText ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:TextValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> a owl:ObjectProperty ;
     rdfs:label "Test Boolean" ;
-    ns1:isEditable true ;
-    ns1:isResourceProperty true ;
-    ns1:objectType ns1:BooleanValue ;
-    ns2:guiElement ns2:Checkbox ;
-    rdfs:subPropertyOf ns1:hasValue .
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:BooleanValue ;
+    salsah-gui:guiElement salsah-gui:Checkbox ;
+    rdfs:subPropertyOf knora-api:hasValue .
 

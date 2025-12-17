@@ -1,11 +1,15 @@
 import os
 from typing import Any
+from typing import cast
 
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescription
 from dsp_tools.commands.create.models.parsed_project import ParsedList
@@ -17,6 +21,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShip
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
 from dsp_tools.commands.create.parsing.parsing_utils import create_prefix_lookup
+from dsp_tools.commands.create.parsing.parsing_utils import resolve_all_to_absolute_iri
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
 
 read_dotenv_if_exists()
@@ -26,6 +31,9 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
     prefix_lookup = create_prefix_lookup(complete_json, api_url)
     project_json = complete_json["project"]
     ontologies, failures = _parse_all_ontologies(project_json, prefix_lookup)
+    permissions, permissions_failures = _parse_permissions(project_json, prefix_lookup)
+    if permissions_failures:
+        failures.append(permissions_failures)
     parsed_lists, list_problems = _parse_lists(project_json)
     if list_problems:
         failures.append(list_problems)
@@ -37,7 +45,7 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
     return ParsedProject(
         prefixes=prefix_lookup,
         project_metadata=_parse_metadata(project_json),
-        permissions=_parse_permissions(project_json),
+        permissions=cast(ParsedPermissions, permissions),
         groups=_parse_groups(project_json),
         users=users,
         user_memberships=memberships,
@@ -57,11 +65,62 @@ def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
     )
 
 
-def _parse_permissions(project_json: dict[str, Any]) -> ParsedPermissions:
+def _parse_permissions(
+    project_json: dict[str, Any], prefix_lookup: dict[str, str]
+) -> tuple[ParsedPermissions | None, CollectedProblems | None]:
+    problems: list[CreateProblem] = []
+    default_found = project_json["default_permissions"]
+    default_perm = None
+    match default_found:
+        case "private":
+            default_perm = DefaultPermissions.PRIVATE
+        case "public":
+            default_perm = DefaultPermissions.PUBLIC
+        case _:
+            problems.append(InputProblem(str(default_found), InputProblemType.DEFAULT_PERMISSIONS_NOT_CORRECT))
+
+    found_overrule = project_json.get("default_permissions_overrule", {})
+    if private := found_overrule.get("private"):
+        resolved_private, resolving_problems = resolve_all_to_absolute_iri(private, None, prefix_lookup)
+        if resolving_problems:
+            problems.extend(resolving_problems)
+    else:
+        resolved_private = None
+    limited_view = found_overrule.get("limited_view")
+    limited_resolved, limited_problems = _get_limited_view(limited_view, prefix_lookup)
+    problems.extend(limited_problems)
+    if problems:
+        return None, CollectedProblems(
+            "During the parsing of the permissions the following problems were found:", problems
+        )
     return ParsedPermissions(
-        default_permissions=project_json["default_permissions"],
-        default_permissions_overrule=project_json.get("default_permissions_overrule"),
-    )
+        default_permissions=cast(DefaultPermissions, default_perm),
+        overrule_private=resolved_private,
+        overrule_limited_view=cast(LimitedViewPermissionsSelection | GlobalLimitedViewPermission, limited_resolved),
+    ), None
+
+
+def _get_limited_view(
+    original_input: str | list[str] | None, prefixes: dict[str, str]
+) -> tuple[LimitedViewPermissionsSelection | GlobalLimitedViewPermission | None, list[CreateProblem]]:
+    match original_input:
+        case "all":
+            return GlobalLimitedViewPermission.ALL, []
+        case list():
+            return _handle_limited_view_list(original_input, prefixes)
+        case None:
+            return GlobalLimitedViewPermission.NONE, []
+        case _:
+            return None, [InputProblem(original_input, InputProblemType.LIMITED_VIEW_PERMISSIONS_NOT_CORRECT)]
+
+
+def _handle_limited_view_list(
+    limited_view_list: list[str], prefixes: dict[str, str]
+) -> tuple[LimitedViewPermissionsSelection | None, list[CreateProblem]]:
+    all_resolved, resolving_problems = resolve_all_to_absolute_iri(limited_view_list, None, prefixes)
+    if resolving_problems:
+        return None, resolving_problems
+    return LimitedViewPermissionsSelection(all_resolved), []
 
 
 def _parse_groups(project_json: dict[str, Any]) -> list[ParsedGroup]:

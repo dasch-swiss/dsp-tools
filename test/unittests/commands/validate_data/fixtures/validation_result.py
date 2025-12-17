@@ -1,4 +1,7 @@
+# mypy: disable-error-code="no-untyped-def"
+
 import pytest
+from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -18,11 +21,18 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture(scope="module")
-def onto_graph() -> Graph:
+def onto_graph():
     g = Graph()
     g.parse("testdata/validate-data/onto.ttl")
     g.parse("testdata/validate-data/knora-api-subset.ttl")
     return g
+
+
+@pytest.fixture(scope="module")
+def knora_store() -> Store:
+    store = Store()
+    store.load(path="testdata/validate-data/knora-api-subset.ttl")
+    return store
 
 
 @pytest.fixture

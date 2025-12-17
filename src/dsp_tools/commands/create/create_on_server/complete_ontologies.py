@@ -25,7 +25,7 @@ def create_ontologies(
     project_iri: str,
     shortcode: str,
     auth: AuthenticationClient,
-) -> bool:
+) -> tuple[bool, CreatedIriCollection]:
     success_collection = CreatedIriCollection()
     onto_client = OntologyCreateClientLive(auth.server, auth)
     overall_success = True
@@ -45,7 +45,7 @@ def create_ontologies(
         msg = "No ontologies could be created on the server."
         logger.error(msg)
         print(BOLD_RED + "    " + msg + RESET_TO_DEFAULT)
-        return False
+        return False, success_collection
 
     all_classes = []
     for onto in parsed_ontologies:
@@ -93,7 +93,7 @@ def create_ontologies(
         overall_success = False
         print_problem_collection(problems)
 
-    return overall_success
+    return overall_success, success_collection
 
 
 def _create_ontologies_on_server(

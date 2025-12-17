@@ -82,8 +82,7 @@ def _get_property_create_order(properties: list[ParsedProperty]) -> list[str]:
     graph, node_to_iri = _make_graph_to_sort(properties)
     return sort_for_upload(graph, node_to_iri)
 
-# TODO: move to other file, use for finding cycles
-# TODO: cycles must come before permissions overrule problem
+
 def _make_graph_to_sort(properties: list[ParsedProperty]) -> tuple[rx.PyDiGraph, dict[int, str]]:
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     prop_iris = [x.name for x in properties]

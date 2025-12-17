@@ -149,7 +149,6 @@ def _complex_parsed_project_validation(
         cardinalities_flattened, props_flattened
     ):
         problems.append(card_probs)
-    # TODO: move circles here?
     # PERMISSIONS
     if perm_res := _check_for_invalid_default_permissions_overrule(parsed_permissions):
         problems.append(perm_res)

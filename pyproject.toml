@@ -99,6 +99,7 @@ pythonpath = [".", "src", "test"]
 
 
 [tool.mypy]
+python_version = "3.12"
 show_column_numbers = true
 strict = true
 enable_error_code = ["possibly-undefined"]
@@ -116,6 +117,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 120
+target-version = "py312"
 
 
 [tool.ruff.lint]

@@ -122,7 +122,6 @@ def _complex_parsed_project_validation(
         prop_iris.extend([x.name for x in o.properties])
         props_flattened.extend(o.properties)
         cardinalities_flattened.extend(o.cardinalities)
-        # TODO: add all sub-classes of still image rep
 
     problems = []
     # DUPLICATES
@@ -306,18 +305,21 @@ def _get_list_with_unknown_iris(
 
 def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
     knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
-    all_image_classes = {x.name for x in parsed_classes if knora_still_image in x.supers}
-    for _ in range(5):
-        # inheritance depth 5
-        all_image_classes = _get_all_sub_classes_of_still_images(parsed_classes, all_image_classes)
-    return all_image_classes
 
+    children_by_parent: dict[str, list[str]] = defaultdict(list)
+    for cls in parsed_classes:
+        for super_cls in cls.supers:
+            children_by_parent[super_cls].append(cls.name)
 
-def _get_all_sub_classes_of_still_images(all_classes: list[ParsedClass], all_image_classes: set[str]) -> set[str]:
-    for cls in all_classes:
-        if set(cls.supers).issubset(all_image_classes):
-            all_image_classes.add(cls.name)
-    return all_image_classes
+    def _collect_all_descendants(parent_iri: str, visited: set[str]) -> None:
+        for child_iri in children_by_parent.get(parent_iri, []):
+            if child_iri not in visited:  # Prevent infinite recursion on cycles
+                visited.add(child_iri)
+                _collect_all_descendants(child_iri, visited)
+
+    descendants: set[str] = set()
+    _collect_all_descendants(knora_still_image, descendants)
+    return descendants
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

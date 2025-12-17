@@ -63,7 +63,6 @@ class InputProblemType(ProblemType):
         "The prefix used is not defined in the 'prefix' section of the file, "
         "nor does it belong to one of the project ontologies."
     )
-    UNDEFINED_REFERENCE = "Reference not defined in the project."
     UNDEFINED_SUPER_PROPERTY = "This property is derived from an invalid super-property."
     UNDEFINED_SUPER_CLASS = "This resource is derived from an invalid super-class."
     UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."

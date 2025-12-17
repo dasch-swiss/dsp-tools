@@ -38,6 +38,7 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
 
@@ -115,7 +116,6 @@ def _complex_parsed_project_validation(
     cls_flattened = []
     props_flattened = []
     cardinalities_flattened = []
-    still_image_representations = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
         cls_flattened.extend(o.classes)
@@ -150,7 +150,10 @@ def _complex_parsed_project_validation(
     ):
         problems.append(card_probs)
     # PERMISSIONS
-    if perm_res := _check_for_invalid_default_permissions_overrule(parsed_permissions):
+    still_image_classes = _get_still_image_classes(cls_flattened)
+    if perm_res := _check_for_invalid_default_permissions_overrule(
+        parsed_permissions, prop_iris, cls_iris, still_image_classes
+    ):
         problems.append(perm_res)
     return problems
 
@@ -251,84 +254,35 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
     return [item for item, count in Counter(input_list).items() if count > 1]
 
 
-def _is_subclass_of_still_image_representation(
-    ontology_name: str, class_name: str, resource_lookup: dict[str, dict[str, dict[str, Any]]]
-) -> bool:
-    """
-    Check if a class is a subclass of StillImageRepresentation by traversing the inheritance chain.
-
-    Args:
-        ontology_name: Name of the ontology containing the class
-        class_name: Name of the class to check
-        resource_lookup: Dictionary mapping ontology names to resource definitions
-
-    Returns:
-        True if the class is a subclass of StillImageRepresentation
-    """
-    current_onto = ontology_name
-    current_class = class_name
-    visited = set()
-
-    # Follow the inheritance chain up to 10 levels (prevent infinite loops)
-    for _ in range(10):
-        class_id = f"{current_onto}:{current_class}"
-        if class_id in visited:
-            break  # Circular reference detected
-        visited.add(class_id)
-
-        if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
-            break  # Resource not found
-
-        resource = resource_lookup[current_onto][current_class]
-        super_class = resource.get("super")
-
-        # Handle both string and list formats for super
-        super_classes = []
-        if isinstance(super_class, list):
-            super_classes = super_class
-        elif super_class:
-            super_classes = [super_class]
-
-        # Check if any superclass is StillImageRepresentation
-        if "StillImageRepresentation" in super_classes:
-            return True
-
-        # Find the next class in the inheritance chain
-        next_class = None
-        for super_cls in super_classes:
-            if super_cls.startswith(":"):
-                # Same ontology reference
-                next_class = (current_onto, super_cls[1:])
-                break
-            elif ":" in super_cls and super_cls != "StillImageRepresentation":
-                # Different ontology reference
-                super_parts = super_cls.split(":", 1)
-                if len(super_parts) == 2:
-                    next_class = (super_parts[0], super_parts[1])
-                    break
-
-        if next_class:
-            current_onto, current_class = next_class
-        else:
-            break  # No more inheritance to follow
-
-    return False
-
-
-def _check_for_invalid_default_permissions_overrule(parsed_permissions: ParsedPermissions) -> CollectedProblems | None:
+def _check_for_invalid_default_permissions_overrule(
+    parsed_permissions: ParsedPermissions, properties: list[str], classes: list[str], still_image_classes: set[str]
+) -> CollectedProblems | None:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
         return None
 
+    defined_iris_in_ontology = set(properties + classes)
     problems = []
     if parsed_permissions.overrule_private is not None:
-        pass
-        # TODO: check if props and cls exist
+        overrule_private_iris = set(parsed_permissions.overrule_private)
+        problems.extend(
+            _get_list_with_unknown_iris(
+                overrule_private_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
+            )
+        )
 
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
-            pass
-            # TODO: check if exists,
-            #  check if still image
+            limited_iris = set(parsed_permissions.overrule_limited_view.limited_selection)
+            problems.extend(
+                _get_list_with_unknown_iris(
+                    limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
+                )
+            )
+            problems.extend(
+                _get_list_with_unknown_iris(
+                    limited_iris, still_image_classes, InputProblemType.INVALID_PERMISSIONS_OVERRULE
+                )
+            )
 
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             # no checks necessary
@@ -340,6 +294,30 @@ def _check_for_invalid_default_permissions_overrule(parsed_permissions: ParsedPe
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
         return CollectedProblems(err_msg, problems)
     return None
+
+
+def _get_list_with_unknown_iris(
+    used_iris: set[str], defined_iris_in_ontology: set[str], problem_type: InputProblemType
+) -> list[InputProblem]:
+    if unknown := used_iris - defined_iris_in_ontology:
+        return [InputProblem(from_dsp_iri_to_prefixed_iri(x), problem_type) for x in unknown]
+    return []
+
+
+def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
+    knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
+    all_image_classes = {x.name for x in parsed_classes if knora_still_image in x.supers}
+    for _ in range(5):
+        # inheritance depth 5
+        all_image_classes = _get_all_sub_classes_of_still_images(parsed_classes, all_image_classes)
+    return all_image_classes
+
+
+def _get_all_sub_classes_of_still_images(all_classes: list[ParsedClass], all_image_classes: set[str]) -> set[str]:
+    for cls in all_classes:
+        if set(cls.supers).issubset(all_image_classes):
+            all_image_classes.add(cls.name)
+    return all_image_classes
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

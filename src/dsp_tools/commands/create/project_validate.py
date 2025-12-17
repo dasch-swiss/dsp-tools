@@ -24,10 +24,15 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
@@ -55,13 +60,21 @@ def parse_and_validate_project(project_file: Path, server: str) -> list[Collecte
 def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
-    if not isinstance(parsing_result, ParsedProject):
-        return parsing_result
-    validation_problems = _complex_json_project_validation(json_project)
-    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies, parsing_result.lists))
-    if validation_problems:
-        return validation_problems
-    return parsing_result
+
+    match parsing_result:
+        case ParsedProject():
+            validation_problems = _complex_parsed_project_validation(
+                parsing_result.ontologies,
+                parsing_result.lists,
+                parsing_result.permissions,
+            )
+            if validation_problems:
+                return validation_problems
+            return parsing_result
+        case list():
+            return parsing_result
+        case _:
+            raise UnreachableCodeError()
 
 
 def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
@@ -94,34 +107,32 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_json_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
-    problems: list[CollectedProblems] = []
-    # make some checks that are too complex for JSON schema
-    if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
-        problems.append(perm_res)
-    return problems
-
-
 def _complex_parsed_project_validation(
-    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList]
+    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
 ) -> list[CollectedProblems]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
     props_flattened = []
     cardinalities_flattened = []
+    still_image_representations = []
     for o in ontologies:
         cls_iris.extend([x.name for x in o.classes])
         cls_flattened.extend(o.classes)
         prop_iris.extend([x.name for x in o.properties])
         props_flattened.extend(o.properties)
         cardinalities_flattened.extend(o.cardinalities)
+        # TODO: add all sub-classes of still image rep
 
     problems = []
+    # DUPLICATES
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
         problems.append(dup_cls)
     if dup_props := _check_for_duplicate_iris(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
         problems.append(dup_props)
+    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
+        problems.append(duplicates_in_lists)
+    # UNDEFINED REFERENCES
     if undefined_super_prop := _check_for_undefined_supers(
         props_flattened, set(prop_iris), InputProblemType.UNDEFINED_SUPER_PROPERTY, "Property"
     ):
@@ -132,12 +143,15 @@ def _complex_parsed_project_validation(
         problems.append(undefined_super_cls)
     if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
         problems.append(undefined_cards)
+    # TODO: do we check for undefined list references?
+    # CARDINALITY PROBLEMS
     if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
         cardinalities_flattened, props_flattened
     ):
         problems.append(card_probs)
-    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
-        problems.append(duplicates_in_lists)
+    # PERMISSIONS
+    if perm_res := _check_for_invalid_default_permissions_overrule(parsed_permissions):
+        problems.append(perm_res)
     return problems
 
 
@@ -330,76 +344,29 @@ def _is_subclass_of_still_image_representation(
     return False
 
 
-def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
-        return None
-    if not (limited_view := default_permissions_overrule.get("limited_view")):
+def _check_for_invalid_default_permissions_overrule(parsed_permissions: ParsedPermissions) -> CollectedProblems | None:
+    if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
         return None
 
-    # If limited_view is "all", no validation needed - it applies to all image classes
-    if limited_view == "all":
-        return None
+    problems = []
+    if parsed_permissions.overrule_private is not None:
+        pass
+        # TODO: check if props and cls exist
 
-    problems: list[CreateProblem] = []
-    resource_lookup = _build_resource_lookup(project_definition)
+    match parsed_permissions.overrule_limited_view:
+        case LimitedViewPermissionsSelection():
+            pass
+            # TODO: check if exists,
+            #  check if still image
 
-    # Check each class in limited_view (when it's a list)
-    for class_ref in limited_view:
-        parsed_ref = _parse_class_reference(class_ref)
-        if not parsed_ref:
-            problems.append(
-                InputProblem(
-                    problematic_object=f"{class_ref} (Invalid format, expected 'ontology:ClassName')",
-                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
-                )
-            )
-            continue
+        case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
+            # no checks necessary
+            pass
+        case _:
+            raise UnreachableCodeError()
 
-        ontology_name, class_name = parsed_ref
-
-        # Check if the ontology exists
-        if ontology_name not in resource_lookup:
-            problems.append(
-                InputProblem(
-                    problematic_object=f"{ontology_name}:{class_name} (Ontology '{ontology_name}' not found)",
-                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
-                )
-            )
-            continue
-
-        # Check if the resource exists in the ontology
-        if class_name not in resource_lookup[ontology_name]:
-            problems.append(
-                InputProblem(
-                    problematic_object=(
-                        f"{ontology_name}:{class_name} "
-                        f"(Resource '{class_name}' not found in ontology '{ontology_name}')"
-                    ),
-                    problem=InputProblemType.UNDEFINED_REFERENCE,
-                )
-            )
-            continue
-
-        # Check if the resource is a subclass of StillImageRepresentation
-        if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
-            problems.append(
-                InputProblem(
-                    problematic_object=(
-                        f"{ontology_name}:{class_name} "
-                        f"(Must be a subclass of 'StillImageRepresentation' directly or through inheritance)"
-                    ),
-                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
-                )
-            )
     if problems:
-        err_msg = (
-            "All classes in project.default_permissions_overrule.limited_view "
-            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
-            "permission is only implemented for images (i.e. blurring, watermarking). \n"
-            "In order to check, the classes must be provided in the form \n"
-            '    "limited_view": ["ontoname:Classname", ...]\n\n'
-            "The following classes do not meet this requirement:\n"
-        )
+        err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
         return CollectedProblems(err_msg, problems)
     return None
 

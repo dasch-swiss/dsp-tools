@@ -263,26 +263,16 @@ def _check_for_invalid_default_permissions_overrule(
     problems = []
     if parsed_permissions.overrule_private is not None:
         overrule_private_iris = set(parsed_permissions.overrule_private)
-        problems.extend(
-            _get_list_with_unknown_iris(
-                overrule_private_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
-            )
+        _, unknown_private = _get_list_with_unknown_iris(
+            overrule_private_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
         )
+        problems.extend(unknown_private)
 
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
-            limited_iris = set(parsed_permissions.overrule_limited_view.limited_selection)
             problems.extend(
-                _get_list_with_unknown_iris(
-                    limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
-                )
+                _check_limited_view_selection(parsed_permissions, defined_iris_in_ontology, still_image_classes)
             )
-            problems.extend(
-                _get_list_with_unknown_iris(
-                    limited_iris, still_image_classes, InputProblemType.INVALID_PERMISSIONS_OVERRULE
-                )
-            )
-
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             # no checks necessary
             pass
@@ -295,12 +285,31 @@ def _check_for_invalid_default_permissions_overrule(
     return None
 
 
+def _check_limited_view_selection(
+    parsed_permissions: ParsedPermissions, defined_iris_in_ontology: set[str], still_image_classes: set[str]
+) -> list[CreateProblem]:
+    problems: list[CreateProblem] = []
+    limited_iris = set(parsed_permissions.overrule_limited_view.limited_selection)
+    unknown_iris, unknown_limited = _get_list_with_unknown_iris(
+        limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
+    )
+    problems.extend(unknown_limited)
+    # if we do not subtract the unknown iris,
+    # they will be duplicated in this check as they are not recognised as still images
+    limited_to_check = limited_iris - unknown_iris
+    _, not_still_image = _get_list_with_unknown_iris(
+        limited_to_check, still_image_classes, InputProblemType.INVALID_PERMISSIONS_OVERRULE
+    )
+    problems.extend(not_still_image)
+    return problems
+
+
 def _get_list_with_unknown_iris(
     used_iris: set[str], defined_iris_in_ontology: set[str], problem_type: InputProblemType
-) -> list[InputProblem]:
+) -> tuple[set[str], list[InputProblem]]:
     if unknown := used_iris - defined_iris_in_ontology:
-        return [InputProblem(from_dsp_iri_to_prefixed_iri(x), problem_type) for x in unknown]
-    return []
+        return unknown, [InputProblem(from_dsp_iri_to_prefixed_iri(x), problem_type) for x in unknown]
+    return set(), []
 
 
 def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:

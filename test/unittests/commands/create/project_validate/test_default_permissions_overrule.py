@@ -96,9 +96,8 @@ def test_check_overrule_unknown_private(known_props, known_classes, still_image_
     problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
+    assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
+    assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
 def test_check_overrule_unknown_limited_view(known_props, known_classes, still_image_classes) -> None:
@@ -110,9 +109,8 @@ def test_check_overrule_unknown_limited_view(known_props, known_classes, still_i
     problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
-    assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
+    assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS
+    assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
 def test_check_overrule_invalid_wrong_superclass(known_props, known_classes, still_image_classes) -> None:
@@ -125,8 +123,7 @@ def test_check_overrule_invalid_wrong_superclass(known_props, known_classes, sti
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.INVALID_PERMISSIONS_OVERRULE
-    assert "test-onto:PDFResource" in problems.problems[0].problematic_object
-    assert "StillImageRepresentation" in problems.problems[0].problematic_object
+    assert problems.problems[0].problematic_object == "onto:TestResource"
 
 
 class TestGetStillImageClasses:

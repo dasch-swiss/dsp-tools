@@ -199,10 +199,11 @@ as there may be inter-ontology references. Therefore, all are put together and a
 
 A challenge here is the `lastModificationDate` of the ontology. It must always be provided in the API request.
 As we have to mix the ontologies in the call, it is important to keep track of the dates.
-In order not to stop a creation unnecessarily we try to recover from a wrong modification date by repeating the API call once.
+In order not to stop a creation unnecessarily,
+we try to recover from a wrong modification date by repeating the API call once.
 
 So that we have the highest safety, we create a lookup of the modification dates before `create_all_properties()`
-and before `create_all_classes()`. 
+and before `create_all_classes()`.
 Cardinalities can be sorted by ontology, as they do not have any inter-ontology dependencies.
 
 - Sequential sub-stages:

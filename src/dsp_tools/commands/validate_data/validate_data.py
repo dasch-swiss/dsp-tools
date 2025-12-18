@@ -139,7 +139,7 @@ def validate_parsed_resources(
         print(detail)
 
     if validation_result.no_problems:
-        logger.debug("No validation errors found.")
+        logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
 
@@ -268,56 +268,36 @@ def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs | None, config: ValidateDataConfig
 ) -> None:
     messages = get_user_message(sorted_problems, config.severity)
-    _handle_violations(messages.violations, config)
 
-    _handle_warnings(messages, config)
-    if messages.infos and config.severity.value == 1:
-        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
-        print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
-        i_body = messages.infos.message_body
-        if messages.infos.message_df is not None:
-            i_body = _save_message_df_get_message_body(messages.infos.message_df, "info", config.xml_file)
-        print(i_body)
-        logger.info(messages.infos.message_header, i_body)
+    if messages.violations:
+        _handle_violations(messages.violations, config.xml_file)
+    else:
+        logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+    if messages.warnings:
+        _handle_warnings(messages.warnings, config)
+    else:
+        logger.debug("No validation result level WARNING found.")
+    if messages.infos:
+        _handle_info(messages.infos, config)
+    else:
+        logger.debug("No validation result level INFO found.")
     if messages.unexpected_violations:
-        logger.error(messages.unexpected_violations.message_header, messages.unexpected_violations.message_body)
-        print(
-            BACKGROUND_BOLD_RED,
-            "\n    Unknown violations found!   ",
-            RESET_TO_DEFAULT,
-        )
-        if config.save_graph_dir:
-            print(
-                BOLD_RED,
-                messages.unexpected_violations.message_header,
-                "Consult the saved graphs for details.",
-                RESET_TO_DEFAULT,
-            )
-            print(messages.unexpected_violations.message_body)
-        else:
-            report_graph = cast(ValidationReportGraphs, report)
-            _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
+        _handle_unexpected_violations(messages.unexpected_violations, report, config)
     print("\n")
 
 
-def _handle_violations(violations: MessageComponents | None, xml_file: Path) -> None:
-    if violations:
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
-        v_body = violations.message_body
-        if violations.message_df is not None:
-            v_body = _save_message_df_get_message_body(violations.message_df, "error", xml_file)
-        print(v_body)
-        logger.error(violations.message_header, v_body)
-    else:
-        logger.debug("No validation errors found.")
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+def _handle_violations(violations: MessageComponents, xml_file: Path) -> None:
+    print(VALIDATION_ERRORS_FOUND_MSG)
+    print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
+    v_body = violations.message_body
+    if violations.message_df is not None:
+        v_body = _save_message_df_get_message_body(violations.message_df, "error", xml_file)
+    print(v_body)
+    logger.error(violations.message_header, v_body)
 
 
-def _handle_warnings(warnings: MessageComponents | None, config: ValidateDataConfig) -> None:
-    if not warnings:
-        logger.debug("No warnings.")
-        return
+def _handle_warnings(warnings: MessageComponents, config: ValidateDataConfig) -> None:
     w_body = warnings.message_body
     logger.warning(warnings.message_header, w_body)
     if config.severity.value <= 2:
@@ -326,6 +306,40 @@ def _handle_warnings(warnings: MessageComponents | None, config: ValidateDataCon
         if warnings.message_df is not None:
             w_body = _save_message_df_get_message_body(warnings.message_df, "warning", config.xml_file)
         print(w_body)
+
+
+def _handle_info(infos: MessageComponents, config: ValidateDataConfig) -> None:
+    i_body = infos.message_body
+    logger.info(infos.message_header, i_body)
+    if config.severity.value == 1:
+        print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
+        print(BOLD_CYAN, infos.message_header, RESET_TO_DEFAULT)
+        i_body = infos.message_body
+        if infos.message_df is not None:
+            i_body = _save_message_df_get_message_body(infos.message_df, "info", config.xml_file)
+        print(i_body)
+
+
+def _handle_unexpected_violations(
+    unexpected_violations: MessageComponents, report: ValidationReportGraphs, config: ValidateDataConfig
+):
+    logger.error(unexpected_violations.message_header, unexpected_violations.message_body)
+    print(
+        BACKGROUND_BOLD_RED,
+        "\n    Unknown violations found!   ",
+        RESET_TO_DEFAULT,
+    )
+    if config.save_graph_dir:
+        print(
+            BOLD_RED,
+            unexpected_violations.message_header,
+            "Consult the saved graphs for details.",
+            RESET_TO_DEFAULT,
+        )
+        print(unexpected_violations.message_body)
+    else:
+        report_graph = cast(ValidationReportGraphs, report)
+        _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:

@@ -11,10 +11,12 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -195,26 +197,8 @@ def _validate_data(
         duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
-        if not duplicate_file_warnings:
-            return ValidateDataResult(
-                no_problems=True,
-                problems=None,
-                cardinalities_with_potential_circle=potential_circles,
-                report_graphs=None,
-            )
-        else:
-            sorted_problems = SortedProblems(
-                unique_violations=[],
-                user_warnings=duplicate_file_warnings.problems,
-                user_info=[],
-                unexpected_shacl_validation_components=[],
-            )
-            return ValidateDataResult(
-                no_problems=False,
-                problems=sorted_problems,
-                cardinalities_with_potential_circle=potential_circles,
-                report_graphs=report,
-            )
+        return _handle_conforming_shacl_report(duplicate_file_warnings, potential_circles, report)
+
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, existing_resources_retrieved)
     return ValidateDataResult(
@@ -223,6 +207,33 @@ def _validate_data(
         cardinalities_with_potential_circle=potential_circles,
         report_graphs=report,
     )
+
+
+def _handle_conforming_shacl_report(
+    duplicate_file_warnings: DuplicateFileWarning | None,
+    potential_circles: list[CardinalitiesThatMayCreateAProblematicCircle] | None,
+    report: ValidationReportGraphs,
+) -> ValidateDataResult:
+    if not duplicate_file_warnings:
+        return ValidateDataResult(
+            no_problems=True,
+            problems=None,
+            cardinalities_with_potential_circle=potential_circles,
+            report_graphs=None,
+        )
+    else:
+        sorted_problems = SortedProblems(
+            unique_violations=[],
+            user_warnings=duplicate_file_warnings.problems,
+            user_info=[],
+            unexpected_shacl_validation_components=[],
+        )
+        return ValidateDataResult(
+            no_problems=False,
+            problems=sorted_problems,
+            cardinalities_with_potential_circle=potential_circles,
+            report_graphs=report,
+        )
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

@@ -88,6 +88,7 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
                 parsing_result.permissions,
             )
             if validation_problems or potential_circles:
+                # TODO: find better data type
                 return validation_problems, potential_circles
             return parsing_result
         case list():

@@ -26,7 +26,6 @@ from urllib.parse import urlunparse
 
 import requests
 
-from dsp_tools.setup.ansi_colors import BOLD_CYAN
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RED
@@ -37,8 +36,7 @@ class LinkCategory(Enum):
     """Category of documentation link."""
 
     DSP_TOOLS_INTERNAL = "dsp-tools-internal"
-    DSP_API_EXTERNAL = "dsp-api-external"
-    OTHER = "other"
+    EXTERNAL = "external"
 
 
 @dataclass
@@ -62,36 +60,24 @@ class ValidationResult:
 
 def main() -> None:
     """Main entry point for link validation."""
-    # Determine repository root (script is in repo_root/scripts/)
     repo_root = Path(__file__).parent.parent
     xmllib_dir = repo_root / "src" / "dsp_tools" / "xmllib"
     docs_dir = repo_root / "docs"
 
-    # Find all documentation links
     links = find_urls_in_docstrings(xmllib_dir)
-
-    # Categorize links
     internal_links = [link for link in links if link.category == LinkCategory.DSP_TOOLS_INTERNAL]
-    external_links = [link for link in links if link.category == LinkCategory.DSP_API_EXTERNAL]
-    ignored_links = [link for link in links if link.category == LinkCategory.OTHER]
+    external_links = [link for link in links if link.category == LinkCategory.EXTERNAL]
 
-    # Validate links
     errors: list[ValidationResult] = []
-
     for link in internal_links:
-        error = validate_internal_link(link, docs_dir)
-        if error:
+        if error := validate_internal_link(link, docs_dir):
             errors.append(error)
-
     for link in external_links:
-        error = validate_external_link(link)
-        if error:
+        if error := validate_external_link(link):
             errors.append(error)
 
-    # Report results
     report_errors(errors)
 
-    # Exit with appropriate code
     if errors:
         sys.exit(1)
     else:
@@ -101,10 +87,8 @@ def main() -> None:
 def find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
     """Use grep to find all documentation URLs with line numbers."""
     cmd = ["grep", "-rn", "https://docs.dasch.swiss", str(directory), "--include=*.py"]
-
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-    # Parse grep output
     url_pattern = re.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]]+")
     links = []
 
@@ -126,13 +110,10 @@ def find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
 
 
 def categorize_url(url: str) -> LinkCategory:
-    """Determine category of documentation link."""
     if "docs.dasch.swiss/latest/DSP-TOOLS/" in url:
         return LinkCategory.DSP_TOOLS_INTERNAL
-    elif "docs.dasch.swiss/latest/DSP-API/" in url:
-        return LinkCategory.DSP_API_EXTERNAL
     else:
-        return LinkCategory.OTHER
+        return LinkCategory.EXTERNAL
 
 
 def validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationResult | None:
@@ -146,7 +127,6 @@ def validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationRes
         return ValidationResult(
             link=link, error_type="invalid_internal_url", details="URL doesn't contain /DSP-TOOLS/ path"
         )
-
     relative_path = path.split("/DSP-TOOLS/", 1)[1]
     relative_path = relative_path.rstrip("/")
 

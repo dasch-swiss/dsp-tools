@@ -136,29 +136,34 @@ def validate_parsed_resources(
         logger.warning(header, detail)
         print(BACKGROUND_BOLD_YELLOW + header + RESET_TO_DEFAULT)
         print(detail)
+
     if validation_result.no_problems:
         logger.debug("No validation errors found.")
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
         return True
-    if isinstance(validation_result.problems, UnknownClassesInData):
-        msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
-        logger.error(msg)
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(msg + "\n")
-        # if unknown classes are found, we cannot validate all the data in the file
-        return False
-    if isinstance(validation_result.problems, OntologyValidationProblem):
-        msg = get_msg_str_ontology_validation_violation(validation_result.problems)
-        logger.error(msg)
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(msg + "\n")
-        # if the ontology itself has errors, we will not validate the data
-        return False
-    if isinstance(validation_result.problems, SortedProblems):
-        _print_shacl_validation_violation_message(validation_result.problems, validation_result.report_graphs, config)
-        return _get_validation_status(validation_result.problems, config.is_on_prod_server)
-    else:
-        raise UnreachableCodeError(f"Unknown validate data problems: {validation_result.problems!s}")
+
+    match validation_result.problems:
+        case UnknownClassesInData():
+            msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
+            logger.error(msg)
+            print(VALIDATION_ERRORS_FOUND_MSG)
+            print(msg + "\n")
+            # if unknown classes are found, we cannot validate all the data in the file
+            return False
+        case OntologyValidationProblem():
+            msg = get_msg_str_ontology_validation_violation(validation_result.problems)
+            logger.error(msg)
+            print(VALIDATION_ERRORS_FOUND_MSG)
+            print(msg + "\n")
+            # if the ontology itself has errors, we will not validate the data
+            return False
+        case SortedProblems():
+            _print_shacl_validation_violation_message(
+                validation_result.problems, validation_result.report_graphs, config
+            )
+            return _get_validation_status(validation_result.problems, config.is_on_prod_server)
+        case _:
+            raise UnreachableCodeError()
 
 
 def _validate_data(
@@ -221,19 +226,18 @@ def _handle_conforming_shacl_report(
             cardinalities_with_potential_circle=potential_circles,
             report_graphs=None,
         )
-    else:
-        sorted_problems = SortedProblems(
-            unique_violations=[],
-            user_warnings=duplicate_file_warnings.problems,
-            user_info=[],
-            unexpected_shacl_validation_components=[],
-        )
-        return ValidateDataResult(
-            no_problems=False,
-            problems=sorted_problems,
-            cardinalities_with_potential_circle=potential_circles,
-            report_graphs=report,
-        )
+    sorted_problems = SortedProblems(
+        unique_violations=[],
+        user_warnings=duplicate_file_warnings.problems,
+        user_info=[],
+        unexpected_shacl_validation_components=[],
+    )
+    return ValidateDataResult(
+        no_problems=False,
+        problems=sorted_problems,
+        cardinalities_with_potential_circle=potential_circles,
+        report_graphs=report,
+    )
 
 
 def _get_graph_save_dir(filepath: Path) -> Path:

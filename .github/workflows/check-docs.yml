@@ -25,7 +25,7 @@ jobs:
           npm install -g markdown-link-validator
           just check-links
       - name: check docstring links in xmllib
-        run: just check-docstring-links
+        run: just check-xmllib-docstring-links
       - name: markdownlint
         run: just markdownlint
       - name: build docs

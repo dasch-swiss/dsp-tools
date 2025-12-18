@@ -8,7 +8,6 @@ point to valid files (for internal DSP-TOOLS links) or valid URLs
 
 Usage:
     python scripts/validate_docstring_links.py
-    just check-docstring-links
 
 Exit codes:
     0: All links are valid

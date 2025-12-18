@@ -7,7 +7,15 @@ from enum import StrEnum
 @dataclass
 class CollectedProblems:
     header: str
-    problems: list[CreateProblem]
+    problems: list[CreateProblem]  # TODO: add this as an option here
+
+
+@dataclass
+class CardinalitiesThatMayCreateAProblematicCircle:
+    subject: str
+    prop: str
+    object_cls: str
+    card: str
 
 
 @dataclass

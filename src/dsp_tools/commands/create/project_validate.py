@@ -14,6 +14,7 @@ from loguru import logger
 
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
@@ -36,7 +37,6 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadat
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT

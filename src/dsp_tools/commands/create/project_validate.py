@@ -171,7 +171,9 @@ def _complex_parsed_project_validation(
         parsed_permissions, prop_iris, cls_iris, still_image_classes
     ):
         problems.append(perm_problem)
-    potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(props_flattened, cardinalities_flattened)
+    potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
+        props_flattened, cardinalities_flattened
+    )
     return problems, potential_circles
 
 

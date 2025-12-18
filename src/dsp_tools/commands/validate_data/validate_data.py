@@ -289,11 +289,11 @@ def _print_shacl_validation_violation_message(
 
 
 def _handle_violations_user_message(violations: MessageComponents, xml_file: Path) -> None:
-    print(VALIDATION_ERRORS_FOUND_MSG)
-    print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
     v_body = violations.message_body
     if violations.message_df is not None:
         v_body = _save_message_df_get_message_body(violations.message_df, "error", xml_file)
+    print(VALIDATION_ERRORS_FOUND_MSG)
+    print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
     print(v_body)
     logger.error(violations.message_header, v_body)
 

@@ -300,24 +300,23 @@ def _handle_violations_user_message(violations: MessageComponents, xml_file: Pat
 
 def _handle_warnings_user_message(warnings: MessageComponents, config: ValidateDataConfig) -> None:
     w_body = warnings.message_body
+    if warnings.message_df is not None:
+        w_body = _save_message_df_get_message_body(warnings.message_df, "warning", config.xml_file)
     logger.warning(warnings.message_header, w_body)
     if config.severity.value <= 2:
         print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
         print(BOLD_YELLOW, warnings.message_header, RESET_TO_DEFAULT)
-        if warnings.message_df is not None:
-            w_body = _save_message_df_get_message_body(warnings.message_df, "warning", config.xml_file)
         print(w_body)
 
 
 def _handle_info_user_message(infos: MessageComponents, config: ValidateDataConfig) -> None:
     i_body = infos.message_body
+    if infos.message_df is not None:
+        i_body = _save_message_df_get_message_body(infos.message_df, "info", config.xml_file)
     logger.info(infos.message_header, i_body)
     if config.severity.value == 1:
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, infos.message_header, RESET_TO_DEFAULT)
-        i_body = infos.message_body
-        if infos.message_df is not None:
-            i_body = _save_message_df_get_message_body(infos.message_df, "info", config.xml_file)
         print(i_body)
 
 

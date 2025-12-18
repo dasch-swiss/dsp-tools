@@ -209,7 +209,7 @@ def validate_external_link(link: LinkReference) -> ValidationResult | None:
 def report_errors(errors: list[ValidationResult]) -> None:
     """Print formatted error messages."""
     if not errors:
-        msg = "All docstring links are valid!"
+        msg = "All xmllib docstring links are valid!"
         print(f"{BOLD_GREEN}{msg}{RESET_TO_DEFAULT}")
         return
 
@@ -222,8 +222,6 @@ def report_errors(errors: list[ValidationResult]) -> None:
         print()
 
     print(f"{BOLD_RED}Total errors: {len(errors)}{RESET_TO_DEFAULT}")
-    msg = "Run 'just check-docstring-links' to validate links"
-    print(f"{BOLD_RED}{msg}{RESET_TO_DEFAULT}")
 
 
 if __name__ == "__main__":

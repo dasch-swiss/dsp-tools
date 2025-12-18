@@ -30,7 +30,7 @@ lint: uv-sync
     just mypy
     just vulture
     uv run scripts/markdown_link_validator.py
-    just check-docstring-links
+    just check-xmllib-docstring-links
 
 
 # Detect anti-patterns in YAML files
@@ -78,8 +78,8 @@ check-links:
 
 # Check that docstring links in xmllib are valid
 [no-exit-message]
-check-docstring-links:
-    uv run python scripts/validate_docstring_links.py
+check-xmllib-docstring-links:
+    uv run python scripts/validate_xmllib_docstring_links.py
 
 
 # Check the docs for ambiguous Markdown syntax that could be wrongly rendered

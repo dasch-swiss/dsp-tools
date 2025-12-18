@@ -283,6 +283,7 @@ def _print_shacl_validation_violation_message(
     else:
         logger.debug("No validation result level INFO found.")
     if messages.unexpected_violations:
+        report = cast(ValidationReportGraphs, report)
         _handle_unexpected_violations(messages.unexpected_violations, report, config)
     print("\n")
 
@@ -322,7 +323,7 @@ def _handle_info_user_message(infos: MessageComponents, config: ValidateDataConf
 
 def _handle_unexpected_violations(
     unexpected_violations: MessageComponents, report: ValidationReportGraphs, config: ValidateDataConfig
-):
+) -> None:
     logger.error(unexpected_violations.message_header, unexpected_violations.message_body)
     print(
         BACKGROUND_BOLD_RED,
@@ -338,8 +339,7 @@ def _handle_unexpected_violations(
         )
         print(unexpected_violations.message_body)
     else:
-        report_graph = cast(ValidationReportGraphs, report)
-        _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
+        _save_unexpected_results_and_inform_user(report, config.xml_file)
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:

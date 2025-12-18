@@ -1,25 +1,12 @@
-from collections import Counter
 from typing import Any
 
-from dsp_tools.commands.create.models.create_problems import CollectedProblems
-from dsp_tools.commands.create.models.create_problems import CreateProblem
-from dsp_tools.commands.create.models.create_problems import InputProblem
-from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 
 
-def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList] | CollectedProblems:
-    list_section = [_parse_one_list(one_list) for one_list in lists]
-    list_names = [parsed_list.list_info.name for parsed_list in list_section]
-    duplicates = {name for name, count in Counter(list_names).items() if count > 1}
-    if duplicates:
-        problems: list[CreateProblem] = [
-            InputProblem(problematic_object=name, problem=InputProblemType.DUPLICATE_LIST_NAME) for name in duplicates
-        ]
-        return CollectedProblems(header="The following problems were found in the list section:", problems=problems)
-    return list_section
+def parse_list_section(lists: list[dict[str, Any]]) -> list[ParsedList]:
+    return [_parse_one_list(one_list) for one_list in lists]
 
 
 def _parse_one_list(one_list: dict[str, Any]) -> ParsedList:

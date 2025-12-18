@@ -9,39 +9,35 @@ from dsp_tools.commands.create.communicate_problems import print_all_problem_col
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.models.parsed_project import ParsedList
-from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import ProjectNotFoundError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:
-    parsing_result = parse_and_validate_project(project_file, creds.server)
-    match parsing_result:
-        case ParsedProject():
-            return _handle_parsed_project_result(parsing_result, creds)
-        case list():
-            print_all_problem_collections(parsing_result)
-            return False
-        case _:
-            raise InternalError("Unreachable result of project parsing.")
+    problems, metadata, parsed_lists = parse_and_validate_project(project_file, creds.server)
+    if problems:
+        print_all_problem_collections(problems)
+        return False
+    return _handle_parsed_project_result(metadata, parsed_lists, creds)
 
 
-def _handle_parsed_project_result(parsed_project: ParsedProject, creds: ServerCredentials) -> bool:
-    list_result = parsed_project.lists
-    match list_result:
+def _handle_parsed_project_result(
+    project_metadata: ParsedProjectMetadata, parsed_lists: list[ParsedList], creds: ServerCredentials
+) -> bool:
+    match parsed_lists:
         case list():
-            return _execute_list_creation(parsed_project.project_metadata, list_result, creds)
+            return _execute_list_creation(project_metadata, parsed_lists, creds)
         case None:
             msg = "Your file did not contain any lists, therefore no lists were created on the server."
             logger.info(msg)
             print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
             return False
         case _:
-            raise InternalError("Unreachable result of project parsing.")
+            raise UnreachableCodeError()
 
 
 def _execute_list_creation(

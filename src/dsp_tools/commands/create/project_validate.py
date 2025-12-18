@@ -27,6 +27,9 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
+from dsp_tools.commands.create.parsing.parse_project import parse_lists
+from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -50,6 +53,17 @@ def validate_project_only(project_file: Path, server: str) -> bool:
 def parse_and_validate_project(project_file: Path, server: str) -> list[CollectedProblems] | ParsedProject:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
+
+
+def parse_and_validate_lists(
+    project_file: Path,
+) -> tuple[CollectedProblems | None, ParsedProjectMetadata, list[ParsedList]]:
+    json_project = parse_json_file(project_file)
+    _validate_with_json_schema(json_project)
+    parsed_metadata = parse_metadata(json_project)
+    parsed_lists = parse_lists(json_project)
+    duplicates = _check_for_duplicates_in_list_section(parsed_lists)
+    return duplicates, parsed_metadata, parsed_lists
 
 
 def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:

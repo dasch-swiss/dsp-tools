@@ -49,10 +49,10 @@ class InputProblemType(ProblemType):
     LIMITED_VIEW_PERMISSIONS_NOT_CORRECT = (
         "Your input for the 'limited_view' permissions is invalid. It must be either 'all' or a list of image classes."
     )
-    UNKNOWN_IRI_IN_PERMISSIONS = (
-        "The referenced IRI in the private overrule permissions is not defined in the ontology."
+    UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE = (
+        "The referenced class or property in the private overrule permissions is not defined in the ontology."
     )
-    INVALID_PERMISSIONS_OVERRULE = (
+    INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE = (
         "This class cannot be used in limited_view permissions "
         "because it is not a subclass of StillImageRepresentation."
     )

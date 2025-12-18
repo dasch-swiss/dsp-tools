@@ -33,8 +33,10 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Enable dsp-tools log file in cwd
         run: echo 'DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true' >> .env
-      - name: Run linting
-        run: just lint
+      - name: Run ruff
+        run: just ruff-check
+      - name: Run mypy
+        run: just mypy
       - name: Run unit tests
         run: just unittests
       - name: Run integration tests

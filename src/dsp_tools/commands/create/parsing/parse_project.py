@@ -34,9 +34,7 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
     permissions, permissions_failures = _parse_permissions(project_json, prefix_lookup)
     if permissions_failures:
         failures.append(permissions_failures)
-    parsed_lists, list_problems = _parse_lists(project_json)
-    if list_problems:
-        failures.append(list_problems)
+    parsed_lists = parse_lists(project_json)
     users, memberships, user_problems = _parse_users(project_json)
     if user_problems:
         failures.append(user_problems)
@@ -44,7 +42,7 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
         return failures
     return ParsedProject(
         prefixes=prefix_lookup,
-        project_metadata=_parse_metadata(project_json),
+        project_metadata=parse_metadata(project_json),
         permissions=cast(ParsedPermissions, permissions),
         groups=_parse_groups(project_json),
         users=users,
@@ -54,7 +52,7 @@ def parse_project(complete_json: dict[str, Any], api_url: str) -> ParsedProject 
     )
 
 
-def _parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
+def parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
     return ParsedProjectMetadata(
         shortcode=project_json["shortcode"],
         shortname=project_json["shortname"],
@@ -179,13 +177,10 @@ def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMe
     return usr, memberships
 
 
-def _parse_lists(project_json: dict[str, Any]) -> tuple[list[ParsedList], CollectedProblems | None]:
+def parse_lists(project_json: dict[str, Any]) -> list[ParsedList]:
     if not (found := project_json.get("lists")):
-        return [], None
-    result = parse_list_section(found)
-    if isinstance(result, CollectedProblems):
-        return [], result
-    return result, None
+        return []
+    return parse_list_section(found)
 
 
 def _parse_all_ontologies(

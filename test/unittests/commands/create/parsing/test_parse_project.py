@@ -13,12 +13,12 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologies
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
-from dsp_tools.commands.create.parsing.parse_project import _parse_lists
-from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_group
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
+from dsp_tools.commands.create.parsing.parse_project import parse_lists
+from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
@@ -49,7 +49,7 @@ class TestParseProject:
 
 class TestParseMetadata:
     def test_parse_metadata_complete(self, project_json_systematic):
-        result = _parse_metadata(project_json_systematic["project"])
+        result = parse_metadata(project_json_systematic["project"])
         assert isinstance(result, ParsedProjectMetadata)
         assert result.shortcode == "4123"
         assert result.shortname == "systematic-tp"
@@ -253,15 +253,9 @@ class TestParseUsers:
 
 
 class TestParseLists:
-    def test_parse_lists_empty(self, minimal_project_json):
-        result, problems = _parse_lists(minimal_project_json)
-        assert len(result) == 0
-        assert not problems
-
     def test_parse_lists_with_lists(self, project_json_create):
-        result, problems = _parse_lists(project_json_create["project"])
+        result = parse_lists(project_json_create["project"])
         assert len(result) == 2
-        assert not problems
 
 
 class TestParseAllOntologies:

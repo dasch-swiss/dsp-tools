@@ -24,15 +24,21 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.parsing.parse_project import parse_project
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
 
@@ -55,13 +61,21 @@ def parse_and_validate_project(project_file: Path, server: str) -> list[Collecte
 def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
-    if not isinstance(parsing_result, ParsedProject):
-        return parsing_result
-    validation_problems = _complex_json_project_validation(json_project)
-    validation_problems.extend(_complex_parsed_project_validation(parsing_result.ontologies, parsing_result.lists))
-    if validation_problems:
-        return validation_problems
-    return parsing_result
+
+    match parsing_result:
+        case ParsedProject():
+            validation_problems = _complex_parsed_project_validation(
+                parsing_result.ontologies,
+                parsing_result.lists,
+                parsing_result.permissions,
+            )
+            if validation_problems:
+                return validation_problems
+            return parsing_result
+        case list():
+            return parsing_result
+        case _:
+            raise UnreachableCodeError()
 
 
 def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
@@ -94,16 +108,8 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_json_project_validation(project_definition: dict[str, Any]) -> list[CollectedProblems]:
-    problems: list[CollectedProblems] = []
-    # make some checks that are too complex for JSON schema
-    if perm_res := _check_for_invalid_default_permissions_overrule(project_definition):
-        problems.append(perm_res)
-    return problems
-
-
 def _complex_parsed_project_validation(
-    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList]
+    ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
 ) -> list[CollectedProblems]:
     cls_iris = []
     prop_iris = []
@@ -118,10 +124,14 @@ def _complex_parsed_project_validation(
         cardinalities_flattened.extend(o.cardinalities)
 
     problems = []
+    # DUPLICATES
     if dup_cls := _check_for_duplicate_iris(cls_iris, InputProblemType.DUPLICATE_CLASS_NAME, "classes"):
         problems.append(dup_cls)
     if dup_props := _check_for_duplicate_iris(prop_iris, InputProblemType.DUPLICATE_PROPERTY_NAME, "properties"):
         problems.append(dup_props)
+    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
+        problems.append(duplicates_in_lists)
+    # UNDEFINED REFERENCES
     if undefined_super_prop := _check_for_undefined_supers(
         props_flattened, set(prop_iris), InputProblemType.UNDEFINED_SUPER_PROPERTY, "Property"
     ):
@@ -132,12 +142,17 @@ def _complex_parsed_project_validation(
         problems.append(undefined_super_cls)
     if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
         problems.append(undefined_cards)
+    # CARDINALITY PROBLEMS
     if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
         cardinalities_flattened, props_flattened
     ):
         problems.append(card_probs)
-    if duplicates_in_lists := _check_for_duplicates_in_list_section(parsed_lists):
-        problems.append(duplicates_in_lists)
+    # PERMISSIONS
+    still_image_classes = _get_still_image_classes(cls_flattened)
+    if perm_problem := _check_for_invalid_default_permissions_overrule(
+        parsed_permissions, prop_iris, cls_iris, still_image_classes
+    ):
+        problems.append(perm_problem)
     return problems
 
 
@@ -237,171 +252,84 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
     return [item for item, count in Counter(input_list).items() if count > 1]
 
 
-def _build_resource_lookup(project_definition: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
-    resource_lookup: dict[str, dict[str, dict[str, Any]]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        resource_lookup[onto["name"]] = {}
-        for resource in onto["resources"]:
-            resource_lookup[onto["name"]][resource["name"]] = resource
-    return resource_lookup
-
-
-def _parse_class_reference(class_ref: str) -> tuple[str, str] | None:
-    """
-    Parse a class reference in the format 'ontology:ClassName'.
-
-    Args:
-        class_ref: Class reference string
-
-    Returns:
-        Tuple of (ontology_name, class_name) or None if invalid format
-    """
-    if ":" not in class_ref:
+def _check_for_invalid_default_permissions_overrule(
+    parsed_permissions: ParsedPermissions, properties: list[str], classes: list[str], still_image_classes: set[str]
+) -> CollectedProblems | None:
+    if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
         return None
 
-    parts = class_ref.split(":")
-    if len(parts) != 2:
-        return None
-
-    return parts[0], parts[1]
-
-
-def _is_subclass_of_still_image_representation(
-    ontology_name: str, class_name: str, resource_lookup: dict[str, dict[str, dict[str, Any]]]
-) -> bool:
-    """
-    Check if a class is a subclass of StillImageRepresentation by traversing the inheritance chain.
-
-    Args:
-        ontology_name: Name of the ontology containing the class
-        class_name: Name of the class to check
-        resource_lookup: Dictionary mapping ontology names to resource definitions
-
-    Returns:
-        True if the class is a subclass of StillImageRepresentation
-    """
-    current_onto = ontology_name
-    current_class = class_name
-    visited = set()
-
-    # Follow the inheritance chain up to 10 levels (prevent infinite loops)
-    for _ in range(10):
-        class_id = f"{current_onto}:{current_class}"
-        if class_id in visited:
-            break  # Circular reference detected
-        visited.add(class_id)
-
-        if current_onto not in resource_lookup or current_class not in resource_lookup[current_onto]:
-            break  # Resource not found
-
-        resource = resource_lookup[current_onto][current_class]
-        super_class = resource.get("super")
-
-        # Handle both string and list formats for super
-        super_classes = []
-        if isinstance(super_class, list):
-            super_classes = super_class
-        elif super_class:
-            super_classes = [super_class]
-
-        # Check if any superclass is StillImageRepresentation
-        if "StillImageRepresentation" in super_classes:
-            return True
-
-        # Find the next class in the inheritance chain
-        next_class = None
-        for super_cls in super_classes:
-            if super_cls.startswith(":"):
-                # Same ontology reference
-                next_class = (current_onto, super_cls[1:])
-                break
-            elif ":" in super_cls and super_cls != "StillImageRepresentation":
-                # Different ontology reference
-                super_parts = super_cls.split(":", 1)
-                if len(super_parts) == 2:
-                    next_class = (super_parts[0], super_parts[1])
-                    break
-
-        if next_class:
-            current_onto, current_class = next_class
-        else:
-            break  # No more inheritance to follow
-
-    return False
-
-
-def _check_for_invalid_default_permissions_overrule(project_definition: dict[str, Any]) -> CollectedProblems | None:
-    if not (default_permissions_overrule := project_definition.get("project", {}).get("default_permissions_overrule")):
-        return None
-    if not (limited_view := default_permissions_overrule.get("limited_view")):
-        return None
-
-    # If limited_view is "all", no validation needed - it applies to all image classes
-    if limited_view == "all":
-        return None
-
+    defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
-    resource_lookup = _build_resource_lookup(project_definition)
-
-    # Check each class in limited_view (when it's a list)
-    for class_ref in limited_view:
-        parsed_ref = _parse_class_reference(class_ref)
-        if not parsed_ref:
-            problems.append(
-                InputProblem(
-                    problematic_object=f"{class_ref} (Invalid format, expected 'ontology:ClassName')",
-                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
-                )
-            )
-            continue
-
-        ontology_name, class_name = parsed_ref
-
-        # Check if the ontology exists
-        if ontology_name not in resource_lookup:
-            problems.append(
-                InputProblem(
-                    problematic_object=f"{ontology_name}:{class_name} (Ontology '{ontology_name}' not found)",
-                    problem=InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED,
-                )
-            )
-            continue
-
-        # Check if the resource exists in the ontology
-        if class_name not in resource_lookup[ontology_name]:
-            problems.append(
-                InputProblem(
-                    problematic_object=(
-                        f"{ontology_name}:{class_name} "
-                        f"(Resource '{class_name}' not found in ontology '{ontology_name}')"
-                    ),
-                    problem=InputProblemType.UNDEFINED_REFERENCE,
-                )
-            )
-            continue
-
-        # Check if the resource is a subclass of StillImageRepresentation
-        if not _is_subclass_of_still_image_representation(ontology_name, class_name, resource_lookup):
-            problems.append(
-                InputProblem(
-                    problematic_object=(
-                        f"{ontology_name}:{class_name} "
-                        f"(Must be a subclass of 'StillImageRepresentation' directly or through inheritance)"
-                    ),
-                    problem=InputProblemType.INVALID_PERMISSIONS_OVERRULE,
-                )
-            )
-    if problems:
-        err_msg = (
-            "All classes in project.default_permissions_overrule.limited_view "
-            "must be subclasses of 'StillImageRepresentation', because the 'limited view' "
-            "permission is only implemented for images (i.e. blurring, watermarking). \n"
-            "In order to check, the classes must be provided in the form \n"
-            '    "limited_view": ["ontoname:Classname", ...]\n\n'
-            "The following classes do not meet this requirement:\n"
+    if parsed_permissions.overrule_private is not None:
+        overrule_private_iris = set(parsed_permissions.overrule_private)
+        _, unknown_private_problems = _get_unknown_iris_and_problem(
+            overrule_private_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
         )
+        problems.extend(unknown_private_problems)
+
+    match parsed_permissions.overrule_limited_view:
+        case LimitedViewPermissionsSelection():
+            problems.extend(
+                _check_limited_view_selection(
+                    parsed_permissions.overrule_limited_view, defined_iris_in_ontology, still_image_classes
+                )
+            )
+        case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
+            # no checks necessary
+            pass
+        case _:
+            raise UnreachableCodeError()
+
+    if problems:
+        err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
         return CollectedProblems(err_msg, problems)
     return None
+
+
+def _check_limited_view_selection(
+    limited_view: LimitedViewPermissionsSelection, defined_iris_in_ontology: set[str], still_image_classes: set[str]
+) -> list[CreateProblem]:
+    problems: list[CreateProblem] = []
+    limited_iris = set(limited_view.limited_selection)
+    iris_defined_in_the_ontology, undefined_iri_problems = _get_unknown_iris_and_problem(
+        limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
+    )
+    problems.extend(undefined_iri_problems)
+    # if we do not subtract the unknown iris,
+    # they will be duplicated in this check as they are not recognised as still images
+    limited_to_check = limited_iris - iris_defined_in_the_ontology
+    _, not_still_image_problems = _get_unknown_iris_and_problem(
+        limited_to_check, still_image_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+    )
+    problems.extend(not_still_image_problems)
+    return problems
+
+
+def _get_unknown_iris_and_problem(
+    used_iris: set[str], defined_iris_in_ontology: set[str], problem_type: InputProblemType
+) -> tuple[set[str], list[InputProblem]]:
+    if unknown := used_iris - defined_iris_in_ontology:
+        return unknown, [InputProblem(from_dsp_iri_to_prefixed_iri(x), problem_type) for x in unknown]
+    return set(), []
+
+
+def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
+    knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
+
+    children_by_parent: dict[str, list[str]] = defaultdict(list)
+    for cls in parsed_classes:
+        for super_cls in cls.supers:
+            children_by_parent[super_cls].append(cls.name)
+
+    def _collect_all_descendants(parent_iri: str, visited: set[str]) -> None:
+        for child_iri in children_by_parent.get(parent_iri, []):
+            if child_iri not in visited:  # Prevent infinite recursion on cycles
+                visited.add(child_iri)
+                _collect_all_descendants(child_iri, visited)
+
+    descendants: set[str] = set()
+    _collect_all_descendants(knora_still_image, descendants)
+    return descendants
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

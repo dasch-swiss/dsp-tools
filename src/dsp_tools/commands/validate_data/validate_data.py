@@ -270,16 +270,16 @@ def _print_shacl_validation_violation_message(
     messages = get_user_message(sorted_problems, config.severity)
 
     if messages.violations:
-        _handle_violations(messages.violations, config.xml_file)
+        _handle_violations_user_message(messages.violations, config.xml_file)
     else:
         logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
         print(NO_VALIDATION_ERRORS_FOUND_MSG)
     if messages.warnings:
-        _handle_warnings(messages.warnings, config)
+        _handle_warnings_user_message(messages.warnings, config)
     else:
         logger.debug("No validation result level WARNING found.")
     if messages.infos:
-        _handle_info(messages.infos, config)
+        _handle_info_user_message(messages.infos, config)
     else:
         logger.debug("No validation result level INFO found.")
     if messages.unexpected_violations:
@@ -287,7 +287,7 @@ def _print_shacl_validation_violation_message(
     print("\n")
 
 
-def _handle_violations(violations: MessageComponents, xml_file: Path) -> None:
+def _handle_violations_user_message(violations: MessageComponents, xml_file: Path) -> None:
     print(VALIDATION_ERRORS_FOUND_MSG)
     print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
     v_body = violations.message_body
@@ -297,7 +297,7 @@ def _handle_violations(violations: MessageComponents, xml_file: Path) -> None:
     logger.error(violations.message_header, v_body)
 
 
-def _handle_warnings(warnings: MessageComponents, config: ValidateDataConfig) -> None:
+def _handle_warnings_user_message(warnings: MessageComponents, config: ValidateDataConfig) -> None:
     w_body = warnings.message_body
     logger.warning(warnings.message_header, w_body)
     if config.severity.value <= 2:
@@ -308,7 +308,7 @@ def _handle_warnings(warnings: MessageComponents, config: ValidateDataConfig) ->
         print(w_body)
 
 
-def _handle_info(infos: MessageComponents, config: ValidateDataConfig) -> None:
+def _handle_info_user_message(infos: MessageComponents, config: ValidateDataConfig) -> None:
     i_body = infos.message_body
     logger.info(infos.message_header, i_body)
     if config.severity.value == 1:

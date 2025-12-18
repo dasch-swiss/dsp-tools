@@ -60,8 +60,8 @@ def parse_and_validate_lists(
 ) -> tuple[CollectedProblems | None, ParsedProjectMetadata, list[ParsedList]]:
     json_project = parse_json_file(project_file)
     _validate_with_json_schema(json_project)
-    parsed_metadata = parse_metadata(json_project)
-    parsed_lists = parse_lists(json_project)
+    parsed_metadata = parse_metadata(json_project["project"])
+    parsed_lists = parse_lists(json_project["project"])
     duplicates = _check_for_duplicates_in_list_section(parsed_lists)
     return duplicates, parsed_metadata, parsed_lists
 

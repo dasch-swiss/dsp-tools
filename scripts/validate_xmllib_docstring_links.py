@@ -14,7 +14,6 @@ Exit codes:
     1: One or more broken links found
 """
 
-import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -23,6 +22,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
+import regex
 import requests
 
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
@@ -63,19 +63,19 @@ def main() -> None:
     xmllib_dir = repo_root / "src" / "dsp_tools" / "xmllib"
     docs_dir = repo_root / "docs"
 
-    links = find_urls_in_docstrings(xmllib_dir)
+    links = _find_urls_in_docstrings(xmllib_dir)
     internal_links = [link for link in links if link.category == LinkCategory.DSP_TOOLS_INTERNAL]
     external_links = [link for link in links if link.category == LinkCategory.EXTERNAL]
 
     errors: list[ValidationResult] = []
     for link in internal_links:
-        if error := validate_internal_link(link, docs_dir):
+        if error := _validate_internal_link(link, docs_dir):
             errors.append(error)
     for link in external_links:
-        if error := validate_external_link(link):
+        if error := _validate_external_link(link):
             errors.append(error)
 
-    report_errors(errors)
+    _report_errors(errors)
 
     if errors:
         sys.exit(1)
@@ -83,12 +83,12 @@ def main() -> None:
         sys.exit(0)
 
 
-def find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
+def _find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
     """Use grep to find all documentation URLs with line numbers."""
     cmd = ["grep", "-rn", "https://docs.dasch.swiss", str(directory), "--include=*.py"]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-    url_pattern = re.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]]+")
+    url_pattern = regex.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]]+")
     links = []
 
     for line in result.stdout.splitlines():
@@ -102,21 +102,21 @@ def find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
             # Find all URLs in this line
             for match in url_pattern.finditer(content):
                 url = match.group(0)
-                category = categorize_url(url)
+                category = _categorize_url(url)
                 links.append(LinkReference(file_path, line_number, url, category))
 
     return links
 
 
-def categorize_url(url: str) -> LinkCategory:
+def _categorize_url(url: str) -> LinkCategory:
     if "docs.dasch.swiss/latest/DSP-TOOLS/" in url:
         return LinkCategory.DSP_TOOLS_INTERNAL
     else:
         return LinkCategory.EXTERNAL
 
 
-def validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationResult | None:
-    """Validate internal DSP-TOOLS link against local file structure."""
+def _validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationResult | None:
+    """Validate internal DSP-TOOLS link against local file structuregex."""
     parsed = urlparse(link.url)
     path = parsed.path
     fragment = parsed.fragment
@@ -142,7 +142,7 @@ def validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationRes
 
     # Validate anchor if present
     if fragment:
-        if not validate_anchor(md_file_path, fragment):
+        if not _validate_anchor(md_file_path, fragment):
             return ValidationResult(
                 link=link,
                 error_type="missing_anchor",
@@ -152,7 +152,7 @@ def validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationRes
     return None
 
 
-def validate_anchor(md_file: Path, anchor: str) -> bool:
+def _validate_anchor(md_file: Path, anchor: str) -> bool:
     """Check if anchor exists in markdown file."""
     content = md_file.read_text(encoding="utf-8")
 
@@ -169,22 +169,22 @@ def validate_anchor(md_file: Path, anchor: str) -> bool:
         return is_xmllib_docs_file
 
     # For header anchors, parse the markdown headers and validate
-    header_pattern = re.compile(r"^#+\s+(.+)$", re.MULTILINE)
+    header_pattern = regex.compile(r"^#+\s+(.+)$", regex.MULTILINE)
     headers = header_pattern.findall(content)
 
     def header_to_anchor(header: str) -> str:
         """Convert markdown header to anchor format."""
-        clean = re.sub(r"[*`_]", "", header)
+        clean = regex.sub(r"[*`_]", "", header)
         anchor_text = clean.lower()
-        anchor_text = re.sub(r"[^\w\s-]", "", anchor_text)
-        anchor_text = re.sub(r"[-\s]+", "-", anchor_text)
+        anchor_text = regex.sub(r"[^\w\s-]", "", anchor_text)
+        anchor_text = regex.sub(r"[-\s]+", "-", anchor_text)
         return anchor_text.strip("-")
 
     generated_anchors = {header_to_anchor(h) for h in headers}
     return anchor in generated_anchors
 
 
-def validate_external_link(link: LinkReference) -> ValidationResult | None:
+def _validate_external_link(link: LinkReference) -> ValidationResult | None:
     """Validate external DSP-API link via HTTP request."""
     parsed = urlparse(link.url)
     url_without_anchor = urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, parsed.query, ""))
@@ -205,7 +205,7 @@ def validate_external_link(link: LinkReference) -> ValidationResult | None:
         return ValidationResult(link=link, error_type="network_error", details=f"Network error: {e!s}")
 
 
-def report_errors(errors: list[ValidationResult]) -> None:
+def _report_errors(errors: list[ValidationResult]) -> None:
     """Print formatted error messages."""
     if not errors:
         msg = "All xmllib docstring links are valid!"

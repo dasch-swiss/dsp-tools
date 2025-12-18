@@ -12,6 +12,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
+from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -267,25 +268,9 @@ def _print_shacl_validation_violation_message(
     sorted_problems: SortedProblems, report: ValidationReportGraphs | None, config: ValidateDataConfig
 ) -> None:
     messages = get_user_message(sorted_problems, config.severity)
-    if messages.violations:
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(BOLD_RED, messages.violations.message_header, RESET_TO_DEFAULT)
-        v_body = messages.violations.message_body
-        if messages.violations.message_df is not None:
-            v_body = _save_message_df_get_message_body(messages.violations.message_df, "error", config.xml_file)
-        print(v_body)
-        logger.error(messages.violations.message_header, v_body)
-    else:
-        logger.debug("No validation errors found.")
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
-    if messages.warnings and config.severity.value <= 2:
-        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
-        print(BOLD_YELLOW, messages.warnings.message_header, RESET_TO_DEFAULT)
-        w_body = messages.warnings.message_body
-        if messages.warnings.message_df is not None:
-            w_body = _save_message_df_get_message_body(messages.warnings.message_df, "warning", config.xml_file)
-        print(w_body)
-        logger.warning(messages.warnings.message_header, w_body)
+    _handle_violations(messages.violations, config)
+
+    _handle_warnings(messages, config)
     if messages.infos and config.severity.value == 1:
         print(BACKGROUND_BOLD_CYAN + "\n    Potential Problems Found    " + RESET_TO_DEFAULT)
         print(BOLD_CYAN, messages.infos.message_header, RESET_TO_DEFAULT)
@@ -313,6 +298,34 @@ def _print_shacl_validation_violation_message(
             report_graph = cast(ValidationReportGraphs, report)
             _save_unexpected_results_and_inform_user(report_graph, config.xml_file)
     print("\n")
+
+
+def _handle_violations(violations: MessageComponents | None, xml_file: Path) -> None:
+    if violations:
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(BOLD_RED, violations.message_header, RESET_TO_DEFAULT)
+        v_body = violations.message_body
+        if violations.message_df is not None:
+            v_body = _save_message_df_get_message_body(violations.message_df, "error", xml_file)
+        print(v_body)
+        logger.error(violations.message_header, v_body)
+    else:
+        logger.debug("No validation errors found.")
+        print(NO_VALIDATION_ERRORS_FOUND_MSG)
+
+
+def _handle_warnings(warnings: MessageComponents | None, config: ValidateDataConfig) -> None:
+    if not warnings:
+        logger.debug("No warnings.")
+        return
+    w_body = warnings.message_body
+    logger.warning(warnings.message_header, w_body)
+    if config.severity.value <= 2:
+        print(BACKGROUND_BOLD_YELLOW + "\n    Warning!    " + RESET_TO_DEFAULT)
+        print(BOLD_YELLOW, warnings.message_header, RESET_TO_DEFAULT)
+        if warnings.message_df is not None:
+            w_body = _save_message_df_get_message_body(warnings.message_df, "warning", config.xml_file)
+        print(w_body)
 
 
 def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path: Path) -> str:

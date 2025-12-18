@@ -24,6 +24,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
@@ -35,6 +36,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadat
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
+from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -43,6 +45,8 @@ from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.json_parsing import parse_json_file
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
+
+LIST_SEPARATOR = "\n    - "
 
 
 def validate_project_only(project_file: Path, server: str) -> bool:
@@ -78,13 +82,13 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
 
     match parsing_result:
         case ParsedProject():
-            validation_problems = _complex_parsed_project_validation(
+            validation_problems, potential_circles = _complex_parsed_project_validation(
                 parsing_result.ontologies,
                 parsing_result.lists,
                 parsing_result.permissions,
             )
-            if validation_problems:
-                return validation_problems
+            if validation_problems or potential_circles:
+                return validation_problems, potential_circles
             return parsing_result
         case list():
             return parsing_result
@@ -124,7 +128,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
 
 def _complex_parsed_project_validation(
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
-) -> list[CollectedProblems]:
+) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle]]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -167,7 +171,8 @@ def _complex_parsed_project_validation(
         parsed_permissions, prop_iris, cls_iris, still_image_classes
     ):
         problems.append(perm_problem)
-    return problems
+    potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(props_flattened, cardinalities_flattened)
+    return problems, potential_circles
 
 
 def _check_for_duplicate_iris(
@@ -432,3 +437,59 @@ def _find_circles_with_mandatory_cardinalities(
         InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
     ]
     return problems
+
+
+def _check_for_mandatory_cardinalities_with_knora_resources(
+    parsed_properties: list[ParsedProperty], parsed_cardinalities: list[ParsedClassCardinalities]
+) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
+    def is_link_prop_with_knora_object(prop: ParsedProperty) -> bool:
+        if prop.gui_element != GuiElement.SEARCHBOX:
+            return False
+        return prop.object.startswith(KNORA_API_PREFIX)
+
+    relevant_link_props = {x.name: x.object for x in parsed_properties if is_link_prop_with_knora_object(x)}
+    if not relevant_link_props:
+        return []
+
+    def is_mandatory_link(prop_card: ParsedPropertyCardinality) -> bool:
+        if prop_card.propname not in relevant_link_props.keys():
+            return False
+        return prop_card.cardinality in [Cardinality.C_1, Cardinality.C_1_N]
+
+    potential_problems = []
+    for cls in parsed_cardinalities:
+        for card in cls.cards:
+            if is_mandatory_link(card):
+                potential_problems.append(
+                    CardinalitiesThatMayCreateAProblematicCircle(
+                        subject=from_dsp_iri_to_prefixed_iri(cls.class_iri),
+                        prop=from_dsp_iri_to_prefixed_iri(card.propname),
+                        object_cls=from_dsp_iri_to_prefixed_iri(relevant_link_props[card.propname]),
+                        card=str(card.cardinality),
+                    )
+                )
+    return potential_problems
+
+
+def get_msg_str_for_potential_problematic_circles(
+    circle_info: list[CardinalitiesThatMayCreateAProblematicCircle],
+) -> tuple[str, str]:
+    header = "Potentially problematic cardinalities found that may cause an upload to fail."
+    detail_start = (
+        "Your ontology contains cardinalities with a minimum of 1 that point to a generic knora-api Resource.\n"
+        "Because we upload resources sequentially, we must break up any circles in your data. "
+        "Because of the generic nature of the object constraint we cannot infer from the ontology "
+        "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
+        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"
+        "The following classes contain potentially problematic links:"
+    )
+    detail_strings = []
+    for problem in circle_info:
+        detail = (
+            f"Class: {problem.subject} | "
+            f"Property: {problem.prop} | "
+            f"Object Class: {problem.object_cls} | "
+            f"Cardinality: {problem.card}"
+        )
+        detail_strings.append(detail)
+    return header, detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)

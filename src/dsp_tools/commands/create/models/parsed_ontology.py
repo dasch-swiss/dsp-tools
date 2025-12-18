@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from enum import StrEnum
-from enum import auto
 
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
@@ -82,7 +81,7 @@ class ParsedPropertyCardinality:
 
 
 class Cardinality(Enum):
-    C_0_1 = auto()
-    C_1 = auto()
-    C_0_N = auto()
-    C_1_N = auto()
+    C_0_1 = "0-1"
+    C_1 = "1"
+    C_0_N = "0-n"
+    C_1_N = "1-n"

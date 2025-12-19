@@ -77,6 +77,8 @@ class InputProblemType(ProblemType):
     DUPLICATE_CLASS_NAME = "This class name appears multiple times in the same ontology."
     DUPLICATE_PROPERTY_NAME = "This property name appears multiple times in the same ontology."
     MIN_CARDINALITY_ONE_WITH_CIRCLE = ""
+    CIRCULAR_CLASS_INHERITANCE = "This class is part of a circular inheritance chain, which is not allowed."
+    CIRCULAR_PROPERTY_INHERITANCE = "This property is part of a circular inheritance chain, which is not allowed."
 
 
 class UploadProblemType(ProblemType):

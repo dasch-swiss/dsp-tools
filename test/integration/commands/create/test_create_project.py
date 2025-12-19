@@ -54,16 +54,30 @@ def test_circular_reference_error():
     assert potential_circles[0].object_cls == "knora-api:Resource"
     assert potential_circles[0].card == "1-n"
     assert isinstance(result, list)
-    assert len(result) == 1
-    problem = result[0]
-    result_strings = {x.problematic_object for x in problem.problems}
-    expected = {
+    assert len(result) == 3
+
+    circular_min_card = next(
+        x for x in result if x.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
+    )
+    assert len(circular_min_card.problems) == 1
+    expected_min_card = (
         "Cycle:\n"
         "    circular-onto:Class1 -- circular-onto:linkToClass2 --> circular-onto:Class2\n"
         "    circular-onto:Class2 -- circular-onto:linkToClass1 --> circular-onto:Class1"
-    }
-    assert result_strings == expected
-    assert problem.problems[0].problem == InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE
+    )
+    assert circular_min_card.problems[0].problematic_object == expected_min_card
+
+    circular_prop = next(x for x in result if x.problems[0].problem == InputProblemType.CIRCULAR_PROPERTY_INHERITANCE)
+    assert len(circular_prop.problems) == 1
+    expected_prop = (
+        "Cycle: circular-onto:circularProperty2 -> circular-onto:circularProperty1 -> circular-onto:circularProperty2"
+    )
+    assert circular_prop.problems[0].problematic_object == expected_prop
+
+    circular_cls = next(x for x in result if x.problems[0].problem == InputProblemType.CIRCULAR_CLASS_INHERITANCE)
+    assert len(circular_cls.problems) == 1
+    expected_cls = "Cycle: circular-onto:CircularClass2 -> circular-onto:CircularClass1 -> circular-onto:CircularClass2"
+    assert circular_cls.problems[0].problematic_object == expected_cls
 
 
 def test_duplicate_list_error():

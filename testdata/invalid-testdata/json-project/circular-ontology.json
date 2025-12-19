@@ -71,6 +71,30 @@
                             "en": "has region"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "circularProperty1",
+                        "super": [
+                            "hasValue",
+                            ":circularProperty2"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "circularProperty1"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "circularProperty2",
+                        "super": [
+                            "hasValue",
+                            ":circularProperty1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "circularProperty1"
+                        },
+                        "gui_element": "Richtext"
                     }
                 ],
                 "resources": [
@@ -133,6 +157,26 @@
                                 "cardinality": "0-1"
                             }
                         ]
+                    },
+                    {
+                        "name": "CircularClass1",
+                        "super": [
+                            "Resource",
+                            ":CircularClass2"
+                        ],
+                        "labels": {
+                            "en": "CircularClass1"
+                        }
+                    },
+                    {
+                        "name": "CircularClass2",
+                        "super": [
+                            "Resource",
+                            ":CircularClass1"
+                        ],
+                        "labels": {
+                            "en": "CircularClass1"
+                        }
                     }
                 ]
             }

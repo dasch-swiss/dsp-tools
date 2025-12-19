@@ -156,6 +156,11 @@ def _complex_parsed_project_validation(
         problems.append(undefined_super_cls)
     if undefined_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened, prop_iris):
         problems.append(undefined_cards)
+    # CIRCULAR INHERITANCE
+    if circular_cls := _check_circular_inheritance_in_classes(cls_flattened):
+        problems.append(circular_cls)
+    if circular_prop := _check_circular_inheritance_in_properties(props_flattened):
+        problems.append(circular_prop)
     # CARDINALITY PROBLEMS
     if card_probs := _check_circular_references_in_mandatory_property_cardinalities(
         cardinalities_flattened, props_flattened
@@ -432,3 +437,79 @@ def _find_circles_with_mandatory_cardinalities(
         InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
     ]
     return problems
+
+
+def _check_circular_inheritance_in_classes(classes: list[ParsedClass]) -> CollectedProblems | None:
+    graph = _make_inheritance_graph_for_classes(classes)
+    errors = _find_and_format_inheritance_cycles(graph, InputProblemType.CIRCULAR_CLASS_INHERITANCE)
+
+    if errors:
+        msg = (
+            "Your ontology contains circular inheritance dependencies in resource classes. "
+            "This means that class A is a subclass of class B, and class B is "
+            "(directly or indirectly) a subclass of class A. "
+            "Circular inheritance is not allowed and will prevent the ontology from being created."
+        )
+        return CollectedProblems(msg, errors)
+    return None
+
+
+def _make_inheritance_graph_for_classes(classes: list[ParsedClass]) -> rx.PyDiGraph[Any, Any]:
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    cls_iris = [x.name for x in classes]
+    node_indices = list(graph.add_nodes_from(cls_iris))
+    iri_to_node = dict(zip(cls_iris, node_indices))
+
+    for cls in classes:
+        for super_cls in cls.supers:
+            if super_cls in cls_iris:
+                graph.add_edge(iri_to_node[cls.name], iri_to_node[super_cls], None)
+    return graph
+
+
+def _check_circular_inheritance_in_properties(properties: list[ParsedProperty]) -> CollectedProblems | None:
+    graph = _make_inheritance_graph_for_properties(properties)
+    errors = _find_and_format_inheritance_cycles(graph, "property")
+
+    if errors:
+        msg = (
+            "Your ontology contains circular inheritance dependencies in properties. "
+            "This means that property A is a subproperty of property B, and property B is "
+            "(directly or indirectly) a subproperty of property A. "
+            "Circular inheritance is not allowed and will prevent the ontology from being created."
+        )
+        return CollectedProblems(msg, errors)
+    return None
+
+
+def _make_inheritance_graph_for_properties(properties: list[ParsedProperty]) -> rx.PyDiGraph[Any, Any]:
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    prop_iris = [x.name for x in properties]
+    node_indices = list(graph.add_nodes_from(prop_iris))
+    iri_to_node = dict(zip(prop_iris, node_indices))
+
+    for prop in properties:
+        for super_prop in prop.supers:
+            if super_prop in prop_iris:
+                graph.add_edge(iri_to_node[prop.name], iri_to_node[super_prop], None)
+    return graph
+
+
+def _find_and_format_inheritance_cycles(
+    graph: rx.PyDiGraph[Any, Any],
+    input_problem_type: InputProblemType,
+) -> list[CreateProblem]:
+    cycles = list(rx.simple_cycles(graph))
+
+    if not cycles:
+        return []
+
+    error_strings = []
+    for cycle in cycles:
+        cycle_iris = [graph[node_idx] for node_idx in cycle]
+        cycle_chain_parts = [from_dsp_iri_to_prefixed_iri(iri) for iri in cycle_iris]
+        cycle_chain_parts.append(from_dsp_iri_to_prefixed_iri(cycle_iris[0]))
+        cycle_chain = " -> ".join(cycle_chain_parts)
+        error_strings.append(f"Cycle: {cycle_chain}")
+
+    return [InputProblem(x, input_problem_type) for x in sorted(error_strings)]

@@ -71,6 +71,8 @@ class InputProblemType(ProblemType):
     MIN_CARDINALITY_ONE_WITH_CIRCLE = (
         "This property is part of a circular reference and must have cardinality 0-1 or 0-n."
     )
+    CIRCULAR_CLASS_INHERITANCE = "This class is part of a circular inheritance chain, which is not allowed."
+    CIRCULAR_PROPERTY_INHERITANCE = "This property is part of a circular inheritance chain, which is not allowed."
 
 
 class UploadProblemType(ProblemType):

@@ -12,6 +12,7 @@ permissions:
 
 env:
   DSP_TOOLS_TESTING: true
+  DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
 
 jobs:
   test-python-3-12:

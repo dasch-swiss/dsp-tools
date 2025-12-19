@@ -7,7 +7,6 @@ from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import BOLD_RED
-from dsp_tools.setup.ansi_colors import RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 LIST_SEPARATOR = "\n    - "
@@ -22,7 +21,7 @@ def print_problem_collection(problem_collection: CollectedProblems) -> None:
     individual_problems = _create_individual_problem_strings(problem_collection.problems)
     logger.error(problem_collection.header + individual_problems)
     print(BOLD_RED, problem_collection.header, RESET_TO_DEFAULT)
-    print(RED, individual_problems, RESET_TO_DEFAULT)
+    print(individual_problems)
 
 
 def _create_individual_problem_strings(problems: list[CreateProblem]) -> str:
@@ -40,7 +39,7 @@ def print_msg_str_for_potential_problematic_circles(
         "Because of the generic nature of the object constraint we cannot infer from the ontology "
         "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
         "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"
-        "The following classes contain potentially problematic links:"
+        "The following classes contain potentially problematic links:\n"
     )
     detail_strings = []
     for problem in circle_info:
@@ -54,4 +53,4 @@ def print_msg_str_for_potential_problematic_circles(
     details = detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)
     logger.warning(header, details)
     print(BACKGROUND_BOLD_YELLOW + header + RESET_TO_DEFAULT)
-    print(details)
+    print(details + "\n")

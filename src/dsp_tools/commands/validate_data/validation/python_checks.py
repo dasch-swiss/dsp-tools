@@ -2,11 +2,11 @@ from collections import defaultdict
 
 from loguru import logger
 
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource

@@ -14,7 +14,6 @@ from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
@@ -106,26 +105,3 @@ def get_msg_str_ontology_validation_violation(onto_violations: OntologyValidatio
         f"Once those two steps are done, the command `validate-data` will find any problems in the data.\n"
         f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(problems)}"
     )
-
-
-def get_msg_str_for_potential_problematic_circles(
-    circle_info: list[CardinalitiesThatMayCreateAProblematicCircle],
-) -> tuple[str, str]:
-    header = "Potentially problematic cardinalities found that may cause an upload to fail."
-    detail_start = (
-        "Your ontology contains cardinalities with a minimum of 1 that point to a generic knora-api Resource.\n"
-        "Because we upload resources sequentially, we must break up any circles in your data. "
-        "Because of the generic nature of the object constraint we cannot infer from the ontology "
-        "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
-        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"
-        "The following classes contain potentially problematic links:"
-    )
-    detail_strings = []
-    for problem in circle_info:
-        detail = (
-            f"Class: {problem.subject} | "
-            f"Property: {problem.prop} | "
-            f"Object Class: {problem.object_cls} | Cardinality: {problem.card}"
-        )
-        detail_strings.append(detail)
-    return header, detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)

@@ -7,6 +7,7 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
+from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.complete_ontologies import create_ontologies
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
@@ -27,7 +28,10 @@ read_dotenv_if_exists()
 
 
 def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -> bool:
-    parsing_result = parse_and_validate_project(project_file, creds.server)
+    parsing_result, potential_circles = parse_and_validate_project(project_file, creds.server)
+    if potential_circles:
+        print_msg_str_for_potential_problematic_circles(potential_circles)
+
     match parsing_result:
         case ParsedProject():
             return _execute_create(parsing_result, creds, exit_if_exists)

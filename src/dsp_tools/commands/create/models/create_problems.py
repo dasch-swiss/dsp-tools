@@ -11,6 +11,14 @@ class CollectedProblems:
 
 
 @dataclass
+class CardinalitiesThatMayCreateAProblematicCircle:
+    subject: str
+    prop: str
+    object_cls: str
+    card: str
+
+
+@dataclass
 class UserInformation:
     focus_object: str
     msg: UserInformationMessage
@@ -68,9 +76,7 @@ class InputProblemType(ProblemType):
     UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."
     DUPLICATE_CLASS_NAME = "This class name appears multiple times in the same ontology."
     DUPLICATE_PROPERTY_NAME = "This property name appears multiple times in the same ontology."
-    MIN_CARDINALITY_ONE_WITH_CIRCLE = (
-        "This property is part of a circular reference and must have cardinality 0-1 or 0-n."
-    )
+    MIN_CARDINALITY_ONE_WITH_CIRCLE = ""
     CIRCULAR_CLASS_INHERITANCE = "This class is part of a circular inheritance chain, which is not allowed."
     CIRCULAR_PROPERTY_INHERITANCE = "This property is part of a circular inheritance chain, which is not allowed."
 

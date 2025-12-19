@@ -92,7 +92,7 @@ def _validate_parsed_json_project(
                 parsing_result.lists,
                 parsing_result.permissions,
             )
-            if validation_problems or potential_circles:
+            if validation_problems:
                 return validation_problems, potential_circles
             return parsing_result, potential_circles
         case list():

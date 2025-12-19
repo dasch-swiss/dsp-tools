@@ -111,7 +111,7 @@ class TestFindAndFormatInheritanceCycles:
         errors = _find_and_format_inheritance_cycles(graph, InputProblemType.CIRCULAR_CLASS_INHERITANCE)
 
         assert len(errors) == 1
-        assert errors[0].problematic_object == "asdf"
+        assert errors[0].problematic_object == "Cycle: onto:ClassB -> onto:ClassA -> onto:ClassB"
         assert errors[0].problem == InputProblemType.CIRCULAR_CLASS_INHERITANCE
 
     def test_find_three_node_cycle(self):
@@ -126,7 +126,7 @@ class TestFindAndFormatInheritanceCycles:
         errors = _find_and_format_inheritance_cycles(graph, InputProblemType.CIRCULAR_CLASS_INHERITANCE)
 
         assert len(errors) == 1
-        assert errors[0].problematic_object == "asdf"
+        assert errors[0].problematic_object == "Cycle: onto:ClassC -> onto:ClassA -> onto:ClassB -> onto:ClassC"
 
     def test_find_no_cycles_in_linear_graph(self):
         graph: rx.PyDiGraph = rx.PyDiGraph()
@@ -148,7 +148,7 @@ class TestFindAndFormatInheritanceCycles:
         errors = _find_and_format_inheritance_cycles(graph, InputProblemType.CIRCULAR_CLASS_INHERITANCE)
 
         assert len(errors) == 1
-        assert errors[0].problematic_object == "ClassA"
+        assert errors[0].problematic_object == "Cycle: onto:ClassA -> onto:ClassA"
 
 
 class TestCheckCircularInheritanceInClasses:

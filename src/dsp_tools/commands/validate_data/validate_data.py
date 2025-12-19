@@ -11,8 +11,8 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
-from dsp_tools.commands.create.project_validate import get_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -131,12 +131,7 @@ def validate_parsed_resources(
         rdf_graphs, triple_stores, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
     )
     if validation_result.cardinalities_with_potential_circle:
-        header, detail = get_msg_str_for_potential_problematic_circles(
-            validation_result.cardinalities_with_potential_circle
-        )
-        logger.warning(header, detail)
-        print(BACKGROUND_BOLD_YELLOW + header + RESET_TO_DEFAULT)
-        print(detail)
+        print_msg_str_for_potential_problematic_circles(validation_result.cardinalities_with_potential_circle)
 
     if validation_result.no_problems:
         logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)

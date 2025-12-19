@@ -13,6 +13,7 @@ import rustworkx as rx
 from loguru import logger
 
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
+from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
@@ -46,11 +47,11 @@ from dsp_tools.utils.json_parsing import parse_json_file
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
-LIST_SEPARATOR = "\n    - "
-
 
 def validate_project_only(project_file: Path, server: str) -> bool:
-    result = parse_and_validate_project(project_file, server)
+    result, potential_circles = parse_and_validate_project(project_file, server)
+    if potential_circles:
+        print_msg_str_for_potential_problematic_circles(potential_circles)
     if not isinstance(result, ParsedProject):
         print_all_problem_collections(result)
         return False
@@ -475,27 +476,3 @@ def _check_for_mandatory_cardinalities_with_knora_resources(
                     )
                 )
     return potential_problems
-
-
-def get_msg_str_for_potential_problematic_circles(
-    circle_info: list[CardinalitiesThatMayCreateAProblematicCircle],
-) -> tuple[str, str]:
-    header = "Potentially problematic cardinalities found that may cause an upload to fail."
-    detail_start = (
-        "Your ontology contains cardinalities with a minimum of 1 that point to a generic knora-api Resource.\n"
-        "Because we upload resources sequentially, we must break up any circles in your data. "
-        "Because of the generic nature of the object constraint we cannot infer from the ontology "
-        "if your data contains a circle which would cause a minimum cardinality violation when broken up. "
-        "Therefore, we cannot guarantee that your upload will succeed even if the validation passes.\n"
-        "The following classes contain potentially problematic links:"
-    )
-    detail_strings = []
-    for problem in circle_info:
-        detail = (
-            f"Class: {problem.subject} | "
-            f"Property: {problem.prop} | "
-            f"Object Class: {problem.object_cls} | "
-            f"Cardinality: {problem.card}"
-        )
-        detail_strings.append(detail)
-    return header, detail_start + LIST_SEPARATOR + LIST_SEPARATOR.join(detail_strings)

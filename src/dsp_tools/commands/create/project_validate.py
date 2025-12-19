@@ -513,7 +513,7 @@ def _make_inheritance_graph_for_classes(classes: list[ParsedClass]) -> rx.PyDiGr
 
 def _check_circular_inheritance_in_properties(properties: list[ParsedProperty]) -> CollectedProblems | None:
     graph = _make_inheritance_graph_for_properties(properties)
-    errors = _find_and_format_inheritance_cycles(graph, "property")
+    errors = _find_and_format_inheritance_cycles(graph, InputProblemType.CIRCULAR_PROPERTY_INHERITANCE)
 
     if errors:
         msg = (

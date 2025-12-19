@@ -7,7 +7,7 @@ from enum import StrEnum
 @dataclass
 class CollectedProblems:
     header: str
-    problems: list[CreateProblem]  # TODO: add this as an option here
+    problems: list[CreateProblem]
 
 
 @dataclass

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 from enum import StrEnum
 
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -80,7 +79,7 @@ class ParsedPropertyCardinality:
     gui_order: int | None
 
 
-class Cardinality(Enum):
+class Cardinality(StrEnum):
     C_0_1 = "0-1"
     C_1 = "1"
     C_0_N = "0-n"

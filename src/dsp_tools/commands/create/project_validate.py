@@ -60,7 +60,9 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     return True
 
 
-def parse_and_validate_project(project_file: Path, server: str) -> list[CollectedProblems] | ParsedProject:
+def parse_and_validate_project(
+    project_file: Path, server: str
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
 
@@ -76,7 +78,9 @@ def parse_and_validate_lists(
     return duplicates, parsed_metadata, parsed_lists
 
 
-def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:
+def _validate_parsed_json_project(
+    json_project: dict[str, Any], server: str
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
 
@@ -88,11 +92,10 @@ def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> 
                 parsing_result.permissions,
             )
             if validation_problems or potential_circles:
-                # TODO: find better data type
                 return validation_problems, potential_circles
-            return parsing_result
+            return parsing_result, potential_circles
         case list():
-            return parsing_result
+            return parsing_result, []
         case _:
             raise UnreachableCodeError()
 

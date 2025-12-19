@@ -552,7 +552,8 @@ def _find_and_format_inheritance_cycles(
     for cycle in cycles:
         cycle_iris = [graph[node_idx] for node_idx in cycle]
         cycle_chain_parts = [from_dsp_iri_to_prefixed_iri(iri) for iri in cycle_iris]
-        cycle_chain_parts.append(from_dsp_iri_to_prefixed_iri(cycle_iris[0]))
+        # for nicer output, add the first element at the end
+        cycle_chain_parts.append(cycle_chain_parts[0])
         cycle_chain = " -> ".join(cycle_chain_parts)
         error_strings.append(f"Cycle: {cycle_chain}")
 

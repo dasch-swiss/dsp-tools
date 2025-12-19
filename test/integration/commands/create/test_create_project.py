@@ -32,7 +32,8 @@ def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
 
 
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
-    result = _validate_parsed_json_project(tp_systematic, SERVER)
+    result, potential_circles = _validate_parsed_json_project(tp_systematic, SERVER)
+    assert not potential_circles
     assert isinstance(result, ParsedProject)
 
 
@@ -44,7 +45,14 @@ def test_json_schema_validation_error():
 
 
 def test_circular_reference_error():
-    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/circular-ontology.json"), SERVER)
+    result, potential_circles = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/circular-ontology.json"), SERVER
+    )
+    assert len(potential_circles) == 1
+    assert potential_circles[0].subject == "circular-onto:Class1"
+    assert potential_circles[0].prop == "circular-onto:linkToKnoraApiClass"
+    assert potential_circles[0].object_cls == "knora-api:Resource"
+    assert potential_circles[0].card == "1-n"
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
@@ -59,7 +67,10 @@ def test_circular_reference_error():
 
 
 def test_duplicate_list_error():
-    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"), SERVER)
+    result, potential_circles = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/duplicate-listnames.json"), SERVER
+    )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
@@ -68,9 +79,10 @@ def test_duplicate_list_error():
 
 
 def test_check_for_undefined_cardinalities() -> None:
-    result = parse_and_validate_project(
+    result, potential_circles = parse_and_validate_project(
         Path("testdata/invalid-testdata/json-project/nonexisting-cardinality.json"), SERVER
     )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
@@ -83,9 +95,10 @@ def test_check_for_undefined_cardinalities() -> None:
 
 
 def test_check_for_undefined_super_property() -> None:
-    result = parse_and_validate_project(
+    result, potential_circles = parse_and_validate_project(
         Path("testdata/invalid-testdata/json-project/nonexisting-super-property.json"), SERVER
     )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problems = result[0]
@@ -96,9 +109,10 @@ def test_check_for_undefined_super_property() -> None:
 
 
 def test_check_for_undefined_super_class() -> None:
-    result = parse_and_validate_project(
+    result, potential_circles = parse_and_validate_project(
         Path("testdata/invalid-testdata/json-project/nonexisting-super-resource.json"), SERVER
     )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problems = result[0]
@@ -116,7 +130,10 @@ def test_parse_json_file_invalid_file() -> None:
 
 
 def test_check_for_duplicate_resources() -> None:
-    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-resource.json"), SERVER)
+    result, potential_circles = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/duplicate-resource.json"), SERVER
+    )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]
@@ -125,7 +142,10 @@ def test_check_for_duplicate_resources() -> None:
 
 
 def test_check_for_duplicate_properties() -> None:
-    result = parse_and_validate_project(Path("testdata/invalid-testdata/json-project/duplicate-property.json"), SERVER)
+    result, potential_circles = parse_and_validate_project(
+        Path("testdata/invalid-testdata/json-project/duplicate-property.json"), SERVER
+    )
+    assert not potential_circles
     assert isinstance(result, list)
     assert len(result) == 1
     problem = result[0]

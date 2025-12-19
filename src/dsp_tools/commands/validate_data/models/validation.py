@@ -111,11 +111,3 @@ class ReformattedIRI:
     res_id: str
     res_type: str
     prop_name: str
-
-
-@dataclass
-class CardinalitiesThatMayCreateAProblematicCircle:
-    subject: str
-    prop: str
-    object_cls: str
-    card: str

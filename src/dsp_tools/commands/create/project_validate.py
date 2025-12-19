@@ -13,7 +13,9 @@ import rustworkx as rx
 from loguru import logger
 
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
+from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblem
@@ -24,6 +26,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
+from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
@@ -46,7 +49,9 @@ from dsp_tools.utils.rdf_constants import KNORA_PROPERTIES_FOR_DIRECT_USE
 
 
 def validate_project_only(project_file: Path, server: str) -> bool:
-    result = parse_and_validate_project(project_file, server)
+    result, potential_circles = parse_and_validate_project(project_file, server)
+    if potential_circles:
+        print_msg_str_for_potential_problematic_circles(potential_circles)
     if not isinstance(result, ParsedProject):
         print_all_problem_collections(result)
         return False
@@ -56,7 +61,9 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     return True
 
 
-def parse_and_validate_project(project_file: Path, server: str) -> list[CollectedProblems] | ParsedProject:
+def parse_and_validate_project(
+    project_file: Path, server: str
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
 
@@ -72,22 +79,24 @@ def parse_and_validate_lists(
     return duplicates, parsed_metadata, parsed_lists
 
 
-def _validate_parsed_json_project(json_project: dict[str, Any], server: str) -> list[CollectedProblems] | ParsedProject:
+def _validate_parsed_json_project(
+    json_project: dict[str, Any], server: str
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
 
     match parsing_result:
         case ParsedProject():
-            validation_problems = _complex_parsed_project_validation(
+            validation_problems, potential_circles = _complex_parsed_project_validation(
                 parsing_result.ontologies,
                 parsing_result.lists,
                 parsing_result.permissions,
             )
             if validation_problems:
-                return validation_problems
-            return parsing_result
+                return validation_problems, potential_circles
+            return parsing_result, potential_circles
         case list():
-            return parsing_result
+            return parsing_result, []
         case _:
             raise UnreachableCodeError()
 
@@ -124,7 +133,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
 
 def _complex_parsed_project_validation(
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
-) -> list[CollectedProblems]:
+) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle]]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -167,7 +176,10 @@ def _complex_parsed_project_validation(
         parsed_permissions, prop_iris, cls_iris, still_image_classes
     ):
         problems.append(perm_problem)
-    return problems
+    potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
+        props_flattened, cardinalities_flattened
+    )
+    return problems, potential_circles
 
 
 def _check_for_duplicate_iris(
@@ -432,3 +444,35 @@ def _find_circles_with_mandatory_cardinalities(
         InputProblem(x, InputProblemType.MIN_CARDINALITY_ONE_WITH_CIRCLE) for x in error_strings
     ]
     return problems
+
+
+def _check_for_mandatory_cardinalities_with_knora_resources(
+    parsed_properties: list[ParsedProperty], parsed_cardinalities: list[ParsedClassCardinalities]
+) -> list[CardinalitiesThatMayCreateAProblematicCircle]:
+    def is_link_prop_with_knora_object(prop: ParsedProperty) -> bool:
+        if prop.gui_element != GuiElement.SEARCHBOX:
+            return False
+        return prop.object.startswith(KNORA_API_PREFIX)
+
+    relevant_link_props = {x.name: x.object for x in parsed_properties if is_link_prop_with_knora_object(x)}
+    if not relevant_link_props:
+        return []
+
+    def is_mandatory_link(prop_card: ParsedPropertyCardinality) -> bool:
+        if prop_card.propname not in relevant_link_props.keys():
+            return False
+        return prop_card.cardinality in [Cardinality.C_1, Cardinality.C_1_N]
+
+    potential_problems = []
+    for cls in parsed_cardinalities:
+        for card in cls.cards:
+            if is_mandatory_link(card):
+                potential_problems.append(
+                    CardinalitiesThatMayCreateAProblematicCircle(
+                        subject=from_dsp_iri_to_prefixed_iri(cls.class_iri),
+                        prop=from_dsp_iri_to_prefixed_iri(card.propname),
+                        object_cls=from_dsp_iri_to_prefixed_iri(relevant_link_props[card.propname]),
+                        card=str(card.cardinality),
+                    )
+                )
+    return potential_problems

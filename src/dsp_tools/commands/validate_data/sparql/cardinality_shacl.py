@@ -6,7 +6,7 @@ from pyoxigraph import Store
 from pyoxigraph import Variable
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 

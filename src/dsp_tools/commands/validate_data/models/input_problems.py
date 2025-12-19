@@ -8,7 +8,7 @@ from enum import auto
 import pandas as pd
 import regex
 
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 

@@ -11,13 +11,14 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
+from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult
-from dsp_tools.commands.validate_data.models.validation import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -32,7 +33,6 @@ from dsp_tools.commands.validate_data.validation.check_for_unknown_classes impor
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_cardinalities_that_may_cause_a_circle
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
-from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -131,12 +131,7 @@ def validate_parsed_resources(
         rdf_graphs, triple_stores, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
     )
     if validation_result.cardinalities_with_potential_circle:
-        header, detail = get_msg_str_for_potential_problematic_circles(
-            validation_result.cardinalities_with_potential_circle
-        )
-        logger.warning(header, detail)
-        print(BACKGROUND_BOLD_YELLOW + header + RESET_TO_DEFAULT)
-        print(detail)
+        print_msg_str_for_potential_problematic_circles(validation_result.cardinalities_with_potential_circle)
 
     if validation_result.no_problems:
         logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)

@@ -29,6 +29,17 @@
                         "gui_element": "Searchbox"
                     },
                     {
+                        "name": "linkToKnoraApiClass",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "has resource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
                         "name": "linkToClass2",
                         "super": [
                             "isPartOf"
@@ -73,6 +84,10 @@
                             {
                                 "propname": ":linkToClass2",
                                 "cardinality": "1"
+                            },
+                            {
+                                "propname": ":linkToKnoraApiClass",
+                                "cardinality": "1-n"
                             }
                         ]
                     },
@@ -86,6 +101,10 @@
                             {
                                 "propname": ":linkToClass1",
                                 "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":linkToKnoraApiClass",
+                                "cardinality": "0-n"
                             }
                         ]
                     },

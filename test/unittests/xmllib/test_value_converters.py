@@ -314,7 +314,7 @@ class TestFindDate:
         cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
         nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
         assert find_dates_in_string(f"x 15.04.23-1.5.{cur} x") == {f"GREGORIAN:CE:2023-04-15:CE:20{cur}-05-01"}
-        assert find_dates_in_string(f"x 15.04.{nxt}-1.5.26 x") == {f"GREGORIAN:CE:19{nxt}-04-15:CE:1926-05-01"}
+        assert find_dates_in_string(f"x 15.04.{nxt}-1.5.99 x") == {f"GREGORIAN:CE:19{nxt}-04-15:CE:1999-05-01"}
 
     def test_find_dates_in_string_monthname(self) -> None:
         """template: February 9, 1908 | Dec 5,1908"""

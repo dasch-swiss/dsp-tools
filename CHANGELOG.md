@@ -1,5 +1,45 @@
 # Changelog
 
+## [18.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.4.0...v18.5.0) (2026-01-07)
+
+
+### Enhancements
+
+* **validate-data:** add check to warn against potential circle in data with mandatory properties (RDU-147) ([#2123](https://github.com/dasch-swiss/dsp-tools/issues/2123)) ([b2681d9](https://github.com/dasch-swiss/dsp-tools/commit/b2681d9824a09b0f40bb693cb64e75ead7f29cc6))
+
+
+### Bug Fixes
+
+* **xmllib:** find_dates_in_string(): make checks consistent if start date &lt; end date (RDU-146) ([#2120](https://github.com/dasch-swiss/dsp-tools/issues/2120)) ([a845a48](https://github.com/dasch-swiss/dsp-tools/commit/a845a482365f7c0253e9f769f3b03f177209f90d))
+
+
+### Maintenance
+
+* **create:** change permissions parsing ([#2111](https://github.com/dasch-swiss/dsp-tools/issues/2111)) ([c1e90df](https://github.com/dasch-swiss/dsp-tools/commit/c1e90df4e4e59796b8e2453ea85eafdbaeba8fe6))
+* **create:** check for mandatory link cardinalities with knora-api as object constraints (DEV-5761) ([#2134](https://github.com/dasch-swiss/dsp-tools/issues/2134)) ([b535e7d](https://github.com/dasch-swiss/dsp-tools/commit/b535e7ddd33d8a3b2f309f603b96724250e1dd0f))
+* **create:** create CLAUDE.md ([#2128](https://github.com/dasch-swiss/dsp-tools/issues/2128)) ([ddd7b3a](https://github.com/dasch-swiss/dsp-tools/commit/ddd7b3a4b7eef09ee17a95a02e931ef3b0a45879))
+* **create:** remove redundant duplicate list node name check ([#2130](https://github.com/dasch-swiss/dsp-tools/issues/2130)) ([fd149c8](https://github.com/dasch-swiss/dsp-tools/commit/fd149c800cb307c5efc1494f0f89c3b58cb4f823))
+* **create:** search for circular inheritance (DEV-5754) ([#2135](https://github.com/dasch-swiss/dsp-tools/issues/2135)) ([89b656a](https://github.com/dasch-swiss/dsp-tools/commit/89b656a3d85017b4225be1b75a7247e32e382a18))
+* **create:** use `ParsedCardinality` for circular checks ([#2119](https://github.com/dasch-swiss/dsp-tools/issues/2119)) ([6571cd3](https://github.com/dasch-swiss/dsp-tools/commit/6571cd3834593e9f1ca0d4c34baf3faf8daaf36f))
+* **create:** use `ParsedOntology` to check if references exist ([#2110](https://github.com/dasch-swiss/dsp-tools/issues/2110)) ([db86ea9](https://github.com/dasch-swiss/dsp-tools/commit/db86ea9fd8a53dcd2dd8d14101f23e2c2acf6d49))
+* **create:** use `ParsedProject` for further validation ([#2118](https://github.com/dasch-swiss/dsp-tools/issues/2118)) ([522bed6](https://github.com/dasch-swiss/dsp-tools/commit/522bed646b3fc52950b98861b8d530c89313febc))
+* **create:** validate if permissions overrule are correct ([#2127](https://github.com/dasch-swiss/dsp-tools/issues/2127)) ([8b250c1](https://github.com/dasch-swiss/dsp-tools/commit/8b250c1e94e57e6954f0402927fb9c0ee7f78b73))
+* **deps:** bump deps and move dotenv handling into function ([#2116](https://github.com/dasch-swiss/dsp-tools/issues/2116)) ([0384f95](https://github.com/dasch-swiss/dsp-tools/commit/0384f95d6499c97d14d499ea0d2c8012843ea9d3))
+* ensure backwards-compatibility with Python 3.12 (RDU-148) ([#2126](https://github.com/dasch-swiss/dsp-tools/issues/2126)) ([31558b9](https://github.com/dasch-swiss/dsp-tools/commit/31558b9325f031822d7d795dc9e790c4c3ed0b96))
+* nightly python version check: run only essential linters ([#2132](https://github.com/dasch-swiss/dsp-tools/issues/2132)) ([7cf4cd6](https://github.com/dasch-swiss/dsp-tools/commit/7cf4cd628c7be92b5170c1e7d31389a5947b4fa1))
+* python version testing needs secret ([#2136](https://github.com/dasch-swiss/dsp-tools/issues/2136)) ([e870b62](https://github.com/dasch-swiss/dsp-tools/commit/e870b62701b53ac46742b0b78f1bd0a12544f2e8))
+* **readme:** describe Claude Code setup (RDU-143) ([#2125](https://github.com/dasch-swiss/dsp-tools/issues/2125)) ([2ec011d](https://github.com/dasch-swiss/dsp-tools/commit/2ec011d1e6e687c82112555cbbfb88877d5398a5))
+* **start-stack:** bump versions to 2026.01.01 ([#2141](https://github.com/dasch-swiss/dsp-tools/issues/2141)) ([b252c75](https://github.com/dasch-swiss/dsp-tools/commit/b252c75f7193ec6802395501c9711ddbb682e772))
+* unpin python version ([#2122](https://github.com/dasch-swiss/dsp-tools/issues/2122)) ([f5fd6f3](https://github.com/dasch-swiss/dsp-tools/commit/f5fd6f3967d42597579093a6ad7e0c54309b2f80))
+* update CLAUDE.md files (RDU-143) ([#2124](https://github.com/dasch-swiss/dsp-tools/issues/2124)) ([47b4470](https://github.com/dasch-swiss/dsp-tools/commit/47b4470cfc65bd2d1de74f50c9d335cf806272ad))
+* **validate-data:** reorganise top-level validation code flow ([#2131](https://github.com/dasch-swiss/dsp-tools/issues/2131)) ([76571d2](https://github.com/dasch-swiss/dsp-tools/commit/76571d266c887d80ef916ce50a6b0af967d16488))
+* **xmlupload:** collect all missing multimedia files before raising an error ([#2115](https://github.com/dasch-swiss/dsp-tools/issues/2115)) ([f4170ae](https://github.com/dasch-swiss/dsp-tools/commit/f4170ae993d4e2b58b5bc7ff67c530801e44f9aa))
+
+
+### Documentation
+
+* fix outdated links in xmllib docstrings ([#2129](https://github.com/dasch-swiss/dsp-tools/issues/2129)) ([01e6897](https://github.com/dasch-swiss/dsp-tools/commit/01e689734b041db1f37cb463e8489518fcd16d99))
+
 ## [18.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.3.0...v18.4.0) (2025-12-11)
 
 

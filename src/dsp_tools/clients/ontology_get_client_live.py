@@ -6,8 +6,8 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.clients.ontology_clients import OntologyGetClient
-from dsp_tools.error.exceptions import ProjectOntologyNotFound
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request

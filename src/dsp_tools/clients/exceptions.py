@@ -1,4 +1,5 @@
 from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 
 
@@ -19,3 +20,15 @@ class FatalNonOkApiResponseCode(BaseError):
 
 class InvalidInputError(BaseError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
+
+
+class ProjectOntologyNotFound(BaseError):
+    """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
+
+    def __init__(self, shortcode: str) -> None:
+        msg = f"The project with the shortcode '{shortcode}' does not have any ontologies."
+        super().__init__(msg)
+
+
+class ProjectNotFoundError(InputError):
+    """Class if a project is expected to exist but could not be found."""

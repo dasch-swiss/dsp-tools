@@ -3,6 +3,7 @@ from typing import Any
 import pytest
 import regex
 
+from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.get.get_permissions import _convert_prefixes
@@ -10,7 +11,6 @@ from dsp_tools.commands.get.get_permissions import _get_prefixed_iri
 from dsp_tools.commands.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.get.get_permissions import _validate_doap_categories
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
-from dsp_tools.error.exceptions import UnknownDOAPException
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 PROJ_IRI = "https://api.dev.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"

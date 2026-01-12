@@ -100,22 +100,6 @@ class BadCredentialsError(PermanentConnectionError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""
 
 
-class UnknownDOAPException(BaseError):
-    """Class for errors that are raised if a DOAP cannot be parsed"""
-
-
-class ProjectOntologyNotFound(BaseError):
-    """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
-
-    def __init__(self, shortcode: str) -> None:
-        msg = f"The project with the shortcode '{shortcode}' does not have any ontologies."
-        super().__init__(msg)
-
-
-class ProjectNotFoundError(InputError):
-    """Class if a project is expected to exist but could not be found."""
-
-
 class InvalidLicenseError(InputError):
     """This error is raised when a license string cannot be parsed."""
 

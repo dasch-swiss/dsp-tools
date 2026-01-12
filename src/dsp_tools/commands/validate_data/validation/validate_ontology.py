@@ -12,6 +12,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_DATA_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -19,7 +20,6 @@ from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidat
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 LIST_SEPARATOR = "\n    - "

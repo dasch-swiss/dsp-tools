@@ -98,14 +98,23 @@ def test_check_for_undefined_cardinalities() -> None:
     )
     assert not potential_circles
     assert isinstance(result, list)
-    assert len(result) == 1
-    problem = result[0]
-    assert len(problem.problems) == 1
-    assert (
-        problem.problems[0].problematic_object
-        == "Class 'onto:TestThing' / Property 'onto:CardinalityThatWasNotDefinedInPropertiesSection'"
+    assert len(result) == 2
+    undefined_card = next(
+        x for x in result if x.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
     )
-    assert problem.problems[0].problem == InputProblemType.UNDEFINED_PROPERTY_IN_CARDINALITY
+    assert len(undefined_card.problems) == 1
+    assert (
+        undefined_card.problems[0].problematic_object
+        == "Class 'onto:UndefinedPropInCardinality' / Property 'onto:CardinalityThatWasNotDefinedInPropertiesSection'"
+    )
+    duplicate_card = next(
+        x for x in result if x.problems[0].problem == InputProblemType.DUPLICATE_PROPERTY_IN_CARDINALITY
+    )
+    assert len(duplicate_card.problems) == 1
+    assert (
+        duplicate_card.problems[0].problematic_object
+        == "Class 'onto:DuplicateCardinality' / Property 'onto:hasSimpleText'"
+    )
 
 
 def test_check_for_undefined_super_property() -> None:

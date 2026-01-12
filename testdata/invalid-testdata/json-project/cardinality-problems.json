@@ -30,12 +30,12 @@
                 ],
                 "resources": [
                     {
-                        "name": "TestThing",
+                        "name": "UndefinedPropInCardinality",
                         "super": [
                             "Resource"
                         ],
                         "labels": {
-                            "en": "TestThing"
+                            "en": "UndefinedPropInCardinality"
                         },
                         "cardinalities": [
                             {
@@ -49,12 +49,12 @@
                         ]
                     },
                     {
-                        "name": "TestThingDuplicateCardinality",
+                        "name": "DuplicateCardinality",
                         "super": [
                             "Resource"
                         ],
                         "labels": {
-                            "en": "TestThingDuplicateCardinality"
+                            "en": "DuplicateCardinality"
                         },
                         "cardinalities": [
                             {

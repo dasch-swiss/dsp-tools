@@ -5,13 +5,13 @@ from typing import Any
 
 import regex
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
-from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.constants import PREDEFINED_XML_ENTITIES
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 
 
 def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name: str | None) -> str | None:

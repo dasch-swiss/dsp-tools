@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from lxml import etree
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 
 
 def parse_richtext_as_xml(

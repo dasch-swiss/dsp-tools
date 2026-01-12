@@ -7,10 +7,10 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 
 
 @pytest.mark.parametrize("in_val", ["string", 2, False])

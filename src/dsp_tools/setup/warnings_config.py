@@ -2,7 +2,7 @@ import warnings
 from typing import TextIO
 
 from dsp_tools.error.custom_warnings import DspToolsWarning
-from dsp_tools.error.xmllib_warnings import XmllibUserInfoBase
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibUserInfoBase
 
 
 def initialize_warnings() -> None:

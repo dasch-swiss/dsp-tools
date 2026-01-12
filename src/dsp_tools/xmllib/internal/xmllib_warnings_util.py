@@ -7,20 +7,21 @@ from typing import Never
 
 import regex
 
-from dsp_tools.error.xmllib_errors import XmllibFileNotFoundError
-from dsp_tools.error.xmllib_errors import XmllibInputError
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings import UserMessageSeverity
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.setup.ansi_colors import BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
+from dsp_tools.xmllib.internal.exceptions import XmllibFileNotFoundError
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import UserMessageSeverity
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 
 read_dotenv_if_exists()
 
 
 def initialise_warning_file() -> None:
+    """Initialise warnings file if the user configured it."""
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         try:
             new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
@@ -43,6 +44,7 @@ def initialise_warning_file() -> None:
 def write_message_to_csv(
     file_path: str, msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity
 ) -> None:
+    """Write the message to the csv."""
     new_row = [
         function_trace if function_trace else "",
         str(severity),
@@ -57,6 +59,7 @@ def write_message_to_csv(
 
 
 def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str:
+    """Get the message for the user for printing."""
     str_list = [f"File '{function_trace}'"] if function_trace else []
     if msg.resource_id:
         str_list.append(f"Resource ID '{msg.resource_id}'")

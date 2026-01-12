@@ -47,6 +47,25 @@
                                 "cardinality": "0-n"
                             }
                         ]
+                    },
+                    {
+                        "name": "TestThingDuplicateCardinality",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "TestThingDuplicateCardinality"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1"
+                            }
+                        ]
                     }
                 ]
             }

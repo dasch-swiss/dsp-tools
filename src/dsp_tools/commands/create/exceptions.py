@@ -1,9 +1,6 @@
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
-#######
-# Input Validation Errors
-
 
 class ProjectJsonSchemaValidationError(UserError):
     def __init__(self, detail_msg: str) -> None:
@@ -19,10 +16,6 @@ class CircularOntologyDependency(UserError):
             f"It is not possible for an ontology to have circular dependencies."
         )
         super().__init__(msg)
-
-
-#######
-# Internal Errors
 
 
 class UnableToCreateProjectError(InternalError):

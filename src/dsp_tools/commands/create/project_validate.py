@@ -251,7 +251,7 @@ def _check_for_undefined_properties_in_cardinalities(
 
 
 def _check_for_duplicate_properties_in_cardinalities_for_one_resource(
-    cardinalities: list[ParsedClassCardinalities]
+    cardinalities: list[ParsedClassCardinalities],
 ) -> CollectedProblems | None:
     problems: list[CreateProblem] = []
     for cls_card in cardinalities:
@@ -261,7 +261,7 @@ def _check_for_duplicate_properties_in_cardinalities_for_one_resource(
             prefixed_props = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
             problems.append(
                 InputProblem(
-                    f"Class '{prefixed_cls}' / Property(ies) '{', '.join(prefixed_props)}'",
+                    f"Class '{prefixed_cls}' / Properties '{', '.join(prefixed_props)}'",
                     InputProblemType.DUPLICATE_PROPERTY_IN_CARDINALITY,
                 )
             )

@@ -94,7 +94,7 @@ def test_duplicate_list_error():
 
 def test_check_for_undefined_cardinalities() -> None:
     result, potential_circles = parse_and_validate_project(
-        Path("testdata/invalid-testdata/json-project/nonexisting-cardinality.json"), SERVER
+        Path("testdata/invalid-testdata/json-project/cardinality-problems.json"), SERVER
     )
     assert not potential_circles
     assert isinstance(result, list)
@@ -113,7 +113,7 @@ def test_check_for_undefined_cardinalities() -> None:
     assert len(duplicate_card.problems) == 1
     assert (
         duplicate_card.problems[0].problematic_object
-        == "Class 'onto:DuplicateCardinality' / Property 'onto:hasSimpleText'"
+        == "Class 'onto:DuplicateCardinality' / Properties 'onto:hasSimpleText'"
     )
 
 

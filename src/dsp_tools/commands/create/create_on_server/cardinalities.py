@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import regex
 from loguru import logger
 from rdflib import Literal
@@ -18,6 +20,7 @@ from dsp_tools.commands.create.serialisation.ontology import serialise_cardinali
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 
 
 def add_all_cardinalities(
@@ -115,14 +118,18 @@ def _add_one_cardinality(
             raise UnreachableCodeError()
 
 
-def _create_user_problem_message(res_iri: str, propname: str, response: ResponseCodeAndText) -> UploadProblem:
-    prefixed_cls = from_dsp_iri_to_prefixed_iri(res_iri)
-    prefixed_prop = from_dsp_iri_to_prefixed_iri(propname)
-    wrong_subject_constraint = (
-        r"Class .+ has a cardinality for property .+ but is not a subclass of that property's .+v2#subjectType"
-    )
-    if regex.search(wrong_subject_constraint, response.text):
-        problem_type = UploadProblemType.CARDINALITY_WITH_WRONG_SUBJECT_CONSTRAINT
+def _create_user_problem_message(res_iri: str, propname: str, response: ResponseCodeAndText) -> UploadProblem | None:
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        prefixed_cls = from_dsp_iri_to_prefixed_iri(res_iri)
+        prefixed_prop = from_dsp_iri_to_prefixed_iri(propname)
+        wrong_subject_constraint = (
+            r"Class .+ has a cardinality for property .+ but is not a subclass of that property's .+v2#subjectType"
+        )
+        if regex.search(wrong_subject_constraint, response.text):
+            problem_type = UploadProblemType.CARDINALITY_WITH_WRONG_SUBJECT_CONSTRAINT
+        else:
+            problem_type = UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+        return UploadProblem(f"{prefixed_cls} / {prefixed_prop}", problem_type)
     else:
-        problem_type = UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
-    return UploadProblem(f"{prefixed_cls} / {prefixed_prop}", problem_type)
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return None

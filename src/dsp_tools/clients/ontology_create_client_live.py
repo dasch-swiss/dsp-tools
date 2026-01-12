@@ -18,7 +18,6 @@ from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -46,7 +45,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             return _parse_last_modification_date(response.text, URIRef(onto_iri))
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText | None:
+    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/cardinalities"
         try:
             response = self._post_and_log_request(url, cardinality_graph)
@@ -60,10 +59,8 @@ class OntologyCreateClientLive(OntologyCreateClient):
                 "Only a SystemAdmin or ProjectAdmin can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
-        elif response.status_code == HTTPStatus.BAD_REQUEST:
-            return ResponseCodeAndText(response.status_code, response.text)
-        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-        return None
+        # TODO: fix tests
+        return ResponseCodeAndText(response.status_code, response.text)
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/properties"

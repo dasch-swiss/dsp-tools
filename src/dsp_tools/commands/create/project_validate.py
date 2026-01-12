@@ -175,6 +175,8 @@ def _complex_parsed_project_validation(
         cardinalities_flattened, props_flattened
     ):
         problems.append(card_probs)
+    if duplicate_cards := _check_for_undefined_properties_in_cardinalities(cardinalities_flattened):
+        problems.append(duplicate_cards)
     # PERMISSIONS
     still_image_classes = _get_still_image_classes(cls_flattened)
     if perm_problem := _check_for_invalid_default_permissions_overrule(

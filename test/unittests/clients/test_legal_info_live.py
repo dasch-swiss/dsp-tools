@@ -6,11 +6,11 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 
 AUTH = Mock()

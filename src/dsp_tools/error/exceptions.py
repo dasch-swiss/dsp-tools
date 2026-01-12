@@ -21,6 +21,20 @@ class BaseError(Exception):
         return self.message
 
 
+class UserError(BaseError):
+    """
+    This is a base class for all the errors that are raised when the user input or set-up is faulty.
+    The message should be as user-friendly as possible.
+    """
+
+
+class InputError(BaseError):
+    """
+    To be deprecated in favour of "UserError"
+    This error is raised when the user input is invalid. The message should be as user-friendly as possible.
+    """
+
+
 class InternalError(BaseError):
     """
     Class for errors that are raised if the user cannot solve the problem themselves.
@@ -54,50 +68,8 @@ class UnreachableCodeError(BaseError):
         super().__init__(msg)
 
 
-class DockerNotReachableError(BaseError):
-    """This error is raised when docker is not running."""
-
-    def __init__(self) -> None:
-        msg = "Docker is not running properly. Please start Docker and try again."
-        super().__init__(msg)
-
-
-class DspApiNotReachableError(BaseError):
-    """This error is raised when the DSP-API could not be reached on localhost."""
-
-
 class DspToolsRequestException(BaseError):
     """Class for errors that are raised if any request exceptions happens."""
-
-
-class InputError(BaseError):
-    """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
-
-
-class UserError(BaseError):
-    """
-    This is a base class for all the errors that are raised when the user input is invalid.
-    The message should be as user-friendly as possible.
-    """
-
-
-class InvalidGuiAttributeError(BaseError):
-    """This error is raised when a invalid gui-attribute is used."""
-
-
-class FatalNonOkApiResponseCode(BaseError):
-    """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
-
-    def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
-        resp_txt = response_text[:200] if len(response_text) > 200 else response_text
-        msg = (
-            f"We currently do not support the following API response code for this request.\n"
-            f"Status code: {status_code}\n"
-            f"Request URL: {request_url}\n"
-            f"Original Response: {resp_txt}\n"
-            f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
-        )
-        super().__init__(msg)
 
 
 class UserFilepathNotFoundError(InputError):

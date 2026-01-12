@@ -4,9 +4,9 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import ProjectOntologyNotFound
 
 

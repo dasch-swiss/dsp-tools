@@ -8,9 +8,9 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request

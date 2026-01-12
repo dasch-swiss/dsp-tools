@@ -11,9 +11,9 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText

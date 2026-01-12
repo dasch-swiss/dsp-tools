@@ -235,7 +235,8 @@ from requests import RequestException, Response
 from dsp_tools.clients. < protocol_file >
 import < ProtocolClass >
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.error.exceptions import BadCredentialsError, FatalNonOkApiResponseCode
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
@@ -370,7 +371,8 @@ from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.user_client import UserClient
-from dsp_tools.error.exceptions import BadCredentialsError, FatalNonOkApiResponseCode
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
@@ -408,7 +410,7 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code == HTTPStatus.FORBIDDEN:
+        if response.status_code==HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to access user information.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```

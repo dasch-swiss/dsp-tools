@@ -5,8 +5,8 @@ import pytest
 import regex
 import requests
 
+from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.cli.utils import _check_api_health
-from dsp_tools.error.exceptions import DspApiNotReachableError
 
 
 @patch("requests.get")

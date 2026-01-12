@@ -46,7 +46,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             return _parse_last_modification_date(response.text, URIRef(onto_iri))
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
+    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText | None:
         url = f"{self.server}/v2/ontologies/cardinalities"
         try:
             response = self._post_and_log_request(url, cardinality_graph)
@@ -60,6 +60,8 @@ class OntologyCreateClientLive(OntologyCreateClient):
                 "Only a SystemAdmin or ProjectAdmin can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
+        elif response.status_code == HTTPStatus.BAD_REQUEST:
+            return ResponseCodeAndText(response.status_code, response.text)
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return None
 

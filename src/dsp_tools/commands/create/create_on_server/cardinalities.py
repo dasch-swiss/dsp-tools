@@ -1,3 +1,4 @@
+import regex
 from loguru import logger
 from rdflib import Literal
 from rdflib import URIRef
@@ -14,7 +15,9 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardi
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def add_all_cardinalities(
@@ -100,12 +103,26 @@ def _add_one_cardinality(
     onto_client: OntologyCreateClient,
 ) -> tuple[Literal, UploadProblem | None]:
     card_serialised = serialise_cardinality_graph_for_request(card, res_iri, onto_iri, last_modification_date)
-    new_mod_date = onto_client.post_resource_cardinalities(card_serialised)
-    if not new_mod_date:
-        prefixed_cls = from_dsp_iri_to_prefixed_iri(str(res_iri))
-        prefixed_prop = from_dsp_iri_to_prefixed_iri(card.propname)
-        return last_modification_date, UploadProblem(
-            f"{prefixed_cls} / {prefixed_prop}",
-            UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED,
-        )
-    return new_mod_date, None
+    result = onto_client.post_resource_cardinalities(card_serialised)
+    match result:
+        case Literal():
+            return result, None
+        case ResponseCodeAndText():
+            return last_modification_date, _create_user_problem_message(str(res_iri), card.propname, result)
+        case None:
+            return last_modification_date, None
+        case _:
+            raise UnreachableCodeError()
+
+
+def _create_user_problem_message(res_iri: str, propname: str, response: ResponseCodeAndText) -> UploadProblem:
+    prefixed_cls = from_dsp_iri_to_prefixed_iri(res_iri)
+    prefixed_prop = from_dsp_iri_to_prefixed_iri(propname)
+    wrong_subject_constraint = (
+        r"Class .+ has a cardinality for property .+ but is not a subclass of that property's .+v2#subjectType"
+    )
+    if regex.search(wrong_subject_constraint, response.text):
+        problem_type = UploadProblemType.CARDINALITY_WITH_WRONG_SUBJECT_CONSTRAINT
+    else:
+        problem_type = UploadProblemType.CARDINALITY_COULD_NOT_BE_ADDED
+    return UploadProblem(f"{prefixed_cls} / {prefixed_prop}", problem_type)

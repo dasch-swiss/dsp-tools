@@ -59,7 +59,6 @@ class OntologyCreateClientLive(OntologyCreateClient):
                 "Only a SystemAdmin or ProjectAdmin can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
-        # TODO: fix tests
         return ResponseCodeAndText(response.status_code, response.text)
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:

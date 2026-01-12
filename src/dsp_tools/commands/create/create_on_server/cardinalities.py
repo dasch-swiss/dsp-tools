@@ -112,8 +112,6 @@ def _add_one_cardinality(
             return result, None
         case ResponseCodeAndText():
             return last_modification_date, _create_user_problem_message(str(res_iri), card.propname, result)
-        case None:
-            return last_modification_date, None
         case _:
             raise UnreachableCodeError()
 

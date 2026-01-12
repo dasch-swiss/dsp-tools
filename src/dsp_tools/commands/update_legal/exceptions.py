@@ -1,7 +1,7 @@
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserError
 
 
-class InvalidLicenseError(InputError):
+class InvalidLicenseError(UserError):
     """This error is raised when a license string cannot be parsed."""
 
     license_str: str

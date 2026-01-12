@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_ids_if_found
-from dsp_tools.error.exceptions import DuplicateIdsInXmlAndId2IriMapping
+from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMapping
 from dsp_tools.utils.json_parsing import parse_json_file
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource

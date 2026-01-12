@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from dsp_tools.clients.exceptions import InvalidInputError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
@@ -93,51 +92,12 @@ class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
-class InvalidIngestFileNameError(InvalidInputError):
-    """This error is raised if INGEST rejects a file due to its name."""
-
-
 class PermanentTimeOutError(BaseError):
     """This error is raised when python throws a timeout due to no response from the DSP-API."""
 
 
 class BadCredentialsError(PermanentConnectionError):
-    """This error is raised when DSP-API doesn't accept the prodived credentials."""
-
-
-class XmlUploadError(BaseError):
-    """Represents an error raised in the context of the xmlupload."""
-
-
-class XmlInputConversionError(BaseError):
-    """Represents an error raised in the context of the xmlupload."""
-
-
-class Id2IriReplacementError(BaseError):
-    """Represents an error raised if an internal ID could not be found in the Id2Iri mapping."""
-
-
-class DuplicateIdsInXmlAndId2IriMapping(InputError):
-    """
-    Represents an error raised if a resource ID that is in the Id2Iri mapping
-    is also used as a resource id in the new data.
-    """
-
-
-class XmlUploadInterruptedError(XmlUploadError):
-    """Represents an error raised when the xmlupload was interrupted."""
-
-
-class XmlUploadPermissionsNotFoundError(BaseError):
-    """Class for errors that are raised when a permission does not exist."""
-
-
-class XmlUploadAuthorshipsNotFoundError(BaseError):
-    """Class for errors that are raised when an authorship id does not exist."""
-
-
-class XmlUploadListNodeNotFoundError(BaseError):
-    """Class for errors that are raised when a list node does not exist."""
+    """This error is raised when DSP-API doesn't accept the provided credentials."""
 
 
 class UnknownDOAPException(BaseError):

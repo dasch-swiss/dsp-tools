@@ -1,7 +1,7 @@
 import regex
 
+from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.error.exceptions import Id2IriReplacementError
 
 
 def prepare_richtext_string_for_upload(richtext_str: str, iri_resolver: IriResolver) -> str:

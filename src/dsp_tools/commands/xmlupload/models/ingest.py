@@ -14,10 +14,10 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.commands.xmlupload.exceptions import InvalidIngestFileNameError
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InvalidIngestFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request

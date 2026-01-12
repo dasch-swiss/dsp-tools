@@ -13,6 +13,7 @@ from requests import Response
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -28,7 +29,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_resources
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentTimeOutError
-from dsp_tools.error.exceptions import XmlUploadInterruptedError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"

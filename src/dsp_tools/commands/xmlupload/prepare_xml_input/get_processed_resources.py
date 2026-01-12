@@ -4,6 +4,9 @@ from uuid import uuid4
 from loguru import logger
 from tqdm import tqdm
 
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadListNodeNotFoundError
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
@@ -39,9 +42,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
-from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
-from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
-from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue

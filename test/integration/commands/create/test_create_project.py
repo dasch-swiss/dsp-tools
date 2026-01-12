@@ -11,7 +11,7 @@ from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
-from dsp_tools.error.exceptions import JSONFileParsingError
+from dsp_tools.utils.exceptions import JSONFileParsingError
 from dsp_tools.utils.json_parsing import parse_json_file
 
 SERVER = "http://0.0.0.0:3333"

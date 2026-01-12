@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from dsp_tools.clients.exceptions import InvalidInputError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
@@ -88,16 +89,8 @@ class UserDirectoryNotFoundError(InputError):
         super().__init__(msg)
 
 
-class JSONFileParsingError(InputError):
-    """This error should be raised if the user provided input file cannot be parsed."""
-
-
 class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
-
-
-class InvalidInputError(BaseError):
-    """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
 class ShaclValidationCliError(BaseError):

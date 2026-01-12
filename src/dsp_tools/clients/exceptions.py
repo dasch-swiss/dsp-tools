@@ -15,3 +15,7 @@ class FatalNonOkApiResponseCode(BaseError):
             f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH}."
         )
         super().__init__(msg)
+
+
+class InvalidInputError(BaseError):
+    """This error is raised if the API responds with a permanent error because of invalid input data"""

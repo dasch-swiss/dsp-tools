@@ -74,6 +74,9 @@ class InputProblemType(ProblemType):
     UNDEFINED_SUPER_PROPERTY = "This property is derived from an invalid super-property."
     UNDEFINED_SUPER_CLASS = "This resource is derived from an invalid super-class."
     UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."
+    DUPLICATE_PROPERTY_IN_CARDINALITY = (
+        "This property is referenced multiple times in the cardinality section of this class."
+    )
     DUPLICATE_CLASS_NAME = "This class name appears multiple times in the same ontology."
     DUPLICATE_PROPERTY_NAME = "This property name appears multiple times in the same ontology."
     MIN_CARDINALITY_ONE_WITH_CIRCLE = ""

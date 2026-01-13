@@ -608,7 +608,6 @@ def create_list_from_string(string: str, separator: str) -> list[str]:  # noqa:A
     """
     Attention:
         This function is deprecated, use the new function called 'create_list_from_input' instead.
-    # noqa: DAR101
     """
     raise_xmllib_input_error(
         MessageInfo(

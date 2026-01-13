@@ -96,8 +96,7 @@ class UploadProblemType(ProblemType):
     # Ontology
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
     CARDINALITY_WITH_WRONG_SUBJECT_CONSTRAINT = (
-        "The cardinality could not be added, because the resource class you used it with "
-        "is not the same or a sub-class of the subject constraint specified for this link property."
+        "The cardinality could not be added to this class, because this property specifies another subject constraint."
     )
     CARDINALITY_PROPERTY_NOT_FOUND = "The referenced property does not exist on the server."
     PROPERTY_COULD_NOT_BE_CREATED = "The property could not be created."

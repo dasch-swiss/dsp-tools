@@ -86,10 +86,7 @@ def _get_calling_code_context() -> str | None:
 
 
 def _get_stack_frame_number(file_names: list[str]) -> int:
-    """
-    Get index number of first python file of the stack trace which is not any more in the dsp-tools code.
-    This is the index of the first user python file.
-    """
+    """Get index number of first python file of the stack trace which is not any more in the dsp-tools code."""
     calling_func_index = -1
     for file in file_names:
         if _filter_stack_frames(file):

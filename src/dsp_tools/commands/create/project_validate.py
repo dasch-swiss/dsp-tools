@@ -267,7 +267,7 @@ def _check_for_duplicate_properties_in_cardinalities_for_one_resource(
             )
     if problems:
         return CollectedProblems(
-            "A property may only have one cardinality per class. "
+            "In the cardinality section of a class, every property may only occur once. "
             "The following properties are listed multiple times in the cardinality section of one class:",
             problems,
         )

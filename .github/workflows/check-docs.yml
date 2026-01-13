@@ -22,8 +22,6 @@ jobs:
           python-version: "3.12"
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: Linting with darglint
-        run: just darglint
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator

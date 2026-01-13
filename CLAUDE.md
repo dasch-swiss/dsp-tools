@@ -88,7 +88,6 @@ DSP-TOOLS provides the following functionalities:
     - `just ruff-format-check` (Python formatting)
     - `just yamllint` (YAML linting)
     - `just markdownlint` (Markdown linting)
-    - `just darglint` (docstring linting)
 
 ### Testing
 

@@ -59,7 +59,6 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "darglint",
     "docker",
     "mkdocs-include-markdown-plugin",
     "mkdocs-material",
@@ -121,6 +120,8 @@ target-version = "py312"
 
 
 [tool.ruff.lint]
+preview = true
+explicit-preview-rules = true
 select = [
     "RUF",   # ruff-specific rules
     "PL",    # pylint
@@ -157,6 +158,10 @@ ignore = [
     "UP015",  # Unnecessary mode="r" argument in open()
     "UP045",  # Forced use of "|" instead of typing.Optional and typing.Union
 ]
+extend-select = [  # this is for preview (beta) features
+   "DOC102", # pydoclint: docstring contains more arguments than function signature
+   "DOC501", # pydoclint: docstring-missing-exception
+]
 
 
 [tool.ruff.lint.per-file-ignores]
@@ -169,15 +174,33 @@ ignore = [
     "INP001", # implicit-namespace-package    # there are some python files, but no __init__.py
 ]
 "test/*" = [
-    "D103", # pydocstyle: undocumented-public-function
-    "D102", # pydocstyle: undocumented-public-method
-    "D101", # pydocstyle: undocumented-public-class
     "S101", # flake8-bandit: use of assert
+    "PLC2701" # import of private function
 ]
-"!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
+"src/dsp_tools/commands/excel2xml/**" = [
+    "A002",  # flake8: builtin-argument-shadowing
+    "DOC102", # missing arg name in docstring
+]
+"src/dsp_tools/commands/get/legacy_models/**" = [
+    "A002",  # flake8: builtin-argument-shadowing
+    "PLR0913", # pylint: too-many-arguments
+    "PLR0917", # Too many positional arguments
+]
+"src/dsp_tools/xmllib/models/**" = [
+    "A002"  # flake8: builtin-argument-shadowing
+]
 "src/dsp_tools/legacy_models/**" = [
     "PLW"
 ]
+"!src/dsp_tools/xmllib/**.py" = ["D103", "DOC501"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
+
+
+[tool.ruff.lint.pylint]
+max-args = 8
+
+
+[tool.ruff.lint.pydoclint]
+ignore-one-line-docstrings = true
 
 
 [tool.ruff.lint.pydocstyle]

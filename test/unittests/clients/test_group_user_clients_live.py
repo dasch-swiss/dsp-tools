@@ -14,7 +14,7 @@ from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.clients.group_user_clients_live import UserClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestException
 from test.unittests.clients.constants import API_URL
 from test.unittests.clients.constants import GROUP_IRI
 from test.unittests.clients.constants import PROJECT_IRI

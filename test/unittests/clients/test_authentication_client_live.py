@@ -11,7 +11,7 @@ from requests import RequestException
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestException
 
 
 @pytest.fixture

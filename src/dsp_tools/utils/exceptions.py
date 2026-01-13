@@ -1,3 +1,4 @@
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -10,3 +11,7 @@ class DuplicateIdsInXmlAndId2IriMapping(UserError):
     Represents an error raised if a resource ID that is in the Id2Iri mapping
     is also used as a resource id in the new data.
     """
+
+
+class DspToolsRequestException(BaseError):
+    """Class for errors that are raised if any request exceptions happens."""

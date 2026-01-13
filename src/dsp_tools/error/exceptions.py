@@ -68,10 +68,6 @@ class UnreachableCodeError(BaseError):
         super().__init__(msg)
 
 
-class DspToolsRequestException(BaseError):
-    """Class for errors that are raised if any request exceptions happens."""
-
-
 class UserFilepathNotFoundError(InputError):
     """This error is raised if a filepath from the user does not exist."""
 

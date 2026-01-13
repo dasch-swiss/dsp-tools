@@ -92,5 +92,5 @@ class PermanentTimeOutError(BaseError):
     """This error is raised when python throws a timeout due to no response from the DSP-API."""
 
 
-class BadCredentialsError(PermanentConnectionError):
+class BadCredentialsError(UserError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""

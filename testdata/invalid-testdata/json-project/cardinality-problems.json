@@ -30,12 +30,12 @@
                 ],
                 "resources": [
                     {
-                        "name": "TestThing",
+                        "name": "UndefinedPropInCardinality",
                         "super": [
                             "Resource"
                         ],
                         "labels": {
-                            "en": "TestThing"
+                            "en": "UndefinedPropInCardinality"
                         },
                         "cardinalities": [
                             {
@@ -45,6 +45,25 @@
                             {
                                 "propname": ":hasSimpleText",
                                 "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DuplicateCardinality",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "DuplicateCardinality"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1"
                             }
                         ]
                     }

@@ -175,6 +175,8 @@ def _complex_parsed_project_validation(
         cardinalities_flattened, props_flattened
     ):
         problems.append(card_probs)
+    if duplicate_cards := _check_for_duplicate_properties_in_cardinalities_for_one_resource(cardinalities_flattened):
+        problems.append(duplicate_cards)
     # PERMISSIONS
     still_image_classes = _get_still_image_classes(cls_flattened)
     if perm_problem := _check_for_invalid_default_permissions_overrule(
@@ -245,6 +247,30 @@ def _check_for_undefined_properties_in_cardinalities(
                 )
     if problems:
         return CollectedProblems("The following classes have cardinalities for properties that do not exist:", problems)
+    return None
+
+
+def _check_for_duplicate_properties_in_cardinalities_for_one_resource(
+    cardinalities: list[ParsedClassCardinalities],
+) -> CollectedProblems | None:
+    problems: list[CreateProblem] = []
+    for cls_card in cardinalities:
+        props = [x.propname for x in cls_card.cards]
+        if duplicates := _get_duplicates_in_list(props):
+            prefixed_cls = from_dsp_iri_to_prefixed_iri(cls_card.class_iri)
+            prefixed_props = [from_dsp_iri_to_prefixed_iri(x) for x in duplicates]
+            problems.append(
+                InputProblem(
+                    f"Class '{prefixed_cls}' / Properties '{', '.join(prefixed_props)}'",
+                    InputProblemType.DUPLICATE_PROPERTY_IN_CARDINALITY,
+                )
+            )
+    if problems:
+        return CollectedProblems(
+            "In the cardinality section of a class, every property may only occur once. "
+            "The following properties are listed multiple times in the cardinality section of one class:",
+            problems,
+        )
     return None
 
 

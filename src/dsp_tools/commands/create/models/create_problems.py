@@ -74,6 +74,9 @@ class InputProblemType(ProblemType):
     UNDEFINED_SUPER_PROPERTY = "This property is derived from an invalid super-property."
     UNDEFINED_SUPER_CLASS = "This resource is derived from an invalid super-class."
     UNDEFINED_PROPERTY_IN_CARDINALITY = "This cardinality references a property that does not exist."
+    DUPLICATE_PROPERTY_IN_CARDINALITY = (
+        "This property is referenced multiple times in the cardinality section of this class."
+    )
     DUPLICATE_CLASS_NAME = "This class name appears multiple times in the same ontology."
     DUPLICATE_PROPERTY_NAME = "This property name appears multiple times in the same ontology."
     MIN_CARDINALITY_ONE_WITH_CIRCLE = ""
@@ -95,6 +98,9 @@ class UploadProblemType(ProblemType):
     LIST_NODE_COULD_NOT_BE_CREATED = "The list node could not be created on the server."
     # Ontology
     CARDINALITY_COULD_NOT_BE_ADDED = "The cardinality could not be added."
+    CARDINALITY_WITH_WRONG_SUBJECT_CONSTRAINT = (
+        "The cardinality could not be added to this class, because this property specifies another subject constraint."
+    )
     CARDINALITY_PROPERTY_NOT_FOUND = "The referenced property does not exist on the server."
     PROPERTY_COULD_NOT_BE_CREATED = "The property could not be created."
     PROPERTY_LIST_NOT_FOUND = "The property cannot be created, because the list it references does not exist."

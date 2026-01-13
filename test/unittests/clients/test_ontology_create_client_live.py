@@ -20,7 +20,6 @@ from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLi
 from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
-from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -215,15 +214,16 @@ class TestCardinalities:
         mock_response = Mock(spec=Response)
         mock_response.ok = False
         mock_response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR.value
-        mock_response.text = "text"
+        mock_response.text = "Internal Server Error"
 
         def mock_post_and_log_request(*_args: object, **_kwargs: object) -> Response:
             return mock_response
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-        with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-            result = ontology_client.post_resource_cardinalities(sample_cardinality_graph)
-        assert result is None
+        result = ontology_client.post_resource_cardinalities(sample_cardinality_graph)
+        assert isinstance(result, ResponseCodeAndText)
+        assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR.value
+        assert result.text == "Internal Server Error"
 
     def test_post_resource_cardinalities_timeout(
         self,

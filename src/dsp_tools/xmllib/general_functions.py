@@ -608,7 +608,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:  # noqa:A
     """
     Create list from string.
 
-        Args:
+    Args:
         string: input string to check and convert
         separator: The character that separates the different values in the string.
             For example, a comma or newline.

@@ -16,6 +16,7 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI
@@ -59,9 +60,9 @@ class TestAddOneCardinality:
         assert problems is None
         onto_client_ok.post_resource_cardinalities.assert_called_once()
 
-    def test_returns_problem_when_client_returns_none(self) -> None:
+    def test_returns_problem_when_client_returns_bad_request(self) -> None:
         mock_client = Mock(spec=OntologyCreateClientLive)
-        mock_client.post_resource_cardinalities.return_value = None
+        mock_client.post_resource_cardinalities.return_value = ResponseCodeAndText(400, "Bad Request Error")
 
         property_card = ParsedPropertyCardinality(
             propname=str(PROP_IRI),
@@ -146,10 +147,10 @@ class TestAddCardinalitiesForOneClass:
 
     def test_handles_partial_failure(self) -> None:
         mock_client = Mock(spec=OntologyCreateClientLive)
-        # Second call returns None (failure)
+        # Second call returns ResponseCodeAndText (failure)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
-            None,  # Failure
+            ResponseCodeAndText(400, "Bad Request Error"),  # Failure
             Literal("2025-10-14T14:02:00.000000Z", datatype=XSD.dateTimeStamp),
         ]
         prop_1 = str(ONTO.hasText)
@@ -294,10 +295,10 @@ class TestAddAllCardinalities:
 
     def test_handles_partial_failure(self, created_iri_collection) -> None:
         mock_client = Mock(spec=OntologyCreateClientLive)
-        # Second call returns None (failure)
+        # Second call returns ResponseCodeAndText (failure)
         mock_client.post_resource_cardinalities.side_effect = [
             Literal("2025-10-14T14:00:00.000000Z", datatype=XSD.dateTimeStamp),
-            None,  # Failure
+            ResponseCodeAndText(400, "Bad Request Error"),  # Failure
             Literal("2025-10-14T14:02:00.000000Z", datatype=XSD.dateTimeStamp),
         ]
         cardinalities = [

@@ -220,7 +220,7 @@ def log_and_raise_request_exception(error: RequestException) -> Never:
 
 
 def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
-    resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+    resp_txt = response_text[:400] if len(response_text) > 400 else response_text
     msg = (
         "We got an unexpected API response during the following request. "
         "Please contact the dsp-tools development team (at support@dasch.swiss) with your log file "

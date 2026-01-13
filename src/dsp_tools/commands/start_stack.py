@@ -13,7 +13,8 @@ import yaml
 from jinja2 import Template
 from loguru import logger
 
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.cli.exceptions import FusekiStartUpError
+from dsp_tools.cli.exceptions import StartStackInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
@@ -47,16 +48,16 @@ class StackConfiguration:
         Validate the input parameters passed by the user.
 
         Raises:
-            InputError: if one of the parameters is invalid
+            StartStackFileError: if one of the parameters is invalid
         """
         if self.max_file_size is not None and not 1 <= self.max_file_size <= MAX_FILE_SIZE:
-            raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
+            raise StartStackInputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
-            raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
+            raise StartStackInputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
         if self.custom_host is not None and not regex.match(
             r"^(((\d{1,3}\.){3}\d{1,3})|((([-\w_~]+\.)*([a-z]){2,})))$", self.custom_host
         ):
-            raise InputError("Invalid format for custom host. Please, enter an IP or a domain name.")
+            raise StartStackInputError("Invalid format for custom host. Please, enter an IP or a domain name.")
 
 
 class StackHandler:
@@ -166,7 +167,7 @@ class StackHandler:
         and set the max_file_size parameter if necessary.
 
         Raises:
-            InputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
+            StartStackInputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
         logger.debug("Retrieving sipi.docker-config.lua...")
         docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
@@ -174,7 +175,7 @@ class StackHandler:
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]?\d+[MG][\'\"]?"
             if not regex.search(max_post_size_regex, docker_config_lua_text):
-                raise InputError("Unable to set max_file_size. Please try again without this flag.")
+                raise StartStackInputError("Unable to set max_file_size. Please try again without this flag.")
             docker_config_lua_text = regex.sub(
                 max_post_size_regex,
                 f"max_post_size = '{self.__stack_configuration.max_file_size}M'",
@@ -188,7 +189,7 @@ class StackHandler:
         Start up the Docker container of the fuseki database.
 
         Raises:
-            InputError: if the database cannot be started
+            StartStackStartError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
         cmd = "docker compose up -d db".split()
@@ -196,7 +197,7 @@ class StackHandler:
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
-            raise InputError(msg)
+            raise FusekiStartUpError(msg)
 
     def _wait_for_fuseki(self) -> None:
         """
@@ -221,7 +222,7 @@ class StackHandler:
         dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
 
         Raises:
-            InputError: if one of the graphs cannot be created
+            FusekiStartUpError: if one of the graphs cannot be created
         """
         logger.debug("Loading data into the 'dsp-repo' repository...")
         graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
@@ -241,7 +242,7 @@ class StackHandler:
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
                 logger.error(f"{msg}'. response = {vars(ttl_response)}")
-                raise InputError(msg)
+                raise FusekiStartUpError(msg)
             ttl_text = ttl_response.text
             response = requests.post(
                 graph_prefix + graph,
@@ -251,7 +252,7 @@ class StackHandler:
             )
             if not response.ok:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
-                raise InputError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
+                raise FusekiStartUpError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     def _create_admin_user(self) -> None:
         """
@@ -259,7 +260,7 @@ class StackHandler:
         The password is the hash for "test".
 
         Raises:
-            InputError: If the user cannot be created.
+            FusekiStartUpError: If the user cannot be created.
         """
         logger.debug("Creating the default admin user...")
         graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
@@ -289,7 +290,7 @@ class StackHandler:
         )
         if not response.ok:
             logger.error(f"Cannot start DSP-API: Error when creating the admin user. response = {vars(response)}")
-            raise InputError("Cannot start DSP-API: Error when creating the admin user.")
+            raise FusekiStartUpError("Cannot start DSP-API: Error when creating the admin user.")
 
     def _initialize_fuseki(self) -> None:
         """
@@ -395,9 +396,6 @@ class StackHandler:
         """
         Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data.
         After startup, ask user if Docker should be pruned or not.
-
-        Raises:
-            InputError: if the stack cannot be started with the parameters passed by the user
 
         Returns:
             True if everything went well, False otherwise

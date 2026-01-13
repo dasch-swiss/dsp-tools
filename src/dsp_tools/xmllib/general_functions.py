@@ -606,6 +606,16 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
 
 def create_list_from_string(string: str, separator: str) -> list[str]:  # noqa:ARG001
     """
+    Create list from string.
+
+        Args:
+        string: input string to check and convert
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline.
+
+    Returns:
+        The list that results from splitting the input string.
+
     Attention:
         This function is deprecated, use the new function called 'create_list_from_input' instead.
     """

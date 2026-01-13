@@ -2,6 +2,9 @@
 import pytest
 import regex
 
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadAuthorshipsNotFoundError
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadListNodeNotFoundError
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
@@ -31,9 +34,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_file_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.error.exceptions import XmlUploadAuthorshipsNotFoundError
-from dsp_tools.error.exceptions import XmlUploadListNodeNotFoundError
-from dsp_tools.error.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX

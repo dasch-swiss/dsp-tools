@@ -8,12 +8,12 @@ import rustworkx as rx
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import get_project_iri_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.exceptions import CircularOntologyDependency
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.error.exceptions import ProjectOntologyNotFound
 
 PROJECT_IRI = "http://rdfh.ch/projects/1234"
 API_URL = "http://0.0.0.0:3333"

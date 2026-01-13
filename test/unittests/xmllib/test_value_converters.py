@@ -8,8 +8,8 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_errors import XmllibInputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat

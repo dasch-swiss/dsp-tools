@@ -5,7 +5,7 @@ import warnings
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource

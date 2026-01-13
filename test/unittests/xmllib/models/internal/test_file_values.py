@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata

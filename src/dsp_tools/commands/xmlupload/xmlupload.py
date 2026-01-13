@@ -24,6 +24,7 @@ from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
+from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -48,7 +49,6 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
-from dsp_tools.error.exceptions import XmlUploadInterruptedError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT

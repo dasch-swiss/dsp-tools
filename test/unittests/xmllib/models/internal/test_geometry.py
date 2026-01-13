@@ -2,7 +2,7 @@ import warnings
 
 import pytest
 
-from dsp_tools.error.xmllib_errors import XmllibInputError
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.models.internal.geometry import Circle
 from dsp_tools.xmllib.models.internal.geometry import GeometryPoint
 from dsp_tools.xmllib.models.internal.geometry import Polygon

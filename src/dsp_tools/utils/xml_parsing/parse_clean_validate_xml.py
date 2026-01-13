@@ -11,11 +11,11 @@ from lxml import etree
 
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
-from dsp_tools.error.xsd_validation_error_msg import XSDValidationMessage
-from dsp_tools.error.xsd_validation_error_msg import get_xsd_validation_message_str
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.xsd_validation_error_msg import XSDValidationMessage
+from dsp_tools.utils.xsd_validation_error_msg import get_xsd_validation_message_str
 
 separator = "\n    "
 list_separator = "\n    - "

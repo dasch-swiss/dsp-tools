@@ -2,12 +2,12 @@
 
 import pytest
 
+from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import _replace_one_id
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_ids_if_found
-from dsp_tools.error.exceptions import Id2IriReplacementError
 
 RES_IRI = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
 

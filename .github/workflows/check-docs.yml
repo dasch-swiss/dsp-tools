@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with darglint

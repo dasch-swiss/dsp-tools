@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from typing_extensions import deprecated
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_timestamp

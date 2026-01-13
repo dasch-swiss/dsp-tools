@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field
 
-from dsp_tools.error.exceptions import InvalidLicenseError
+from dsp_tools.commands.update_legal.exceptions import InvalidLicenseError
 from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.models.licenses.recommended import License
 

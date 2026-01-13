@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 
 
 @pytest.mark.parametrize(

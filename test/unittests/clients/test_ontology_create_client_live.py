@@ -15,13 +15,13 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 

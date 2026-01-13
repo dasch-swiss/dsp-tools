@@ -9,12 +9,12 @@ import requests
 from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.clients.group_user_clients_live import UserClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from test.unittests.clients.constants import API_URL
 from test.unittests.clients.constants import GROUP_IRI
 from test.unittests.clients.constants import PROJECT_IRI

@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidGuiAttributeError
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
@@ -35,7 +36,6 @@ from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidGuiAttributeError
 from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]

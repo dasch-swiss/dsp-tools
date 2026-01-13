@@ -6,11 +6,11 @@ from typing import Any
 import regex
 from regex import Match
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat

@@ -5,8 +5,8 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.error.exceptions import JSONFileParsingError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
+from dsp_tools.utils.exceptions import JSONFileParsingError
 
 
 def parse_json_file(filepath: Path) -> dict[str, Any]:

@@ -3,9 +3,9 @@ from typing import Any
 import pandas as pd
 import regex
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 
 
 def is_nonempty_value(value: Any) -> bool:

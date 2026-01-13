@@ -4,13 +4,13 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.project_validate import parse_and_validate_lists
-from dsp_tools.error.exceptions import ProjectNotFoundError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT

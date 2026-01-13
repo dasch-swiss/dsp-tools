@@ -72,8 +72,3 @@ Automatically formats docstrings to follow a subset of
 the [PEP 257](http://www.python.org/dev/peps/pep-0257/) conventions.
 Currently, only the style "sphinx" and "epytext" are recognized, 
 but "numpy" and "google" are future styles.
-
-### [darglint](https://pypi.org/project/darglint/)
-
-Docstring linter which checks whether a docstring's description matches the actual function/method implementation.
-Supports the styles "sphinx", "google", and "numpy".

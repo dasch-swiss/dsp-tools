@@ -221,7 +221,6 @@ We use the following linters:
 
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
-- [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 - [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)

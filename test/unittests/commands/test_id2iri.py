@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -24,16 +25,16 @@ def mapping() -> dict[str, str]:
 def test_invalid_xml_file_name() -> None:
     with pytest.raises(BaseError, match=regex.escape("File test.xml could not be found")):
         id2iri(
-            xml_file="test.xml",
-            json_file="testdata/id2iri/test-id2iri-mapping.json",
+            xml_file=Path("test.xml"),
+            json_file=Path("testdata/id2iri/test-id2iri-mapping.json"),
         )
 
 
 def test_invalid_json_file_name() -> None:
     with pytest.raises(BaseError, match=regex.escape("File test.json could not be found")):
         id2iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file="test.json",
+            xml_file=Path("testdata/id2iri/test-id2iri-data.xml"),
+            json_file=Path("test.json"),
         )
 
 

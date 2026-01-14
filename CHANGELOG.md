@@ -1,5 +1,21 @@
 # Changelog
 
+## [18.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.5.0...v18.6.0) (2026-01-14)
+
+
+### Enhancements
+
+* **create:** check for duplicate properties in cardinality section (RDU-157) ([#2145](https://github.com/dasch-swiss/dsp-tools/issues/2145)) ([1edc1f5](https://github.com/dasch-swiss/dsp-tools/commit/1edc1f54aec8dc26b88003e384ac4ca587de81b3))
+
+
+### Maintenance
+
+* **create:** improve user message when property is used with the wrong class ([#2144](https://github.com/dasch-swiss/dsp-tools/issues/2144)) ([373188d](https://github.com/dasch-swiss/dsp-tools/commit/373188dbef8659a89537b2397e31ece60448ccd9))
+* remove darglint from linters and reconfigure ruff ([#2149](https://github.com/dasch-swiss/dsp-tools/issues/2149)) ([6e15ea0](https://github.com/dasch-swiss/dsp-tools/commit/6e15ea087901eb1de8d09fb7bade78a91edbc5ba))
+* separate exceptions and move to dedicated file ([#2146](https://github.com/dasch-swiss/dsp-tools/issues/2146)) ([9f21600](https://github.com/dasch-swiss/dsp-tools/commit/9f216006dfc38032c125d67730155268d56ca8d8))
+* **start-stack:** bump versions to 2026.01.02 ([#2154](https://github.com/dasch-swiss/dsp-tools/issues/2154)) ([a84dd76](https://github.com/dasch-swiss/dsp-tools/commit/a84dd760767004bd9e4bc0f184d5480a94197a91))
+* update all dependencies ([#2153](https://github.com/dasch-swiss/dsp-tools/issues/2153)) ([82865f2](https://github.com/dasch-swiss/dsp-tools/commit/82865f2f6ab6d16e6877e43fee43f6da8ec301aa))
+
 ## [18.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.4.0...v18.5.0) (2026-01-07)
 
 

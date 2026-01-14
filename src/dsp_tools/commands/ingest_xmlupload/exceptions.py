@@ -7,7 +7,7 @@ class NoIngestFileFound(UserError):
 
 
 class InvalidIngestInputFilesError(UserError):
-    """If the filepath provided for ingest are not valid"""
+    """If one or more filepaths provided to ingest are not valid"""
 
 
 class IngestIdForFileNotFoundError(UserError):

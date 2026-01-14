@@ -11,3 +11,11 @@ class InvalidFileFormatError(UserError):
 
 class InvalidFolderStructureError(UserError):
     """When the user input file does not conform to the expected format."""
+
+
+class InvalidFileContentError(UserError):
+    """When the user input is not valid."""
+
+
+class InvalidListSectionError(UserError):
+    """When the list section did not pass validation."""

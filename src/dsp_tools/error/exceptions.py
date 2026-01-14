@@ -68,7 +68,7 @@ class UnreachableCodeError(BaseError):
         super().__init__(msg)
 
 
-class UserFilepathNotFoundError(InputError):
+class UserFilepathNotFoundError(UserError):
     """This error is raised if a filepath from the user does not exist."""
 
     def __init__(self, filepath: str | Path) -> None:
@@ -76,7 +76,7 @@ class UserFilepathNotFoundError(InputError):
         super().__init__(msg)
 
 
-class UserDirectoryNotFoundError(InputError):
+class UserDirectoryNotFoundError(UserError):
     """This error is raised if a directory from the user does not exist."""
 
     def __init__(self, directory: str | Path) -> None:

@@ -4,8 +4,8 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
+from dsp_tools.utils.exceptions import MalformedPrefixedIriError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -55,7 +55,7 @@ def _get_one_absolute_iri(local_name: str, shortcode: str, default_ontology: str
         if split_name[0] == "knora-api":
             return f"{KNORA_API_PREFIX}{split_name[1]}"
         return f"{_construct_namespace(api_url, shortcode, split_name[0])}{split_name[1]}"
-    raise InputError(
+    raise MalformedPrefixedIriError(
         f"It is not permissible to have a colon in a property or resource class name. "
         f"Please correct the following: {local_name}"
     )

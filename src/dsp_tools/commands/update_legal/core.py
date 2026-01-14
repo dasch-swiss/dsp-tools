@@ -5,6 +5,7 @@ from lxml import etree
 from dsp_tools.commands.update_legal.csv_operations import is_fixme_value
 from dsp_tools.commands.update_legal.csv_operations import read_corrections_csv
 from dsp_tools.commands.update_legal.csv_operations import write_problems_to_csv
+from dsp_tools.commands.update_legal.exceptions import LegalInfoPropertyError
 from dsp_tools.commands.update_legal.models import Authorships
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
@@ -15,7 +16,6 @@ from dsp_tools.commands.update_legal.xml_operations import add_authorship_defini
 from dsp_tools.commands.update_legal.xml_operations import apply_metadata_to_resource
 from dsp_tools.commands.update_legal.xml_operations import collect_metadata
 from dsp_tools.commands.update_legal.xml_operations import write_updated_xml
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import transform_into_localnames
 
@@ -69,7 +69,9 @@ def update_legal_metadata(
 
 def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:
     if not properties.has_any_property():
-        raise InputError("At least one property (authorship_prop, copyright_prop, license_prop) must be provided")
+        raise LegalInfoPropertyError(
+            "At least one property (authorship_prop, copyright_prop, license_prop) must be provided"
+        )
     text_prop_names = {x for x in root.xpath("//text-prop/@name")}
     inexisting_props = [
         x
@@ -77,7 +79,9 @@ def _validate_flags(root: etree._Element, properties: LegalProperties) -> None:
         if x and x not in text_prop_names
     ]
     if inexisting_props:
-        raise InputError(f"The following properties do not exist in the XML file: {', '.join(inexisting_props)}")
+        raise LegalInfoPropertyError(
+            f"The following properties do not exist in the XML file: {', '.join(inexisting_props)}"
+        )
 
 
 def _update_xml_tree(

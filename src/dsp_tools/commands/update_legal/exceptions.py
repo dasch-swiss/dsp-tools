@@ -1,6 +1,14 @@
 from dsp_tools.error.exceptions import UserError
 
 
+class InvalidInputFileFormat(UserError):
+    """A problem with the format of the input file"""
+
+
+class LegalInfoPropertyError(UserError):
+    """A problem with the property provided by the user"""
+
+
 class InvalidLicenseError(UserError):
     """This error is raised when a license string cannot be parsed."""
 

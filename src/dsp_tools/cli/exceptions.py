@@ -1,6 +1,10 @@
 from dsp_tools.error.exceptions import UserError
 
 
+class CliUserError(UserError):
+    """Invalid user input in the CLI"""
+
+
 class DockerNotReachableError(UserError):
     """This error is raised when docker is not running."""
 

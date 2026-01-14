@@ -6,6 +6,7 @@ from typing import Any
 
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFolderStructureError
 from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesPrefixed
@@ -13,7 +14,7 @@ from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 
 
 def old_excel2json(
@@ -42,8 +43,8 @@ def old_excel2json(
         path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        InputError: if something went wrong
-        BaseError: if something went wrong
+        InvalidFolderStructureError: folder structure is wrong
+        UserDirectoryNotFoundError: directory not found
 
     Returns:
         True if everything went well
@@ -63,7 +64,7 @@ def old_excel2json(
 
 def _old_validate_folder_structure_and_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
-        raise InputError(f"ERROR: {data_model_files} is not a directory.")
+        raise UserDirectoryNotFoundError(f"ERROR: {data_model_files} is not a directory.")
     sub_folders = [x for x in Path(data_model_files).glob("*") if _non_hidden(x) and x.is_dir()]
     files_to_process = []
     onto_folders, onto_files_to_process = _get_and_validate_onto_folder(Path(data_model_files), sub_folders)
@@ -71,7 +72,7 @@ def _old_validate_folder_structure_and_get_filenames(data_model_files: str) -> t
     listfolder, lists_to_process = _old_get_and_validate_list_folder(data_model_files, sub_folders)
     files_to_process.extend(lists_to_process)
     if len(onto_folders) + len(listfolder) != len(sub_folders):
-        raise InputError(
+        raise InvalidFolderStructureError(
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )
@@ -88,7 +89,7 @@ def _old_get_and_validate_list_folder(data_model_files: str, folder: list[Path])
     if listfolder:
         listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if _non_hidden(x)]
         if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
-            raise InputError(
+            raise InvalidFolderStructureError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
             )
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents]
@@ -121,7 +122,8 @@ def excel2json(
         path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        InputError: if something went wrong
+        InvalidFolderStructureError: folder structure is wrong
+        UserDirectoryNotFoundError: directory not found
 
     Returns:
         True if everything went well
@@ -142,7 +144,7 @@ def excel2json(
 
 def _validate_folder_structure_and_get_filenames(data_model_files: Path) -> tuple[Path | None, list[Path]]:
     if not data_model_files.is_dir():
-        raise InputError(f"ERROR: {data_model_files} is not a directory.")
+        raise UserDirectoryNotFoundError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in data_model_files.glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_and_validate_onto_folder(data_model_files, folder)
@@ -158,13 +160,13 @@ def _get_and_validate_onto_folder(data_model_files: Path, folder: list[Path]) ->
     processed_files = []
     onto_folders = [x for x in folder if x.is_dir() and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if not onto_folders:
-        raise InputError(
+        raise InvalidFolderStructureError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
         contents = sorted([x.name for x in Path(onto_folder).glob("*") if _non_hidden(x)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
-            raise InputError(
+            raise InvalidFolderStructureError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
                 "and one file 'resources.xlsx', but nothing else."
             )

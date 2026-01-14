@@ -12,6 +12,7 @@ import jsonschema
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
@@ -30,7 +31,6 @@ from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -50,7 +50,7 @@ def excel2resources(
             (otherwise, it's only returned as return value)
 
     Raises:
-        InputError: if something went wrong
+        InvalidFileFormatError: if something went wrong
 
     Returns:
         - the "resources" section as Python list,
@@ -62,7 +62,7 @@ def excel2resources(
 
     if validation_problems := _validate_excel_file(all_dfs):
         msg = validation_problems.execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
 
     # transform every row into a resource
@@ -179,7 +179,7 @@ def _row2resource(
         class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
-        InputError: if the row or the details sheet contains invalid data
+        InvalidFileFormatError: if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource
@@ -260,7 +260,7 @@ def _validate_resources(resources_list: list[dict[str, Any]]) -> None:
         resources_list: the "resources" section of a JSON project as a list of dicts
 
     Raises:
-        InputError: if the validation fails
+        InvalidFileFormatError: if the validation fails
     """
     with (
         importlib.resources.files("dsp_tools")
@@ -276,7 +276,7 @@ def _validate_resources(resources_list: list[dict[str, Any]]) -> None:
             resources_list=resources_list,
         )
         msg = "\nThe Excel file 'resources.xlsx' did not pass validation." + validation_problem.execute_error_protocol()
-        raise InputError(msg) from None
+        raise InvalidFileFormatError(msg) from None
 
 
 def _find_validation_problem(

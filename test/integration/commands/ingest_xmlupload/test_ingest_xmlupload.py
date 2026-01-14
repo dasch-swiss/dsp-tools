@@ -7,7 +7,8 @@ import regex
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 
 @pytest.fixture(autouse=True)
@@ -39,13 +40,13 @@ def test_ingest_xmlupload(creds: ServerCredentials) -> None:
         "which were not previously uploaded through dsp-ingest:\n"
         "    - Resource ID: 'GoodGirlImage' | Filepath: 'images/GoodGirl.jpg'"
     )
-    with pytest.raises(InputError, match=expected_msg):
+    with pytest.raises(IngestIdForFileNotFoundError, match=expected_msg):
         ingest_xmlupload(xml_file=Path("testdata/dsp-ingest-data/dsp-ingest.xml"), creds=creds)
 
 
 def test_ingest_xmlupload_no_mapping(creds: ServerCredentials) -> None:
     expected_msg = regex.escape("No mapping CSV file was found at mapping-00A5.csv.")
-    with pytest.raises(InputError, match=expected_msg):
+    with pytest.raises(UserFilepathNotFoundError, match=expected_msg):
         ingest_xmlupload(xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"), creds=creds)
 
 

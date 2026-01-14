@@ -10,39 +10,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
-
-
-def _check_input_parameters(
-    xml_file: str,
-    json_file: str,
-) -> tuple[Path, Path]:
-    """
-    Transform the input parameters into Path objects
-    and check if they are valid files.
-
-    Args:
-        xml_file: the XML file with the data to be replaced
-        json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
-
-    Raises:
-        InputError: if one of the files could not be found
-
-    Returns:
-        path objects of the input parameters
-    """
-    xml_file_as_path = Path(xml_file)
-    if not xml_file_as_path.is_file():
-        logger.error(f"File {xml_file} could not be found.")
-        raise InputError(f"File {xml_file} could not be found.")
-
-    json_file_as_path = Path(json_file)
-    if not json_file_as_path.is_file():
-        logger.error(f"File {json_file} could not be found.")
-        raise InputError(f"File {json_file} could not be found.")
-
-    return xml_file_as_path, json_file_as_path
 
 
 def _parse_json_file(json_file: Path) -> dict[str, str]:
@@ -220,8 +188,8 @@ def _write_output_file(
 
 
 def id2iri(
-    xml_file: str,
-    json_file: str,
+    xml_file: Path,
+    json_file: Path,
     remove_resource_if_id_in_mapping: bool = False,
 ) -> bool:
     """
@@ -242,9 +210,8 @@ def id2iri(
     Returns:
         success status
     """
-    xml_file_as_path, json_file_as_path = _check_input_parameters(xml_file=xml_file, json_file=json_file)
-    mapping = _parse_json_file(json_file_as_path)
-    tree = parse_and_clean_xml_file(xml_file_as_path)
+    mapping = _parse_json_file(json_file)
+    tree = parse_and_clean_xml_file(xml_file)
     tree = _replace_ids_by_iris(
         tree=tree,
         mapping=mapping,
@@ -254,5 +221,5 @@ def id2iri(
             tree=tree,
             mapping=mapping,
         )
-    _write_output_file(orig_xml_file=xml_file_as_path, tree=tree)
+    _write_output_file(orig_xml_file=xml_file, tree=tree)
     return True

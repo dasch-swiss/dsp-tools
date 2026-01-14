@@ -16,6 +16,7 @@ from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -28,7 +29,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file impor
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
@@ -154,7 +154,7 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
         logger.info(ok)
     else:
         err_msg = ingest_info.execute_error_protocol()
-        raise InputError(err_msg)
+        raise IngestIdForFileNotFoundError(err_msg)
     return root
 
 

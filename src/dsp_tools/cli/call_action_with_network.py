@@ -16,12 +16,12 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import inge
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
-from dsp_tools.commands.start_stack import StackConfiguration
-from dsp_tools.commands.start_stack import StackHandler
+from dsp_tools.commands.start_stack.start_stack import StackConfiguration
+from dsp_tools.commands.start_stack.start_stack import StackHandler
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
@@ -115,10 +115,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
             case "error":
                 severity = ValidationSeverity.ERROR
             case _:
-                raise InputError(
-                    f"The entered validation severity '{args.validation_severity}' "
-                    f"is not part of the allowed values: info, warning, error."
-                )
+                raise UnreachableCodeError()
         return xmlupload(
             input_file=xml_path,
             creds=get_creds(args),

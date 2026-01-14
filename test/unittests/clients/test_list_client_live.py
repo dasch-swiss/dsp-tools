@@ -13,7 +13,7 @@ from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestException
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"

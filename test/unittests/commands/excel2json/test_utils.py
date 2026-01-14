@@ -12,9 +12,9 @@ from pandas.testing import assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
-from dsp_tools.error.exceptions import InputError
 
 
 def test_find_duplicate_col_names_good() -> None:
@@ -32,7 +32,7 @@ def test_find_duplicate_col_names_raises() -> None:
         "    - b"
     )
 
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidFileFormatError, match=expected):
         utl._find_duplicate_col_names("excelfile", ["a", "A", "b", "b  ", "c"])
 
 

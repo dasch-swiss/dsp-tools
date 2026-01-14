@@ -16,8 +16,8 @@ from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
+from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -42,7 +42,7 @@ def run(args: Sequence[str]) -> None:
             excluding the leading "dsp-tools" command.
 
     Raises:
-        InputError: if user input was wrong
+        CliUserError: if user input was wrong
         InternalError: if the user cannot fix it
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
@@ -255,7 +255,7 @@ def _get_canonical_server_and_dsp_ingest_url(
         default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
-        InputError: if the DSP server URL passed by the user is invalid
+        CliUserError: if the DSP server URL passed by the user is invalid
 
     Returns:
         canonical DSP URL and ingest server URL
@@ -273,7 +273,7 @@ def _get_canonical_server_and_dsp_ingest_url(
         dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
         logger.error(f"Invalid DSP server URL '{server}'")
-        raise InputError(f"ERROR: Invalid DSP server URL '{server}'")
+        raise CliUserError(f"ERROR: Invalid DSP server URL '{server}'")
 
     logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
@@ -298,7 +298,7 @@ def _derive_dsp_ingest_url(
         default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
-        InputError: if the DSP server URL passed by the user is invalid
+        CliUserError: if the DSP server URL passed by the user is invalid
 
     Returns:
         the modified arguments

@@ -6,8 +6,10 @@ from typing import cast
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileContentError
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidListSectionError
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
-from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture
@@ -51,7 +53,7 @@ def test_duplicate_list_id() -> None:
         "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_list_ids/list_duplicate_2.xlsx' "
         "| Sheet 'duplicate_list_id2' | Row 2"
     )
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidListSectionError, match=expected):
         excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_list_ids"))
 
 
@@ -66,7 +68,7 @@ def test_duplicate_node_id() -> None:
         "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
         "| Sheet 'duplicate_node_id2' | Row 3"
     )
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidListSectionError, match=expected):
         excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_node_ids"))
 
 
@@ -80,7 +82,7 @@ def test_duplicate_list_name() -> None:
         "    - Excel file: 'testdata/invalid-testdata/excel2json/lists_duplicate_listname/list_duplicate_2.xlsx', "
         "Sheet: 'duplicate_list', List: 'List 2'"
     )
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidFileContentError, match=expected):
         excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_listname"))
 
 
@@ -95,7 +97,7 @@ def test_invalid_shape() -> None:
         "Based on the languages used, the following column(s) are missing: de_list"
     )
 
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidFileFormatError, match=expected):
         excel2lists(Path("testdata/invalid-testdata/excel2json/lists_invalid_shape"))
 
 
@@ -112,7 +114,7 @@ def test_missing_translation() -> None:
         "    - Row Number: 3 | Column(s): de_1\n"
         "    - Row Number: 4 | Column(s): de_comments"
     )
-    with pytest.raises(InputError, match=expected):
+    with pytest.raises(InvalidFileFormatError, match=expected):
         excel2lists(Path("testdata/invalid-testdata/excel2json/lists_missing_translations"))
 
 

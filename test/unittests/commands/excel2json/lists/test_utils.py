@@ -2,13 +2,13 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.lists.utils import get_all_languages_for_columns
 from dsp_tools.commands.excel2json.lists.utils import get_column_info
 from dsp_tools.commands.excel2json.lists.utils import get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.lists.utils import get_preferred_language_from_columns
-from dsp_tools.error.exceptions import InputError
 
 
 def test_get_lang_string_good() -> None:
@@ -91,7 +91,7 @@ class TestGetPreferredLanguageForId:
         msg = regex.escape(
             "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\nThe columns are: es_1"
         )
-        with pytest.raises(InputError, match=msg):
+        with pytest.raises(InvalidFileFormatError, match=msg):
             get_preferred_language_from_columns(columns, "1")
 
 

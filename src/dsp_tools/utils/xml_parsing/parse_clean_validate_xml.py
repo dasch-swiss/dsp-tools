@@ -9,11 +9,11 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.exceptions import XsdValidationError
 from dsp_tools.utils.xsd_validation_error_msg import XSDValidationMessage
 from dsp_tools.utils.xsd_validation_error_msg import get_xsd_validation_message_str
 
@@ -25,7 +25,9 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = parse_xml_file(input_file)
     root = _remove_comments_from_element_tree(root)
     if not validate_root_emit_user_message(root, Path(input_file).parent):
-        raise InputError("The XML file contains validation errors.")  # a detailed report has already been printed
+        raise XsdValidationError(
+            "The XML file contains validation errors."
+        )  # a detailed report has already been printed
     print("The XML file is syntactically correct.")
     return transform_into_localnames(root)
 
@@ -44,7 +46,7 @@ def parse_xml_file(input_file: str | Path) -> etree._Element:
         return etree.parse(source=input_file, parser=parser).getroot()
     except etree.XMLSyntaxError as err:
         logger.error(f"The XML file contains the following syntax error: {err.msg}")
-        raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
+        raise XsdValidationError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
 def transform_into_localnames(root: etree._Element) -> etree._Element:

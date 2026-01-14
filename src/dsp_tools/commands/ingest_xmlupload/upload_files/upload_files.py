@@ -7,10 +7,10 @@ from tqdm import tqdm
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.commands.ingest_xmlupload.exceptions import InvalidIngestInputFilesError
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -63,5 +63,5 @@ def _get_validated_paths(root: etree._Element) -> set[Path]:
     paths = {Path(x.text.strip()) for x in root.xpath("//bitstream")}
     if problems := check_files(paths):
         msg = problems.execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidIngestInputFilesError(msg)
     return paths

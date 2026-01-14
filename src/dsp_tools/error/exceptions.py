@@ -28,13 +28,6 @@ class UserError(BaseError):
     """
 
 
-class InputError(BaseError):
-    """
-    To be deprecated in favour of "UserError"
-    This error is raised when the user input is invalid. The message should be as user-friendly as possible.
-    """
-
-
 class InternalError(BaseError):
     """
     Class for errors that are raised if the user cannot solve the problem themselves.
@@ -68,11 +61,7 @@ class UnreachableCodeError(BaseError):
         super().__init__(msg)
 
 
-class DspToolsRequestException(BaseError):
-    """Class for errors that are raised if any request exceptions happens."""
-
-
-class UserFilepathNotFoundError(InputError):
+class UserFilepathNotFoundError(UserError):
     """This error is raised if a filepath from the user does not exist."""
 
     def __init__(self, filepath: str | Path) -> None:
@@ -80,7 +69,7 @@ class UserFilepathNotFoundError(InputError):
         super().__init__(msg)
 
 
-class UserDirectoryNotFoundError(InputError):
+class UserDirectoryNotFoundError(UserError):
     """This error is raised if a directory from the user does not exist."""
 
     def __init__(self, directory: str | Path) -> None:
@@ -96,5 +85,5 @@ class PermanentTimeOutError(BaseError):
     """This error is raised when python throws a timeout due to no response from the DSP-API."""
 
 
-class BadCredentialsError(PermanentConnectionError):
+class BadCredentialsError(UserError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""

@@ -451,8 +451,8 @@ def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_f
     mapping_file = _get_most_recent_glob_match("id2iri_*.json")
     second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
     success = id2iri(
-        xml_file=str(second_xml_file_orig),
-        json_file=str(mapping_file),
+        xml_file=second_xml_file_orig,
+        json_file=mapping_file,
     )
     assert success
 

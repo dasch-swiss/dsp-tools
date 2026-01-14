@@ -90,8 +90,8 @@ def test_id2iri_default(id2iri: Mock) -> None:
     args = f"id2iri {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=DATA_XML_PATH,
-        json_file=ID_2_IRI_JSON_PATH,
+        xml_file=Path(DATA_XML_PATH),
+        json_file=Path(ID_2_IRI_JSON_PATH),
         remove_resource_if_id_in_mapping=False,
     )
 
@@ -101,8 +101,8 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
     args = f"id2iri --remove-resources {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=DATA_XML_PATH,
-        json_file=ID_2_IRI_JSON_PATH,
+        xml_file=Path(DATA_XML_PATH),
+        json_file=Path(ID_2_IRI_JSON_PATH),
         remove_resource_if_id_in_mapping=True,
     )
 

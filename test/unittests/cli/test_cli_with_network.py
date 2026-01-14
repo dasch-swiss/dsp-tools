@@ -7,7 +7,7 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.start_stack import StackConfiguration
+from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
@@ -696,8 +696,8 @@ class TestIngestUploads:
 
 class TestStartStack:
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_default(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack".split()
         entry_point.run(args)
@@ -713,8 +713,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_max_file_size(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --max_file_size=1".split()
         entry_point.run(args)
@@ -730,8 +730,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --prune".split()
         entry_point.run(args)
@@ -747,8 +747,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_no_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --no-prune".split()
         entry_point.run(args)
@@ -764,8 +764,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_latest(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --latest".split()
         entry_point.run(args)
@@ -781,8 +781,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_with_test_data(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --with-test-data".split()
         entry_point.run(args)
@@ -798,7 +798,7 @@ class TestStartStack:
         start_stack.assert_called_once()
 
 
-@patch("dsp_tools.commands.start_stack.StackHandler.stop_stack")
+@patch("dsp_tools.commands.start_stack.start_stack.StackHandler.stop_stack")
 def test_stop_stack(stop_stack: Mock) -> None:
     args = "stop-stack".split()
     entry_point.run(args)

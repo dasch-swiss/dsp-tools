@@ -37,7 +37,7 @@ to ensure data conforms to ontological constraints before upload.
 - **get_validation_report.py**: Main validation orchestrator that coordinates SHACL validation
 - **check_for_unknown_classes.py**: Validates that all classes used in data are defined in the ontology
 - **validate_ontology.py**: Validates the ontology itself before data validation
-- **check_duplicate_files.py**: Checks for duplicate file references in the data
+- **python_checks.py**: Python-based validation checks including duplicate file detection and circular cardinality warnings
 
 ### Validation Report Processing (`process_validation_report/`)
 
@@ -104,11 +104,12 @@ The validation process follows a strict sequential pipeline:
 1. **Unknown Classes Check** (`validation/check_for_unknown_classes.py`): 
    - Ensures all classes used in data are defined in the ontology
    - If unknown classes are found, validation terminates with an error
-2. **Ontology Validation** (`validation/validate_ontology.py`): 
+2. **Ontology Validation** (`validation/validate_ontology.py`):
    - Validates the ontology itself for correctness
    - If ontology errors are found, validation terminates with an error
-3. **Duplicate File Check** (`validation/check_duplicate_files.py`):
+3. **Python-based Checks** (`validation/python_checks.py`):
    - Checks for duplicate file references in the data
+   - Warns against potential circular references in data with mandatory properties
    - Generates warnings which will be added to potential warnings from the SHACL validation
 4. **SHACL Validation** (`validation/get_validation_report.py`):
    - Performs comprehensive SHACL validation using Docker CLI

@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -29,7 +30,6 @@ from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.custom_warnings import DspToolsFutureWarning
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
 from dsp_tools.utils.data_formats.uri_util import is_uri
 
@@ -47,7 +47,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         JsonHeader object
 
     Raises:
-        InputError: If the file does not conform to the specifications
+        InvalidFileFormatError: If the file does not conform to the specifications
     """
     if not excel_filepath.is_file():
         print("No json_header.xlsx file found in the directory, empty header was added.")
@@ -55,7 +55,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
     sheets_df_dict = read_and_clean_all_sheets(excel_filepath)
     sheets_df_dict = {k.lower(): df for k, df in sheets_df_dict.items()}
     if compliance_problem := _do_all_checks(sheets_df_dict):
-        raise InputError(compliance_problem.execute_error_protocol())
+        raise InvalidFileFormatError(compliance_problem.execute_error_protocol())
     print("json_header.xlsx file used to construct the json header.")
     return _process_file(sheets_df_dict)
 

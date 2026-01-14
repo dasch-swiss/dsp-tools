@@ -14,9 +14,11 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestFailure
+from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFound
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
@@ -119,7 +121,7 @@ class BulkIngestClient:
         if res.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
         if res.status_code == HTTPStatus.NOT_FOUND:
-            raise InputError(
+            raise NoIngestFileFound(
                 f"No assets have been uploaded for project {self.shortcode}. "
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
@@ -129,7 +131,7 @@ class BulkIngestClient:
             logger.info(msg)
             return
         if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
-            raise InputError("Server is unavailable. Please try again later.")
+            raise PermanentConnectionError("Server is unavailable. Please try again later.")
 
         try:
             returned_shortcode = res.json().get("id")
@@ -137,7 +139,9 @@ class BulkIngestClient:
         except JSONDecodeError:
             failed = True
         if failed:
-            raise InputError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
+            raise IngestFailure(
+                "Failed to trigger the ingest process. Please check the server logs, or try again later."
+            )
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
@@ -151,7 +155,7 @@ class BulkIngestClient:
             The mapping CSV if the ingest process has completed.
 
         Raises:
-            InputError: if there are too many server errors in a row.
+            PermanentConnectionError: if there are too many server errors in a row.
         """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
@@ -168,7 +172,9 @@ class BulkIngestClient:
             elif res.status_code != HTTPStatus.OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
-                    raise InputError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
+                    raise PermanentConnectionError(
+                        f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}."
+                    )
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

@@ -28,13 +28,6 @@ class UserError(BaseError):
     """
 
 
-class InputError(BaseError):
-    """
-    To be deprecated in favour of "UserError"
-    This error is raised when the user input is invalid. The message should be as user-friendly as possible.
-    """
-
-
 class InternalError(BaseError):
     """
     Class for errors that are raised if the user cannot solve the problem themselves.

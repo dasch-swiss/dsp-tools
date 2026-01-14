@@ -132,7 +132,7 @@ def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], sheet_list: li
         df = sheet.df
         for i, row in df.iterrows():
             if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
-                df.loc[i, "id"] = _construct_non_duplicate_id_string(row, sheet.col_info.preferred_lang)  # type: ignore[index]
+                df.loc[i, "id"] = _construct_non_duplicate_id_string(row, sheet.col_info.preferred_lang)
         all_sheets.append(
             ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, col_info=sheet.col_info, df=df)
         )
@@ -167,7 +167,7 @@ def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.Data
         if pd.isna(row["id (optional)"]):
             for col in column_names:
                 if pd.notna(row[col]):
-                    df.loc[i, "auto_id"] = row[col]  # type: ignore[index]
+                    df.loc[i, "auto_id"] = row[col]
                     break
     df = _resolve_duplicate_ids_for_auto_id_one_df(df, preferred_language)
     return df

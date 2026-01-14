@@ -3,8 +3,8 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json import properties as e2j
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
-from dsp_tools.error.exceptions import InputError
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, default_permissions_overrule, _ = e2j.excel2properties(excelfile, None)
@@ -23,7 +23,7 @@ class TestValidateProperties:
             "    Located at: Column 'super' | Row 3\n"
             "    Original Error Message: 'GeonameValue' is not valid under any of the given schemas"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2properties(
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx", path_to_output_file=""
             )
@@ -36,7 +36,7 @@ class TestValidateProperties:
             "    Located at: Column 'object' | Row 2\n"
             "    Original Error Message: 'hasValue' is not valid under any of the given schemas"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2properties(
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx", path_to_output_file=""
             )
@@ -49,7 +49,7 @@ class TestValidateProperties:
             "    Located at: Column 'gui_element' | Row 3\n"
             "    Original Error Message: 'Geonames' was expected"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2properties(
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
                 path_to_output_file="",
@@ -64,7 +64,7 @@ class TestValidateProperties:
             "Expected Content: The only valid gui-attribute is 'hlist' for the gui-element 'List'.\n"
             "Actual Content: max: 10, min: 5, rows: 10"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2properties(
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
                 path_to_output_file="",

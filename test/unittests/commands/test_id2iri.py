@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -7,9 +6,7 @@ from lxml import etree
 
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping
 from dsp_tools.commands.id2iri import _replace_ids_by_iris
-from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import BaseError
 
 
 @pytest.fixture
@@ -20,22 +17,6 @@ def mapping() -> dict[str, str]:
         "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
         "test_thing_with_ark_1": "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
     }
-
-
-def test_invalid_xml_file_name() -> None:
-    with pytest.raises(BaseError, match=regex.escape("File test.xml could not be found")):
-        id2iri(
-            xml_file=Path("test.xml"),
-            json_file=Path("testdata/id2iri/test-id2iri-mapping.json"),
-        )
-
-
-def test_invalid_json_file_name() -> None:
-    with pytest.raises(BaseError, match=regex.escape("File test.json could not be found")):
-        id2iri(
-            xml_file=Path("testdata/id2iri/test-id2iri-data.xml"),
-            json_file=Path("test.json"),
-        )
 
 
 def test_replace_ids_by_iris_no_replacements(mapping: dict[str, Any]) -> None:

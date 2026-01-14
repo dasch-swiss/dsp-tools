@@ -4,12 +4,12 @@ from pathlib import Path
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
 from dsp_tools.error.custom_warnings import DspToolsFutureWarning
-from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_to_dict_json_header_invalid_missing_sheet() -> None:
         DspToolsFutureWarning,
         match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
     ):
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileFormatError, match=expected):
             get_json_header(test_path)
 
 
@@ -63,7 +63,7 @@ def test_to_dict_json_header_invalid_empty_sheet() -> None:
         DspToolsFutureWarning,
         match=regex.escape("The json_header.xlsx file does not have a sheet containing the enabled licenses"),
     ):
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileFormatError, match=expected):
             get_json_header(test_path)
 
 

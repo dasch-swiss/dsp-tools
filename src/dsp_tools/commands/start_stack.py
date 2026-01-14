@@ -48,7 +48,7 @@ class StackConfiguration:
         Validate the input parameters passed by the user.
 
         Raises:
-            StartStackFileError: if one of the parameters is invalid
+            StartStackInputError: if one of the parameters is invalid
         """
         if self.max_file_size is not None and not 1 <= self.max_file_size <= MAX_FILE_SIZE:
             raise StartStackInputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")

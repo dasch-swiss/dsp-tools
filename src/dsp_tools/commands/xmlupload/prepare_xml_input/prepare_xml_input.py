@@ -4,6 +4,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.clients.connection import Connection
+from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -12,7 +13,6 @@ from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_lookups import get_permissions_lookup
@@ -51,7 +51,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         proj_context = ProjectContext(con=connection, shortcode=shortcode)
     except BaseError:
         logger.exception("Unable to retrieve project context from DSP server")
-        raise InputError("Unable to retrieve project context from DSP server") from None
+        raise UnableToRetrieveProjectInfoError("Unable to retrieve project context from DSP server") from None
     return proj_context
 
 

@@ -7,6 +7,10 @@ from dsp_tools.error.exceptions import UserError
 LIST_SEPARATOR = "\n   - "
 
 
+class UnableToRetrieveProjectInfoError(BaseError):
+    """When the project information could not be retrieved."""
+
+
 class MultimediaFileNotFound(UserError):
     def __init__(self, imgdir: str, problems: list[MultimediaFileNotFoundProblem]) -> None:
         image_str = [f"Resource ID: {i.res_id} | Filepath: {i.filepath}" for i in problems]

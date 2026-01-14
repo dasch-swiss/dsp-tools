@@ -248,7 +248,7 @@ def _get_final_series(
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check).astype(bool))
         case pd.Series(), None:
             final_series = mandatory_check
         case None, pd.Series():

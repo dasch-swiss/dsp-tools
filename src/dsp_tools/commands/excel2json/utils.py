@@ -314,7 +314,7 @@ def col_must_or_not_empty_based_on_other_col(
     # which means that the value in the column "check_empty_colname" is not relevant.
     substring_array = df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
-    combined_array = np.logical_and(na_series, substring_array)
+    combined_array = np.logical_and(na_series, substring_array).astype(bool)
     return pd.Series(combined_array) if any(combined_array) else None
 
 

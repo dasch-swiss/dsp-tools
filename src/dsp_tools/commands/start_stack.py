@@ -189,7 +189,7 @@ class StackHandler:
         Start up the Docker container of the fuseki database.
 
         Raises:
-            StartStackStartError: if the database cannot be started
+            FusekiStartUpError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
         cmd = "docker compose up -d db".split()

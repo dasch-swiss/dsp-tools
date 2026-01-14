@@ -7,3 +7,7 @@ class InvalidGuiAttributeError(UserError):
 
 class InvalidFileFormatError(UserError):
     """When the user input file does not conform to the expected format."""
+
+
+class InvalidFolderStructureError(UserError):
+    """When the user input file does not conform to the expected format."""

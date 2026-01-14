@@ -13,8 +13,8 @@ import yaml
 from jinja2 import Template
 from loguru import logger
 
-from dsp_tools.cli.exceptions import FusekiStartUpError
-from dsp_tools.cli.exceptions import StartStackInputError
+from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
+from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request

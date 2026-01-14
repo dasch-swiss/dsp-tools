@@ -1,4 +1,3 @@
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -16,11 +15,3 @@ class DockerNotReachableError(UserError):
 
 class DspApiNotReachableError(UserError):
     """This error is raised when the DSP-API could not be reached on localhost."""
-
-
-class StartStackInputError(InternalError):
-    """An input to start the stack is invalid"""
-
-
-class FusekiStartUpError(InternalError):
-    """A problem with Fuseki happened during the start"""

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 
 
 @dataclass(frozen=True)

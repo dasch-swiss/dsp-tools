@@ -9,21 +9,17 @@ from typing import Optional
 from typing import Union
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
 
-class Group(Model):
+class Group:
     """
     This class represents a DSP group
 
     Attributes
     ----------
-
-    con : Connection
-        A connection instance to a DSP server
 
     iri : str
         IRI of the group [readonly]
@@ -58,7 +54,6 @@ class Group(Model):
 
     def __init__(
         self,
-        con: Connection,
         iri: Optional[str] = None,
         name: Optional[str] = None,
         descriptions: Optional[LangString] = None,
@@ -66,7 +61,6 @@ class Group(Model):
         selfjoin: Optional[bool] = None,
         status: Optional[bool] = None,
     ) -> None:
-        super().__init__(con)
         self._iri = iri
         self._name = str(name) if name is not None else None
         self._descriptions = LangString(descriptions)
@@ -102,7 +96,7 @@ class Group(Model):
         return self._status
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Group:
+    def fromJsonObj(cls, json_obj: Any) -> Group:
         group_id = json_obj.get("id")
         if group_id is None:
             raise BaseError('Group "id" is missing')
@@ -123,7 +117,6 @@ class Group(Model):
         if status is None:
             raise BaseError("Status is missing")
         return cls(
-            con=con,
             name=name,
             iri=group_id,
             descriptions=descriptions,
@@ -135,7 +128,7 @@ class Group(Model):
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
         result = con.get(Group.ROUTE)
-        return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
+        return [Group.fromJsonObj(group_item) for group_item in result["groups"]]
 
     @staticmethod
     def getAllGroupsForProject(con: Connection, proj_iri: str) -> list[Group]:

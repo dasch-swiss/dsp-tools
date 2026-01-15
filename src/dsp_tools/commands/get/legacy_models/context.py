@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import ClassVar
 from typing import Optional
 
 import regex
@@ -17,7 +18,7 @@ class Context:
     _context: dict[str, OntoIri]
     _rcontext: dict[str, str]
 
-    common_ontologies = {
+    common_ontologies: ClassVar[dict[str, OntoIri]] = {
         "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
         "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
         "dcterms": OntoIri("http://purl.org/dc/terms/", False),
@@ -31,12 +32,12 @@ class Context:
         "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True),
     }
 
-    knora_ontologies = {
+    knora_ontologies: ClassVar[dict[str, OntoIri]] = {
         "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
         "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True),
     }
 
-    base_ontologies = {
+    base_ontologies: ClassVar[dict[str, OntoIri]] = {
         "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
         "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
         "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
@@ -204,5 +205,6 @@ class Context:
         return {prefix: oinfo.iri + "#" if oinfo.hashtag else oinfo.iri for prefix, oinfo in self._context.items()}
 
     def get_externals_used(self) -> dict[str, str]:
+        """Return externally used ontologies excluding standard ones."""
         exclude = ["rdf", "rdfs", "owl", "xsd", "knora-api", "salsah-gui"]
         return {prefix: onto.iri for prefix, onto in self._context.items() if prefix not in exclude}

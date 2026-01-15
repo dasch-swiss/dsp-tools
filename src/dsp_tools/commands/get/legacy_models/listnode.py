@@ -10,13 +10,12 @@ from typing import Union
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
 
-class ListNode(Model):
+class ListNode:
     """
     This class represents a list node
 
@@ -69,6 +68,7 @@ class ListNode(Model):
     ROUTE = "/admin/lists"
     ROUTE_SLASH = ROUTE + "/"
 
+    _con: Connection
     _id: Optional[str]
     _project: Optional[str]
     _label: Optional[LangString]
@@ -86,7 +86,7 @@ class ListNode(Model):
         name: Optional[str] = None,
         children: Optional[list[ListNode]] = None,
     ) -> None:
-        super().__init__(con)
+        self._con = con
 
         self._project = project.iri if isinstance(project, Project) else str(project) if project else None
         self._id = iri

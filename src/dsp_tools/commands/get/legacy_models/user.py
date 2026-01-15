@@ -11,12 +11,11 @@ from typing import Union
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.group import Group
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import Languages
 
 
-class User(Model):
+class User:
     """
     This class represents a user in DSP.
 
@@ -71,7 +70,6 @@ class User(Model):
 
     def __init__(
         self,
-        con: Connection,
         iri: Optional[str] = None,
         username: Optional[str] = None,
         email: Optional[str] = None,
@@ -82,7 +80,6 @@ class User(Model):
         in_projects: Optional[dict[str, bool]] = None,
         in_groups: Optional[set[str]] = None,
     ):
-        super().__init__(con)
         self._iri = iri
         self._username = str(username) if username is not None else None
         self._email = str(email) if email is not None else None
@@ -147,13 +144,12 @@ class User(Model):
         return self._in_projects
 
     @classmethod
-    def _make_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
+    def _make_fromJsonObj(cls, json_obj: dict[str, Any]) -> User:
         User._check_if_jsonObj_has_required_info(json_obj)
 
         in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
 
         return cls(
-            con=con,
             iri=json_obj["id"],
             username=json_obj["username"],
             email=json_obj["email"],
@@ -212,7 +208,7 @@ class User(Model):
         members = con.get(f"/admin/projects/shortcode/{proj_shortcode}/members")
         if members is None or len(members) < 1:
             return None
-        res: list[User] = [User._make_fromJsonObj(con, a) for a in members["members"]]
+        res: list[User] = [User._make_fromJsonObj(a) for a in members["members"]]
         res.reverse()
         return res
 

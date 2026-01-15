@@ -15,12 +15,11 @@ from typing import Optional
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
 
-class Project(Model):
+class Project:
     """
     This class represents a project in DSP.
 
@@ -69,6 +68,7 @@ class Project(Model):
     ROUTE: str = "/admin/projects"
     IRI: str = ROUTE + "/iri/"
 
+    _con: Connection
     _iri: str
     _shortcode: str
     _shortname: str
@@ -100,7 +100,7 @@ class Project(Model):
         :param keywords: Set of keywords
         :param enabled_licenses: Set of enabled licenses [optional]
         """
-        super().__init__(con)
+        self._con = con
         self._iri = iri
         self._shortcode = shortcode
         self._shortname = shortname

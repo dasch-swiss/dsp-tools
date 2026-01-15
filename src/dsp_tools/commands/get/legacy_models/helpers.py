@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum, unique
+from enum import Enum
+from enum import unique
 from typing import Optional
 
 
@@ -21,6 +22,8 @@ class OntoIri:
 
 @unique
 class Cardinality(Enum):
+    """Represents cardinality constraints for properties."""
+
     C_1 = "1"
     C_0_1 = "0-1"
     C_1_n = "1-n"

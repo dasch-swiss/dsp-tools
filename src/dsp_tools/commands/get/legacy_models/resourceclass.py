@@ -13,15 +13,15 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
-from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import Cardinality
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
 
-class HasProperty(Model):
+class HasProperty:
+    """Represents a property assignment to a resource class with cardinality."""
+
     class Ptype(Enum):
         system = 1
         knora = 2
@@ -35,14 +35,12 @@ class HasProperty(Model):
 
     def __init__(
         self,
-        con: Connection,
         context: Context,
         property_id: Optional[str] = None,
         cardinality: Optional[Cardinality] = None,
         gui_order: Optional[int] = None,
         ptype: Optional[Ptype] = None,
     ):
-        super().__init__(con)
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
@@ -68,7 +66,7 @@ class HasProperty(Model):
         return self._ptype
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
+    def fromJsonObj(cls, context: Context, jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
         rdf_iri = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl_iri = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
@@ -86,7 +84,6 @@ class HasProperty(Model):
         if jsonld_obj.get(salsah_gui_iri + ":guiOrder") is not None:
             gui_order = jsonld_obj[salsah_gui_iri + ":guiOrder"]
         return property_id, cls(
-            con=con,
             context=context,
             property_id=property_id,
             cardinality=cardinality,
@@ -144,7 +141,7 @@ class HasProperty(Model):
         return cardinality
 
 
-class ResourceClass(Model):
+class ResourceClass:
     """
     This class represents a DSP resource class [readonly]
     """
@@ -158,7 +155,6 @@ class ResourceClass(Model):
 
     def __init__(
         self,
-        con: Connection,
         context: Context,
         name: Optional[str] = None,
         superclasses: Optional[Sequence[Union[ResourceClass, str]]] = None,
@@ -166,7 +162,6 @@ class ResourceClass(Model):
         comment: Optional[Union[LangString, str]] = None,
         has_properties: Optional[dict[str, HasProperty]] = None,
     ):
-        super().__init__(con)
         self._context = context
         self._name = name
         if isinstance(superclasses, ResourceClass):
@@ -211,7 +206,7 @@ class ResourceClass(Model):
         return self._has_properties
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> ResourceClass:
+    def fromJsonObj(cls, context: Context, json_obj: Any) -> ResourceClass:
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
@@ -227,12 +222,11 @@ class ResourceClass(Model):
         tmp_id = json_obj.get("@id").split(":")
         name = tmp_id[1]
 
-        has_properties, superclasses = cls._fromJsonObj_get_superclass(con, context, json_obj, rdfs, owl)
+        has_properties, superclasses = cls._fromJsonObj_get_superclass(context, json_obj, rdfs, owl)
 
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
         return cls(
-            con=con,
             context=context,
             name=name,
             superclasses=superclasses,
@@ -243,14 +237,14 @@ class ResourceClass(Model):
 
     @staticmethod
     def _fromJsonObj_get_superclass(
-        con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
+        context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
     ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
         superclasses_obj = json_obj.get(rdfs + ":subClassOf")
         if superclasses_obj is not None:
             supercls = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
             superclasses = list(map(lambda a: a["@id"], supercls))
             has_props = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
-            has_properties = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
+            has_properties = dict(map(lambda a: HasProperty.fromJsonObj(context, a), has_props))
             #
             # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
             # one a direct link, the other the pointer to a link value

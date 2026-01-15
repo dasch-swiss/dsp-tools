@@ -188,6 +188,7 @@ extend-select = [  # this is for preview (beta) features
 ]
 "src/dsp_tools/commands/get/legacy_models/**" = [
     "A002",  # flake8: builtin-argument-shadowing
+    "D102",  # pydocstyle: undocumented-public-method (legacy code with many simple property getters)
     "PLR0913", # pylint: too-many-arguments
     "PLR0917", # Too many positional arguments
 ]

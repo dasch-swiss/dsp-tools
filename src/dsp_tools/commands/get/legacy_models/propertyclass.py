@@ -13,12 +13,14 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import get_json_ld_id
 from dsp_tools.commands.get.legacy_models.listnode import ListNode
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
 
-class PropertyClass(Model):
+class PropertyClass:
+    """Represents a DSP property class definition."""
+
+    _con: Connection
     _context: Context
     _name: str
     _superproperties: list[str]
@@ -42,7 +44,7 @@ class PropertyClass(Model):
         label: Optional[Union[LangString, str]] = None,
         comment: Optional[Union[LangString, str]] = None,
     ):
-        super().__init__(con)
+        self._con = con
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context

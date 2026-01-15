@@ -17,13 +17,14 @@ import regex
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import get_json_ld_id
-from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.commands.get.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.get.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
 
 
-class Ontology(Model):
+class Ontology:
+    """Represents a DSP ontology with its resource and property classes."""
+
     ROUTE: str = "/v2/ontologies"
     METADATA: str = "/metadata/"
     ALL_LANGUAGES: str = "?allLanguages=true"
@@ -39,7 +40,6 @@ class Ontology(Model):
 
     def __init__(
         self,
-        con: Connection,
         iri: Optional[str] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
@@ -48,7 +48,6 @@ class Ontology(Model):
         property_classes: Optional[list[PropertyClass]] = None,
         context: Context = None,
     ):
-        super().__init__(con)
         self._iri = iri
         self._name = name
         self._label = label
@@ -120,7 +119,7 @@ class Ontology(Model):
                 filter(lambda a: a.get(knora_api + ":isResourceClass") is not None, json_obj.get("@graph"))
             )
             resource_classes = list(
-                map(lambda a: ResourceClass.fromJsonObj(con=con, context=context, json_obj=a), resclasses_obj)
+                map(lambda a: ResourceClass.fromJsonObj(context=context, json_obj=a), resclasses_obj)
             )
 
             properties_obj = list(
@@ -132,7 +131,6 @@ class Ontology(Model):
                 if get_json_ld_id(a.get(knora_api + ":objectType")) != "knora-api:LinkValue"
             ]
         return cls(
-            con=con,
             iri=iri,
             label=label,
             name=this_onto,
@@ -143,7 +141,7 @@ class Ontology(Model):
         )
 
     @classmethod
-    def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> Ontology:
+    def __oneOntologiesFromJsonObj(cls, json_obj: Any, context: Context) -> Ontology:
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
@@ -164,7 +162,6 @@ class Ontology(Model):
         context2 = copy.deepcopy(context)
         context2.add_context(this_onto, iri)
         return cls(
-            con=con,
             iri=iri,
             label=label,
             name=this_onto,
@@ -173,14 +170,14 @@ class Ontology(Model):
         )
 
     @classmethod
-    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list[Ontology]:
+    def allOntologiesFromJsonObj(cls, json_obj: Any) -> list[Ontology]:
         context = Context(json_obj.get("@context"))
         ontos: list[Ontology] = []
         if json_obj.get("@graph") is not None:
             for o in json_obj["@graph"]:
-                ontos.append(Ontology.__oneOntologiesFromJsonObj(con, o, context))
+                ontos.append(Ontology.__oneOntologiesFromJsonObj(o, context))
         else:
-            onto = Ontology.__oneOntologiesFromJsonObj(con, json_obj, context)
+            onto = Ontology.__oneOntologiesFromJsonObj(json_obj, context)
             if onto is not None:
                 ontos.append(onto)
         return ontos
@@ -190,7 +187,7 @@ class Ontology(Model):
         if project_id is None:
             raise BaseError("Project ID must be defined!")
         result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)
-        return Ontology.allOntologiesFromJsonObj(con, result)
+        return Ontology.allOntologiesFromJsonObj(result)
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> Ontology:

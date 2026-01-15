@@ -12,8 +12,6 @@ from rdflib import URIRef
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListInfo
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
@@ -22,6 +20,8 @@ from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import TripleStores

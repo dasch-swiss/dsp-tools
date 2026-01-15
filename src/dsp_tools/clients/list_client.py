@@ -14,22 +14,6 @@ class ListInfo:
 
 
 @dataclass
-class OneList:
-    list_iri: str
-    list_name: str
-    nodes: list[OneNode]
-
-    def hlist(self) -> str:
-        return f'"hlist=<{self.list_iri}>"'
-
-
-@dataclass
-class OneNode:
-    name: str
-    iri: str
-
-
-@dataclass
 class ListGetClient(Protocol):
     """Client to request and reformat the lists of a project."""
 

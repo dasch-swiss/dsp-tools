@@ -13,8 +13,6 @@ from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import ListInfo
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -80,23 +78,6 @@ class ListGetClientLive(ListGetClient):
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> ListInfo:
         return ListInfo(response_json["list"]["listinfo"], response_json["list"]["children"])
-
-    def _reformat_one_list_old(self, response_json: dict[str, Any]) -> OneList:
-        list_name = response_json["list"]["listinfo"]["name"]
-        list_id = response_json["list"]["listinfo"]["id"]
-        nodes = response_json["list"]["children"]
-        all_nodes = []
-        for child in nodes:
-            all_nodes.append(OneNode(child["name"], child["id"]))
-            if node_child := child.get("children"):
-                self._reformat_children(node_child, all_nodes)
-        return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
-
-    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
-        for child in list_child:
-            current_nodes.append(OneNode(child["name"], child["id"]))
-            if grand_child := child.get("children"):
-                self._reformat_children(grand_child, current_nodes)
 
 
 @dataclass

@@ -197,7 +197,10 @@ def test_one_resource_with_link_to_existing_resource(
 
 
 def test_2_resources_with_stash_interrupted_by_timeout(
-    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items,
+    ingest_client_mock: AssetClient,
+    legal_info_client_mock: LegalInfoClient,
+    list_client_mock,
 ) -> None:
     _2_resources_with_stash_interrupted_by_error(
         link_val_stash_lookup_two_items,
@@ -205,11 +208,15 @@ def test_2_resources_with_stash_interrupted_by_timeout(
         "PermanentTimeOutError",
         ingest_client_mock,
         legal_info_client_mock,
+        list_client_mock,
     )
 
 
 def test_2_resources_with_stash_interrupted_by_keyboard(
-    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items,
+    ingest_client_mock: AssetClient,
+    legal_info_client_mock: LegalInfoClient,
+    list_client_mock,
 ) -> None:
     _2_resources_with_stash_interrupted_by_error(
         link_val_stash_lookup_two_items,
@@ -217,6 +224,7 @@ def test_2_resources_with_stash_interrupted_by_keyboard(
         "KeyboardInterrupt",
         ingest_client_mock,
         legal_info_client_mock,
+        list_client_mock,
     )
 
 

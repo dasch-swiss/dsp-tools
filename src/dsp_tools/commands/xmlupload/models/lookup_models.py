@@ -19,26 +19,3 @@ class XmlReferenceLookups:
 class IRILookups:
     project_iri: URIRef
     id_to_iri: IriResolver
-
-
-@dataclass(frozen=True)
-class ListNode:
-    """Information about a list node."""
-
-    node_iri: str
-    node_name: str
-
-
-@dataclass(frozen=True)
-class List:
-    """Information about a list."""
-
-    list_name: str
-    nodes: list[ListNode]
-
-
-@dataclass(frozen=True)
-class ProjectLists:
-    """Information about the lists of a project."""
-
-    lists: list[List]

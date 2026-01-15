@@ -1,5 +1,6 @@
 import importlib.resources
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 from pyoxigraph import RdfFormat
@@ -10,7 +11,9 @@ from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.clients.list_client import OneList
+from dsp_tools.clients.list_client import OneNode
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
@@ -80,7 +83,7 @@ def _get_project_specific_information_from_api(
     auth: AuthenticationClient, shortcode: str, do_not_request_resource_metadata_from_db: bool
 ) -> tuple[ProjectDataFromApi, ExistingResourcesRetrieved]:
     list_client = ListGetClientLive(auth.server, shortcode)
-    all_lists = list_client.get_all_lists_and_nodes()
+    all_lists = _get_reformatted_lists(list_client)
     enabled_licenses = _get_license_iris(shortcode, auth)
     if do_not_request_resource_metadata_from_db:
         existing_resources_retrieved = ExistingResourcesRetrieved.FALSE
@@ -88,6 +91,29 @@ def _get_project_specific_information_from_api(
     else:
         existing_resources_retrieved, formatted_metadata = _get_metadata_info(auth, shortcode)
     return ProjectDataFromApi(all_lists, enabled_licenses, formatted_metadata), existing_resources_retrieved
+
+
+def _get_reformatted_lists(list_client: ListGetClientLive) -> list[OneList]:
+    all_lists = list_client.get_all_lists_and_nodes()
+    return [_reformat_one_list(x) for x in all_lists]
+
+
+def _reformat_one_list(list_info: ListInfo) -> OneList:
+    list_name = list_info.listinfo["name"]
+    list_id = list_info.listinfo["id"]
+    all_nodes = []
+    for child in list_info.children:
+        all_nodes.append(OneNode(child["name"], child["id"]))
+        if node_child := child.get("children"):
+            _reformat_list_child_node(node_child, all_nodes)
+    return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
+
+
+def _reformat_list_child_node(list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
+    for child in list_child:
+        current_nodes.append(OneNode(child["name"], child["id"]))
+        if grand_child := child.get("children"):
+            _reformat_list_child_node(grand_child, current_nodes)
 
 
 def _get_metadata_info(

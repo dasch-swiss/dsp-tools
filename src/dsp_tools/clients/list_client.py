@@ -8,6 +8,12 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 
 
 @dataclass
+class ListInfo:
+    listinfo: dict[str, Any]
+    children: list[dict[str, Any]]
+
+
+@dataclass
 class OneList:
     list_iri: str
     list_name: str
@@ -30,7 +36,7 @@ class ListGetClient(Protocol):
     api_url: str
     shortcode: str
 
-    def get_all_lists_and_nodes(self) -> list[OneList]:
+    def get_all_lists_and_nodes(self) -> list[ListInfo]:
         """Get all lists and its nodes from a project."""
 
     def get_all_list_iris_and_names(self) -> dict[str, str]:

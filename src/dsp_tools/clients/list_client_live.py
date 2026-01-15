@@ -12,6 +12,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.clients.list_client import OneList
 from dsp_tools.clients.list_client import OneNode
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -31,7 +32,7 @@ class ListGetClientLive(ListGetClient):
     api_url: str
     shortcode: str
 
-    def get_all_lists_and_nodes(self) -> list[OneList]:
+    def get_all_lists_and_nodes(self) -> list[ListInfo]:
         list_json = self._get_all_list_iris()
         all_iris = self._extract_list_iris(list_json)
         all_lists = [self._get_one_list(iri) for iri in all_iris]
@@ -77,7 +78,10 @@ class ListGetClientLive(ListGetClient):
             return response_json
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
+    def _reformat_one_list(self, response_json: dict[str, Any]) -> ListInfo:
+        return ListInfo(response_json["list"]["listinfo"], response_json["list"]["children"])
+
+    def _reformat_one_list_old(self, response_json: dict[str, Any]) -> OneList:
         list_name = response_json["list"]["listinfo"]["name"]
         list_id = response_json["list"]["listinfo"]["id"]
         nodes = response_json["list"]["children"]

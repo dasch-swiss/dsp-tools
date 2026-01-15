@@ -1,4 +1,4 @@
-# mypy: disable-error-code="no-untyped-def,comparison-overlap"
+# mypy: disable-error-code="comparison-overlap"
 import warnings
 
 import pytest

@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved

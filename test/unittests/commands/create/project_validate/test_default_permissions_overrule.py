@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import pytest
 
 from dsp_tools.commands.create.models.create_problems import CollectedProblems

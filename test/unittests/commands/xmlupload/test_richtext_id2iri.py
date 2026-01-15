@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import pytest
 
 from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError

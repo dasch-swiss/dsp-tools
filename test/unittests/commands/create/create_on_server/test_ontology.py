@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from http import HTTPStatus
 from unittest.mock import MagicMock
 from unittest.mock import patch

@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import json
 from http import HTTPStatus
 from typing import Any

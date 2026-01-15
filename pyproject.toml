@@ -114,6 +114,11 @@ module = ["jsonpath_ng.*", "viztracer.*", "pyld.*", "testcontainers.*"]
 ignore_missing_imports = true
 
 
+[[tool.mypy.overrides]]
+module = ["test/*"]
+disable_error_code = ["no-untyped-def", "method-assign"]
+
+
 [tool.ruff]
 line-length = 120
 target-version = "py312"

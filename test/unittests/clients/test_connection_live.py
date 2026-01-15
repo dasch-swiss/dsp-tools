@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign"
+
 
 import json
 from collections.abc import Callable

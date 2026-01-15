@@ -1,4 +1,4 @@
-# mypy: disable-error-code="no-untyped-def"
+
 
 from typing import Any
 

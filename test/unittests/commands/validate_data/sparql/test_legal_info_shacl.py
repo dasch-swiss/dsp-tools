@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
+
 
 from rdflib import RDF
 from rdflib import SH

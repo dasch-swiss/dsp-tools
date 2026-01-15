@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pandas as pd
 import pytest
 import regex

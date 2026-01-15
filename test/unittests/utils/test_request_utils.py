@@ -1,4 +1,4 @@
-# mypy: disable-error-code="no-untyped-def"
+
 
 import json
 from dataclasses import dataclass

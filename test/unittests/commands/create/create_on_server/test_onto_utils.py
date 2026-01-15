@@ -1,4 +1,4 @@
-# mypy: disable-error-code="no-untyped-def"
+
 
 from unittest.mock import Mock
 from unittest.mock import patch

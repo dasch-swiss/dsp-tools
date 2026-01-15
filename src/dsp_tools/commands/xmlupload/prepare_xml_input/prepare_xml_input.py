@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
+from typing import Any
+
 from loguru import logger
 from lxml import etree
 
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
+from dsp_tools.commands.xmlupload.models.lookup_models import List
+from dsp_tools.commands.xmlupload.models.lookup_models import ListNode
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -65,3 +72,39 @@ def get_stash_and_upload_order(
     sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(sorted_resources, stash_lookup)
     return sorted_resources, stash
+
+
+def _get_list_node_to_iri_lookup(list_client: ListGetClient) -> dict[tuple[str, str], str]:
+    all_info = list_client.get_all_lists_and_nodes()
+    return _reformat_all_lists(all_info)
+
+
+def _reformat_all_lists(all_info: list[ListInfo]) -> dict[tuple[str, str], str]:
+    complete_lookup = {}
+    for li in all_info:
+        complete_lookup.update(_reformat_one_list(li))
+    return complete_lookup
+
+
+def _reformat_one_list(list_info: ListInfo) -> dict[tuple[str, str], str]:
+    list_name = list_info.listinfo["name"]
+    for node in list_info.children:
+        yield (list_name, node.node_name), node.node_iri
+
+
+def _get_node_tuples(lists: list[List]) -> Iterable[tuple[tuple[str, str], str]]:
+    for lst in lists:
+        list_name = lst.list_name
+        for node in lst.nodes:
+            yield (list_name, node.node_name), node.node_iri
+
+
+def _children_to_nodes(children: list[dict[str, Any]]) -> list[ListNode]:
+    nodes = []
+    for child in children:
+        node_iri = child["id"]
+        node_name = child["name"]
+        nodes.append(ListNode(node_iri=node_iri, node_name=node_name))
+        if "children" in child:
+            nodes.extend(_children_to_nodes(child["children"]))
+    return nodes

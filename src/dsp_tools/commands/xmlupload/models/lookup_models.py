@@ -33,7 +33,6 @@ class ListNode:
 class List:
     """Information about a list."""
 
-    root_iri: str
     list_name: str
     nodes: list[ListNode]
 

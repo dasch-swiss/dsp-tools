@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from loguru import logger
 from lxml import etree
 
@@ -83,5 +85,46 @@ def _reformat_all_lists(all_info: list[ListInfo]) -> dict[tuple[str, str], str]:
 
 def _reformat_one_list(list_info: ListInfo) -> dict[tuple[str, str], str]:
     list_name = list_info.listinfo["name"]
-    for node in list_info.children:
-        yield (list_name, node.node_name), node.node_iri
+    list_iri = list_info.listinfo["id"]
+    is_nested = _has_nested_children(list_info.children)
+
+    # Start with list itself and IRI lookup
+    result = {
+        (list_name, list_name): list_iri,
+        ("", list_iri): list_iri,
+    }
+
+    # Recursively extract all nodes
+    all_nodes = _extract_all_nodes(list_info.children)
+
+    # Add tuple mappings for all nodes
+    for node_name, node_iri in all_nodes:
+        if is_nested:
+            # Nested list: (list-name, node-name)
+            result[(list_name, node_name)] = node_iri
+        else:
+            # Flat list: (node-name, list-name)
+            result[(node_name, list_name)] = node_iri
+        # IRI lookup
+        result[("", node_iri)] = node_iri
+
+    return result
+
+
+def _has_nested_children(children: list[dict[str, Any]]) -> bool:
+    """Check if any child has nested children."""
+    for child in children:
+        if "children" in child:
+            return True
+    return False
+
+
+def _extract_all_nodes(children: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    nodes = []
+    for child in children:
+        node_name = child["name"]
+        node_iri = child["id"]
+        nodes.append((node_name, node_iri))
+        if "children" in child:
+            nodes.extend(_extract_all_nodes(child["children"]))
+    return nodes

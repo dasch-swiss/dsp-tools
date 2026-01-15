@@ -1,5 +1,3 @@
-
-
 from pathlib import Path
 from typing import Never
 from typing import assert_never

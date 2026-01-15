@@ -1,5 +1,3 @@
-
-
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData

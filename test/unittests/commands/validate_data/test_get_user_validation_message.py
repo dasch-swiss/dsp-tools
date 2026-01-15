@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved

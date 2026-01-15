@@ -1,4 +1,3 @@
-
 import pytest
 from rdflib import OWL
 from rdflib import RDF

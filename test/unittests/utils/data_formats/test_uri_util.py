@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri

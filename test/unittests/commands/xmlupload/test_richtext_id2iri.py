@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError

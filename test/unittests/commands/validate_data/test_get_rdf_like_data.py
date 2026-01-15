@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup

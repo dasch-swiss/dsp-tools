@@ -1,5 +1,3 @@
-
-
 import pytest
 from pyoxigraph import RdfFormat
 from pyoxigraph import Store

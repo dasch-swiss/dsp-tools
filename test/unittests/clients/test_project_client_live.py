@@ -1,5 +1,3 @@
-
-
 from http import HTTPStatus
 from typing import Any
 from unittest.mock import Mock

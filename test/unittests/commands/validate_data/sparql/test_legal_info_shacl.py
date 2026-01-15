@@ -1,5 +1,3 @@
-
-
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Literal

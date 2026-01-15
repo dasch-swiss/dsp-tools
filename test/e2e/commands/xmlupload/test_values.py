@@ -1,4 +1,3 @@
-
 import json
 import urllib.parse
 from typing import cast

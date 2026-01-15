@@ -1,4 +1,3 @@
-
 import pytest
 
 from dsp_tools.commands.create.models.parsed_project import ParsedList

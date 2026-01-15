@@ -1,5 +1,3 @@
-
-
 import pytest
 from pyoxigraph import Store
 from rdflib import RDF

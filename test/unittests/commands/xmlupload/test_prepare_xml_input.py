@@ -78,8 +78,8 @@ def flat_list() -> ListInfo:
 def reformatted_flat_list() -> dict[tuple[str, str], str]:
     return {
         ("list-b", "list-b"): "http://www.example.org/lists#b",
-        ("node-b1", "list-b"): "http://www.example.org/lists#b1",
-        ("node-b2", "list-b"): "http://www.example.org/lists#b2",
+        ("list-b", "node-b1"): "http://www.example.org/lists#b1",
+        ("list-b", "node-b2"): "http://www.example.org/lists#b2",
         ("", "http://www.example.org/lists#b"): "http://www.example.org/lists#b",
         ("", "http://www.example.org/lists#b1"): "http://www.example.org/lists#b1",
         ("", "http://www.example.org/lists#b2"): "http://www.example.org/lists#b2",

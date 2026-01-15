@@ -80,7 +80,6 @@ def ingest_xmlupload(
         shortcode=shortcode,
     )
     clients = _get_live_clients(config, auth)
-
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     if id2iri_file:
         parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(id2iri_file))

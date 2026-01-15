@@ -7,6 +7,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
@@ -40,12 +41,11 @@ def get_parsed_resources_and_mappers(
 
 
 def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
-    proj_context = _get_project_context_from_server(
-        connection=clients.list_client.con, shortcode=root.attrib["shortcode"]
-    )
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
+    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    listnode_lookup = _get_list_node_to_iri_lookup(clients.list_client)
     return XmlReferenceLookups(
         permissions=permissions_lookup,
         listnodes=listnode_lookup,

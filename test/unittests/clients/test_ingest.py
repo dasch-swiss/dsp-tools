@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from requests_mock import Mocker
 
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase

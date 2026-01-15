@@ -73,17 +73,17 @@ def get_stash_and_upload_order(
 
 def _get_list_node_to_iri_lookup(list_client: ListGetClient) -> dict[tuple[str, str], str]:
     all_info = list_client.get_all_lists_and_nodes()
-    return _reformat_all_lists(all_info)
+    return _create_list_and_node_name_to_iri_lookup(all_info)
 
 
-def _reformat_all_lists(all_info: list[ListInfo]) -> dict[tuple[str, str], str]:
+def _create_list_and_node_name_to_iri_lookup(all_info: list[ListInfo]) -> dict[tuple[str, str], str]:
     complete_lookup = {}
     for li in all_info:
-        complete_lookup.update(_reformat_one_list(li))
+        complete_lookup.update(_create_one_list_and_node_name_to_iri_lookup(li))
     return complete_lookup
 
 
-def _reformat_one_list(list_info: ListInfo) -> dict[tuple[str, str], str]:
+def _create_one_list_and_node_name_to_iri_lookup(list_info: ListInfo) -> dict[tuple[str, str], str]:
     list_name = list_info.listinfo["name"]
     list_iri = list_info.listinfo["id"]
     result = {
@@ -91,18 +91,18 @@ def _reformat_one_list(list_info: ListInfo) -> dict[tuple[str, str], str]:
         # it is permitted to reference an absolute node-iri in the XML, in that case the list name must remain empty
         ("", list_iri): list_iri,
     }
-    all_nodes = _extract_all_nodes(list_info.children)
+    all_nodes = _extract_all_child_nodes(list_info.children)
     for node_name, node_iri in all_nodes:
         result.update({(list_name, node_name): node_iri, ("", node_iri): node_iri})
     return result
 
 
-def _extract_all_nodes(children: list[dict[str, Any]]) -> list[tuple[str, str]]:
+def _extract_all_child_nodes(children: list[dict[str, Any]]) -> list[tuple[str, str]]:
     nodes = []
     for child in children:
         node_name = child["name"]
         node_iri = child["id"]
         nodes.append((node_name, node_iri))
         if "children" in child:
-            nodes.extend(_extract_all_nodes(child["children"]))
+            nodes.extend(_extract_all_child_nodes(child["children"]))
     return nodes

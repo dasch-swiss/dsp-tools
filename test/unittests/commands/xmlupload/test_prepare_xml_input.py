@@ -2,8 +2,10 @@
 import pytest
 
 from dsp_tools.clients.list_client import ListInfo
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _reformat_all_lists
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _reformat_one_list
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _create_list_and_node_name_to_iri_lookup
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import (
+    _create_one_list_and_node_name_to_iri_lookup,
+)
 
 
 @pytest.fixture
@@ -86,19 +88,21 @@ def reformatted_flat_list() -> dict[tuple[str, str], str]:
     }
 
 
-def test_reformat_all_lists(flat_list, nested_list, reformatted_flat_list, reformatted_nested_list):
-    result = _reformat_all_lists([flat_list, nested_list])
+def test_create_list_and_node_name_to_iri_lookup(
+    flat_list, nested_list, reformatted_flat_list, reformatted_nested_list
+):
+    result = _create_list_and_node_name_to_iri_lookup([flat_list, nested_list])
     combined = {**reformatted_flat_list, **reformatted_nested_list}
     assert result == combined
 
 
 def test_reformat_flat_list(flat_list, reformatted_flat_list):
-    result = _reformat_one_list(flat_list)
+    result = _create_one_list_and_node_name_to_iri_lookup(flat_list)
     assert result == reformatted_flat_list
 
 
 def test_reformat_nested_list(nested_list, reformatted_nested_list):
-    result = _reformat_one_list(nested_list)
+    result = _create_one_list_and_node_name_to_iri_lookup(nested_list)
     assert result == reformatted_nested_list
 
 
@@ -110,7 +114,7 @@ def test_reformat_list_no_children():
         },
         [],
     )
-    result = _reformat_one_list(list_input)
+    result = _create_one_list_and_node_name_to_iri_lookup(list_input)
     expected = {
         ("list-c", "list-c"): "http://www.example.org/lists#c",
         ("", "http://www.example.org/lists#c"): "http://www.example.org/lists#c",

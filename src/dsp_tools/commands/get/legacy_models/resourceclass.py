@@ -7,280 +7,218 @@ This module implements reading resource classes. It contains two classes that wo
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
-from typing import Optional
 
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import Cardinality
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import create_lang_string
+from dsp_tools.legacy_models.langstring import create_lang_string_from_json_ld
 
 
+class Ptype(Enum):
+    """Property type classification."""
+
+    system = 1
+    knora = 2
+    other = 3
+
+
+@dataclass(frozen=True)
 class HasProperty:
     """Represents a property assignment to a resource class with cardinality."""
 
-    class Ptype(Enum):
-        system = 1
-        knora = 2
-        other = 3
+    property_id: str
+    cardinality: Cardinality
+    ptype: Ptype
+    gui_order: int | None
 
-    _property_id: str
-    _cardinality: Cardinality
-    _gui_order: int
-    _ptype: Ptype
-
-    def __init__(
-        self,
-        property_id: Optional[str] = None,
-        cardinality: Optional[Cardinality] = None,
-        gui_order: Optional[int] = None,
-        ptype: Optional[Ptype] = None,
-    ):
-        self._property_id = property_id
-        self._cardinality = cardinality
-        self._gui_order = gui_order
-        self._ptype = ptype
-
-    @property
-    def property_id(self) -> Optional[str]:
-        return self._property_id
-
-    @property
-    def cardinality(self) -> Optional[Cardinality]:
-        return self._cardinality
-
-    @property
-    def gui_order(self) -> Optional[int]:
-        return self._gui_order
-
-    @property
-    def ptype(self) -> Ptype:
-        return self._ptype
-
-    @classmethod
-    def fromJsonObj(cls, context: Context, jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
-        rdf_iri = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl_iri = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        knora_api_iri = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui_iri = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
-
-        if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl_iri + ":Restriction":
-            raise BaseError("Expected restriction type")
-
-        cardinality = cls._fromJsonObj_get_cardinality(jsonld_obj, owl_iri)
-
-        property_id, ptype = cls._fromJsonObj_get_prop_type_iri(jsonld_obj, knora_api_iri, owl_iri, rdf_iri, rdfs_iri)
-
-        gui_order: int = None
-        if jsonld_obj.get(salsah_gui_iri + ":guiOrder") is not None:
-            gui_order = jsonld_obj[salsah_gui_iri + ":guiOrder"]
-        return property_id, cls(
-            property_id=property_id,
-            cardinality=cardinality,
-            gui_order=gui_order,
-            ptype=ptype,
-        )
-
-    @staticmethod
-    def _fromJsonObj_get_prop_type_iri(
-        jsonld_obj: dict[str, Any], knora_api_iri: str, owl_iri: str, rdf_iri: str, rdfs_iri: str
-    ) -> tuple[str, HasProperty.Ptype]:
-        ptype: HasProperty.Ptype
-        if jsonld_obj.get(owl_iri + ":onProperty") is None:
-            raise BaseError("No property IRI given")
-        p = jsonld_obj[owl_iri + ":onProperty"].get("@id")
-        if p is None:
-            raise BaseError("No property IRI given")
-        pp = p.split(":")
-        if pp[0] == rdf_iri or pp[0] == rdfs_iri or pp[0] == owl_iri:
-            ptype = HasProperty.Ptype.system
-        elif pp[0] == knora_api_iri:
-            ptype = HasProperty.Ptype.knora
-        else:
-            ptype = HasProperty.Ptype.other
-        return p, ptype
-
-    @staticmethod
-    def _fromJsonObj_get_cardinality(jsonld_obj: dict[str, Any], owl_iri: str):
-        cardinality: Cardinality
-        if jsonld_obj.get(owl_iri + ":cardinality") is not None:
-            cardinality = Cardinality.C_1
-        elif jsonld_obj.get(owl_iri + ":maxCardinality") is not None:
-            cardinality = Cardinality.C_0_1
-        elif jsonld_obj.get(owl_iri + ":minCardinality") is not None:
-            if jsonld_obj.get(owl_iri + ":minCardinality") == 0:
-                cardinality = Cardinality.C_0_n
-            elif jsonld_obj.get(owl_iri + ":minCardinality") == 1:
-                cardinality = Cardinality.C_1_n
-            else:
-                raise BaseError("Problem with cardinality")
-        else:
-            raise BaseError("Problem with cardinality")
-        return cardinality
-
-    def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
-        cardinality = {}
-        if self._ptype == HasProperty.Ptype.other or self.property_id in [
+    def to_definition_file_obj(self, context: Context, shortname: str) -> dict[str, Any]:
+        """Create an object for the definition file export."""
+        cardinality_obj: dict[str, Any] = {}
+        if self.ptype == Ptype.other or self.property_id in [
             "knora-api:isPartOf",
             "knora-api:seqnum",
         ]:
-            cardinality["propname"] = context.reduce_iri(self._property_id, shortname)
-            cardinality["cardinality"] = self._cardinality.value
-            if self._gui_order is not None:
-                cardinality["gui_order"] = self._gui_order
-        return cardinality
+            cardinality_obj["propname"] = context.reduce_iri(self.property_id, shortname)
+            cardinality_obj["cardinality"] = self.cardinality.value
+            if self.gui_order is not None:
+                cardinality_obj["gui_order"] = self.gui_order
+        return cardinality_obj
 
 
+def create_has_property_from_json(jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
+    """
+    Create a HasProperty from a JSON-LD object.
+
+    Args:
+        jsonld_obj: JSON-LD object from DSP API
+
+    Returns:
+        Tuple of (property_id, HasProperty instance)
+    """
+    if jsonld_obj.get("@type") != "owl:Restriction":
+        raise BaseError("Expected restriction type")
+
+    cardinality = _extract_cardinality(jsonld_obj)
+    property_id, ptype = _extract_property_type_iri(jsonld_obj)
+
+    gui_order: int | None = jsonld_obj.get("salsah-gui:guiOrder")
+
+    return property_id, HasProperty(
+        property_id=property_id,
+        cardinality=cardinality,
+        ptype=ptype,
+        gui_order=gui_order,
+    )
+
+
+def _extract_property_type_iri(jsonld_obj: dict[str, Any]) -> tuple[str, Ptype]:
+    """Extract property IRI and determine its type."""
+    on_property = jsonld_obj.get("owl:onProperty")
+    if on_property is None:
+        raise BaseError("No property IRI given")
+    property_id = on_property.get("@id")
+    if property_id is None:
+        raise BaseError("No property IRI given")
+    prefix = property_id.split(":")[0]
+    if prefix in ("rdf", "rdfs", "owl"):
+        ptype = Ptype.system
+    elif prefix == "knora-api":
+        ptype = Ptype.knora
+    else:
+        ptype = Ptype.other
+    return property_id, ptype
+
+
+def _extract_cardinality(jsonld_obj: dict[str, Any]) -> Cardinality:
+    """Extract cardinality from JSON-LD object."""
+    if jsonld_obj.get("owl:cardinality") is not None:
+        return Cardinality.C_1
+    elif jsonld_obj.get("owl:maxCardinality") is not None:
+        return Cardinality.C_0_1
+    elif jsonld_obj.get("owl:minCardinality") is not None:
+        if jsonld_obj.get("owl:minCardinality") == 0:
+            return Cardinality.C_0_n
+        elif jsonld_obj.get("owl:minCardinality") == 1:
+            return Cardinality.C_1_n
+        else:
+            raise BaseError("Problem with cardinality")
+    else:
+        raise BaseError("Problem with cardinality")
+
+
+@dataclass(frozen=True)
 class ResourceClass:
-    """
-    This class represents a DSP resource class [readonly]
-    """
+    """Represents a DSP resource class definition."""
 
-    _context: Context
-    _name: str
-    _superclasses: list[str]
-    _label: LangString
-    _comment: LangString
-    _has_properties: dict[str, HasProperty]
+    name: str
+    superclasses: tuple[str, ...] | None
+    label: LangString
+    comment: LangString
+    has_properties: dict[str, HasProperty] | None
 
-    def __init__(
-        self,
-        context: Context,
-        name: Optional[str] = None,
-        superclasses: Optional[list[str]] = None,
-        label: Optional[LangString | str] = None,
-        comment: Optional[LangString | str] = None,
-        has_properties: Optional[dict[str, HasProperty]] = None,
-    ):
-        self._context = context
-        self._name = name
-        self._superclasses = superclasses
-
-        self._label = self._check_process_langstring(label, "label")
-        self._comment = self._check_process_langstring(comment, "comment")
-        self._has_properties = has_properties
-
-    @staticmethod
-    def _check_process_langstring(langstring_to_check: None | str | LangString, what: str) -> LangString:
-        if langstring_to_check is not None:
-            if isinstance(langstring_to_check, str):
-                return LangString(langstring_to_check)
-            elif isinstance(langstring_to_check, LangString):
-                return langstring_to_check
-            else:
-                raise BaseError(f"Invalid LangString for {what}!")
-        else:
-            return LangString({})
-
-    @property
-    def name(self) -> Optional[str]:
-        return self._name
-
-    @property
-    def superclasses(self) -> Optional[list[str]]:
-        return self._superclasses
-
-    @property
-    def label(self) -> LangString:
-        return self._label
-
-    @property
-    def comment(self) -> LangString:
-        return self._comment
-
-    @property
-    def has_properties(self) -> dict[str, HasProperty]:
-        return self._has_properties
-
-    @classmethod
-    def fromJsonObj(cls, context: Context, json_obj: Any) -> ResourceClass:
-        if isinstance(json_obj, list):
-            json_obj = json_obj[0]
-        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-
-        if not (json_obj.get(knora_api + ":isResourceClass") or json_obj.get(knora_api + ":isStandoffClass")):
-            raise BaseError("This is not a resource!")
-
-        if json_obj.get("@id") is None:
-            raise BaseError('Resource class has no "@id"!')
-
-        tmp_id = json_obj.get("@id").split(":")
-        name = tmp_id[1]
-
-        has_properties, superclasses = cls._fromJsonObj_get_superclass(context, json_obj, rdfs, owl)
-
-        label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
-        comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
-        return cls(
-            context=context,
-            name=name,
-            superclasses=superclasses,
-            label=label,
-            comment=comment,
-            has_properties=has_properties,
-        )
-
-    @staticmethod
-    def _fromJsonObj_get_superclass(
-        context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
-    ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
-        superclasses_obj = json_obj.get(rdfs + ":subClassOf")
-        if superclasses_obj is not None:
-            supercls = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
-            superclasses = list(map(lambda a: a["@id"], supercls))
-            has_props = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
-            has_properties = dict(map(lambda a: HasProperty.fromJsonObj(context, a), has_props))
-            #
-            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
-            # one a direct link, the other the pointer to a link value
-            #
-            tmp = dict(has_properties)
-            for key in tmp.keys():
-                if key.endswith("Value"):
-                    key_without_value = key.removesuffix("Value")
-                    if key_without_value in has_properties:
-                        del has_properties[key]
-        else:
-            superclasses = None
-            has_properties = None
-        return has_properties, superclasses
-
-    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
-        resource = {"name": self._name}
-        if self._superclasses:
-            resource["super"] = self._create_DefinitionFileObj_superclass(context, shortname)
-        resource["labels"] = self._label.createDefinitionFileObj()
-        if not self._comment.isEmpty():
-            resource["comments"] = self._comment.createDefinitionFileObj()
-        if self._has_properties:
-            self._create_DefinitionFileObj_cardinalities(context, resource, shortname, skiplist)
+    def to_definition_file_obj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
+        """Create an object for the definition file export."""
+        resource: dict[str, Any] = {"name": self.name}
+        if self.superclasses:
+            resource["super"] = _build_superclass_obj(context, shortname, self.superclasses)
+        resource["labels"] = self.label.to_definition_file_obj()
+        if not self.comment.is_empty():
+            resource["comments"] = self.comment.to_definition_file_obj()
+        if self.has_properties:
+            _add_cardinalities(context, resource, shortname, skiplist, self.has_properties)
         return resource
 
-    def _create_DefinitionFileObj_cardinalities(
-        self, context: Context, resource: dict[str, str], shortname: str, skiplist: list[str]
-    ) -> dict[str, Any]:
-        cardinalities: list[dict[str, Any]] = []
-        for _, hp in self._has_properties.items():
-            if hp.property_id in skiplist:
-                continue
-            if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
-                "knora-api:isPartOf",
-                "knora-api:seqnum",
-            ]:
-                cardinalities.append(hp.createDefinitionFileObj(context, shortname))
-        if cardinalities:
-            resource["cardinalities"] = cardinalities
-        return resource
 
-    def _create_DefinitionFileObj_superclass(self, context: Context, shortname: str) -> list[str] | str:
-        if len(self._superclasses) > 1:
-            superclasses = []
-            for sc in self._superclasses:
-                superclasses.append(context.reduce_iri(sc, shortname))
-        else:
-            superclasses = context.reduce_iri(self._superclasses[0], shortname)
-        return superclasses
+def _build_superclass_obj(context: Context, shortname: str, superclasses: tuple[str, ...]) -> list[str] | str:
+    """Build superclass representation for definition file."""
+    if len(superclasses) > 1:
+        return [context.reduce_iri(sc, shortname) for sc in superclasses]
+    else:
+        return context.reduce_iri(superclasses[0], shortname)
+
+
+def _add_cardinalities(
+    context: Context,
+    resource: dict[str, Any],
+    shortname: str,
+    skiplist: list[str],
+    has_properties: dict[str, HasProperty],
+) -> None:
+    """Add cardinalities to the resource definition."""
+    cardinalities: list[dict[str, Any]] = []
+    for _, hp in has_properties.items():
+        if hp.property_id in skiplist:
+            continue
+        if hp.ptype == Ptype.other or hp.property_id in [
+            "knora-api:isPartOf",
+            "knora-api:seqnum",
+        ]:
+            cardinalities.append(hp.to_definition_file_obj(context, shortname))
+    if cardinalities:
+        resource["cardinalities"] = cardinalities
+
+
+def create_resource_class_from_json(json_obj: Any) -> ResourceClass:
+    """
+    Create a ResourceClass from a JSON-LD object.
+
+    Args:
+        json_obj: JSON-LD object from DSP API
+
+    Returns:
+        ResourceClass instance
+    """
+    if isinstance(json_obj, list):
+        json_obj = json_obj[0]
+
+    if not (json_obj.get("knora-api:isResourceClass") or json_obj.get("knora-api:isStandoffClass")):
+        raise BaseError("This is not a resource!")
+
+    if json_obj.get("@id") is None:
+        raise BaseError('Resource class has no "@id"!')
+
+    tmp_id = json_obj["@id"].split(":")
+    name = tmp_id[1]
+
+    has_properties, superclasses = _extract_superclass_and_properties(json_obj)
+
+    label = create_lang_string_from_json_ld(json_obj.get("rdfs:label")) or create_lang_string()
+    comment = create_lang_string_from_json_ld(json_obj.get("rdfs:comment")) or create_lang_string()
+
+    return ResourceClass(
+        name=name,
+        superclasses=superclasses,
+        label=label,
+        comment=comment,
+        has_properties=has_properties,
+    )
+
+
+def _extract_superclass_and_properties(
+    json_obj: dict[str, Any],
+) -> tuple[dict[str, HasProperty] | None, tuple[str, ...] | None]:
+    """Extract superclasses and has_properties from JSON-LD object."""
+    superclasses_obj = json_obj.get("rdfs:subClassOf")
+    if superclasses_obj is None:
+        return None, None
+
+    supercls = [a for a in superclasses_obj if a.get("@id") is not None]
+    superclasses = tuple(a["@id"] for a in supercls)
+
+    has_props = [a for a in superclasses_obj if a.get("@type") == "owl:Restriction"]
+    has_properties = dict(create_has_property_from_json(a) for a in has_props)
+
+    # Remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
+    # one a direct link, the other the pointer to a link value
+    keys_to_remove = [
+        key for key in has_properties if key.endswith("Value") and key.removesuffix("Value") in has_properties
+    ]
+    for key in keys_to_remove:
+        del has_properties[key]
+
+    return has_properties, superclasses if superclasses else None

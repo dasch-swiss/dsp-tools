@@ -63,7 +63,7 @@ class SetEncoder(json.JSONEncoder):
         if isinstance(o, set):
             return list(o)
         elif isinstance(o, Context):
-            return o.toJsonObj()
+            return o.to_json_obj()
         elif isinstance(o, OntoIri):
             return {"iri": o.iri, "hashtag": o.hashtag}
         return json.JSONEncoder.default(self, o)

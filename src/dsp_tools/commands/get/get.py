@@ -9,11 +9,16 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.get.get_permissions import get_default_permissions
-from dsp_tools.commands.get.legacy_models.group import Group
-from dsp_tools.commands.get.legacy_models.listnode import ListNode
-from dsp_tools.commands.get.legacy_models.ontology import Ontology
+from dsp_tools.commands.get.legacy_models.group import get_all_groups_for_project
+from dsp_tools.commands.get.legacy_models.listnode import get_all_lists
+from dsp_tools.commands.get.legacy_models.listnode import read_all_nodes
+from dsp_tools.commands.get.legacy_models.ontology import get_ontology_from_server
+from dsp_tools.commands.get.legacy_models.ontology import get_project_ontologies
 from dsp_tools.commands.get.legacy_models.project import Project
-from dsp_tools.commands.get.legacy_models.user import User
+from dsp_tools.commands.get.legacy_models.project import read_project_by_iri
+from dsp_tools.commands.get.legacy_models.project import read_project_by_shortcode
+from dsp_tools.commands.get.legacy_models.project import read_project_by_shortname
+from dsp_tools.commands.get.legacy_models.user import get_all_users_for_project
 from dsp_tools.error.exceptions import BaseError
 
 
@@ -49,7 +54,7 @@ def get_project(
         authenticated = False
 
     project = _read_project(con, project_identifier)
-    project_obj = project.createDefinitionFileObj()
+    project_obj = project.to_definition_file_obj()
 
     prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
 
@@ -85,11 +90,11 @@ def get_project(
 
 def _read_project(con: Connection, project_identifier: str) -> Project:
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
-        return Project.read_by_shortcode(con, project_identifier)
+        return read_project_by_shortcode(con, project_identifier)
     elif regex.match("^[\\w-]+$", project_identifier):  # shortname
-        return Project.read_by_shortname(con, project_identifier.lower())
+        return read_project_by_shortname(con, project_identifier.lower())
     elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
-        return Project.read_by_iri(con, project_identifier)
+        return read_project_by_iri(con, project_identifier)
     else:
         raise BaseError(
             f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
@@ -100,9 +105,9 @@ def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[s
     if verbose:
         print("Getting groups...")
     groups_obj: list[dict[str, Any]] = []
-    if groups := Group.getAllGroupsForProject(con=con, proj_iri=project_iri):
+    if groups := get_all_groups_for_project(con=con, proj_iri=project_iri):
         for group in groups:
-            groups_obj.append(group.createDefinitionFileObj())
+            groups_obj.append(group.to_definition_file_obj())
             if verbose:
                 print(f"    Got group '{group.name}'")
     return groups_obj
@@ -112,7 +117,7 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
     if verbose:
         print("Getting users...")
     try:
-        users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+        users = get_all_users_for_project(con=con, proj_shortcode=str(project.shortcode))
     except BaseError:
         return None
     if users is None:
@@ -121,7 +126,7 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
     users_obj: list[dict[str, Any]] = []
     for usr in users:
         users_obj.append(
-            usr.createDefinitionFileObj(
+            usr.to_definition_file_obj(
                 con=con,
                 proj_shortname=str(project.shortname),
                 proj_iri=str(project.iri),
@@ -136,10 +141,10 @@ def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[st
     if verbose:
         print("Getting lists...")
     list_obj: list[dict[str, Any]] = []
-    if list_roots := ListNode.getAllLists(con=con, project_iri=project.iri):
+    if list_roots := get_all_lists(con=con, project_iri=project.iri):
         for list_root in list_roots:
-            complete_list = list_root.getAllNodes()
-            list_obj.append(complete_list.createDefinitionFileObj())
+            complete_list = read_all_nodes(con, list_root.iri)
+            list_obj.append(complete_list.to_definition_file_obj())
             if verbose:
                 print(f"    Got list '{list_root.name}'")
     return list_obj
@@ -150,14 +155,14 @@ def _get_ontologies(con: Connection, project_iri: str, verbose: bool) -> tuple[d
         print("Getting ontologies...")
     ontos: list[dict[str, Any]] = []
     prefixes: dict[str, str] = {}
-    ontologies = Ontology.getProjectOntologies(con, project_iri)
+    ontologies = get_project_ontologies(con, project_iri)
     ontology_ids = [onto.iri for onto in ontologies]
     for ontology_id in ontology_ids:
         onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2
         name = onto_url_parts[len(onto_url_parts) - 2]
         shortcode = onto_url_parts[len(onto_url_parts) - 3]
-        ontology = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
-        ontos.append(ontology.createDefinitionFileObj())
+        ontology = get_ontology_from_server(con=con, shortcode=shortcode, name=name)
+        ontos.append(ontology.to_definition_file_obj(con))
         prefixes.update(ontology.context.get_externals_used())
         if verbose:
             print(f"    Got ontology '{name}'")

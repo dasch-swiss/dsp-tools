@@ -1,206 +1,96 @@
 """
 This module implements reading DSP projects.
-
-READ:
-    * Instantiate a new object with ``iri`` given
-    * Call the ``read``-method on the instance
-    * Access the information that has been provided to the instance
-
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import create_lang_string
+from dsp_tools.legacy_models.langstring import create_lang_string_from_json
+
+PROJECTS_ROUTE = "/admin/projects"
+PROJECTS_IRI_ROUTE = PROJECTS_ROUTE + "/iri/"
 
 
+@dataclass(frozen=True)
 class Project:
-    """
-    This class represents a project in DSP.
+    """Represents a DSP project."""
 
-    Attributes
-    ----------
+    iri: str
+    shortcode: str
+    shortname: str
+    longname: str
+    description: LangString
+    keywords: frozenset[str]
+    enabled_licenses: frozenset[str]
 
-    iri : str
-        IRI of the project [readonly]
-
-    shortcode : str
-        DSP project shortcode [readonly]
-
-    shortname : str
-        DSP project shortname [readonly]
-
-    longname : str
-        DSP project longname [readonly]
-
-    description : LangString
-        DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
-
-    keywords : set[str]
-        Set of keywords describing the project.
-
-    enabled_licenses : set[str]
-        Set of enabled license IRIs for this project.
-
-
-    Methods
-    -------
-
-    read : DSP project information object
-        Read project data from an existing project
-
-    getAllProjects [static]: List of all projects
-        Returns a list of all projects available
-
-    """
-
-    ROUTE: str = "/admin/projects"
-    IRI: str = ROUTE + "/iri/"
-
-    _con: Connection
-    _iri: str
-    _shortcode: str
-    _shortname: str
-    _longname: str
-    _description: LangString
-    _keywords: set[str]
-    _enabled_licenses: set[str]
-
-    def __init__(
-        self,
-        con: Connection,
-        iri: str,
-        shortcode: str,
-        shortname: str,
-        longname: str,
-        description: LangString | None = None,
-        keywords: set[str] | None = None,
-        enabled_licenses: set[str] | None = None,
-    ):
-        """
-        Constructor for Project
-
-        :param con: Connection instance
-        :param iri: IRI of the project
-        :param shortcode: Shortcode of the project. Four-digit hexadecimal number.
-        :param shortname: Shortname of the project
-        :param longname: Longname of the project
-        :param description: LangString instance containing the description
-        :param keywords: Set of keywords
-        :param enabled_licenses: Set of enabled licenses [optional]
-        """
-        self._con = con
-        self._iri = iri
-        self._shortcode = shortcode
-        self._shortname = shortname
-        self._longname = longname
-        self._description = description if isinstance(description, LangString) else LangString(description)
-        self._keywords = keywords or set()
-        self._enabled_licenses = enabled_licenses or set()
-
-    @property
-    def iri(self) -> str:
-        return self._iri
-
-    @property
-    def shortcode(self) -> str:
-        return self._shortcode
-
-    @property
-    def shortname(self) -> str:
-        return self._shortname
-
-    @property
-    def longname(self) -> str:
-        return self._longname
-
-    @property
-    def description(self) -> LangString:
-        return self._description
-
-    @property
-    def keywords(self) -> set[str]:
-        return self._keywords
-
-    @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Project:
-        """
-        Internal method! Should not be used directly!
-
-        This method is used to create a Project instance from the JSON data returned by DSP
-
-        :param con: Connection instance
-        :param json_obj: JSON data returned by DSP as python3 object
-        :return: Project instance
-        """
-        iri = json_obj.get("id")
-        if iri is None:
-            raise BaseError("Project iri is missing")
-        shortcode = json_obj.get("shortcode")
-        if shortcode is None:
-            raise BaseError("Shortcode is missing")
-        shortname = json_obj.get("shortname")
-        if shortname is None:
-            raise BaseError("Shortname is missing")
-        longname = json_obj.get("longname")
-        if longname is None:
-            raise BaseError("Longname is missing")
-        description = LangString.fromJsonObj(json_obj.get("description"))
-        keywords = set(json_obj.get("keywords", []))
-        enabled_licenses = json_obj.get("enabledLicenses", set())
-        return cls(
-            con=con,
-            iri=iri,
-            shortcode=shortcode,
-            shortname=shortname,
-            longname=longname,
-            description=description,
-            keywords=keywords,
-            enabled_licenses=enabled_licenses,
-        )
-
-    def createDefinitionFileObj(self) -> dict[str, Any]:
+    def to_definition_file_obj(self) -> dict[str, Any]:
         return {
-            "shortcode": self._shortcode,
-            "shortname": self._shortname,
-            "longname": self._longname,
-            "descriptions": self._description.createDefinitionFileObj(),
-            "keywords": list(self._keywords),
-            "enabled_licenses": list(self._enabled_licenses),
+            "shortcode": self.shortcode,
+            "shortname": self.shortname,
+            "longname": self.longname,
+            "descriptions": self.description.to_definition_file_obj(),
+            "keywords": list(self.keywords),
+            "enabled_licenses": list(self.enabled_licenses),
         }
 
-    @classmethod
-    def read_by_iri(cls, con: Connection, iri: str) -> Project:
-        """Read a project from DSP by its IRI."""
-        result = con.get(cls.IRI + quote_plus(iri))
-        return cls.fromJsonObj(con, result["project"])
 
-    @classmethod
-    def read_by_shortcode(cls, con: Connection, shortcode: str) -> Project:
-        """Read a project from DSP by its shortcode."""
-        result = con.get(cls.ROUTE + "/shortcode/" + quote_plus(shortcode))
-        return cls.fromJsonObj(con, result["project"])
+def create_project_from_json(json_obj: dict[str, Any]) -> Project:
+    """Create a Project from a JSON object returned by DSP API."""
+    iri = json_obj.get("id")
+    if iri is None:
+        raise BaseError("Project iri is missing")
+    shortcode = json_obj.get("shortcode")
+    if shortcode is None:
+        raise BaseError("Shortcode is missing")
+    shortname = json_obj.get("shortname")
+    if shortname is None:
+        raise BaseError("Shortname is missing")
+    longname = json_obj.get("longname")
+    if longname is None:
+        raise BaseError("Longname is missing")
+    description = create_lang_string_from_json(json_obj.get("description")) or create_lang_string()
+    keywords = frozenset(json_obj.get("keywords", []))
+    enabled_licenses = frozenset(json_obj.get("enabledLicenses", []))
+    return Project(
+        iri=iri,
+        shortcode=shortcode,
+        shortname=shortname,
+        longname=longname,
+        description=description,
+        keywords=keywords,
+        enabled_licenses=enabled_licenses,
+    )
 
-    @classmethod
-    def read_by_shortname(cls, con: Connection, shortname: str) -> Project:
-        """Read a project from DSP by its shortname."""
-        result = con.get(cls.ROUTE + "/shortname/" + quote_plus(shortname))
-        return cls.fromJsonObj(con, result["project"])
 
-    @staticmethod
-    def getAllProjects(con: Connection) -> list[Project]:
-        """
-        Get all existing projects in DSP
+def read_project_by_iri(con: Connection, iri: str) -> Project:
+    """Read a project from DSP by its IRI."""
+    result = con.get(PROJECTS_IRI_ROUTE + quote_plus(iri))
+    return create_project_from_json(result["project"])
 
-        :param con: Connection instance
-        :return:
-        """
-        try:
-            result = con.get(Project.ROUTE)
-            return [Project.fromJsonObj(con, a) for a in result["projects"]]
-        except BaseError:
-            return []
+
+def read_project_by_shortcode(con: Connection, shortcode: str) -> Project:
+    """Read a project from DSP by its shortcode."""
+    result = con.get(PROJECTS_ROUTE + "/shortcode/" + quote_plus(shortcode))
+    return create_project_from_json(result["project"])
+
+
+def read_project_by_shortname(con: Connection, shortname: str) -> Project:
+    """Read a project from DSP by its shortname."""
+    result = con.get(PROJECTS_ROUTE + "/shortname/" + quote_plus(shortname))
+    return create_project_from_json(result["project"])
+
+
+def get_all_projects(con: Connection) -> list[Project]:
+    """Get all existing projects in DSP."""
+    try:
+        result = con.get(PROJECTS_ROUTE)
+        return [create_project_from_json(a) for a in result["projects"]]
+    except BaseError:
+        return []

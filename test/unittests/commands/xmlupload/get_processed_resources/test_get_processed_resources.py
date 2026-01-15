@@ -34,6 +34,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import create_date_time_stamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -223,7 +224,7 @@ class TestOneResource:
         assert metadata.iri_str == "http://rdfh.ch/4123/5d5d1FKaUC2Wfl4zicggfg"
         time_stamp = metadata.creation_date
         assert isinstance(time_stamp, DateTimeStamp)
-        assert time_stamp == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
+        assert time_stamp == create_date_time_stamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_unknown_permission(self, lookups: XmlReferenceLookups):
         msg = regex.escape(r"Could not find permissions for value: unknown")

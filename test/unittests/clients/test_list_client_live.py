@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import json
 from typing import Any
 from unittest.mock import Mock

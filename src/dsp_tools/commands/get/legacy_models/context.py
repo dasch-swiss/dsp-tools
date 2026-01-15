@@ -4,31 +4,9 @@ from typing import Optional
 
 import regex
 
-from dsp_tools.commands.get.legacy_models.helpers import ContextType
 from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.data_formats.iri_util import is_iri
-
-
-class ContextIterator:
-    _context: Context
-    _prefixes: list[str]
-    _index: int
-
-    def __init__(self, context: Context):
-        self._context = context
-        self._prefixes = list(self._context.context)
-        self._index = 0
-
-    def __next__(self) -> tuple[Optional[str], Optional[OntoIri]]:
-        if len(self._context.context) == 0 and self._index == 0:
-            return None, None
-        elif self._index < len(self._context.context):
-            tmp = self._prefixes[self._index]
-            self._index += 1
-            return tmp, self._context.context[tmp]
-        else:
-            raise StopIteration
 
 
 class Context:
@@ -36,40 +14,34 @@ class Context:
     This class holds a JSON-LD context with the ontology IRI's and the associated prefixes
     """
 
-    _context: ContextType
+    _context: dict[str, OntoIri]
     _rcontext: dict[str, str]
 
-    common_ontologies = ContextType(
-        {
-            "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
-            "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
-            "dcterms": OntoIri("http://purl.org/dc/terms/", False),
-            "dcmi": OntoIri("http://purl.org/dc/dcmitype/", False),
-            "skos": OntoIri("http://www.w3.org/2004/02/skos/core", True),
-            "bibtex": OntoIri("http://purl.org/net/nknouf/ns/bibtex", True),
-            "bibo": OntoIri("http://purl.org/ontology/bibo/", False),
-            "cidoc": OntoIri("http://purl.org/NET/cidoc-crm/core", True),
-            "schema": OntoIri("https://schema.org/", False),
-            "edm": OntoIri("http://www.europeana.eu/schemas/edm/", False),
-            "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True),
-        }
-    )
+    common_ontologies = {
+        "foaf": OntoIri("http://xmlns.com/foaf/0.1/", False),
+        "dc": OntoIri("http://purl.org/dc/elements/1.1/", False),
+        "dcterms": OntoIri("http://purl.org/dc/terms/", False),
+        "dcmi": OntoIri("http://purl.org/dc/dcmitype/", False),
+        "skos": OntoIri("http://www.w3.org/2004/02/skos/core", True),
+        "bibtex": OntoIri("http://purl.org/net/nknouf/ns/bibtex", True),
+        "bibo": OntoIri("http://purl.org/ontology/bibo/", False),
+        "cidoc": OntoIri("http://purl.org/NET/cidoc-crm/core", True),
+        "schema": OntoIri("https://schema.org/", False),
+        "edm": OntoIri("http://www.europeana.eu/schemas/edm/", False),
+        "ebucore": OntoIri("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore", True),
+    }
 
-    knora_ontologies = ContextType(
-        {
-            "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
-            "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True),
-        }
-    )
+    knora_ontologies = {
+        "knora-api": OntoIri("http://api.knora.org/ontology/knora-api/v2", True),
+        "salsah-gui": OntoIri("http://api.knora.org/ontology/salsah-gui/v2", True),
+    }
 
-    base_ontologies = ContextType(
-        {
-            "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
-            "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
-            "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
-            "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True),
-        }
-    )
+    base_ontologies = {
+        "rdf": OntoIri("http://www.w3.org/1999/02/22-rdf-syntax-ns", True),
+        "rdfs": OntoIri("http://www.w3.org/2000/01/rdf-schema", True),
+        "owl": OntoIri("http://www.w3.org/2002/07/owl", True),
+        "xsd": OntoIri("http://www.w3.org/2001/XMLSchema", True),
+    }
 
     def __init__(self, context: Optional[dict[str, str]] = None):
         """
@@ -78,7 +50,7 @@ class Context:
         ontology-iri *must* end with "#"!
         :param context: A dict of prefix - ontology-iri pairs
         """
-        self._context = ContextType({})
+        self._context = {}
 
         # add ontologies from context, if any
         if context:
@@ -96,41 +68,6 @@ class Context:
                 self._context[k] = v
 
         self._rcontext = {v.iri: k for k, v in self._context.items()}
-
-    def __getitem__(self, key: str) -> OntoIri:
-        return self._context[key]
-
-    def __contains__(self, key: str) -> bool:
-        return key in self._context
-
-    def __iter__(self) -> ContextIterator:
-        return ContextIterator(self)
-
-    def __str__(self) -> str:
-        output = "Context:\n"
-        for prefix, val in self._context.items():
-            output += "  " + prefix + ": " + val.iri + "\n"
-        return output
-
-    #
-    # now we have a lot of getters/setters
-    #
-    @property
-    def context(self) -> ContextType:
-        return self._context
-
-    @context.setter
-    def context(self, value: ContextType) -> None:
-        """
-        Setter function for the context out of a dict in the form { prefix1 : iri1, prefix2, iri2, …}
-
-        :param value: Dictionary of context
-        :return: None
-        """
-        if value is not None and isinstance(value, dict):
-            self._context = value
-        else:
-            raise BaseError("Error in parameter to context setter")
 
     def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
         """
@@ -155,21 +92,6 @@ class Context:
                 else:
                     self._context[prefix] = OntoIri(iri, False)
         self._rcontext[iri] = prefix
-
-    def iri_from_prefix(self, prefix: str) -> Optional[str]:
-        """
-        Returns the full IRI belonging to this prefix, without trailing "#"!
-
-        :param prefix: Prefix of the context entry
-        :return: The full IRI without trailing "#"
-        """
-        # if self.__is_iri(prefix):
-        if is_iri(prefix):
-            return prefix
-        if self._context.get(prefix) is not None:
-            return self._context.get(prefix).iri
-        else:
-            return None
 
     def prefix_from_iri(self, iri: str) -> Optional[str]:
         """
@@ -204,38 +126,6 @@ class Context:
                 else:
                     raise BaseError("Iri cannot be resolved to a well-known prefix!")
         return result
-
-    def get_qualified_iri(self, val: Optional[str]) -> Optional[str]:
-        """
-        Given an IRI, its fully qualified name is returned.
-
-        Args:
-            val: The input IRI
-
-        Returns:
-            the fully qualified IRI
-        """
-        if not val:
-            return None
-        if is_iri(val):
-            return val
-        tmp = val.split(":")
-        if len(tmp) < 2:
-            raise BaseError("There is no separator to identify the prefix: " + val)
-        iri_info = self._context.get(tmp[0])
-        if iri_info is None:
-            entrylist = list(filter(lambda x: x[1].iri == tmp[0], self.common_ontologies.items()))
-            if len(entrylist) == 1:
-                entry = entrylist[0]
-                self._context[entry[0]] = entry[1]  # add to list of prefixes used
-                self._rcontext[entry[1].iri] = entry[0]
-                iri_info = entry[1]
-            else:
-                raise BaseError("Ontology not known! Cannot generate fully qualified IRI")
-        if iri_info.hashtag:
-            return iri_info.iri + "#" + tmp[1]
-        else:
-            return iri_info.iri + tmp[1]
 
     def get_prefixed_iri(self, iri: Optional[str]) -> Optional[str]:
         """

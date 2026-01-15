@@ -33,13 +33,6 @@ class TestLangString(unittest.TestCase):
         self.assertEqual(ls[Languages.DE], self.simple_string_de)
         self.assertEqual(ls["fr"], self.simple_string_fr)
 
-    def test_langstring_change(self) -> None:
-        """test if changing a LangString item works."""
-        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
-        ls["de"] = "gagaga"
-        self.assertEqual(ls[Languages.DE], "gagaga")
-        self.assertEqual(ls["fr"], self.simple_string_fr)
-
     def test_langstring_fromjson(self) -> None:
         """Test reading a LangString from JSON as used in Knora Admin."""
         test = [{"language": "en", "value": self.test_string_en}, {"language": "de", "value": self.test_string_de}]
@@ -54,47 +47,10 @@ class TestLangString(unittest.TestCase):
         self.assertEqual(ls["de"], self.test_string_de)
         self.assertEqual(ls[Languages.EN], self.test_string_en)
 
-    def test_langstring_tojson(self) -> None:
-        """Test converting a LangString to JSON and JSON-LD"""
-        ls = LangString(self.simple_string_de)
-        json = ls.toJsonObj()
-        self.assertEqual(json, self.simple_string_de)
-        json = ls.toJsonLdObj()
-        self.assertEqual(json, self.simple_string_de)
-
-        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
-        json = ls.toJsonObj()
-        expected = [
-            {"language": "de", "value": self.simple_string_de},
-            {"language": "fr", "value": self.simple_string_fr},
-        ]
-        self.assertEqual(json, expected)
-        jsonld = ls.toJsonLdObj()
-        expected = [
-            {"@language": "de", "@value": self.simple_string_de},
-            {"@language": "fr", "@value": self.simple_string_fr},
-        ]
-        self.assertEqual(jsonld, expected)
-
     def test_langstring_emptyness(self) -> None:
-        """Test if a LanGstring can be emptied and if the emptyness is detected."""
+        """Test if emptyness is detected."""
         ls = LangString()
         self.assertTrue(ls.isEmpty())
-        ls = LangString(self.simple_string_de)
-        ls.empty()
-        self.assertTrue(ls.isEmpty())
-        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
-        ls.empty()
-        self.assertTrue(ls.isEmpty())
-
-    def test_langstring_iterator(self) -> None:
-        """Test iterating over a LangString."""
-        ls = LangString({Languages.DE: self.simple_string_de, Languages.FR: self.simple_string_fr})
-        for tmp in ls:
-            if tmp[0] == Languages.DE:
-                self.assertEqual(tmp[1], self.simple_string_de)
-            elif tmp[0] == Languages.FR:
-                self.assertEqual(tmp[1], self.simple_string_fr)
 
 
 if __name__ == "__main__":

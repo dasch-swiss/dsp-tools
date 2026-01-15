@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
-from enum import unique
+from enum import Enum, unique
 from typing import Optional
 
 
@@ -20,9 +19,6 @@ class OntoIri:
     hashtag: bool
 
 
-ContextType = dict[str, OntoIri]
-
-
 @unique
 class Cardinality(Enum):
     C_1 = "1"
@@ -31,17 +27,8 @@ class Cardinality(Enum):
     C_0_n = "0-n"
 
 
-class WithId:
-    """
-    Class helper to get json-ld "@id" thingies
-    """
-
-    _tmp: str = None
-
-    def __init__(self, obj: Optional[dict[str, str]]):
-        if obj is None:
-            return
-        self._tmp = obj.get("@id")
-
-    def to_string(self) -> Optional[str]:
-        return self._tmp
+def get_json_ld_id(obj: Optional[dict[str, str]]) -> Optional[str]:
+    """Extract the @id value from a JSON-LD object."""
+    if obj is None:
+        return None
+    return obj.get("@id")

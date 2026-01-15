@@ -21,28 +21,6 @@ class Languages(Enum):
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 
 
-class LangStringIterator:
-    """Iterator class for LangString class."""
-
-    _langstring: "LangString"
-    _index: int
-
-    def __init__(self, langstring: "LangString"):
-        self._langstring = langstring
-        self._langlist = list(map(lambda a: a[0], self._langstring.items()))
-        self._index = 0
-
-    def __next__(self):
-        if len(self._langlist) == 0 and self._index == 0:
-            return None, self._langstring[None]
-        elif self._index < len(self._langlist):
-            tmp = self._langlist[self._index]
-            self._index += 1
-            return tmp, self._langstring[tmp]
-        else:
-            raise StopIteration
-
-
 class LangString:
     """
     This class holds a typical language-string pair as it is often used in JSON-LD as
@@ -122,73 +100,11 @@ class LangString:
             return self._simplestring
         return None
 
-    def __setitem__(self, key: Optional[Union[Languages, str]], value: str):
-        if key is None:
-            self._simplestring = value
-            self._langstrs = {}  # Delete language dependent string! Needs Caution!!!
-            return
-        if isinstance(key, Languages):
-            self._langstrs[key] = value
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key + '"!')
-            self._langstrs[lmap[key.lower()]] = value
-
-    def __delitem__(self, key: Union[Languages, str]):
-        if isinstance(key, Languages):
-            del self._langstrs[key]
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key + '"!')
-            del self._langstrs[lmap[key.lower()]]
-
-    def __str__(self):
-        tmpstr = "{"
-        for p in self._langstrs:
-            tmpstr += "=" + p.value + ":" + self._langstrs[p]
-        tmpstr += "}"
-        return tmpstr
-
-    def __iter__(self):
-        return LangStringIterator(self)
-
-    def __eq__(self, other: "LangString"):
-        equal = self._simplestring == other._simplestring
-        if equal:
-            for lang in Languages:
-                equal = self._langstrs.get(lang) == other._langstrs.get(lang)
-                if not equal:
-                    break
-        return equal
-
     def items(self):
         return self._langstrs.items()
 
     def isEmpty(self) -> bool:
         return not (bool(self._langstrs) or bool(self._simplestring))
-
-    def empty(self) -> None:
-        self._simplestring = None
-        self._langstrs = {}
-
-    def toJsonObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
-        if self.isEmpty():
-            return None
-        if self._simplestring is not None:
-            return self._simplestring
-        else:
-            return list(map(lambda a: {"language": a[0].value, "value": a[1] if a[1] else "-"}, self._langstrs.items()))
-
-    def toJsonLdObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
-        if self.isEmpty():
-            return None
-        if self._simplestring is not None:
-            return self._simplestring
-        else:
-            return [{"@language": a[0].value, "@value": a[1]} for a in self._langstrs.items()]
-            # return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
 
     @classmethod
     def fromJsonLdObj(cls, obj: Optional[Union[list[dict[str, str]], str]]) -> "LangString":

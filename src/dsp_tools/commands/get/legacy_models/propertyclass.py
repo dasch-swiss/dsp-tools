@@ -1,3 +1,7 @@
+"""
+This module implements reading property classes.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -5,25 +9,18 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
-import regex
-
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
-from dsp_tools.commands.get.legacy_models.helpers import WithId
+from dsp_tools.commands.get.legacy_models.helpers import get_json_ld_id
 from dsp_tools.commands.get.legacy_models.listnode import ListNode
 from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
 
 
 class PropertyClass(Model):
-    ROUTE: str = "/v2/ontologies/properties"
-
     _context: Context
-    _iri: str
     _name: str
-    _ontology_id: str
     _superproperties: list[str]
     _rdf_object: str
     _rdf_subject: str
@@ -31,16 +28,12 @@ class PropertyClass(Model):
     _gui_attributes: dict[str, str]
     _label: LangString
     _comment: LangString
-    _editable: bool
-    _linkvalue: bool
 
     def __init__(
         self,
         con: Connection,
         context: Context,
-        iri: Optional[str] = None,
         name: Optional[str] = None,
-        ontology_id: Optional[str] = None,
         superproperties: Optional[Sequence[Union[PropertyClass, str]]] = None,
         rdf_object: Optional[str] = None,
         rdf_subject: Optional[str] = None,
@@ -48,16 +41,12 @@ class PropertyClass(Model):
         gui_attributes: Optional[dict[str, str]] = None,
         label: Optional[Union[LangString, str]] = None,
         comment: Optional[Union[LangString, str]] = None,
-        editable: Optional[bool] = None,
-        linkvalue: Optional[bool] = None,
     ):
         super().__init__(con)
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
-        self._iri = iri
         self._name = name
-        self._ontology_id = ontology_id
         if isinstance(superproperties, PropertyClass):
             self._superproperties = list(map(lambda a: a.iri, superproperties))
         else:
@@ -69,9 +58,6 @@ class PropertyClass(Model):
 
         self._label = PropertyClass._init_process_language_value(label, "label")
         self._comment = PropertyClass._init_process_language_value(comment, "comment")
-
-        self._editable = editable
-        self._linkvalue = linkvalue
 
     @staticmethod
     def _init_process_language_value(prop_val: None | str | LangString, property: str) -> LangString:
@@ -85,20 +71,9 @@ class PropertyClass(Model):
         else:
             return LangString({})
 
-    #
-    # Here follows a list of getters/setters
-    #
     @property
     def name(self) -> Optional[str]:
         return self._name
-
-    @property
-    def iri(self) -> Optional[str]:
-        return self._iri
-
-    @property
-    def ontology_id(self) -> Optional[str]:
-        return self._ontology_id
 
     @property
     def superproperties(self) -> Optional[list[str]]:
@@ -124,45 +99,9 @@ class PropertyClass(Model):
     def label(self) -> LangString:
         return self._label
 
-    @label.setter
-    def label(self, value: Optional[Union[LangString, str]]) -> None:
-        if value is None:
-            self._label.empty()  # clear all labels
-        elif isinstance(value, LangString):
-            self._label = value
-        elif isinstance(value, str):
-            self._label = LangString(value)
-        else:
-            raise BaseError("Not a valid LangString")
-        self._changed.add("label")
-
     @property
     def comment(self) -> LangString:
         return self._comment
-
-    @comment.setter
-    def comment(self, value: Optional[LangString]) -> None:
-        if value is None:
-            self._comment.empty()  # clear all comments!
-        elif isinstance(value, LangString):
-            self._comment = value
-        elif isinstance(value, str):
-            self._comment = LangString(value)
-        else:
-            raise BaseError("Not a valid LangString")
-        self._changed.add("comment")
-
-    @property
-    def editable(self) -> bool:
-        return self._editable
-
-    @property
-    def linkvalue(self) -> bool:
-        return self._linkvalue
-
-    @linkvalue.setter
-    def linkvalue(self) -> None:
-        raise BaseError('"linkvalue" cannot be modified!')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> PropertyClass:
@@ -178,16 +117,12 @@ class PropertyClass(Model):
             raise BaseError('Property class has no "@id"!')
 
         tmp_id = json_obj.get("@id").split(":")
-        iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
-        ontology_id = tmp_id[0]
         name = tmp_id[1]
 
-        rdf_object = WithId(json_obj.get(knora_api_iri + ":objectType")).to_string()
-        rdf_subject = WithId(json_obj.get(knora_api_iri + ":subjectType")).to_string()
+        rdf_object = get_json_ld_id(json_obj.get(knora_api_iri + ":objectType"))
+        rdf_subject = get_json_ld_id(json_obj.get(knora_api_iri + ":subjectType"))
         label = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":comment"))
-        editable = json_obj.get(knora_api_iri + ":isEditable")
-        linkvalue = json_obj.get(knora_api_iri + ":isLinkProperty")
 
         gui_attributes, gui_element = cls._fromJsonObj_get_gui_info(json_obj, salsah_gui_iri)
         superproperties = cls._fromJson_get_superproperties(json_obj, rdfs_iri)
@@ -195,9 +130,7 @@ class PropertyClass(Model):
         return cls(
             con=con,
             context=context,
-            iri=iri,
             name=name,
-            ontology_id=ontology_id,
             superproperties=superproperties,
             rdf_object=rdf_object,
             rdf_subject=rdf_subject,
@@ -205,8 +138,6 @@ class PropertyClass(Model):
             gui_attributes=gui_attributes,
             label=label,
             comment=comment,
-            editable=editable,
-            linkvalue=linkvalue,
         )
 
     @classmethod
@@ -223,7 +154,7 @@ class PropertyClass(Model):
     def _fromJsonObj_get_gui_info(cls, json_obj: dict[str, Any], salsah_gui: str) -> tuple[dict[str, str], str]:
         gui_element = None
         if json_obj.get(salsah_gui + ":guiElement") is not None:
-            gui_element = WithId(json_obj.get(salsah_gui + ":guiElement")).to_string()
+            gui_element = get_json_ld_id(json_obj.get(salsah_gui + ":guiElement"))
             gui_element = gui_element.replace("Pulldown", "List")
             gui_element = gui_element.replace("Radio", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")
@@ -239,117 +170,6 @@ class PropertyClass(Model):
                 else:
                     gui_attributes[tmp[0]] = tmp[1]
         return gui_attributes, gui_element
-
-    def _make_full_onto_iri(self) -> tuple[str, str]:
-        exp = regex.compile("^http.*")  # It is already a full IRI
-        if exp.match(self._ontology_id):
-            propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
-            ontid = self._ontology_id
-        else:
-            propid = self._ontology_id + ":" + self._name
-            ontid = self._context.iri_from_prefix(self._ontology_id)
-        return ontid, propid
-
-    def _resolve_propref(self, resref: str) -> dict[str, str]:
-        tmp = resref.split(":")
-        if len(tmp) > 1:
-            if tmp[0]:
-                # return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                return {
-                    "@id": self._context.get_qualified_iri(resref)
-                }  # fully qualified name in the form "prefix:name"
-            else:
-                return {
-                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                }  # ":name" in current ontology
-        else:
-            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
-        jsonobj = self._toJsonObj_create(last_modification_date)
-        result = self._con.post(PropertyClass.ROUTE, jsonobj)
-        last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
-        return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
-
-    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
-        ontid, propid = self._make_full_onto_iri()
-        if self._name is None:
-            raise BaseError("There must be a valid property class name!")
-        if self._ontology_id is None:
-            raise BaseError("There must be a valid ontology_id given!")
-        if self._superproperties is None:
-            superproperties = [{"@id": "knora-api:hasValue"}]
-        else:
-            superproperties = list(map(self._resolve_propref, self._superproperties))
-        tmp = {
-            "@id": ontid,  # self._ontology_id,
-            "@type": "owl:Ontology",
-            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-            "@graph": [
-                {
-                    "@id": propid,
-                    "@type": "owl:ObjectProperty",
-                    "rdfs:label": self._label.toJsonLdObj(),
-                    "rdfs:subPropertyOf": superproperties,
-                }
-            ],
-            "@context": self._context.toJsonObj(),
-        }
-        if self._comment:
-            tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-        if self._rdf_subject:
-            tmp["@graph"][0]["knora-api:subjectType"] = self._resolve_propref(self._rdf_subject)
-        if self._rdf_object:
-            tmp["@graph"][0]["knora-api:objectType"] = self._resolve_propref(self._rdf_object)
-        if self._gui_element:
-            tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
-        if self._gui_attributes:
-            ga = list(map(lambda x: x[0] + "=" + str(x[1]), self._gui_attributes.items()))
-            tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
-        return tmp
-
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
-        #
-        # Note: DSP is able to change only one thing per call, either label or comment!
-        #
-        result = None
-        something_changed = False
-        if "label" in self._changed:
-            jsonobj = self._toJsonObj_update(last_modification_date, "label")
-            result = self._con.put(PropertyClass.ROUTE, jsonobj)
-            last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
-            something_changed = True
-        if "comment" in self._changed:
-            jsonobj = self._toJsonObj_update(last_modification_date, "comment")
-            result = self._con.put(PropertyClass.ROUTE, jsonobj)
-            last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
-            something_changed = True
-        if something_changed:
-            return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
-        else:
-            return last_modification_date, self
-
-    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
-        ontid, propid = self._make_full_onto_iri()
-        tmp = {
-            "@id": ontid,  # self._ontology_id,
-            "@type": "owl:Ontology",
-            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-            "@graph": [
-                {
-                    "@id": propid,
-                    "@type": "owl:ObjectProperty",
-                }
-            ],
-            "@context": self._context.toJsonObj(),
-        }
-        if what_changed == "label":
-            if not self._label.isEmpty() and "label" in self._changed:
-                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-        if what_changed == "comment":
-            if not self._comment.isEmpty() and "comment" in self._changed:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-        return tmp
 
     def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         """
@@ -394,7 +214,7 @@ class PropertyClass(Model):
                     gui_elements[attname] = int(attvalue)
                 case "hlist":
                     iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self._con, iri=iri).read()
+                    rootnode = ListNode(con=self._con, iri=iri).getAllNodes()
                     gui_elements[attname] = rootnode.name
                 case "numprops":
                     gui_elements[attname] = int(attvalue)

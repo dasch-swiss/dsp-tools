@@ -1,14 +1,5 @@
 """
-This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
-
-CREATE:
-    * Instantiate a new object of the class ListNode
-    * Call the ``create`` method on the instance
-
-READ:
-    * Instantiate a new object with ``iri`` (IRI of listnode)
-    * Call the ``read`` method on the instance
-    * Access information about the instance
+This module implements reading list nodes and lists.
 """
 
 from __future__ import annotations
@@ -33,59 +24,45 @@ class ListNode(Model):
     ----------
 
     con : Connection
-        A Connection instance to a DSP server (for some operation a login has to be performed with valid credentials)
+        A Connection instance to a DSP server
 
     iri : str
-        IRI of the list node [readonly, cannot be modified after creation of instance]
+        IRI of the list node [readonly]
 
     project : str
-        IRI of project. Only used for the creation of a new list (root node) [write].
+        IRI of project [readonly]
 
     label : LangString
-        A LangString instance with language dependent labels. Setting this attribute overwrites all entries
-        with the new ones.
-        At least one label is required [read/write].
+        A LangString instance with language dependent labels [readonly]
 
     comments : LangString
-        A LangString instance with language dependent comments. Setting this attributes overwrites all entries
-        with the new ones.
+        A LangString instance with language dependent comments [readonly]
 
     name : str
-        A unique name for the ListNode (unique inside this list) [read/write].
+        A unique name for the ListNode (unique inside this list) [readonly]
 
-    parent : IRI | ListNode
-        Is required and allowed only for the CREATE operation. Otherwise use the
-        "children" attribute [write].
+    parent : str
+        IRI of parent node [readonly]
 
     isRootNode : bool
-        Is True if the ListNode is the root node of a list. Cannot be set [read].
+        Is True if the ListNode is the root node of a list [readonly]
 
     children : list[ListNode]
         Contains a list of child nodes. This attribute is only available for nodes that have been read by the
-        method "getAllNodes()" [read].
+        method "getAllNodes()" [readonly]
 
     rootNodeIri : str
         IRI of the root node. This attribute is only available for nodes that have been read by the
-        method "getAllNodes()" [read].
+        method "getAllNodes()" [readonly]
 
     Methods
     -------
-
-    create : ListNode information object
-        Creates a new list (node) and returns the information from the list (node). Use it to create new lists
-        or append new ListNodes to an existing list.
-
-    read : ListNode information object
-        Returns information about a single list node
 
     getAllNodes : ListNode
         Get all nodes of a list. The IRI of the root node has to be supplied.
 
     getAllLists [static]:
         Returns all lists of a project.
-
-    print : None
-        Prints the ListNode information to stdout (not recursive)
 
     """
 
@@ -97,10 +74,7 @@ class ListNode(Model):
     _label: Optional[LangString]
     _comments: Optional[LangString]
     _name: Optional[str]
-    _parent: Optional[str]
-    _isRootNode: bool
     _children: Optional[list[ListNode]]
-    _rootNodeIri: Optional[str]
 
     def __init__(
         self,
@@ -110,32 +84,8 @@ class ListNode(Model):
         label: Optional[LangString] = None,
         comments: Optional[LangString] = None,
         name: Optional[str] = None,
-        parent: Optional[Union[ListNode, str]] = None,
-        isRootNode: bool = False,
         children: Optional[list[ListNode]] = None,
-        rootNodeIri: Optional[str] = None,
     ) -> None:
-        """
-        This is the constructor for the ListNode object. For
-
-        CREATE:
-            * The "con" and at least one "label" are required
-        READ:
-            * The "con" and "iri" attributes are required
-
-        Args:
-            con: A valid Connection instance with a user logged in that has the appropriate permissions
-            iri: IRI of the project [readonly, cannot be modified after creation of instance]
-            project: IRI of project. Only used for the creation of a new list (root node) [write].
-            label: LangString with lang dependent labels. At least one label is required [read/write].
-            comments:  A LangString instance with language dependent comments.
-            name: A unique name for the ListNode (unique regarding the whole list) [read/write].
-            parent: Required and allowed only for the CREATE operation. Otherwise use the "children" attribute [write].
-            isRootNode: Is True if the ListNode is a root node of a list Cannot be set [read].
-            children: list of children nodes. Only available for nodes that have been read by getAllNodes()
-            rootNodeIri: IRI of the root node. Only available for nodes that have been read by the method getAllNodes()
-        """
-
         super().__init__(con)
 
         self._project = project.iri if isinstance(project, Project) else str(project) if project else None
@@ -143,11 +93,6 @@ class ListNode(Model):
         self._label = LangString(label)
         self._comments = LangString(comments) if comments else None
         self._name = name
-        if parent and isinstance(parent, ListNode):
-            self._parent = parent.iri
-        else:
-            self._parent = str(parent) if parent else None
-        self._isRootNode = isRootNode
         if children:
             if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
@@ -155,9 +100,6 @@ class ListNode(Model):
                 raise BaseError("ERROR Children must be list of ListNodes!")
         else:
             self._children = None
-        if not isinstance(rootNodeIri, str) and rootNodeIri:
-            raise BaseError("ERROR rootNodeIri must be of type string")
-        self._rootNodeIri = rootNodeIri
 
     @property
     def iri(self) -> Optional[str]:
@@ -167,54 +109,17 @@ class ListNode(Model):
     def project(self) -> Optional[str]:
         return self._project
 
-    @project.setter
-    def project(self, value: str) -> None:
-        if self._project:
-            raise BaseError("Project id cannot be modified!")
-        else:
-            self._project = value
-
     @property
     def label(self) -> LangString:
         return self._label or LangString({})
-
-    @label.setter
-    def label(self, value: Optional[Union[LangString, str]]) -> None:
-        self._label = LangString(value)
-        self._changed.add("label")
 
     @property
     def comments(self) -> LangString:
         return self._comments or LangString({})
 
-    @comments.setter
-    def comments(self, value: Optional[Union[LangString, str]]) -> None:
-        self._comments = LangString(value)
-        self._changed.add("comments")
-
     @property
     def name(self) -> Optional[str]:
         return self._name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        self._name = value
-        self._changed.add("name")
-
-    @property
-    def parent(self) -> Optional[str]:
-        return self._parent if self._parent else None
-
-    @parent.setter
-    def parent(self, value: Union[str, ListNode]) -> None:
-        if isinstance(value, ListNode):
-            self._parent = value.iri
-        else:
-            self._parent = value
-
-    @property
-    def isRootNode(self) -> Optional[bool]:
-        return self._isRootNode
 
     @property
     def children(self) -> list[ListNode]:
@@ -253,10 +158,6 @@ class ListNode(Model):
         else:
             return None
 
-    @property
-    def rootNodeIri(self) -> Optional[str]:
-        return self._rootNodeIri
-
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> ListNode:
         """
@@ -279,14 +180,11 @@ class ListNode(Model):
             name = json_obj["name"]
         else:
             name = iri.rsplit("/", 1)[-1]
-        parent = json_obj.get("parentNodeIri")
-        isRootNode = json_obj.get("isRootNode")
 
         child_info = json_obj.get("children")
         children = None
         if child_info:
             children = ListNode.__getChildren(con=con, parent_iri=iri, project_iri=project, children=child_info)
-        rootNodeIri = json_obj.get("hasRootNode")
 
         return cls(
             con=con,
@@ -295,26 +193,8 @@ class ListNode(Model):
             label=label,
             comments=comments,
             name=name,
-            parent=parent,
-            isRootNode=isRootNode,
             children=children,
-            rootNodeIri=rootNodeIri,
         )
-
-    def read(self) -> Any:
-        """
-        Read a project from DSP-API
-
-        :return: JSON-object from DSP-API
-        """
-
-        result = self._con.get(ListNode.ROUTE_SLASH + "nodes/" + quote_plus(self._id))
-        if result.get("nodeinfo"):
-            return self.fromJsonObj(self._con, result["nodeinfo"])
-        elif result.get("listinfo"):
-            return self.fromJsonObj(self._con, result["listinfo"])
-        else:
-            return None
 
     def getAllNodes(self) -> ListNode:
         """

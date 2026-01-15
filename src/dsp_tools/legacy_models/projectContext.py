@@ -1,3 +1,9 @@
+"""
+TECHNICAL DEBT: This module depends on legacy models (Project.getAllProjects,
+Group.getAllGroups) from commands/get/legacy_models/. These should be refactored
+to use modern client patterns instead of the legacy model classes.
+"""
+
 from typing import Optional
 
 from dsp_tools.clients.connection import Connection

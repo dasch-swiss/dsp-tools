@@ -1,19 +1,8 @@
 """
-This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
+This module implements reading ontologies. ResourceClasses, PropertyClasses
 as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
 is handled in "cooperation" with the propertyclass.py (PropertyClass) and resourceclass.py (ResourceClass
 and HasProperty) modules.
-
-CREATE:
-    * Instantiate a new object of the Ontology class with all required parameters
-    * Call the ``create``-method on the instance to create the ontology withing the backend
-
-READ:
-    * Instantiate a new object with ``iri``(IRI of ontology) given
-    * Call the ``read``-method on the instance. Reading the ontology also reads all
-      associated PropertyClasses and ResourceClasses as well as the assignments.
-    * Access the information that has been provided to the instance
-
 """
 
 from __future__ import annotations
@@ -21,20 +10,17 @@ from __future__ import annotations
 import copy
 from typing import Any
 from typing import Optional
-from typing import Union
 from urllib.parse import quote_plus
 
 import regex
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
-from dsp_tools.commands.get.legacy_models.helpers import WithId
+from dsp_tools.commands.get.legacy_models.helpers import get_json_ld_id
 from dsp_tools.commands.get.legacy_models.model import Model
-from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.commands.get.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.get.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 
 class Ontology(Model):
@@ -43,11 +29,9 @@ class Ontology(Model):
     ALL_LANGUAGES: str = "?allLanguages=true"
 
     _iri: str
-    _project: str
     _name: str
     _label: str
     _comment: str
-    _lastModificationDate: DateTimeStamp
     _resource_classes: list[ResourceClass]
     _property_classes: list[PropertyClass]
     _context: Context
@@ -57,30 +41,18 @@ class Ontology(Model):
         self,
         con: Connection,
         iri: Optional[str] = None,
-        project: Optional[Union[str, Project]] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
         comment: Optional[str] = None,
-        lastModificationDate: Optional[Union[str, DateTimeStamp]] = None,
         resource_classes: Optional[list[ResourceClass]] = None,
         property_classes: Optional[list[PropertyClass]] = None,
         context: Context = None,
     ):
         super().__init__(con)
         self._iri = iri
-        if isinstance(project, Project):
-            self._project = project.iri
-        else:
-            self._project = project
         self._name = name
         self._label = label
         self._comment = comment
-        if lastModificationDate is None:
-            self._lastModificationDate = None
-        elif isinstance(lastModificationDate, DateTimeStamp):
-            self._lastModificationDate = lastModificationDate
-        else:
-            self._lastModificationDate = DateTimeStamp(lastModificationDate)
         self._resource_classes = resource_classes or []
         self._property_classes = property_classes or []
         self._context = context if context is not None else Context()
@@ -91,10 +63,6 @@ class Ontology(Model):
         return self._iri
 
     @property
-    def project(self) -> str:
-        return self._project
-
-    @property
     def name(self) -> str:
         return self._name
 
@@ -102,43 +70,17 @@ class Ontology(Model):
     def label(self) -> str:
         return self._label
 
-    @label.setter
-    def label(self, value: str) -> None:
-        self._label = str(value)
-        self._changed.add("label")
-
     @property
     def comment(self) -> str:
         return self._comment
-
-    @comment.setter
-    def comment(self, value: str) -> None:
-        self._comment = str(value)
-        self._changed.add("comment")
-
-    @property
-    def lastModificationDate(self) -> DateTimeStamp:
-        return self._lastModificationDate
-
-    @lastModificationDate.setter
-    def lastModificationDate(self, value: Union[str, DateTimeStamp]) -> None:
-        self._lastModificationDate = DateTimeStamp(value)
 
     @property
     def resource_classes(self) -> list[ResourceClass]:
         return self._resource_classes
 
-    @resource_classes.setter
-    def resource_classes(self, value: list[ResourceClass]) -> None:
-        self._resource_classes = value
-
     @property
     def property_classes(self) -> list[PropertyClass]:
         return self._property_classes
-
-    @property_classes.setter
-    def property_classes(self, value: list[PropertyClass]) -> None:
-        self._property_classes = value
 
     @property
     def context(self) -> Context:
@@ -171,12 +113,6 @@ class Ontology(Model):
             raise BaseError("Ontology not attached to a project")
         if json_obj[knora_api + ":attachedToProject"].get("@id") is None:
             raise BaseError("Ontology not attached to a project")
-        project = json_obj[knora_api + ":attachedToProject"]["@id"]
-        tmp = json_obj.get(knora_api + ":lastModificationDate")
-        if tmp is not None:
-            last_modification_date = DateTimeStamp(json_obj.get(knora_api + ":lastModificationDate"))
-        else:
-            last_modification_date = None
         resource_classes = None
         property_classes = None
         if json_obj.get("@graph") is not None:
@@ -193,16 +129,14 @@ class Ontology(Model):
             property_classes = [
                 PropertyClass.fromJsonObj(con=con, context=context, json_obj=a)
                 for a in properties_obj
-                if WithId(a.get(knora_api + ":objectType")).to_string() != "knora-api:LinkValue"
+                if get_json_ld_id(a.get(knora_api + ":objectType")) != "knora-api:LinkValue"
             ]
         return cls(
             con=con,
             iri=iri,
             label=label,
-            project=project,
             name=this_onto,
             comment=comment,
-            lastModificationDate=last_modification_date,
             resource_classes=resource_classes,
             property_classes=property_classes,
             context=context,
@@ -222,12 +156,6 @@ class Ontology(Model):
             raise BaseError("Ontology not attached to a project (1)")
         if json_obj[knora_api + ":attachedToProject"].get("@id") is None:
             raise BaseError("Ontology not attached to a project (2)")
-        project = json_obj[knora_api + ":attachedToProject"]["@id"]
-        tmp = json_obj.get(knora_api + ":lastModificationDate")
-        if tmp is not None:
-            last_modification_date = DateTimeStamp(json_obj.get(knora_api + ":lastModificationDate"))
-        else:
-            last_modification_date = None
         label = json_obj.get(rdfs + ":label")
         if label is None:
             raise BaseError("Ontology label is missing")
@@ -239,10 +167,8 @@ class Ontology(Model):
             con=con,
             iri=iri,
             label=label,
-            project=project,
             name=this_onto,
             comment=comment,
-            lastModificationDate=last_modification_date,
             context=context2,
         )
 
@@ -258,34 +184,6 @@ class Ontology(Model):
             if onto is not None:
                 ontos.append(onto)
         return ontos
-
-    def create(self) -> Ontology:
-        jsonobj = self._toJsonObj_create()
-        result = self._con.post(Ontology.ROUTE, jsonobj)
-        return Ontology.fromJsonObj(self._con, result)
-
-    def _toJsonObj_create(self):
-        rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        if self._name is None:
-            raise BaseError("There must be a valid name given!")
-        if self._label is None:
-            raise BaseError("There must be a valid label given!")
-        if self._project is None:
-            raise BaseError("There must be a valid project given!")
-        tmp = {
-            knora_api + ":ontologyName": self._name,
-            knora_api + ":attachedToProject": {"@id": self._project},
-            rdfs + ":label": self._label,
-            "@context": self._context.toJsonObj(),
-        }
-        if self._comment is not None:
-            tmp[rdfs + ":comment"] = self._comment
-        return tmp
-
-    def read(self) -> Ontology:
-        result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)
-        return Ontology.fromJsonObj(self._con, result)
 
     @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> list[Ontology]:

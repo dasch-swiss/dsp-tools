@@ -17,12 +17,11 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client import ProjectClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
@@ -34,8 +33,6 @@ from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
@@ -89,9 +86,8 @@ def xmlupload(
     shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
-    clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
+    clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     if config.id2iri_file:
@@ -189,7 +185,6 @@ def _handle_validation(
 
 
 def _get_live_clients(
-    con: Connection,
     auth: AuthenticationClient,
     creds: ServerCredentials,
     shortcode: str,
@@ -197,8 +192,7 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectClient = ProjectClientLive(auth.server, auth)
-    list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
+    list_client: ListGetClient = ListGetClientLive(auth.server, shortcode)
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,

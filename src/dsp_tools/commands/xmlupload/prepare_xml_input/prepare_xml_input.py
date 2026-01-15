@@ -88,12 +88,12 @@ def _reformat_one_list(list_info: ListInfo) -> dict[tuple[str, str], str]:
     list_iri = list_info.listinfo["id"]
     result = {
         (list_name, list_name): list_iri,
+        # it is permitted to reference an absolute node-iri in the XML, in that case the list name must remain empty
         ("", list_iri): list_iri,
     }
     all_nodes = _extract_all_nodes(list_info.children)
     for node_name, node_iri in all_nodes:
-        result[(list_name, node_name)] = node_iri
-        result[("", node_iri)] = node_iri
+        result.update({(list_name, node_name): node_iri, ("", node_iri): node_iri})
     return result
 
 

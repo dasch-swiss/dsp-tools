@@ -17,11 +17,13 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
@@ -308,15 +310,19 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_iri = clients.list_client.project_iri
+    project_client = ProjectClientLive(
+        clients.legal_info_client.server, clients.legal_info_client.authentication_client
+    )
+    project_iri = project_client.get_project_iri(upload_state.config.shortcode)
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
     )
 
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
     resource_create_client = ResourceCreateClient(
-        con=clients.list_client.con,
+        con=con,
     )
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
@@ -331,7 +337,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
-            _upload_stash(upload_state, clients.list_client.con)
+            _upload_stash(upload_state, con)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
 

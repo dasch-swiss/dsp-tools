@@ -92,7 +92,7 @@ class Context:
                     self._context[prefix] = OntoIri(iri, True)
                 else:
                     self._context[prefix] = OntoIri(iri, False)
-        self._rcontext[iri] = prefix
+                self._rcontext[iri] = prefix
 
     def prefix_from_iri(self, iri: str) -> Optional[str]:
         """
@@ -187,8 +187,8 @@ class Context:
         salsah_gui = self.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if is_iri(iri_str):
-            if self.get_prefixed_iri(iri_str):
-                iri_str = self.get_prefixed_iri(iri_str)
+            if prefixed := self.get_prefixed_iri(iri_str):
+                iri_str = prefixed
         tmp = iri_str.split(":")
         if tmp[0] == knora_api or tmp[0] == salsah_gui:
             return tmp[1]

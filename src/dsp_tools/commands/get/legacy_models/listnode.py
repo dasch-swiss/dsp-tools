@@ -5,12 +5,9 @@ This module implements reading list nodes and lists.
 from __future__ import annotations
 
 from typing import Any
-from typing import Optional
-from typing import Union
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
@@ -21,9 +18,6 @@ class ListNode:
 
     Attributes
     ----------
-
-    con : Connection
-        A Connection instance to a DSP server
 
     iri : str
         IRI of the list node [readonly]
@@ -40,19 +34,8 @@ class ListNode:
     name : str
         A unique name for the ListNode (unique inside this list) [readonly]
 
-    parent : str
-        IRI of parent node [readonly]
-
-    isRootNode : bool
-        Is True if the ListNode is the root node of a list [readonly]
-
     children : list[ListNode]
-        Contains a list of child nodes. This attribute is only available for nodes that have been read by the
-        method "getAllNodes()" [readonly]
-
-    rootNodeIri : str
-        IRI of the root node. This attribute is only available for nodes that have been read by the
-        method "getAllNodes()" [readonly]
+        Contains a list of child nodes [readonly]
 
     Methods
     -------
@@ -69,94 +52,85 @@ class ListNode:
     ROUTE_SLASH = ROUTE + "/"
 
     _con: Connection
-    _id: Optional[str]
-    _project: Optional[str]
-    _label: Optional[LangString]
-    _comments: Optional[LangString]
-    _name: Optional[str]
-    _children: Optional[list[ListNode]]
+    _id: str
+    _project: str | None
+    _label: LangString
+    _comments: LangString
+    _name: str
+    _children: list[ListNode]
 
     def __init__(
         self,
         con: Connection,
-        iri: Optional[str] = None,
-        project: Optional[Union[Project, str]] = None,
-        label: Optional[LangString] = None,
-        comments: Optional[LangString] = None,
-        name: Optional[str] = None,
-        children: Optional[list[ListNode]] = None,
+        iri: str,
+        name: str,
+        project: str | None = None,
+        label: LangString | None = None,
+        comments: LangString | None = None,
+        children: list[ListNode] | None = None,
     ) -> None:
         self._con = con
-
-        self._project = project.iri if isinstance(project, Project) else str(project) if project else None
         self._id = iri
-        self._label = LangString(label)
-        self._comments = LangString(comments) if comments else None
         self._name = name
-        if children:
-            if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
-                self._children = children
-            else:
-                raise BaseError("ERROR Children must be list of ListNodes!")
-        else:
-            self._children = None
+        self._project = project
+        self._label = label or LangString()
+        self._comments = comments or LangString()
+        self._children = children or []
 
     @property
-    def iri(self) -> Optional[str]:
+    def iri(self) -> str:
         return self._id
 
     @property
-    def project(self) -> Optional[str]:
+    def project(self) -> str | None:
         return self._project
 
     @property
     def label(self) -> LangString:
-        return self._label or LangString({})
+        return self._label
 
     @property
     def comments(self) -> LangString:
-        return self._comments or LangString({})
+        return self._comments
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str:
         return self._name
 
     @property
     def children(self) -> list[ListNode]:
-        return self._children or []
+        return self._children
 
     @children.setter
     def children(self, value: list[ListNode]) -> None:
         self._children = value
 
-    @staticmethod
-    def __getChildren(
+    @classmethod
+    def _getChildren(
+        cls,
         con: Connection,
         parent_iri: str,
-        project_iri: str,
+        project_iri: str | None,
         children: list[Any],
-    ) -> Optional[list[ListNode]]:
+    ) -> list[ListNode]:
         """
         Internal method! Should not be used directly!
 
-        Static method gets a recursive List of children nodes
+        Gets a recursive list of children nodes.
 
         :param con: Valid Connection instance
         :param children: json object of children
         :return: List of ListNode instances
         """
-        if children:
-            child_nodes: list[Any] = []
-            for child in children:
-                if "parentNodeIri" not in child:
-                    child["parentNodeIri"] = parent_iri
-                if "projectIri" not in child:
-                    child["projectIri"] = project_iri
-                child_node = ListNode.fromJsonObj(con, child)
-                child_nodes.append(child_node)
-            return child_nodes
-        else:
-            return None
+        child_nodes: list[ListNode] = []
+        for child in children:
+            if "parentNodeIri" not in child:
+                child["parentNodeIri"] = parent_iri
+            if "projectIri" not in child and project_iri:
+                child["projectIri"] = project_iri
+            child_node = cls.fromJsonObj(con, child)
+            child_nodes.append(child_node)
+        return child_nodes
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> ListNode:
@@ -176,23 +150,20 @@ class ListNode:
         project = json_obj.get("projectIri")
         label = LangString.fromJsonObj(json_obj.get("labels"))
         comments = LangString.fromJsonObj(json_obj.get("comments"))
-        if json_obj.get("name"):
-            name = json_obj["name"]
-        else:
-            name = iri.rsplit("/", 1)[-1]
+        name = json_obj.get("name") or iri.rsplit("/", 1)[-1]
 
         child_info = json_obj.get("children")
-        children = None
-        if child_info:
-            children = ListNode.__getChildren(con=con, parent_iri=iri, project_iri=project, children=child_info)
+        children = (
+            cls._getChildren(con=con, parent_iri=iri, project_iri=project, children=child_info) if child_info else []
+        )
 
         return cls(
             con=con,
             iri=iri,
+            name=name,
             project=project,
             label=label,
             comments=comments,
-            name=name,
             children=children,
         )
 
@@ -203,21 +174,25 @@ class ListNode:
 
         :return: Root node of list with recursive ListNodes ("children"-attributes)
         """
+        return ListNode.read_all_nodes(self._con, self._id)
 
-        result = self._con.get(ListNode.ROUTE_SLASH + quote_plus(self._id))
+    @classmethod
+    def read_all_nodes(cls, con: Connection, iri: str) -> ListNode:
+        """Read all nodes of a list by its IRI."""
+        result = con.get(cls.ROUTE_SLASH + quote_plus(iri))
         if "list" not in result:
             raise BaseError("Request got no list!")
         if "listinfo" not in result["list"]:
             raise BaseError("Request got no proper list information!")
-        root = ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
+        root = cls.fromJsonObj(con, result["list"]["listinfo"])
         if "children" in result["list"]:
-            root.children = ListNode.__getChildren(
-                con=self._con, parent_iri=root.iri, project_iri=root.project, children=result["list"]["children"]
+            root.children = cls._getChildren(
+                con=con, parent_iri=root.iri, project_iri=root.project, children=result["list"]["children"]
             )
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list[ListNode]:
+    def getAllLists(con: Connection, project_iri: str | None = None) -> list[ListNode]:
         """
         Get all lists. If a project IRI is given, it returns the lists of the specified project
 
@@ -241,9 +216,9 @@ class ListNode:
         :param children: List of children nodes
         :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
         """
-        listnodeobjs = []
+        listnodeobjs: list[dict[str, Any]] = []
         for listnode in children:
-            listnodeobj = {
+            listnodeobj: dict[str, Any] = {
                 "name": listnode.name,
                 "labels": listnode.label.createDefinitionFileObj(),
             }
@@ -259,7 +234,7 @@ class ListNode:
         Create an object that corresponds to the syntax of the input to "create_onto".
         :return: A python object that can be jsonfied to correspond to the syntax of the input to "create_onto".
         """
-        listnode = {
+        listnode: dict[str, Any] = {
             "name": self._name,
             "labels": self._label.createDefinitionFileObj(),
         }

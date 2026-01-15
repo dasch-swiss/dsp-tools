@@ -7,11 +7,9 @@ This module implements reading resource classes. It contains two classes that wo
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from enum import Enum
 from typing import Any
 from typing import Optional
-from typing import Union
 
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import Cardinality
@@ -27,7 +25,6 @@ class HasProperty:
         knora = 2
         other = 3
 
-    _context: Context
     _property_id: str
     _cardinality: Cardinality
     _gui_order: int
@@ -35,15 +32,11 @@ class HasProperty:
 
     def __init__(
         self,
-        context: Context,
         property_id: Optional[str] = None,
         cardinality: Optional[Cardinality] = None,
         gui_order: Optional[int] = None,
         ptype: Optional[Ptype] = None,
     ):
-        if not isinstance(context, Context):
-            raise BaseError('"context"-parameter must be an instance of Context')
-        self._context = context
         self._property_id = property_id
         self._cardinality = cardinality
         self._gui_order = gui_order
@@ -84,7 +77,6 @@ class HasProperty:
         if jsonld_obj.get(salsah_gui_iri + ":guiOrder") is not None:
             gui_order = jsonld_obj[salsah_gui_iri + ":guiOrder"]
         return property_id, cls(
-            context=context,
             property_id=property_id,
             cardinality=cardinality,
             gui_order=gui_order,
@@ -157,17 +149,14 @@ class ResourceClass:
         self,
         context: Context,
         name: Optional[str] = None,
-        superclasses: Optional[Sequence[Union[ResourceClass, str]]] = None,
-        label: Optional[Union[LangString, str]] = None,
-        comment: Optional[Union[LangString, str]] = None,
+        superclasses: Optional[list[str]] = None,
+        label: Optional[LangString | str] = None,
+        comment: Optional[LangString | str] = None,
         has_properties: Optional[dict[str, HasProperty]] = None,
     ):
         self._context = context
         self._name = name
-        if isinstance(superclasses, ResourceClass):
-            self._superclasses = list(map(lambda a: a.iri, superclasses))
-        else:
-            self._superclasses = superclasses
+        self._superclasses = superclasses
 
         self._label = self._check_process_langstring(label, "label")
         self._comment = self._check_process_langstring(comment, "comment")

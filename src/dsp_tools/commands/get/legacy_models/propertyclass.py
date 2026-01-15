@@ -4,10 +4,8 @@ This module implements reading property classes.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any
 from typing import Optional
-from typing import Union
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
@@ -36,23 +34,20 @@ class PropertyClass:
         con: Connection,
         context: Context,
         name: Optional[str] = None,
-        superproperties: Optional[Sequence[Union[PropertyClass, str]]] = None,
+        superproperties: Optional[list[str]] = None,
         rdf_object: Optional[str] = None,
         rdf_subject: Optional[str] = None,
         gui_element: Optional[str] = None,
         gui_attributes: Optional[dict[str, str]] = None,
-        label: Optional[Union[LangString, str]] = None,
-        comment: Optional[Union[LangString, str]] = None,
+        label: Optional[LangString | str] = None,
+        comment: Optional[LangString | str] = None,
     ):
         self._con = con
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
         self._name = name
-        if isinstance(superproperties, PropertyClass):
-            self._superproperties = list(map(lambda a: a.iri, superproperties))
-        else:
-            self._superproperties = superproperties
+        self._superproperties = superproperties
         self._rdf_object = rdf_object
         self._rdf_subject = rdf_subject
         self._gui_element = gui_element
@@ -160,7 +155,7 @@ class PropertyClass:
             gui_element = gui_element.replace("Pulldown", "List")
             gui_element = gui_element.replace("Radio", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")
-        gui_attributes: Union[None, dict[str, str]] = None
+        gui_attributes: None | dict[str, str] = None
         if gui_attributes_list is not None:
             gui_attributes = {}
             if not isinstance(gui_attributes_list, list):
@@ -182,8 +177,6 @@ class PropertyClass:
         :return: Python object to be jsonfied
         """
         def_file_obj = {"name": self.name}
-        if self.rdf_object:
-            def_file_obj["name"] = self.name
         if self.superproperties:
             superprops = []
             for sc in self.superproperties:
@@ -216,7 +209,7 @@ class PropertyClass:
                     gui_elements[attname] = int(attvalue)
                 case "hlist":
                     iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self._con, iri=iri).getAllNodes()
+                    rootnode = ListNode.read_all_nodes(self._con, iri)
                     gui_elements[attname] = rootnode.name
                 case "numprops":
                     gui_elements[attname] = int(attvalue)

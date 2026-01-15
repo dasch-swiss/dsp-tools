@@ -11,7 +11,6 @@ READ:
 from __future__ import annotations
 
 from typing import Any
-from typing import Optional
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
@@ -25,9 +24,6 @@ class Project:
 
     Attributes
     ----------
-
-    con : Connection
-        A Connection instance to a DSP server
 
     iri : str
         IRI of the project [readonly]
@@ -47,11 +43,8 @@ class Project:
     keywords : set[str]
         Set of keywords describing the project.
 
-    ontologies : set[str]
-        Set of IRI's of the ontologies attached to the project [readonly]
-
-    selfjoin : bool
-        Boolean if the project allows selfjoin
+    enabled_licenses : set[str]
+        Set of enabled license IRIs for this project.
 
 
     Methods
@@ -80,19 +73,19 @@ class Project:
     def __init__(
         self,
         con: Connection,
-        iri: Optional[str] = None,
-        shortcode: Optional[str] = None,
-        shortname: Optional[str] = None,
-        longname: Optional[str] = None,
-        description: LangString = None,
-        keywords: Optional[set[str]] = None,
-        enabled_licenses: Optional[set[str]] = None,
+        iri: str,
+        shortcode: str,
+        shortname: str,
+        longname: str,
+        description: LangString | None = None,
+        keywords: set[str] | None = None,
+        enabled_licenses: set[str] | None = None,
     ):
         """
         Constructor for Project
 
         :param con: Connection instance
-        :param iri: IRI of the project [required for READ]
+        :param iri: IRI of the project
         :param shortcode: Shortcode of the project. Four-digit hexadecimal number.
         :param shortname: Shortname of the project
         :param longname: Longname of the project
@@ -105,29 +98,29 @@ class Project:
         self._shortcode = shortcode
         self._shortname = shortname
         self._longname = longname
-        self._description = LangString(description)
-        self._keywords = keywords
+        self._description = description if isinstance(description, LangString) else LangString(description)
+        self._keywords = keywords or set()
         self._enabled_licenses = enabled_licenses or set()
 
     @property
-    def iri(self) -> Optional[str]:
+    def iri(self) -> str:
         return self._iri
 
     @property
-    def shortcode(self) -> Optional[str]:
+    def shortcode(self) -> str:
         return self._shortcode
 
     @property
-    def shortname(self) -> Optional[str]:
+    def shortname(self) -> str:
         return self._shortname
 
     @property
-    def longname(self) -> Optional[str]:
+    def longname(self) -> str:
         return self._longname
 
     @property
     def description(self) -> LangString:
-        return self._description or LangString({})
+        return self._description
 
     @property
     def keywords(self) -> set[str]:
@@ -157,9 +150,7 @@ class Project:
         if longname is None:
             raise BaseError("Longname is missing")
         description = LangString.fromJsonObj(json_obj.get("description"))
-        keywords = set(json_obj.get("keywords"))
-        if keywords is None:
-            raise BaseError("Keywords are missing")
+        keywords = set(json_obj.get("keywords", []))
         enabled_licenses = json_obj.get("enabledLicenses", set())
         return cls(
             con=con,
@@ -182,26 +173,23 @@ class Project:
             "enabled_licenses": list(self._enabled_licenses),
         }
 
-    def read(self) -> Project:
-        """
-        Read a project from DSP
+    @classmethod
+    def read_by_iri(cls, con: Connection, iri: str) -> Project:
+        """Read a project from DSP by its IRI."""
+        result = con.get(cls.IRI + quote_plus(iri))
+        return cls.fromJsonObj(con, result["project"])
 
-        :return: JSON-object from DSP
-        """
-        result = None
-        if self._iri is not None:
-            result = self._con.get(Project.IRI + quote_plus(self._iri))
-        elif self._shortcode is not None:
-            result = self._con.get(Project.ROUTE + "/shortcode/" + quote_plus(self._shortcode))
-        elif self._shortname is not None:
-            result = self._con.get(Project.ROUTE + "/shortname/" + quote_plus(self._shortname))
-        if result is not None:
-            return Project.fromJsonObj(self._con, result["project"])
-        else:
-            raise BaseError(
-                f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} "
-                f"from DSP server."
-            )
+    @classmethod
+    def read_by_shortcode(cls, con: Connection, shortcode: str) -> Project:
+        """Read a project from DSP by its shortcode."""
+        result = con.get(cls.ROUTE + "/shortcode/" + quote_plus(shortcode))
+        return cls.fromJsonObj(con, result["project"])
+
+    @classmethod
+    def read_by_shortname(cls, con: Connection, shortname: str) -> Project:
+        """Read a project from DSP by its shortname."""
+        result = con.get(cls.ROUTE + "/shortname/" + quote_plus(shortname))
+        return cls.fromJsonObj(con, result["project"])
 
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:

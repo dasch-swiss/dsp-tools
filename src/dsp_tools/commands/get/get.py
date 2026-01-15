@@ -48,9 +48,7 @@ def get_project(
         con = ConnectionLive(creds.server)
         authenticated = False
 
-    project = _create_project(con, project_identifier)
-
-    project = project.read()
+    project = _read_project(con, project_identifier)
     project_obj = project.createDefinitionFileObj()
 
     prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
@@ -73,7 +71,7 @@ def get_project(
     project_obj["ontologies"] = ontos
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
-    outfile_content = {
+    outfile_content: dict[str, Any] = {
         "prefixes": prefixes,
         "$schema": schema,
         "project": project_obj,
@@ -85,13 +83,13 @@ def get_project(
     return True
 
 
-def _create_project(con: Connection, project_identifier: str) -> Project:
+def _read_project(con: Connection, project_identifier: str) -> Project:
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
-        return Project(con=con, shortcode=project_identifier)
+        return Project.read_by_shortcode(con, project_identifier)
     elif regex.match("^[\\w-]+$", project_identifier):  # shortname
-        return Project(con=con, shortname=project_identifier.lower())
+        return Project.read_by_shortname(con, project_identifier.lower())
     elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
-        return Project(con=con, shortname=project_identifier)
+        return Project.read_by_iri(con, project_identifier)
     else:
         raise BaseError(
             f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
@@ -150,7 +148,7 @@ def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[st
 def _get_ontologies(con: Connection, project_iri: str, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
     if verbose:
         print("Getting ontologies...")
-    ontos = []
+    ontos: list[dict[str, Any]] = []
     prefixes: dict[str, str] = {}
     ontologies = Ontology.getProjectOntologies(con, project_iri)
     ontology_ids = [onto.iri for onto in ontologies]

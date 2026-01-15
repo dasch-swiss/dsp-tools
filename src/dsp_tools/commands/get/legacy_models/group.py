@@ -5,11 +5,8 @@ This module implements reading DSP groups.
 from __future__ import annotations
 
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 
@@ -45,8 +42,8 @@ class Group:
     PROJECT_ADMIN_GROUP: str = "http://www.knora.org/ontology/knora-admin#ProjectAdmin"
     ROUTE: str = "/admin/groups"
 
-    _iri: Optional[str]
-    _name: str | None
+    _iri: str
+    _name: str
     _descriptions: LangString
     _project: str
     _selfjoin: bool
@@ -54,29 +51,26 @@ class Group:
 
     def __init__(
         self,
-        iri: Optional[str] = None,
-        name: Optional[str] = None,
-        descriptions: Optional[LangString] = None,
-        project: Optional[Union[str, Project]] = None,
-        selfjoin: Optional[bool] = None,
-        status: Optional[bool] = None,
+        iri: str,
+        name: str,
+        project: str,
+        selfjoin: bool,
+        status: bool,
+        descriptions: LangString | None = None,
     ) -> None:
         self._iri = iri
-        self._name = str(name) if name is not None else None
-        self._descriptions = LangString(descriptions)
-        if project is not None and isinstance(project, Project):
-            self._project = project.iri
-        else:
-            self._project = str(project) if project is not None else None
-        self._selfjoin = bool(selfjoin) if selfjoin is not None else None
-        self._status = bool(status) if status is not None else None
+        self._name = name
+        self._descriptions = descriptions or LangString()
+        self._project = project
+        self._selfjoin = selfjoin
+        self._status = status
 
     @property
-    def iri(self) -> Optional[str]:
+    def iri(self) -> str:
         return self._iri
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str:
         return self._name
 
     @property

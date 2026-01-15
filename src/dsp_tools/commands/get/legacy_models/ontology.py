@@ -46,7 +46,7 @@ class Ontology:
         comment: Optional[str] = None,
         resource_classes: Optional[list[ResourceClass]] = None,
         property_classes: Optional[list[PropertyClass]] = None,
-        context: Context = None,
+        context: Optional[Context] = None,
     ):
         self._iri = iri
         self._name = name

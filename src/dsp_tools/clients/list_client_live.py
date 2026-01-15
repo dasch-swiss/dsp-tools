@@ -12,8 +12,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -31,7 +30,7 @@ class ListGetClientLive(ListGetClient):
     api_url: str
     shortcode: str
 
-    def get_all_lists_and_nodes(self) -> list[OneList]:
+    def get_all_lists_and_nodes(self) -> list[ListInfo]:
         list_json = self._get_all_list_iris()
         all_iris = self._extract_list_iris(list_json)
         all_lists = [self._get_one_list(iri) for iri in all_iris]
@@ -77,22 +76,8 @@ class ListGetClientLive(ListGetClient):
             return response_json
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
-        list_name = response_json["list"]["listinfo"]["name"]
-        list_id = response_json["list"]["listinfo"]["id"]
-        nodes = response_json["list"]["children"]
-        all_nodes = []
-        for child in nodes:
-            all_nodes.append(OneNode(child["name"], child["id"]))
-            if node_child := child.get("children"):
-                self._reformat_children(node_child, all_nodes)
-        return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
-
-    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
-        for child in list_child:
-            current_nodes.append(OneNode(child["name"], child["id"]))
-            if grand_child := child.get("children"):
-                self._reformat_children(grand_child, current_nodes)
+    def _reformat_one_list(self, response_json: dict[str, Any]) -> ListInfo:
+        return ListInfo(response_json["list"]["listinfo"], response_json["list"]["children"])
 
 
 @dataclass

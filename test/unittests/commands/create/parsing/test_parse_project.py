@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType

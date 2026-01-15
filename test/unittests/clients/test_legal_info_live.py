@@ -1,4 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
 from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch

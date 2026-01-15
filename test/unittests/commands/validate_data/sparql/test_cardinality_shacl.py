@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import pytest
 from pyoxigraph import RdfFormat
 from pyoxigraph import Store

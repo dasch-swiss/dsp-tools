@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from lxml import etree
 
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup

@@ -10,10 +10,8 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
@@ -22,7 +20,6 @@ from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
@@ -75,7 +72,6 @@ def ingest_xmlupload(
     root = _replace_filepaths_with_internal_filename_from_ingest(root, shortcode)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    con = ConnectionLive(creds.server, auth)
     config = UploadConfig(
         media_previously_uploaded=True,
         interrupt_after=interrupt_after,
@@ -83,7 +79,7 @@ def ingest_xmlupload(
         server=creds.server,
         shortcode=shortcode,
     )
-    clients = _get_live_clients(con, config, auth)
+    clients = _get_live_clients(config, auth)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     if id2iri_file:
@@ -158,9 +154,8 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
     return root
 
 
-def _get_live_clients(con: Connection, config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
+def _get_live_clients(config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
     ingest_client = BulkIngestedAssetClient()
-    project_client = ProjectClientLive(auth.server, auth)
-    list_client = ListClientLive(con, project_client.get_project_iri(config.shortcode))
+    list_client = ListGetClientLive(auth.server, config.shortcode)
     legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
     return UploadClients(ingest_client, list_client, legal_info_client)

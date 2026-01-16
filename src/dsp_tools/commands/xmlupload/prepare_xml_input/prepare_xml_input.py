@@ -77,6 +77,10 @@ def _get_list_node_to_iri_lookup(list_client: ListGetClient) -> dict[tuple[str, 
 
 
 def _create_list_and_node_name_to_iri_lookup(all_info: list[ListInfo]) -> dict[tuple[str, str], str]:
+    """
+    Create a lookup to resolve the list xml input to the IRIs on the server.
+    From the xml we create the tuple in the format (list_name, node_name) or ("" [empty string], node IRI)
+    """
     complete_lookup = {}
     for li in all_info:
         complete_lookup.update(_create_one_list_and_node_name_to_iri_lookup(li))
@@ -84,6 +88,10 @@ def _create_list_and_node_name_to_iri_lookup(all_info: list[ListInfo]) -> dict[t
 
 
 def _create_one_list_and_node_name_to_iri_lookup(list_info: ListInfo) -> dict[tuple[str, str], str]:
+    """
+    Per list node we get
+    { (list_name, list_name): list_iri, ("", list_iri): list_iri }
+    """
     list_name = list_info.listinfo["name"]
     list_iri = list_info.listinfo["id"]
     result = {

@@ -18,11 +18,13 @@ jobs:
         uses: actions/checkout@v5
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: start stack
+      - name: start stack with latest backend
         run: uv run dsp-tools start-stack --latest --no-prune --with-test-data
-      - name: legacy e2e tests
-        run: just legacy-e2e-tests
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+      - name: create project
+        run: uv run dsp-tools create testdata/json-project/systematic-project-4123.json
+      - name: get project
+        run: uv run dsp-tools get -P systematic-tp _output.json
+      - name: stop stack
         run: uv run dsp-tools stop-stack
       - name: make logging file available
         uses: actions/upload-artifact@v4

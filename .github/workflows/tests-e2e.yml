@@ -100,7 +100,7 @@ jobs:
           path: logging.log
           compression-level: 0
 
-  legacy:
+  stop-stack:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -109,14 +109,12 @@ jobs:
         uses: ./.github/actions/setup
       - name: start stack
         run: uv run dsp-tools start-stack --no-prune --with-test-data
-      - name: legacy
-        run: just legacy-e2e-tests
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+      - name: stop stack
         run: uv run dsp-tools stop-stack
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-legacy-logging.log
+          name: e2e-stop-stack-logging.log
           path: logging.log
           compression-level: 0

@@ -102,10 +102,7 @@ python_version = "3.12"
 show_column_numbers = true
 strict = true
 enable_error_code = ["possibly-undefined"]
-exclude = [
-    "src/dsp_tools/legacy_models/*",
-    "src/dsp_tools/commands/get/legacy_models/*",
-]
+exclude = []
 
 
 [[tool.mypy.overrides]]
@@ -186,17 +183,8 @@ extend-select = [  # this is for preview (beta) features
     "A002",  # flake8: builtin-argument-shadowing
     "DOC102", # missing arg name in docstring
 ]
-"src/dsp_tools/commands/get/legacy_models/**" = [
-    "A002",  # flake8: builtin-argument-shadowing
-    "D102",  # pydocstyle: undocumented-public-method (legacy code with many simple property getters)
-    "PLR0913", # pylint: too-many-arguments
-    "PLR0917", # Too many positional arguments
-]
 "src/dsp_tools/xmllib/models/**" = [
     "A002"  # flake8: builtin-argument-shadowing
-]
-"src/dsp_tools/legacy_models/**" = [
-    "PLW"
 ]
 "!src/dsp_tools/xmllib/**.py" = ["D103", "DOC501"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 

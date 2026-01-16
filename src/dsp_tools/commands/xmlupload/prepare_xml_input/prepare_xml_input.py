@@ -5,7 +5,6 @@ from typing import Any
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import ListInfo
@@ -40,7 +39,7 @@ def get_parsed_resources_and_mappers(
 
 def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
     con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+    proj_context = _get_project_context_from_server(con=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)
     listnode_lookup = _get_list_node_to_iri_lookup(clients.list_client)
@@ -51,13 +50,12 @@ def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> 
     )
 
 
-def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
+def _get_project_context_from_server(con: ConnectionLive, shortcode: str) -> ProjectContext:
     try:
-        proj_context = create_project_context(con=connection, shortcode=shortcode)
+        return create_project_context(con, shortcode)
     except BaseError:
         logger.exception("Unable to retrieve project context from DSP server")
         raise UnableToRetrieveProjectInfoError("Unable to retrieve project context from DSP server") from None
-    return proj_context
 
 
 def get_stash_and_upload_order(

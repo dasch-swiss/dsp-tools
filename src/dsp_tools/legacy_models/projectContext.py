@@ -1,14 +1,7 @@
-"""
-TECHNICAL DEBT: This module depends on legacy models (get_all_projects,
-get_all_groups) from commands/get/legacy_models/. These should be refactored
-to use modern client patterns instead of the legacy model classes.
-"""
-
 from dataclasses import dataclass
+from typing import Any
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.get.legacy_models.group import get_all_groups
-from dsp_tools.commands.get.legacy_models.project import get_all_projects
 from dsp_tools.error.exceptions import BaseError
 
 
@@ -21,19 +14,12 @@ class ProjectContext:
 
 
 def create_project_context(con: Connection, shortcode: str) -> ProjectContext:
-    projects = get_all_projects(con=con)
-    inv_project_map: dict[str, str] = {x.iri: x.shortname for x in projects}
+    projects: list[dict[str, Any]] = con.get("/admin/projects")["projects"]
+    project_iri_to_shortname: dict[str, str] = {p["id"]: p["shortname"] for p in projects}
     try:
-        groups = get_all_groups(con=con)
+        groups: list[dict[str, Any]] = con.get("/admin/groups")["groups"]
+        group_map = {f"{project_iri_to_shortname[g['project']['id']]}:{g['name']}": g["id"] for g in groups}
     except BaseError:
-        groups = []
-    if groups:
-        group_map = {f"{inv_project_map[x.project]}:{x.name}": x.iri for x in groups}
-    else:
         group_map = {}
-    project_name = None
-    for p in projects:
-        if p.shortcode == shortcode:
-            project_name = p.shortname
-            break
+    project_name = next((p["shortname"] for p in projects if p["shortcode"] == shortcode), None)
     return ProjectContext(group_map=group_map, project_name=project_name)

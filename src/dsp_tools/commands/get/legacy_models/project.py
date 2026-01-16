@@ -85,12 +85,3 @@ def read_project_by_shortname(con: Connection, shortname: str) -> Project:
     """Read a project from DSP by its shortname."""
     result = con.get(PROJECTS_ROUTE + "/shortname/" + quote_plus(shortname))
     return create_project_from_json(result["project"])
-
-
-def get_all_projects(con: Connection) -> list[Project]:
-    """Get all existing projects in DSP."""
-    try:
-        result = con.get(PROJECTS_ROUTE)
-        return [create_project_from_json(a) for a in result["projects"]]
-    except BaseError:
-        return []

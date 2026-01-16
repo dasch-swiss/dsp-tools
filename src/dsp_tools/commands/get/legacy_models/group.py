@@ -69,12 +69,8 @@ def create_group_from_json(json_obj: dict[str, Any]) -> Group:
     )
 
 
-def get_all_groups(con: Connection) -> list[Group]:
-    """Get all groups from DSP."""
-    result = con.get(GROUPS_ROUTE)
-    return [create_group_from_json(group_item) for group_item in result["groups"]]
-
-
 def get_all_groups_for_project(con: Connection, proj_iri: str) -> list[Group]:
     """Get all groups for a specific project."""
-    return [g for g in get_all_groups(con) if g.project == proj_iri]
+    result = con.get(GROUPS_ROUTE)
+    all_groups = [create_group_from_json(group_item) for group_item in result["groups"]]
+    return [g for g in all_groups if g.project == proj_iri]

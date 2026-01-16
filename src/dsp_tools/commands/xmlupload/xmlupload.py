@@ -23,7 +23,8 @@ from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client import ProjectClient
+from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
@@ -34,8 +35,6 @@ from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
@@ -89,9 +88,8 @@ def xmlupload(
     shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
-    clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
+    clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     if config.id2iri_file:
@@ -189,7 +187,6 @@ def _handle_validation(
 
 
 def _get_live_clients(
-    con: Connection,
     auth: AuthenticationClient,
     creds: ServerCredentials,
     shortcode: str,
@@ -197,8 +194,7 @@ def _get_live_clients(
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
-    project_client: ProjectClient = ProjectClientLive(auth.server, auth)
-    list_client: ListClient = ListClientLive(con, project_client.get_project_iri(shortcode))
+    list_client: ListGetClient = ListGetClientLive(auth.server, shortcode)
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
@@ -314,15 +310,19 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_iri = clients.list_client.project_iri
+    project_client = ProjectClientLive(
+        clients.legal_info_client.server, clients.legal_info_client.authentication_client
+    )
+    project_iri = project_client.get_project_iri(upload_state.config.shortcode)
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
     )
 
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
     resource_create_client = ResourceCreateClient(
-        con=clients.list_client.con,
+        con=con,
     )
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
@@ -337,7 +337,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
-            _upload_stash(upload_state, clients.list_client.con)
+            _upload_stash(upload_state, con)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
 

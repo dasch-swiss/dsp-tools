@@ -5,18 +5,15 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.ingest import BulkIngestedAssetClient
 from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client import ProjectClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
-from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.setup.ansi_colors import RED
@@ -43,7 +40,6 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     _print_and_log(upload_state, server)
 
     auth = AuthenticationClientLive(server, creds.user, creds.password)
-    con = ConnectionLive(server, auth)
 
     ingest_client: AssetClient
     if upload_state.config.media_previously_uploaded:
@@ -51,8 +47,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     else:
         ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode, ".")
 
-    project_client: ProjectClient = ProjectClientLive(auth.server, auth)
-    list_client: ListClient = ListClientLive(con, project_client.get_project_iri(upload_state.config.shortcode))
+    list_client: ListGetClient = ListGetClientLive(auth.server, upload_state.config.shortcode)
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
     clients = UploadClients(ingest_client, list_client, legal_info_client)
 

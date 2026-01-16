@@ -90,7 +90,7 @@ def _create_list_and_node_name_to_iri_lookup(all_info: list[ListInfo]) -> dict[t
 def _create_one_list_and_node_name_to_iri_lookup(list_info: ListInfo) -> dict[tuple[str, str], str]:
     """
     Per list node we get
-    { (list_name, list_name): list_iri, ("", list_iri): list_iri }
+    { (list_name, node_name): list_iri, ("", node_iri): list_iri }
     """
     list_name = list_info.listinfo["name"]
     list_iri = list_info.listinfo["id"]

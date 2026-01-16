@@ -1,5 +1,17 @@
 # Changelog
 
+## [18.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.0...v18.6.1) (2026-01-16)
+
+
+### Maintenance
+
+* disable two mypy error codes in test directory ([#2158](https://github.com/dasch-swiss/dsp-tools/issues/2158)) ([e9ca437](https://github.com/dasch-swiss/dsp-tools/commit/e9ca437a5736886541c5efa653baff0ecbe3aed9))
+* move Ingest Client to clients folder ([#2160](https://github.com/dasch-swiss/dsp-tools/issues/2160)) ([1c1f074](https://github.com/dasch-swiss/dsp-tools/commit/1c1f0745ae3eafb12ee30b10b97cef8d6058e913))
+* remove `InputError` ([#2150](https://github.com/dasch-swiss/dsp-tools/issues/2150)) ([ce758a4](https://github.com/dasch-swiss/dsp-tools/commit/ce758a4a4479538c164001dc5e1852e97c4718cf))
+* **validate-data:** take reformatting of lists out of client ([#2157](https://github.com/dasch-swiss/dsp-tools/issues/2157)) ([9b3dc0c](https://github.com/dasch-swiss/dsp-tools/commit/9b3dc0c86bb1af0644d06c1cb67b45ecab28337c))
+* **validate-data:** update claude.md file ([#2156](https://github.com/dasch-swiss/dsp-tools/issues/2156)) ([0915e13](https://github.com/dasch-swiss/dsp-tools/commit/0915e136fbe7e61f03f1ddd6e1bb7628de11d015))
+* **xmlupload:** use generic `ListGetClient` ([#2159](https://github.com/dasch-swiss/dsp-tools/issues/2159)) ([dd0a10e](https://github.com/dasch-swiss/dsp-tools/commit/dd0a10effaf914b887e187d55fadbc989c8b31b4))
+
 ## [18.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.5.0...v18.6.0) (2026-01-14)
 
 

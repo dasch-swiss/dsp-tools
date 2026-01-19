@@ -105,7 +105,8 @@ def _separate_props_and_classes(
 
 
 def _handle_limited_view_overrule(
-    overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection, perm_client: PermissionsClient
+    overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection,
+    perm_client: PermissionsClient,
 ) -> bool:
     overall_success = True
     match overrule_limited_view:

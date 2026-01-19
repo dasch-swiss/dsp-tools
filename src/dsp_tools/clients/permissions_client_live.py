@@ -42,7 +42,8 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return response.json()["default_object_access_permissions"]
+            response_json: dict[str, list[dict[str, Any]]] = response.json()
+            return response_json["default_object_access_permissions"]
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to view the default object access permissions for this project. "

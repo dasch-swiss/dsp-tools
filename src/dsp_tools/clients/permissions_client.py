@@ -1,22 +1,21 @@
+from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 
 
+@dataclass
 class PermissionsClient(Protocol):
-    """Protocol for interacting with DSP-API permissions endpoints."""
-
-    server: str
     auth: AuthenticationClient
-    project_iri: str
+    proj_iri: str
 
     def get_project_doaps(self) -> list[dict[str, Any]]:
         """
         Get all default object access permissions (DOAPs) for the project.
         """
 
-    def delete_doap(self, doap_iri: str) -> None:
+    def delete_doap(self, doap_iri: str) -> bool:
         """
         Delete a default object access permission by IRI.
         """

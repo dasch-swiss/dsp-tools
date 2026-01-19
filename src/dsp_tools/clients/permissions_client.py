@@ -11,6 +11,8 @@ from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
+TIMEOUT_10 = 10
+
 
 @dataclass
 class PermissionsClient:
@@ -21,7 +23,7 @@ class PermissionsClient:
         params = RequestParameters(
             "GET",
             f"{self.auth.server}/admin/permissions/doap/{quote_plus(self.proj_iri)}",
-            timeout=10,
+            timeout=TIMEOUT_10,
             headers={"Accept": "application/json", "Authorization": f"Bearer {self.auth.get_token()}"},
         )
         log_request(params)
@@ -38,7 +40,7 @@ class PermissionsClient:
         params = RequestParameters(
             "DELETE",
             f"{self.auth.server}/admin/permissions/{quote_plus(doap_iri)}",
-            timeout=10,
+            timeout=TIMEOUT_10,
             headers={"Authorization": f"Bearer {self.auth.get_token()}"},
         )
         log_request(params)
@@ -54,7 +56,7 @@ class PermissionsClient:
         params = RequestParameters(
             "POST",
             f"{self.auth.server}/admin/permissions/doap",
-            timeout=10,
+            timeout=TIMEOUT_10,
             headers={"Authorization": f"Bearer {self.auth.get_token()}"},
             data=payload,
         )

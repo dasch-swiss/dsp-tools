@@ -21,7 +21,7 @@ from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -117,7 +117,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
         headers: dict[str, str] | None = None,
     ) -> Response:
         data_dict, generic_headers = self._prepare_request(data, headers)
-        params = RequestParameters("POST", url, TIMEOUT, data_dict, generic_headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, data_dict, generic_headers)
         log_request(params)
         response = requests.post(
             url=params.url,
@@ -134,7 +134,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
         headers: dict[str, str] | None = None,
     ) -> Response:
         _, generic_headers = self._prepare_request({}, headers)
-        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=generic_headers)
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_60, headers=generic_headers)
         log_request(params)
         response = requests.get(
             url=params.url,

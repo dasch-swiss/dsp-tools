@@ -1,11 +1,13 @@
 from loguru import logger
 
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -38,12 +40,21 @@ def create_default_permissions(
 
 
 def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
-    if not (doaps := perm_client.get_project_doaps()):
+    try:
+        doaps = perm_client.get_project_doaps()
+    except (BadCredentialsError, FatalNonOkApiResponseCode) as e:
+        logger.error(f"Failed to retrieve DOAPs: {e}")
         return False
+
+    if not doaps:
+        return True
+
     existing_doap_iris: list[str] = [x["iri"] for x in doaps]
     for iri in existing_doap_iris:
-        if not perm_client.delete_doap(iri):
-            # don't continue with the others, it's better to stop DOAP handling immediately, to avoid a mess
+        try:
+            perm_client.delete_doap(iri)
+        except (BadCredentialsError, FatalNonOkApiResponseCode) as e:
+            logger.error(f"Failed to delete DOAP {iri}: {e}")
             return False
     return True
 
@@ -58,7 +69,7 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
         perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "V", "permissionCode": None})
     payload = {
         "forGroup": f"{KNORA_ADMIN_PREFIX}ProjectMember",
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
@@ -131,7 +142,7 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
     payload = {
         "forProperty": prop_iri,
         "forResourceClass": res_iri,
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)
@@ -149,7 +160,7 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
     payload = {
         "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
         "forResourceClass": img_class_iri,
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
     return perm_client.create_new_doap(payload)

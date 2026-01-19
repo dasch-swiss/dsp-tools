@@ -11,7 +11,7 @@ from test.integration.commands.xmlupload.authentication_client_mock import Authe
 class LegalInfoClientMockBase(LegalInfoClient):
     server: str = "http://0.0.0.0:3333"
     project_shortcode: str = "9999"
-    authentication_client: AuthenticationClient = field(default_factory=AuthenticationClientMockBase)
+    auth: AuthenticationClient = field(default_factory=AuthenticationClientMockBase)
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         pass

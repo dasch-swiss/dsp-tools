@@ -23,7 +23,7 @@ TIMEOUT = 60
 class LegalInfoClientLive(LegalInfoClient):
     server: str
     project_shortcode: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
@@ -45,7 +45,7 @@ class LegalInfoClientLive(LegalInfoClient):
     def _post_and_log_request(self, url: str, data: list[str]) -> Response:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
         log_request(params)
@@ -78,7 +78,7 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
         log_request(params)
@@ -103,7 +103,7 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         params = RequestParameters("POST", url, TIMEOUT, headers=headers)
         log_request(params)

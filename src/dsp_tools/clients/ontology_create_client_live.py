@@ -31,7 +31,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
     """
 
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         url = f"{self.server}/v2/ontologies/metadata"
@@ -149,7 +149,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
     ) -> tuple[dict[str, Any] | None, dict[str, str]]:
         generic_headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         data_dict = data if data else None
         if headers:

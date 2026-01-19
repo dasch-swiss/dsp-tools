@@ -19,11 +19,11 @@ TIMEOUT = 120
 @dataclass
 class MetadataClientLive(MetadataClient):
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
         url = f"{self.server}/v2/metadata/projects/{shortcode}/resources?format=JSON"
-        header = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
+        header = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=header)
         logger.debug("GET Resource Metadata")
         log_request(params)

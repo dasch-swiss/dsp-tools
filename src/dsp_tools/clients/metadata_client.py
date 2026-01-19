@@ -18,7 +18,7 @@ class MetadataClient(Protocol):
     """
 
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
         """Get all resource metadata from one project."""

@@ -47,7 +47,7 @@ class DspIngestClientLive(AssetClient):
     """Client for uploading assets to the DSP-Ingest."""
 
     dsp_ingest_url: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
     shortcode: str
     imgdir: str
     session: Session = field(init=False)
@@ -93,7 +93,7 @@ class DspIngestClientLive(AssetClient):
         filename = urllib.parse.quote(filepath.name)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
         headers = {
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
             "Content-Type": "application/octet-stream",
         }
         timeout = 9 * 60

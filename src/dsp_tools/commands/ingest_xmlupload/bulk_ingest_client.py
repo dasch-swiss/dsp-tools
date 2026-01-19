@@ -30,7 +30,7 @@ class BulkIngestClient:
     """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
@@ -68,7 +68,7 @@ class BulkIngestClient:
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
         headers = {
             "Content-Type": "application/octet-stream",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         params = RequestParameters("POST", url, timeout, headers=headers)
@@ -113,7 +113,7 @@ class BulkIngestClient:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
-        headers = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("POST", url, timeout, headers=headers)
         log_request(params)
         res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
@@ -160,7 +160,7 @@ class BulkIngestClient:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
-            headers = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
+            headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
             params = RequestParameters("GET", url, timeout, headers=headers)
             log_request(params)
             res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)

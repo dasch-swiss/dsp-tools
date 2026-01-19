@@ -13,7 +13,7 @@ class OntologyCreateClient(Protocol):
     """
 
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         """Get the last modification date of an ontology"""

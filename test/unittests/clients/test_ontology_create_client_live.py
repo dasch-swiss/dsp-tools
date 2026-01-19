@@ -46,7 +46,7 @@ def mock_auth_client() -> Mock:
 def ontology_client(mock_auth_client: Mock) -> OntologyCreateClientLive:
     return OntologyCreateClientLive(
         server="http://0.0.0.0:3333",
-        authentication_client=mock_auth_client,
+        auth=mock_auth_client,
     )
 
 

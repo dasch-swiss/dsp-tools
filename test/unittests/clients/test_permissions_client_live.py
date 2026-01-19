@@ -98,8 +98,9 @@ class TestDeleteDoap:
         mock_response = Mock()
         mock_response.ok = True
         delete_mock.return_value = mock_response
-        client.delete_doap("http://test.iri/doap")
+        result = client.delete_doap("http://test.iri/doap")
         delete_mock.assert_called_once()
+        assert result is True
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")
     @patch("dsp_tools.clients.permissions_client_live.log_request")
@@ -131,9 +132,8 @@ class TestDeleteDoap:
         mock_response.status_code = 404
         mock_response.text = "Not found"
         delete_mock.return_value = mock_response
-
-        with pytest.raises(FatalNonOkApiResponseCode):
-            client.delete_doap("http://test.iri/doap")
+        result = client.delete_doap("http://test.iri/doap")
+        assert result is False
 
     @patch("dsp_tools.clients.permissions_client_live.log_request")
     @patch("dsp_tools.clients.permissions_client_live.requests.delete")

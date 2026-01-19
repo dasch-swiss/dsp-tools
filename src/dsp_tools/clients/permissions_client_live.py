@@ -51,7 +51,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def delete_doap(self, doap_iri: str) -> None:
+    def delete_doap(self, doap_iri: str) -> bool:
         url = f"{self.server}/admin/permissions/{quote_plus(doap_iri)}"
         headers = {
             "Authorization": f"Bearer {self.auth.get_token()}",
@@ -68,13 +68,13 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return
+            return True
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to delete default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can delete DOAPs."
             )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        return False
 
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
         url = f"{self.server}/admin/permissions/doap"

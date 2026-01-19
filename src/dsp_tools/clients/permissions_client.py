@@ -15,7 +15,7 @@ class PermissionsClient(Protocol):
         Get all default object access permissions (DOAPs) for the project.
         """
 
-    def delete_doap(self, doap_iri: str) -> None:
+    def delete_doap(self, doap_iri: str) -> bool:
         """
         Delete a default object access permission by IRI.
         """

@@ -51,10 +51,8 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
 
     existing_doap_iris: list[str] = [x["iri"] for x in doaps]
     for iri in existing_doap_iris:
-        try:
-            perm_client.delete_doap(iri)
-        except (BadCredentialsError, FatalNonOkApiResponseCode) as e:
-            logger.error(f"Failed to delete DOAP {iri}: {e}")
+        if not perm_client.delete_doap(iri):
+            # don't continue with the others, it's better to stop DOAP handling immediately, to avoid a mess
             return False
     return True
 

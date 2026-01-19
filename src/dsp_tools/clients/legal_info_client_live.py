@@ -16,7 +16,7 @@ from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -47,7 +47,7 @@ class LegalInfoClientLive(LegalInfoClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, {"data": data}, headers)
         log_request(params)
         response = requests.post(
             url=params.url,
@@ -80,7 +80,7 @@ class LegalInfoClientLive(LegalInfoClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_60, headers=headers)
         log_request(params)
         try:
             response = requests.get(
@@ -105,7 +105,7 @@ class LegalInfoClientLive(LegalInfoClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, headers=headers)
         log_request(params)
         try:
             response = requests.put(

@@ -20,14 +20,11 @@ TIMEOUT_10 = 10
 
 @dataclass
 class PermissionsClientLive(PermissionsClient):
-    """Live implementation for interacting with DSP-API permissions endpoints."""
-
     server: str
     auth: AuthenticationClient
     project_iri: str
 
     def get_project_doaps(self) -> list[dict[str, Any]]:
-        """Get all default object access permissions for the project."""
         url = f"{self.server}/admin/permissions/doap/{quote_plus(self.project_iri)}"
         headers = {
             "Accept": "application/json",
@@ -54,7 +51,6 @@ class PermissionsClientLive(PermissionsClient):
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def delete_doap(self, doap_iri: str) -> None:
-        """Delete a default object access permission."""
         url = f"{self.server}/admin/permissions/{quote_plus(doap_iri)}"
         headers = {
             "Authorization": f"Bearer {self.auth.get_token()}",
@@ -80,7 +76,6 @@ class PermissionsClientLive(PermissionsClient):
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
-        """Create a new default object access permission."""
         url = f"{self.server}/admin/permissions/doap"
         headers = {
             "Content-Type": "application/json",

@@ -14,38 +14,14 @@ class PermissionsClient(Protocol):
     def get_project_doaps(self) -> list[dict[str, Any]]:
         """
         Get all default object access permissions (DOAPs) for the project.
-
-        Returns:
-            List of DOAP dictionaries
-
-        Raises:
-            BadCredentialsError: If user lacks permission to view DOAPs
-            FatalNonOkApiResponseCode: If the API returns an error
         """
 
     def delete_doap(self, doap_iri: str) -> None:
         """
         Delete a default object access permission by IRI.
-
-        Args:
-            doap_iri: IRI of the DOAP to delete
-
-        Raises:
-            BadCredentialsError: If user lacks permission to delete DOAPs
-            FatalNonOkApiResponseCode: If the API returns an error
         """
 
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
         """
         Create a new default object access permission.
-
-        Args:
-            payload: DOAP configuration dictionary
-
-        Returns:
-            True on successful creation
-
-        Raises:
-            BadCredentialsError: If user lacks permission to create DOAPs
-            FatalNonOkApiResponseCode: If the API returns an error
         """

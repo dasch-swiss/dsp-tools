@@ -8,14 +8,14 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 @dataclass
 class PermissionsClient(Protocol):
     auth: AuthenticationClient
-    proj_iri: str
+    project_iri: str
 
     def get_project_doaps(self) -> list[dict[str, Any]]:
         """
         Get all default object access permissions (DOAPs) for the project.
         """
 
-    def delete_doap(self, doap_iri: str) -> bool:
+    def delete_doap(self, doap_iri: str) -> None:
         """
         Delete a default object access permission by IRI.
         """

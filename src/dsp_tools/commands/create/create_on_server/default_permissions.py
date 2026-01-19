@@ -1,13 +1,11 @@
 from loguru import logger
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -40,10 +38,7 @@ def create_default_permissions(
 
 
 def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
-    try:
-        doaps = perm_client.get_project_doaps()
-    except (BadCredentialsError, FatalNonOkApiResponseCode) as e:
-        logger.error(f"Failed to retrieve DOAPs: {e}")
+    if not (doaps := perm_client.get_project_doaps()):
         return False
 
     if not doaps:

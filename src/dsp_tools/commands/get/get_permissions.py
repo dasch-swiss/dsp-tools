@@ -4,7 +4,7 @@ from typing import Literal
 import regex
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
@@ -23,7 +23,11 @@ def get_default_permissions(
         "default_permissions": "public" or "private" or error message
         "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
     """
-    perm_client = PermissionsClient(auth, project_iri)
+    perm_client = PermissionsClientLive(
+        server=auth.server,
+        auth=auth,
+        project_iri=project_iri,
+    )
     project_doaps = perm_client.get_project_doaps()
     fallback_text = (
         "We cannot determine if this project is public or private. "

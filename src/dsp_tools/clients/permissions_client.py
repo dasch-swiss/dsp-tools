@@ -1,70 +1,51 @@
-from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote_plus
-
-import requests
-from loguru import logger
-from requests import RequestException
+from typing import Protocol
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
-
-TIMEOUT_10 = 10
 
 
-@dataclass
-class PermissionsClient:
+class PermissionsClient(Protocol):
+    """Protocol for interacting with DSP-API permissions endpoints."""
+
+    server: str
     auth: AuthenticationClient
-    proj_iri: str
+    project_iri: str
 
     def get_project_doaps(self) -> list[dict[str, Any]]:
-        params = RequestParameters(
-            "GET",
-            f"{self.auth.server}/admin/permissions/doap/{quote_plus(self.proj_iri)}",
-            timeout=TIMEOUT_10,
-            headers={"Accept": "application/json", "Authorization": f"Bearer {self.auth.get_token()}"},
-        )
-        log_request(params)
-        try:
-            response = requests.get(params.url, timeout=params.timeout, headers=params.headers)
-            log_response(response)
-        except RequestException:
-            logger.exception("Error while retrieving existing DOAPs")
-            return []
-        res: list[dict[str, Any]] = response.json()["default_object_access_permissions"]
-        return res
+        """
+        Get all default object access permissions (DOAPs) for the project.
 
-    def delete_doap(self, doap_iri: str) -> bool:
-        params = RequestParameters(
-            "DELETE",
-            f"{self.auth.server}/admin/permissions/{quote_plus(doap_iri)}",
-            timeout=TIMEOUT_10,
-            headers={"Authorization": f"Bearer {self.auth.get_token()}"},
-        )
-        log_request(params)
-        try:
-            response = requests.delete(params.url, timeout=params.timeout, headers=params.headers)
-            log_response(response)
-        except RequestException:
-            logger.exception("Error while deleting DOAP")
-            return False
-        return True
+        Returns:
+            List of DOAP dictionaries
+
+        Raises:
+            BadCredentialsError: If user lacks permission to view DOAPs
+            FatalNonOkApiResponseCode: If the API returns an error
+        """
+
+    def delete_doap(self, doap_iri: str) -> None:
+        """
+        Delete a default object access permission by IRI.
+
+        Args:
+            doap_iri: IRI of the DOAP to delete
+
+        Raises:
+            BadCredentialsError: If user lacks permission to delete DOAPs
+            FatalNonOkApiResponseCode: If the API returns an error
+        """
 
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
-        params = RequestParameters(
-            "POST",
-            f"{self.auth.server}/admin/permissions/doap",
-            timeout=TIMEOUT_10,
-            headers={"Authorization": f"Bearer {self.auth.get_token()}"},
-            data=payload,
-        )
-        log_request(params)
-        try:
-            response = requests.post(params.url, timeout=params.timeout, headers=params.headers, json=params.data)
-            log_response(response)
-        except RequestException:
-            logger.exception("Error while creating new DOAP")
-            return False
-        return True
+        """
+        Create a new default object access permission.
+
+        Args:
+            payload: DOAP configuration dictionary
+
+        Returns:
+            True on successful creation
+
+        Raises:
+            BadCredentialsError: If user lacks permission to create DOAPs
+            FatalNonOkApiResponseCode: If the API returns an error
+        """

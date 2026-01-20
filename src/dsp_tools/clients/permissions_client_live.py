@@ -12,6 +12,7 @@ from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
+from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -74,6 +75,7 @@ class PermissionsClientLive(PermissionsClient):
                 "You don't have permission to delete default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can delete DOAPs."
             )
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return False
 
     def create_new_doap(self, payload: dict[str, Any]) -> bool:
@@ -101,4 +103,5 @@ class PermissionsClientLive(PermissionsClient):
                 "You don't have permission to create default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can create DOAPs."
             )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+        return False

@@ -51,7 +51,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
-    def delete_doap(self, doap_iri: str) -> ResponseCodeAndText | None:
+    def delete_doap(self, doap_iri: str) -> ResponseCodeAndText | bool:
         url = f"{self.server}/admin/permissions/{quote_plus(doap_iri)}"
         headers = {
             "Authorization": f"Bearer {self.auth.get_token()}",
@@ -68,7 +68,7 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return None
+            return True
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to delete default object access permissions. "
@@ -76,7 +76,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
-    def create_new_doap(self, payload: dict[str, Any]) -> ResponseCodeAndText | None:
+    def create_new_doap(self, payload: dict[str, Any]) -> ResponseCodeAndText | bool:
         url = f"{self.server}/admin/permissions/doap"
         headers = {
             "Content-Type": "application/json",
@@ -95,7 +95,7 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return None
+            return True
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to create default object access permissions. "

@@ -5,10 +5,10 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="tkn")
@@ -68,8 +68,9 @@ class TestGetProjectDoaps:
         mock_response.text = "Internal error"
         get_mock.return_value = mock_response
 
-        with pytest.raises(FatalNonOkApiResponseCode):
-            client.get_project_doaps()
+        result = client.get_project_doaps()
+        assert isinstance(result, ResponseCodeAndText)
+        assert result.status_code == 500
 
     @patch("dsp_tools.clients.permissions_client_live.log_request")
     @patch("dsp_tools.clients.permissions_client_live.requests.get")
@@ -100,7 +101,7 @@ class TestDeleteDoap:
         delete_mock.return_value = mock_response
         result = client.delete_doap("http://test.iri/doap")
         delete_mock.assert_called_once()
-        assert result is True
+        assert result is None
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")
     @patch("dsp_tools.clients.permissions_client_live.log_request")
@@ -133,7 +134,7 @@ class TestDeleteDoap:
         mock_response.text = "Not found"
         delete_mock.return_value = mock_response
         result = client.delete_doap("http://test.iri/doap")
-        assert result is False
+        assert isinstance(result, ResponseCodeAndText)
 
     @patch("dsp_tools.clients.permissions_client_live.log_request")
     @patch("dsp_tools.clients.permissions_client_live.requests.delete")
@@ -162,7 +163,7 @@ class TestCreateNewDoap:
         mock_response.ok = True
         post_mock.return_value = mock_response
         result = client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
-        assert result is True
+        assert result is None
         post_mock.assert_called_once()
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")
@@ -198,7 +199,7 @@ class TestCreateNewDoap:
         post_mock.return_value = mock_response
 
         result = client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
-        assert not result
+        assert isinstance(result, ResponseCodeAndText)
 
     @patch("dsp_tools.clients.permissions_client_live.log_request")
     @patch("dsp_tools.clients.permissions_client_live.requests.post")

@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
@@ -10,6 +9,7 @@ from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissio
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
@@ -24,8 +24,8 @@ def mock_permissions_client() -> MagicMock:
     # Mock successful API calls
     # Return a list with some existing DOAPs to avoid the logic issue in _delete_existing_doaps
     mock_client.get_project_doaps.return_value = [{"iri": "http://test.iri/existing-doap"}]
-    mock_client.delete_doap.return_value = True
-    mock_client.create_new_doap.return_value = True
+    mock_client.delete_doap.return_value = None  # None = success
+    mock_client.create_new_doap.return_value = None  # None = success
 
     return mock_client
 
@@ -160,9 +160,7 @@ def test_create_default_permissions_get_doaps_failure(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
     """Test handling of get_project_doaps failures."""
-    mock_permissions_client.get_project_doaps.side_effect = FatalNonOkApiResponseCode(
-        "http://test.url", 500, "Internal error"
-    )
+    mock_permissions_client.get_project_doaps.return_value = ResponseCodeAndText(500, "Internal error")
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         parsed_permissions=ParsedPermissions(
@@ -195,8 +193,8 @@ def test_create_default_permissions_delete_doap_failure(
 def test_create_default_permissions_create_doap_failure(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    """Test handling of create_new_doap failures (still returns bool)."""
-    mock_permissions_client.create_new_doap.return_value = False
+    """Test handling of create_new_doap failures (returns ResponseCodeAndText on error)."""
+    mock_permissions_client.create_new_doap.return_value = ResponseCodeAndText(400, "Bad request")
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         parsed_permissions=ParsedPermissions(

@@ -8,6 +8,7 @@ from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def get_default_permissions(
@@ -34,6 +35,8 @@ def get_default_permissions(
         "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
         "and help you decide if the original intent was rather public or rather private."
     )
+    if isinstance(project_doaps, ResponseCodeAndText):
+        return fallback_text, None
     try:
         default_permissions = _parse_default_permissions(project_doaps)
         default_permissions_overrule = _parse_default_permissions_overrule(project_doaps, prefixes)

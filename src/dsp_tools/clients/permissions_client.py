@@ -11,7 +11,7 @@ class PermissionsClient(Protocol):
     auth: AuthenticationClient
     project_iri: str
 
-    def get_project_doaps(self) -> list[dict[str, Any]]:
+    def get_project_doaps(self) -> list[dict[str, Any]] | ResponseCodeAndText:
         """
         Get all default object access permissions (DOAPs) for the project.
         """

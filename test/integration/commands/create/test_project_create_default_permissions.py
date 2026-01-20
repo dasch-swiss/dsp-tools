@@ -172,7 +172,6 @@ def test_create_default_permissions_get_doaps_failure(
         ),
         created_iris=created_iris,
     )
-
     assert result is False
 
 
@@ -181,17 +180,16 @@ def test_create_default_permissions_delete_doap_failure(
 ) -> None:
     """Test handling of delete_doap failures."""
     mock_permissions_client.delete_doap.side_effect = BadCredentialsError("No permission")
-    result = create_default_permissions(
-        perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
-            default_permissions=DefaultPermissions.PUBLIC,
-            overrule_private=None,
-            overrule_limited_view=GlobalLimitedViewPermission.ALL,
-        ),
-        created_iris=created_iris,
-    )
-
-    assert result is False
+    with pytest.raises(BadCredentialsError):
+        create_default_permissions(
+            perm_client=mock_permissions_client,
+            parsed_permissions=ParsedPermissions(
+                default_permissions=DefaultPermissions.PUBLIC,
+                overrule_private=None,
+                overrule_limited_view=GlobalLimitedViewPermission.ALL,
+            ),
+            created_iris=created_iris,
+        )
 
 
 def test_create_default_permissions_create_doap_failure(

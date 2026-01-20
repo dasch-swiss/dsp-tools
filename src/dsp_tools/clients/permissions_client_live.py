@@ -102,5 +102,4 @@ class PermissionsClientLive(PermissionsClient):
                 "You don't have permission to create default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can create DOAPs."
             )
-        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
         return ResponseCodeAndText(response.status_code, response.text)

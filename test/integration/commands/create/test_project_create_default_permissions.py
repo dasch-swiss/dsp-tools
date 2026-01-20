@@ -24,7 +24,7 @@ def mock_permissions_client() -> MagicMock:
     # Mock successful API calls
     # Return a list with some existing DOAPs to avoid the logic issue in _delete_existing_doaps
     mock_client.get_project_doaps.return_value = [{"iri": "http://test.iri/existing-doap"}]
-    mock_client.delete_doap.return_value = None
+    mock_client.delete_doap.return_value = True
     mock_client.create_new_doap.return_value = True
 
     return mock_client

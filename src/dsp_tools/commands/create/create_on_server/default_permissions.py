@@ -184,7 +184,7 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
 
 
 def _execute_with_retry_on_server_error(
-    operation: Callable[[], ResponseCodeAndText | None | list[dict[str, Any]]],
+    operation: Callable[[], ResponseCodeAndText | bool],
     operation_name: str,
 ) -> bool:
     result = operation()

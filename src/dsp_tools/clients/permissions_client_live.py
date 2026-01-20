@@ -7,10 +7,10 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
@@ -25,7 +25,7 @@ class PermissionsClientLive(PermissionsClient):
     auth: AuthenticationClient
     project_iri: str
 
-    def get_project_doaps(self) -> list[dict[str, Any]]:
+    def get_project_doaps(self) -> list[dict[str, Any]] | ResponseCodeAndText:
         url = f"{self.server}/admin/permissions/doap/{quote_plus(self.project_iri)}"
         headers = {
             "Accept": "application/json",
@@ -50,9 +50,9 @@ class PermissionsClientLive(PermissionsClient):
                 "You don't have permission to view the default object access permissions for this project. "
                 "Only users with appropriate project permissions can access DOAPs."
             )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        return ResponseCodeAndText(response.status_code, response.text)
 
-    def delete_doap(self, doap_iri: str) -> bool:
+    def delete_doap(self, doap_iri: str) -> ResponseCodeAndText | None:
         url = f"{self.server}/admin/permissions/{quote_plus(doap_iri)}"
         headers = {
             "Authorization": f"Bearer {self.auth.get_token()}",
@@ -69,16 +69,15 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return True
+            return None
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to delete default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can delete DOAPs."
             )
-        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-        return False
+        return ResponseCodeAndText(response.status_code, response.text)
 
-    def create_new_doap(self, payload: dict[str, Any]) -> bool:
+    def create_new_doap(self, payload: dict[str, Any]) -> ResponseCodeAndText | None:
         url = f"{self.server}/admin/permissions/doap"
         headers = {
             "Content-Type": "application/json",
@@ -97,11 +96,11 @@ class PermissionsClientLive(PermissionsClient):
             log_and_raise_request_exception(err)
         log_response(response)
         if response.ok:
-            return True
+            return None
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to create default object access permissions. "
                 "Only ProjectAdmin or SystemAdmin users can create DOAPs."
             )
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-        return False
+        return ResponseCodeAndText(response.status_code, response.text)

@@ -197,8 +197,8 @@ class TestCreateNewDoap:
         mock_response.text = "Bad request"
         post_mock.return_value = mock_response
 
-        with pytest.raises(FatalNonOkApiResponseCode):
-            client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
+        result = client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
+        assert not result
 
     @patch("dsp_tools.clients.permissions_client_live.log_request")
     @patch("dsp_tools.clients.permissions_client_live.requests.post")

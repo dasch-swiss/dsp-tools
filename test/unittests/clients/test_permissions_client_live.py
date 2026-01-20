@@ -101,7 +101,7 @@ class TestDeleteDoap:
         delete_mock.return_value = mock_response
         result = client.delete_doap("http://test.iri/doap")
         delete_mock.assert_called_once()
-        assert result is None
+        assert result is True
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")
     @patch("dsp_tools.clients.permissions_client_live.log_request")
@@ -163,7 +163,7 @@ class TestCreateNewDoap:
         mock_response.ok = True
         post_mock.return_value = mock_response
         result = client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
-        assert result is None
+        assert result is True
         post_mock.assert_called_once()
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")

@@ -57,10 +57,10 @@ def _add_xmlupload(
     subparser = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
     subparser.set_defaults(action="xmlupload")
 
+    # ... existing arguments ...
+    
     # Add your new argument here
     subparser.add_argument("--timeout-seconds", type=int, default=300, help="timeout for API requests in seconds")
-
-    # ... existing arguments ...
 ```
 
 2. The parsed argument will automatically be available in the `args` namespace passed to the command handler.
@@ -83,6 +83,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
 ### Help Text Best Practices
 
 Writing clear, consistent help text improves the user experience and makes commands discoverable.
+Caveat: Focus on what the user can achieve with this command, instead of describing the technical implementation.
 
 **Required vs Default Values**:
 
@@ -92,7 +93,7 @@ Writing clear, consistent help text improves the user experience and makes comma
 
 **Command-Level Help**:
 
-When adding a new command, the help text appears in `dsp-tools --help`:
+When adding a new command, the help text appears in `dsp-tools --help`.
 
 ```python
 subparser = subparsers.add_parser(
@@ -237,10 +238,10 @@ def test_excel2lists(excel2lists: Mock) -> None:
 
 ### Mocking Network Calls
 
-When testing commands that require network access, mock the API calls:
+When testing commands that require network access (or a DSP-API Docker container), mock the API calls:
 
 ```python
-    @patch("dsp_tools.cli.utils._check_network_health")
+@patch("dsp_tools.cli.utils._check_network_health")
 @patch("dsp_tools.cli.call_action_with_network.create_lists_only")
 def test_lists_create(self, create_lists: Mock, check_docker: Mock) -> None:
     create_lists.return_value = True
@@ -325,7 +326,7 @@ Create a parser function in `create_parsers.py`:
 
 ```python
 def _add_validate_project(
-        subparsers: _SubParsersAction[ArgumentParser],
+    subparsers: _SubParsersAction[ArgumentParser],
 ) -> None:
     subparser = subparsers.add_parser(
         name="validate-project",

@@ -193,7 +193,7 @@ def _execute_with_retry_on_server_error(
     # Check if result is ResponseCodeAndText (error case)
     if isinstance(result, ResponseCodeAndText):
         if is_server_error(result):
-            logger.info(f"Server error encountered during {operation_name}, retrying after 10 seconds...")
+            logger.warning(f"Server error encountered during {operation_name}, retrying after 10 seconds...")
             time.sleep(10)
             result = operation()
     return result is True

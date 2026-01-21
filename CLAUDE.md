@@ -123,7 +123,7 @@ DSP-TOOLS provides the following functionalities:
 #### Clients Module (`src/dsp_tools/clients`)
 
 - HTTP clients that are used across several modules
-- Should be generic enough to be re-used by several commands and not contain re-try and timeout logic.
+- Should be generic enough to be re-used by several commands and not contain re-try logic.
 
 #### Commands Module (`src/dsp_tools/commands/`)
 

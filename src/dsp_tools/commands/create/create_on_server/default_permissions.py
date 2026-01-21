@@ -49,6 +49,7 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
     doaps = perm_client.get_project_doaps()
     if isinstance(doaps, ResponseCodeAndText):
         if is_server_error(doaps):
+            logger.info("Server error while requesting existing DOAPs, retrying after 10 seconds...")
             time.sleep(10)
             doaps = perm_client.get_project_doaps()
             if isinstance(doaps, ResponseCodeAndText):

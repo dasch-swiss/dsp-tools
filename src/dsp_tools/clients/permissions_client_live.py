@@ -53,9 +53,7 @@ class PermissionsClientLive(PermissionsClient):
 
     def delete_doap(self, doap_iri: str) -> ResponseCodeAndText | bool:
         url = f"{self.server}/admin/permissions/{quote_plus(doap_iri)}"
-        headers = {
-            "Authorization": f"Bearer {self.auth.get_token()}",
-        }
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_10, headers=headers)
         log_request(params)
         try:

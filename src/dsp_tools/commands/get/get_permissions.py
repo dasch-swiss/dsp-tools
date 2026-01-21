@@ -8,6 +8,7 @@ from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def get_default_permissions(
@@ -23,13 +24,19 @@ def get_default_permissions(
         "default_permissions": "public" or "private" or error message
         "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
     """
-    perm_client = PermissionsClientLive(auth, project_iri)
+    perm_client = PermissionsClientLive(
+        server=auth.server,
+        auth=auth,
+        project_iri=project_iri,
+    )
     project_doaps = perm_client.get_project_doaps()
     fallback_text = (
         "We cannot determine if this project is public or private. "
         "The DSP-TOOLS devs can assist you in analysing the existing DOAPs, "
         "and help you decide if the original intent was rather public or rather private."
     )
+    if isinstance(project_doaps, ResponseCodeAndText):
+        return fallback_text, None
     try:
         default_permissions = _parse_default_permissions(project_doaps)
         default_permissions_overrule = _parse_default_permissions_overrule(project_doaps, prefixes)

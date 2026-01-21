@@ -106,7 +106,11 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
         overall_success = False
 
     # create the default permissions (DOAPs)
-    perm_client = PermissionsClientLive(auth, project_iri)
+    perm_client = PermissionsClientLive(
+        server=auth.server,
+        auth=auth,
+        project_iri=project_iri,
+    )
     success = create_default_permissions(
         perm_client=perm_client,
         parsed_permissions=parsed_project.permissions,

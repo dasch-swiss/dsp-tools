@@ -61,6 +61,7 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
     doaps_list = cast(list[dict[str, Any]], doaps)
     existing_doap_iris: list[str] = [x["iri"] for x in doaps_list]
     for iri in existing_doap_iris:
+        # partial used here to avoid using an unbound loop variable (ruff: B023)
         result = _execute_with_retry_on_server_error(partial(perm_client.delete_doap, iri), f"delete_doap({iri})")
         # don't continue with the others, it's better to stop DOAP handling immediately, to avoid a mess
         if not result:

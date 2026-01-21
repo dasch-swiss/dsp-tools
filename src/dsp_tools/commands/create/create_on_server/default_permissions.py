@@ -1,3 +1,9 @@
+import time
+from collections.abc import Callable
+from functools import partial
+from typing import Any
+from typing import cast
+
 from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
@@ -10,6 +16,8 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
+from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_tools.utils.request_utils import is_server_error
 
 
 def create_default_permissions(
@@ -38,12 +46,25 @@ def create_default_permissions(
 
 
 def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
-    if not (doaps := perm_client.get_project_doaps()):
-        return False
-    existing_doap_iris: list[str] = [x["iri"] for x in doaps]
+    doaps = perm_client.get_project_doaps()
+    if isinstance(doaps, ResponseCodeAndText):
+        if is_server_error(doaps):
+            logger.info("Server error while requesting existing DOAPs, retrying after 10 seconds...")
+            time.sleep(10)
+            doaps = perm_client.get_project_doaps()
+            if isinstance(doaps, ResponseCodeAndText):
+                return False
+    # Handle empty list case (no DOAPs to delete)
+    if not doaps:
+        return True
+    # Delete each DOAP
+    doaps_list = cast(list[dict[str, Any]], doaps)
+    existing_doap_iris: list[str] = [x["iri"] for x in doaps_list]
     for iri in existing_doap_iris:
-        if not perm_client.delete_doap(iri):
-            # don't continue with the others, it's better to stop DOAP handling immediately, to avoid a mess
+        # partial used here to avoid using an unbound loop variable (ruff: B023)
+        result = _execute_with_retry_on_server_error(partial(perm_client.delete_doap, iri), f"delete_doap({iri})")
+        # don't continue with the others, it's better to stop DOAP handling immediately, to avoid a mess
+        if not result:
             return False
     return True
 
@@ -56,12 +77,14 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
     if default_permissions == DefaultPermissions.PUBLIC:
         perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}KnownUser", "name": "V", "permissionCode": None})
         perm.append({"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "V", "permissionCode": None})
+
     payload = {
         "forGroup": f"{KNORA_ADMIN_PREFIX}ProjectMember",
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
-    return perm_client.create_new_doap(payload)
+
+    return _execute_with_retry_on_server_error(lambda: perm_client.create_new_doap(payload), "create_new_doap")
 
 
 def _create_overrules(
@@ -132,10 +155,13 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
     payload = {
         "forProperty": prop_iri,
         "forResourceClass": res_iri,
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
-    return perm_client.create_new_doap(payload)
+
+    return _execute_with_retry_on_server_error(
+        lambda: perm_client.create_new_doap(payload), f"create_private_overrule(res={res_iri}, prop={prop_iri})"
+    )
 
 
 def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_iri: str | None) -> bool:
@@ -150,7 +176,24 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
     payload = {
         "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
         "forResourceClass": img_class_iri,
-        "forProject": perm_client.proj_iri,
+        "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
-    return perm_client.create_new_doap(payload)
+
+    return _execute_with_retry_on_server_error(
+        lambda: perm_client.create_new_doap(payload), f"create_limited_view_overrule(img_class={img_class_iri})"
+    )
+
+
+def _execute_with_retry_on_server_error(
+    operation: Callable[[], ResponseCodeAndText | bool],
+    operation_name: str,
+) -> bool:
+    result = operation()
+    # Check if result is ResponseCodeAndText (error case)
+    if isinstance(result, ResponseCodeAndText):
+        if is_server_error(result):
+            logger.warning(f"Server error encountered during {operation_name}, retrying after 10 seconds...")
+            time.sleep(10)
+            result = operation()
+    return result is True

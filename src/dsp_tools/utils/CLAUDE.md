@@ -1,12 +1,14 @@
 # Utils Module - Quick Reference
 
 This directory contains reusable utility functions organized by use case.
-All utilities follow functional programming patterns (stateless functions, no classes with behavior).
+All utilities rely on stateless functions, and the classes contain as less behavior as possible.
 
-These utilities are shared by code not to form interdependencies between the commands,
-but because the input / output or interaction with outside services are shared.
+Whenever a functionality with a specific input/output (or with a specific interaction with outside services)
+is shared by different commands,
+it is a candidate to be included in these utilities.
 
-If the interaction is for a specific HTTP route then add the functionality to the `src/dsp_tools/clients/`.
+**Caveat**: If the shared functionality is the HTTP interaction with a specific API route,
+then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 
 ## API Communication & Request Handling
 
@@ -26,8 +28,8 @@ If the interaction is for a specific HTTP route then add the functionality to th
 
 **`data_formats/iri_util.py`**
 
-- Validate IRIs and resource IRIs
-- Convert between DSP IRIs and prefixed IRIs
+- Validate IRIs
+- Convert between absolute IRIs and prefixed IRIs
 - Check if IRI belongs to a DSP project
 - Generate DSP ontology prefixes
 - Used in: All resource and ontology operations
@@ -98,7 +100,7 @@ If the interaction is for a specific HTTP route then add the functionality to th
 - Parse JSON files with comprehensive error handling
 - Raise user-friendly errors for malformed JSON
 - Acts as an anti-corruption layer for the JSON
-- Used in: All commands that read JSON config files (create, get, id2iri)
+- Used in: All commands that read JSON config files (create, excel2json)
 
 ## RDF/Semantic Web
 
@@ -121,7 +123,7 @@ If the interaction is for a specific HTTP route then add the functionality to th
 - Calculate database size growth during upload
 - Warn/alert when database bloating exceeds thresholds (10GB warning, 20GB critical)
 - Communicate disk space concerns to users
-- Used in: XML upload workflows on test servers
+- Used in: XML upload workflows on localhost
 
 ## Error Handling
 
@@ -187,13 +189,13 @@ Utils Layer (shared foundation):
 
 **Validation Functions:**
 - All validation functions return boolean or raise exceptions (no silent failures)
-- Compose validation functions before sending data to API
+- Use validation functions before sending data to API
 - Use `data_formats/` validators for all user input
 
 **Parsing Functions:**
 - All parsing functions raise user-friendly errors with context
-- Act as anti-corruption layers between external data and internal models
-- Always use `json_parsing.py` and `xml_parsing/` instead of raw parsing
+- They act as anti-corruption layers between external data and internal models
+- Always use `json_parsing.py` and `xml_parsing/` instead of writing your own parsing code
 
 **Request Functions:**
 - Never make direct HTTP requests without `request_utils.py`

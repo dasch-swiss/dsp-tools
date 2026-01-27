@@ -201,9 +201,10 @@ def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
 def should_retry(response: Response) -> bool:
     """Returns the decision if a retry of a request is sensible."""
     in_500_range = 500 <= response.status_code < 600
+    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
-    return (try_again_later or in_500_range) and not in_testing_env
+    return (try_again_later or in_500_range or rate_limiting) and not in_testing_env
 
 
 def log_and_raise_request_exception(error: RequestException) -> Never:

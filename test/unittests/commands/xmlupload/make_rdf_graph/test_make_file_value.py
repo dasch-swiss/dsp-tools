@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 from rdflib import RDF
 from rdflib import XSD
@@ -22,7 +20,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 
 @pytest.fixture

@@ -7,7 +7,7 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.start_stack import StackConfiguration
+from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
@@ -15,7 +15,7 @@ EXIT_CODE_TWO = 2
 # ruff: noqa: ARG002 Unused function argument
 
 
-PROJECT_JSON_PATH = "testdata/json-project/systematic-project-4123.json"
+PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
 
@@ -29,11 +29,12 @@ def test_invalid_arguments() -> None:
 
 class TestCreate:
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_with_schema")
-    def test_lists_validate(self, validate_lists: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.validate_lists_section_from_project")
+    def test_lists_validate(self, validate_lists_section_from_project: Mock, check_docker: Mock) -> None:
+        validate_lists_section_from_project.return_value = (True, {})
         args = f"create --lists-only --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_lists.assert_called_once_with(PROJECT_JSON_PATH)
+        validate_lists_section_from_project.assert_called_once_with(PROJECT_JSON_PATH)
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.create_lists_only")
@@ -43,27 +44,40 @@ class TestCreate:
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
         create_lists.assert_called_once_with(
-            project_file_as_path_or_parsed=PROJECT_JSON_PATH,
+            project_file=PROJECT_JSON_PATH,
             creds=creds,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.validate_project")
-    def test_project_validate(self, validate_project: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.validate_project_only")
+    def test_project_validate(self, validate_project_only: Mock, check_docker: Mock) -> None:
+        validate_project_only.return_value = True
         args = f"create --validate-only {PROJECT_JSON_PATH}".split()
         entry_point.run(args)
-        validate_project.assert_called_once_with(PROJECT_JSON_PATH)
+        validate_project_only.assert_called_once_with(PROJECT_JSON_PATH, "http://0.0.0.0:3333")
 
     @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.create_project")
-    def test_project_create(self, create_project: Mock, check_docker: Mock) -> None:
+    @patch("dsp_tools.cli.call_action_with_network.create")
+    def test_project_create(self, create: Mock, check_docker: Mock) -> None:
         args = f"create {PROJECT_JSON_PATH}".split()
         creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         entry_point.run(args)
-        create_project.assert_called_once_with(
-            project_file_as_path_or_parsed=PROJECT_JSON_PATH,
+        create.assert_called_once_with(
+            project_file=PROJECT_JSON_PATH,
             creds=creds,
-            verbose=False,
+            exit_if_exists=False,
+        )
+
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.create")
+    def test_project_create_exit_if_exists(self, create: Mock, check_docker: Mock) -> None:
+        args = f"create {PROJECT_JSON_PATH} --exit-if-exists".split()
+        creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        entry_point.run(args)
+        create.assert_called_once_with(
+            project_file=PROJECT_JSON_PATH,
+            creds=creds,
+            exit_if_exists=True,
         )
 
 
@@ -77,7 +91,7 @@ class TestGet:
         entry_point.run(args)
         get_project.assert_called_once_with(
             project_identifier=project,
-            outfile_path=PROJECT_JSON_PATH,
+            outfile_path=str(PROJECT_JSON_PATH),
             creds=creds,
             verbose=False,
         )
@@ -682,8 +696,8 @@ class TestIngestUploads:
 
 class TestStartStack:
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_default(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack".split()
         entry_point.run(args)
@@ -699,8 +713,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_max_file_size(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --max_file_size=1".split()
         entry_point.run(args)
@@ -716,8 +730,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --prune".split()
         entry_point.run(args)
@@ -733,8 +747,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_no_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --no-prune".split()
         entry_point.run(args)
@@ -750,8 +764,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_latest(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --latest".split()
         entry_point.run(args)
@@ -767,8 +781,8 @@ class TestStartStack:
         start_stack.assert_called_once()
 
     @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_with_test_data(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
         args = "start-stack --with-test-data".split()
         entry_point.run(args)
@@ -784,7 +798,7 @@ class TestStartStack:
         start_stack.assert_called_once()
 
 
-@patch("dsp_tools.commands.start_stack.StackHandler.stop_stack")
+@patch("dsp_tools.commands.start_stack.start_stack.StackHandler.stop_stack")
 def test_stop_stack(stop_stack: Mock) -> None:
     args = "stop-stack".split()
     entry_point.run(args)

@@ -1,9 +1,7 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity

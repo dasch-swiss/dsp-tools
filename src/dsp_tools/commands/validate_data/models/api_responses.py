@@ -5,8 +5,6 @@ from dataclasses import dataclass
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.clients.list_client import OneList
-
 
 @dataclass
 class SHACLValidationReport:
@@ -43,3 +41,19 @@ class EnabledLicenseIris:
 class InfoForResourceInDB:
     res_iri: str
     res_type: str
+
+
+@dataclass
+class OneList:
+    list_iri: str
+    list_name: str
+    nodes: list[OneNode]
+
+    def hlist(self) -> str:
+        return f'"hlist=<{self.list_iri}>"'
+
+
+@dataclass
+class OneNode:
+    name: str
+    iri: str

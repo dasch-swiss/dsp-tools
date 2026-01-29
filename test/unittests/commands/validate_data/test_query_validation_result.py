@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
@@ -30,8 +28,8 @@ from dsp_tools.commands.validate_data.process_validation_report.query_validation
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import _separate_result_types
 from dsp_tools.commands.validate_data.process_validation_report.query_validation_result import reformat_validation_graph
-from dsp_tools.utils.rdflib_constants import DATA
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import DATA
+from dsp_tools.utils.rdf_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
 from test.unittests.commands.validate_data.constants import ONTO
 

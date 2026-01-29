@@ -1,0 +1,74 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "F006",
+        "shortname": "nonexisting-card",
+        "longname": "nonexisting-cardinality-project",
+        "descriptions": {
+            "en": "nonexisting-cardinality-project"
+        },
+        "keywords": [
+            "test"
+        ],
+        "default_permissions": "public",
+        "ontologies": [
+            {
+                "name": "onto",
+                "label": "nonexisting-cardinality-onto",
+                "properties": [
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "UndefinedPropInCardinality",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "UndefinedPropInCardinality"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":CardinalityThatWasNotDefinedInPropertiesSection",
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "DuplicateCardinality",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "DuplicateCardinality"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n"
+                            },
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-1"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from pathlib import Path
 
 import pytest
@@ -38,21 +36,22 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 @pytest.mark.usefixtures("create_generic_project")
 def test_minimal_correct(authentication) -> None:
     file = Path("testdata/validate-data/core_validation/minimal_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        graphs, triple_stores, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
     assert not validation_result.problems
+    assert not validation_result.cardinalities_with_potential_circle
     assert not validation_result.report_graphs
 
 
 @pytest.mark.usefixtures("create_generic_project")
 def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/cardinality_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        graphs, triple_stores, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
     assert not validation_result.problems
@@ -62,9 +61,9 @@ def test_cardinality_correct(authentication, shacl_validator: ShaclCliValidator)
 @pytest.mark.usefixtures("create_generic_project")
 def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/content_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        graphs, triple_stores, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
     assert not validation_result.problems
@@ -74,9 +73,9 @@ def test_content_correct(authentication, shacl_validator: ShaclCliValidator) -> 
 @pytest.mark.usefixtures("create_generic_project")
 def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/file_value_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        graphs, triple_stores, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
     assert not validation_result.problems
@@ -86,9 +85,9 @@ def test_file_value_correct(authentication, shacl_validator: ShaclCliValidator) 
 @pytest.mark.usefixtures("create_generic_project")
 def test_dsp_inbuilt_correct(authentication, shacl_validator: ShaclCliValidator) -> None:
     file = Path("testdata/validate-data/core_validation/dsp_inbuilt_correct.xml")
-    graphs, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resource = prepare_data_for_validation_from_file(file, authentication)
     validation_result = _validate_data(
-        graphs, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
+        graphs, triple_stores, used_iris, parsed_resource, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     assert validation_result.no_problems
     assert not validation_result.problems

@@ -20,7 +20,7 @@ from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 
 def create_resource_with_values(

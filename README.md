@@ -37,6 +37,38 @@ The remainder of this README explains these commands in more detail.
 
 
 
+## Recommended Setup for Claude Code
+
+### `feature-dev`: A comprehensive, structured workflow for feature development with specialized agents 
+
+Multiple specialized agents often perform better than 1 single agent.
+A well-structured and orchestrated workflow often yields more qualitative results than 1 agent quickly running forward.
+The [`feature-dev`](https://github.com/anthropics/claude-code/tree/main/plugins/feature-dev) plugin
+is Anthropic's solution for this problem.
+
+To install, run this inside Claude Code: 
+
+```bash
+/plugin marketplace add anthropics/claude-code
+/plugin install feature-dev@anthropics-claude-code
+```
+
+Then, invoke it inside Claude Code with `/feature-dev:feature-dev`.
+
+
+### Linear MCP
+
+Give Claude Code access to Linear tickets in an effective way.
+Run this in a Terminal inside your project (doesn't work globally, only per project):
+
+```bash
+claude mcp add --transport http linear-server https://mcp.linear.app/mcp
+```
+
+Then run `/mcp` inside Claude Code to trigger the login.
+
+
+
 ## Using UV to manage Python installations, virtual environments, and dependencies
 
 Curious what uv is and why we use it? 
@@ -93,6 +125,36 @@ This means, that inside the `site-packages` folder of your virtual environment,
 there is a folder called `dsp_tools-[version].dist-info`, 
 which contains a link to your local clone of the DSP-TOOLS repository. 
 When you call `dsp-tools` from within the virtual environment, the code of your local clone will be executed.
+
+
+
+## Python Version Compatibility Strategy
+
+DSP-TOOLS supports Python 3.12 through . This means that 
+
+- 3.13/14-only syntax is forbidden,
+- the code should yield the same results, regardless if it is run by Python 3.12/13/14.
+
+The gold standard to achieve this would be to run the test suite separately for every supported version,
+which adds complexity and makes the PR tests run much longer.
+
+As a trade-off, we decided to use a simpler, layered approach to ensure compatibility:
+
+- **Static analysis (immediate protection)**:
+    - `ruff` is configured with `target-version = "py312"` to catch Python 3.13/14-only syntax at lint time
+    - `mypy` is configured with `python_version = "3.12"` to check types against Python 3.12 stdlib
+    - These settings work regardless of which Python version is installed locally
+    - Run `just lint` to verify compatibility before committing
+- **PR testing (early detection of issues with latest Python release)**:
+    - All PR tests run on the latest Python 3.14.x to catch issues with new Python version issues early
+    - Located in `.github/workflows/tests.yml` and `.github/workflows/tests-e2e.yml`
+- **Scheduled testing (Python 3.12 validation)**:
+    - Nightly tests on Python 3.12 validate compatibility with the minimum supported version
+    - Runs at 2 AM UTC via `.github/workflows/test-python-versions.yml`
+    - Catches runtime-only issues that slip through static analysis
+    - Can be triggered manually via GitHub Actions if needed
+
+This multi-layered approach ensures compatibility without adding overhead to PRs.
 
 
 
@@ -159,7 +221,6 @@ We use the following linters:
 
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
-- [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 - [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)

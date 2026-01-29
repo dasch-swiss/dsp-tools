@@ -8,13 +8,26 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.create.constants import SALSAH_GUI
 from dsp_tools.commands.create.create_on_server.mappers import PARSED_CARDINALITY_TO_RDF
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
+from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI
 from dsp_tools.utils.rdflib_utils import serialise_json
+
+
+def serialise_ontology_graph_for_request(parsed_ontology: ParsedOntology, project_iri: str) -> dict[str, Any]:
+    onto_graph = {
+        f"{KNORA_API_PREFIX}attachedToProject": {"@id": project_iri},
+        f"{KNORA_API_PREFIX}ontologyName": parsed_ontology.name,
+        str(RDFS.label): parsed_ontology.label,
+    }
+    if parsed_ontology.comment:
+        onto_graph[str(RDFS.comment)] = parsed_ontology.comment
+    return onto_graph
 
 
 def _make_ontology_base_graph(onto_iri: URIRef, last_modification_date: Literal) -> Graph:

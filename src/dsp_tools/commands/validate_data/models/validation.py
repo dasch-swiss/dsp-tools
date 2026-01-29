@@ -5,9 +5,10 @@ from enum import Enum
 from enum import auto
 from pathlib import Path
 
+from pyoxigraph import Store
 from rdflib import Graph
 
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 
 @dataclass
@@ -24,6 +25,12 @@ class RDFGraphs:
     content_shapes: Graph
     knora_api: Graph
     resources_in_db_graph: Graph
+
+
+@dataclass
+class TripleStores:
+    ontos: Store
+    knora_api: Store
 
 
 @dataclass

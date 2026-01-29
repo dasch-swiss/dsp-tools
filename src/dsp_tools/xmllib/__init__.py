@@ -1,4 +1,4 @@
-from dsp_tools.error.xmllib_warnings_util import initialise_warning_file
+from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
 
 from .general_functions import ListLookup as ListLookup
 from .general_functions import clean_whitespaces_from_string as clean_whitespaces_from_string

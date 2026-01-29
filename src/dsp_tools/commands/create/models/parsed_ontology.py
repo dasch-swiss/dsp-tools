@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 from enum import StrEnum
-from enum import auto
 
-from dsp_tools.commands.create.constants import KNORA_API_STR
-from dsp_tools.commands.create.constants import SALSAH_GUI_STR
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 
 
 @dataclass
@@ -42,30 +40,30 @@ class ParsedProperty:
 
 
 class KnoraObjectType(StrEnum):
-    BOOLEAN = f"{KNORA_API_STR}BooleanValue"
-    COLOR = f"{KNORA_API_STR}ColorValue"
-    DATE = f"{KNORA_API_STR}DateValue"
-    DECIMAL = f"{KNORA_API_STR}DecimalValue"
-    GEONAME = f"{KNORA_API_STR}GeonameValue"
-    INT = f"{KNORA_API_STR}IntValue"
-    LIST = f"{KNORA_API_STR}ListValue"
-    TEXT = f"{KNORA_API_STR}TextValue"
-    TIME = f"{KNORA_API_STR}TimeValue"
-    URI = f"{KNORA_API_STR}UriValue"
+    BOOLEAN = f"{KNORA_API_PREFIX}BooleanValue"
+    COLOR = f"{KNORA_API_PREFIX}ColorValue"
+    DATE = f"{KNORA_API_PREFIX}DateValue"
+    DECIMAL = f"{KNORA_API_PREFIX}DecimalValue"
+    GEONAME = f"{KNORA_API_PREFIX}GeonameValue"
+    INT = f"{KNORA_API_PREFIX}IntValue"
+    LIST = f"{KNORA_API_PREFIX}ListValue"
+    TEXT = f"{KNORA_API_PREFIX}TextValue"
+    TIME = f"{KNORA_API_PREFIX}TimeValue"
+    URI = f"{KNORA_API_PREFIX}UriValue"
 
 
 class GuiElement(StrEnum):
-    CHECKBOX = f"{SALSAH_GUI_STR}Checkbox"
-    COLORPICKER = f"{SALSAH_GUI_STR}Colorpicker"
-    DATE = f"{SALSAH_GUI_STR}Date"
-    SPINBOX = f"{SALSAH_GUI_STR}Spinbox"
-    GEONAMES = f"{SALSAH_GUI_STR}Geonames"
-    LIST = f"{SALSAH_GUI_STR}List"
-    SIMPLETEXT = f"{SALSAH_GUI_STR}SimpleText"
-    TEXTAREA = f"{SALSAH_GUI_STR}Textarea"
-    RICHTEXT = f"{SALSAH_GUI_STR}Richtext"
-    SEARCHBOX = f"{SALSAH_GUI_STR}Searchbox"
-    TIME_STAMP = f"{SALSAH_GUI_STR}TimeStamp"
+    CHECKBOX = f"{SALSAH_GUI_PREFIX}Checkbox"
+    COLORPICKER = f"{SALSAH_GUI_PREFIX}Colorpicker"
+    DATE = f"{SALSAH_GUI_PREFIX}Date"
+    SPINBOX = f"{SALSAH_GUI_PREFIX}Spinbox"
+    GEONAMES = f"{SALSAH_GUI_PREFIX}Geonames"
+    LIST = f"{SALSAH_GUI_PREFIX}List"
+    SIMPLETEXT = f"{SALSAH_GUI_PREFIX}SimpleText"
+    TEXTAREA = f"{SALSAH_GUI_PREFIX}Textarea"
+    RICHTEXT = f"{SALSAH_GUI_PREFIX}Richtext"
+    SEARCHBOX = f"{SALSAH_GUI_PREFIX}Searchbox"
+    TIME_STAMP = f"{SALSAH_GUI_PREFIX}TimeStamp"
 
 
 @dataclass
@@ -81,8 +79,8 @@ class ParsedPropertyCardinality:
     gui_order: int | None
 
 
-class Cardinality(Enum):
-    C_0_1 = auto()
-    C_1 = auto()
-    C_0_N = auto()
-    C_1_N = auto()
+class Cardinality(StrEnum):
+    C_0_1 = "0-1"
+    C_1 = "1"
+    C_0_N = "0-n"
+    C_1_N = "1-n"

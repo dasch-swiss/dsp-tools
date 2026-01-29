@@ -1,12 +1,10 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.utils.json_parsing import parse_json_file
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
@@ -17,7 +15,7 @@ def prefixes() -> dict[str, str]:
         "externalOnto": "http://otherOntology.com/onto/",
         "foaf": "http://xmlns.com/foaf/0.1/",
         "in-built": "http://0.0.0.0:3333/ontology/0003/in-built/v2#",
-        "knora-api": KNORA_API_STR,
+        "knora-api": KNORA_API_PREFIX,
         "onto": ONTO_NAMESPACE_STR,
         "second-onto": "http://0.0.0.0:3333/ontology/0003/second-onto/v2#",
     }

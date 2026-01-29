@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 from uuid import uuid4
 
 import pytest

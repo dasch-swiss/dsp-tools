@@ -8,12 +8,12 @@ import requests
 from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import DspToolsRequestException
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.utils.exceptions import DspToolsRequestException
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"
@@ -49,58 +49,38 @@ def response_all_list_one_project_no_lists() -> dict[str, Any]:
 
 
 @pytest.fixture
-def response_one_list() -> dict[str, Any]:
+def response_list_info() -> dict[str, Any]:
+    return {
+        "id": "http://rdfh.ch/lists/9999/list1",
+        "projectIri": PROJECT_IRI,
+        "name": "firstList",
+        "labels": [{"value": "List 1", "language": "en"}],
+        "comments": [{"value": "This is the first list", "language": "en"}],
+        "isRootNode": True,
+    }
+
+
+@pytest.fixture
+def response_children() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": "http://rdfh.ch/lists/9999/n1",
+            "name": "n1",
+            "labels": [{"value": "Node 1", "language": "en"}],
+            "comments": [],
+            "position": 0,
+            "hasRootNode": "http://rdfh.ch/lists/9999/list1",
+        }
+    ]
+
+
+@pytest.fixture
+def response_one_list(response_list_info, response_children) -> dict[str, Any]:
     return {
         "type": "ListGetResponseADM",
         "list": {
-            "listinfo": {
-                "id": "http://rdfh.ch/lists/9999/list1",
-                "projectIri": PROJECT_IRI,
-                "name": "firstList",
-                "labels": [{"value": "List 1", "language": "en"}],
-                "comments": [{"value": "This is the first list", "language": "en"}],
-                "isRootNode": True,
-            },
-            "children": [
-                {
-                    "id": "http://rdfh.ch/lists/9999/n1",
-                    "name": "n1",
-                    "labels": [{"value": "Node 1", "language": "en"}],
-                    "comments": [],
-                    "position": 0,
-                    "hasRootNode": "http://rdfh.ch/lists/9999/list1",
-                    "children": [
-                        {
-                            "id": "http://rdfh.ch/lists/9999/n11",
-                            "name": "n1.1",
-                            "labels": [{"value": "Node 1.1", "language": "en"}],
-                            "comments": [],
-                            "position": 0,
-                            "hasRootNode": "http://rdfh.ch/lists/9999/list1",
-                            "children": [
-                                {
-                                    "id": "http://rdfh.ch/lists/9999/n111",
-                                    "name": "n1.1.1",
-                                    "labels": [{"value": "Node 1.1.1", "language": "en"}],
-                                    "comments": [],
-                                    "position": 0,
-                                    "hasRootNode": "http://rdfh.ch/lists/9999/list1",
-                                    "children": [],
-                                },
-                                {
-                                    "id": "http://rdfh.ch/lists/9999/n112",
-                                    "name": "n1.1.2",
-                                    "labels": [{"value": "Node 1.1.2", "language": "en"}],
-                                    "comments": [],
-                                    "position": 1,
-                                    "hasRootNode": "http://rdfh.ch/lists/9999/list1",
-                                    "children": [],
-                                },
-                            ],
-                        }
-                    ],
-                }
-            ],
+            "listinfo": response_list_info,
+            "children": response_children,
         },
     }
 
@@ -183,21 +163,12 @@ class TestListClient:
         extracted = list_client._extract_list_iris(response_all_list_one_project_no_lists)
         assert not extracted
 
-    def test_reformat_one_list(self, list_client: ListGetClientLive, response_one_list: dict[str, Any]) -> None:
+    def test_reformat_one_list(
+        self, list_client: ListGetClientLive, response_one_list: dict[str, Any], response_list_info, response_children
+    ) -> None:
         reformatted = list_client._reformat_one_list(response_one_list)
-        sorted_nodes = sorted(reformatted.nodes, key=lambda x: x.name)
-        assert reformatted.list_iri == "http://rdfh.ch/lists/9999/list1"
-        assert reformatted.list_name == "firstList"
-        names = [x.name for x in sorted_nodes]
-        assert names == ["n1", "n1.1", "n1.1.1", "n1.1.2"]
-        expected_iris = [
-            "http://rdfh.ch/lists/9999/n1",
-            "http://rdfh.ch/lists/9999/n11",
-            "http://rdfh.ch/lists/9999/n111",
-            "http://rdfh.ch/lists/9999/n112",
-        ]
-        iris = [x.iri for x in sorted_nodes]
-        assert iris == expected_iris
+        assert reformatted.listinfo == response_list_info
+        assert reformatted.children == response_children
 
 
 class TestListCreateClient:

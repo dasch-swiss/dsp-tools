@@ -1,9 +1,9 @@
 import subprocess
 import sys
 
-from dsp_tools.utils.ansi_colors import BOLD_GREEN
-from dsp_tools.utils.ansi_colors import BOLD_RED
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD_GREEN
+from dsp_tools.setup.ansi_colors import BOLD_RED
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def main() -> None:

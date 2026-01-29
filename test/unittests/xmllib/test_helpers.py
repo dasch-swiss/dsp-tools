@@ -1,11 +1,7 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_errors import XmllibInputError
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.general_functions import ListLookup
 from dsp_tools.xmllib.general_functions import clean_whitespaces_from_string
 from dsp_tools.xmllib.general_functions import create_footnote_string
@@ -17,6 +13,8 @@ from dsp_tools.xmllib.general_functions import create_standoff_link_to_uri
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
 from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.general_functions import make_xsd_compatible_id_with_uuid
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License

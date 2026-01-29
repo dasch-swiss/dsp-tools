@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -8,17 +6,17 @@ from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validation.check_for_unknown_classes import get_msg_str_unknown_classes_in_data
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 NON_EXISTING_ONTO = "http://0.0.0.0:3333/ontology/9999/non-existent/v2#"
 CLASSES_IN_ONTO = {
     f"{ONTO_STR}One",
-    f"{KNORA_API_STR}LinkObj",
-    f"{KNORA_API_STR}Region",
-    f"{KNORA_API_STR}AudioSegment",
-    f"{KNORA_API_STR}VideoSegment",
+    f"{KNORA_API_PREFIX}LinkObj",
+    f"{KNORA_API_PREFIX}Region",
+    f"{KNORA_API_PREFIX}AudioSegment",
+    f"{KNORA_API_PREFIX}VideoSegment",
 }
 PREFIXED_IN_ONTO = {reformat_onto_iri(x) for x in CLASSES_IN_ONTO}
 

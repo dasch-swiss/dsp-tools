@@ -21,10 +21,10 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.process_validation_report.reformat_validation_results import (
     reformat_extracted_results,
 )
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import DASH
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import DASH
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:

@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from pathlib import Path
 
 import pytest
@@ -10,7 +8,7 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -30,13 +28,20 @@ SHORTCODE_SPECIAL_CHAR_0012 = "0012"
 SHORTCODE_INHERITANCE_0011 = "0011"
 SHORTCODE_ERRONEOUS_ONTO_0009 = "0009"
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
+EXIT_IF_EXISTS = True
 
 
 @pytest.fixture(scope="module")
 def _create_projects_edge_cases(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds)
-    assert create_project(Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds)
-    assert create_project(Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds)
+    assert create(
+        Path("testdata/validate-data/special_characters/special-characters-project-0012.json"), creds, EXIT_IF_EXISTS
+    )
+    assert create(
+        Path("testdata/validate-data/inheritance/complex-inheritance-project-0011.json"), creds, EXIT_IF_EXISTS
+    )
+    assert create(
+        Path("testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json"), creds, EXIT_IF_EXISTS
+    )
 
 
 @pytest.fixture(scope="module")
@@ -49,9 +54,15 @@ def authentication(creds: ServerCredentials) -> AuthenticationClient:
 def test_special_characters_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct-0012.xml")
 
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(
-        graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR_0012, METADATA_RETRIEVAL_SUCCESS
+        graphs,
+        triple_stores,
+        used_iris,
+        parsed_resources,
+        CONFIG,
+        SHORTCODE_SPECIAL_CHAR_0012,
+        METADATA_RETRIEVAL_SUCCESS,
     )
     assert result.no_problems
 
@@ -59,10 +70,17 @@ def test_special_characters_correct(authentication: AuthenticationClient) -> Non
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_special_characters_violation(authentication) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_violation-0012.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(
-        graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_SPECIAL_CHAR_0012, METADATA_RETRIEVAL_SUCCESS
+        graphs,
+        triple_stores,
+        used_iris,
+        parsed_resources,
+        CONFIG,
+        SHORTCODE_SPECIAL_CHAR_0012,
+        METADATA_RETRIEVAL_SUCCESS,
     )
+    assert not result.cardinalities_with_potential_circle
     assert not result.no_problems
     expected_tuples = [
         (
@@ -120,19 +138,32 @@ def test_reformat_special_characters_violation(authentication) -> None:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_inheritance_correct(authentication: AuthenticationClient) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct-0011.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(
-        graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE_0011, METADATA_RETRIEVAL_SUCCESS
+        graphs,
+        triple_stores,
+        used_iris,
+        parsed_resources,
+        CONFIG,
+        SHORTCODE_INHERITANCE_0011,
+        METADATA_RETRIEVAL_SUCCESS,
     )
+    assert not result.cardinalities_with_potential_circle
     assert result.no_problems
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_reformat_inheritance_violation(authentication) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_violation-0011.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(
-        graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_INHERITANCE_0011, METADATA_RETRIEVAL_SUCCESS
+        graphs,
+        triple_stores,
+        used_iris,
+        parsed_resources,
+        CONFIG,
+        SHORTCODE_INHERITANCE_0011,
+        METADATA_RETRIEVAL_SUCCESS,
     )
     assert not result.no_problems
     expected_results = [
@@ -157,10 +188,23 @@ def test_reformat_inheritance_violation(authentication) -> None:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation(authentication) -> None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     result = _validate_data(
-        graphs, used_iris, parsed_resources, CONFIG, SHORTCODE_ERRONEOUS_ONTO_0009, METADATA_RETRIEVAL_SUCCESS
+        graphs,
+        triple_stores,
+        used_iris,
+        parsed_resources,
+        CONFIG,
+        SHORTCODE_ERRONEOUS_ONTO_0009,
+        METADATA_RETRIEVAL_SUCCESS,
     )
+    assert isinstance(result.cardinalities_with_potential_circle, list)
+    assert len(result.cardinalities_with_potential_circle) == 1
+    potential_circle = result.cardinalities_with_potential_circle[0]
+    assert potential_circle.subject == "error:ResourceWithPotentialCircularReference"
+    assert potential_circle.prop == "error:hasLink"
+    assert potential_circle.object_cls == "knora-api:Resource"
+    assert potential_circle.card == "1-n"
     assert not result.no_problems
     all_problems = result.problems
     assert isinstance(all_problems, OntologyValidationProblem)
@@ -187,7 +231,7 @@ def test_validate_ontology_violation(authentication) -> None:
 @pytest.mark.usefixtures("_create_projects_edge_cases")
 def test_validate_ontology_violation_skip_ontology_validation(authentication) -> None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology-0009.xml")
-    graphs, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
+    graphs, triple_stores, used_iris, parsed_resources = prepare_data_for_validation_from_file(file, authentication)
     config_skip_onto_val = ValidateDataConfig(
         xml_file=Path(),
         save_graph_dir=None,
@@ -199,6 +243,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
     )
     result = _validate_data(
         graphs,
+        triple_stores,
         used_iris,
         parsed_resources,
         config_skip_onto_val,
@@ -206,5 +251,7 @@ def test_validate_ontology_violation_skip_ontology_validation(authentication) ->
         METADATA_RETRIEVAL_SUCCESS,
     )
     assert not result.no_problems
+    # we check the details in another test
+    assert isinstance(result.cardinalities_with_potential_circle, list)
     all_problems = result.problems
     assert isinstance(all_problems, SortedProblems)

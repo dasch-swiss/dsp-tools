@@ -18,7 +18,12 @@ def from_dsp_iri_to_prefixed_iri(iri: str) -> str:
     dsp_iri_re = r".+\/(.+?)\/v2#(.+)$"
     if not (found := regex.search(dsp_iri_re, iri)):
         return iri
-    return f"{found.group(1)}:{found.group(2)}"
+    return f"{found.group(1)}:{found.group(2)}".rstrip(">")
+
+
+def is_dsp_project_iri(iri: str) -> bool:
+    dsp_iri_re = r"\/ontology\/[\dA-F]{4}\/.+\/v2#.+$"
+    return bool(regex.search(dsp_iri_re, iri))
 
 
 def make_dsp_ontology_prefix(api_url: str, shortcode: str, onto_name: str) -> str:

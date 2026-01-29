@@ -23,17 +23,6 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
-                    },
-                    {
-                        "name": "hasText",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
                             "en": "Text with another label"
                         },
                         "gui_element": "Richtext"

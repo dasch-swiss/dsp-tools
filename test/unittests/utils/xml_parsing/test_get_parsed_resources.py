@@ -1,10 +1,9 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
 from copy import deepcopy
 
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
@@ -31,11 +30,11 @@ RES_CLASS = f"{DEFAULT_ONTO_NAMESPACE}Class"
 IRI_LOOKUP = {
     ":Class": RES_CLASS,
     ":hasProp": HAS_PROP,
-    "hasColor": f"{KNORA_API_STR}hasColor",
-    "isRegionOf": f"{KNORA_API_STR}isRegionOf",
-    "hasGeometry": f"{KNORA_API_STR}hasGeometry",
-    "hasComment": f"{KNORA_API_STR}hasComment",
-    "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
+    "hasColor": f"{KNORA_API_PREFIX}hasColor",
+    "isRegionOf": f"{KNORA_API_PREFIX}isRegionOf",
+    "hasGeometry": f"{KNORA_API_PREFIX}hasGeometry",
+    "hasComment": f"{KNORA_API_PREFIX}hasComment",
+    "hasLinkTo": f"{KNORA_API_PREFIX}hasLinkTo",
 }
 
 
@@ -132,7 +131,7 @@ class TestParseResource:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_region"
-        assert resource.res_type == f"{KNORA_API_STR}Region"
+        assert resource.res_type == f"{KNORA_API_PREFIX}Region"
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 4
@@ -146,7 +145,7 @@ class TestParseResource:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_link"
-        assert resource.res_type == f"{KNORA_API_STR}LinkObj"
+        assert resource.res_type == f"{KNORA_API_PREFIX}LinkObj"
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 1
@@ -162,7 +161,7 @@ class TestSegment:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_video_segment"
-        assert resource.res_type == f"{KNORA_API_STR}VideoSegment"
+        assert resource.res_type == f"{KNORA_API_PREFIX}VideoSegment"
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 8
@@ -176,7 +175,7 @@ class TestSegment:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_audio_segment"
-        assert resource.res_type == f"{KNORA_API_STR}AudioSegment"
+        assert resource.res_type == f"{KNORA_API_PREFIX}AudioSegment"
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 8
@@ -186,14 +185,14 @@ class TestSegment:
     def test_parse_segment_values(self, resource_audio_segment):
         values = _parse_segment_values(resource_audio_segment, "Audio")
         expected = [
-            (f"{KNORA_API_STR}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
-            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None),
-            (f"{KNORA_API_STR}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
-            (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
-            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
-            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None),
-            (f"{KNORA_API_STR}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None),
-            (f"{KNORA_API_STR}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None),
+            (f"{KNORA_API_PREFIX}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
+            (f"{KNORA_API_PREFIX}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None),
+            (f"{KNORA_API_PREFIX}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
+            (f"{KNORA_API_PREFIX}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
+            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
+            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None),
+            (f"{KNORA_API_PREFIX}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None),
+            (f"{KNORA_API_PREFIX}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None),
         ]
         for result, (prop, value_type, content, perm, cmt) in zip(values, expected):
             assert result.prop_name == prop
@@ -295,7 +294,7 @@ class TestParseValues:
         result = _parse_one_value(xml_val, IRI_LOOKUP)
         assert len(result) == 1
         val = result.pop(0)
-        assert val.prop_name == f"{KNORA_API_STR}hasGeometry"
+        assert val.prop_name == f"{KNORA_API_PREFIX}hasGeometry"
         assert val.value == "{}"
         assert val.value_type == KnoraValueType.GEOM_VALUE
         assert not val.permissions_id
@@ -654,7 +653,7 @@ def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
     result = _create_from_local_name_to_absolute_iri_lookup(root_with_2_resources, HTTP_API_URL)
     expected = {
         ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
-        "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
+        "hasLinkTo": f"{KNORA_API_PREFIX}hasLinkTo",
     }
     assert result == expected
 
@@ -663,8 +662,8 @@ def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
     ("local_name", "expected"),
     [
         (":defaultOnto", f"{DEFAULT_ONTO_NAMESPACE}defaultOnto"),
-        ("knora-api:localName", f"{KNORA_API_STR}localName"),
-        ("knoraApiNoPrefix", f"{KNORA_API_STR}knoraApiNoPrefix"),
+        ("knora-api:localName", f"{KNORA_API_PREFIX}localName"),
+        ("knoraApiNoPrefix", f"{KNORA_API_PREFIX}knoraApiNoPrefix"),
         ("other-onto:localName", f"{HTTP_API_URL}/ontology/0000/other-onto/v2#localName"),
         ("default:withDefaultOnto", f"{DEFAULT_ONTO_NAMESPACE}withDefaultOnto"),
     ],

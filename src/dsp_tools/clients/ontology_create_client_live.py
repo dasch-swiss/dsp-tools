@@ -11,18 +11,17 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -32,7 +31,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
     """
 
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         url = f"{self.server}/v2/ontologies/metadata"
@@ -46,7 +45,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             return _parse_last_modification_date(response.text, URIRef(onto_iri))
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
+    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/cardinalities"
         try:
             response = self._post_and_log_request(url, cardinality_graph)
@@ -60,8 +59,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
                 "Only a SystemAdmin or ProjectAdmin can add cardinalities to resource classes. "
                 "Your permissions are insufficient for this action."
             )
-        log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-        return None
+        return ResponseCodeAndText(response.status_code, response.text)
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/properties"
@@ -95,7 +93,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             )
         return ResponseCodeAndText(response.status_code, response.text)
 
-    def post_new_ontology(self, onto_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+    def post_new_ontology(self, onto_graph: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies"
         try:
             response = self._post_and_log_request(url, onto_graph)
@@ -103,7 +101,8 @@ class OntologyCreateClientLive(OntologyCreateClient):
             log_and_raise_request_exception(err)
 
         if response.ok:
-            return _parse_last_modification_date(response.text)
+            response_json: dict[str, Any] = response.json()
+            return cast(str, response_json["@id"])
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "Only a SystemAdmin or ProjectAdmin can create new ontologies. "
@@ -118,7 +117,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
         headers: dict[str, str] | None = None,
     ) -> Response:
         data_dict, generic_headers = self._prepare_request(data, headers)
-        params = RequestParameters("POST", url, TIMEOUT, data_dict, generic_headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, data_dict, generic_headers)
         log_request(params)
         response = requests.post(
             url=params.url,
@@ -135,7 +134,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
         headers: dict[str, str] | None = None,
     ) -> Response:
         _, generic_headers = self._prepare_request({}, headers)
-        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=generic_headers)
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_60, headers=generic_headers)
         log_request(params)
         response = requests.get(
             url=params.url,
@@ -150,7 +149,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
     ) -> tuple[dict[str, Any] | None, dict[str, str]]:
         generic_headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
         data_dict = data if data else None
         if headers:

@@ -1,9 +1,8 @@
-# mypy: disable-error-code="no-untyped-def"
-
 import pytest
 
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
+from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 
@@ -23,6 +22,33 @@ def test_is_not_resource_iri() -> None:
     assert not is_resource_iri("https://knora.org/0000/PKzNC8MFQT6NAwR3OaQEKw")
     assert not is_resource_iri("https://rdfh.ch/0000/PKzNC8MFQT6NAwR3OaQ")
     assert not is_resource_iri("www.rdfh.ch/0000/PKzNC8MFQT6NAwR3OaQEKw")
+
+
+@pytest.mark.parametrize(
+    "iri",
+    [
+        "http://0.0.0.0:3333/ontology/482F/e2e-testonto/v2#ImageResource",
+        "http://api.dasch.swiss/ontology/4125/e2e-testonto/v2#ImageResource",
+        "http://api.dasch.swiss/ontology/000F/e2e-testonto/v2#hasFile",
+    ],
+)
+def test_is_dsp_project_iri_true(iri):
+    result = is_dsp_project_iri(iri)
+    assert result is True
+
+
+@pytest.mark.parametrize(
+    "iri",
+    [
+        "http://0.0.0.0:3333/ontology/4125/e2e-testonto/ImageResource",  # no v2
+        "http://api.knora.org/ontology/knora-api/v2#Resource",
+        "https://schema.org/Person",
+        "http://www.cidoc-crm.org/cidoc-crm/E1_CRM_Entity",
+    ],
+)
+def test_is_dsp_project_iri_false(iri):
+    result = is_dsp_project_iri(iri)
+    assert result is False
 
 
 @pytest.mark.parametrize(

@@ -16,10 +16,12 @@ from dsp_tools.commands.update_legal.models import LegalProperties
 
 
 def call_id2iri(args: argparse.Namespace) -> bool:
-    check_path_dependencies(PathDependencies([Path(args.xmlfile), Path(args.mapping)]))
+    xmlfile_path = Path(args.xmlfile)
+    mapping_path = Path(args.mapping)
+    check_path_dependencies(PathDependencies([xmlfile_path, mapping_path]))
     return id2iri(
-        xml_file=args.xmlfile,
-        json_file=args.mapping,
+        xml_file=xmlfile_path,
+        json_file=mapping_path,
         remove_resource_if_id_in_mapping=args.remove_resources,
     )
 

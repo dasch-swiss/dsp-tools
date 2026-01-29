@@ -1,8 +1,7 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 import regex
 
+from dsp_tools.commands.xmlupload.exceptions import XmlInputConversionError
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
@@ -13,7 +12,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
-from dsp_tools.error.exceptions import XmlInputConversionError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era

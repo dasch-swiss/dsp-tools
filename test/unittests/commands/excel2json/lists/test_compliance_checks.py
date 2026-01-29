@@ -4,6 +4,9 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileContentError
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidListSectionError
 from dsp_tools.commands.excel2json.lists.compliance_checks import _check_duplicates_all_excels
 from dsp_tools.commands.excel2json.lists.compliance_checks import _check_for_duplicate_custom_id_all_excels
 from dsp_tools.commands.excel2json.lists.compliance_checks import _check_for_duplicate_nodes_one_df
@@ -37,7 +40,6 @@ from dsp_tools.commands.excel2json.lists.models.input_error import MissingNodeTr
 from dsp_tools.commands.excel2json.lists.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.lists.models.input_error import NodesPerRowProblem
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
 
 
 class TestMakeAllExcelComplianceChecks:
@@ -59,7 +61,7 @@ class TestMakeAllExcelComplianceChecks:
             "    - Excel 'file1' | Sheet 'sheet2' | Row 2\n"
             "    - Excel 'file2' | Sheet 'sheet2' | Row 2"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidListSectionError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
 
     def test_duplicate_list_names(self, cols_en_1_no_comments: Columns) -> None:
@@ -76,7 +78,7 @@ class TestMakeAllExcelComplianceChecks:
             "    - Excel file: 'file1', Sheet: 'sheet2', List: 'list2'\n"
             "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileContentError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
 
     def test_content_compliance(self, f1_s1_good_en: ExcelSheet, f2_s2_missing_translations: ExcelSheet) -> None:
@@ -92,7 +94,7 @@ class TestMakeAllExcelComplianceChecks:
             "    - Row Number: 5 | Column(s): de_comments\n"
             "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileFormatError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
 
 
@@ -122,7 +124,7 @@ class TestFormalExcelCompliance:
             "one for the list name and one row for a minimum of one node."
         )
 
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileFormatError, match=expected):
             _make_shape_compliance_all_excels(all_sheets)
 
 
@@ -140,7 +142,7 @@ class TestCheckExcelsForDuplicates:
             "    - 3\n"
             "    - 4"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidListSectionError, match=expected):
             _check_duplicates_all_excels([f1_s1_identical_row])
 
     def test_problem_duplicate_id(self, sheets_duplicate_id: list[ExcelSheet]) -> None:
@@ -156,7 +158,7 @@ class TestCheckExcelsForDuplicates:
             "    - Excel 'file1' | Sheet 'sheet1' | Row 5\n"
             "    - Excel 'file2' | Sheet 'sheet2' | Row 4"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidListSectionError, match=expected):
             _check_duplicates_all_excels(sheets_duplicate_id)
 
 
@@ -191,7 +193,7 @@ class TestCheckForDuplicateListNames:
             "    - Excel file: 'file1', Sheet: 'sheet2', List: 'list2'\n"
             "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileContentError, match=expected):
             _check_for_unique_list_names(all_sheets)
 
 
@@ -356,7 +358,7 @@ class TestCheckAllExcelsMissingTranslations:
             "    - Row Number: 5 | Column(s): de_comments\n"
             "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileFormatError, match=expected):
             _check_for_missing_translations_all_excels(all_sheets)
 
 
@@ -441,7 +443,7 @@ class TestCheckAllExcelForRowProblems:
             "The Excel sheet 'sheet2' has the following problem(s):\n"
             "    - Row Number: 6, Column(s) that must be empty: en_2"
         )
-        with pytest.raises(InputError, match=expected):
+        with pytest.raises(InvalidFileContentError, match=expected):
             _check_for_erroneous_entries_all_excels(all_sheets)
 
 

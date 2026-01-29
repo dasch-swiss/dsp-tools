@@ -13,21 +13,21 @@ class OntologyCreateClient(Protocol):
     """
 
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_last_modification_date(self, project_iri: str, onto_iri: str) -> Literal:
         """Get the last modification date of an ontology"""
 
-    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | None:
+    def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Add cardinalities to an existing resource class."""
 
     def post_new_property(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Create a property on the server"""
 
-    def post_new_class(self, property_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+    def post_new_class(self, class_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         """Create a class on the server"""
 
-    def post_new_ontology(self, onto_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
+    def post_new_ontology(self, onto_graph: dict[str, Any]) -> str | ResponseCodeAndText:
         """Create a new ontology on the server"""
 
 

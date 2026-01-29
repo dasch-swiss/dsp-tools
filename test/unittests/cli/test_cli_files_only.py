@@ -90,8 +90,8 @@ def test_id2iri_default(id2iri: Mock) -> None:
     args = f"id2iri {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=DATA_XML_PATH,
-        json_file=ID_2_IRI_JSON_PATH,
+        xml_file=Path(DATA_XML_PATH),
+        json_file=Path(ID_2_IRI_JSON_PATH),
         remove_resource_if_id_in_mapping=False,
     )
 
@@ -101,8 +101,8 @@ def test_id2iri_remove_resources(id2iri: Mock) -> None:
     args = f"id2iri --remove-resources {DATA_XML_PATH} {ID_2_IRI_JSON_PATH}".split()
     entry_point.run(args)
     id2iri.assert_called_once_with(
-        xml_file=DATA_XML_PATH,
-        json_file=ID_2_IRI_JSON_PATH,
+        xml_file=Path(DATA_XML_PATH),
+        json_file=Path(ID_2_IRI_JSON_PATH),
         remove_resource_if_id_in_mapping=True,
     )
 
@@ -212,6 +212,16 @@ def test_update_legal_with_fixed_errors(update_legal_metadata: Mock) -> None:
     assert call_args_kwargs["defaults"].copyright_default is None
     assert call_args_kwargs["defaults"].license_default is None
     assert call_args_kwargs["fixed_errors_file"] == Path("testdata/xml-data/legal_errors.csv")
+
+
+@patch("dsp_tools.cli.entry_point._print_version_info")
+def test_version_flag(print_version_info: Mock) -> None:
+    """Test that --version flag calls _print_version_info and exits with code 0."""
+    args = ["--version"]
+    with pytest.raises(SystemExit) as exc_info:
+        entry_point.run(args)
+    assert exc_info.value.code == 0
+    print_version_info.assert_called_once()
 
 
 if __name__ == "__main__":

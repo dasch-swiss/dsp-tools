@@ -8,22 +8,22 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_60 = 60
 
 
 @dataclass
 class LegalInfoClientLive(LegalInfoClient):
     server: str
     project_shortcode: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
@@ -45,9 +45,9 @@ class LegalInfoClientLive(LegalInfoClient):
     def _post_and_log_request(self, url: str, data: list[str]) -> Response:
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, {"data": data}, headers)
         log_request(params)
         response = requests.post(
             url=params.url,
@@ -78,9 +78,9 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=headers)
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_60, headers=headers)
         log_request(params)
         try:
             response = requests.get(
@@ -103,9 +103,9 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_60, headers=headers)
         log_request(params)
         try:
             response = requests.put(

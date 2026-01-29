@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -17,7 +18,6 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNamePro
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -37,7 +37,7 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
         All sheets of the excel file, in the form of a dictionary {sheet_name: dataframe}
 
     Raises:
-        InputError: If the sheets are not correctly named
+        InvalidFileFormatError: If the sheets are not correctly named
     """
     if not Path(excelfile).exists():
         raise UserFilepathNotFoundError(excelfile)
@@ -56,7 +56,7 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
         return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
     except AttributeError:
         msg = InvalidSheetNameProblem(str(excelfile), list(df_dict.keys())).execute_error_protocol()
-        raise InputError(msg) from None
+        raise InvalidFileFormatError(msg) from None
 
 
 def _find_duplicate_col_names(excelfile: str, col_names: list[str]) -> None:
@@ -64,7 +64,7 @@ def _find_duplicate_col_names(excelfile: str, col_names: list[str]) -> None:
     duplicate_names = list({x for x in sheet_names if sheet_names.count(x) > 1})
     if duplicate_names:
         msg = ExcelFileProblem(str(excelfile), [DuplicateSheetProblem(duplicate_names)]).execute_error_protocol()
-        raise InputError(msg) from None
+        raise InvalidFileFormatError(msg) from None
 
 
 def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
@@ -314,7 +314,7 @@ def col_must_or_not_empty_based_on_other_col(
     # which means that the value in the column "check_empty_colname" is not relevant.
     substring_array = df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
-    combined_array = np.logical_and(na_series, substring_array)
+    combined_array = np.logical_and(na_series, substring_array).astype(bool)
     return pd.Series(combined_array) if any(combined_array) else None
 
 

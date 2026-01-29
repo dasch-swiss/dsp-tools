@@ -18,8 +18,8 @@ from dsp_tools.commands.create.models.server_project_info import GroupNameToIriL
 from dsp_tools.commands.create.models.server_project_info import UserNameToIriLookup
 from dsp_tools.commands.create.serialisation.project import serialise_one_group
 from dsp_tools.commands.create.serialisation.project import serialise_one_user_for_creation
-from dsp_tools.utils.ansi_colors import BOLD
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import BOLD
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def create_users(

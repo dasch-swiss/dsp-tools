@@ -13,9 +13,9 @@ import pytest
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.create.create import create
+from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
@@ -46,11 +46,7 @@ def test_directories() -> Generator[dict[str, Path], None, None]:
 
 @pytest.mark.order(1)
 def test_create_project(creds: ServerCredentials, test_project_systematic_file: Path) -> None:
-    success = create_project(
-        project_file_as_path_or_parsed=test_project_systematic_file.absolute(),
-        creds=creds,
-        verbose=True,
-    )
+    success = create(project_file=test_project_systematic_file.absolute(), creds=creds, exit_if_exists=False)
     assert success
 
 
@@ -455,8 +451,8 @@ def test_xml_upload_incremental(creds: ServerCredentials, test_data_systematic_f
     mapping_file = _get_most_recent_glob_match("id2iri_*.json")
     second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
     success = id2iri(
-        xml_file=str(second_xml_file_orig),
-        json_file=str(mapping_file),
+        xml_file=second_xml_file_orig,
+        json_file=mapping_file,
     )
     assert success
 

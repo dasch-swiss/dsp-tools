@@ -9,13 +9,13 @@ from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.utils import clean_up_temp_directory
 from dsp_tools.commands.validate_data.utils import get_temp_directory
-from dsp_tools.error.exceptions import ShaclValidationError
 
 
 def get_validation_report(

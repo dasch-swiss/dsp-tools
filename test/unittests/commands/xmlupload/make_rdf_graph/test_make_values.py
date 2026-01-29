@@ -9,6 +9,7 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_value_graph
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -31,12 +32,11 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimple
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import Id2IriReplacementError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 

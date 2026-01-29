@@ -26,10 +26,10 @@ lint: uv-sync
     just yamlfmt-check
     just yamllint
     just markdownlint
-    just darglint
     just mypy
     just vulture
     uv run scripts/markdown_link_validator.py
+    just check-xmllib-docstring-links
 
 
 # Detect anti-patterns in YAML files
@@ -47,7 +47,7 @@ yamlfmt-check:
 # Run the ruff linter to detect bad Python coding habits
 [no-exit-message]
 ruff-check *FLAGS:
-    uv run ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004 {{FLAGS}}
+    uv run ruff check . --ignore=D101,D102,PLR2004 {{FLAGS}}
 
 
 # Check the formatting of the Python files
@@ -62,17 +62,17 @@ mypy:
     uv run dmypy run --timeout 86400 -- .
 
 
-# Check completeness and correctness of python docstrings
-[no-exit-message]
-darglint:
-    uv run darglint -v 2 ./src/dsp_tools/xmllib/**/*.py
-
-
 # Check that there are no dead links in the docs
 # links to w3.org are ignored, because for unknown reasons, they are always reported as invalid
 [no-exit-message]
 check-links:
     markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/
+
+
+# Check that docstring links in xmllib are valid
+[no-exit-message]
+check-xmllib-docstring-links:
+    uv run python scripts/validate_xmllib_docstring_links.py
 
 
 # Check the docs for ambiguous Markdown syntax that could be wrongly rendered
@@ -84,6 +84,7 @@ markdownlint:
     ghcr.io/igorshubovych/markdownlint-cli:v0.45.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
+    --ignore **/CLAUDE.md \
     "**/*.md"
 
 

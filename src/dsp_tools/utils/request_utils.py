@@ -7,6 +7,7 @@ import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
+from http import HTTPStatus
 from typing import Any
 from typing import Literal
 from typing import Never
@@ -18,12 +19,12 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.commands.project.legacy_models.context import Context
-from dsp_tools.commands.project.legacy_models.helpers import OntoIri
-from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+from dsp_tools.commands.get.legacy_models.context import Context
+from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
-from dsp_tools.error.exceptions import DspToolsRequestException
 from dsp_tools.error.exceptions import PermanentTimeOutError
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
+from dsp_tools.utils.exceptions import DspToolsRequestException
 
 
 @dataclass
@@ -200,9 +201,10 @@ def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
 def should_retry(response: Response) -> bool:
     """Returns the decision if a retry of a request is sensible."""
     in_500_range = 500 <= response.status_code < 600
+    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
-    return (try_again_later or in_500_range) and not in_testing_env
+    return (try_again_later or in_500_range or rate_limiting) and not in_testing_env
 
 
 def log_and_raise_request_exception(error: RequestException) -> Never:
@@ -219,7 +221,7 @@ def log_and_raise_request_exception(error: RequestException) -> Never:
 
 
 def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
-    resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+    resp_txt = response_text[:400] if len(response_text) > 400 else response_text
     msg = (
         "We got an unexpected API response during the following request. "
         "Please contact the dsp-tools development team (at support@dasch.swiss) with your log file "
@@ -229,3 +231,9 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     )
     logger.warning(msg)
     warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))
+
+
+def is_server_error(response: ResponseCodeAndText) -> bool:
+    if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
+        return True
+    return False

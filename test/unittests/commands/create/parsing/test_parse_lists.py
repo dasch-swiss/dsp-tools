@@ -1,11 +1,7 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.models.create_problems import CollectedProblems
-from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.parsing.parse_lists import _parse_node_info
 from dsp_tools.commands.create.parsing.parse_lists import _parse_one_list
 from dsp_tools.commands.create.parsing.parse_lists import parse_list_section
@@ -58,15 +54,6 @@ def test_parse_list_section(list_many_children, list_one_child):
     assert len(result) == 2
     list_names = {x.list_info.name for x in result}
     assert list_names == {"firstList", "secondList"}
-
-
-def test_parse_list_section_identical_node_names(node_no_comments):
-    result = parse_list_section([node_no_comments, node_no_comments])
-    assert isinstance(result, CollectedProblems)
-    assert len(result.problems) == 1
-    prblm = result.problems.pop()
-    assert prblm.problematic_object == "node_no_comments"
-    assert prblm.problem == InputProblemType.DUPLICATE_LIST_NAME
 
 
 def test_parse_node_info(list_many_children):

@@ -13,11 +13,15 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileContentError
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidFolderStructureError
+from dsp_tools.commands.excel2json.exceptions import InvalidListSectionError
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.utils.data_formats.shared import simplify_name
+from dsp_tools.utils.json_parsing import parse_json_file
 
 
 def old_excel2lists(
@@ -34,7 +38,6 @@ def old_excel2lists(
         verbose: verbose switch
 
     Raises:
-        InputError: if something went wrong
         BaseError: if something went wrong
 
     Returns:
@@ -81,7 +84,7 @@ def _get_values_from_excel(
         verbose: verbose switch
 
     Raises:
-        InputError: if one of the Excel files contains invalid data
+        InvalidFileFormatError: if one of the Excel files contains invalid data
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
@@ -94,7 +97,7 @@ def _get_values_from_excel(
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
-            raise InputError(
+            raise InvalidFileFormatError(
                 f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
                 f"All other cells of row 1 must be empty.\nInstead, found the following:\n"
                 f" - Cell A1: '{excelfile['A1'].value}'\n"
@@ -146,7 +149,7 @@ def _check_if_predecessors_in_row_are_consistent_with_preval(
 ) -> None:
     for idx, val in enumerate(preval[:-1]):
         if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
-            raise InputError(
+            raise InvalidFileFormatError(
                 "ERROR: Inconsistency in Excel list: "
                 f"{val} not equal to {str(base_file_ws.cell(column=idx + 1, row=row).value).strip()}"
             )
@@ -188,7 +191,7 @@ def _check_if_duplicate_nodes_exist(cell: Cell, list_node_names: ListNodeNames, 
         list_node_names.lists_with_previous_cell_values.count(x) > 1
         for x in list_node_names.lists_with_previous_cell_values
     ):
-        raise InputError(
+        raise InvalidFileContentError(
             f"ERROR: There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
         )
@@ -199,7 +202,7 @@ def _get_all_languages_of_node(excelfiles: dict[str, Worksheet], col: int, row: 
     for other_lang, ws_other_lang in excelfiles.items():
         cell_value = ws_other_lang.cell(column=col, row=row).value
         if not (isinstance(cell_value, str) and len(cell_value) > 0):
-            raise InputError(
+            raise InvalidFileFormatError(
                 "ERROR: Malformed Excel file: The Excel file with the language code "
                 f"'{other_lang}' should have a value in row {row}, column {col}"
             )
@@ -221,7 +224,7 @@ def _make_json_lists_from_excel(
         verbose: verbose switch
 
     Raises:
-        InputError: if one of the Excel files contains invalid data
+        InvalidFileContentError: if one of the Excel files contains invalid data
 
     Returns:
         The finished "lists" section
@@ -270,61 +273,34 @@ def _read_and_check_workbook(excelpath: Path) -> Worksheet:
     all_worksheets = cast(list[Worksheet], load_workbook(excelpath, read_only=True).worksheets)
     if len(all_worksheets) != 1:
         msg = MoreThanOneSheetProblem(excelpath.name, [x.title for x in all_worksheets]).execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
     return all_worksheets[0]
 
 
-def validate_lists_section_with_schema(
-    path_to_json_project_file: Optional[str] = None,
-    lists_section: Optional[list[dict[str, Any]]] = None,
-) -> bool:
-    """
-    This function checks if a "lists" section of a JSON project is valid according to the schema. The "lists" section
-    can be passed as path to the JSON project file, or as Python object. Only one of the two arguments should be passed.
+def validate_lists_section_from_project(project_file: Path) -> bool:
+    project = parse_json_file(project_file)
+    lists_section = project["project"].get("lists")
+    if not lists_section:
+        raise InvalidFileFormatError(
+            f"Cannot validate 'lists' section of {project_file}, because there is no 'lists' section in this file."
+        )
+    return validate_lists_section_with_schema(lists_section)
 
-    Args:
-        path_to_json_project_file: path to the JSON project file that contains the "lists" section to validate
-        lists_section: the "lists" section as Python object
 
-    Raises:
-        InputError: if the validation fails
-        BaseError: if this function is called with invalid parameters
-
-    Returns:
-        True if the "lists" section passed validation
-    """
-    err_msg = "Validation of the 'lists' section works only if exactly one of the two arguments is given."
-    match path_to_json_project_file, lists_section:
-        case None, None:
-            raise BaseError(err_msg)
-        case str(), list():
-            raise BaseError(err_msg)
-
+def validate_lists_section_with_schema(lists_section: list[dict[str, Any]]) -> bool:
     with (
         importlib.resources.files("dsp_tools")
         .joinpath("resources/schema/lists-only.json")
         .open(encoding="utf-8") as schema_file
     ):
         lists_schema = json.load(schema_file)
-
-    if path_to_json_project_file:
-        with open(path_to_json_project_file, encoding="utf-8") as f:
-            project = json.load(f)
-            lists_section = project["project"].get("lists")
-            if not lists_section:
-                raise InputError(
-                    f"Cannot validate 'lists' section of {path_to_json_project_file}, "
-                    "because there is no 'lists' section in this file."
-                )
-
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
-        raise InputError(
+        raise InvalidListSectionError(
             f"'lists' section did not pass validation. The error message is: {err.message}\n"
             f"The error occurred at {err.json_path}"
         ) from None
-
     return True
 
 
@@ -337,19 +313,20 @@ def _extract_excel_file_paths(excelfolder: str) -> list[Path]:
         excelfolder: path to the folder containing the Excel file(s)
 
     Raises:
-        InputError: if excelfolder is not a directory, or if one of the files in it has an invalid name
+        UserDirectoryNotFoundError: if excelfolder is not a directory,
+        InvalidFolderStructureError: if one of the files in it has an invalid name
 
     Returns:
         list of the Excel file paths to process
     """
     if not Path(excelfolder).is_dir():
-        raise InputError(f"ERROR: {excelfolder} is not a directory.")
+        raise UserDirectoryNotFoundError(f"ERROR: {excelfolder} is not a directory.")
 
     supported_files = ["en.xlsx", "de.xlsx", "fr.xlsx", "it.xlsx", "rm.xlsx"]
     excel_file_paths = [x for x in Path(excelfolder).glob("*.xlsx") if x.is_file() and not x.name.startswith("~$")]
 
     for filepath in excel_file_paths:
         if filepath.name not in supported_files:
-            raise InputError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
+            raise InvalidFolderStructureError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths

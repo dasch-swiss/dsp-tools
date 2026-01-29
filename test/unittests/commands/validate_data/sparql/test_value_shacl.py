@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 import pytest
 from rdflib import RDF
 from rdflib import SH
@@ -8,8 +6,8 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_type_shapes_to_class_shapes
@@ -17,8 +15,8 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_l
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 

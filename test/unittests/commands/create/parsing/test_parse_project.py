@@ -1,7 +1,9 @@
-# mypy: disable-error-code="no-untyped-def"
-
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
+from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
+from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -9,18 +11,19 @@ from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.parsing.parse_project import _parse_all_ontologies
 from dsp_tools.commands.create.parsing.parse_project import _parse_groups
-from dsp_tools.commands.create.parsing.parse_project import _parse_lists
-from dsp_tools.commands.create.parsing.parse_project import _parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_group
 from dsp_tools.commands.create.parsing.parse_project import _parse_one_user
 from dsp_tools.commands.create.parsing.parse_project import _parse_permissions
-from dsp_tools.commands.create.parsing.parse_project import _parse_project
 from dsp_tools.commands.create.parsing.parse_project import _parse_users
+from dsp_tools.commands.create.parsing.parse_project import parse_lists
+from dsp_tools.commands.create.parsing.parse_project import parse_metadata
+from dsp_tools.commands.create.parsing.parse_project import parse_project
+from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 
 class TestParseProject:
     def test_parse_project_success(self, project_json_systematic):
-        result = _parse_project(project_json_systematic, "http://0.0.0.0:3333")
+        result = parse_project(project_json_systematic, "http://0.0.0.0:3333")
         assert isinstance(result, ParsedProject)
         assert isinstance(result.prefixes, dict)
         assert isinstance(result.project_metadata, ParsedProjectMetadata)
@@ -37,14 +40,14 @@ class TestParseProject:
         assert len(result.users) == 6
 
     def test_parse_project_failure(self, minimal_failing_project):
-        result = _parse_project(minimal_failing_project, "http://0.0.0.0:3333")
+        result = parse_project(minimal_failing_project, "http://0.0.0.0:3333")
         assert isinstance(result, list)
         assert len(result) == 1
 
 
 class TestParseMetadata:
     def test_parse_metadata_complete(self, project_json_systematic):
-        result = _parse_metadata(project_json_systematic["project"])
+        result = parse_metadata(project_json_systematic["project"])
         assert isinstance(result, ParsedProjectMetadata)
         assert result.shortcode == "4123"
         assert result.shortname == "systematic-tp"
@@ -60,17 +63,51 @@ class TestParseMetadata:
 
 
 class TestParsePermissions:
-    def test_parse_permissions_without_overrule(self, project_json_create):
-        result = _parse_permissions(project_json_create["project"])
-        assert isinstance(result, ParsedPermissions)
-        assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is None
+    def test_parse_permissions_without_overrule(self, prefixes):
+        proj = {"default_permissions": "private"}
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PRIVATE
+        assert perm.overrule_private is None
+        assert perm.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
-    def test_parse_permissions_with_overrule(self, project_json_systematic):
-        result = _parse_permissions(project_json_systematic["project"])
-        assert isinstance(result, ParsedPermissions)
-        assert result.default_permissions == "public"
-        assert result.default_permissions_overrule is not None
+    def test_parse_permissions_limited_view_all(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"limited_view": "all"},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PUBLIC
+        assert perm.overrule_private is None
+        assert perm.overrule_limited_view == GlobalLimitedViewPermission.ALL
+
+    def test_parse_permissions_with_overrule_some(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"private": ["onto:privateProp"], "limited_view": ["onto:Image"]},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert problems is None
+        assert isinstance(perm, ParsedPermissions)
+        assert perm.default_permissions == DefaultPermissions.PUBLIC
+        assert perm.overrule_private == [f"{ONTO_NAMESPACE_STR}privateProp"]
+        assert isinstance(perm.overrule_limited_view, LimitedViewPermissionsSelection)
+        assert perm.overrule_limited_view.limited_selection == [f"{ONTO_NAMESPACE_STR}Image"]
+
+    def test_parse_permissions_unresolvable_prefix(self, prefixes):
+        proj = {
+            "default_permissions": "public",
+            "default_permissions_overrule": {"private": ["inexistent:privateProp"]},
+        }
+        perm, problems = _parse_permissions(proj, prefixes)
+        assert perm is None
+        assert isinstance(problems, CollectedProblems)
+        assert len(problems.problems) == 1
+        assert problems.problems[0].problematic_object == "inexistent:privateProp"
+        assert problems.problems[0].problem == InputProblemType.PREFIX_COULD_NOT_BE_RESOLVED
 
 
 class TestParseGroups:
@@ -214,15 +251,9 @@ class TestParseUsers:
 
 
 class TestParseLists:
-    def test_parse_lists_empty(self, minimal_project_json):
-        result, problems = _parse_lists(minimal_project_json)
-        assert len(result) == 0
-        assert not problems
-
     def test_parse_lists_with_lists(self, project_json_create):
-        result, problems = _parse_lists(project_json_create["project"])
+        result = parse_lists(project_json_create["project"])
         assert len(result) == 2
-        assert not problems
 
 
 class TestParseAllOntologies:

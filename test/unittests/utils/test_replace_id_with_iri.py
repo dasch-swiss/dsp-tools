@@ -1,9 +1,8 @@
-# mypy: disable-error-code="no-untyped-def"
 import pytest
 import regex
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.error.exceptions import DuplicateIdsInXmlAndId2IriMapping
+from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMapping
 from dsp_tools.utils.replace_id_with_iri import _process_link_value
 from dsp_tools.utils.replace_id_with_iri import _process_one_resource
 from dsp_tools.utils.replace_id_with_iri import _process_richtext_value

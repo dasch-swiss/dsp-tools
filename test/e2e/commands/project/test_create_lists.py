@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
@@ -8,13 +6,13 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.project.create.project_create_all import create_project
 
 
 @pytest.fixture(scope="module")
 def _create_project_0003(creds: ServerCredentials):
-    assert create_project(Path("testdata/json-project/create-project-no-lists-0003.json"), creds)
+    assert create(Path("testdata/json-project/create-project-no-lists-0003.json"), creds, False)
 
 
 @pytest.fixture(scope="module")

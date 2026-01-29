@@ -18,103 +18,165 @@
                 "label": "circular-onto",
                 "properties": [
                     {
-                        "name": "linkToResource",
+                        "name": "linkToClass1",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":Class1",
+                        "labels": {
+                            "en": "has region"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "linkToKnoraApiClass",
                         "super": [
                             "hasLinkTo"
                         ],
                         "object": "Resource",
                         "labels": {
-                            "en": "has region"
+                            "en": "has resource"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "linkToTestThing1",
+                        "name": "linkToClass2",
                         "super": [
-                            "foaf:fantasy",
                             "isPartOf"
                         ],
-                        "object": ":TestThing1",
+                        "object": ":Class2",
                         "labels": {
                             "en": "has region"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "linkToTestThing2",
+                        "name": "linkToClassOk1",
                         "super": [
-                            "hasLinkTo"
+                            "isPartOf"
                         ],
-                        "object": ":TestThing2",
+                        "object": ":ClassCardinalityOk1",
                         "labels": {
-                            "en": "has a link to TestThing2"
+                            "en": "has region"
                         },
                         "gui_element": "Searchbox"
                     },
                     {
-                        "name": "linkToTestThing3",
+                        "name": "linkToClassOk2",
                         "super": [
-                            "hasLinkTo"
+                            "isPartOf"
                         ],
-                        "object": ":TestThing3",
+                        "object": ":ClassCardinalityOk2",
                         "labels": {
-                            "en": "has a link to TestThing3"
+                            "en": "has region"
                         },
                         "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "circularProperty1",
+                        "super": [
+                            "hasValue",
+                            ":circularProperty2"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "circularProperty1"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "circularProperty2",
+                        "super": [
+                            "hasValue",
+                            ":circularProperty1"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "circularProperty1"
+                        },
+                        "gui_element": "Richtext"
                     }
                 ],
                 "resources": [
                     {
-                        "name": "TestThing1",
+                        "name": "Class1",
                         "super": "Resource",
                         "labels": {
-                            "en": "TestThing1"
+                            "en": "Class1"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToTestThing2",
-                                "cardinality": "0-1"
+                                "propname": ":linkToClass2",
+                                "cardinality": "1"
+                            },
+                            {
+                                "propname": ":linkToKnoraApiClass",
+                                "cardinality": "1-n"
                             }
                         ]
                     },
                     {
-                        "name": "TestThing2",
+                        "name": "Class2",
                         "super": "Resource",
                         "labels": {
-                            "en": "TestThing2"
+                            "en": "Class2"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToTestThing3",
+                                "propname": ":linkToClass1",
+                                "cardinality": "1-n"
+                            },
+                            {
+                                "propname": ":linkToKnoraApiClass",
                                 "cardinality": "0-n"
                             }
                         ]
                     },
                     {
-                        "name": "TestThing3",
+                        "name": "ClassCardinalityOk1",
                         "super": "Resource",
                         "labels": {
-                            "en": "TestThing3"
+                            "en": "ClassCardinalityOk"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToResource",
-                                "cardinality": "1"
+                                "propname": ":linkToClassOk2",
+                                "cardinality": "0-n"
                             }
                         ]
                     },
                     {
-                        "name": "AnyResource",
+                        "name": "ClassCardinalityOk2",
                         "super": "Resource",
                         "labels": {
-                            "en": "AnyResource"
+                            "en": "ClassCardinalityOk"
                         },
                         "cardinalities": [
                             {
-                                "propname": ":linkToTestThing1",
-                                "cardinality": "1-n"
+                                "propname": ":linkToClassOk1",
+                                "cardinality": "0-1"
                             }
                         ]
+                    },
+                    {
+                        "name": "CircularClass1",
+                        "super": [
+                            "Resource",
+                            ":CircularClass2"
+                        ],
+                        "labels": {
+                            "en": "CircularClass1"
+                        }
+                    },
+                    {
+                        "name": "CircularClass2",
+                        "super": [
+                            "Resource",
+                            ":CircularClass1"
+                        ],
+                        "labels": {
+                            "en": "CircularClass1"
+                        }
                     }
                 ]
             }

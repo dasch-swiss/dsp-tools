@@ -1,18 +1,17 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
 import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.error.xmllib_warnings import MessageInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputInfo
-from dsp_tools.error.xmllib_warnings import XmllibInputWarning
-from dsp_tools.error.xmllib_warnings_util import _filter_stack_frames
-from dsp_tools.error.xmllib_warnings_util import _get_calling_code_context
-from dsp_tools.error.xmllib_warnings_util import _get_stack_frame_number
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_info
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
-from dsp_tools.error.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.error.xmllib_warnings_util import get_user_message_string
+from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import _filter_stack_frames
+from dsp_tools.xmllib.internal.xmllib_warnings_util import _get_calling_code_context
+from dsp_tools.xmllib.internal.xmllib_warnings_util import _get_stack_frame_number
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import get_user_message_string
 
 
 @pytest.fixture

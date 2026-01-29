@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Literal
@@ -7,8 +5,8 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_allowed_licenses_shape
-from dsp_tools.utils.rdflib_constants import API_SHAPES
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import API_SHAPES
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 NUMBER_OF_TRIPLES_NO_LICENSES = 8
 

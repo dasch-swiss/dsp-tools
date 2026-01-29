@@ -1,4 +1,5 @@
 import pytest
+from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -9,20 +10,27 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from dsp_tools.utils.rdflib_constants import DASH
-from dsp_tools.utils.rdflib_constants import DATA
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import DASH
+from dsp_tools.utils.rdf_constants import DATA
+from dsp_tools.utils.rdf_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture(scope="module")
-def onto_graph() -> Graph:
+def onto_graph():
     g = Graph()
     g.parse("testdata/validate-data/onto.ttl")
     g.parse("testdata/validate-data/knora-api-subset.ttl")
     return g
+
+
+@pytest.fixture(scope="module")
+def knora_store() -> Store:
+    store = Store()
+    store.load(path="testdata/validate-data/knora-api-subset.ttl")
+    return store
 
 
 @pytest.fixture

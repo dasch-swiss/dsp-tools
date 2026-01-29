@@ -16,14 +16,18 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: Linting with darglint
-        run: just darglint
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
           just check-links
+      - name: check docstring links in xmllib
+        run: just check-xmllib-docstring-links
       - name: markdownlint
         run: just markdownlint
       - name: build docs

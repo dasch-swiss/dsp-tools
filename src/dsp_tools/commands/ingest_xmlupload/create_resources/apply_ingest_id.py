@@ -9,7 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.create_resources.user_information import IngestInformation
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 
 def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
@@ -23,11 +23,11 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
         dictionary with original: identifier from dsp-ingest
 
     Raises:
-        InputError: if no file was found
+        UserFilepathNotFoundError: if no file was found
     """
     filepath = Path(f"mapping-{shortcode}.csv")
     if not filepath.is_file():
-        raise InputError(f"No mapping CSV file was found at {filepath}.")
+        raise UserFilepathNotFoundError(f"No mapping CSV file was found at {filepath}.")
     df = pd.read_csv(filepath)
     msg = f"The file '{filepath}' is used to map the internal original filepaths to the internal image IDs."
     print(msg)

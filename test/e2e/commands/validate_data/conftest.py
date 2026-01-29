@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 
 
@@ -14,4 +14,4 @@ def shacl_validator() -> ShaclCliValidator:
 
 @pytest.fixture(scope="module")
 def create_generic_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds)
+    assert create(Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds, True)

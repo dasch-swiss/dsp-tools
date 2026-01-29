@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -26,7 +24,7 @@ def mock_auth_client() -> Mock:
 def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
     return MetadataClientLive(
         server="http://0.0.0.0:3333",
-        authentication_client=mock_auth_client,
+        auth=mock_auth_client,
     )
 
 

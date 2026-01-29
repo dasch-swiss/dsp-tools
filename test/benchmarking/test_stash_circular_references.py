@@ -6,8 +6,8 @@ from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
-from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.ansi_colors import YELLOW
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.setup.ansi_colors import YELLOW
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 

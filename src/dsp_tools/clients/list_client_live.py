@@ -9,19 +9,20 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client import OneList
-from dsp_tools.clients.list_client import OneNode
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_10 = 10
+TIMEOUT_30 = 30
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -31,7 +32,7 @@ class ListGetClientLive(ListGetClient):
     api_url: str
     shortcode: str
 
-    def get_all_lists_and_nodes(self) -> list[OneList]:
+    def get_all_lists_and_nodes(self) -> list[ListInfo]:
         list_json = self._get_all_list_iris()
         all_iris = self._extract_list_iris(list_json)
         all_lists = [self._get_one_list(iri) for iri in all_iris]
@@ -45,10 +46,9 @@ class ListGetClientLive(ListGetClient):
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
-        timeout = 10
-        log_request(RequestParameters("GET", url, timeout))
+        log_request(RequestParameters("GET", url, TIMEOUT_10))
         try:
-            response = requests.get(url=url, timeout=timeout)
+            response = requests.get(url=url, timeout=TIMEOUT_10)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -64,10 +64,9 @@ class ListGetClientLive(ListGetClient):
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
-        timeout = 30
-        log_request(RequestParameters("GET", url, timeout))
+        log_request(RequestParameters("GET", url, TIMEOUT_30))
         try:
-            response = requests.get(url=url, timeout=timeout)
+            response = requests.get(url=url, timeout=TIMEOUT_30)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -77,22 +76,8 @@ class ListGetClientLive(ListGetClient):
             return response_json
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
-        list_name = response_json["list"]["listinfo"]["name"]
-        list_id = response_json["list"]["listinfo"]["id"]
-        nodes = response_json["list"]["children"]
-        all_nodes = []
-        for child in nodes:
-            all_nodes.append(OneNode(child["name"], child["id"]))
-            if node_child := child.get("children"):
-                self._reformat_children(node_child, all_nodes)
-        return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
-
-    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
-        for child in list_child:
-            current_nodes.append(OneNode(child["name"], child["id"]))
-            if grand_child := child.get("children"):
-                self._reformat_children(grand_child, current_nodes)
+    def _reformat_one_list(self, response_json: dict[str, Any]) -> ListInfo:
+        return ListInfo(response_json["list"]["listinfo"], response_json["list"]["children"])
 
 
 @dataclass
@@ -154,7 +139,7 @@ def _post_and_log_request(
     data: dict[str, Any],
     headers: dict[str, str] | None = None,
 ) -> Response:
-    params = RequestParameters("POST", url, TIMEOUT, data, headers)
+    params = RequestParameters("POST", url, TIMEOUT_60, data, headers)
     log_request(params)
     response = requests.post(
         url=params.url,

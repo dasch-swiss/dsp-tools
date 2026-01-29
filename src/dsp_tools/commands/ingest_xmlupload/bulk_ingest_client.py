@@ -14,10 +14,15 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestFailure
+from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFound
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.config.logger_config import LOGGER_SAVEPATH
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
@@ -25,7 +30,7 @@ class BulkIngestClient:
     """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
@@ -45,7 +50,6 @@ class BulkIngestClient:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
-        self.session.headers["Authorization"] = f"Bearer {self.authentication_client.get_token()}"
 
     def upload_file(
         self,
@@ -59,20 +63,25 @@ class BulkIngestClient:
         # noqa: DAR101
         # noqa: DAR201
         """
+        logger.debug(f"Uploading file '{filepath}'")
         timeout = 9 * 60
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
-        headers = {"Content-Type": "application/octet-stream"}
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
         try:
-            logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")
             with open(self.imgdir / filepath, "rb") as binary_io:
                 res = self.session.post(
-                    url=url,
-                    headers=headers,
+                    url=params.url,
+                    headers=params.headers,
                     data=binary_io,  # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
-                    timeout=timeout,
+                    timeout=params.timeout,
                 )
-            logger.debug(f"RESPONSE: {res.status_code}")
+            log_response(res)
         except RequestException as e:
             logger.exception(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
@@ -104,13 +113,15 @@ class BulkIngestClient:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         timeout = 5
-        logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
-        res = self.session.post(url, timeout=timeout)
-        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
+        res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
+        log_response(res)
         if res.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
         if res.status_code == HTTPStatus.NOT_FOUND:
-            raise InputError(
+            raise NoIngestFileFound(
                 f"No assets have been uploaded for project {self.shortcode}. "
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
@@ -120,7 +131,7 @@ class BulkIngestClient:
             logger.info(msg)
             return
         if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
-            raise InputError("Server is unavailable. Please try again later.")
+            raise PermanentConnectionError("Server is unavailable. Please try again later.")
 
         try:
             returned_shortcode = res.json().get("id")
@@ -128,7 +139,9 @@ class BulkIngestClient:
         except JSONDecodeError:
             failed = True
         if failed:
-            raise InputError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
+            raise IngestFailure(
+                "Failed to trigger the ingest process. Please check the server logs, or try again later."
+            )
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
@@ -142,14 +155,16 @@ class BulkIngestClient:
             The mapping CSV if the ingest process has completed.
 
         Raises:
-            InputError: if there are too many server errors in a row.
+            PermanentConnectionError: if there are too many server errors in a row.
         """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         timeout = 5
         while True:
-            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}")
-            res = self.session.get(url, timeout=timeout)
-            logger.debug(f"RESPONSE: {res.status_code}")
+            headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+            params = RequestParameters("GET", url, timeout, headers=headers)
+            log_request(params)
+            res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)
+            log_response(res)
             if res.status_code == HTTPStatus.CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
@@ -157,7 +172,9 @@ class BulkIngestClient:
             elif res.status_code != HTTPStatus.OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
-                    raise InputError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
+                    raise PermanentConnectionError(
+                        f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}."
+                    )
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

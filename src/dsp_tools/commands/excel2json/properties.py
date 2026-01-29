@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidGuiAttributeError
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
@@ -34,8 +36,6 @@ from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidGuiAttributeError
 from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -55,7 +55,7 @@ def excel2properties(
         path_to_output_file: if provided, the output is written into this JSON file
 
     Raises:
-        InputError: if something went wrong
+        InvalidFileFormatError: if something went wrong
 
     Returns:
         - the "properties" section as a Python list
@@ -102,7 +102,7 @@ def excel2properties(
             props.append(result)
     if problems:
         msg = ExcelFileProblem("properties.xlsx", problems).execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
 
     serialised_prop = [x.serialise() for x in props]
     default_permissions_overrule = _extract_default_permissions_overrule(property_df)
@@ -125,7 +125,7 @@ def _read_check_property_df(excelfile: str) -> pd.DataFrame:
     sheets_df_dict = read_and_clean_all_sheets(excelfile)
     if len(sheets_df_dict) != 1:
         msg = MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())).execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
     return next(iter(sheets_df_dict.values()))
 
 
@@ -186,7 +186,7 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
     if any(problems):
         excel_prob = ExcelFileProblem("properties.xlsx", problems)
         msg = excel_prob.execute_error_protocol()
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
 
 
 def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProblem:
@@ -248,7 +248,7 @@ def _get_final_series(
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check).astype(bool))
         case pd.Series(), None:
             final_series = mandatory_check
         case None, pd.Series():
@@ -322,7 +322,7 @@ def _validate_properties_section_in_json(
     except jsonschema.ValidationError as err:
         validation_problem = _find_validation_problem(properties_list=properties_list, validation_error=err)
         msg = ExcelFileProblem("properties.xlsx", [validation_problem]).execute_error_protocol()
-        raise InputError(msg) from None
+        raise InvalidFileFormatError(msg) from None
 
 
 def _find_validation_problem(

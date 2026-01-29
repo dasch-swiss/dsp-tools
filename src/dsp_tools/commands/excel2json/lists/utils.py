@@ -5,9 +5,9 @@ from typing import Any
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.lists.models.deserialise import ColumnNodes
 from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
-from dsp_tools.error.exceptions import InputError
 
 
 def get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list|comments)") -> str | None:
@@ -78,4 +78,4 @@ def get_preferred_language_from_columns(columns: pd.Index[str], ending: str = r"
         f"The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n"
         f"The columns are: {' '.join(columns)}"
     )
-    raise InputError(msg)
+    raise InvalidFileFormatError(msg)

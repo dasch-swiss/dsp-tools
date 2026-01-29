@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -7,7 +5,7 @@ import pytest
 import requests
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create_all import create_project
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
@@ -20,6 +18,7 @@ SECOND_ONTO_9999 = "second-onto"
 PROJECT_SHORTCODE_4125 = "4125"
 ONTO_NAME_4125 = "e2e-testonto"
 SECOND_ONTO_4125 = "second-onto"
+EXIT_IF_EXISTS = True
 
 
 @pytest.fixture(scope="module")
@@ -46,7 +45,9 @@ def second_onto_iri_9999(creds) -> str:
 
 @pytest.fixture(scope="module")
 def create_generic_project_9999(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds)
+    assert create(
+        Path("testdata/validate-data/core_validation/core-validation-project-9999.json"), creds, EXIT_IF_EXISTS
+    )
 
 
 @pytest.fixture(scope="module")
@@ -105,7 +106,7 @@ def second_onto_iri_4125(creds: ServerCredentials) -> str:
 
 @pytest.fixture(scope="module")
 def create_4125_e2e_project(creds: ServerCredentials) -> None:
-    assert create_project(Path("testdata/json-project/generic-e2e-project-4125.json"), creds)
+    assert create(Path("testdata/json-project/generic-e2e-project-4125.json"), creds, EXIT_IF_EXISTS)
 
 
 @pytest.fixture(scope="module")

@@ -9,6 +9,9 @@ import pandas as pd
 import regex
 from loguru import logger
 
+from dsp_tools.commands.excel2json.exceptions import InvalidFileContentError
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidListSectionError
 from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.lists.models.input_error import CollectedSheetProblems
@@ -33,7 +36,6 @@ from dsp_tools.commands.excel2json.lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
 
 
@@ -58,7 +60,7 @@ def _check_duplicates_all_excels(sheet_list: list[ExcelSheet]) -> None:
         sheet_list: class instances representing an excel file with sheets
 
     Raises:
-        InputError: If any complete duplicates are found in the excel files.
+        InvalidListSectionError: If any complete duplicates are found in the excel files.
     """
     problems: list[Problem] = []
     duplicate_problems: list[SheetProblem] = [
@@ -71,7 +73,7 @@ def _check_duplicates_all_excels(sheet_list: list[ExcelSheet]) -> None:
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
-        raise InputError(msg)
+        raise InvalidListSectionError(msg)
 
 
 def _check_for_unique_list_names(sheet_list: list[ExcelSheet]) -> None:
@@ -98,7 +100,7 @@ def _check_for_unique_list_names(sheet_list: list[ExcelSheet]) -> None:
     if all_problems:
         msg = ListCreationProblem(all_problems).execute_error_protocol()
         logger.error(msg)
-        raise InputError(msg)
+        raise InvalidFileContentError(msg)
 
 
 def _check_for_duplicate_nodes_one_df(sheet: ExcelSheet) -> DuplicatesInSheetProblem | None:
@@ -145,7 +147,7 @@ def _make_shape_compliance_all_excels(sheet_list: list[ExcelSheet]) -> None:
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
 
 
 def _make_shape_compliance_one_sheet(sheet: ExcelSheet) -> ListSheetComplianceProblem | None:
@@ -198,7 +200,7 @@ def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> 
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
-        raise InputError(msg)
+        raise InvalidFileFormatError(msg)
 
 
 def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTranslationsSheetProblem | None:
@@ -239,7 +241,7 @@ def _check_for_erroneous_entries_all_excels(sheet_list: list[ExcelSheet]) -> Non
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
-        raise InputError(msg)
+        raise InvalidFileContentError(msg)
 
 
 def _check_for_erroneous_entries_one_list(sheet: ExcelSheet) -> ListSheetContentProblem | None:

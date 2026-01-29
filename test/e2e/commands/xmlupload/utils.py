@@ -8,8 +8,8 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 
 def util_request_resources_by_class(

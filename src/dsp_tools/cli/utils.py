@@ -8,8 +8,8 @@ from loguru import logger
 from dsp_tools.cli.args import NetworkRequirements
 from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.error.exceptions import DockerNotReachableError
-from dsp_tools.error.exceptions import DspApiNotReachableError
+from dsp_tools.cli.exceptions import DockerNotReachableError
+from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 

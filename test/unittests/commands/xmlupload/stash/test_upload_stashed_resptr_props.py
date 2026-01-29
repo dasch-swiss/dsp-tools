@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign,no-untyped-def"
-
 from uuid import uuid4
 
 from rdflib import RDF
@@ -9,7 +7,7 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 

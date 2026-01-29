@@ -7,21 +7,21 @@ from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import get_creds
+from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
-from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
+from dsp_tools.commands.create.project_validate import validate_project_only
+from dsp_tools.commands.excel2json.old_lists import validate_lists_section_from_project
+from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.get.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
-from dsp_tools.commands.start_stack import StackConfiguration
-from dsp_tools.commands.start_stack import StackHandler
+from dsp_tools.commands.start_stack.start_stack import StackConfiguration
+from dsp_tools.commands.start_stack.start_stack import StackHandler
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
@@ -115,10 +115,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
             case "error":
                 severity = ValidationSeverity.ERROR
             case _:
-                raise InputError(
-                    f"The entered validation severity '{args.validation_severity}' "
-                    f"is not part of the allowed values: info, warning, error."
-                )
+                raise UnreachableCodeError()
         return xmlupload(
             input_file=xml_path,
             creds=get_creds(args),
@@ -183,24 +180,25 @@ def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies([Path(args.project_definition)])
     check_input_dependencies(path_dependencies, network_dependencies)
+    project_file = Path(args.project_definition)
+    creds = get_creds(args)
 
     success = False
     match args.lists_only, args.validate_only:
         case True, True:
-            success = validate_lists_section_with_schema(args.project_definition)
+            success = validate_lists_section_from_project(project_file)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
             success = create_lists_only(
-                project_file_as_path_or_parsed=args.project_definition,
-                creds=get_creds(args),
+                project_file=project_file,
+                creds=creds,
             )
         case False, True:
-            success = validate_project(args.project_definition)
-            print("JSON project file is syntactically correct and passed validation.")
+            success = validate_project_only(project_file, creds.server)
         case False, False:
-            success = create_project(
-                project_file_as_path_or_parsed=args.project_definition,
-                creds=get_creds(args),
-                verbose=args.verbose,
+            success = create(
+                project_file=project_file,
+                creds=creds,
+                exit_if_exists=args.exit_if_exists,
             )
     return success

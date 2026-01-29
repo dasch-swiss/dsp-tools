@@ -5,9 +5,9 @@ import regex
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrulesUnprefixed
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, default_permissions_overrule, _ = e2j.excel2resources(excelfile, None)
@@ -206,7 +206,7 @@ class TestValidateWithSchema:
             "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
             "    Original Error Message: 'fantasy' is not valid under any of the given schemas"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
     def test_sheet_invalid_cardinality(self) -> None:
@@ -216,7 +216,7 @@ class TestValidateWithSchema:
             "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
             "    Original Error Message: '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
@@ -226,7 +226,7 @@ class TestValidateWithSchema:
             "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
             "    Original Error Message: 'fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:
@@ -250,7 +250,7 @@ class TestValidateWithSchema:
             "Under this condition, the following sheet names appear multiple times:\n"
             "    - classes"
         )
-        with pytest.raises(InputError, match=expected_msg):
+        with pytest.raises(InvalidFileFormatError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-classes-sheet.xlsx", "")
 
 

@@ -5,13 +5,17 @@ from typing import cast
 import requests
 from requests import RequestException
 
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.clients.ontology_clients import OntologyGetClient
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
-from dsp_tools.error.exceptions import ProjectOntologyNotFound
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
+
+TIMEOUT_10 = 10
+TIMEOUT_30 = 30
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -22,8 +26,7 @@ class OntologyGetClientLive(OntologyGetClient):
     def get_knora_api(self) -> str:
         url = f"{self.api_url}/ontology/knora-api/v2#"
         headers = {"Accept": "text/turtle"}
-        timeout = 60
-        params = RequestParameters("GET", url, timeout=timeout, headers=headers)
+        params = RequestParameters("GET", url, timeout=TIMEOUT_60, headers=headers)
         log_request(params)
         try:
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
@@ -48,8 +51,7 @@ class OntologyGetClientLive(OntologyGetClient):
 
     def _get_ontology_iris(self) -> list[str]:
         url = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"
-        timeout = 10
-        params = RequestParameters("GET", url, timeout=timeout)
+        params = RequestParameters("GET", url, timeout=TIMEOUT_10)
         log_request(params)
         try:
             response = requests.get(url=params.url, timeout=params.timeout)
@@ -67,8 +69,7 @@ class OntologyGetClientLive(OntologyGetClient):
     def _get_one_ontology(self, ontology_iri: str) -> str:
         url = ontology_iri
         headers = {"Accept": "text/turtle"}
-        timeout = 30
-        params = RequestParameters("GET", url, timeout=timeout, headers=headers)
+        params = RequestParameters("GET", url, timeout=TIMEOUT_30, headers=headers)
         log_request(params)
         try:
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)

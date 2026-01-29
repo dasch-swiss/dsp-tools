@@ -32,6 +32,7 @@ def make_parser(
     parser = ArgumentParser(
         description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)"
     )
+    parser.add_argument("--version", action="store_true", help="print the installed and latest verison of dsp-tools")
     subparsers = parser.add_subparsers(
         title="Subcommands", description="Valid subcommands are", help="sub-command help"
     )
@@ -438,6 +439,11 @@ def _add_create(
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument(
+        "--exit-if-exists",
+        action="store_true",
+        help="exit gracefully without further uploads if the project already exists",
+    )
+    subparser.add_argument(
         "-V",
         "--validate-only",
         action="store_true",
@@ -449,7 +455,6 @@ def _add_create(
         action="store_true",
         help="create only the lists (prerequisite: the project exists on the server)",
     )
-    subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     subparser.add_argument("project_definition", help="path to the JSON project file")
 
 

@@ -1,14 +1,17 @@
 import importlib.resources
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
+from pyoxigraph import RdfFormat
+from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.list_client import OneList
+from dsp_tools.clients.list_client import ListInfo
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.clients.metadata_client_live import MetadataClientLive
@@ -17,11 +20,18 @@ from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import OneNode
 from dsp_tools.commands.validate_data.models.api_responses import ProjectDataFromApi
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.commands.validate_data.prepare_data.make_data_graph import make_data_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.utils.rdf_constants import API_SHAPES_PREFIX
+from dsp_tools.utils.rdf_constants import DASH_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import SALSAH_GUI_PREFIX
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -49,15 +59,15 @@ def prepare_data_for_validation_from_parsed_resource(
     auth: AuthenticationClient,
     shortcode: str,
     do_not_request_resource_metadata_from_db: bool,
-) -> tuple[RDFGraphs, set[str], ExistingResourcesRetrieved]:
+) -> tuple[RDFGraphs, TripleStores, set[str], ExistingResourcesRetrieved]:
     used_iris = {x.res_type for x in parsed_resources}
     proj_info, existing_resources_retrieved = _get_project_specific_information_from_api(
         auth, shortcode, do_not_request_resource_metadata_from_db
     )
     list_lookup = _make_list_lookup(proj_info.all_lists)
     data_rdf = _make_data_graph_from_parsed_resources(parsed_resources, authorship_lookup, list_lookup)
-    rdf_graphs = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
-    return rdf_graphs, used_iris, existing_resources_retrieved
+    rdf_graphs, triple_stores = _create_graphs(data_rdf, shortcode, auth, proj_info, permission_ids)
+    return rdf_graphs, triple_stores, used_iris, existing_resources_retrieved
 
 
 def _make_list_lookup(project_lists: list[OneList]) -> ListLookup:
@@ -73,7 +83,7 @@ def _get_project_specific_information_from_api(
     auth: AuthenticationClient, shortcode: str, do_not_request_resource_metadata_from_db: bool
 ) -> tuple[ProjectDataFromApi, ExistingResourcesRetrieved]:
     list_client = ListGetClientLive(auth.server, shortcode)
-    all_lists = list_client.get_all_lists_and_nodes()
+    all_lists = _get_reformatted_lists(list_client)
     enabled_licenses = _get_license_iris(shortcode, auth)
     if do_not_request_resource_metadata_from_db:
         existing_resources_retrieved = ExistingResourcesRetrieved.FALSE
@@ -81,6 +91,29 @@ def _get_project_specific_information_from_api(
     else:
         existing_resources_retrieved, formatted_metadata = _get_metadata_info(auth, shortcode)
     return ProjectDataFromApi(all_lists, enabled_licenses, formatted_metadata), existing_resources_retrieved
+
+
+def _get_reformatted_lists(list_client: ListGetClientLive) -> list[OneList]:
+    all_lists = list_client.get_all_lists_and_nodes()
+    return [_reformat_one_list(x) for x in all_lists]
+
+
+def _reformat_one_list(list_info: ListInfo) -> OneList:
+    list_name = list_info.listinfo["name"]
+    list_id = list_info.listinfo["id"]
+    all_nodes = []
+    for child in list_info.children:
+        all_nodes.append(OneNode(child["name"], child["id"]))
+        if node_child := child.get("children"):
+            _reformat_list_child_node(node_child, all_nodes)
+    return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
+
+
+def _reformat_list_child_node(list_child: list[dict[str, Any]], current_nodes: list[OneNode]) -> None:
+    for child in list_child:
+        current_nodes.append(OneNode(child["name"], child["id"]))
+        if grand_child := child.get("children"):
+            _reformat_list_child_node(grand_child, current_nodes)
 
 
 def _get_metadata_info(
@@ -106,14 +139,15 @@ def _create_graphs(
     auth: AuthenticationClient,
     proj_info: ProjectDataFromApi,
     permission_ids: list[str],
-) -> RDFGraphs:
+) -> tuple[RDFGraphs, TripleStores]:
     logger.debug("Create all graphs.")
     onto_client = OntologyGetClientLive(auth.server, shortcode)
-    ontologies, onto_iris = _get_project_ontos(onto_client)
+    ontologies, onto_stores, onto_iris = _get_project_ontos(onto_client)
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, knora_api, proj_info, permission_ids)
+    knora_api_store = Store()
+    knora_api_store.load(input=knora_ttl, format=RdfFormat.TURTLE)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
@@ -122,6 +156,8 @@ def _create_graphs(
         "resources/validate_data/api-shapes-resource-cardinalities.ttl"
     )
     api_card_shapes.parse(str(api_card_path))
+
+    shapes = construct_shapes_graphs(ontologies, knora_api, proj_info, permission_ids)
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + api_card_shapes
     resources_in_db = _make_resource_in_db_graph(proj_info.resource_iris_in_db)
@@ -131,7 +167,7 @@ def _create_graphs(
     card_shapes = _bind_prefixes_to_graph(card_shapes, onto_iris)
     content_shapes = _bind_prefixes_to_graph(content_shapes, onto_iris)
     knora_api = _bind_prefixes_to_graph(knora_api, onto_iris)
-    return RDFGraphs(
+    graphs = RDFGraphs(
         data=data_rdf,
         ontos=ontologies,
         cardinality_shapes=card_shapes,
@@ -139,6 +175,8 @@ def _create_graphs(
         knora_api=knora_api,
         resources_in_db_graph=resources_in_db,
     )
+    stores = TripleStores(onto_stores, knora_api_store)
+    return graphs, stores
 
 
 def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
@@ -146,24 +184,26 @@ def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
         iri_split = ontology_iri.split("/")
         return iri_split[-2]
 
-    g.bind("knora-api", "http://api.knora.org/ontology/knora-api/v2#")
-    g.bind("api-shapes", "http://api.knora.org/ontology/knora-api/shapes/v2#")
-    g.bind("dash", "http://datashapes.org/dash#")
-    g.bind("salsah-gui", "http://api.knora.org/ontology/salsah-gui/v2#")
+    g.bind("knora-api", KNORA_API_PREFIX)
+    g.bind("api-shapes", API_SHAPES_PREFIX)
+    g.bind("dash", DASH_PREFIX)
+    g.bind("salsah-gui", SALSAH_GUI_PREFIX)
     for iri in project_ontos:
         g.bind(get_one_prefix(iri), f"{iri}#")
     return g
 
 
-def _get_project_ontos(onto_client: OntologyGetClient) -> tuple[Graph, list[str]]:
+def _get_project_ontos(onto_client: OntologyGetClient) -> tuple[Graph, Store, list[str]]:
     logger.debug("Get project ontologies from server.")
     all_ontos, onto_iris = onto_client.get_ontologies()
     onto_g = Graph()
+    onto_stores = Store()
     for onto in all_ontos:
         og = Graph()
         og.parse(data=onto, format="ttl")
         onto_g += og
-    return onto_g, onto_iris
+        onto_stores.load(input=onto, format=RdfFormat.TURTLE)
+    return onto_g, onto_stores, onto_iris
 
 
 def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLicenseIris:

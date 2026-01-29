@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.cli.entry_point import _derive_dsp_ingest_url
 from dsp_tools.cli.entry_point import _get_canonical_server_and_dsp_ingest_url
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.cli.exceptions import CliUserError
 
 DEFAULT_DSP_API_URL = "http://0.0.0.0:3333"
 DEFAULT_DSP_INGEST_URL = "http://0.0.0.0:3340"
@@ -138,7 +138,7 @@ def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url
     ["https://0.0.0.0:1234", "https://api.unkown-host.ch"],
 )
 def test_unsupported_cases(unsupported_url: str) -> None:
-    with pytest.raises(InputError, match=r"Invalid DSP server URL"):
+    with pytest.raises(CliUserError, match=r"Invalid DSP server URL"):
         _ = _get_canonical_server_and_dsp_ingest_url(
             server=unsupported_url,
             default_dsp_api_url=DEFAULT_DSP_API_URL,

@@ -31,14 +31,14 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
-from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import StartEnd
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
-from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 type LiteralValueTypesAlias = Union[
     ProcessedBoolean,
@@ -119,7 +119,7 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
                 res_node=res_node,
             )
         case _:
-            raise InputError(f"Unknown value type: {type(val).__name__}")
+            raise UnreachableCodeError(f"Unknown value type: {type(val).__name__}")
     return properties_graph
 
 

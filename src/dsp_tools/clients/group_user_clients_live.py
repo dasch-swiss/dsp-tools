@@ -8,17 +8,17 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.group_user_clients import GroupClient
 from dsp_tools.clients.group_user_clients import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 30
+TIMEOUT_30 = 30
 
 
 @dataclass
@@ -29,7 +29,7 @@ class UserClientLive(UserClient):
     def get_user_iri_by_username(self, username: str) -> str | None:
         url = f"{self.api_url}/admin/users/username/{username}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("GET", url, TIMEOUT, headers=headers)
+        params = RequestParameters("GET", url, TIMEOUT_30, headers=headers)
         log_request(params)
         try:
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
@@ -52,7 +52,7 @@ class UserClientLive(UserClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("POST", url, TIMEOUT, data=user_dict, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_30, data=user_dict, headers=headers)
         log_request(params)
         try:
             response = requests.post(
@@ -77,7 +77,7 @@ class UserClientLive(UserClient):
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-memberships/{project_iri_encoded}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_30, headers=headers)
         log_request(params)
         try:
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
@@ -96,7 +96,7 @@ class UserClientLive(UserClient):
         user_iri_encoded = quote_plus(user_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/project-admin-memberships/{project_iri_encoded}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_30, headers=headers)
         log_request(params)
         try:
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
@@ -122,7 +122,7 @@ class UserClientLive(UserClient):
         group_iri_encoded = quote_plus(group_iri)
         url = f"{self.api_url}/admin/users/iri/{user_iri_encoded}/group-memberships/{group_iri_encoded}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_30, headers=headers)
         log_request(params)
         try:
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
@@ -144,7 +144,7 @@ class GroupClientLive(GroupClient):
 
     def get_all_groups(self) -> list[dict[str, Any]]:
         url = f"{self.api_url}/admin/groups"
-        params = RequestParameters("GET", url, TIMEOUT)
+        params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
             response = requests.get(params.url, timeout=params.timeout)
@@ -160,7 +160,7 @@ class GroupClientLive(GroupClient):
     def create_new_group(self, group_dict: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/groups"
         headers = {"Accept": "application/json", "Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("POST", url, TIMEOUT, headers=headers, data=group_dict)
+        params = RequestParameters("POST", url, TIMEOUT_30, headers=headers, data=group_dict)
         log_request(params)
         try:
             response = requests.post(

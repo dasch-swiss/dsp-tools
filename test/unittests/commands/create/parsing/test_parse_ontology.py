@@ -1,6 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
-from dsp_tools.commands.create.constants import KNORA_API_STR
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
@@ -16,6 +13,7 @@ from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_cardinal
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_class
 from dsp_tools.commands.create.parsing.parse_ontology import _parse_one_property
 from dsp_tools.commands.create.parsing.parse_ontology import parse_ontology
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.create.constants import ONTO_IRI_STR
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
@@ -61,7 +59,7 @@ class TestParseProperties:
         assert result.name == f"{ONTO_NAMESPACE_STR}testDate"
         assert result.labels == p_lbl
         assert result.comments == p_cmnt
-        assert set(result.supers) == {f"{KNORA_API_STR}hasValue", "http://otherOntology.com/onto/externalDate"}
+        assert set(result.supers) == {f"{KNORA_API_PREFIX}hasValue", "http://otherOntology.com/onto/externalDate"}
         assert result.object == KnoraObjectType.DATE
         assert result.subject is None
         assert result.gui_element == GuiElement.DATE
@@ -83,7 +81,7 @@ class TestParseProperties:
         assert result.name == f"{ONTO_NAMESPACE_STR}testListProp"
         assert result.labels == p_lbl
         assert result.comments is None
-        assert result.supers == [f"{KNORA_API_STR}hasValue"]
+        assert result.supers == [f"{KNORA_API_PREFIX}hasValue"]
         assert result.object == KnoraObjectType.LIST
         assert result.subject is None
         assert result.gui_element == GuiElement.LIST
@@ -104,7 +102,7 @@ class TestParseProperties:
         assert result.name == f"{ONTO_NAMESPACE_STR}testHasLinkToClassMixedCard"
         assert result.labels == p_lbl
         assert result.comments is None
-        assert set(result.supers) == {f"{KNORA_API_STR}hasLinkTo", f"{ONTO_NAMESPACE_STR}internalSuper"}
+        assert set(result.supers) == {f"{KNORA_API_PREFIX}hasLinkTo", f"{ONTO_NAMESPACE_STR}internalSuper"}
         assert result.object == f"{ONTO_NAMESPACE_STR}ClassMixedCard"
         assert result.subject is None
         assert result.gui_element == GuiElement.SEARCHBOX
@@ -140,7 +138,7 @@ class TestParseClasses:
         assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
         assert result.labels == lbl
         assert result.comments == cmnt
-        assert result.supers == [f"{KNORA_API_STR}ArchiveRepresentation"]
+        assert result.supers == [f"{KNORA_API_PREFIX}ArchiveRepresentation"]
 
     def test_good_list_super(self, prefixes):
         lbl = {"en": "ArchiveRepresentation"}
@@ -154,7 +152,7 @@ class TestParseClasses:
         assert result.name == f"{ONTO_NAMESPACE_STR}TestArchiveRepresentation"
         assert result.labels == lbl
         assert result.comments is None
-        assert set(result.supers) == {f"{KNORA_API_STR}ArchiveRepresentation", f"{ONTO_NAMESPACE_STR}OntoClass"}
+        assert set(result.supers) == {f"{KNORA_API_PREFIX}ArchiveRepresentation", f"{ONTO_NAMESPACE_STR}OntoClass"}
 
     def test_cannot_resolve_prefix(self, prefixes):
         lbl = {"en": "ArchiveRepresentation"}
@@ -237,7 +235,7 @@ class TestParseCardinalities:
         card = {"propname": "seqnum", "cardinality": "1-n", "gui_order": 2}
         result = _parse_one_cardinality(card, ONTO_NAMESPACE_STR, prefixes)  # type: ignore[arg-type]
         assert isinstance(result, ParsedPropertyCardinality)
-        assert result.propname == f"{KNORA_API_STR}seqnum"
+        assert result.propname == f"{KNORA_API_PREFIX}seqnum"
         assert result.cardinality == Cardinality.C_1_N
         assert result.gui_order == 2
 

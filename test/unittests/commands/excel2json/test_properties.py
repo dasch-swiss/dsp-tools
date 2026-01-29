@@ -7,12 +7,12 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
+from dsp_tools.commands.excel2json.exceptions import InvalidGuiAttributeError
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.error.exceptions import InputError
-from dsp_tools.error.exceptions import InvalidGuiAttributeError
 
 
 def test_rename_deprecated_lang_cols() -> None:
@@ -113,7 +113,7 @@ def test_do_property_excel_compliance_problems() -> None:
         "    - Column 'label' | Row 8\n"
         "    - Column 'gui_attributes' | Row 7"
     )
-    with pytest.raises(InputError, match=expected_msg):
+    with pytest.raises(InvalidFileFormatError, match=expected_msg):
         e2j._do_property_excel_compliance(original_df)
 
 

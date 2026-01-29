@@ -1,5 +1,12 @@
 # Changelog
 
+## [18.6.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.1...v18.6.2) (2026-01-29)
+
+
+### Maintenance
+
+* improve error handling of ShaclCliValidator ([#2174](https://github.com/dasch-swiss/dsp-tools/issues/2174)) ([a2ffa15](https://github.com/dasch-swiss/dsp-tools/commit/a2ffa1593e550724a3210bef888536a8776147c7))
+
 ## [18.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.0...v18.6.1) (2026-01-29)
 
 

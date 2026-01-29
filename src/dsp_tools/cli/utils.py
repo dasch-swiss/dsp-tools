@@ -64,28 +64,29 @@ def check_docker_health() -> None:
 
 def _check_api_health(api_url: str) -> None:
     health_url = f"{api_url}/health"
-    localhost_msg = (
-        "Cannot connect to the local DSP-API. Please check if your stack is healthy "
-        "or start a stack with 'dsp-tools start-stack' if none is running."
-    )
-    remote_msg = "Cannot connect to the remote DSP-API. Please contact the DaSCH engineering team for help."
 
     try:
         response = requests.get(health_url, timeout=2)
     except requests.exceptions.RequestException:
         logger.exception(f"Failed to connect to DSP-API at {health_url}")
-        msg = localhost_msg if api_url == LOCALHOST_API else remote_msg
-        raise DspApiNotReachableError(msg) from None
+        raise DspApiNotReachableError(is_localhost=api_url == LOCALHOST_API) from None
 
     if not response.ok:
         if api_url == LOCALHOST_API:
-            logger.error(localhost_msg)
-            raise DspApiNotReachableError(localhost_msg)
+            error = DspApiNotReachableError(
+                is_localhost=True,
+                status_code=response.status_code,
+                response_text=response.text,
+            )
+            logger.error(str(error))
+            raise error
         else:
-            msg = remote_msg + f"\nStatus code: {response.status_code}"
-            if response.text:
-                msg += f"\nResponse text: {response.text}"
-            logger.error(msg)
-            raise DspApiNotReachableError(msg)
+            error = DspApiNotReachableError(
+                is_localhost=False,
+                status_code=response.status_code,
+                response_text=response.text,
+            )
+            logger.error(str(error))
+            raise error
 
     logger.debug(f"DSP API health check passed: {health_url}")

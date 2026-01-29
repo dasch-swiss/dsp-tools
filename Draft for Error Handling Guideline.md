@@ -1,5 +1,8 @@
 # Draft for Error Handling Guideline
 
+**Status:** This is a draft guideline. The exception hierarchy described here (BaseError, UserError, InternalError)
+has been implemented (January 2026), but these guidelines are not yet systematically enforced in the codebase.
+
 --> **Please consider only the content of this draft, and ignore its form.**
 
 
@@ -83,7 +86,7 @@ except json.JSONDecodeError as err:
     raise JSONFileParsingError(filepath, err.msg)
 
 @dataclass
-class JSONFileParsingError:
+class JSONFileParsingError(UserError):
     filepath: Path
     orig_err_msg: str
 

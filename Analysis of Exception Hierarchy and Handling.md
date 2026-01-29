@@ -1,21 +1,74 @@
 # Analysis of Exception Hierarchy and Handling
 
 **Date:** 2025-11-07
-**Updated:** 2025-11-27
+**Updated:** 2026-01-29
 **Scope:** Analysis of exception handling across DSP-TOOLS codebase with improvement recommendations
 
 ## Proposed Steps
 
-1. Nora reviews this document
+1. ✅ Nora reviews this document
     - Some recently added error classes are not considered yet in this report,
       but this should not hinder us discussing this report.
-2. Based on the feedback, Johannes fine-tunes this document
-3. Johannes creates a project and tickets
+2. ✅ Based on the feedback, Johannes fine-tunes this document
+3. ✅ Johannes creates a project and tickets
     - Implementation order:
-        - Hierarchy redesign
+        - ✅ Hierarchy redesign (InputError→UserError, exception separation)
         - Concrete issues in error handling (easily fixable in 1 PR each)
         - Add Architecture Documentation
         - Error Message Quality - More Involved
+
+---
+
+## Implementation Status
+
+### Major Refactorings Completed (January 2026)
+
+The following major changes from Section 2 have been **successfully implemented**:
+
+1. **✅ InputError renamed to UserError** (commit ce758a4a, Jan 2026)
+   - All occurrences of `InputError` class removed
+   - All references updated to `UserError` throughout the codebase
+   - Reflects broader scope beyond just input validation issues
+
+2. **✅ Exception separation to command-specific files** (commit 9f216006, Jan 2026)
+   - Affected 99 files across the codebase
+   - Each command module now has its own `exceptions.py` file:
+     - `src/dsp_tools/cli/exceptions.py`
+     - `src/dsp_tools/clients/exceptions.py`
+     - `src/dsp_tools/utils/exceptions.py`
+     - `src/dsp_tools/commands/create/exceptions.py`
+     - `src/dsp_tools/commands/excel2json/exceptions.py`
+     - `src/dsp_tools/commands/get/exceptions.py`
+     - `src/dsp_tools/commands/ingest_xmlupload/exceptions.py`
+     - `src/dsp_tools/commands/start_stack/exceptions.py`
+     - `src/dsp_tools/commands/update_legal/exceptions.py`
+     - `src/dsp_tools/commands/validate_data/exceptions.py`
+     - `src/dsp_tools/commands/xmlupload/exceptions.py`
+     - `src/dsp_tools/xmllib/internal/exceptions.py`
+   - Central [src/dsp_tools/error/exceptions.py](src/dsp_tools/error/exceptions.py) now contains only base classes
+   - Achieved better modularity and separation of concerns
+
+3. **✅ Base hierarchy structure established**
+   - `BaseError` as root exception (dataclass with message attribute)
+   - `UserError(BaseError)` for user-fixable errors
+   - `InternalError(BaseError)` for errors requiring developer assistance
+   - Additional base exceptions: `UnreachableCodeError`, `UserFilepathNotFoundError`, `UserDirectoryNotFoundError`, etc.
+
+### Remaining Work
+
+All items in **Section 3 (Concrete Issues)** and **Section 4 (Error Message Quality)** remain to be implemented:
+
+- Section 3.1: ShaclCliValidator logging and error handling issues
+- Section 3.2: _check_api_health() logging and control flow issues
+- Section 3.3: UnknownDOAPException misuse of exceptions for control flow
+- Section 3.4: Inconsistent message formatting ("ERROR:" prefixes)
+- Section 3.5: Meta-tests for exception hierarchy
+- Section 3.6: Bare BaseError raises (21 files)
+- Section 3.7: Entry point exception handling improvements
+- Section 3.8: Exception chain suppression (`from None` usage - 44 occurrences)
+- Section 3.9: Duplicate error logging
+- Section 3.10: PermanentTimeOutError cleanup
+- Section 4: Error message quality improvements
 
 ---
 
@@ -43,77 +96,139 @@
 
 ## 2. Exception Hierarchy Redesign
 
-### Current Issues
+### ✅ IMPLEMENTED - Current Structure (as of January 2026)
 
-- `InputError` should be renamed to `UserError` (broader scope: not just input problems)
-- No clear distinction between user-fixable and internal errors at the hierarchy level
-- Several errors are misclassified
+The exception hierarchy has been successfully refactored:
 
-### Proposed Structure
+- ✅ `InputError` has been renamed to `UserError` (broader scope: not just input problems)
+- ✅ Clear distinction between user-fixable (`UserError`) and internal errors (`InternalError`) at the hierarchy level
+- ✅ Exceptions have been distributed to command-specific files
 
-The central `src/dsp_tools/error/exceptions.py` only contains the base classes.
-In every command package, there is a `exceptions.py` whith classes that inherit from the base classes.
-So the grouping by commands is achieved by the place of the file, not inheritance. 
+The central [src/dsp_tools/error/exceptions.py](src/dsp_tools/error/exceptions.py) now only contains the base classes.
+In every command package, there is an `exceptions.py` file with classes that inherit from the base classes.
+The grouping by commands is achieved by the location of the file, not by inheritance. 
 
-General exceptions (`src/dsp_tools/error/exceptions.py`):
+**Base exceptions** ([src/dsp_tools/error/exceptions.py](src/dsp_tools/error/exceptions.py)):
 
 ```text
-BaseError
-├── UserError           # User can fix it themselves. renamed from InputError: Reflects broader scope (not just input issues)
-└── InternalError       # Developer necessary to fix it
+BaseError                               # Root exception (dataclass with message attribute)
+├── UserError                           # User can fix it themselves (renamed from InputError)
+├── InternalError                       # Developer necessary to fix it
+├── UnreachableCodeError                # For code paths that should never execute
+├── UserFilepathNotFoundError(UserError)    # Generic file not found
+├── UserDirectoryNotFoundError(UserError)   # Generic directory not found
+├── PermanentConnectionError            # All reconnection attempts failed
+├── PermanentTimeOutError               # Timeout from DSP-API
+└── BadCredentialsError(UserError)      # Authentication failure
 ```
 
-Utils (`src/dsp_tools/utils/exceptions.py`):
+**Utils exceptions** ([src/dsp_tools/utils/exceptions.py](src/dsp_tools/utils/exceptions.py)):
 
 ```text
-UserFilepathNotFoundError(UserError)        # used in different places, also in CLI
-JSONFileParsingError(UserError)
-DuplicateIdsInXmlAndId2IriMapping(UserError)
-BadCredentialsError(UserError)              # mostly used by clients in src/dsp_tools/clients
-FatalNonOkApiResponseCode(InternalError)    # mostly used by clients in src/dsp_tools/clients
-PermanentConnectionError(InternalError)     # used by connection class if after all retries no 200 is returned 
-                                            # -> mark as deprecated
-DspToolsRequestException(InternalError)     # raised by log_and_raise_request_exception 
-                                            # -> ingest should use this instead of PermanentConnectionError
-ShaclValidationError(InternalError)     # unknown issues during validation (renamed from ShaclValidationCliError)
-InvalidInputError(InternalError)        # deprecated: if API response contains certain expressions,
-                                        # the deprecated `Connection` class raises this error with the API response as text.
-                                        # Let this escalate ugly. If a user sees it, we should add a better handling
+JSONFileParsingError(UserError)                 # Cannot parse JSON file
+XsdValidationError(UserError)                   # XML validation failure
+DuplicateIdsInXmlAndId2IriMapping(UserError)    # ID collision in mapping
+MalformedPrefixedIriError(UserError)            # Invalid IRI format
+DspToolsRequestException(BaseError)             # Request exception wrapper
 ```
 
-CLI (`src/dsp_tools/cli/exceptions.py`):
+**Note:** `UserFilepathNotFoundError` and `BadCredentialsError` are in the base exceptions file, not utils.
+
+**CLI exceptions** ([src/dsp_tools/cli/exceptions.py](src/dsp_tools/cli/exceptions.py)):
 
 ```text
-UserDirectoryNotFoundError(UserError)
-DockerNotReachableError(UserError)
-DspApiNotReachableError(UserError)
-MissingInternetConnectivity(UserError)      # should be used by start-stack instead of PermanentConnectionError 
-                                            # (check it already in the CLI)
+CliUserError(UserError)                 # Invalid CLI input
+DockerNotReachableError(UserError)      # Docker not running
+DspApiNotReachableError(UserError)      # API unreachable on localhost
 ```
 
-excel2json (`src/dsp_tools/commands/excel2json/exceptions.py`):
+**Note:** `UserDirectoryNotFoundError` is in the base exceptions file, not CLI.
+
+**Clients exceptions** ([src/dsp_tools/clients/exceptions.py](src/dsp_tools/clients/exceptions.py)):
 
 ```text
-InvalidGuiAttributeError(UserError)
+FatalNonOkApiResponseCode(BaseError)    # Unexpected API response
+InvalidInputError(UserError)            # API rejected input data
+ProjectOntologyNotFound(UserError)      # No ontologies in project
+ProjectNotFoundError(UserError)         # Project doesn't exist
 ```
 
-create (`src/dsp_tools/commands/create/exceptions.py`):
+**Create command** ([src/dsp_tools/commands/create/exceptions.py](src/dsp_tools/commands/create/exceptions.py)):
 
 ```text
-ProjectNotFoundError(UserError)
+ProjectJsonSchemaValidationError(UserError)     # JSON schema validation failed
+CircularOntologyDependency(UserError)           # Circular dependencies detected
+UnableToCreateProjectError(InternalError)       # Project creation failed
 ```
 
-xmlupload (`src/dsp_tools/commands/xmlupload/exceptions.py`):
+**Excel2JSON command** ([src/dsp_tools/commands/excel2json/exceptions.py](src/dsp_tools/commands/excel2json/exceptions.py)):
 
 ```text
-Id2IriReplacementError(UserError)
-XmlUploadPermissionsNotFoundError(UserError)    # XmlUploadError should be merged with this class
-XmlUploadAuthorshipsNotFoundError(UserError)
-XmlUploadListNodeNotFoundError(UserError)
-InvalidIngestFileNameError(UserError)
-XmlInputConversionError(InputError)             # due to validate-data, this should never happen.
-                                                # If it happens, let it crash ugly.
-XmlUploadInterruptedError(InputError)
+InvalidFolderStructureError(UserError)      # Bad folder structure
+InvalidFileFormatError(UserError)           # File format doesn't match expected
+InvalidFileContentError(UserError)          # Invalid content in file
+InvalidGuiAttributeError(UserError)         # Invalid GUI attribute
+InvalidListSectionError(UserError)          # List section validation failed
+```
+
+**Get command** ([src/dsp_tools/commands/get/exceptions.py](src/dsp_tools/commands/get/exceptions.py)):
+
+```text
+UnknownDOAPException(InternalError)         # Cannot parse DOAP
+```
+
+**Ingest XMLUpload command** ([src/dsp_tools/commands/ingest_xmlupload/exceptions.py](src/dsp_tools/commands/ingest_xmlupload/exceptions.py)):
+
+```text
+NoIngestFileFound(UserError)                # No files uploaded for ingest
+InvalidIngestInputFilesError(UserError)     # Invalid filepaths
+IngestIdForFileNotFoundError(UserError)     # File not in ingest mapping
+IngestFailure(InternalError)                # Ingest call failed
+```
+
+**Start Stack command** ([src/dsp_tools/commands/start_stack/exceptions.py](src/dsp_tools/commands/start_stack/exceptions.py)):
+
+```text
+StartStackInputError(InternalError)         # Invalid input to start stack
+FusekiStartUpError(InternalError)           # Fuseki startup problem
+```
+
+**Update Legal command** ([src/dsp_tools/commands/update_legal/exceptions.py](src/dsp_tools/commands/update_legal/exceptions.py)):
+
+```text
+InvalidInputFileFormat(UserError)           # Input file format problem
+LegalInfoPropertyError(UserError)           # Property issue
+InvalidLicenseError(UserError)              # Cannot parse license string
+```
+
+**Validate Data command** ([src/dsp_tools/commands/validate_data/exceptions.py](src/dsp_tools/commands/validate_data/exceptions.py)):
+
+```text
+ShaclValidationCliError(InternalError)      # Docker command problems
+ShaclValidationError(InternalError)         # Unexpected validation error
+```
+
+**XMLUpload command** ([src/dsp_tools/commands/xmlupload/exceptions.py](src/dsp_tools/commands/xmlupload/exceptions.py)):
+
+```text
+UnableToRetrieveProjectInfoError(BaseError)         # Cannot get project info
+MultimediaFileNotFound(UserError)                   # Referenced files don't exist
+InvalidIngestFileNameError(InvalidInputError)       # INGEST rejected filename
+XmlUploadError(BaseError)                           # General xmlupload error
+XmlUploadInterruptedError(XmlUploadError)           # Upload interrupted
+XmlInputConversionError(InternalError)              # XML conversion failed
+Id2IriReplacementError(UserError)                   # ID not found in mapping
+XmlUploadPermissionsNotFoundError(UserError)        # Permission doesn't exist
+XmlUploadAuthorshipsNotFoundError(UserError)        # Authorship doesn't exist
+XmlUploadListNodeNotFoundError(UserError)           # List node doesn't exist
+```
+
+**xmllib module** ([src/dsp_tools/xmllib/internal/exceptions.py](src/dsp_tools/xmllib/internal/exceptions.py)):
+
+```text
+XmllibInputError(UserError)                 # Invalid user input
+XmllibFileNotFoundError(UserError)          # File doesn't exist
+XmllibInternalError(UserError)              # Internal xmllib error
 ```
 
 
@@ -121,6 +236,9 @@ XmlUploadInterruptedError(InputError)
 ---
 
 ## 3. Concrete issues in error handling (easily fixable in 1 PR each)
+
+**Note:** While major refactoring work (Section 2) has been completed, the specific issues identified below
+remain unaddressed and should be fixed as described.
 
 ### 3.1 ShaclCliValidator Issues
 

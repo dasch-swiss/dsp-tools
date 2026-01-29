@@ -59,7 +59,7 @@ The following major changes from Section 2 have been **successfully implemented*
 The following items in **Section 3 (Concrete Issues)** and **Section 4 (Error Message Quality)** remain to be implemented:
 
 - ✅ Section 3.1: ShaclCliValidator logging and error handling issues (**COMPLETED** - January 2026)
-- Section 3.2: _check_api_health() logging and control flow issues
+- ✅ Section 3.2: _check_api_health() logging and control flow issues (**COMPLETED** - January 2026)
 - Section 3.3: UnknownDOAPException misuse of exceptions for control flow
 - Section 3.4: Inconsistent message formatting ("ERROR:" prefixes)
 - Section 3.5: Meta-tests for exception hierarchy
@@ -271,6 +271,18 @@ Multiple issues in `ShaclCliValidator.validate()`:
 - Use `from e` or `logger.exception()` + `from None` pattern
 
 ### 3.2 `_check_api_health()` (`src/dsp_tools/cli/utils.py`) issues
+
+**✅ COMPLETED (January 2026)** - All issues in this section have been fixed.
+
+**What was implemented:**
+
+- Moved `if not response.ok` block outside try-except - clearer separation of concerns
+- Replaced `logger.error(e)` with `logger.exception()` in except block - preserves full stack trace
+- Removed redundant logging (consolidated to single call per error path)
+- Removed `from None` to keep exception chain intact for debugging
+- Improved message selection logic - localhost vs remote messages defined upfront
+
+**Original issues** (for reference):
 
 - `if not response.ok`  should be moved out of the try-except block
 - except block uses `logger.error()` twice

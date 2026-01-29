@@ -56,9 +56,9 @@ The following major changes from Section 2 have been **successfully implemented*
 
 ### Remaining Work
 
-All items in **Section 3 (Concrete Issues)** and **Section 4 (Error Message Quality)** remain to be implemented:
+The following items in **Section 3 (Concrete Issues)** and **Section 4 (Error Message Quality)** remain to be implemented:
 
-- Section 3.1: ShaclCliValidator logging and error handling issues
+- ✅ Section 3.1: ShaclCliValidator logging and error handling issues (**COMPLETED** - January 2026)
 - Section 3.2: _check_api_health() logging and control flow issues
 - Section 3.3: UnknownDOAPException misuse of exceptions for control flow
 - Section 3.4: Inconsistent message formatting ("ERROR:" prefixes)
@@ -242,6 +242,18 @@ remain unaddressed and should be fixed as described.
 
 ### 3.1 ShaclCliValidator Issues
 
+**✅ COMPLETED (January 2026)** - All issues in this section have been fixed.
+
+**What was implemented:**
+
+- Enhanced `ShaclValidationCliError` to store diagnostic data (returncode, stderr)
+- Updated exception handler to use `logger.exception()` instead of `logger.error()` - preserves stack trace
+- Removed redundant logging (consolidated to single call)
+- Removed `from None` to keep exception chain intact
+- Error message now includes exit code and stderr output
+
+**Original issues** (for reference):
+
 Multiple issues in `ShaclCliValidator.validate()`:
 
 1. **Incorrect error message**: Says Docker is not running, but this is already checked in
@@ -250,7 +262,7 @@ Multiple issues in `ShaclCliValidator.validate()`:
 3. **Uses `logger.error()` twice**: Redundant logging
 4. **Raises with `from None`**: Original error is lost
 
-**Recommendation:**
+**Original recommendation** (for reference):
 
 - Remove Docker check error (already handled upstream)
 - Use `logger.exception()` to preserve context

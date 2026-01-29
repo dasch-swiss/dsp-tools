@@ -31,9 +31,9 @@ def test_check_api_health_not_healthy_local(mock_get: Mock) -> None:
     expected_msg = regex.escape(
         "Cannot connect to the local DSP-API. "
         "Please check if your stack is healthy "
-        "or start a stack with 'dsp-tools start-stack' if none is running. "
-        "Status code: 503\n"
-        "Response text: Service temporarily unavailable"
+        "or start a stack with 'dsp-tools start-stack' if none is running."
+        "\nStatus code: 503"
+        "\nResponse text: Service temporarily unavailable"
     )
     with pytest.raises(DspApiNotReachableError, match=expected_msg) as exc_info:
         _check_api_health("http://0.0.0.0:3333")
@@ -54,9 +54,9 @@ def test_check_api_health_not_healthy_server(mock_get: Mock) -> None:
 
     expected_msg = regex.escape(
         "Cannot connect to the remote DSP-API. "
-        "Please contact the DaSCH engineering team for help. "
-        "Status code: 503\n"
-        "Response text: Maintenance mode"
+        "Please contact the DaSCH engineering team for help."
+        "\nStatus code: 503"
+        "\nResponse text: Maintenance mode"
     )
     with pytest.raises(DspApiNotReachableError, match=expected_msg) as exc_info:
         _check_api_health("https://api.dasch.swiss")

@@ -11,7 +11,6 @@ from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 
 
 class ShaclCliValidator:
@@ -19,14 +18,8 @@ class ShaclCliValidator:
         try:
             self._run_validate_cli(file_paths)
         except subprocess.CalledProcessError as e:
-            logger.error(e)
-            msg = (
-                "Data validation requires Docker. Is your Docker Desktop Application open? "
-                "If it is, please contact the DSP-TOOLS development team (at support@dasch.swiss) "
-                f"with the log file at {LOGGER_SAVEPATH}."
-            )
-            logger.error(msg)
-            raise ShaclValidationCliError(msg) from None
+            logger.exception(f"Docker command failed with {e.returncode}: {e.stderr or ''}")
+            raise ShaclValidationCliError(e.returncode, e.stderr or "")
         return self._parse_validation_result(file_paths.directory / file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:

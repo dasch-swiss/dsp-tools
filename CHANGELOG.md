@@ -1,5 +1,30 @@
 # Changelog
 
+## [18.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.0...v18.6.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* **get:** retry in case of API rate limiting (DEV-5805) ([#2171](https://github.com/dasch-swiss/dsp-tools/issues/2171)) ([2a689ee](https://github.com/dasch-swiss/dsp-tools/commit/2a689eec7ce421f0c230dacf2a7a7ee53fe6b20d))
+
+
+### Maintenance
+
+* bump dependencies ([#2172](https://github.com/dasch-swiss/dsp-tools/issues/2172)) ([4410bdf](https://github.com/dasch-swiss/dsp-tools/commit/4410bdf924d59f7030354705b038b8739a2c23e0))
+* **CLI:** add CLAUDE.md file ([#2168](https://github.com/dasch-swiss/dsp-tools/issues/2168)) ([b8dcc41](https://github.com/dasch-swiss/dsp-tools/commit/b8dcc41d0bed415c6136d1fdf2ac57fd81a1e8c1))
+* **clients:** make naming of AuthenticationClient consistent ([#2163](https://github.com/dasch-swiss/dsp-tools/issues/2163)) ([da9cb08](https://github.com/dasch-swiss/dsp-tools/commit/da9cb08051bf982e78e0f8281ee47be7af557d71))
+* **clients:** make permissions client consistent with other clients ([#2166](https://github.com/dasch-swiss/dsp-tools/issues/2166)) ([4a3b8b9](https://github.com/dasch-swiss/dsp-tools/commit/4a3b8b9f112ce36454318c2fd688be76b479fef3))
+* **clients:** make protocol for PermissionsClient ([#2167](https://github.com/dasch-swiss/dsp-tools/issues/2167)) ([37d25c3](https://github.com/dasch-swiss/dsp-tools/commit/37d25c3ec7d1fce4c3362f8d0b44adf6b4ab80f9))
+* **clients:** make timeout gloal and make naming consistent ([#2164](https://github.com/dasch-swiss/dsp-tools/issues/2164)) ([aa6288b](https://github.com/dasch-swiss/dsp-tools/commit/aa6288bbdfdb5aebcdd16545fb458d372f5cb8f9))
+* disable two mypy error codes in test directory ([#2158](https://github.com/dasch-swiss/dsp-tools/issues/2158)) ([e9ca437](https://github.com/dasch-swiss/dsp-tools/commit/e9ca437a5736886541c5efa653baff0ecbe3aed9))
+* move Ingest Client to clients folder ([#2160](https://github.com/dasch-swiss/dsp-tools/issues/2160)) ([1c1f074](https://github.com/dasch-swiss/dsp-tools/commit/1c1f0745ae3eafb12ee30b10b97cef8d6058e913))
+* remove `InputError` ([#2150](https://github.com/dasch-swiss/dsp-tools/issues/2150)) ([ce758a4](https://github.com/dasch-swiss/dsp-tools/commit/ce758a4a4479538c164001dc5e1852e97c4718cf))
+* **start-stack:** bump versions to 2026.01.04 ([#2173](https://github.com/dasch-swiss/dsp-tools/issues/2173)) ([0ea07e0](https://github.com/dasch-swiss/dsp-tools/commit/0ea07e0f4f4a6c71697ed2207c5afb83493f72a7))
+* **utils:** add CLAUDE.md ([#2169](https://github.com/dasch-swiss/dsp-tools/issues/2169)) ([94d0126](https://github.com/dasch-swiss/dsp-tools/commit/94d0126b897d5d7aa35f6afb458ae50422c4814a))
+* **validate-data:** take reformatting of lists out of client ([#2157](https://github.com/dasch-swiss/dsp-tools/issues/2157)) ([9b3dc0c](https://github.com/dasch-swiss/dsp-tools/commit/9b3dc0c86bb1af0644d06c1cb67b45ecab28337c))
+* **validate-data:** update claude.md file ([#2156](https://github.com/dasch-swiss/dsp-tools/issues/2156)) ([0915e13](https://github.com/dasch-swiss/dsp-tools/commit/0915e136fbe7e61f03f1ddd6e1bb7628de11d015))
+* **xmlupload:** use generic `ListGetClient` ([#2159](https://github.com/dasch-swiss/dsp-tools/issues/2159)) ([dd0a10e](https://github.com/dasch-swiss/dsp-tools/commit/dd0a10effaf914b887e187d55fadbc989c8b31b4))
+
 ## [18.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.5.0...v18.6.0) (2026-01-14)
 
 

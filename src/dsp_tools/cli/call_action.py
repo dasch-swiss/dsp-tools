@@ -33,7 +33,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
         BaseError: from the called function
         InputError: from the called function
         DockerNotReachableError: from the called function
-        LocalDspApiNotReachableError: from the called function
+        DspApiNotReachableError: from the called function
         unexpected errors from the called methods and underlying libraries
 
     Returns:

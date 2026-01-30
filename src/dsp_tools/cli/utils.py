@@ -72,21 +72,12 @@ def _check_api_health(api_url: str) -> None:
         raise DspApiNotReachableError(is_localhost=api_url == LOCALHOST_API) from None
 
     if not response.ok:
-        if api_url == LOCALHOST_API:
-            error = DspApiNotReachableError(
-                is_localhost=True,
-                status_code=response.status_code,
-                response_text=response.text,
-            )
-            logger.error(str(error))
-            raise error
-        else:
-            error = DspApiNotReachableError(
-                is_localhost=False,
-                status_code=response.status_code,
-                response_text=response.text,
-            )
-            logger.error(str(error))
-            raise error
+        error = DspApiNotReachableError(
+            is_localhost=bool(api_url == LOCALHOST_API),
+            status_code=response.status_code,
+            response_text=response.text,
+        )
+        logger.error(str(error))
+        raise error
 
     logger.debug(f"DSP API health check passed: {health_url}")

@@ -35,7 +35,7 @@ class DspApiNotReachableError(UserError):
         else:
             base_msg = "Cannot connect to the remote DSP-API. Please contact the DaSCH engineering team for help."
 
-        if status_code is not None:
+        if status_code:
             base_msg += f"\nStatus code: {status_code}"
         if response_text:
             base_msg += f"\nResponse text: {response_text}"

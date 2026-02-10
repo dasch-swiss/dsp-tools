@@ -38,7 +38,7 @@ def get_parsed_resources_and_mappers(
 
 
 def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
-    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth)
     proj_context = _get_project_context_from_server(con=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)

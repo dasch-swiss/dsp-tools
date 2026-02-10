@@ -310,9 +310,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_client = ProjectClientLive(
-        clients.legal_info_client.server, clients.legal_info_client.authentication_client
-    )
+    project_client = ProjectClientLive(clients.legal_info_client.server, clients.legal_info_client.auth)
     project_iri = project_client.get_project_iri(upload_state.config.shortcode)
 
     iri_lookup = IRILookups(
@@ -320,7 +318,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         id_to_iri=upload_state.iri_resolver,
     )
 
-    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.authentication_client)
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth)
     resource_create_client = ResourceCreateClient(
         con=con,
     )

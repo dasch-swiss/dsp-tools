@@ -5,7 +5,7 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
-from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
@@ -106,7 +106,11 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
         overall_success = False
 
     # create the default permissions (DOAPs)
-    perm_client = PermissionsClient(auth, project_iri)
+    perm_client = PermissionsClientLive(
+        server=auth.server,
+        auth=auth,
+        project_iri=project_iri,
+    )
     success = create_default_permissions(
         perm_client=perm_client,
         parsed_permissions=parsed_project.permissions,

@@ -17,6 +17,8 @@ from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
+TIMEOUT_30 = 30
+
 
 @dataclass
 class ProjectClientLive(ProjectClient):
@@ -25,11 +27,10 @@ class ProjectClientLive(ProjectClient):
 
     def get_project_iri(self, shortcode: str) -> str:
         url = f"{self.server}/admin/projects/shortcode/{shortcode}"
-        timeout = 30
-        params = RequestParameters("GET", url, timeout)
+        params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=timeout)
+            response = requests.get(url, timeout=TIMEOUT_30)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -43,9 +44,8 @@ class ProjectClientLive(ProjectClient):
 
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/admin/projects"
-        timeout = 10
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("POST", url, timeout, headers=headers, data=project_info)
+        params = RequestParameters("POST", url, TIMEOUT_30, headers=headers, data=project_info)
         log_request(params)
         try:
             response = requests.post(

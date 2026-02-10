@@ -15,6 +15,8 @@ from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
+TIMEOUT_10 = 10
+
 
 @dataclass
 class AuthenticationClientLive(AuthenticationClient):
@@ -36,11 +38,10 @@ class AuthenticationClientLive(AuthenticationClient):
         return self._get_token()
 
     def _get_token(self) -> str:
-        timeout = 10
         url = f"{self.server}/v2/authentication"
         payload = {"email": self.email, "password": self.password}
         headers = {"User-Agent": f"DSP-TOOLS/{version('dsp-tools')}"}
-        request_params = RequestParameters("POST", url, data=payload, timeout=timeout, headers=headers)
+        request_params = RequestParameters("POST", url, data=payload, timeout=TIMEOUT_10, headers=headers)
         log_request(request_params)
         try:
             response = requests.post(

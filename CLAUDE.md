@@ -119,6 +119,12 @@ DSP-TOOLS provides the following functionalities:
 - **Argument parsing**: `create_parsers.py` - Creates CLI argument parsers for all commands
 - **Action dispatcher**: `call_action.py` - Routes parsed arguments to appropriate command handlers
 
+
+#### Clients Module (`src/dsp_tools/clients`)
+
+- HTTP clients that are used across several modules
+- Should be generic enough to be re-used by several commands and not contain re-try logic.
+
 #### Commands Module (`src/dsp_tools/commands/`)
 
 Generally, each subdirectory implements a specific CLI command.
@@ -135,9 +141,7 @@ Public API library for programmatic creation of XML files:
 
 #### Utils Module (`src/dsp_tools/utils/`)
 
-- **xml_parsing/**: XML file parsing and validation utilities
-- **data_formats/**: Date, IRI, and URI utility functions
-- **request_utils.py**: HTTP request helpers
+- `src/dsp_tools/utils/CLAUDE.md` describes the functionalities and for which purposes they should be used
 
 ### Data Flow Architecture
 

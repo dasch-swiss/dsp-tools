@@ -53,7 +53,7 @@ To install, run this inside Claude Code:
 /plugin install feature-dev@anthropics-claude-code
 ```
 
-Then, invoke it inside Claude Code with `/feature-dev`.
+Then, invoke it inside Claude Code with `/feature-dev:feature-dev`.
 
 
 ### Linear MCP

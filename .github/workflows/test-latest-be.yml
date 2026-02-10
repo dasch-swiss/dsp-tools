@@ -19,7 +19,7 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: start stack with latest backend
-        run: uv run dsp-tools start-stack --latest --no-prune --with-test-data
+        run: uv run dsp-tools start-stack --latest --no-prune
       - name: create project
         run: uv run dsp-tools create testdata/json-project/systematic-project-4123.json
       - name: get project

@@ -64,7 +64,7 @@ jobs:
       - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: start stack
-        run: uv run dsp-tools start-stack --no-prune --with-test-data
+        run: uv run dsp-tools start-stack --no-prune
       - name: distribution tests
         run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 

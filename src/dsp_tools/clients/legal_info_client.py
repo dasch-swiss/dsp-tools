@@ -11,7 +11,7 @@ class LegalInfoClient(Protocol):
 
     server: str
     project_shortcode: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""

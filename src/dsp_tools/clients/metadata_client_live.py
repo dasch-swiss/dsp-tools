@@ -13,18 +13,18 @@ from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_respons
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 120
+TIMEOUT_120 = 120
 
 
 @dataclass
 class MetadataClientLive(MetadataClient):
     server: str
-    authentication_client: AuthenticationClient
+    auth: AuthenticationClient
 
     def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
         url = f"{self.server}/v2/metadata/projects/{shortcode}/resources?format=JSON"
-        header = {"Authorization": f"Bearer {self.authentication_client.get_token()}"}
-        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT, headers=header)
+        header = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_120, headers=header)
         logger.debug("GET Resource Metadata")
         log_request(params)
         try:

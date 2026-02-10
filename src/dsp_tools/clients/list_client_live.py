@@ -20,7 +20,9 @@ from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_respons
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT = 60
+TIMEOUT_10 = 10
+TIMEOUT_30 = 30
+TIMEOUT_60 = 60
 
 
 @dataclass
@@ -44,10 +46,9 @@ class ListGetClientLive(ListGetClient):
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
-        timeout = 10
-        log_request(RequestParameters("GET", url, timeout))
+        log_request(RequestParameters("GET", url, TIMEOUT_10))
         try:
-            response = requests.get(url=url, timeout=timeout)
+            response = requests.get(url=url, timeout=TIMEOUT_10)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -63,10 +64,9 @@ class ListGetClientLive(ListGetClient):
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
-        timeout = 30
-        log_request(RequestParameters("GET", url, timeout))
+        log_request(RequestParameters("GET", url, TIMEOUT_30))
         try:
-            response = requests.get(url=url, timeout=timeout)
+            response = requests.get(url=url, timeout=TIMEOUT_30)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -139,7 +139,7 @@ def _post_and_log_request(
     data: dict[str, Any],
     headers: dict[str, str] | None = None,
 ) -> Response:
-    params = RequestParameters("POST", url, TIMEOUT, data, headers)
+    params = RequestParameters("POST", url, TIMEOUT_60, data, headers)
     log_request(params)
     response = requests.post(
         url=params.url,

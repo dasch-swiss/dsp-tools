@@ -108,7 +108,7 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: start stack
-        run: uv run dsp-tools start-stack --no-prune --with-test-data
+        run: uv run dsp-tools start-stack --no-prune
       - name: stop stack
         run: uv run dsp-tools stop-stack
       - name: make logging file available

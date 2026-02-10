@@ -780,23 +780,6 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
-    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
-    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
-    def test_start_stack_with_test_data(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
-        args = "start-stack --with-test-data".split()
-        entry_point.run(args)
-        mock_init.assert_called_once_with(
-            StackConfiguration(
-                max_file_size=None,
-                enforce_docker_system_prune=False,
-                suppress_docker_system_prune=False,
-                latest_dev_version=False,
-                upload_test_data=True,
-            )
-        )
-        start_stack.assert_called_once()
-
 
 @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.stop_stack")
 def test_stop_stack(stop_stack: Mock) -> None:

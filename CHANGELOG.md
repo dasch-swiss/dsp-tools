@@ -1,5 +1,15 @@
 # Changelog
 
+## [18.6.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.1...v18.6.2) (2026-02-11)
+
+
+### Maintenance
+
+* improve DspApiNotReachableError ([#2176](https://github.com/dasch-swiss/dsp-tools/issues/2176)) ([1be847f](https://github.com/dasch-swiss/dsp-tools/commit/1be847fc125ceb129350928e4d547f39aae9fb7f))
+* improve error handling of ShaclCliValidator ([#2174](https://github.com/dasch-swiss/dsp-tools/issues/2174)) ([a2ffa15](https://github.com/dasch-swiss/dsp-tools/commit/a2ffa1593e550724a3210bef888536a8776147c7))
+* **start-stack:** bump versions to 2026.02.01 ([#2181](https://github.com/dasch-swiss/dsp-tools/issues/2181)) ([7dc2302](https://github.com/dasch-swiss/dsp-tools/commit/7dc2302a02b55fdb327383fd03637ccf218a232a))
+* update dependencies ([#2182](https://github.com/dasch-swiss/dsp-tools/issues/2182)) ([be12fca](https://github.com/dasch-swiss/dsp-tools/commit/be12fca106164056b780e53b587978b938a2e550))
+
 ## [18.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.0...v18.6.1) (2026-01-29)
 
 

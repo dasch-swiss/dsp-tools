@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import create_date_time_stamp
 from dsp_tools.utils.rdf_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
@@ -25,7 +25,7 @@ PROJECT_IRI = URIRef("http://rdfh.ch/9999/project")
 @pytest.fixture
 def migration_metadata() -> MigrationMetadata:
     return MigrationMetadata(
-        "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
+        "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", create_date_time_stamp("1999-12-31T23:59:59.9999999+01:00")
     )
 
 

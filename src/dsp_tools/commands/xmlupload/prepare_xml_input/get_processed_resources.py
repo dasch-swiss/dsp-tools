@@ -42,7 +42,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import create_date_time_stamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -100,7 +100,7 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
     # but must be transformed into an IRI as it is only for external reference and not consistent with a DB IRI
     if metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(metadata.ark)
-    date = DateTimeStamp(metadata.creation_date) if metadata.creation_date else None
+    date = create_date_time_stamp(metadata.creation_date) if metadata.creation_date else None
     return MigrationMetadata(res_iri, date)
 
 

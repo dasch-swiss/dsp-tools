@@ -147,12 +147,6 @@ e2e-test-create-get-xmlupload *FLAGS:
     uv run pytest test/e2e/commands/test_create_get_xmlupload.py {{FLAGS}}
 
 
-# Run the legacy end-to-end tests (needs a running stack)
-[no-exit-message]
-legacy-e2e-tests *FLAGS:
-    uv run pytest test/legacy_e2e/ {{FLAGS}}
-
-
 # Remove artifact files
 [no-exit-message]
 clean:

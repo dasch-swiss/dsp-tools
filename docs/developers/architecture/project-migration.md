@@ -26,8 +26,6 @@ CLI: `project-migration`
     - Download export
     - inform user
 
-- `migration-clean-up --export`
-
 - `migration-import`
 
     - import call ok
@@ -38,6 +36,7 @@ CLI: `project-migration`
         - completed -> continue
     - inform user
 
+- `migration-clean-up --export`
 - `migration-clean-up --import`
 
 

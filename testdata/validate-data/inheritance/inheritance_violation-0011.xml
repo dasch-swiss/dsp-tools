@@ -47,4 +47,15 @@
         </text-prop>
     </resource>
 
+    <!--
+        The resource is a sub-class and has no direct cardinality.
+        Because the sub-class must also follow the super-class we get two violation reports for one error.
+        This must be filtered out.
+    -->
+    <resource label="ResourceInexistentLinkDuplicateReport" restype=":SubLinkProp" id="ResourceInexistentLinkDuplicateReport">
+        <resptr-prop name=":hasLink">
+            <resptr>inexistent_id</resptr>
+        </resptr-prop>
+    </resource>
+
 </knora>

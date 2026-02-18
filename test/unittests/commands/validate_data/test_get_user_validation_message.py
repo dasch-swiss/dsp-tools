@@ -327,6 +327,28 @@ def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_f
     assert result.user_info[0].problem_type == ProblemType.LINK_TARGET_IS_IRI_OF_PROJECT
 
 
+def test_filter_out_complete_duplicates(inexistent_linked_resource):
+    inexistent_link_2 = InputProblem(
+        problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
+        res_id="res_id",
+        res_type="onto:Class",
+        prop_name="onto:hasProp",
+        severity=Severity.VIOLATION,
+        input_value="inexistent_link_2",
+    )
+    result = sort_user_problems(
+        AllProblems([inexistent_linked_resource, inexistent_linked_resource, inexistent_link_2], []),
+        duplicate_file_warnings=None,
+        shortcode="9999",
+        existing_resources_retrieved=METADATA_RETRIEVAL_SUCCESS,
+    )
+    assert len(result.unique_violations) == 2
+    assert len(result.user_warnings) == 0
+    assert len(result.user_info) == 0
+    assert {x.res_id for x in result.unique_violations} == {"res_id"}
+    assert {x.input_value for x in result.unique_violations} == {"inexistent_link_2", "link_target_id"}
+
+
 def test_separate_link_value_missing_if_reference_is_an_iri_metadata_retrieval_success(inexistent_linked_resource):
     references_iri_of_another_project = InputProblem(
         problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,

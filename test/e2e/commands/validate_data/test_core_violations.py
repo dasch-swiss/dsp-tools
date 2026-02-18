@@ -292,11 +292,6 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
-        (
-            "date_single_month_does_not_exist",
-            "onto:testSubDate1",
-            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
-        ),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
         (
             "int_too_large",

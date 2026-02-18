@@ -136,7 +136,7 @@
             ]
           },
           {
-            "name": "SuperLinkProp",
+            "name": "SuperClassLinkProp",
             "super": "Resource",
             "labels": {
               "en": "Super for Link Prop"
@@ -150,8 +150,8 @@
             ]
           },
           {
-            "name": "SubLinkProp",
-            "super": ":SuperLinkProp",
+            "name": "SubClassLinkProp",
+            "super": ":SuperClassLinkProp",
             "labels": {
               "en": "Sub for Link Prop"
             }

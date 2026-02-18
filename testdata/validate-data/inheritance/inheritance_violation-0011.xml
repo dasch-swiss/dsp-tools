@@ -52,7 +52,9 @@
         Because the sub-class must also follow the super-class we get two violation reports for one error.
         This must be filtered out.
     -->
-    <resource label="ResourceInexistentLinkDuplicateReport" restype=":SubLinkProp" id="ResourceInexistentLinkDuplicateReport">
+    <resource label="ResourceInexistentLinkDuplicateReport"
+              restype=":SubClassLinkProp"
+              id="ResourceInexistentLinkDuplicateReport">
         <resptr-prop name=":hasLink">
             <resptr>inexistent_id</resptr>
         </resptr-prop>

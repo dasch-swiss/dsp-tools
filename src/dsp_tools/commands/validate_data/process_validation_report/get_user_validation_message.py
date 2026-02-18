@@ -112,7 +112,8 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped, without_res_id = _group_problems_by_resource(problems)
     filtered = without_res_id
     for problems_per_resource in grouped.values():
-        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
+        duplicates_removed = _filter_out_complete_duplicates(problems_per_resource)
+        text_value_filtered = _filter_out_duplicate_text_value_problem(duplicates_removed)
         file_value_corrected = _filter_out_duplicate_wrong_file_type_problems(text_value_filtered)
         filtered.extend(file_value_corrected)
     return filtered
@@ -143,6 +144,10 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
         filtered_problems.extend(problem_list)
 
     return filtered_problems
+
+
+def _filter_out_complete_duplicates(problems: list[InputProblem]) -> list[InputProblem]:
+    return problems
 
 
 def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:

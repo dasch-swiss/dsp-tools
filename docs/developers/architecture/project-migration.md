@@ -22,7 +22,7 @@ is only intended to be used manually if an export or import failed.
 
 ```mermaid
 ---
-title: Project Migration Command Flow
+title: CLI project-migration
 ---
 stateDiagram-v2
 
@@ -36,16 +36,23 @@ stateDiagram-v2
     state "Download saved on Disk" as downloadComplete
 
     state "CLI: migration-import" as import
-    
+    state "HTTP: Import" as importCall
+    state "HTTP: Check Status" as importStatus
+    state "Import Complete" as importComplete
+
     state "CLI: migration-clean-up" as cleanup
+    state "HTTP Export Server<br>Remove Export ID" as cleanupExport
+    state "HTTP Import Server<br>Remove Export ID" as cleanupImport
+    state "Remove Export Zip from Local Disk" as removeFromDisk
+    state "Keep Export Zip on Local Disk" as keepOnDisk
 
 
     [*] --> exportCall
 
     state export {
         exportCall --> exportStatus: check status
-        exportStatus --> exportStatus: in_progress
         exportStatus --> [*]: failed
+        exportStatus --> exportStatus: in_progress
         exportStatus --> exportComplete: completed
     }
 
@@ -60,17 +67,18 @@ stateDiagram-v2
 
     state import {
         importCall --> importStatus: check status
+        importStatus --> [*]: failed
         importStatus --> importStatus: in_progress
-        importStatus --> importFailed: failed
         importStatus --> importComplete: completed
-        importFailed --> [*]
     }
 
-    importComplete --> cleanupExport
+    importComplete --> Continue
 
     state cleanup {
-        cleanupExport --> cleanupImport: clean-up --export
-        cleanupImport --> [*]: clean-up --import
+        Continue --> cleanupExport: clean-up --export
+        cleanupExport --> cleanupImport: clean-up --import
+        cleanupImport --> removeFromDisk: If flag --remove-export
+        cleanupImport --> keepOnDisk: If flag --keep-export
     }
 ```
 

@@ -27,26 +27,33 @@ title: Project Migration Command Flow
 stateDiagram-v2
 
     state "CLI: migration-export" as export
+    state "HTTP: Export" as exportCall
+    state "HTTP: Check Status" as exportStatus
+    state "Export on Server" as exportComplete
+
     state "CLI: migration-download" as download
+    state "HTTP: Download from Server" as downloadExport
+    state "Download saved on Disk" as downloadComplete
+
     state "CLI: migration-import" as import
+    
     state "CLI: migration-clean-up" as cleanup
+
 
     [*] --> exportCall
 
     state export {
         exportCall --> exportStatus: check status
         exportStatus --> exportStatus: in_progress
-        exportStatus --> exportFailed: failed
+        exportStatus --> [*]: failed
         exportStatus --> exportComplete: completed
-        exportFailed --> [*]
     }
 
     exportComplete --> downloadExport
 
     state download {
-        downloadExport --> downloadFailed: failed
+        downloadExport --> [*]: failed
         downloadExport --> downloadComplete: completed
-        downloadFailed --> [*]
     }
 
     downloadComplete --> importCall
@@ -65,7 +72,6 @@ stateDiagram-v2
         cleanupExport --> cleanupImport: clean-up --export
         cleanupImport --> [*]: clean-up --import
     }
-
 ```
 
 ## Cleanup on Failure

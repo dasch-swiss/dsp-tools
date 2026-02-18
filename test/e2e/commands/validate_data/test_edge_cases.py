@@ -180,10 +180,10 @@ def test_reformat_inheritance_violation(authentication) -> None:
     assert not sorted_problems.user_info
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
-    for one_result, expected, problem_type in zip(alphabetically_sorted, expected_results):
-        assert one_result.problem_type == problem_type
+    for one_result, expected in zip(alphabetically_sorted, expected_results):
         assert one_result.res_id == expected[0]
         assert one_result.prop_name in expected[1]
+        assert one_result.problem_type == expected[2]
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")

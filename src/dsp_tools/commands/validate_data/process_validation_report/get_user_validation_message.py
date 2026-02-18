@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import astuple
 
 import pandas as pd
 
@@ -147,7 +148,14 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
 
 
 def _filter_out_complete_duplicates(problems: list[InputProblem]) -> list[InputProblem]:
-    return problems
+    # due to inheritance it is possible that some problems are completely identical.
+    seen = set()
+    unique = []
+    for problem in problems:
+        if (key := astuple(problem)) not in seen:
+            seen.add(key)
+            unique.append(problem)
+    return unique
 
 
 def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:

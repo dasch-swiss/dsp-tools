@@ -6,7 +6,7 @@
        shortcode="0011"
        default-ontology="onto">
 
-    <!-- 4 Validation Errors -->
+    <!-- 5 Validation Errors -->
 
     <!-- The resource does not have a direct cardinality for hasText0 -->
     <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1">

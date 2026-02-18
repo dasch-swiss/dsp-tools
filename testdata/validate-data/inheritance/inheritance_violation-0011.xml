@@ -48,8 +48,8 @@
     </resource>
 
     <!--
-        The resource is a sub-class and has no direct cardinality.
-        Because the sub-class must also follow the super-class we get two violation reports for one error.
+        The resource's type is a sub-class which has no direct cardinality, but inherits a cardinality.
+        Because the sub-class must also comply with the rules of the super-class, we get two violation reports for one error.
         This must be filtered out.
     -->
     <resource label="ResourceInexistentLinkDuplicateReport"

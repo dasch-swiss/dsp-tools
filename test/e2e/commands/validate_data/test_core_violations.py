@@ -180,7 +180,6 @@ class TestWithReportGraphs:
             ("card_inexistent_for_prop", ProblemType.NON_EXISTING_CARD),
             ("card_max_violation", ProblemType.MAX_CARD),
             ("date_month_does_not_exist", ProblemType.GENERIC),
-            ("date_month_does_not_exist", ProblemType.GENERIC),
             ("date_range_first_is_ce_second_bce", ProblemType.GENERIC),
             ("date_range_wrong_yyyy", ProblemType.GENERIC),
             ("file_value_missing", ProblemType.FILE_VALUE_MISSING),

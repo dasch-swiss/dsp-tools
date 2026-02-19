@@ -1,5 +1,22 @@
 # Changelog
 
+## [18.6.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.2...v18.6.3) (2026-02-19)
+
+
+### Bug Fixes
+
+* **validate-data:** remove duplicate violation messages (DEV-5894) ([#2185](https://github.com/dasch-swiss/dsp-tools/issues/2185)) ([9b8ddec](https://github.com/dasch-swiss/dsp-tools/commit/9b8ddec34d7415d778cb6efe5ade4e482b4f66d1))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.02.02 ([#2187](https://github.com/dasch-swiss/dsp-tools/issues/2187)) ([c9da3a1](https://github.com/dasch-swiss/dsp-tools/commit/c9da3a10a62b9404effd1bd845590e44a490aa64))
+
+
+### Documentation
+
+* **project-migration:** create architectural overview (DEV-5892) ([#2184](https://github.com/dasch-swiss/dsp-tools/issues/2184)) ([a133e84](https://github.com/dasch-swiss/dsp-tools/commit/a133e8407670ab0d87b5e788e85d5d8e2c895fd1))
+
 ## [18.6.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.1...v18.6.2) (2026-02-11)
 
 

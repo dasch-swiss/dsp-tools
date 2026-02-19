@@ -6,7 +6,7 @@
        shortcode="0011"
        default-ontology="onto">
 
-    <!-- 4 Validation Errors -->
+    <!-- 5 Validation Errors -->
 
     <!-- The resource does not have a direct cardinality for hasText0 -->
     <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1">
@@ -45,6 +45,19 @@
         <text-prop name=":hasTextSubProp1">
             <text encoding="utf8">hasTextSubProp1</text>
         </text-prop>
+    </resource>
+
+    <!--
+        The resource's type is a sub-class which has no direct cardinality, but inherits a cardinality.
+        Because the sub-class must also comply with the rules of the super-class, we get two violation reports for one error.
+        This must be filtered out.
+    -->
+    <resource label="ResourceInexistentLinkDuplicateReport"
+              restype=":SubClassLinkProp"
+              id="ResourceInexistentLinkDuplicateReport">
+        <resptr-prop name=":hasLink">
+            <resptr>inexistent_id</resptr>
+        </resptr-prop>
     </resource>
 
 </knora>

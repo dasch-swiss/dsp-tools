@@ -4,10 +4,10 @@
 
 The command `migration` is an all-in-one command that:
 
-- Prepares the zip file on a server (CLI `migration export`)
-- Downloads the zip file (CLI `migration download`)
-- Uploads the import (CLI `migration import`)
-- Contains clean up steps (CLI `migration clean-up`)
+- Prepares the zip file on the source server (CLI `migration export`)
+- Downloads the zip file from the source server (CLI `migration download`)
+- Uploads the zip file on the target server(CLI `migration import`)
+- Contains clean up steps on both servers (CLI `migration clean-up`)
 
 The functionality for the CLI command for the clean-up
 is only intended to be used manually if the preparation of the zip file, download or import failed.
@@ -25,7 +25,7 @@ which can be created with the command `migration config`.
 
 ```mermaid
 ---
-title: CLI project-migration
+title: CLI migration
 ---
 stateDiagram-v2
     state "CLI: migration export" as export
@@ -40,8 +40,8 @@ stateDiagram-v2
     state "HTTP: Check Status" as importStatus
     state "Import Complete" as importComplete
     state "CLI: migration clean-up" as cleanup
-    state "HTTP Export Server<br>Remove Export ID" as cleanupExport
-    state "HTTP Import Server<br>Remove Export ID" as cleanupImport
+    state "HTTP: Export Server<br>Remove Export ID" as cleanupExport
+    state "HTTP: Import Server<br>Remove Export ID" as cleanupImport
     [*] --> exportCall
 
     state export {

@@ -1,5 +1,12 @@
 # Changelog
 
+## [18.6.4](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.3...v18.6.4) (2026-02-19)
+
+
+### Maintenance
+
+* **validate-data:** check if project exists before starting validation ([#2188](https://github.com/dasch-swiss/dsp-tools/issues/2188)) ([ee8c11d](https://github.com/dasch-swiss/dsp-tools/commit/ee8c11d6c13680986855644cf0993de57b4c9e70))
+
 ## [18.6.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.2...v18.6.3) (2026-02-19)
 
 

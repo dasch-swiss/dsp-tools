@@ -21,7 +21,7 @@ jobs:
       - name: check presence of Linear ticket in PR title
         run: |
           import re, os, sys
-          rgx = r"^.+\((DEV|RDU)-[0-9]+(, (DEV|RDU)-[0-9]+)*\)$|^(chore|refactor|docs|test|fix).+"
+          rgx = r"^.+\((DEV|RDU)-[0-9]+(, (DEV|RDU)-[0-9]+)*\)$|^(chore|refactor|docs|test|fix|improve).+"
           if not re.match(rgx, os.environ["PR_TITLE"]):
               print(f"PR title '{os.environ['PR_TITLE']}' does not match the regex")
               sys.exit(1)

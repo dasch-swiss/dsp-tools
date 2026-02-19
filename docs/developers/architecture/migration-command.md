@@ -6,8 +6,8 @@ The command `migration` is an all-in-one command that:
 
 - Prepares the zip file on the source server (CLI `migration export`)
 - Downloads the zip file from the source server (CLI `migration download`)
-- Uploads the zip file on the target server(CLI `migration import`)
-- Contains clean up steps on both servers (CLI `migration clean-up`)
+- Uploads the zip file on the target server (CLI `migration import`)
+- Triggers clean up steps on both servers (CLI `migration clean-up`)
 
 The functionality for the CLI command for the clean-up
 is only intended to be used manually if the preparation of the zip file, download or import failed.

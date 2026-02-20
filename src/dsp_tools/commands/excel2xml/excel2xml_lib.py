@@ -17,7 +17,7 @@ from lxml.builder import E
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import create_date_time_stamp
 from dsp_tools.utils.data_formats.date_util import is_full_date
 from dsp_tools.utils.data_formats.shared import check_notna
 from dsp_tools.utils.data_formats.shared import simplify_name
@@ -184,7 +184,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
         warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
-            DateTimeStamp(creation_date)
+            create_date_time_stamp(creation_date)
         except BaseError:
             raise BaseError(
                 f"The resource '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
@@ -1323,7 +1323,7 @@ def make_region(  # noqa: D417 (undocumented-param)
         warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
-            DateTimeStamp(creation_date)
+            create_date_time_stamp(creation_date)
         except BaseError:
             raise BaseError(
                 f"The region '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
@@ -1378,7 +1378,7 @@ def make_link(  # noqa: D417 (undocumented-param)
         warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
-            DateTimeStamp(creation_date)
+            create_date_time_stamp(creation_date)
         except BaseError:
             raise BaseError(
                 f"The link '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "

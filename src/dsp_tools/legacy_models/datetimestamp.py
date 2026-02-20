@@ -1,81 +1,51 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Union
+from dataclasses import dataclass
+from functools import total_ordering
 
 import regex
 
 from dsp_tools.error.exceptions import BaseError
 
+VALIDATION_REGEX = (
+    r"^-?([1-9][0-9]{3,}|0[0-9]{3})"
+    r"-(0[1-9]|1[0-2])"
+    r"-(0[1-9]|[12][0-9]|3[01])"
+    r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))"
+    r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
+)
 
+
+@total_ordering
+@dataclass(frozen=True)
 class DateTimeStamp:
-    """
-    Class to hold and process an xsd:dateTimeStamp
-    """
+    """Holds a validated xsd:dateTimeStamp string."""
 
-    _dateTimeStamp: str
-    _validation_regex = (
-        r"^-?([1-9][0-9]{3,}|0[0-9]{3})"
-        r"-(0[1-9]|1[0-2])"
-        r"-(0[1-9]|[12][0-9]|3[01])"
-        r"T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))"
-        r"(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$"
-    )
+    value: str
 
-    def __init__(self, val: Any):
-        """
-        The constructor works for different inputs: a string, an instance of "DateTimeStamp",
-        or a JSON-LD construct of the form { "@type": "xsd:dateTimeStamp", "@value": "date-str" }
+    def __str__(self) -> str:
+        return self.value
 
-        Args:
-            val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
-
-        Raises:
-            BaseError: if the JSON-LD construct is not correct
-        """
-        if isinstance(val, str):
-            if not regex.search(self._validation_regex, val):
-                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
-            self._dateTimeStamp = val
-        elif isinstance(val, DateTimeStamp):
-            self._dateTimeStamp = str(val)
-        elif val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
-            self._dateTimeStamp = val["@value"]
-        else:
-            raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
-
-    def __eq__(self, other: Union[str, DateTimeStamp]) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp == other._dateTimeStamp
+            return self.value == other
+        if isinstance(other, DateTimeStamp):
+            return self.value == other.value
+        return NotImplemented
 
-    def __lt__(self, other: DateTimeStamp) -> bool:
+    def __lt__(self, other: object) -> bool:
         if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp < other._dateTimeStamp
+            return self.value < other
+        if isinstance(other, DateTimeStamp):
+            return self.value < other.value
+        return NotImplemented
 
-    def __le__(self, other: DateTimeStamp) -> bool:
-        if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp <= other._dateTimeStamp
+    def __hash__(self) -> int:
+        return hash(self.value)
 
-    def __gt__(self, other: DateTimeStamp) -> bool:
-        if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp > other._dateTimeStamp
 
-    def __ge__(self, other: DateTimeStamp) -> bool:
-        if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp >= other._dateTimeStamp
-
-    def __ne__(self, other: DateTimeStamp) -> bool:
-        if isinstance(other, str):
-            other = DateTimeStamp(other)
-        return self._dateTimeStamp != other._dateTimeStamp
-
-    def __str__(self: DateTimeStamp) -> str:
-        return self._dateTimeStamp
-
-    def toJsonObj(self) -> dict[str, str]:
-        return {"@type": "xsd:dateTimeStamp", "@value": self._dateTimeStamp}
+def create_date_time_stamp(val: str) -> DateTimeStamp:
+    """Create a DateTimeStamp from a string, validating the format."""
+    if not regex.search(VALIDATION_REGEX, val):
+        raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
+    return DateTimeStamp(value=val)

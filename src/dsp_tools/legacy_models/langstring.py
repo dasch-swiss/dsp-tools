@@ -1,8 +1,7 @@
+from dataclasses import dataclass
 from enum import Enum
 from enum import unique
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from dsp_tools.error.exceptions import BaseError
 
@@ -18,236 +17,134 @@ class Languages(Enum):
     RM = "rm"
 
 
-LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
+def _get_language_enum(lang_str: str) -> Languages:
+    """Convert a language string to its enum, raising if invalid."""
+    lang_map = {lang.value: lang for lang in Languages}
+    lang_lower = lang_str.lower()
+    if lang_lower not in lang_map:
+        raise BaseError(f"Invalid language string '{lang_str}'")
+    return lang_map[lang_lower]
 
 
-class LangStringIterator:
-    """Iterator class for LangString class."""
-
-    _langstring: "LangString"
-    _index: int
-
-    def __init__(self, langstring: "LangString"):
-        self._langstring = langstring
-        self._langlist = list(map(lambda a: a[0], self._langstring.items()))
-        self._index = 0
-
-    def __next__(self):
-        if len(self._langlist) == 0 and self._index == 0:
-            return None, self._langstring[None]
-        elif self._index < len(self._langlist):
-            tmp = self._langlist[self._index]
-            self._index += 1
-            return tmp, self._langstring[tmp]
-        else:
-            raise StopIteration
-
-
+@dataclass(frozen=True)
 class LangString:
     """
-    This class holds a typical language-string pair as it is often used in JSON-LD as
-    ```
-    "some:thing" = [{
-      '@language': 'xx',
-      '@value': 'a string in language xx'
-    },
-    {…},…]
-    ```
+    Holds language-dependent strings as used in JSON-LD.
 
-    or a simple string without language:
-    ```
-    "some:thing": "a string without language specificer"
-    ```
+    Either holds a dict mapping Languages to strings, or a simple string without language.
     """
 
-    _langstrs: dict[Languages, str]
-    _simplestring: str
+    lang_strings: dict[Languages, str]
+    simple_string: str | None
 
-    def __init__(self, initvalue: LangStringParam = None):
-        def mymapper(p: tuple[Union[Languages, str], str]) -> tuple[Languages, str]:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if isinstance(p[0], str) and p[0] in lmap:
-                lang = lmap[p[0].lower()]
-            elif isinstance(p[0], Languages):
-                lang = p[0]
-            else:
-                raise BaseError("Not a valid language definition!")
-            return lang, p[1]
+    def __getitem__(self, key: Languages | str | None = None) -> str | None:
+        """Get a string by language. Falls back to any available string if not found."""
+        if key is None:
+            return self._get_any()
+        if isinstance(key, str):
+            key = _get_language_enum(key)
+        if value := self.lang_strings.get(key):
+            return value
+        return self._get_fallback()
 
-        if initvalue is None:
-            self._simplestring = None
-            self._langstrs = {}
-        elif isinstance(initvalue, str):
-            self._simplestring = initvalue
-            self._langstrs = {}
-        elif isinstance(initvalue, dict):
-            self._simplestring = None
-            self._langstrs = dict(map(mymapper, initvalue.items()))
-        elif isinstance(initvalue, LangString):
-            self._simplestring = initvalue._simplestring
-            self._langstrs = initvalue._langstrs
-        else:
-            raise BaseError("Not a valid language definition!")
-
-    def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
-        match key:
-            case None:
-                return self.__getitem_nokey__()
-            case Enum() if ls := self._langstrs.get(key):
-                return ls
-            case Enum():
-                return self.__getitem_fallback__()
-            case str():
-                lmap = {a.value: a for a in Languages}
-                lkey = lmap.get(key.lower())
-                if lkey is None:
-                    raise BaseError(f"Invalid language string '{key}'")
-                if ls := self._langstrs.get(lkey):
-                    return ls
-                return self.__getitem_fallback__()
-
-    def __getitem_nokey__(self) -> Optional[str]:
-        if self._simplestring:
-            return self._simplestring
-        elif self._langstrs:
-            return next(iter(self._langstrs)).value
-        else:
-            return None
-
-    def __getitem_fallback__(self) -> Optional[str]:
-        for lst in self._langstrs:
-            if self._langstrs.get(lst) is not None:
-                return self._langstrs[lst]
-        if self._simplestring is not None:
-            return self._simplestring
+    def _get_any(self) -> str | None:
+        """Return the simple string, or any language string if available."""
+        if self.simple_string:
+            return self.simple_string
+        if self.lang_strings:
+            return next(iter(self.lang_strings.values()))
         return None
 
-    def __setitem__(self, key: Optional[Union[Languages, str]], value: str):
-        if key is None:
-            self._simplestring = value
-            self._langstrs = {}  # Delete language dependent string! Needs Caution!!!
-            return
-        if isinstance(key, Languages):
-            self._langstrs[key] = value
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key + '"!')
-            self._langstrs[lmap[key.lower()]] = value
+    def _get_fallback(self) -> str | None:
+        """Return any available string as fallback."""
+        for value in self.lang_strings.values():
+            if value is not None:
+                return value
+        return self.simple_string
 
-    def __delitem__(self, key: Union[Languages, str]):
-        if isinstance(key, Languages):
-            del self._langstrs[key]
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key + '"!')
-            del self._langstrs[lmap[key.lower()]]
+    def items(self) -> Any:
+        """Return items of the language strings dict."""
+        return self.lang_strings.items()
 
-    def __str__(self):
-        tmpstr = "{"
-        for p in self._langstrs:
-            tmpstr += "=" + p.value + ":" + self._langstrs[p]
-        tmpstr += "}"
-        return tmpstr
+    def is_empty(self) -> bool:
+        """Check if this LangString has no content."""
+        return not self.lang_strings and not self.simple_string
 
-    def __iter__(self):
-        return LangStringIterator(self)
+    def to_definition_file_obj(self) -> str | dict[str, str]:
+        """Convert to format used in definition files."""
+        if self.simple_string:
+            return self.simple_string
+        return {lang.value: value for lang, value in self.lang_strings.items()}
 
-    def __eq__(self, other: "LangString"):
-        equal = self._simplestring == other._simplestring
-        if equal:
-            for lang in Languages:
-                equal = self._langstrs.get(lang) == other._langstrs.get(lang)
-                if not equal:
-                    break
-        return equal
 
-    def items(self):
-        return self._langstrs.items()
+def create_lang_string(
+    init_value: dict[Languages | str, str] | str | None = None,
+) -> LangString:
+    """Create a LangString from various input formats."""
+    if init_value is None:
+        return LangString(lang_strings={}, simple_string=None)
+    if isinstance(init_value, str):
+        return LangString(lang_strings={}, simple_string=init_value)
+    if isinstance(init_value, dict):
+        lang_strings: dict[Languages, str] = {}
+        for key, value in init_value.items():
+            if isinstance(key, Languages):
+                lang_strings[key] = value
+            elif isinstance(key, str):
+                lang_strings[_get_language_enum(key)] = value
+            else:
+                raise BaseError("Not a valid language definition!")
+        return LangString(lang_strings=lang_strings, simple_string=None)
+    raise BaseError("Not a valid language definition!")
 
-    def isEmpty(self) -> bool:
-        return not (bool(self._langstrs) or bool(self._simplestring))
 
-    def empty(self) -> None:
-        self._simplestring = None
-        self._langstrs = {}
+def create_lang_string_from_json_ld(
+    obj: list[dict[str, str]] | dict[str, str] | str | None,
+) -> LangString | None:
+    """Create a LangString from JSON-LD format (uses @language/@value keys)."""
+    if obj is None:
+        return None
+    if isinstance(obj, str):
+        return LangString(lang_strings={}, simple_string=obj)
+    objs = obj if isinstance(obj, list) else [obj]
+    lang_strings: dict[Languages, str] = {}
+    for item in objs:
+        lang = item.get("@language")
+        value = item.get("@value")
+        if value is None:
+            continue
+        lang_enum = _try_get_language_enum(lang)
+        if lang_enum is None:
+            return LangString(lang_strings={}, simple_string=value)
+        lang_strings[lang_enum] = value
+    return LangString(lang_strings=lang_strings, simple_string=None)
 
-    def toJsonObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
-        if self.isEmpty():
-            return None
-        if self._simplestring is not None:
-            return self._simplestring
-        else:
-            return list(map(lambda a: {"language": a[0].value, "value": a[1] if a[1] else "-"}, self._langstrs.items()))
 
-    def toJsonLdObj(self) -> Optional[Union[str, list[dict[str, str]]]]:
-        if self.isEmpty():
-            return None
-        if self._simplestring is not None:
-            return self._simplestring
-        else:
-            return [{"@language": a[0].value, "@value": a[1]} for a in self._langstrs.items()]
-            # return list(map(lambda a: {'@language': a[0].value, '@value': a[1]}, self._langstrs.items()))
+def create_lang_string_from_json(
+    obj: list[dict[str, str]] | dict[str, str] | str | None,
+) -> LangString | None:
+    """Create a LangString from JSON format (uses language/value keys)."""
+    if obj is None:
+        return None
+    if isinstance(obj, str):
+        return LangString(lang_strings={}, simple_string=obj)
+    objs = obj if isinstance(obj, list) else [obj]
+    lang_strings: dict[Languages, str] = {}
+    for item in objs:
+        lang = item.get("language")
+        value = item.get("value")
+        if value is None:
+            continue
+        lang_enum = _try_get_language_enum(lang)
+        if lang_enum is None:
+            return LangString(lang_strings={}, simple_string=value)
+        lang_strings[lang_enum] = value
+    return LangString(lang_strings=lang_strings, simple_string=None)
 
-    @classmethod
-    def fromJsonLdObj(cls, obj: Optional[Union[list[dict[str, str]], str]]) -> "LangString":
-        if obj is None:
-            return None
-        if isinstance(obj, str):
-            return cls(obj)
-        if isinstance(obj, list):
-            objs = obj
-        else:
-            objs = [obj]
-        lstrs: dict[Languages, str] = {}
-        for o in objs:
-            lang = o.get("@language")
-            if lang == "en":
-                lstrs[Languages.EN] = o.get("@value")
-            elif lang == "de":
-                lstrs[Languages.DE] = o.get("@value")
-            elif lang == "fr":
-                lstrs[Languages.FR] = o.get("@value")
-            elif lang == "it":
-                lstrs[Languages.IT] = o.get("@value")
-            elif lang == "rm":
-                lstrs[Languages.RM] = o.get("@value")
-            elif o.get("@value") is not None:
-                return cls(o.get("@value"))
-        return cls(lstrs)
 
-    @classmethod
-    def fromJsonObj(cls, obj: Optional[Any]) -> "LangString":
-        if obj is None:
-            return None
-        if isinstance(obj, str):
-            return cls(obj)
-        if isinstance(obj, list):
-            objs = obj
-        else:
-            objs = [obj]
-        lstrs: dict[Languages, str] = {}
-        for o in objs:
-            lang = o.get("language")
-            if lang == "en":
-                lstrs[Languages.EN] = o.get("value")
-            elif lang == "de":
-                lstrs[Languages.DE] = o.get("value")
-            elif lang == "fr":
-                lstrs[Languages.FR] = o.get("value")
-            elif lang == "it":
-                lstrs[Languages.IT] = o.get("value")
-            elif lang == "rm":
-                lstrs[Languages.RM] = o.get("value")
-            elif o.get("value") is not None:
-                return cls(o.get("value"))
-        return cls(lstrs)
-
-    def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:
-        if self._simplestring:
-            return self._simplestring
-        langstring = {}
-        for p in self.items():
-            langstring[p[0].value] = p[1]
-        return langstring
+def _try_get_language_enum(lang: str | None) -> Languages | None:
+    """Try to convert a language string to enum, returning None if invalid."""
+    if lang is None:
+        return None
+    lang_map = {lang_enum.value: lang_enum for lang_enum in Languages}
+    return lang_map.get(lang.lower())

@@ -10,8 +10,6 @@ STATUS_MAPPER = {
 }
 
 
-# docs: https://api.stage.dasch.swiss/api/docs/#/API%20v3/
-
 
 class MigrationExportClientLive(MigrationExportClient):
     server: str

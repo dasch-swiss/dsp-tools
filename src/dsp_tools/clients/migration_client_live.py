@@ -58,20 +58,7 @@ class MigrationExportClientLive(MigrationExportClient):
         url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_60, headers=headers)
-        log_request(params)
-
-        try:
-            response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
-        except RequestException as err:
-            log_and_raise_request_exception(err)
-
-        log_response(response)
-
-        if response.ok:
-            return STATUS_MAPPER[response.json()["status"]]
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You don't have permission to check export status.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        return _make_status_check_call(params)
 
     def get_download(self, export_id: str, destination: Path) -> None:
         encoded_iri = quote(self.project_iri, safe="")
@@ -99,20 +86,7 @@ class MigrationExportClientLive(MigrationExportClient):
         url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
-        log_request(params)
-
-        try:
-            response = requests.delete(url=params.url, headers=params.headers, timeout=params.timeout)
-        except RequestException as err:
-            log_and_raise_request_exception(err)
-
-        log_response(response)
-
-        if response.status_code == HTTPStatus.NO_CONTENT:
-            return
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You don't have permission to delete this export.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        _make_delete_call(params)
 
 
 @dataclass
@@ -150,37 +124,39 @@ class MigrationImportClientLive(MigrationImportClient):
         url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_60, headers=headers)
-        log_request(params)
-
-        try:
-            response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
-        except RequestException as err:
-            log_and_raise_request_exception(err)
-
-        log_response(response)
-
-        if response.ok:
-            return STATUS_MAPPER[response.json()["status"]]
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You don't have permission to check import status.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        return _make_status_check_call(params)
 
     def delete_import(self, import_id: str) -> None:
         encoded_iri = quote(self.project_iri, safe="")
         url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
-        log_request(params)
+        _make_delete_call(params)
 
-        try:
-            response = requests.delete(url=params.url, headers=params.headers, timeout=params.timeout)
-        except RequestException as err:
-            log_and_raise_request_exception(err)
 
-        log_response(response)
+def _make_status_check_call(params: RequestParameters) -> ExportImportStatus:
+    log_request(params)
+    try:
+        response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+    log_response(response)
+    if response.ok:
+        return STATUS_MAPPER[response.json()["status"]]
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError("You don't have permission to check the status.")
+    raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
 
-        if response.status_code == HTTPStatus.NO_CONTENT:
-            return
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("You don't have permission to delete this import.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+
+def _make_delete_call(params: RequestParameters) -> None:
+    log_request(params)
+    try:
+        response = requests.delete(url=params.url, headers=params.headers, timeout=params.timeout)
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+    log_response(response)
+    if response.status_code == HTTPStatus.NO_CONTENT:
+        return
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError("You don't have permission to delete the export / import id.")
+    raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)

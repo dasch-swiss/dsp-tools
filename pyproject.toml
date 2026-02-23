@@ -222,5 +222,7 @@ exclude = [
     "src/dsp_tools/xmllib/",
     "src/dsp_tools/commands/excel2xml/",
     "test/",
+    "src/dsp_tools/clients/migration_client.py",
+    "src/dsp_tools/clients/migration_client_live.py"
 ]
 sort_by_size = true  # sort unused classes and functions by size 

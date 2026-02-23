@@ -106,8 +106,13 @@ class MigrationImportClientLive(MigrationImportClient):
         log_request(params)
 
         try:
-            zip_bytes = zip_path.read_bytes()
-            response = requests.post(url=params.url, headers=params.headers, data=zip_bytes, timeout=params.timeout)
+            with open(zip_path, "rb") as binary_io:
+                response = requests.post(
+                    url=params.url,
+                    headers=params.headers,
+                    data=binary_io,
+                    timeout=params.timeout,
+                )
         except RequestException as err:
             log_and_raise_request_exception(err)
 

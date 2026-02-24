@@ -15,6 +15,7 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
+from dsp_tools.cli.call_action_with_network import call_migration_export
 from dsp_tools.cli.call_action_with_network import call_resume_xmlupload
 from dsp_tools.cli.call_action_with_network import call_start_stack
 from dsp_tools.cli.call_action_with_network import call_stop_stack
@@ -88,6 +89,9 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
         case "migration-config":
             # although the command here has a "-" it is invoked by entering `dsp-tools migration config`
             result = call_migration_config(args)
+        case "migration-export":
+            # although the command here has a "-" it is invoked by entering `dsp-tools migration export`
+            result = call_migration_export(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

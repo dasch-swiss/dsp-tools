@@ -15,6 +15,9 @@ from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
+from dsp_tools.commands.migration.config_file import parse_config_file
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+from dsp_tools.commands.migration.export import export
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
@@ -202,3 +205,17 @@ def call_create(args: argparse.Namespace) -> bool:
                 exit_if_exists=args.exit_if_exists,
             )
     return success
+
+
+def call_migration_export(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.source is None:
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'source-server' section for the export command."
+        )
+    check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
+    export_id = export(migration_info.source, migration_info.config)
+    print(f"Export initiated with ID: {export_id.id_}")
+    return True

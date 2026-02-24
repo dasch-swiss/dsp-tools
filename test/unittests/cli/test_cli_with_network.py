@@ -7,6 +7,10 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.clients.migration_clients import ExportId
+from dsp_tools.commands.migration.models import MigrationConfig
+from dsp_tools.commands.migration.models import MigrationInfo
+from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -841,6 +845,36 @@ class TestUpdatePromptFlag:
         entry_point.run(args)
         check_version.assert_not_called()
         xmlupload.assert_called_once()
+
+
+class TestMigrationExport:
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.export")
+    @patch("dsp_tools.cli.call_action_with_network.parse_config_file")
+    def test_migration_export(self, parse_config_file: Mock, mock_export: Mock, check_network: Mock) -> None:
+        source = ServerInfo(server="https://src.example.com", user="admin", password="pass")
+        config = MigrationConfig(shortcode="0806", export_savepath=Path("testdata"), keep_local_export=False)
+        parse_config_file.return_value = MigrationInfo(config=config, source=source, target=None)
+        mock_export.return_value = ExportId(id_="some-export-id")
+
+        args = f"migration export {PROJECT_JSON_PATH}".split()
+        entry_point.run(args)
+
+        mock_export.assert_called_once_with(source, config)
+
+    @patch("dsp_tools.cli.call_action_with_network.parse_config_file")
+    def test_migration_export_source_server_missing(self, parse_config_file: Mock) -> None:
+        config = MigrationConfig(shortcode="0806", export_savepath=Path("testdata"), keep_local_export=False)
+        parse_config_file.return_value = MigrationInfo(config=config, source=None, target=None)
+
+        args = f"migration export {PROJECT_JSON_PATH}".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_export_config_file_not_found(self) -> None:
+        args = "migration export nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
 
 
 if __name__ == "__main__":

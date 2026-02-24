@@ -10,7 +10,7 @@ from dsp_tools.commands.excel2json.project import old_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.migration.config import create_migration_config
+from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.update_legal.core import update_legal_metadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties

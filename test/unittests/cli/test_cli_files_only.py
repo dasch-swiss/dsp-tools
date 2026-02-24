@@ -224,7 +224,7 @@ def test_migration_config_with_shortcode(create_migration_config: Mock) -> None:
 
 @patch("dsp_tools.cli.call_action_files_only.create_migration_config")
 @patch("builtins.input", return_value="0ABC")
-def test_migration_config_prompts_for_shortcode(input_mock: Mock, create_migration_config: Mock) -> None:
+def test_migration_config_prompts_for_shortcode(input_mock: Mock, create_migration_config: Mock) -> None:  # noqa: ARG001
     create_migration_config.return_value = True
     args = "migration config".split()
     entry_point.run(args)

@@ -29,7 +29,6 @@ target-server:
   - password:
 keep-local-export: false  # If set to true, you must manually remove the zip. Please note that they may be very large.
 export-savepath: ~/.dsp-tools/migration/  # We recommend to keep the default path.
----
 """
     output_path.write_text(template, encoding="utf-8")
     print(f"Migration config written to '{output_path}'.")

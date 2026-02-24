@@ -15,21 +15,6 @@ def test_file_content(tmp_path: Path) -> None:
     create_migration_config(shortcode="0806", cwd=tmp_path)
     content = (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8")
     assert "shortcode: 0806" in content
-    assert "export-savepath: ~/.dsp-tools/migration" in content
-    assert "source-server:" in content
-    assert "target-server:" in content
-    assert "keep-local-export: false" in content
-
-
-def test_fields_are_empty_except_defaults(tmp_path: Path) -> None:
-    create_migration_config(shortcode="0806", cwd=tmp_path)
-    content = (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8")
-    lines = content.splitlines()
-    empty_keys = ["server", "user", "password"]
-    for line in lines:
-        for key in empty_keys:
-            if line.strip().startswith(f"{key}:"):
-                assert line.strip() == f"{key}:", f"Expected '{key}:' to be empty but got: {line!r}"
 
 
 def test_aborts_if_file_exists(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

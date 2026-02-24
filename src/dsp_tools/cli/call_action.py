@@ -7,6 +7,7 @@ from dsp_tools.cli.call_action_files_only import call_excel2lists
 from dsp_tools.cli.call_action_files_only import call_excel2properties
 from dsp_tools.cli.call_action_files_only import call_excel2resources
 from dsp_tools.cli.call_action_files_only import call_id2iri
+from dsp_tools.cli.call_action_files_only import call_migration_config
 from dsp_tools.cli.call_action_files_only import call_old_excel2json
 from dsp_tools.cli.call_action_files_only import call_old_excel2lists
 from dsp_tools.cli.call_action_files_only import call_update_legal
@@ -20,6 +21,7 @@ from dsp_tools.cli.call_action_with_network import call_stop_stack
 from dsp_tools.cli.call_action_with_network import call_upload_files
 from dsp_tools.cli.call_action_with_network import call_validate_data
 from dsp_tools.cli.call_action_with_network import call_xmlupload
+from dsp_tools.cli.exceptions import CliCommandNotImplementedError
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (too many branches)
@@ -78,6 +80,14 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = call_id2iri(args)
         case "update-legal":
             result = call_update_legal(args)
+        case "migration":
+            raise CliCommandNotImplementedError(
+                "The 'migration' command is not completely implemented, it requires a sub-command. "
+                "Enter 'dsp-tools migration --help' for more information."
+            )
+        case "migration-config":
+            # although the command here has a "-" it is invoked by entering `dsp-tools migration config`
+            result = call_migration_config(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

@@ -86,6 +86,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
                 "Enter 'dsp-tools migration --help' for more information."
             )
         case "migration-config":
+            # although the command here has a "-" it is invoked by entering `dsp-tools migration config`
             result = call_migration_config(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")

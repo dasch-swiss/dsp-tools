@@ -20,6 +20,8 @@ from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT_60 = 60
 
+TIMEOUT_ZIP_ENDPOINT = 60 * 120
+
 STATUS_MAPPER = {
     "in_progress": ExportImportStatus.IN_PROGRESS,
     "completed": ExportImportStatus.COMPLETED,
@@ -64,7 +66,7 @@ class MigrationExportClientLive(MigrationExportClient):
         encoded_iri = quote(self.project_iri, safe="")
         url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}/download"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("GET", url, TIMEOUT_60, headers=headers)
+        params = RequestParameters("GET", url, TIMEOUT_ZIP_ENDPOINT, headers=headers)
         log_request(params)
 
         try:
@@ -102,7 +104,7 @@ class MigrationImportClientLive(MigrationImportClient):
             "Authorization": f"Bearer {self.auth.get_token()}",
             "Content-Type": "application/zip",
         }
-        params = RequestParameters("POST", url, TIMEOUT_60, headers=headers)
+        params = RequestParameters("POST", url, TIMEOUT_ZIP_ENDPOINT, headers=headers)
         log_request(params)
 
         try:

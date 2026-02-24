@@ -117,8 +117,7 @@ class MigrationImportClientLive(MigrationImportClient):
                 )
         except RequestException as err:
             log_and_raise_request_exception(err)
-
-        log_response(response, include_response_content=False)
+        log_response(response)
 
         if response.status_code == HTTPStatus.ACCEPTED:
             return cast(str, response.json()["id"])

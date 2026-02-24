@@ -69,6 +69,8 @@ def make_parser(
 
     _add_update_legal(subparsers)
 
+    _add_migration(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -477,3 +479,13 @@ def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         help="Treat invalid licenses as 'unknown' instead of creating FIXME entries",
     )
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
+
+
+def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    migration_parser = subparsers.add_parser(name="migration", help="Migrate a project between DSP servers")
+    migration_parser.set_defaults(action="migration")
+    migration_subparsers = migration_parser.add_subparsers(title="Subcommands", dest="migration_subcommand")
+
+    config_parser = migration_subparsers.add_parser(name="config", help="Create a migration config file")
+    config_parser.set_defaults(action="migration-config")
+    config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")

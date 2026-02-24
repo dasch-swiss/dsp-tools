@@ -15,6 +15,7 @@ class ExportImportStatus(Enum):
 
 @dataclass
 class MigrationExportClient(Protocol):
+    server: str
     project_iri: str
     auth: AuthenticationClient
 
@@ -33,6 +34,7 @@ class MigrationExportClient(Protocol):
 
 @dataclass
 class MigrationImportClient(Protocol):
+    server: str
     project_iri: str
     auth: AuthenticationClient
 

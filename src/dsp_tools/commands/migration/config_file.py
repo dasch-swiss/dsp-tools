@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from dsp_tools.commands.migration.models import MigrationInfo
+
 
 def create_migration_config(shortcode: str, cwd: Path) -> bool:
     """Write a template migration YAML config to cwd/migration-{shortcode}.yaml."""
@@ -24,3 +26,7 @@ export-savepath: ~/.dsp-tools/migration/  # We recommend to keep the default pat
     output_path.write_text(template, encoding="utf-8")
     print(f"Migration config written to '{output_path}'.")
     return True
+
+
+def parse_config_file(filepath: Path) -> MigrationInfo:
+    pass

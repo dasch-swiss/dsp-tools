@@ -9,7 +9,9 @@ from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
+from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients import MigrationImportClient
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -35,7 +37,7 @@ class MigrationExportClientLive(MigrationExportClient):
     project_iri: str
     auth: AuthenticationClient
 
-    def post_export(self) -> str:
+    def post_export(self) -> ExportId:
         encoded_iri = quote(self.project_iri, safe="")
         url = f"{self.server}/v3/projects/{encoded_iri}/exports"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
@@ -50,21 +52,21 @@ class MigrationExportClientLive(MigrationExportClient):
         log_response(response)
 
         if response.status_code == HTTPStatus.ACCEPTED:
-            return cast(str, response.json()["id"])
+            return ExportId(cast(str, response.json()["id"]))
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only system admins are allowed to export a project.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def get_status(self, export_id: str) -> ExportImportStatus:
+    def get_status(self, export_id: ExportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}"
+        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_60, headers=headers)
         return _make_status_check_call(params)
 
-    def get_download(self, export_id: str, destination: Path) -> None:
+    def get_download(self, export_id: ExportId, destination: Path) -> None:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}/download"
+        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id.id_}/download"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_ZIP_ENDPOINT, headers=headers)
         log_request(params)
@@ -83,9 +85,9 @@ class MigrationExportClientLive(MigrationExportClient):
             raise BadCredentialsError("Only system admins are allowed to download a project export.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def delete_export(self, export_id: str) -> None:
+    def delete_export(self, export_id: ExportId) -> None:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id}"
+        url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
         _make_delete_call(params)
@@ -97,7 +99,7 @@ class MigrationImportClientLive(MigrationImportClient):
     project_iri: str
     auth: AuthenticationClient
 
-    def post_import(self, zip_path: Path) -> str:
+    def post_import(self, zip_path: Path) -> ImportId:
         encoded_iri = quote(self.project_iri, safe="")
         url = f"{self.server}/v3/projects/{encoded_iri}/imports"
         headers = {
@@ -120,21 +122,21 @@ class MigrationImportClientLive(MigrationImportClient):
         log_response(response)
 
         if response.status_code == HTTPStatus.ACCEPTED:
-            return cast(str, response.json()["id"])
+            return ImportId(cast(str, response.json()["id"]))
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only system admins are allowed to import a project.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def get_status(self, import_id: str) -> ExportImportStatus:
+    def get_status(self, import_id: ImportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id}"
+        url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_60, headers=headers)
         return _make_status_check_call(params)
 
-    def delete_import(self, import_id: str) -> None:
+    def delete_import(self, import_id: ImportId) -> None:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id}"
+        url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
         _make_delete_call(params)

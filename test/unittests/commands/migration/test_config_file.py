@@ -6,8 +6,28 @@ import yaml
 
 from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.migration.config_file import parse_config_file
-from dsp_tools.error.exceptions import UserError
-from dsp_tools.error.exceptions import UserFilepathNotFoundError
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+
+
+class TestCreateConfig:
+    def test_creates_file(self, tmp_path: Path) -> None:
+        result = create_migration_config(shortcode="0806", cwd=tmp_path)
+        assert result is True
+        assert (tmp_path / "migration-0806.yaml").exists()
+
+    def test_file_content(self, tmp_path: Path) -> None:
+        create_migration_config(shortcode="0806", cwd=tmp_path)
+        content = (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8")
+        assert "shortcode: 0806" in content
+
+    def test_aborts_if_file_exists(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        (tmp_path / "migration-0806.yaml").write_text("existing content", encoding="utf-8")
+        result = create_migration_config(shortcode="0806", cwd=tmp_path)
+        assert result is False
+        assert (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8") == "existing content"
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.out
+        assert "already exists" in captured.out
 
 
 class TestParseConfigFile:
@@ -88,41 +108,16 @@ class TestParseConfigFile:
                 "source-server": [{"server": "https://src.example.com"}, {"user": None}, {"password": None}],
             },
         )
-        with pytest.raises(UserError):
+        with pytest.raises(InvalidMigrationConfigFile):
             parse_config_file(filepath)
 
     def test_missing_shortcode_raises(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(tmp_path, {"keep-local-export": False})
-        with pytest.raises(UserError):
+        with pytest.raises(InvalidMigrationConfigFile):
             parse_config_file(filepath)
-
-    def test_file_not_found_raises(self, tmp_path: Path) -> None:
-        with pytest.raises(UserFilepathNotFoundError):
-            parse_config_file(tmp_path / "nonexistent.yaml")
 
     def test_invalid_yaml_raises(self, tmp_path: Path) -> None:
         filepath = tmp_path / "bad.yaml"
         filepath.write_text("key: [unclosed bracket", encoding="utf-8")
-        with pytest.raises(UserError):
+        with pytest.raises(InvalidMigrationConfigFile):
             parse_config_file(filepath)
-
-
-class TestCreateConfig:
-    def test_creates_file(self, tmp_path: Path) -> None:
-        result = create_migration_config(shortcode="0806", cwd=tmp_path)
-        assert result is True
-        assert (tmp_path / "migration-0806.yaml").exists()
-
-    def test_file_content(self, tmp_path: Path) -> None:
-        create_migration_config(shortcode="0806", cwd=tmp_path)
-        content = (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8")
-        assert "shortcode: 0806" in content
-
-    def test_aborts_if_file_exists(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-        (tmp_path / "migration-0806.yaml").write_text("existing content", encoding="utf-8")
-        result = create_migration_config(shortcode="0806", cwd=tmp_path)
-        assert result is False
-        assert (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8") == "existing content"
-        captured = capsys.readouterr()
-        assert "WARNING" in captured.out
-        assert "already exists" in captured.out

@@ -10,4 +10,8 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> ExportId:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
+    return _export(client)
+
+
+def _export(client: MigrationExportClientLive) -> ExportId:
     return client.post_export()

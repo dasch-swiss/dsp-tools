@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 
 from loguru import logger
 from yaspin import yaspin
@@ -37,13 +36,11 @@ def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
 def _check_export_progress(client: MigrationExportClient, export_id: ExportId) -> bool:
     with yaspin(
         Spinners.bouncingBall,
-            color="white",
-            on_color="on_black",
-            attrs=["bold", "blink"],
+        color="white",
+        on_color="on_black",
+        attrs=["bold", "blink"],
     ) as sp:
-        status_start_msg = (
-            f"Exporting project"
-        )
+        status_start_msg = "Exporting project"
         logger.debug(status_start_msg)
         sp.text = status_start_msg
         while True:

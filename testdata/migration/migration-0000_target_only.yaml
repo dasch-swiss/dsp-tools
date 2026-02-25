@@ -5,7 +5,7 @@ source-server:
   - user:
   - password:
 target-server:
-  - server: localhost:2222
+  - server: https://api.some-project.dasch.swiss
   - user: root2@example.com
   - password: test2
 keep-local-export: false  # If set to true, you must manually remove the zip. Please note that they may be very large.

@@ -33,7 +33,11 @@ def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
     return _check_export_progress(client, export_id), export_id
 
 
-def _check_export_progress(client: MigrationExportClient, export_id: ExportId, sleep_time: int = STATUS_CHECK_SLEEP_TIME) -> bool:
+def _check_export_progress(
+    client: MigrationExportClient,
+    export_id: ExportId,
+    sleep_time: int = STATUS_CHECK_SLEEP_TIME,
+) -> bool:
     with yaspin(
         Spinners.bouncingBall,
         color="white",

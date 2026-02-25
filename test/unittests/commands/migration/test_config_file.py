@@ -18,7 +18,7 @@ class TestCreateConfig:
     def test_file_content(self, tmp_path: Path) -> None:
         create_migration_config(shortcode="0806", cwd=tmp_path)
         content = (tmp_path / "migration-0806.yaml").read_text(encoding="utf-8")
-        assert "shortcode: 0806" in content
+        assert 'shortcode: "0806"' in content
 
     def test_aborts_if_file_exists(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         (tmp_path / "migration-0806.yaml").write_text("existing content", encoding="utf-8")
@@ -114,6 +114,18 @@ class TestParseConfigFile:
     def test_missing_shortcode_raises(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(tmp_path, {"keep-local-export": False})
         with pytest.raises(InvalidMigrationConfigFile):
+            parse_config_file(filepath)
+
+    def test_non_hex_shortcode_raises(self, tmp_path: Path) -> None:
+        filepath = self._write_yaml(tmp_path, {"shortcode": "ZZZZ"})
+        with pytest.raises(InvalidMigrationConfigFile, match="4-character hexadecimal"):
+            parse_config_file(filepath)
+
+    def test_octal_parsed_shortcode_raises(self, tmp_path: Path) -> None:
+        # YAML parses unquoted 0205 as octal -> integer 133, which fails hex validation
+        filepath = tmp_path / "migration.yaml"
+        filepath.write_text("shortcode: 0205\n", encoding="utf-8")
+        with pytest.raises(InvalidMigrationConfigFile, match="4-character hexadecimal"):
             parse_config_file(filepath)
 
     def test_invalid_yaml_raises(self, tmp_path: Path) -> None:

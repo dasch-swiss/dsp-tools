@@ -22,6 +22,7 @@ EXIT_CODE_TWO = 2
 PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
+MIGRATION_YAML_PATH = "testdata/migration/migration-0000_complete.yaml"
 
 
 def test_invalid_arguments() -> None:
@@ -850,24 +851,24 @@ class TestUpdatePromptFlag:
 class TestMigrationExport:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.export")
-    @patch("dsp_tools.cli.call_action_with_network.parse_config_file")
-    def test_migration_export(self, parse_config_file: Mock, mock_export: Mock, check_network: Mock) -> None:
-        source = ServerInfo(server="https://api.some-project.dasch.swiss", user="admin", password="pass")
-        config = MigrationConfig(shortcode="0806", export_savepath=Path("testdata"), keep_local_export=False)
-        parse_config_file.return_value = MigrationInfo(config=config, source=source, target=None)
-        mock_export.return_value = ExportId(id_="some-export-id")
-
-        args = f"migration export {PROJECT_JSON_PATH}".split()
+    def test_migration_export(self, mock_export: Mock, check_network: Mock) -> None:
+        source = ServerInfo(server="https://api.some-project.dasch.swiss", user="root1@example.com", password="test1")
+        config = MigrationConfig(shortcode="0000", export_savepath=Path("testdata/migration/"), keep_local_export=False)
+        args = f"migration export {MIGRATION_YAML_PATH}".split()
         entry_point.run(args)
-
         mock_export.assert_called_once_with(source, config)
 
-    @patch("dsp_tools.cli.call_action_with_network.parse_config_file")
-    def test_migration_export_source_server_missing(self, parse_config_file: Mock) -> None:
-        config = MigrationConfig(shortcode="0806", export_savepath=Path("testdata"), keep_local_export=False)
-        parse_config_file.return_value = MigrationInfo(config=config, source=None, target=None)
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.export")
+    def test_migration_export_keep_export(self, mock_export: Mock, check_network: Mock) -> None:
+        source = ServerInfo(server="https://api.some-project.dasch.swiss", user="root1@example.com", password="test1")
+        config = MigrationConfig(shortcode="0000", export_savepath=Path("testdata/migration/"), keep_local_export=True)
+        args = f"migration export testdata/migration/migration-0000_complete_keep_export.yaml".split()
+        entry_point.run(args)
+        mock_export.assert_called_once_with(source, config)
 
-        args = f"migration export {PROJECT_JSON_PATH}".split()
+    def test_migration_export_source_server_missing(self) -> None:
+        args = f"migration export testdata/migration/migration-0000_target_only.yaml".split()
         with pytest.raises(SystemExit):
             entry_point.run(args)
 

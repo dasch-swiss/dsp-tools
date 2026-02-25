@@ -33,7 +33,7 @@ def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
     return _check_export_progress(client, export_id), export_id
 
 
-def _check_export_progress(client: MigrationExportClient, export_id: ExportId) -> bool:
+def _check_export_progress(client: MigrationExportClient, export_id: ExportId, sleep_time: int = STATUS_CHECK_SLEEP_TIME) -> bool:
     with yaspin(
         Spinners.bouncingBall,
         color="white",
@@ -47,8 +47,8 @@ def _check_export_progress(client: MigrationExportClient, export_id: ExportId) -
             status_check = client.get_status(export_id)
             match status_check:
                 case ExportImportStatus.IN_PROGRESS:
-                    logger.debug(f"Export in progress, sleep {STATUS_CHECK_SLEEP_TIME}")
-                    time.sleep(STATUS_CHECK_SLEEP_TIME)
+                    logger.debug(f"Export in progress, sleep {sleep_time}")
+                    time.sleep(sleep_time)
                 case ExportImportStatus.COMPLETED:
                     logger.info("Export completed.")
                     sp.ok("✔")

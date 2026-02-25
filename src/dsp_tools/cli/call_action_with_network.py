@@ -6,6 +6,7 @@ from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
@@ -215,6 +216,8 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'source-server' section for the export command."
         )
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    migration_info.source.server = server
     check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
     export_id = export(migration_info.source, migration_info.config)
     print(f"Export initiated with ID: {export_id.id_}")

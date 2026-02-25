@@ -852,7 +852,7 @@ class TestMigrationExport:
     @patch("dsp_tools.cli.call_action_with_network.export")
     @patch("dsp_tools.cli.call_action_with_network.parse_config_file")
     def test_migration_export(self, parse_config_file: Mock, mock_export: Mock, check_network: Mock) -> None:
-        source = ServerInfo(server="https://src.example.com", user="admin", password="pass")
+        source = ServerInfo(server="https://api.some-project.dasch.swiss", user="admin", password="pass")
         config = MigrationConfig(shortcode="0806", export_savepath=Path("testdata"), keep_local_export=False)
         parse_config_file.return_value = MigrationInfo(config=config, source=source, target=None)
         mock_export.return_value = ExportId(id_="some-export-id")

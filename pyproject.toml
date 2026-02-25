@@ -38,6 +38,7 @@ dependencies = [
     "rustworkx~=0.17.1", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
     "tqdm",
     "typing-extensions",
+    "yaspin",
 ]
 
 

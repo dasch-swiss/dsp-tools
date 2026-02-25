@@ -2,6 +2,8 @@ import time
 from datetime import datetime
 
 from loguru import logger
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.migration_clients import ExportId
@@ -13,7 +15,6 @@ from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
-from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 STATUS_CHECK_SLEEP_TIME = 60
@@ -27,40 +28,42 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> tuple[bool, Expo
 
 
 def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
-    start = "Starting Export of Project"
-    logger.debug(start)
-    print(start)
+    logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")
     return _check_export_progress(client, export_id), export_id
 
 
 def _check_export_progress(client: MigrationExportClient, export_id: ExportId) -> bool:
-    now = datetime.now()
-    status_start_msg = (
-        f"{now.strftime('%H:%M:%S.%f')} Start checking export status for the export with the id {export_id.id_}."
-    )
-    logger.debug(status_start_msg)
-    print(BOLD_GREEN, status_start_msg, RESET_TO_DEFAULT)
-    while True:
-        status_check = client.get_status(export_id)
-        match status_check:
-            case ExportImportStatus.IN_PROGRESS:
-                logger.debug(f"Export in progress, sleep {STATUS_CHECK_SLEEP_TIME}")
-                time.sleep(STATUS_CHECK_SLEEP_TIME)
-            case ExportImportStatus.COMPLETED:
-                completed = "Export completed."
-                logger.info(completed)
-                print(completed)
-                return True
-            case ExportImportStatus.FAILED:
-                err_msg = (
-                    "EXPORT FAILED. Contact the DSP Engineering Team for help.\n"
-                    "Please note, that the export history was not cleared on the server. "
-                    "It will not be possible to start a new export until the history has been erased."
-                )
-                logger.error(err_msg)
-                print(BACKGROUND_BOLD_RED, err_msg, RESET_TO_DEFAULT)
-                return False
-            case _:
-                raise UnreachableCodeError()
+    with yaspin(
+        Spinners.bouncingBall,
+            color="white",
+            on_color="on_black",
+            attrs=["bold", "blink"],
+    ) as sp:
+        status_start_msg = (
+            f"Exporting project"
+        )
+        logger.debug(status_start_msg)
+        sp.text = status_start_msg
+        while True:
+            status_check = client.get_status(export_id)
+            match status_check:
+                case ExportImportStatus.IN_PROGRESS:
+                    logger.debug(f"Export in progress, sleep {STATUS_CHECK_SLEEP_TIME}")
+                    time.sleep(STATUS_CHECK_SLEEP_TIME)
+                case ExportImportStatus.COMPLETED:
+                    logger.info("Export completed.")
+                    sp.ok("✔")
+                    return True
+                case ExportImportStatus.FAILED:
+                    err_msg = (
+                        "EXPORT FAILED. Contact the DSP Engineering Team for help.\n"
+                        "Please note, that the export history was not cleared on the server. "
+                        "It will not be possible to start a new export until the history has been erased."
+                    )
+                    logger.error(err_msg)
+                    sp.write(f"{BACKGROUND_BOLD_RED}{err_msg}{RESET_TO_DEFAULT}")
+                    return False
+                case _:
+                    raise UnreachableCodeError()

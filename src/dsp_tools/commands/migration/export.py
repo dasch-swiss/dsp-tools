@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from loguru import logger
 
@@ -35,7 +36,10 @@ def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
 
 
 def _check_export_progress(client: MigrationExportClient, export_id: ExportId) -> bool:
-    status_start_msg = f"Start checking export status for the export with the id {export_id.id_}."
+    now = datetime.now()
+    status_start_msg = (
+        f"{now.strftime('%H:%M:%S.%f')} Start checking export status for the export with the id {export_id.id_}."
+    )
     logger.debug(status_start_msg)
     print(BOLD_GREEN, status_start_msg, RESET_TO_DEFAULT)
     while True:

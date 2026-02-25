@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +19,7 @@ def create_migration_config(shortcode: str, cwd: Path) -> bool:
         print(f"WARNING: '{output_path}' already exists. Aborting to avoid overwriting it.")
         return False
     template = f"""---
-shortcode: {shortcode}
+shortcode: "{shortcode}"
 source-server:
   - server:
   - user:
@@ -49,11 +50,18 @@ def parse_config_file(filepath: Path) -> MigrationInfo:
         raise InvalidMigrationConfigFile(
             f"The migration config file '{filepath}' is missing the required 'shortcode' field."
         )
+    shortcode_str = str(shortcode)
+    if not re.fullmatch(r"[0-9A-Fa-f]{4}", shortcode_str):
+        raise InvalidMigrationConfigFile(
+            f"The 'shortcode' in '{filepath}' must be a 4-character hexadecimal string (e.g. '0806'). "
+            f"Got: '{shortcode_str}'. "
+            f"Make sure the shortcode is quoted in the YAML file."
+        )
     savepath_raw = data.get("export-savepath")
     export_savepath = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
     keep_local_export = bool(data.get("keep-local-export", False))
     config = MigrationConfig(
-        shortcode=str(shortcode),
+        shortcode=shortcode_str,
         export_savepath=export_savepath,
         keep_local_export=keep_local_export,
     )

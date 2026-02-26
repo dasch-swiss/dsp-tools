@@ -16,7 +16,7 @@ from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 LOCALHOST_API = "http://0.0.0.0:3333"
-_LOCALHOST_INGEST = "http://0.0.0.0:3340"
+LOCALHOST_INGEST = "http://0.0.0.0:3340"
 
 
 def get_creds(args: argparse.Namespace) -> ServerCredentials:
@@ -89,7 +89,7 @@ def _check_api_health(api_url: str) -> None:
 def get_canonical_server_and_dsp_ingest_url(
     server: str,
     default_dsp_api_url: str = LOCALHOST_API,
-    default_dsp_ingest_url: str = _LOCALHOST_INGEST,
+    default_dsp_ingest_url: str = LOCALHOST_INGEST,
 ) -> tuple[str, str]:
     """
     Based on the DSP server URL passed by the user,

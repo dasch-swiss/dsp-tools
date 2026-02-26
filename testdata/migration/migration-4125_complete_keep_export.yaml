@@ -1,0 +1,12 @@
+---
+shortcode: "4125"
+source-server:
+  - server: localhost:3333
+  - user: root1@example.com
+  - password: test1
+target-server:
+  - server: https://api.some-project.dasch.swiss
+  - user: root2@example.com
+  - password: test2
+keep-local-export: true  # If set to true, you must manually remove the zip. Please note that they may be very large.
+export-savepath: testdata/migration/  # We recommend to keep the default path.

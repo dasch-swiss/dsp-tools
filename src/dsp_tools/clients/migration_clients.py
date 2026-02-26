@@ -14,22 +14,32 @@ class ExportImportStatus(Enum):
 
 
 @dataclass
+class ExportId:
+    id_: str
+
+
+@dataclass
 class MigrationExportClient(Protocol):
     server: str
     project_iri: str
     auth: AuthenticationClient
 
-    def get_status(self, export_id: str) -> ExportImportStatus:
+    def get_status(self, export_id: ExportId) -> ExportImportStatus:
         """Get the export status."""
 
-    def post_export(self) -> str:
+    def post_export(self) -> ExportId:
         """Start an export."""
 
-    def get_download(self, export_id: str, destination: Path) -> None:
+    def get_download(self, export_id: ExportId, destination: Path) -> None:
         """Download the export ZIP to the specified file path."""
 
-    def delete_export(self, export_id: str) -> None:
+    def delete_export(self, export_id: ExportId) -> None:
         """Delete an export after completion or failure."""
+
+
+@dataclass
+class ImportId:
+    id_: str
 
 
 @dataclass
@@ -38,11 +48,11 @@ class MigrationImportClient(Protocol):
     project_iri: str
     auth: AuthenticationClient
 
-    def get_status(self, import_id: str) -> ExportImportStatus:
+    def get_status(self, import_id: ImportId) -> ExportImportStatus:
         """Get an import status."""
 
-    def post_import(self, zip_path: Path) -> str:
+    def post_import(self, zip_path: Path) -> ImportId:
         """Upload a ZIP file to import. Returns the import ID."""
 
-    def delete_import(self, import_id: str) -> None:
+    def delete_import(self, import_id: ImportId) -> None:
         """Delete an import after completion or failure."""

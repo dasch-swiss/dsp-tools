@@ -17,7 +17,7 @@ class TestExecuteExport:
         client.get_status.return_value = ExportImportStatus.COMPLETED
         success, returned_id = _execute_export(client)
         client.post_export.assert_called_once()
-        client.client.get_status.assert_called_once()
+        client.get_status.assert_called_once()
         assert success is True
         assert returned_id == export_id
 

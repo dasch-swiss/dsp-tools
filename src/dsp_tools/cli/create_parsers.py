@@ -497,7 +497,7 @@ def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     export_parser.add_argument("config_file", help="path to the migration config YAML file")
 
     # download
-    export_parser = migration_subparsers.add_parser(name="download", help="Download a project zip from a DSP server")
-    export_parser.set_defaults(action="migration download")
-    export_parser.add_argument("config_file", help="path to the migration config YAML file")
-    config_parser.add_argument("-id", "--export-id", help="Export ID provided by the DPS-API")
+    download_parser = migration_subparsers.add_parser(name="download", help="Download a project zip from a DSP server")
+    download_parser.set_defaults(action="migration download")
+    download_parser.add_argument("config_file", help="path to the migration config YAML file")
+    download_parser.add_argument("-id", "--export-id", help="Export ID provided by the DPS-API")

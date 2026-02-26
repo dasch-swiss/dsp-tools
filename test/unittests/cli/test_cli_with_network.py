@@ -20,7 +20,7 @@ EXIT_CODE_TWO = 2
 PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
-MIGRATION_YAML_COMPLETE_PATH = "testdata/migration/migration-0000_complete.yaml"
+MIGRATION_YAML_COMPLETE_PATH = "testdata/migration/migration-4125_complete.yaml"
 
 
 def test_invalid_arguments() -> None:
@@ -852,7 +852,7 @@ class TestMigrationExport:
     def test_migration_export(self, mock_export: Mock, check_network: Mock) -> None:
         mock_export.return_value = True, None
         source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
-        config = MigrationConfig(shortcode="0000", export_savepath=Path("testdata/migration/"), keep_local_export=False)
+        config = MigrationConfig(shortcode="4125", export_savepath=Path("testdata/migration/"), keep_local_export=False)
         args = f"migration export {MIGRATION_YAML_COMPLETE_PATH}".split()
         entry_point.run(args)
         mock_export.assert_called_once_with(source, config)
@@ -862,13 +862,13 @@ class TestMigrationExport:
     def test_migration_export_keep_export(self, mock_export: Mock, check_network: Mock) -> None:
         mock_export.return_value = True, None
         source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
-        config = MigrationConfig(shortcode="0000", export_savepath=Path("testdata/migration/"), keep_local_export=True)
-        args = "migration export testdata/migration/migration-0000_complete_keep_export.yaml".split()
+        config = MigrationConfig(shortcode="4125", export_savepath=Path("testdata/migration/"), keep_local_export=True)
+        args = "migration export testdata/migration/migration-4125_complete_keep_export.yaml".split()
         entry_point.run(args)
         mock_export.assert_called_once_with(source, config)
 
     def test_migration_export_source_server_missing(self) -> None:
-        args = "migration export testdata/migration/migration-0000_target_only.yaml".split()
+        args = "migration export testdata/migration/migration-4125_target_only.yaml".split()
         with pytest.raises(SystemExit):
             entry_point.run(args)
 

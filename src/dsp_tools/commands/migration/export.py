@@ -40,7 +40,7 @@ def _check_export_progress(
 ) -> bool:
     with yaspin(
         Spinners.bouncingBall,
-        color="white",
+        color="light_green",
         on_color="on_black",
         attrs=["bold", "blink"],
     ) as sp:

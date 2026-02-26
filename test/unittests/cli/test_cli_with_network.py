@@ -851,7 +851,7 @@ class TestMigrationExport:
     @patch("dsp_tools.cli.call_action_with_network.export")
     def test_migration_export(self, mock_export: Mock, check_network: Mock) -> None:
         mock_export.return_value = True, None
-        source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         config = MigrationConfig(shortcode="4125", export_savepath=Path("testdata/migration/"), keep_local_export=False)
         args = f"migration export {MIGRATION_YAML_COMPLETE_PATH}".split()
         entry_point.run(args)

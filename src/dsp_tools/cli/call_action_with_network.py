@@ -221,9 +221,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
     check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
-    success, export_id = export(migration_info.source, migration_info.config)
-    print(f"Export is completed, for further processes refer to the ID: {export_id.id_}")
-    return success
+    return export(migration_info.source, migration_info.config)
 
 
 def call_migration_download(args: argparse.Namespace) -> bool:

@@ -19,11 +19,13 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 STATUS_CHECK_SLEEP_TIME = 60
 
 
-def export(source_info: ServerInfo, config: MigrationConfig) -> tuple[bool, ExportId]:
+def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    return _execute_export(client)
+    success, export_id = _execute_export(client)
+    print(f"Export is completed, for further use refer to the ID: {export_id.id_}")
+    return success
 
 
 def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:

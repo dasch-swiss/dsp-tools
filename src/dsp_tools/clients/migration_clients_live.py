@@ -9,12 +9,12 @@ from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import MigrationExportExistsError
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients import MigrationImportClient
-from dsp_tools.clients.exceptions import MigrationExportExistsError
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -56,7 +56,7 @@ class MigrationExportClientLive(MigrationExportClient):
             return ExportId(cast(str, response.json()["id"]))
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only system admins are allowed to export a project.")
-        if response.status_code==HTTPStatus.CONFLICT:
+        if response.status_code == HTTPStatus.CONFLICT:
             err_msg = response.json()["message"]
             raise MigrationExportExistsError(err_msg)
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

@@ -37,7 +37,6 @@ class ProjectNotFoundError(UserError):
 class MigrationExportExistsError(UserError):
     """Class if a migration export already exists on a server."""
 
-
     def __init__(self, msg: str) -> None:
         msg = f"{msg}\nThe export must be finished and deleted before a new one can be started."
         super().__init__(msg)

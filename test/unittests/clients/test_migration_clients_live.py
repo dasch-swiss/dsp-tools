@@ -9,6 +9,7 @@ from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import MigrationExportExistsError
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
@@ -60,6 +61,13 @@ class TestMigrationExportClientLive:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
+                export_client.post_export()
+
+    def test_post_export_conflict(self, export_client: MigrationExportClientLive) -> None:
+        mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Server Error")
+        mock_response.json.return_value = {"message": "API message"}
+        with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
+            with pytest.raises(MigrationExportExistsError):
                 export_client.post_export()
 
     def test_post_export_server_error(self, export_client: MigrationExportClientLive) -> None:

@@ -234,6 +234,6 @@ def call_migration_download(args: argparse.Namespace) -> bool:
         )
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
-    export_id = ExportId(args.id)
+    export_id = ExportId(args.export_id)
     check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
     return download(migration_info.source, migration_info.config, export_id)

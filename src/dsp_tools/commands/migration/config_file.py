@@ -70,9 +70,9 @@ def _parse_config_info(data: dict[str, Any], filepath: Path) -> MigrationConfig:
             f"Make sure the shortcode is quoted in the YAML file."
         )
     savepath_raw = data.get("export-savepath")
-    export_savepath = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
-    export_savepath = export_savepath / f"export-{shortcode_str}.zip"
-    reference_savepath = export_savepath / f"export-references-{shortcode_str}.json"
+    export_base_path = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
+    export_savepath = export_base_path / f"export-{shortcode_str}.zip"
+    reference_savepath = export_base_path / f"export-references-{shortcode_str}.json"
     keep_local_export = bool(data.get("keep-local-export", False))
     config = MigrationConfig(
         shortcode=shortcode_str,

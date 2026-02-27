@@ -21,6 +21,7 @@ from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.download import download
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.export import export
+from dsp_tools.commands.migration.import_zip import import_zip
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
@@ -237,3 +238,17 @@ def call_migration_download(args: argparse.Namespace) -> bool:
     export_id = ExportId(args.export_id)
     check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
     return download(migration_info.source, migration_info.config, export_id)
+
+
+def call_migration_import(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.target is None:
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'target-server' section for the import command."
+        )
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    migration_info.target.server = server
+    check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.target.server))
+    return import_zip(migration_info.target, migration_info.config, args.project_iri)

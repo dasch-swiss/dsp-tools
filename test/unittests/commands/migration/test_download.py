@@ -10,7 +10,7 @@ def _make_config(tmp_path: Path) -> MigrationConfig:
     return MigrationConfig(
         shortcode="0001",
         export_savepath=tmp_path / "export-0001.zip",
-        reference_savepath=tmp_path / "export-references-0001.json",
+        reference_savepath=tmp_path / "migration-references-0001.json",
         keep_local_export=False,
     )
 

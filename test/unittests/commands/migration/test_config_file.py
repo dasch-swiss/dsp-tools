@@ -56,7 +56,7 @@ class TestParseConfigFile:
         assert result.config.shortcode == "0806"
         assert result.config.keep_local_export is False
         assert result.config.export_savepath == tmp_path / "export-0806.zip"
-        assert result.config.reference_savepath == tmp_path / "export-references-0806.json"
+        assert result.config.reference_savepath == tmp_path / "migration-references-0806.json"
         assert result.source is not None
         assert result.source.server == "https://src.example.com"
         assert result.source.user == "admin"

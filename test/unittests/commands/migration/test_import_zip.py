@@ -18,7 +18,7 @@ class TestExecuteImport:
         config = MigrationConfig(
             shortcode=SHORTCODE,
             export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
-            reference_savepath=tmp_path / "export-references-0099.json",
+            reference_savepath=tmp_path / "migration-references-0099.json",
             keep_local_export=False,
         )
         client = MagicMock()

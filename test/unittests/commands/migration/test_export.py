@@ -16,7 +16,7 @@ class TestExecuteExport:
         client.post_export.return_value = export_id
         # since this is immediately completed we do not need to mock the sleep time
         client.get_status.return_value = ExportImportStatus.COMPLETED
-        success, returned_id = _execute_export(client, Path("testdata/migration/export-reference.json"))
+        success, returned_id = _execute_export(client, Path("testdata/migration/migration-references-4125.json"))
         client.post_export.assert_called_once()
         client.get_status.assert_called_once()
         assert success is True

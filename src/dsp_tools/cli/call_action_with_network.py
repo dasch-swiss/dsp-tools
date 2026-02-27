@@ -230,7 +230,7 @@ def call_migration_download(args: argparse.Namespace) -> bool:
     migration_info = parse_config_file(config_path)
     if migration_info.source is None:
         raise InvalidMigrationConfigFile(
-            f"The config file '{config_path}' must contain a 'source-server' section for the export command."
+            f"The config file '{config_path}' must contain a 'source-server' section for the download command."
         )
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server

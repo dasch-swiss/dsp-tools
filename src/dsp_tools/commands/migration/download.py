@@ -1,4 +1,3 @@
-
 from loguru import logger
 from yaspin import yaspin
 from yaspin.spinners import Spinners

@@ -28,7 +28,7 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
     return _execute_export(client, config.reference_savepath)
 
 
-def _execute_export(client: MigrationExportClient, reference_path: Path) -> bool:
+def _execute_export(client: MigrationExportClient, reference_path: Path) -> tuple[bool, ExportId]:
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")

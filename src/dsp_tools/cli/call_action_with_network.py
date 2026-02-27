@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 
 from dsp_tools.cli.args import NetworkRequirements
+from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ProhibitedPaths
-from dsp_tools.cli.args import RequiredPaths
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
@@ -57,7 +57,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xml_file)
     image_dir = Path(args.imgdir)
     network_requirements = NetworkRequirements(api_url=args.server)
-    path_requirements = RequiredPaths([xml_path], required_directories=[image_dir])
+    path_requirements = PathDependencies([xml_path], required_directories=[image_dir])
     check_input_dependencies(path_requirements, network_requirements)
 
     return upload_files(
@@ -80,7 +80,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
-    path_deps = RequiredPaths(required_files)
+    path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, network_requirements)
 
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
@@ -103,7 +103,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
         required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
-    path_deps = RequiredPaths(required_files, [Path(args.imgdir)])
+    path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, network_requirements)
 
     if args.validate_only:
@@ -147,7 +147,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
-    path_deps = RequiredPaths(required_files)
+    path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, network_requirements)
 
     return validate_data(
@@ -172,7 +172,7 @@ def call_resume_xmlupload(args: argparse.Namespace) -> bool:
 
 def call_get(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
-    path_dependencies = RequiredPaths(required_directories=[Path(args.project_definition).parent])
+    path_dependencies = PathDependencies(required_directories=[Path(args.project_definition).parent])
     check_input_dependencies(path_dependencies, network_dependencies)
 
     return get_project(
@@ -185,7 +185,7 @@ def call_get(args: argparse.Namespace) -> bool:
 
 def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
-    path_dependencies = RequiredPaths([Path(args.project_definition)])
+    path_dependencies = PathDependencies([Path(args.project_definition)])
     check_input_dependencies(path_dependencies, network_dependencies)
     project_file = Path(args.project_definition)
     creds = get_creds(args)
@@ -213,7 +213,7 @@ def call_create(args: argparse.Namespace) -> bool:
 
 def call_migration_export(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
-    check_input_dependencies(required_paths=RequiredPaths([config_path]))
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.source is None:
         raise InvalidMigrationConfigFile(
@@ -221,15 +221,13 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         )
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
-    check_input_dependencies(
-        network_dependencies=NetworkRequirements(migration_info.source.server),
-    )
+    check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.source.server))
     return export(migration_info.source, migration_info.config)
 
 
 def call_migration_download(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
-    check_input_dependencies(required_paths=RequiredPaths([config_path]))
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.source is None:
         raise InvalidMigrationConfigFile(
@@ -239,7 +237,7 @@ def call_migration_download(args: argparse.Namespace) -> bool:
     migration_info.source.server = server
     check_input_dependencies(
         network_dependencies=NetworkRequirements(migration_info.source.server),
-        required_paths=RequiredPaths([migration_info.config.reference_savepath]),
+        required_paths=PathDependencies([migration_info.config.reference_savepath]),
         prohibited_paths=ProhibitedPaths([migration_info.config.export_savepath]),
     )
     return download(migration_info.source, migration_info.config)
@@ -247,7 +245,7 @@ def call_migration_download(args: argparse.Namespace) -> bool:
 
 def call_migration_import(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
-    check_input_dependencies(required_paths=RequiredPaths([config_path]))
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.target is None:
         raise InvalidMigrationConfigFile(
@@ -257,6 +255,8 @@ def call_migration_import(args: argparse.Namespace) -> bool:
     migration_info.target.server = server
     check_input_dependencies(
         network_dependencies=NetworkRequirements(migration_info.target.server),
-        required_paths=RequiredPaths([migration_info.config.reference_savepath, migration_info.config.export_savepath]),
+        required_paths=PathDependencies(
+            [migration_info.config.reference_savepath, migration_info.config.export_savepath]
+        ),
     )
     return import_zip(migration_info.target, migration_info.config)

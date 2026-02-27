@@ -7,8 +7,8 @@ import requests
 from loguru import logger
 
 from dsp_tools.cli.args import NetworkRequirements
+from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ProhibitedPaths
-from dsp_tools.cli.args import RequiredPaths
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
@@ -31,7 +31,7 @@ def get_creds(args: argparse.Namespace) -> ServerCredentials:
 
 
 def check_input_dependencies(
-    required_paths: RequiredPaths | None = None,
+    required_paths: PathDependencies | None = None,
     network_dependencies: NetworkRequirements | None = None,
     prohibited_paths: ProhibitedPaths | None = None,
 ) -> None:
@@ -43,7 +43,7 @@ def check_input_dependencies(
         _check_that_files_do_not_exist(prohibited_paths)
 
 
-def check_path_dependencies(paths: RequiredPaths) -> None:
+def check_path_dependencies(paths: PathDependencies) -> None:
     for f_path in paths.required_files:
         _check_filepath_exists(f_path)
     for dir_path in paths.required_directories:

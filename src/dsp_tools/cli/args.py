@@ -36,7 +36,7 @@ class ValidationSeverity(Enum):
 
 
 @dataclass
-class RequiredPaths:
+class PathDependencies:
     required_files: list[Path] = field(default_factory=list)
     required_directories: list[Path] = field(default_factory=list)
 

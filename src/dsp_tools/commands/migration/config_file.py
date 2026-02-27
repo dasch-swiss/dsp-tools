@@ -56,7 +56,7 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
     return data
 
 
-def _parse_config_info(data, filepath: Path) -> MigrationConfig:
+def _parse_config_info(data: dict[str, Any], filepath: Path) -> MigrationConfig:
     shortcode = data.get("shortcode")
     if not shortcode:
         raise InvalidMigrationConfigFile(

@@ -10,7 +10,12 @@ from dsp_tools.commands.migration.models import MigrationConfig
 
 
 def _make_config(tmp_path: Path) -> MigrationConfig:
-    return MigrationConfig(shortcode="0001", export_savepath=tmp_path, keep_local_export=False)
+    return MigrationConfig(
+        shortcode="0001",
+        export_savepath=tmp_path,
+        reference_savepath=tmp_path,
+        keep_local_export=False,
+    )
 
 
 class TestExecuteDownload:

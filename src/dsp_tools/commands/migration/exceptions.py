@@ -12,11 +12,3 @@ class MigrationReferenceInfoIncomplete(UserError):
             f"to be able to continue with the process: {required_field}"
         )
         super().__init__(msg)
-
-
-class ExportZipExistsError(UserError):
-    """This error is to be raised in case the export zip file already exists at the provided path."""
-
-
-class ExportZipNotFoundError(UserError):
-    """This error is to be raised in case the export zip file does not exist at the provided path."""

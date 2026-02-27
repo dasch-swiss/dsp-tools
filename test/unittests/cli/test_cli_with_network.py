@@ -879,7 +879,6 @@ class TestMigrationExport:
 
 
 class TestMigrationImport:
-
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.import_zip")
     def test_migration_import(self, mock_import_zip: Mock, check_network: Mock) -> None:

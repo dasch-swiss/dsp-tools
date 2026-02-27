@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 from loguru import logger
 from yaspin import yaspin
@@ -10,6 +11,7 @@ from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_tools.commands.migration.config_file import write_reference_json
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -23,17 +25,14 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    success, export_id = _execute_export(client)
-    msg = f"Export is completed, for further use refer to the ID: {export_id.id_}"
-    logger.info(msg)
-    print(msg)
-    return success
+    return _execute_export(client, config.reference_savepath)
 
 
-def _execute_export(client: MigrationExportClient) -> tuple[bool, ExportId]:
+def _execute_export(client: MigrationExportClient, reference_path: Path) -> bool:
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")
+    write_reference_json(reference_path, export_id=export_id)
     return _check_export_progress(client, export_id), export_id
 
 

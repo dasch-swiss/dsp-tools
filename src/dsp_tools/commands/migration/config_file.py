@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -108,6 +109,24 @@ def _parse_server_info(
             f"The '{section_name}' section in '{filepath}' is incomplete. Missing fields: {', '.join(missing)}."
         )
     return ServerInfo(server=str(server), user=str(user), password=str(password))
+
+
+def write_reference_json(
+    json_path: Path,
+    *,
+    export_id: ExportId | None = None,
+    import_id: ImportId | None = None,
+    project_iri: str | None = None,
+) -> None:
+    parsed_json = parse_json_file(json_path)
+    if export_id:
+        parsed_json["export_id"] = export_id.id_
+    if import_id:
+        parsed_json["import_id"] = import_id.id_
+    if project_iri:
+        parsed_json["project_iri"] = project_iri
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(parsed_json, f, indent=4, ensure_ascii=False)
 
 
 def parse_reference_json(json_path: Path) -> ReferenceInfo:

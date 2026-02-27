@@ -8,6 +8,7 @@ from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
+from dsp_tools.commands.migration.config_file import write_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
@@ -20,14 +21,11 @@ def download(source_info: ServerInfo, config: MigrationConfig) -> bool:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    success = _execute_download(client, reference_info.export_id, config)
-    msg = f"Download is completed, for the import refer to the project IRI: {project_iri}"
-    logger.info(msg)
-    print(msg)
-    return success
+    return _execute_download(client, reference_info.export_id, config)
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
+    write_reference_json(config.reference_savepath, project_iri=client.project_iri)
     with yaspin(
         Spinners.bouncingBall,
         color="light_green",

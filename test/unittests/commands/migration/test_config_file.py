@@ -44,13 +44,14 @@ class TestParseConfigFile:
                 "source-server": [{"server": "https://src.example.com"}, {"user": "admin"}, {"password": "srcpass"}],
                 "target-server": [{"server": "https://tgt.example.com"}, {"user": "admin"}, {"password": "tgtpass"}],
                 "keep-local-export": False,
-                "export-savepath": str(tmp_path / "export"),
+                "export-savepath": str(tmp_path),
             },
         )
         result = parse_config_file(filepath)
         assert result.config.shortcode == "0806"
         assert result.config.keep_local_export is False
-        assert result.config.export_savepath == tmp_path / "export"
+        assert result.config.export_savepath == tmp_path / "export-0806.zip"
+        assert result.config.reference_savepath == tmp_path / "export-references-0806.json"
         assert result.source is not None
         assert result.source.server == "https://src.example.com"
         assert result.source.user == "admin"
@@ -63,12 +64,12 @@ class TestParseConfigFile:
             tmp_path,
             {
                 "shortcode": "0806",
-                "export-savepath": "~/foo/bar",
+                "export-savepath": "~/foo/bar/",
             },
         )
         result = parse_config_file(filepath)
         assert "~" not in str(result.config.export_savepath)
-        assert result.config.export_savepath == Path("~/foo/bar").expanduser()
+        assert result.config.export_savepath == Path("~/foo/bar/export-0806.zip").expanduser()
 
     def test_keep_local_export_true(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(

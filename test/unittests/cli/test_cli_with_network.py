@@ -894,7 +894,12 @@ class TestMigrationImport:
     def test_migration_import(self, mock_import_zip: Mock, check_network: Mock) -> None:
         mock_import_zip.return_value = True
         target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
-        config = MigrationConfig(shortcode="4125", export_savepath=Path("testdata/migration/"), keep_local_export=False)
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=Path("testdata/migration/"),
+            reference_savepath=Path("testdata/migration/"),
+            keep_local_export=False,
+        )
         args = "migration import testdata/migration/migration-4125_complete.yaml --project-iri http://rdfh.ch/projects/0001".split()
         entry_point.run(args)
         mock_import_zip.assert_called_once_with(target, config, "http://rdfh.ch/projects/0001")

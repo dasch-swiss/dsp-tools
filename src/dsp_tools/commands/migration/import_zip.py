@@ -21,9 +21,8 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 STATUS_CHECK_SLEEP_TIME = 60
 
 
-def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
+def import_zip(target_info: ServerInfo, config: MigrationConfig, project_iri: str) -> bool:
     auth = AuthenticationClientLive(target_info.server, target_info.user, target_info.password)
-    project_iri = ProjectClientLive(target_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationImportClientLive(target_info.server, project_iri, auth)
     success, import_id = _execute_import(client, config)
     print(f"Import is completed, for further use refer to the ID: {import_id.id_}")

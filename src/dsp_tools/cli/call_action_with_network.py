@@ -251,4 +251,4 @@ def call_migration_import(args: argparse.Namespace) -> bool:
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = server
     check_input_dependencies(network_dependencies=NetworkRequirements(migration_info.target.server))
-    return import_zip(migration_info.target, migration_info.config)
+    return import_zip(migration_info.target, migration_info.config, args.project_iri)

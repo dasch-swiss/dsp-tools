@@ -18,7 +18,9 @@ def download(source_info: ServerInfo, config: MigrationConfig, export_id: Export
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    return _execute_download(client, export_id, config)
+    success = _execute_download(client, export_id, config)
+    print(f"Download is completed, for the import refer to the project IRI: {project_iri}")
+    return success
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:

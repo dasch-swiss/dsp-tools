@@ -4,10 +4,14 @@ from typing import Any
 
 import yaml
 
+from dsp_tools.clients.migration_clients import ExportId
+from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
+from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_tools.utils.json_parsing import parse_json_file
 
 _DEFAULT_EXPORT_SAVEPATH = Path("~/.dsp-tools/migration/")
 
@@ -104,3 +108,13 @@ def _parse_server_info(
             f"The '{section_name}' section in '{filepath}' is incomplete. Missing fields: {', '.join(missing)}."
         )
     return ServerInfo(server=str(server), user=str(user), password=str(password))
+
+
+def parse_reference_json(json_path: Path) -> ReferenceInfo:
+    parsed_file = parse_json_file(json_path)
+    export_id, import_id = parsed_file.get("export_id"), parsed_file.get("import_id")
+    return ReferenceInfo(
+        export_id=ExportId(export_id) if export_id else None,
+        import_id=ImportId(import_id) if import_id else None,
+        project_iri=parsed_file.get("project_iri"),
+    )

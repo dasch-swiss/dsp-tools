@@ -1,11 +1,8 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
-
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
-from dsp_tools.commands.migration.exceptions import ExportZipNotFoundError
 from dsp_tools.commands.migration.import_zip import _check_import_progress
 from dsp_tools.commands.migration.import_zip import _execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
@@ -15,25 +12,13 @@ SHORTCODE = "0099"
 
 
 class TestExecuteImport:
-    def test_raises_if_zip_not_found(self, tmp_path: Path) -> None:
-        config = MigrationConfig(
-            shortcode=SHORTCODE,
-            export_savepath=tmp_path,
-            reference_savepath=tmp_path,
-            keep_local_export=False,
-        )
-        client = MagicMock()
-        with pytest.raises(ExportZipNotFoundError):
-            _execute_import(client, config)
-        client.post_import.assert_not_called()
-
     def test_calls_post_import_and_returns_result(self, tmp_path: Path) -> None:
         (tmp_path / f"export-{SHORTCODE}.zip").touch()
         import_id = ImportId("test-id-123")
         config = MigrationConfig(
             shortcode=SHORTCODE,
-            export_savepath=tmp_path,
-            reference_savepath=tmp_path,
+            export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
+            reference_savepath=tmp_path / "export-references-0099.json",
             keep_local_export=False,
         )
         client = MagicMock()

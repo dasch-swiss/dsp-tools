@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from loguru import logger
 from yaspin import yaspin
@@ -26,8 +25,11 @@ def download(source_info: ServerInfo, config: MigrationConfig, export_id: Export
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
-    if zip_path.exists():
-        raise ExportZipExistsError(f"The export zip file already exists at '{config.export_savepath}'. Either rename or delete it.")
+    # TODO: change check
+    if config.export_savepath.exists():
+        raise ExportZipExistsError(
+            f"The export zip file already exists at '{config.export_savepath}'. Either rename or delete it."
+        )
     with yaspin(
         Spinners.bouncingBall,
         color="light_green",

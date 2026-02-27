@@ -1,5 +1,4 @@
 import time
-from pathlib import Path
 
 from loguru import logger
 from yaspin import yaspin
@@ -30,10 +29,10 @@ def import_zip(target_info: ServerInfo, config: MigrationConfig, project_iri: st
 
 def _execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
     logger.debug("Starting Import of Project")
-    zip_path = Path(config.export_savepath / f"export-{config.shortcode}.zip")
-    if not zip_path.exists():
-        raise ExportZipNotFoundError(f"The export zip file does not exists at '{zip_path}'.")
-    import_id = client.post_import(zip_path)
+    # TODO: change check
+    if not config.export_savepath.exists():
+        raise ExportZipNotFoundError(f"The export zip file does not exists at '{config.export_savepath}'.")
+    import_id = client.post_import(config.export_savepath)
     logger.info(f"Import ID of project: {import_id.id_}")
     return _check_import_progress(client, import_id), import_id
 

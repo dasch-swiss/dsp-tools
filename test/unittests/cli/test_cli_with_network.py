@@ -21,6 +21,8 @@ PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
 MIGRATION_YAML_COMPLETE_PATH = "testdata/migration/migration-4125_complete.yaml"
+MIGRATION_EXPORT_PATH = Path("testdata/migration/export-4125.zip")
+MIGRATION_REFERENCE_PATH = Path("testdata/migration/migration-references-4125.json")
 
 
 def test_invalid_arguments() -> None:
@@ -854,8 +856,8 @@ class TestMigrationExport:
         source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         config = MigrationConfig(
             shortcode="4125",
-            export_savepath=Path("testdata/migration/export.zip"),
-            reference_savepath=Path("testdata/migration/reference.json"),
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
         )
         args = f"migration export {MIGRATION_YAML_COMPLETE_PATH}".split()
@@ -869,8 +871,8 @@ class TestMigrationExport:
         source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
         config = MigrationConfig(
             shortcode="4125",
-            export_savepath=Path("testdata/migration/export.zip"),
-            reference_savepath=Path("testdata/migration/reference.json"),
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=True,
         )
         args = "migration export testdata/migration/migration-4125_complete_keep_export.yaml".split()
@@ -896,13 +898,13 @@ class TestMigrationImport:
         target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
         config = MigrationConfig(
             shortcode="4125",
-            export_savepath=Path("testdata/migration/"),
-            reference_savepath=Path("testdata/migration/"),
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
         )
-        args = "migration import testdata/migration/migration-4125_complete.yaml --project-iri http://rdfh.ch/projects/0001".split()
+        args = "migration import testdata/migration/migration-4125_complete.yaml".split()
         entry_point.run(args)
-        mock_import_zip.assert_called_once_with(target, config, "http://rdfh.ch/projects/0001")
+        mock_import_zip.assert_called_once_with(target, config)
 
     def test_migration_import_target_server_missing(self) -> None:
         args = "migration import testdata/migration/migration-4125_source_only.yaml".split()

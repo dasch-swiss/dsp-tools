@@ -24,7 +24,9 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
     success, export_id = _execute_export(client)
-    print(f"Export is completed, for further use refer to the ID: {export_id.id_}")
+    msg = f"Export is completed, for further use refer to the ID: {export_id.id_}"
+    logger.info(msg)
+    print(msg)
     return success
 
 

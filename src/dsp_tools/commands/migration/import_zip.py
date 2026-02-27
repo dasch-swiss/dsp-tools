@@ -10,7 +10,6 @@ from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients import MigrationImportClient
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.migration.exceptions import ExportZipNotFoundError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo

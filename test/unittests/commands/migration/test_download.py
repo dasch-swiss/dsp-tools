@@ -24,8 +24,7 @@ class TestExecuteDownload:
         export_id = ExportId("test-id-123")
         client = MagicMock()
         result = _execute_download(client, export_id, config)
-        expected_path = tmp_path / "export-0001.zip"
-        client.get_download.assert_called_once_with(export_id, expected_path)
+        client.get_download.assert_called_once_with(export_id, config.export_savepath)
         assert result is True
 
     def test_raises_if_zip_already_exists(self, tmp_path: Path) -> None:

@@ -501,3 +501,8 @@ def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     download_parser.set_defaults(action="migration download")
     download_parser.add_argument("config_file", help="path to the migration config YAML file")
     download_parser.add_argument("--export-id", help="Export ID provided by the DSP-API")
+
+    # import
+    import_parser = migration_subparsers.add_parser(name="import", help="Import a project from a DSP server")
+    import_parser.set_defaults(action="migration import")
+    import_parser.add_argument("config_file", help="path to the migration config YAML file")

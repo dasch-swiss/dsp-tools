@@ -890,6 +890,33 @@ class TestMigrationExport:
             entry_point.run(args)
 
 
+class TestMigrationDownload:
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.download")
+    def test_migration_download(self, mock_download: Mock, check_network: Mock) -> None:
+        mock_download.return_value = True, None
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        args = f"migration download {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        mock_download.assert_called_once_with(source, config)
+
+    def test_migration_download_source_server_missing(self) -> None:
+        args = "migration download testdata/migration/migration-4125_target_only.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_download_config_file_not_found(self) -> None:
+        args = "migration download nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
 class TestMigrationImport:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.import_zip")

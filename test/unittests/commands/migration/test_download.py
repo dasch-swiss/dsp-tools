@@ -12,8 +12,8 @@ from dsp_tools.commands.migration.models import MigrationConfig
 def _make_config(tmp_path: Path) -> MigrationConfig:
     return MigrationConfig(
         shortcode="0001",
-        export_savepath=tmp_path,
-        reference_savepath=tmp_path,
+        export_savepath=tmp_path / "export-0001.zip",
+        reference_savepath=tmp_path / "export-reference-0001.zip",
         keep_local_export=False,
     )
 

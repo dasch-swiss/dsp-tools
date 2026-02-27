@@ -878,5 +878,27 @@ class TestMigrationExport:
             entry_point.run(args)
 
 
+class TestMigrationImport:
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.import_zip")
+    def test_migration_import(self, mock_import_zip: Mock, check_network: Mock) -> None:
+        mock_import_zip.return_value = True
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(shortcode="4125", export_savepath=Path("testdata/migration/"), keep_local_export=False)
+        args = "migration import testdata/migration/migration-4125_complete.yaml --project-iri http://rdfh.ch/projects/0001".split()
+        entry_point.run(args)
+        mock_import_zip.assert_called_once_with(target, config, "http://rdfh.ch/projects/0001")
+
+    def test_migration_import_target_server_missing(self) -> None:
+        args = "migration import testdata/migration/migration-4125_source_only.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_import_config_file_not_found(self) -> None:
+        args = "migration import nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

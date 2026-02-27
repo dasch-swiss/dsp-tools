@@ -7,3 +7,7 @@ class InvalidMigrationConfigFile(UserError):
 
 class ExportZipExistsError(UserError):
     """This error is to be raised in case the export zip file already exists at the provided path."""
+
+
+class ExportZipNotFoundError(UserError):
+    """This error is to be raised in case the export zip file does not exist at the provided path."""

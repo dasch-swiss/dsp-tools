@@ -849,9 +849,9 @@ class TestUpdatePromptFlag:
 
 
 class TestMigrationExport:
-    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.export")
-    def test_migration_export(self, mock_export: Mock, check_network: Mock) -> None:
+    def test_migration_export(self, mock_export: Mock, check_input_deps: Mock) -> None:
         mock_export.return_value = True, None
         source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
         config = MigrationConfig(
@@ -864,9 +864,9 @@ class TestMigrationExport:
         entry_point.run(args)
         mock_export.assert_called_once_with(source, config)
 
-    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.export")
-    def test_migration_export_keep_export(self, mock_export: Mock, check_network: Mock) -> None:
+    def test_migration_export_keep_export(self, mock_export: Mock, check_input_deps: Mock) -> None:
         mock_export.return_value = True, None
         source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
         config = MigrationConfig(
@@ -918,9 +918,9 @@ class TestMigrationDownload:
 
 
 class TestMigrationImport:
-    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.import_zip")
-    def test_migration_import(self, mock_import_zip: Mock, check_network: Mock) -> None:
+    def test_migration_import(self, mock_import_zip: Mock, check_input_deps: Mock) -> None:
         mock_import_zip.return_value = True
         target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
         config = MigrationConfig(

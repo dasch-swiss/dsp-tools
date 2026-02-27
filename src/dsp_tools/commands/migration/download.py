@@ -22,9 +22,8 @@ def download(source_info: ServerInfo, config: MigrationConfig, export_id: Export
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
-    zip_path = Path(config.export_savepath / f"export-{config.shortcode}.zip")
     if zip_path.exists():
-        raise ExportZipExistsError(f"The export zip file already exists at '{zip_path}'. Either rename or delete it.")
+        raise ExportZipExistsError(f"The export zip file already exists at '{config.export_savepath}'. Either rename or delete it.")
     with yaspin(
         Spinners.bouncingBall,
         color="light_green",
@@ -34,7 +33,7 @@ def _execute_download(client: MigrationExportClient, export_id: ExportId, config
         status_start_msg = "Downloading project"
         logger.debug(status_start_msg)
         sp.text = status_start_msg
-        client.get_download(export_id, zip_path)
+        client.get_download(export_id, config.export_savepath)
         logger.info("Download completed.")
         sp.ok("✔")
     return True

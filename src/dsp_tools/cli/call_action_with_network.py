@@ -246,7 +246,7 @@ def call_migration_import(args: argparse.Namespace) -> bool:
     migration_info = parse_config_file(config_path)
     if migration_info.target is None:
         raise InvalidMigrationConfigFile(
-            f"The config file '{config_path}' must contain a 'target-server' section for the download command."
+            f"The config file '{config_path}' must contain a 'target-server' section for the import command."
         )
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = server

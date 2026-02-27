@@ -118,15 +118,18 @@ def write_reference_json(
     import_id: ImportId | None = None,
     project_iri: str | None = None,
 ) -> None:
-    parsed_json = parse_json_file(json_path)
+    if json_path.exists():
+        reference_info = parse_json_file(json_path)
+    else:
+        reference_info = {}
     if export_id:
-        parsed_json["export_id"] = export_id.id_
+        reference_info["export_id"] = export_id.id_
     if import_id:
-        parsed_json["import_id"] = import_id.id_
+        reference_info["import_id"] = import_id.id_
     if project_iri:
-        parsed_json["project_iri"] = project_iri
+        reference_info["project_iri"] = project_iri
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(parsed_json, f, indent=4, ensure_ascii=False)
+        json.dump(reference_info, f, indent=4, ensure_ascii=False)
 
 
 def parse_reference_json(json_path: Path) -> ReferenceInfo:

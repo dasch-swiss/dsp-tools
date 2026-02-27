@@ -6,6 +6,7 @@ from pathlib import Path
 class MigrationConfig:
     shortcode: str
     export_savepath: Path
+    reference_savepath: Path
     keep_local_export: bool
 
 

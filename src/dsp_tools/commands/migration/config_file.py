@@ -37,6 +37,14 @@ export-savepath: ~/.dsp-tools/migration/  # We recommend to keep the default pat
 
 
 def parse_config_file(filepath: Path) -> MigrationInfo:
+    data = _parse_yaml(filepath)
+    config = _parse_config_info(data, filepath)
+    source = _parse_server_info(data.get("source-server"), "source-server", filepath)
+    target = _parse_server_info(data.get("target-server"), "target-server", filepath)
+    return MigrationInfo(config=config, source=source, target=target)
+
+
+def _parse_yaml(filepath: Path) -> dict[str, Any]:
     try:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
@@ -45,6 +53,10 @@ def parse_config_file(filepath: Path) -> MigrationInfo:
         raise InvalidMigrationConfigFile(
             f"The migration config file '{filepath}' does not contain a valid YAML mapping."
         )
+    return data
+
+
+def _parse_config_info(data, filepath: Path) -> MigrationConfig:
     shortcode = data.get("shortcode")
     if not shortcode:
         raise InvalidMigrationConfigFile(
@@ -59,15 +71,16 @@ def parse_config_file(filepath: Path) -> MigrationInfo:
         )
     savepath_raw = data.get("export-savepath")
     export_savepath = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
+    export_savepath = export_savepath / f"export-{shortcode_str}.zip"
+    reference_savepath = export_savepath / f"export-references-{shortcode_str}.json"
     keep_local_export = bool(data.get("keep-local-export", False))
     config = MigrationConfig(
         shortcode=shortcode_str,
         export_savepath=export_savepath,
+        reference_savepath=reference_savepath,
         keep_local_export=keep_local_export,
     )
-    source = _parse_server_info(data.get("source-server"), "source-server", filepath)
-    target = _parse_server_info(data.get("target-server"), "target-server", filepath)
-    return MigrationInfo(config=config, source=source, target=target)
+    return config
 
 
 def _parse_server_info(

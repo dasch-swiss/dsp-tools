@@ -944,5 +944,27 @@ class TestMigrationImport:
             entry_point.run(args)
 
 
+class TestMigrationCleanUp:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.clean_up")
+    def test_migration_import(self, clean_up: Mock, check_input_deps: Mock) -> None:
+        clean_up.return_value = True
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        args = "migration clean-up testdata/migration/migration-4125_complete.yaml".split()
+        entry_point.run(args)
+        clean_up.assert_called_once_with(target, config)
+
+    def test_migration_import_config_file_not_found(self) -> None:
+        args = "migration clean-up nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from loguru import logger
 from yaspin import yaspin
 from yaspin.spinners import Spinners
@@ -89,4 +91,13 @@ def _handle_local_clean_up(config: MigrationConfig) -> None:
     if config.keep_local_export:
         logger.debug("Local clean-up is skipped because the user configured to keep the files.")
         return
-    # TODO: clean up savepaths
+    _delete_file_if_exists(config.export_savepath)
+    _delete_file_if_exists(config.reference_savepath)
+
+
+def _delete_file_if_exists(path: Path) -> None:
+    if not path.exists():
+        logger.warning(f"File not found, skipping deletion: {path}")
+        return
+    path.unlink()
+    logger.debug(f"Deleted file: {path}")

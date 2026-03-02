@@ -11,11 +11,12 @@ from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
 
 def clean_up(info: MigrationInfo) -> bool:
@@ -25,7 +26,6 @@ def clean_up(info: MigrationInfo) -> bool:
             f"The project IRI is not provided in the reference file at: {info.config.reference_savepath}. "
             f"It is required for this step."
         )
-
     return _execute_clean_up(info, reference_info)
 
 
@@ -50,13 +50,15 @@ def _execute_clean_up(info: MigrationInfo, reference_info: ReferenceInfo) -> boo
 def _handle_source_server_clean_up(source_info: ServerInfo | None, reference_info: ReferenceInfo) -> None:
     if reference_info.export_id:
         if source_info is None:
-            raise InvalidMigrationConfigFile(
+            msg = (
                 "An export id on the source server was provided. "
                 "However, no source server info has been found in the config file. "
                 "Clean-up on the server is not possible."
             )
-        logger.debug("Cleaning up source server.")
-        _clean_up_source_server(source_info, reference_info.export_id, reference_info.project_iri)
+            print(BACKGROUND_BOLD_RED + msg + RESET_TO_DEFAULT)
+        else:
+            logger.debug("Cleaning up source server.")
+            _clean_up_source_server(source_info, reference_info.export_id, reference_info.project_iri)
     else:
         logger.debug("No export id found, skipping source server clean-up.")
 
@@ -70,13 +72,15 @@ def _clean_up_source_server(source_info: ServerInfo, export_id: ExportId, projec
 def _handle_target_server_clean_up(target_info: ServerInfo | None, reference_info: ReferenceInfo) -> None:
     if reference_info.import_id:
         if target_info is None:
-            raise InvalidMigrationConfigFile(
+            msg = (
                 "An import id on the target server was provided. "
                 "However, no target server info has been found in the config file. "
                 "Clean-up on the server is not possible."
             )
-        logger.debug("Cleaning up target server.")
-        _clean_up_target_server(target_info, reference_info.import_id, reference_info.project_iri)
+            print(BACKGROUND_BOLD_RED + msg + RESET_TO_DEFAULT)
+        else:
+            logger.debug("Cleaning up target server.")
+            _clean_up_target_server(target_info, reference_info.import_id, reference_info.project_iri)
     else:
         logger.debug("No import id found, skipping target server clean-up.")
 

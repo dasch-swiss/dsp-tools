@@ -70,7 +70,7 @@ class UserFilepathNotFoundError(UserError):
 
 
 class UserFilepathMustNotExistError(UserError):
-    """This error is raised if a filepath from the user does not exist."""
+    """This error is raised if a filepath from the user already exists (but should not)."""
 
     def __init__(self, filepath: str | Path) -> None:
         msg = (

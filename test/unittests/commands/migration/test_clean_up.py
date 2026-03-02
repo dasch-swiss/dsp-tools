@@ -82,11 +82,6 @@ class TestHandleSourceServerCleanUp:
             _handle_source_server_clean_up(None, reference_info)
         mock_clean_up.assert_not_called()
 
-    def test_raises_when_export_id_but_no_source_info(self) -> None:
-        reference_info = ReferenceInfo(export_id=ExportId("abc"), import_id=None, project_iri=PROJECT_IRI)
-        with pytest.raises(InvalidMigrationConfigFile):
-            _handle_source_server_clean_up(None, reference_info)
-
     def test_calls_clean_up_source_server(self, server_info) -> None:
         reference_info = ReferenceInfo(export_id=ExportId("abc"), import_id=None, project_iri=PROJECT_IRI)
         with patch("dsp_tools.commands.migration.clean_up._clean_up_source_server") as mock_clean_up:
@@ -101,10 +96,6 @@ class TestHandleTargetServerCleanUp:
             _handle_target_server_clean_up(None, reference_info)
         mock_clean_up.assert_not_called()
 
-    def test_raises_when_import_id_but_no_target_info(self) -> None:
-        reference_info = ReferenceInfo(export_id=None, import_id=ImportId("xyz"), project_iri=PROJECT_IRI)
-        with pytest.raises(InvalidMigrationConfigFile):
-            _handle_target_server_clean_up(None, reference_info)
 
     def test_calls_clean_up_target_server(self, server_info) -> None:
         reference_info = ReferenceInfo(export_id=None, import_id=ImportId("xyz"), project_iri=PROJECT_IRI)

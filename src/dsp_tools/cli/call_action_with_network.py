@@ -17,6 +17,7 @@ from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
+from dsp_tools.commands.migration.clean_up import clean_up
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.download import download
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
@@ -263,3 +264,19 @@ def call_migration_import(args: argparse.Namespace) -> bool:
         ),
     )
     return import_zip(migration_info.target, migration_info.config)
+
+
+def call_migration_clean_up(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.source:
+        source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+        migration_info.source.server = source_server
+        check_input_dependencies(network_dependencies=NetworkRequirements(source_server))
+    if migration_info.target:
+        target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+        migration_info.target.server = target_server
+        check_input_dependencies(network_dependencies=NetworkRequirements(target_server))
+    check_input_dependencies(required_paths=PathDependencies([migration_info.config.reference_savepath]))
+    return clean_up(migration_info)

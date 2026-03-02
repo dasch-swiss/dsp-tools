@@ -15,6 +15,7 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
+from dsp_tools.cli.call_action_with_network import call_migration_clean_up
 from dsp_tools.cli.call_action_with_network import call_migration_download
 from dsp_tools.cli.call_action_with_network import call_migration_export
 from dsp_tools.cli.call_action_with_network import call_migration_import
@@ -96,6 +97,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             result = call_migration_download(args)
         case "migration import":
             result = call_migration_import(args)
+        case "migration clean-up":
+            result = call_migration_clean_up(args)
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")

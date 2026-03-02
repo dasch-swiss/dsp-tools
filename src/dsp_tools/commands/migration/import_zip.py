@@ -18,7 +18,7 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
-STATUS_CHECK_SLEEP_TIME = 60
+STATUS_CHECK_SLEEP_TIME = 5
 
 
 def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:

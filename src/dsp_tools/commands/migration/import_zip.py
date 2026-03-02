@@ -1,5 +1,4 @@
 import time
-from pathlib import Path
 
 from loguru import logger
 from yaspin import yaspin
@@ -10,7 +9,9 @@ from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients import MigrationImportClient
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
-from dsp_tools.commands.migration.exceptions import ExportZipNotFoundError
+from dsp_tools.commands.migration.config_file import parse_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
+from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -20,20 +21,20 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 STATUS_CHECK_SLEEP_TIME = 60
 
 
-def import_zip(target_info: ServerInfo, config: MigrationConfig, project_iri: str) -> bool:
+def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
+    reference_info = parse_reference_json(config.reference_savepath)
+    if not reference_info.project_iri:
+        raise MigrationReferenceInfoIncomplete("project_iri")
     auth = AuthenticationClientLive(target_info.server, target_info.user, target_info.password)
-    client = MigrationImportClientLive(target_info.server, project_iri, auth)
-    success, import_id = _execute_import(client, config)
-    print(f"Import is completed, for further use refer to the ID: {import_id.id_}")
+    client = MigrationImportClientLive(target_info.server, reference_info.project_iri, auth)
+    success, _ = _execute_import(client, config)
     return success
 
 
 def _execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
     logger.debug("Starting Import of Project")
-    zip_path = Path(config.export_savepath / f"export-{config.shortcode}.zip")
-    if not zip_path.exists():
-        raise ExportZipNotFoundError(f"The export zip file does not exists at '{zip_path}'.")
-    import_id = client.post_import(zip_path)
+    import_id = client.post_import(config.export_savepath)
+    write_or_update_reference_json(config.reference_savepath, import_id=import_id)
     logger.info(f"Import ID of project: {import_id.id_}")
     return _check_import_progress(client, import_id), import_id
 

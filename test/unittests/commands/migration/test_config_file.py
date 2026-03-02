@@ -1,11 +1,16 @@
+import json
 from pathlib import Path
 from typing import Any
 
 import pytest
 import yaml
 
+from dsp_tools.clients.migration_clients import ExportId
+from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.migration.config_file import parse_config_file
+from dsp_tools.commands.migration.config_file import parse_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 
 
@@ -44,13 +49,14 @@ class TestParseConfigFile:
                 "source-server": [{"server": "https://src.example.com"}, {"user": "admin"}, {"password": "srcpass"}],
                 "target-server": [{"server": "https://tgt.example.com"}, {"user": "admin"}, {"password": "tgtpass"}],
                 "keep-local-export": False,
-                "export-savepath": str(tmp_path / "export"),
+                "export-savepath": str(tmp_path),
             },
         )
         result = parse_config_file(filepath)
         assert result.config.shortcode == "0806"
         assert result.config.keep_local_export is False
-        assert result.config.export_savepath == tmp_path / "export"
+        assert result.config.export_savepath == tmp_path / "export-0806.zip"
+        assert result.config.reference_savepath == tmp_path / "migration-references-0806.json"
         assert result.source is not None
         assert result.source.server == "https://src.example.com"
         assert result.source.user == "admin"
@@ -63,12 +69,12 @@ class TestParseConfigFile:
             tmp_path,
             {
                 "shortcode": "0806",
-                "export-savepath": "~/foo/bar",
+                "export-savepath": "~/foo/bar/",
             },
         )
         result = parse_config_file(filepath)
         assert "~" not in str(result.config.export_savepath)
-        assert result.config.export_savepath == Path("~/foo/bar").expanduser()
+        assert result.config.export_savepath == Path("~/foo/bar/export-0806.zip").expanduser()
 
     def test_keep_local_export_true(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(
@@ -133,3 +139,63 @@ class TestParseConfigFile:
         filepath.write_text("key: [unclosed bracket", encoding="utf-8")
         with pytest.raises(InvalidMigrationConfigFile):
             parse_config_file(filepath)
+
+
+class TestWriteReferenceJson:
+    def test_writes_export_id(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text("{}", encoding="utf-8")
+        write_or_update_reference_json(ref_file, export_id=ExportId("exp-001"))
+        data = json.loads(ref_file.read_text(encoding="utf-8"))
+        assert data["export_id"] == "exp-001"
+
+    def test_writes_import_id(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text("{}", encoding="utf-8")
+        write_or_update_reference_json(ref_file, import_id=ImportId("imp-002"))
+        data = json.loads(ref_file.read_text(encoding="utf-8"))
+        assert data["import_id"] == "imp-002"
+
+    def test_writes_project_iri(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text("{}", encoding="utf-8")
+        write_or_update_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
+        data = json.loads(ref_file.read_text(encoding="utf-8"))
+        assert data["project_iri"] == "http://rdfh.ch/projects/abc"
+
+    def test_preserves_existing_fields(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text(json.dumps({"export_id": "exp-001"}), encoding="utf-8")
+        write_or_update_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
+        data = json.loads(ref_file.read_text(encoding="utf-8"))
+        assert data["export_id"] == "exp-001"
+        assert data["project_iri"] == "http://rdfh.ch/projects/abc"
+
+
+class TestParseReferenceJson:
+    def test_parses_all_fields(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text(
+            json.dumps({"export_id": "exp-1", "import_id": "imp-2", "project_iri": "http://rdfh.ch/projects/abc"}),
+            encoding="utf-8",
+        )
+        result = parse_reference_json(ref_file)
+        assert result.export_id == ExportId("exp-1")
+        assert result.import_id == ImportId("imp-2")
+        assert result.project_iri == "http://rdfh.ch/projects/abc"
+
+    def test_parses_partial_fields(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text(json.dumps({"export_id": "exp-1"}), encoding="utf-8")
+        result = parse_reference_json(ref_file)
+        assert result.export_id == ExportId("exp-1")
+        assert result.import_id is None
+        assert result.project_iri is None
+
+    def test_parses_empty_file(self, tmp_path: Path) -> None:
+        ref_file = tmp_path / "ref.json"
+        ref_file.write_text("{}", encoding="utf-8")
+        result = parse_reference_json(ref_file)
+        assert result.export_id is None
+        assert result.import_id is None
+        assert result.project_iri is None

@@ -8,11 +8,13 @@ from loguru import logger
 
 from dsp_tools.cli.args import NetworkRequirements
 from dsp_tools.cli.args import PathDependencies
+from dsp_tools.cli.args import ProhibitedPaths
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
+from dsp_tools.error.exceptions import UserFilepathMustNotExistError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 LOCALHOST_API = "http://0.0.0.0:3333"
@@ -29,12 +31,16 @@ def get_creds(args: argparse.Namespace) -> ServerCredentials:
 
 
 def check_input_dependencies(
-    paths: PathDependencies | None = None, network_dependencies: NetworkRequirements | None = None
+    required_paths: PathDependencies | None = None,
+    network_dependencies: NetworkRequirements | None = None,
+    prohibited_paths: ProhibitedPaths | None = None,
 ) -> None:
-    if paths:
-        check_path_dependencies(paths)
+    if required_paths:
+        check_path_dependencies(required_paths)
     if network_dependencies:
         _check_network_health(network_dependencies)
+    if prohibited_paths:
+        _check_that_files_do_not_exist(prohibited_paths)
 
 
 def check_path_dependencies(paths: PathDependencies) -> None:
@@ -42,6 +48,12 @@ def check_path_dependencies(paths: PathDependencies) -> None:
         _check_filepath_exists(f_path)
     for dir_path in paths.required_directories:
         _check_directory_exists(dir_path)
+
+
+def _check_that_files_do_not_exist(file_paths: ProhibitedPaths) -> None:
+    for f_path in file_paths.prohibited_files:
+        if f_path.exists():
+            raise UserFilepathMustNotExistError(f_path)
 
 
 def _check_filepath_exists(file_path: Path) -> None:

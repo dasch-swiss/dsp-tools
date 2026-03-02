@@ -1,13 +1,18 @@
+import json
 import re
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from dsp_tools.clients.migration_clients import ExportId
+from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
+from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_tools.utils.json_parsing import parse_json_file
 
 _DEFAULT_EXPORT_SAVEPATH = Path("~/.dsp-tools/migration/")
 
@@ -29,7 +34,7 @@ target-server:
   - user:
   - password:
 keep-local-export: false  # If set to true, you must manually remove the zip. Please note, that they may be very large.
-export-savepath: ~/.dsp-tools/migration/  # We recommend to keep the default path.
+export-savepath: {_DEFAULT_EXPORT_SAVEPATH}  # We recommend to keep the default path.
 """
     output_path.write_text(template, encoding="utf-8")
     print(f"Migration config written to '{output_path}'.")
@@ -37,6 +42,14 @@ export-savepath: ~/.dsp-tools/migration/  # We recommend to keep the default pat
 
 
 def parse_config_file(filepath: Path) -> MigrationInfo:
+    data = _parse_yaml(filepath)
+    config = _parse_config_info(data, filepath)
+    source = _parse_server_info(data.get("source-server"), "source-server", filepath)
+    target = _parse_server_info(data.get("target-server"), "target-server", filepath)
+    return MigrationInfo(config=config, source=source, target=target)
+
+
+def _parse_yaml(filepath: Path) -> dict[str, Any]:
     try:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
@@ -45,6 +58,10 @@ def parse_config_file(filepath: Path) -> MigrationInfo:
         raise InvalidMigrationConfigFile(
             f"The migration config file '{filepath}' does not contain a valid YAML mapping."
         )
+    return data
+
+
+def _parse_config_info(data: dict[str, Any], filepath: Path) -> MigrationConfig:
     shortcode = data.get("shortcode")
     if not shortcode:
         raise InvalidMigrationConfigFile(
@@ -58,16 +75,17 @@ def parse_config_file(filepath: Path) -> MigrationInfo:
             f"Make sure the shortcode is quoted in the YAML file."
         )
     savepath_raw = data.get("export-savepath")
-    export_savepath = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
+    export_base_path = Path(savepath_raw).expanduser() if savepath_raw else _DEFAULT_EXPORT_SAVEPATH.expanduser()
+    export_savepath = export_base_path / f"export-{shortcode_str}.zip"
+    reference_savepath = export_base_path / f"migration-references-{shortcode_str}.json"
     keep_local_export = bool(data.get("keep-local-export", False))
     config = MigrationConfig(
         shortcode=shortcode_str,
         export_savepath=export_savepath,
+        reference_savepath=reference_savepath,
         keep_local_export=keep_local_export,
     )
-    source = _parse_server_info(data.get("source-server"), "source-server", filepath)
-    target = _parse_server_info(data.get("target-server"), "target-server", filepath)
-    return MigrationInfo(config=config, source=source, target=target)
+    return config
 
 
 def _parse_server_info(
@@ -91,3 +109,34 @@ def _parse_server_info(
             f"The '{section_name}' section in '{filepath}' is incomplete. Missing fields: {', '.join(missing)}."
         )
     return ServerInfo(server=str(server), user=str(user), password=str(password))
+
+
+def write_or_update_reference_json(
+    json_path: Path,
+    *,
+    export_id: ExportId | None = None,
+    import_id: ImportId | None = None,
+    project_iri: str | None = None,
+) -> None:
+    if json_path.exists():
+        reference_info = parse_json_file(json_path)
+    else:
+        reference_info = {}
+    if export_id:
+        reference_info["export_id"] = export_id.id_
+    if import_id:
+        reference_info["import_id"] = import_id.id_
+    if project_iri:
+        reference_info["project_iri"] = project_iri
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(reference_info, f, indent=4, ensure_ascii=False)
+
+
+def parse_reference_json(json_path: Path) -> ReferenceInfo:
+    parsed_file = parse_json_file(json_path)
+    export_id, import_id = parsed_file.get("export_id"), parsed_file.get("import_id")
+    return ReferenceInfo(
+        export_id=ExportId(export_id) if export_id else None,
+        import_id=ImportId(import_id) if import_id else None,
+        project_iri=parsed_file.get("project_iri"),
+    )

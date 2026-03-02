@@ -8,7 +8,7 @@ from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
-from dsp_tools.commands.migration.config_file import write_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
@@ -25,7 +25,7 @@ def download(source_info: ServerInfo, config: MigrationConfig) -> bool:
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
-    write_reference_json(config.reference_savepath, project_iri=client.project_iri)
+    write_or_update_reference_json(config.reference_savepath, project_iri=client.project_iri)
     with yaspin(
         Spinners.bouncingBall,
         color="light_green",

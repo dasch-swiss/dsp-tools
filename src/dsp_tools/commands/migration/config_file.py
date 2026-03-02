@@ -111,7 +111,7 @@ def _parse_server_info(
     return ServerInfo(server=str(server), user=str(user), password=str(password))
 
 
-def write_reference_json(
+def write_or_update_reference_json(
     json_path: Path,
     *,
     export_id: ExportId | None = None,

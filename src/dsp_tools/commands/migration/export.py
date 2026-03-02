@@ -11,7 +11,7 @@ from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import MigrationExportClient
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
-from dsp_tools.commands.migration.config_file import write_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -33,7 +33,7 @@ def _execute_export(client: MigrationExportClient, reference_path: Path) -> tupl
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")
-    write_reference_json(reference_path, export_id=export_id)
+    write_or_update_reference_json(reference_path, export_id=export_id)
     return _check_export_progress(client, export_id), export_id
 
 

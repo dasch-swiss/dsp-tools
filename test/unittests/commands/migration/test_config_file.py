@@ -10,7 +10,7 @@ from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.config_file import parse_reference_json
-from dsp_tools.commands.migration.config_file import write_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 
 
@@ -145,28 +145,28 @@ class TestWriteReferenceJson:
     def test_writes_export_id(self, tmp_path: Path) -> None:
         ref_file = tmp_path / "ref.json"
         ref_file.write_text("{}", encoding="utf-8")
-        write_reference_json(ref_file, export_id=ExportId("exp-001"))
+        write_or_update_reference_json(ref_file, export_id=ExportId("exp-001"))
         data = json.loads(ref_file.read_text(encoding="utf-8"))
         assert data["export_id"] == "exp-001"
 
     def test_writes_import_id(self, tmp_path: Path) -> None:
         ref_file = tmp_path / "ref.json"
         ref_file.write_text("{}", encoding="utf-8")
-        write_reference_json(ref_file, import_id=ImportId("imp-002"))
+        write_or_update_reference_json(ref_file, import_id=ImportId("imp-002"))
         data = json.loads(ref_file.read_text(encoding="utf-8"))
         assert data["import_id"] == "imp-002"
 
     def test_writes_project_iri(self, tmp_path: Path) -> None:
         ref_file = tmp_path / "ref.json"
         ref_file.write_text("{}", encoding="utf-8")
-        write_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
+        write_or_update_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
         data = json.loads(ref_file.read_text(encoding="utf-8"))
         assert data["project_iri"] == "http://rdfh.ch/projects/abc"
 
     def test_preserves_existing_fields(self, tmp_path: Path) -> None:
         ref_file = tmp_path / "ref.json"
         ref_file.write_text(json.dumps({"export_id": "exp-001"}), encoding="utf-8")
-        write_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
+        write_or_update_reference_json(ref_file, project_iri="http://rdfh.ch/projects/abc")
         data = json.loads(ref_file.read_text(encoding="utf-8"))
         assert data["export_id"] == "exp-001"
         assert data["project_iri"] == "http://rdfh.ch/projects/abc"

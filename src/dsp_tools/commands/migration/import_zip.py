@@ -10,7 +10,7 @@ from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients import MigrationImportClient
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
-from dsp_tools.commands.migration.config_file import write_reference_json
+from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
@@ -34,7 +34,7 @@ def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
 def _execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
     logger.debug("Starting Import of Project")
     import_id = client.post_import(config.export_savepath)
-    write_reference_json(config.reference_savepath, import_id=import_id)
+    write_or_update_reference_json(config.reference_savepath, import_id=import_id)
     logger.info(f"Import ID of project: {import_id.id_}")
     return _check_import_progress(client, import_id), import_id
 

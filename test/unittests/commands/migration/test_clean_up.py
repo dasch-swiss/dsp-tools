@@ -12,7 +12,6 @@ from dsp_tools.commands.migration.clean_up import _clean_up_target_server
 from dsp_tools.commands.migration.clean_up import _handle_local_clean_up
 from dsp_tools.commands.migration.clean_up import _handle_source_server_clean_up
 from dsp_tools.commands.migration.clean_up import _handle_target_server_clean_up
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
@@ -95,7 +94,6 @@ class TestHandleTargetServerCleanUp:
         with patch("dsp_tools.commands.migration.clean_up._clean_up_target_server") as mock_clean_up:
             _handle_target_server_clean_up(None, reference_info)
         mock_clean_up.assert_not_called()
-
 
     def test_calls_clean_up_target_server(self, server_info) -> None:
         reference_info = ReferenceInfo(export_id=None, import_id=ImportId("xyz"), project_iri=PROJECT_IRI)

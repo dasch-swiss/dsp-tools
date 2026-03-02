@@ -87,6 +87,6 @@ def _clean_up_target_server(target_info: ServerInfo, import_id: ImportId, projec
 
 def _handle_local_clean_up(config: MigrationConfig) -> None:
     if config.keep_local_export:
-        logger.debug("Local clean-up is skipped because the user configured to keep the file.")
+        logger.debug("Local clean-up is skipped because the user configured to keep the files.")
         return
     # TODO: clean up savepaths

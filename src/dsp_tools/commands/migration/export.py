@@ -33,7 +33,7 @@ def _execute_export(client: MigrationExportClient, reference_path: Path) -> tupl
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")
-    write_or_update_reference_json(reference_path, export_id=export_id)
+    write_or_update_reference_json(reference_path, export_id=export_id, project_iri=client.project_iri)
     return _check_export_progress(client, export_id), export_id
 
 

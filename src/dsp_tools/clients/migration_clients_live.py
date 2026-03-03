@@ -58,7 +58,7 @@ class MigrationExportClientLive(MigrationExportClient):
             return ExportId(cast(str, response.json()["id"]))
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only system admins are allowed to export a project.")
-        if response.status_code == HTTPStatus.CONFLICT:  # TODO: test
+        if response.status_code == HTTPStatus.CONFLICT:
             raise MigrationExportExistsError()
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
@@ -88,7 +88,7 @@ class MigrationExportClientLive(MigrationExportClient):
             return
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only system admins are allowed to download a project export.")
-        if response.status_code == HTTPStatus.CONFLICT:  # TODO: test
+        if response.status_code == HTTPStatus.CONFLICT:
             raise MigrationExportImportInProgressError("It is not permissible to download a project at the same time.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
@@ -174,12 +174,12 @@ def _make_delete_call(params: RequestParameters, process: str) -> None:
     log_response(response)
     if response.status_code == HTTPStatus.NO_CONTENT:
         return
-    if response.status_code == HTTPStatus.NOT_FOUND:  # TODO: test
+    if response.status_code == HTTPStatus.NOT_FOUND:
         # This means that the ID does not exist on the server.
         # This is possible for example if the export / import was done both on localhost with a restart in-between.
         return
     if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("You don't have permission to delete the export / import id.")
-    if response.status_code == HTTPStatus.CONFLICT:  # TODO: test
+    if response.status_code == HTTPStatus.CONFLICT:
         raise MigrationExportImportInProgressError(f"It is not permissible to delete the {process} at this point.")
     raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)

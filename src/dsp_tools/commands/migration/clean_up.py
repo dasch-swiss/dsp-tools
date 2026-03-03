@@ -36,7 +36,7 @@ def _execute_clean_up(info: MigrationInfo, reference_info: ReferenceInfo) -> boo
         on_color="on_black",
         attrs=["bold", "blink"],
     ) as sp:
-        start_msg = "Cleaning-Up"
+        start_msg = "Cleaning Up"
         logger.debug(start_msg)
         sp.text = start_msg
         _handle_source_server_clean_up(info.source, reference_info)

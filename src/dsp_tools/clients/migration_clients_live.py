@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from http import HTTPStatus
 from pathlib import Path
+from typing import Literal
 from typing import cast
 from urllib.parse import quote
 
@@ -9,6 +10,9 @@ from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import MigrationExportExistsError
+from dsp_tools.clients.exceptions import MigrationExportImportInProgressError
+from dsp_tools.clients.exceptions import MigrationImportExistsError
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
@@ -48,14 +52,17 @@ class MigrationExportClientLive(MigrationExportClient):
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-
         log_response(response)
 
-        if response.status_code == HTTPStatus.ACCEPTED:
-            return ExportId(cast(str, response.json()["id"]))
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("Only system admins are allowed to export a project.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        match response.status_code:
+            case HTTPStatus.ACCEPTED:
+                return ExportId(cast(str, response.json()["id"]))
+            case HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError("Only system admins are allowed to export a project.")
+            case HTTPStatus.CONFLICT:
+                raise MigrationExportExistsError()
+            case _:
+                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def get_status(self, export_id: ExportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
@@ -75,22 +82,27 @@ class MigrationExportClientLive(MigrationExportClient):
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-
         log_response(response, include_response_content=False)
 
-        if response.ok:
-            destination.write_bytes(response.content)
-            return
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("Only system admins are allowed to download a project export.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        match response.status_code:
+            case HTTPStatus.OK:
+                destination.write_bytes(response.content)
+                return
+            case HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError("Only system admins are allowed to download a project export.")
+            case HTTPStatus.CONFLICT:
+                raise MigrationExportImportInProgressError(
+                    "It is not permissible to download a project at the same time."
+                )
+            case _:
+                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def delete_export(self, export_id: ExportId) -> None:
         encoded_iri = quote(self.project_iri, safe="")
         url = f"{self.server}/v3/projects/{encoded_iri}/exports/{export_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
-        _make_delete_call(params)
+        _make_delete_call(params, "export")
 
 
 @dataclass
@@ -121,11 +133,15 @@ class MigrationImportClientLive(MigrationImportClient):
             log_and_raise_request_exception(err)
         log_response(response)
 
-        if response.status_code == HTTPStatus.ACCEPTED:
-            return ImportId(cast(str, response.json()["id"]))
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("Only system admins are allowed to import a project.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        match response.status_code:
+            case HTTPStatus.ACCEPTED:
+                return ImportId(cast(str, response.json()["id"]))
+            case HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError("Only system admins are allowed to import a project.")
+            case HTTPStatus.CONFLICT:
+                raise MigrationImportExistsError()
+            case _:
+                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
     def get_status(self, import_id: ImportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
@@ -139,7 +155,7 @@ class MigrationImportClientLive(MigrationImportClient):
         url = f"{self.server}/v3/projects/{encoded_iri}/imports/{import_id.id_}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("DELETE", url, TIMEOUT_60, headers=headers)
-        _make_delete_call(params)
+        _make_delete_call(params, "import")
 
 
 def _make_status_check_call(params: RequestParameters) -> ExportImportStatus:
@@ -149,22 +165,34 @@ def _make_status_check_call(params: RequestParameters) -> ExportImportStatus:
     except RequestException as err:
         log_and_raise_request_exception(err)
     log_response(response)
-    if response.ok:
-        return STATUS_MAPPER[response.json()["status"]]
-    if response.status_code == HTTPStatus.FORBIDDEN:
-        raise BadCredentialsError("You don't have permission to check the status.")
-    raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+
+    match response.status_code:
+        case HTTPStatus.OK:
+            return STATUS_MAPPER[response.json()["status"]]
+        case HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to check the status.")
+        case _:
+            raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
 
 
-def _make_delete_call(params: RequestParameters) -> None:
+def _make_delete_call(params: RequestParameters, process: Literal["import" | "export"]) -> None:
     log_request(params)
     try:
         response = requests.delete(url=params.url, headers=params.headers, timeout=params.timeout)
     except RequestException as err:
         log_and_raise_request_exception(err)
     log_response(response)
-    if response.status_code == HTTPStatus.NO_CONTENT:
-        return
-    if response.status_code == HTTPStatus.FORBIDDEN:
-        raise BadCredentialsError("You don't have permission to delete the export / import id.")
-    raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+
+    match response.status_code:
+        case HTTPStatus.NO_CONTENT:
+            return
+        case HTTPStatus.NOT_FOUND:
+            # This means that the ID does not exist on the server.
+            # This is possible for example if the export / import was done both on localhost with a restart in-between.
+            return
+        case HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to delete the export / import id.")
+        case HTTPStatus.CONFLICT:
+            raise MigrationExportImportInProgressError(f"It is not permissible to delete the {process} at this point.")
+        case _:
+            raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)

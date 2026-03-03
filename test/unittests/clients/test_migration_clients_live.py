@@ -9,13 +9,18 @@ from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import MigrationExportExistsError
+from dsp_tools.clients.exceptions import MigrationExportImportInProgressError
+from dsp_tools.clients.exceptions import MigrationImportExistsError
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
+from dsp_tools.clients.migration_clients_live import _make_delete_call
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.request_utils import RequestParameters
 
 
 @pytest.fixture
@@ -60,6 +65,13 @@ class TestMigrationExportClientLive:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
+                export_client.post_export()
+
+    def test_post_export_conflict(self, export_client: MigrationExportClientLive) -> None:
+        mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
+            with pytest.raises(MigrationExportExistsError):
                 export_client.post_export()
 
     def test_post_export_server_error(self, export_client: MigrationExportClientLive) -> None:
@@ -127,6 +139,13 @@ class TestMigrationExportClientLive:
             with pytest.raises(BadCredentialsError):
                 export_client.get_download(ExportId("export-123"), destination)
 
+    def test_get_download_conflict(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
+        destination = tmp_path / "export.zip"
+        mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
+        with patch("dsp_tools.clients.migration_clients_live.requests.get", return_value=mock_response):
+            with pytest.raises(MigrationExportImportInProgressError):
+                export_client.get_download(ExportId("export-123"), destination)
+
     def test_get_download_server_error(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
         destination = tmp_path / "export.zip"
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
@@ -174,6 +193,15 @@ class TestMigrationImportClientLive:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
+                import_client.post_import(zip_file)
+
+    def test_post_import_conflict(self, import_client: MigrationImportClientLive, tmp_path: Path) -> None:
+        zip_file = tmp_path / "import.zip"
+        zip_file.write_bytes(b"fake zip content")
+        mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
+            with pytest.raises(MigrationImportExistsError):
                 import_client.post_import(zip_file)
 
     def test_post_import_server_error(self, import_client: MigrationImportClientLive, tmp_path: Path) -> None:
@@ -248,6 +276,25 @@ class TestMigrationImportClientLive:
         with patch("dsp_tools.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCode):
                 import_client.delete_import(ImportId("import-456"))
+
+
+class TestMakeDeleteCall:
+    @pytest.fixture
+    def delete_params(self) -> RequestParameters:
+        return RequestParameters("DELETE", "http://0.0.0.0:3333/v3/projects/test/exports/export-123", 60)
+
+    def test_not_found_returns_silently(self, delete_params: RequestParameters) -> None:
+        mock_response = Mock(status_code=HTTPStatus.NOT_FOUND, ok=False, headers={}, text="Not Found")
+        mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
+        with patch("dsp_tools.clients.migration_clients_live.requests.delete", return_value=mock_response):
+            _make_delete_call(delete_params, "export")
+
+    def test_conflict_raises_error(self, delete_params: RequestParameters) -> None:
+        mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
+        mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
+        with patch("dsp_tools.clients.migration_clients_live.requests.delete", return_value=mock_response):
+            with pytest.raises(MigrationExportImportInProgressError):
+                _make_delete_call(delete_params, "export")
 
 
 if __name__ == "__main__":

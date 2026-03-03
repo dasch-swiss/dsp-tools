@@ -32,3 +32,38 @@ class ProjectOntologyNotFound(UserError):
 
 class ProjectNotFoundError(UserError):
     """Class if a project is expected to exist but could not be found."""
+
+
+class MigrationExportExistsError(UserError):
+    """Class if an export for a project already exists."""
+
+    def __init__(self) -> None:
+        msg = (
+            "An export for this project already exists on this server. "
+            "It is not possible to create a second export before the first one has been downloaded. "
+            "Either continue with downloading the export, or remove the export from the server "
+            "with the command 'dsp-tools migration clean-up'."
+        )
+        super().__init__(msg)
+
+
+class MigrationImportExistsError(UserError):
+    """Class if an import for a project already exists."""
+
+    def __init__(self) -> None:
+        msg = (
+            "An import for this project already exists on this server. "
+            "It is not possible to import the same project again. "
+            "If you want to re-import the project, you must first remove the previous import "
+            "with 'dsp-tools migration clean-up', and then delete the project itself from the server. "
+            "If you are on localhost, you can also simply restart the stack with dsp-tools."
+        )
+        super().__init__(msg)
+
+
+class MigrationExportImportInProgressError(UserError):
+    """Class to raise if an import or export is in progress and the requested action is not possible."""
+
+    def __init__(self, detail_msg: str) -> None:
+        generic_msg = "An export or import is in progress on this server."
+        super().__init__(f"{generic_msg} {detail_msg}")

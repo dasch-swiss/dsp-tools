@@ -35,26 +35,28 @@ class ProjectNotFoundError(UserError):
 
 
 class MigrationExportExistsError(UserError):
-    """Class if a migration for a project already exists."""
+    """Class if an export for a project already exists."""
 
     def __init__(self) -> None:
         msg = (
-            "An export for this project already exists on this server, it is not possible to have two exports. "
-            "Either continue to download the export, or remove the export from the server "
-            "with the command dsp-tools migration clean-up."
+            "An export for this project already exists on this server. "
+            "It is not possible to create a second export before the first one has been downloaded. "
+            "Either continue with downloading the export, or remove the export from the server "
+            "with the command 'dsp-tools migration clean-up'."
         )
         super().__init__(msg)
 
 
 class MigrationImportExistsError(UserError):
-    """Class if a migration for a project already exists."""
+    """Class if an import for a project already exists."""
 
     def __init__(self) -> None:
         msg = (
-            "An import for this project already exists on this server, it is not possible to have two imports. "
-            "If you want to re-import the project you must first remove the import ID, "
-            "with the command dsp-tools migration clean-up. And the project itself from the server. "
-            "If you are on localhost you can also simply restart the stack with dsp-tools."
+            "An import for this project already exists on this server. "
+            "It is not possible to import the same project again. "
+            "If you want to re-import the project, you must first remove the previous import "
+            "with 'dsp-tools migration clean-up', and then delete the project itself from the server. "
+            "If you are on localhost, you can also simply restart the stack with dsp-tools."
         )
         super().__init__(msg)
 

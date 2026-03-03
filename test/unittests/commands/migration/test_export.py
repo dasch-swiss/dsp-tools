@@ -9,14 +9,19 @@ from dsp_tools.commands.migration.export import _execute_export
 TEST_SLEEP = 0
 
 
+PROJECT_IRI = "http://rdfh.ch/projects/0001"
+
+
 class TestExecuteExport:
-    def test_calls_post_export_and_returns_result(self) -> None:
+    def test_calls_post_export_and_returns_result(self, tmp_path: Path) -> None:
+        reference_path = tmp_path / "migration-references.json"
         export_id = ExportId("test-id-123")
         client = MagicMock()
+        client.project_iri = PROJECT_IRI
         client.post_export.return_value = export_id
         # since this is immediately completed we do not need to mock the sleep time
         client.get_status.return_value = ExportImportStatus.COMPLETED
-        success, returned_id = _execute_export(client, Path("testdata/migration/migration-references-4125.json"))
+        success, returned_id = _execute_export(client, reference_path)
         client.post_export.assert_called_once()
         client.get_status.assert_called_once()
         assert success is True

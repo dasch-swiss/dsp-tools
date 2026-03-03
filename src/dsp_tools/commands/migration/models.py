@@ -31,4 +31,4 @@ class MigrationInfo:
 class ReferenceInfo:
     export_id: ExportId | None
     import_id: ImportId | None
-    project_iri: str | None
+    project_iri: str

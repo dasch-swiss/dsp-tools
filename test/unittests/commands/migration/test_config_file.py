@@ -186,16 +186,10 @@ class TestParseReferenceJson:
 
     def test_parses_partial_fields(self, tmp_path: Path) -> None:
         ref_file = tmp_path / "ref.json"
-        ref_file.write_text(json.dumps({"export_id": "exp-1"}), encoding="utf-8")
+        ref_file.write_text(
+            json.dumps({"export_id": "exp-1", "project_iri": "http://rdfh.ch/projects/abc"}), encoding="utf-8"
+        )
         result = parse_reference_json(ref_file)
         assert result.export_id == ExportId("exp-1")
         assert result.import_id is None
-        assert result.project_iri is None
-
-    def test_parses_empty_file(self, tmp_path: Path) -> None:
-        ref_file = tmp_path / "ref.json"
-        ref_file.write_text("{}", encoding="utf-8")
-        result = parse_reference_json(ref_file)
-        assert result.export_id is None
-        assert result.import_id is None
-        assert result.project_iri is None
+        assert result.project_iri == "http://rdfh.ch/projects/abc"

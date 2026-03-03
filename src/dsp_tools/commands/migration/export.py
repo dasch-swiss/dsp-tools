@@ -18,7 +18,7 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
-STATUS_CHECK_SLEEP_TIME = 60
+STATUS_CHECK_SLEEP_TIME = 5
 
 
 def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
@@ -33,7 +33,7 @@ def _execute_export(client: MigrationExportClient, reference_path: Path) -> tupl
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")
-    write_or_update_reference_json(reference_path, export_id=export_id)
+    write_or_update_reference_json(reference_path, export_id=export_id, project_iri=client.project_iri)
     return _check_export_progress(client, export_id), export_id
 
 

@@ -505,3 +505,10 @@ def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     import_parser = migration_subparsers.add_parser(name="import", help="Import a project from another DSP server")
     import_parser.set_defaults(action="migration import")
     import_parser.add_argument("config_file", help="path to the migration config YAML file")
+
+    # clean-up
+    clean_up_parser = migration_subparsers.add_parser(
+        name="clean-up", help="Clean up the leftovers of the export and import on servers, and local files"
+    )
+    clean_up_parser.set_defaults(action="migration clean-up")
+    clean_up_parser.add_argument("config_file", help="path to the migration config YAML file")

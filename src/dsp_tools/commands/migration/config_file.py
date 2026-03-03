@@ -138,5 +138,5 @@ def parse_reference_json(json_path: Path) -> ReferenceInfo:
     return ReferenceInfo(
         export_id=ExportId(export_id) if export_id else None,
         import_id=ImportId(import_id) if import_id else None,
-        project_iri=parsed_file.get("project_iri"),
+        project_iri=parsed_file["project_iri"],
     )

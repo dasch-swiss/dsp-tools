@@ -8,6 +8,7 @@ from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.commands.migration.models import MigrationConfig
+from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -940,6 +941,30 @@ class TestMigrationImport:
 
     def test_migration_import_config_file_not_found(self) -> None:
         args = "migration import nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
+class TestMigrationCleanUp:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.clean_up")
+    def test_migration_import(self, clean_up: Mock, check_input_deps: Mock) -> None:
+        clean_up.return_value = True
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        info = MigrationInfo(config, source, target)
+        args = f"migration clean-up {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        clean_up.assert_called_once_with(info)
+
+    def test_migration_import_config_file_not_found(self) -> None:
+        args = "migration clean-up nonexistent-config.yaml".split()
         with pytest.raises(SystemExit):
             entry_point.run(args)
 

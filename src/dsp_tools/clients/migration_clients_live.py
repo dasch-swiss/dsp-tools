@@ -174,6 +174,10 @@ def _make_delete_call(params: RequestParameters, process: str) -> None:
     log_response(response)
     if response.status_code == HTTPStatus.NO_CONTENT:
         return
+    if response.status_code == HTTPStatus.NOT_FOUND:  # TODO: test
+        # This means that the ID does not exist on the server.
+        # This is possible for example if the export / import was done both on localhost with a restart in-between.
+        return
     if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("You don't have permission to delete the export / import id.")
     if response.status_code == HTTPStatus.CONFLICT:  # TODO: test

@@ -40,7 +40,8 @@ class MigrationExportExistsError(UserError):
     def __init__(self) -> None:
         msg = (
             "An export for this project already exists on this server, it is not possible to have two exports. "
-            "Either continue to download the export, or remove the export from the server with the command dsp-tools migration clean-up."
+            "Either continue to download the export, or remove the export from the server "
+            "with the command dsp-tools migration clean-up."
         )
         super().__init__(msg)
 
@@ -51,7 +52,8 @@ class MigrationImportExistsError(UserError):
     def __init__(self) -> None:
         msg = (
             "An import for this project already exists on this server, it is not possible to have two imports. "
-            "If you want to re-import the project you must first remove the import ID, with the command dsp-tools migration clean-up. And the project itself from the server. "
+            "If you want to re-import the project you must first remove the import ID, "
+            "with the command dsp-tools migration clean-up. And the project itself from the server. "
             "If you are on localhost you can also simply restart the stack with dsp-tools."
         )
         super().__init__(msg)
@@ -61,8 +63,5 @@ class MigrationExportImportInProgressError(UserError):
     """Class to raise if an import or export is in progress and the requested action is not possible."""
 
     def __init__(self, detail_msg: str) -> None:
-        msg = (
-            "An export for this project already exists on this server, it is not possible to have two exports. "
-            "Either continue to download the export, or remove the export from the server."
-        )
-        super().__init__(msg)
+        generic_msg = "An export or import is in progress on this server."
+        super().__init__(f"{generic_msg} {detail_msg}")

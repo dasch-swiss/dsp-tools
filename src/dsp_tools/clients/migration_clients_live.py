@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from http import HTTPStatus
 from pathlib import Path
+from typing import Literal
 from typing import cast
 from urllib.parse import quote
 

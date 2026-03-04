@@ -43,7 +43,7 @@ def _export_download(migration_info: MigrationInfo) -> str:
     return project_iri
 
 
-def _import(migration_info: MigrationInfo, project_iri: str):
+def _import(migration_info: MigrationInfo, project_iri: str) -> None:
     target_server = cast(ServerInfo, migration_info.target)
     auth = AuthenticationClientLive(target_server.server, target_server.user, target_server.password)
     import_client = MigrationImportClientLive(target_server.server, project_iri, auth)

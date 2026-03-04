@@ -25,11 +25,11 @@ def export(source_info: ServerInfo, config: MigrationConfig) -> bool:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    success, _ = _execute_export(client, config.reference_savepath)
+    success, _ = execute_export(client, config.reference_savepath)
     return success
 
 
-def _execute_export(client: MigrationExportClient, reference_path: Path) -> tuple[bool, ExportId]:
+def execute_export(client: MigrationExportClient, reference_path: Path) -> tuple[bool, ExportId]:
     logger.debug("Starting Export of Project")
     export_id = client.post_export()
     logger.info(f"Export ID of project: {export_id.id_}")

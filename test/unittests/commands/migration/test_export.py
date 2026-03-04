@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.commands.migration.export import _check_export_progress
-from dsp_tools.commands.migration.export import _execute_export
+from dsp_tools.commands.migration.export import execute_export
 
 TEST_SLEEP = 0
 
@@ -21,7 +21,7 @@ class TestExecuteExport:
         client.post_export.return_value = export_id
         # since this is immediately completed we do not need to mock the sleep time
         client.get_status.return_value = ExportImportStatus.COMPLETED
-        success, returned_id = _execute_export(client, reference_path)
+        success, returned_id = execute_export(client, reference_path)
         client.post_export.assert_called_once()
         client.get_status.assert_called_once()
         assert success is True

@@ -5,10 +5,6 @@ class CliUserError(UserError):
     """Invalid user input in the CLI"""
 
 
-class CliCommandNotImplementedError(CliUserError):
-    """When the user calls a command that is not yet implemented."""
-
-
 class DockerNotReachableError(UserError):
     """This error is raised when docker is not running."""
 

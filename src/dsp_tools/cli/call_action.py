@@ -15,6 +15,7 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
+from dsp_tools.cli.call_action_with_network import call_migration
 from dsp_tools.cli.call_action_with_network import call_migration_clean_up
 from dsp_tools.cli.call_action_with_network import call_migration_download
 from dsp_tools.cli.call_action_with_network import call_migration_export
@@ -25,7 +26,6 @@ from dsp_tools.cli.call_action_with_network import call_stop_stack
 from dsp_tools.cli.call_action_with_network import call_upload_files
 from dsp_tools.cli.call_action_with_network import call_validate_data
 from dsp_tools.cli.call_action_with_network import call_xmlupload
-from dsp_tools.cli.exceptions import CliCommandNotImplementedError
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PLR0915 (too many branches & too many statements)
@@ -85,10 +85,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
         case "update-legal":
             result = call_update_legal(args)
         case "migration":
-            raise CliCommandNotImplementedError(
-                "The 'migration' command is not completely implemented, it requires a sub-command. "
-                "Enter 'dsp-tools migration --help' for more information."
-            )
+            result = call_migration(args)
         case "migration config":
             result = call_migration_config(args)
         case "migration export":

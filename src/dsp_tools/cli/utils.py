@@ -32,13 +32,14 @@ def get_creds(args: argparse.Namespace) -> ServerCredentials:
 
 def check_input_dependencies(
     required_paths: PathDependencies | None = None,
-    network_dependencies: NetworkRequirements | None = None,
+    network_dependencies: list[NetworkRequirements] | None = None,
     prohibited_paths: ProhibitedPaths | None = None,
 ) -> None:
     if required_paths:
         check_path_dependencies(required_paths)
     if network_dependencies:
-        _check_network_health(network_dependencies)
+        for netwrk in network_dependencies:
+            _check_network_health(netwrk)
     if prohibited_paths:
         _check_that_files_do_not_exist(prohibited_paths)
 

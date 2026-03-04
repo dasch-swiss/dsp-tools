@@ -23,6 +23,7 @@ from dsp_tools.commands.migration.download import download
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.export import export
 from dsp_tools.commands.migration.import_zip import import_zip
+from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
@@ -69,7 +70,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def call_ingest_files(args: argparse.Namespace) -> bool:
-    check_input_dependencies(network_dependencies=NetworkRequirements(api_url=args.server))
+    check_input_dependencies(network_dependencies=[NetworkRequirements(api_url=args.server)])
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
@@ -164,7 +165,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
 
 def call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    check_input_dependencies(network_dependencies=NetworkRequirements(args.server))
+    check_input_dependencies(network_dependencies=[NetworkRequirements(args.server)])
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,
@@ -212,6 +213,34 @@ def call_create(args: argparse.Namespace) -> bool:
     return success
 
 
+def call_migration(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if not all([migration_info.source, migration_info.target]):
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
+            f"for the `migration` command."
+        )
+    source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    migration_info.source.server = source_server
+    target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    migration_info.target.server = target_server
+    check_input_dependencies(
+        network_dependencies=[
+            NetworkRequirements(migration_info.source.server),
+            NetworkRequirements(migration_info.target.server),
+        ],
+        prohibited_paths=ProhibitedPaths(
+            [
+                migration_info.config.export_savepath,
+                migration_info.config.reference_savepath,
+            ]
+        ),
+    )
+    return migration(migration_info)
+
+
 def call_migration_export(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
     check_input_dependencies(required_paths=PathDependencies([config_path]))
@@ -223,7 +252,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
     check_input_dependencies(
-        network_dependencies=NetworkRequirements(migration_info.source.server),
+        network_dependencies=[NetworkRequirements(migration_info.source.server)],
         prohibited_paths=ProhibitedPaths([migration_info.config.reference_savepath]),
     )
     return export(migration_info.source, migration_info.config)
@@ -240,7 +269,7 @@ def call_migration_download(args: argparse.Namespace) -> bool:
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
     check_input_dependencies(
-        network_dependencies=NetworkRequirements(migration_info.source.server),
+        network_dependencies=[NetworkRequirements(migration_info.source.server)],
         required_paths=PathDependencies([migration_info.config.reference_savepath]),
         prohibited_paths=ProhibitedPaths([migration_info.config.export_savepath]),
     )
@@ -258,7 +287,7 @@ def call_migration_import(args: argparse.Namespace) -> bool:
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = server
     check_input_dependencies(
-        network_dependencies=NetworkRequirements(migration_info.target.server),
+        network_dependencies=[NetworkRequirements(migration_info.target.server)],
         required_paths=PathDependencies(
             [migration_info.config.reference_savepath, migration_info.config.export_savepath]
         ),
@@ -270,13 +299,17 @@ def call_migration_clean_up(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
+    networks = []
     if migration_info.source:
         source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
         migration_info.source.server = source_server
-        check_input_dependencies(network_dependencies=NetworkRequirements(source_server))
+        networks.append(NetworkRequirements(migration_info.source.server))
     if migration_info.target:
         target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
         migration_info.target.server = target_server
-        check_input_dependencies(network_dependencies=NetworkRequirements(target_server))
-    check_input_dependencies(required_paths=PathDependencies([migration_info.config.reference_savepath]))
+        networks.append(NetworkRequirements(migration_info.target.server))
+    check_input_dependencies(
+        network_dependencies=networks,
+        required_paths=PathDependencies([migration_info.config.reference_savepath]),
+    )
     return clean_up(migration_info)
